@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nebula", "Nebula\Nebula.csproj", "{28B0716C-3926-4865-AB43-6C4431D022D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaPatcher", "Nebula\NebulaPatcher.csproj", "{28B0716C-3926-4865-AB43-6C4431D022D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaTools", "NebulaTools\NebulaTools.csproj", "{70951CA1-5549-420C-B0F2-74D84632C8C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaClient", "NebulaClient\NebulaClient.csproj", "{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaServer", "NebulaServer\NebulaServer.csproj", "{1363DF73-EA45-426E-9413-EDC77CAA5377}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaModel", "NebulaModel\NebulaModel.csproj", "{C6237195-F77C-40C0-B06A-4AD51CAD314D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaClient", "NebulaClient\NebulaClient.csproj", "{DA2A71BB-1AC6-46D8-9D8F-E7EE5EE043F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNetLib", "LiteNetLib\LiteNetLib\LiteNetLib.csproj", "{B0A014E4-0392-4E35-AA42-8FB5A40417E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,18 +21,18 @@ Global
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{70951CA1-5549-420C-B0F2-74D84632C8C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70951CA1-5549-420C-B0F2-74D84632C8C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70951CA1-5549-420C-B0F2-74D84632C8C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70951CA1-5549-420C-B0F2-74D84632C8C2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1363DF73-EA45-426E-9413-EDC77CAA5377}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1363DF73-EA45-426E-9413-EDC77CAA5377}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1363DF73-EA45-426E-9413-EDC77CAA5377}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1363DF73-EA45-426E-9413-EDC77CAA5377}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA2A71BB-1AC6-46D8-9D8F-E7EE5EE043F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA2A71BB-1AC6-46D8-9D8F-E7EE5EE043F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA2A71BB-1AC6-46D8-9D8F-E7EE5EE043F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA2A71BB-1AC6-46D8-9D8F-E7EE5EE043F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6237195-F77C-40C0-B06A-4AD51CAD314D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6237195-F77C-40C0-B06A-4AD51CAD314D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6237195-F77C-40C0-B06A-4AD51CAD314D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6237195-F77C-40C0-B06A-4AD51CAD314D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

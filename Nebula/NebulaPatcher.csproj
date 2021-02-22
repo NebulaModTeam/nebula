@@ -7,7 +7,7 @@
     <ProjectGuid>{28B0716C-3926-4865-AB43-6C4431D022D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Nebula</RootNamespace>
+    <RootNamespace>NebulaPatcher</RootNamespace>
     <AssemblyName>Nebula</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>..\Libs\0Harmony.dll</HintPath>
@@ -55,17 +58,18 @@
     <Reference Include="UnityEngine">
       <HintPath>..\Libs\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\DSPGAME_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\Libs\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>..\Libs\UnityEngine.UIElementsModule.dll</HintPath>
+    <Reference Include="UnityEngine.UIElementsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\DSPGAME_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
       <HintPath>..\Libs\UnityEngine.UIModule.dll</HintPath>
@@ -73,18 +77,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\MultiplayerMenuUI.cs" />
-    <Compile Include="UI\UIMainMenuPatcher.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\NebulaTools\NebulaTools.csproj">
-      <Project>{70951CA1-5549-420C-B0F2-74D84632C8C2}</Project>
-      <Name>NebulaTools</Name>
+    <ProjectReference Include="..\NebulaClient\NebulaClient.csproj">
+      <Project>{5be9c74b-7832-4ef1-a53d-bf461bbdb0be}</Project>
+      <Name>NebulaClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
+      <Project>{c6237195-f77c-40c0-b06a-4ad51cad314d}</Project>
+      <Name>NebulaModel</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)bin\Release\$(ProjectName).dll" "C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\$(ProjectName).dll"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
