@@ -3,13 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaPatcher", "Nebula\NebulaPatcher.csproj", "{28B0716C-3926-4865-AB43-6C4431D022D6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaClient", "NebulaClient\NebulaClient.csproj", "{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaModel", "NebulaModel\NebulaModel.csproj", "{C6237195-F77C-40C0-B06A-4AD51CAD314D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNetLib", "LiteNetLib\LiteNetLib\LiteNetLib.csproj", "{B0A014E4-0392-4E35-AA42-8FB5A40417E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebulaServer", "NebulaServer\NebulaServer.csproj", "{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "NebulaSetup", "NebulaSetup\NebulaSetup.vdproj", "{473020B8-CE52-4803-A199-32E2809D201E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleClient", "SampleClient\SampleClient.csproj", "{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaPatcher", "NebulaPatcher\NebulaPatcher.csproj", "{28B0716C-3926-4865-AB43-6C4431D022D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +35,20 @@ Global
 		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{473020B8-CE52-4803-A199-32E2809D201E}.Debug|Any CPU.ActiveCfg = Debug
+		{473020B8-CE52-4803-A199-32E2809D201E}.Release|Any CPU.ActiveCfg = Release
+		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

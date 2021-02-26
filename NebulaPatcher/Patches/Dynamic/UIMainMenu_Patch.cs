@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaClient.MonoBehaviours;
 using NebulaModel.Logger;
 using UnityEngine;
 using UnityEngine.Events;
@@ -65,6 +66,8 @@ namespace NebulaPatcher.Patches.Dynamic
             RectTransform galaxySelectTemplate = galaxySelectGo.GetComponent<RectTransform>();
 
             multiplayerMenu = GameObject.Instantiate<RectTransform>(galaxySelectTemplate, galaxySelectTemplate.parent);
+            GameObject.Destroy(multiplayerMenu.gameObject.GetComponent<UIGalaxySelect>());
+
             multiplayerMenu.gameObject.name = "Nebula - Multiplayer Menu";
             multiplayerMenu.Find("random-button").gameObject.SetActive(false);
             multiplayerMenu.Find("star-count").gameObject.SetActive(false);
@@ -81,6 +84,7 @@ namespace NebulaPatcher.Patches.Dynamic
             hostIPAdressInput = hostIpField.GetComponentInChildren<InputField>();
             hostIPAdressInput.onEndEdit.RemoveAllListeners();
             hostIPAdressInput.onValueChanged.RemoveAllListeners();
+            hostIPAdressInput.characterLimit = 30;
             hostIPAdressInput.text = "127.0.0.1";
 
             var connectButton = multiplayerMenu.Find("start-button").GetComponent<Button>();
@@ -100,10 +104,33 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             UIRoot.instance.CloseMainMenuUI();
             multiplayerMenu.gameObject.SetActive(true);
+            hostIPAdressInput.characterLimit = 30;
         }
 
         private static void OnJoinGameButtonClick()
         {
+            string[] parts = hostIPAdressInput.text.Split(':');
+            string ip = parts[0];
+            int port;
+
+            if (parts.Length == 1)
+            {
+                // Use default port
+                port = 8469;
+            }
+            else if (!int.TryParse(parts[1], out port))
+            {
+                Log.Info($"Port must be a valid number above 1024");
+                return;
+            }
+
+            Log.Info($"Connecting to server... {ip}:{port}");
+
+            GameObject.FindObjectOfType<MultiplayerSession>().Connect(ip, port);
+
+            // TODO: Should display a loader during the connection and only open the game once the player as connected to the server.
+            // TODO: We should also wait to receive the actual game seed to make sure that we can load the same map and wait for the InitialGameState packet to update the game world properly. 
+            
             multiplayerMenu.gameObject.SetActive(false);
             DSPGame.StartGameSkipPrologue(GameDesc.developTest);
         }

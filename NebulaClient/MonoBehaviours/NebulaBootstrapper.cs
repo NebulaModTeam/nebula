@@ -11,13 +11,12 @@ namespace NebulaClient.MonoBehaviours
         {
             DontDestroyOnLoad(gameObject);
             Instance = this;
-            // gameObject.AddComponent<SceneCleanerPreserve>();
 
 #if DEBUG
             EnableDeveloperFeatures();
 #endif
 
-            CreateDebugger();
+            CreateMultiplayer();
         }
 
         private void EnableDeveloperFeatures()
@@ -28,12 +27,12 @@ namespace NebulaClient.MonoBehaviours
             Log.Info($"Unity run in background set to \"{Application.runInBackground}\"");
         }
 
-        private void CreateDebugger()
+        private void CreateMultiplayer()
         {
-            GameObject debugger = new GameObject();
-            debugger.name = "Nebula - Debug manager";
-            // debugger.AddComponent<NebulaDebugManager>();
-            debugger.transform.SetParent(transform);
+            GameObject go = new GameObject();
+            go.transform.SetParent(transform);
+            go.name = "Nebula - Multiplayer";
+            go.AddComponent<MultiplayerSession>();
         }
     }
 }

@@ -3,11 +3,11 @@ using System.Diagnostics;
 
 namespace NebulaModel.Logger
 {
-    public static  class Log
+    public static class Log
     {
-        private static BepInEx.Logging.ManualLogSource logger;
+        private static ILogger logger;
 
-        public static void Setup(BepInEx.Logging.ManualLogSource logger)
+        public static void Setup(ILogger logger)
         {
             Log.logger = logger;
         }

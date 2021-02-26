@@ -2,10 +2,7 @@
 using HarmonyLib;
 using NebulaClient.MonoBehaviours;
 using NebulaModel.Logger;
-using NebulaPatcher.Patches;
-using NebulaPatcher.Patches.Dynamic;
 using System;
-using System.Linq;
 using UnityEngine;
 
 namespace NebulaPatcher
@@ -18,7 +15,7 @@ namespace NebulaPatcher
 
         void Awake()
         {
-            Log.Setup(Logger);
+            Log.Setup(new BepInExLogger(Logger));
 
             try
             {
@@ -43,17 +40,12 @@ namespace NebulaPatcher
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach(var assembly in assemblies)
             {
-                if (assembly.FullName.StartsWith("Nebula,"))
+                if (assembly.FullName.StartsWith("NebulaPatcher"))
                 {
                     Log.Info($"Applying patches from assembly: {assembly.FullName}");
                     harmony.PatchAll(assembly);
                 }
             }
-
-            /*
-            Multiplayer.OnBeforeMultiplayerStart += Apply;
-            Multiplayer.OnAfterMultiplayerEnd += Restore;
-            */
 
             Log.Info("Completed patching");
         }

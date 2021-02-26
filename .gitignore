@@ -4,7 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Nebula-specific files
-Libs/
+Libs/*
+!Libs/DowngradeDll.exe
+
 
 # User-specific files
 *.rsuser

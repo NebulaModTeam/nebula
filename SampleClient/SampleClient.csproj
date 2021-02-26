@@ -4,18 +4,18 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C6237195-F77C-40C0-B06A-4AD51CAD314D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NebulaModel</RootNamespace>
-    <AssemblyName>NebulaModel</AssemblyName>
+    <ProjectGuid>{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SampleClient</RootNamespace>
+    <AssemblyName>SampleClient</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,6 +26,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,39 +35,29 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataStructures\Float3.cs" />
-    <Compile Include="DataStructures\NebulaId.cs" />
-    <Compile Include="Logger\ILogger.cs" />
-    <Compile Include="Logger\Log.cs" />
-    <Compile Include="Networking\NebulaConnection.cs" />
-    <Compile Include="Packets\EntityTransformUpdate.cs" />
-    <Compile Include="Packets\Movement.cs" />
-    <Compile Include="Packets\PlayerJoinedSession.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LiteNetLib\LiteNetLib\LiteNetLib.csproj">
       <Project>{b0a014e4-0392-4e35-aa42-8fb5a40417e0}</Project>
       <Name>LiteNetLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NebulaClient\NebulaClient.csproj">
+      <Project>{5be9c74b-7832-4ef1-a53d-bf461bbdb0be}</Project>
+      <Name>NebulaClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
+      <Project>{C6237195-F77C-40C0-B06A-4AD51CAD314D}</Project>
+      <Name>NebulaModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
 </Project>
