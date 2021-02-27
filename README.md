@@ -28,4 +28,4 @@ Please do keep in mind that this mod is still in heavy development. I do not enc
 
 ## How can I contribute
 
-Simply submit a pull request. Full documentation will be added in the near future in the wiki tab.
+Simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment).
