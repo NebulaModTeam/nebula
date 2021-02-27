@@ -7,6 +7,8 @@ namespace NebulaModel.DataStructures
     {
         public Float3 Position { get; set; }
         public Float3 Rotation { get; set; }
+
+        // TODO: We might be able to optimize by removing the "scale", I don't thinks it is really used in game.
         public Float3 Scale { get; set; }
 
         public NebulaTransform(Transform transform)

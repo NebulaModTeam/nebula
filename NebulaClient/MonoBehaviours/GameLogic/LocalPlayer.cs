@@ -1,7 +1,5 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets;
-using System;
-using System.Collections;
 using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours.GameLogic
@@ -21,8 +19,11 @@ namespace NebulaClient.MonoBehaviours.GameLogic
 
         void Update()
         {
+            // TODO: We should only send update 20 times per seconds and smooth the position / animation on the clients.
             if (MultiplayerSession.instance?.Client.IsSessionJoined ?? false)
             {
+                // TODO: Investigate if we can reuse the Movement and PlayerAnimationUpdate packets to avoid GC here.
+
                 // Send Transform Update
                 MultiplayerSession.instance.Client.SendPacket(new Movement(playerTransform, playerModelTransform), LiteNetLib.DeliveryMethod.Unreliable);
 
@@ -40,19 +41,6 @@ namespace NebulaClient.MonoBehaviours.GameLogic
                     Sail = anim.sail.ToNebula(),
                     Mining0 = anim.mining0.ToNebula(),
                 }, LiteNetLib.DeliveryMethod.Unreliable);
-            }
-        }
-
-        IEnumerator SessionTick(float dt, Action callback)
-        {
-            while (true)
-            {
-                if (MultiplayerSession.instance?.Client.IsSessionJoined ?? false)
-                {
-                    callback();
-                }
-
-                yield return new WaitForSeconds(dt);
             }
         }
     }

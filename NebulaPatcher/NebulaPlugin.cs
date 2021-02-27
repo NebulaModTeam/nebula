@@ -2,6 +2,7 @@
 using HarmonyLib;
 using NebulaClient.MonoBehaviours;
 using NebulaModel.Logger;
+using NebulaPatcher.Logger;
 using System;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace NebulaPatcher
 
         void Awake()
         {
-            Log.Setup(new BepInExLogger(Logger));
+            Log.Init(new BepInExLogger(Logger));
 
             try
             {
@@ -23,34 +24,41 @@ namespace NebulaPatcher
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Unhandled exception occurred while initializing Nebula:");
+                Log.Error("Unhandled exception occurred while initializing Nebula:", ex);
             }
         }
 
         void Initialize()
         {
             InitPatches();
-            ApplyNebulaBehaviours();
+            AddNebulaBootstrapper();
         }
 
         private void InitPatches()
         {
             Log.Info("Patching Dyson Sphere Program...");
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach(var assembly in assemblies)
+            try
             {
-                if (assembly.FullName.StartsWith("NebulaPatcher"))
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                foreach(var assembly in assemblies)
                 {
-                    Log.Info($"Applying patches from assembly: {assembly.FullName}");
-                    harmony.PatchAll(assembly);
+                    if (assembly.FullName.StartsWith("NebulaPatcher"))
+                    {
+                        Log.Info($"Applying patches from assembly: {assembly.FullName}");
+                        harmony.PatchAll(assembly);
+                    }
                 }
-            }
 
-            Log.Info("Completed patching");
+                Log.Info("Patching completed successfully");
+            }
+            catch(Exception ex)
+            {
+                Log.Error("Unhandled exception occurred while patching the game:", ex);
+            }
         }
 
-        void ApplyNebulaBehaviours()
+        void AddNebulaBootstrapper()
         {
             Log.Info("Applying Nebula behaviours..");
 

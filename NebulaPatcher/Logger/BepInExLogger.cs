@@ -1,7 +1,7 @@
 ﻿using BepInEx.Logging;
 using NebulaModel.Logger;
 
-namespace NebulaPatcher
+namespace NebulaPatcher.Logger
 {
     public class BepInExLogger : ILogger
     {

@@ -7,7 +7,7 @@ namespace NebulaModel.Logger
     {
         private static ILogger logger;
 
-        public static void Setup(ILogger logger)
+        public static void Init(ILogger logger)
         {
             Log.logger = logger;
         }
@@ -54,7 +54,7 @@ namespace NebulaModel.Logger
             Error(ex?.ToString());
         }
 
-        public static void Error(Exception ex, string message)
+        public static void Error(string message, Exception ex)
         {
             Error(message);
             Error(ex);

@@ -11,10 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNetLib", "LiteNetLib\Li
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebulaServer", "NebulaServer\NebulaServer.csproj", "{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "NebulaSetup", "NebulaSetup\NebulaSetup.vdproj", "{473020B8-CE52-4803-A199-32E2809D201E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleClient", "SampleClient\SampleClient.csproj", "{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaPatcher", "NebulaPatcher\NebulaPatcher.csproj", "{28B0716C-3926-4865-AB43-6C4431D022D6}"
 EndProject
 Global
@@ -39,12 +35,6 @@ Global
 		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{473020B8-CE52-4803-A199-32E2809D201E}.Debug|Any CPU.ActiveCfg = Debug
-		{473020B8-CE52-4803-A199-32E2809D201E}.Release|Any CPU.ActiveCfg = Release
-		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37002DE7-E6D3-4856-B4B9-97C5BFE23AA0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
