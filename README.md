@@ -8,8 +8,8 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Here is a short list of was is done and what still needs to be done.
 
-- [ ] Make the project open-source
-- [ ] Make contribution guidlines / documentation
+- [X] Make the project open-source
+- [X] Make contribution documentation
 - [x] Client / Server Communication
 - [x] In Game Multiplayer menu
 - [x] Player movement
