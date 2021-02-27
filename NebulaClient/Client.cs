@@ -33,6 +33,9 @@ namespace NebulaClient
             PacketProcessor = new NetPacketProcessor();
             PacketProcessor.RegisterNestedType<NebulaId>();
             PacketProcessor.RegisterNestedType<Float3>();
+            PacketProcessor.RegisterNestedType<Float4>();
+            PacketProcessor.RegisterNestedType<NebulaTransform>();
+            PacketProcessor.RegisterNestedType<NebulaAnimationState>();
             PacketProcessor.SubscribeReusable<PlayerJoinedSession>(OnSessionJoined);
         }
 

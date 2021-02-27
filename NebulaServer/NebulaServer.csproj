@@ -14,4 +14,8 @@
     <PackageReference Include="Mono.Nat" Version="3.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Packets\Processors\" />
+  </ItemGroup>
+
 </Project>

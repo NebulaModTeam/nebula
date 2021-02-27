@@ -24,6 +24,11 @@ namespace SampleClient
             Client client = new Client();
             client.Connect(ip, port);
 
+            client.SendPacket(new PlayerSpawned() {
+                Position = new Float3(163, -36, -109),
+                Rotation = new Float3(0, 33.80f, 259.6f),
+            });
+
             while (!Console.KeyAvailable)
             {
                 client.Update();

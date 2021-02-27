@@ -43,20 +43,30 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataStructures\DataStructureExtensions.cs" />
     <Compile Include="DataStructures\Float3.cs" />
+    <Compile Include="DataStructures\NebulaAnimationState.cs" />
     <Compile Include="DataStructures\NebulaId.cs" />
+    <Compile Include="DataStructures\NebulaTransform.cs" />
+    <Compile Include="DataStructures\Float4.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
+    <Compile Include="Packets\PlayerAnimationUpdate.cs" />
     <Compile Include="Packets\EntityTransformUpdate.cs" />
     <Compile Include="Packets\Movement.cs" />
     <Compile Include="Packets\PlayerJoinedSession.cs" />
+    <Compile Include="Packets\PlayerSpawned.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

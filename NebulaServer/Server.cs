@@ -13,9 +13,10 @@ namespace NebulaServer
     public class Server : INetEventListener
     {
         private readonly NetManager server;
-        private readonly NetPacketProcessor packetProcessor;
 
         Dictionary<ushort, NebulaConnection> clients;
+
+        public NetPacketProcessor PacketProcessor { get; }
 
         public Server()
         {
@@ -24,11 +25,15 @@ namespace NebulaServer
                 AutoRecycle = true,
             };
             clients = new Dictionary<ushort, NebulaConnection>();
-            packetProcessor = new NetPacketProcessor();
-            packetProcessor.RegisterNestedType<NebulaId>();
-            packetProcessor.RegisterNestedType<Float3>();
-            packetProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
-            packetProcessor.SubscribeReusable<PlayerSpawned, NebulaConnection> (OnPlayerSpawned);
+            PacketProcessor = new NetPacketProcessor();
+            PacketProcessor.RegisterNestedType<NebulaId>();
+            PacketProcessor.RegisterNestedType<Float3>();
+            PacketProcessor.RegisterNestedType<Float4>();
+            PacketProcessor.RegisterNestedType<NebulaTransform>();
+            PacketProcessor.RegisterNestedType<NebulaAnimationState>();
+            PacketProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
+            PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection> (OnPlayerAnimationUpdate);
+            PacketProcessor.SubscribeReusable<PlayerSpawned, NebulaConnection> (OnPlayerSpawned);
         }
 
         public void Start(int port)
@@ -48,7 +53,7 @@ namespace NebulaServer
 
         public void SendPacketToAll<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
         {
-            server.SendToAll(packetProcessor.Write(packet), deliveryMethod);
+            server.SendToAll(PacketProcessor.Write(packet), deliveryMethod);
         }
 
         public void SendPacketToOthers<T>(ushort excludedClientId, T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
@@ -69,30 +74,27 @@ namespace NebulaServer
 
         public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
         {
-
         }
 
         public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
         {
-
         }
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
         {
-            packetProcessor.ReadAllPackets(reader, new NebulaConnection(peer, packetProcessor));
+            PacketProcessor.ReadAllPackets(reader, new NebulaConnection(peer, PacketProcessor));
         }
 
         public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
         {
-
         }
 
         public void OnPeerConnected(NetPeer peer)
         {
             Console.WriteLine($"Client connected: {peer.EndPoint}");
-            NebulaConnection clientConn = new NebulaConnection(peer, packetProcessor);
-            clients.Add((ushort)peer.Id, clientConn);
+            NebulaConnection clientConn = new NebulaConnection(peer, PacketProcessor);
             clientConn.SendPacket(new PlayerJoinedSession((ushort)peer.Id));
+            clients.Add((ushort)peer.Id, clientConn);
         }
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
@@ -102,6 +104,12 @@ namespace NebulaServer
         }
 
         private void OnPlayerMovement(Movement packet, NebulaConnection conn)
+        {
+            packet.PlayerId = conn.Id;
+            SendPacketToOthers(conn.Id, packet, DeliveryMethod.Unreliable);
+        }
+
+        private void OnPlayerAnimationUpdate(PlayerAnimationUpdate packet, NebulaConnection conn)
         {
             packet.PlayerId = conn.Id;
             SendPacketToOthers(conn.Id, packet, DeliveryMethod.Unreliable);

@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaClient.MonoBehaviours;
+using NebulaClient.MonoBehaviours.GameLogic;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -8,13 +8,11 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static void Postfix()
         {
-            PlayerNetworked player = GameMain.mainPlayer.gameObject.GetComponent<PlayerNetworked>();
+            LocalPlayer player = GameMain.mainPlayer.gameObject.GetComponent<LocalPlayer>();
             if (!player)
             {
-                player = GameMain.mainPlayer.gameObject.AddComponent<PlayerNetworked>();
+                GameMain.mainPlayer.gameObject.AddComponent<LocalPlayer>();
             }
-
-            player.Init();
         }
     }
 }

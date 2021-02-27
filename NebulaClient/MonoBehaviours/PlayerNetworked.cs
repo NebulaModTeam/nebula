@@ -5,14 +5,26 @@ namespace NebulaClient.MonoBehaviours
 {
     public class PlayerNetworked : MonoBehaviour
     {
+        Vector3 lastPosition;
+        Transform playerTransform;
+        Transform playerModelTransform;
+
         public void Init()
         {
-            MultiplayerSession.instance.Client.SendPacket(new PlayerSpawned(GameMain.mainPlayer.transform), LiteNetLib.DeliveryMethod.ReliableOrdered);
+            playerTransform = GetComponent<Transform>();
+            playerModelTransform = playerTransform.Find("Model");
         }
 
         public void Update()
         {
-            MultiplayerSession.instance.Client.SendPacket(new Movement(GameMain.mainPlayer.transform), LiteNetLib.DeliveryMethod.Unreliable);
+            if (MultiplayerSession.instance?.Client.IsSessionJoined ?? false)
+            {
+                if (lastPosition != playerTransform.position)
+                {
+                    MultiplayerSession.instance.Client.SendPacket(new Movement(playerTransform, playerModelTransform), LiteNetLib.DeliveryMethod.Unreliable);
+                    lastPosition = playerTransform.position;
+                }
+            }
         }
     }
 }
