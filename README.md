@@ -1,6 +1,6 @@
 # Nebula
 
-An open-source, multiplayer mod for the game [Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/). I also, want to say thank you to the contributers of the [Subnautica Nitrox](https://github.com/SubnauticaNitrox/Nitrox) mod as it as been a great source of inspiration for this mod.
+An open-source, multiplayer mod for the game [Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/). I also, want to say thank you to the contributers of the [Subnautica Nitrox](https://nitrox.rux.gg/download) mod as it as been a great source of inspiration for this mod.
 
 # FAQ
 
