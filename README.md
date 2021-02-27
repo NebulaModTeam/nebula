@@ -19,7 +19,8 @@ The mod is in very early stages of development and still in a proof of concept s
 - [ ] Game clock synching (planets orbit needs to be in sync)
 - [ ] Buildings synching
 - [ ] Inventory synching (containers)
-- [ ] Being able to start hosting a game from the within the game
+- [ ] Belts synching
+- [ ] Being able to start hosting a game from within the game
 - and some much more...
 
 ## How can I play this mod?
