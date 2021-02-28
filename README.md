@@ -29,4 +29,4 @@ Please do keep in mind that this mod is still in heavy development. I do not enc
 
 ## How can I contribute
 
-Simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment). Until I create a discord channel dedicated to this mod, you can find me on the [DSP Modding](https://discord.gg/ad8xCFVH) channel under the name `hubastard`
+Please look at the [Backlog](https://github.com/hubastard/nebula/projects/1) to see if someone is already working on the task that you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment). Until I create a discord channel dedicated to this mod, you can find me on the [DSP Modding](https://discord.gg/ad8xCFVH) channel under the name `hubastard`
