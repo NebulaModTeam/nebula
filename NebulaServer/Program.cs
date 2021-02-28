@@ -10,7 +10,7 @@ namespace NebulaServer
 #if DEBUG
             int port = 8469;
 #else
-            Console.WriteLine("Enter Port:");
+            Console.WriteLine("Enter listening port:");
             int port = int.Parse(Console.ReadLine());
 #endif
 

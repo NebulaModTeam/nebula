@@ -16,7 +16,7 @@ namespace NebulaModel.DataStructures
             this.z = z;
         }
 
-        public Float3(Vector3 value) 
+        public Float3(Vector3 value)
         {
             x = value.x;
             y = value.y;

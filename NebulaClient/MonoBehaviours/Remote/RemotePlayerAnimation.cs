@@ -2,9 +2,10 @@
 using NebulaModel.Packets;
 using UnityEngine;
 
-namespace NebulaClient.MonoBehaviours
+namespace NebulaClient.MonoBehaviours.Remote
 {
-    public class RemotePlayerAnimator : MonoBehaviour
+    // TODO: Missing client side interpolation
+    public class RemotePlayerAnimation : MonoBehaviour
     {
         private Animation anim;
 

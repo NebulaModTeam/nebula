@@ -3,8 +3,8 @@ using LiteNetLib.Utils;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaServer.GameLogic;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
@@ -14,7 +14,7 @@ namespace NebulaServer
     {
         private readonly NetManager server;
 
-        Dictionary<ushort, NebulaConnection> clients;
+        PlayerManager playerManager;
 
         public NetPacketProcessor PacketProcessor { get; }
 
@@ -24,7 +24,9 @@ namespace NebulaServer
             {
                 AutoRecycle = true,
             };
-            clients = new Dictionary<ushort, NebulaConnection>();
+
+            playerManager = new PlayerManager();
+
             PacketProcessor = new NetPacketProcessor();
             PacketProcessor.RegisterNestedType<NebulaId>();
             PacketProcessor.RegisterNestedType<Float3>();
@@ -33,7 +35,6 @@ namespace NebulaServer
             PacketProcessor.RegisterNestedType<NebulaAnimationState>();
             PacketProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
             PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection> (OnPlayerAnimationUpdate);
-            PacketProcessor.SubscribeReusable<PlayerSpawned, NebulaConnection> (OnPlayerSpawned);
         }
 
         public void Start(int port)
@@ -49,22 +50,6 @@ namespace NebulaServer
         public void Update()
         {
             server?.PollEvents();
-        }
-
-        public void SendPacketToAll<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
-        {
-            server.SendToAll(PacketProcessor.Write(packet), deliveryMethod);
-        }
-
-        public void SendPacketToOthers<T>(ushort excludedClientId, T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
-        {
-            foreach(var client in clients)
-            {
-                if (client.Key != excludedClientId)
-                {
-                    client.Value.SendPacket(packet, deliveryMethod);
-                }
-            }
         }
 
         public void OnConnectionRequest(ConnectionRequest request)
@@ -93,32 +78,28 @@ namespace NebulaServer
         {
             Console.WriteLine($"Client connected: {peer.EndPoint}");
             NebulaConnection clientConn = new NebulaConnection(peer, PacketProcessor);
-            clientConn.SendPacket(new PlayerJoinedSession((ushort)peer.Id));
-            clients.Add((ushort)peer.Id, clientConn);
+            playerManager.PlayerConnected(clientConn);
         }
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Console.WriteLine($"Client disconnected: {peer.EndPoint}, reason: {disconnectInfo.Reason}");
-            clients.Remove((ushort)peer.Id);
+            playerManager.PlayerDisconnected(new NebulaConnection(peer, PacketProcessor));
         }
 
         private void OnPlayerMovement(Movement packet, NebulaConnection conn)
         {
-            packet.PlayerId = conn.Id;
-            SendPacketToOthers(conn.Id, packet, DeliveryMethod.Unreliable);
+            Player player = playerManager.GetPlayer(conn);
+            packet.PlayerId = player.Id;
+            player.UpdatePosition(packet);
+            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
         }
 
         private void OnPlayerAnimationUpdate(PlayerAnimationUpdate packet, NebulaConnection conn)
         {
-            packet.PlayerId = conn.Id;
-            SendPacketToOthers(conn.Id, packet, DeliveryMethod.Unreliable);
-        }
-
-        private void OnPlayerSpawned(PlayerSpawned packet, NebulaConnection conn)
-        {
-            packet.PlayerId = conn.Id;
-            SendPacketToOthers(conn.Id, packet, DeliveryMethod.ReliableOrdered);
+            Player player = playerManager.GetPlayer(conn);
+            packet.PlayerId = player.Id;
+            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
         }
     }
 }

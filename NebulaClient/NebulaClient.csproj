@@ -73,14 +73,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs" />
-    <Compile Include="MonoBehaviours\GameLogic\LocalPlayer.cs" />
+    <Compile Include="MonoBehaviours\Local\LocalPlayerAnimation.cs" />
+    <Compile Include="MonoBehaviours\Local\LocalPlayerMovement.cs" />
     <Compile Include="MonoBehaviours\MultiplayerSession.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
-    <Compile Include="MonoBehaviours\PlayerNetworked.cs" />
-    <Compile Include="MonoBehaviours\GameLogic\RemotePlayerAnimator.cs" />
+    <Compile Include="MonoBehaviours\Remote\RemotePlayerMovement.cs" />
+    <Compile Include="MonoBehaviours\Remote\RemotePlayerAnimation.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="PlayerManager.cs" />
+    <Compile Include="RemotePlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Extensions\MonoBehaviourUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LiteNetLib\LiteNetLib\LiteNetLib.csproj">
@@ -92,9 +94,7 @@
       <Name>NebulaModel</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="GameLogic\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetPath)" "%25PROGRAMFILES(x86)%25\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>

@@ -36,7 +36,7 @@ namespace NebulaClient
             PacketProcessor.RegisterNestedType<Float4>();
             PacketProcessor.RegisterNestedType<NebulaTransform>();
             PacketProcessor.RegisterNestedType<NebulaAnimationState>();
-            PacketProcessor.SubscribeReusable<PlayerJoinedSession>(OnSessionJoined);
+            PacketProcessor.SubscribeReusable<JoinSessionConfirmed>(OnJoinSessionConfirmed);
         }
 
         public void Connect(string ip, int port)
@@ -85,11 +85,11 @@ namespace NebulaClient
             IsSessionJoined = false;
         }
 
-        private void OnSessionJoined(PlayerJoinedSession packet)
+        private void OnJoinSessionConfirmed(JoinSessionConfirmed packet)
         {
-            LocalPlayerId = packet.Id;
+            LocalPlayerId = packet.LocalPlayerId;
             IsSessionJoined = true;
-            Console.WriteLine($"Received my LocalPlayerId: {LocalPlayerId}");
+            Console.WriteLine($"Client PlayerId is: {LocalPlayerId}");
         }
     }
 }

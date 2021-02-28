@@ -65,8 +65,9 @@
     <Compile Include="Packets\PlayerAnimationUpdate.cs" />
     <Compile Include="Packets\EntityTransformUpdate.cs" />
     <Compile Include="Packets\Movement.cs" />
-    <Compile Include="Packets\PlayerJoinedSession.cs" />
-    <Compile Include="Packets\PlayerSpawned.cs" />
+    <Compile Include="Packets\PlayerDisconnected.cs" />
+    <Compile Include="Packets\RemotePlayerJoined.cs" />
+    <Compile Include="Packets\JoinSessionConfirmed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
