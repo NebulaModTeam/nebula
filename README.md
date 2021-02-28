@@ -21,7 +21,7 @@ The mod is in very early stages of development and still in a proof of concept s
 - [ ] Inventory synching (containers)
 - [ ] Belts synching
 - [ ] Being able to start hosting a game from within the game
-- and some much more...
+- and so much more...
 
 ## How can I play this mod?
 
