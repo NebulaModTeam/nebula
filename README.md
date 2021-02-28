@@ -6,7 +6,7 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 ## What is the current status ?
 
-The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Here is a short list of was is done and what still needs to be done.
+The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Here is a short list of what is done and what still needs to be done.
 
 - [X] Make the project open-source
 - [X] Make contribution documentation
@@ -21,7 +21,7 @@ The mod is in very early stages of development and still in a proof of concept s
 - [ ] Inventory synching (containers)
 - [ ] Belts synching
 - [ ] Being able to start hosting a game from within the game
-- and some much more...
+- and so much more...
 
 ## How can I play this mod?
 
