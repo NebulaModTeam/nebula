@@ -50,6 +50,9 @@ namespace NebulaClient.MonoBehaviours.Remote
 
         public void UpdatePosition(Movement packet)
         {
+            if (!rootTransform)
+                return;
+
             // Set our last position / rotation to the current position / rotation
             lastRootPosition = rootTransform.position;
             lastRootRotation = rootTransform.rotation;
