@@ -22,7 +22,7 @@ namespace NebulaClient.MonoBehaviours.Remote
         private Transform rootTransform;
         private Transform bodyTransform;
 
-        void Start()
+        void Awake()
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");

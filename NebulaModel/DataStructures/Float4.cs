@@ -1,8 +1,10 @@
 ﻿using LiteNetLib.Utils;
+using NebulaModel.Attributes;
 using UnityEngine;
 
 namespace NebulaModel.DataStructures
 {
+    [RegisterNestedType]
     public struct Float4 : INetSerializable
     {
         public float x;

@@ -1,9 +1,9 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using NebulaClient.MonoBehaviours;
-using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaModel.Utils;
 using System;
 
 namespace NebulaClient
@@ -32,11 +32,8 @@ namespace NebulaClient
             };
 
             PacketProcessor = new NetPacketProcessor();
-            PacketProcessor.RegisterNestedType<NebulaId>();
-            PacketProcessor.RegisterNestedType<Float3>();
-            PacketProcessor.RegisterNestedType<Float4>();
-            PacketProcessor.RegisterNestedType<NebulaTransform>();
-            PacketProcessor.RegisterNestedType<NebulaAnimationState>();
+            LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+
             PacketProcessor.SubscribeReusable<JoinSessionConfirmed>(OnJoinSessionConfirmed);
         }
 

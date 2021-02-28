@@ -1,7 +1,9 @@
 ﻿using LiteNetLib.Utils;
+using NebulaModel.Attributes;
 
 namespace NebulaModel.DataStructures
 {
+    [RegisterNestedType]
     public struct NebulaAnimationState : INetSerializable
     {
         public float Weight { get; set; }

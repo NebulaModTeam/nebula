@@ -1,8 +1,8 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaModel.Utils;
 using NebulaServer.GameLogic;
 using System;
 using System.Net;
@@ -26,13 +26,9 @@ namespace NebulaServer
             };
 
             playerManager = new PlayerManager();
-
             PacketProcessor = new NetPacketProcessor();
-            PacketProcessor.RegisterNestedType<NebulaId>();
-            PacketProcessor.RegisterNestedType<Float3>();
-            PacketProcessor.RegisterNestedType<Float4>();
-            PacketProcessor.RegisterNestedType<NebulaTransform>();
-            PacketProcessor.RegisterNestedType<NebulaAnimationState>();
+            LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+
             PacketProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
             PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection> (OnPlayerAnimationUpdate);
         }

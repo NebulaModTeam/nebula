@@ -53,22 +53,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\RegisterPacketNestedTypeAttribute.cs" />
     <Compile Include="DataStructures\DataStructureExtensions.cs" />
     <Compile Include="DataStructures\Float3.cs" />
     <Compile Include="DataStructures\NebulaAnimationState.cs" />
-    <Compile Include="DataStructures\NebulaId.cs" />
-    <Compile Include="DataStructures\NebulaTransform.cs" />
     <Compile Include="DataStructures\Float4.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\PlayerAnimationUpdate.cs" />
-    <Compile Include="Packets\EntityTransformUpdate.cs" />
     <Compile Include="Packets\Movement.cs" />
     <Compile Include="Packets\PlayerDisconnected.cs" />
     <Compile Include="Packets\RemotePlayerJoined.cs" />
     <Compile Include="Packets\JoinSessionConfirmed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\AssembliesUtils.cs" />
+    <Compile Include="Utils\LiteNetLibUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LiteNetLib\LiteNetLib\LiteNetLib.csproj">

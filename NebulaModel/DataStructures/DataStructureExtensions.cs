@@ -24,16 +24,6 @@ namespace NebulaModel.DataStructures
             return new Float4(value.x, value.y, value.z, value.w);
         }
 
-        public static NebulaTransform ToNebula(this Transform transform)
-        {
-            return new NebulaTransform()
-            {
-                Position = transform.position.ToNebula(),
-                Rotation = transform.eulerAngles.ToNebula(),
-                Scale = transform.localScale.ToNebula(),
-            };
-        }
-
         public static NebulaAnimationState ToNebula(this AnimationState state)
         {
             return new NebulaAnimationState()
