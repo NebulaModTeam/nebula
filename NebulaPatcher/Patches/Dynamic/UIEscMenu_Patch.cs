@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIEscMenu), "OnButton6Click")]
     class UIEscMenu_Patch
     {
-        public static void Prefix()
+        public static void Postfix()
         {
             GameObject.FindObjectOfType<MultiplayerSession>()?.Disconnect();
         }

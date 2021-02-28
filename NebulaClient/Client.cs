@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using NebulaClient.MonoBehaviours;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -83,6 +84,19 @@ namespace NebulaClient
             serverConnection = null;
             IsConnected = false;
             IsSessionJoined = false;
+
+            UIMessageBox.Show(
+                "Connection Lost",
+                $"You have been disconnect of the server.\nReason{disconnectInfo.Reason}",
+                "Quit",
+                "Reconnect",
+                0,
+                new UIMessageBox.Response(() => {
+                    MultiplayerSession.instance.LeaveGame();
+                }),
+                new UIMessageBox.Response(() => {
+                    MultiplayerSession.instance.TryToReconnect();
+                }));
         }
 
         private void OnJoinSessionConfirmed(JoinSessionConfirmed packet)

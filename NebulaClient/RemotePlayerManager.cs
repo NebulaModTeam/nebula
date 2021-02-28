@@ -1,5 +1,6 @@
 ﻿using NebulaClient.MonoBehaviours.Remote;
 using NebulaModel.Logger;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,6 +58,15 @@ namespace NebulaClient
                 remotePlayers[playerId].Destroy();
                 remotePlayers.Remove(playerId);
             }
+        }
+
+        public void RemoveAll()
+        {
+            foreach(var playerId in remotePlayers.Keys)
+            {
+                remotePlayers[playerId].Destroy();
+            }
+            remotePlayers.Clear();
         }
 
         public Player GetPlayerById(ushort playerId)

@@ -17,6 +17,8 @@ namespace NebulaServer
             Server server = new Server();
             server.Start(port);
 
+            Console.WriteLine($"Server listening on port: {port}");
+
             while (!Console.KeyAvailable)
             {
                 server.Update();

@@ -1,5 +1,5 @@
-﻿using NebulaModel.Networking;
-using NebulaModel.Packets;
+﻿using NebulaModel.Packets;
+using System;
 using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours
@@ -11,6 +11,8 @@ namespace NebulaClient.MonoBehaviours
         public Client Client { get; private set; }
         public RemotePlayerManager RemotePlayerManager { get; private set; }
 
+        private string serverIp;
+        private int serverPort;
 
         void Awake()
         {
@@ -25,9 +27,19 @@ namespace NebulaClient.MonoBehaviours
 
         public void Connect(string ip, int port)
         {
+            serverIp = ip;
+            serverPort = port;
             Client.Connect(ip, port);
 
             RemotePlayerManager = new RemotePlayerManager();
+        }
+
+        public void TryToReconnect()
+        {
+            Disconnect();
+            Connect(serverIp, serverPort);
+            // TODO: Should freeze game and add a spinner or something during the reconnection.
+            // Else the player can still move around during the reconnection procedure which is weird
         }
 
         public void Disconnect()
@@ -38,16 +50,30 @@ namespace NebulaClient.MonoBehaviours
             }
 
             CleanupSession();
+
+        }
+
+        public void LeaveGame()
+        {
+            Disconnect();
+
+            // Go back to the main menu
+            if (!UIRoot.instance.backToMainMenu)
+            {
+                UIRoot.instance.backToMainMenu = true;
+                DSPGame.EndGame();
+            }
         }
 
         void OnDestroy()
         {
+            // This make sure to disconnect if you force close the game.
             Disconnect();
         }
 
         void CleanupSession()
         {
-            // TODO: remove remote player models from the scene
+            RemotePlayerManager.RemoveAll();
         }
 
         void Update()
