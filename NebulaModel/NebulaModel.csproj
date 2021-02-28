@@ -53,7 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\RegisterPacketNestedTypeAttribute.cs" />
+    <Compile Include="Attributes\RegisterNestedTypeAttribute.cs" />
     <Compile Include="DataStructures\DataStructureExtensions.cs" />
     <Compile Include="DataStructures\Float3.cs" />
     <Compile Include="DataStructures\NebulaAnimationState.cs" />
