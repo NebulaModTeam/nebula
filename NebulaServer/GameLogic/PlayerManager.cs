@@ -64,6 +64,12 @@ namespace NebulaServer.GameLogic
                 newPlayer.SendPacket(new RemotePlayerJoined(player.Id));
             }
 
+            // If you are the first player to connect, we make you automatically the master client
+            if (connectedPlayers.Count == 0)
+            {
+                newPlayer.IsMasterClient = true;
+            }
+
             // Add the new player to the list
             connectedPlayers.Add(conn, newPlayer);
 
