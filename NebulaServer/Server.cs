@@ -1,7 +1,8 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using NebulaModel.Networking;
-using NebulaModel.Packets;
+using NebulaModel.Packets.Planet;
+using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
 using NebulaServer.GameLogic;
 using System;
@@ -54,22 +55,16 @@ namespace NebulaServer
             request.AcceptIfKey("nebula");
         }
 
-        public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
-        {
-        }
+        public void OnNetworkError(IPEndPoint endPoint, SocketError socketError) { }
 
-        public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
-        {
-        }
+        public void OnNetworkLatencyUpdate(NetPeer peer, int latency) { }
 
         public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
         {
             PacketProcessor.ReadAllPackets(reader, new NebulaConnection(peer, PacketProcessor));
         }
 
-        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
-        {
-        }
+        public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType) { }
 
         public void OnPeerConnected(NetPeer peer)
         {
@@ -89,7 +84,7 @@ namespace NebulaServer
             Player player = playerManager.GetPlayer(conn);
             packet.PlayerId = player.Id;
             player.UpdatePosition(packet);
-            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
+            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Sequenced);
         }
 
         private void OnPlayerAnimationUpdate(PlayerAnimationUpdate packet, NebulaConnection conn)

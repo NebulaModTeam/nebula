@@ -2,7 +2,8 @@
 using LiteNetLib.Utils;
 using NebulaClient.MonoBehaviours;
 using NebulaModel.Networking;
-using NebulaModel.Packets;
+using NebulaModel.Packets.Planet;
+using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using System;
 
@@ -15,7 +16,6 @@ namespace NebulaClient
 
 		public bool IsConnected { get; protected set; }
 		public bool IsSessionJoined { get; protected set; }
-		public ushort LocalPlayerId { get; protected set; }
 
 		public NetPacketProcessor PacketProcessor { get; }
 
@@ -34,10 +34,10 @@ namespace NebulaClient
 			PacketProcessor = new NetPacketProcessor();
 			LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
 
-			PacketProcessor.SubscribeReusable<JoinSessionConfirmed>(OnJoinSessionConfirmed);
+			PacketProcessor.SubscribeReusable<JoinSessionConfirmed>((_) => { IsSessionJoined = true; });
 		}
 
-		public void Connect(string ip, int port)
+        public void Connect(string ip, int port)
 		{
 			client.Start();
 			client.Connect(ip, port, "nebula");
@@ -98,12 +98,6 @@ namespace NebulaClient
 				}));
 		}
 
-		private void OnJoinSessionConfirmed(JoinSessionConfirmed packet)
-		{
-			LocalPlayerId = packet.LocalPlayerId;
-			IsSessionJoined = true;
-			Console.WriteLine($"Client PlayerId is: {LocalPlayerId}");
-		}
 
 		//This function is called when the local player mines a vegetation
 		public void OnVegetationMined(int id, int planetID)

@@ -1,6 +1,6 @@
 ﻿using NebulaClient.MonoBehaviours.Local;
 using NebulaModel.DataStructures;
-using NebulaModel.Packets;
+using NebulaModel.Packets.Players;
 using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours.Remote

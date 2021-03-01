@@ -1,6 +1,6 @@
 ﻿using NebulaModel.DataStructures;
 
-namespace NebulaModel.Packets
+namespace NebulaModel.Packets.Players
 {
     public class PlayerAnimationUpdate
     {

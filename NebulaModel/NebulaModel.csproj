@@ -61,8 +61,8 @@
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
-    <Compile Include="Packets\Player\PlayerAnimationUpdate.cs" />
-    <Compile Include="Packets\Player\Movement.cs" />
+    <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
+    <Compile Include="Packets\Players\Movement.cs" />
     <Compile Include="Packets\Session\PlayerDisconnected.cs" />
     <Compile Include="Packets\Session\RemotePlayerJoined.cs" />
     <Compile Include="Packets\Session\JoinSessionConfirmed.cs" />

@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets
+﻿namespace NebulaModel.Packets.Planet
 {
     public class VegeMined
     {

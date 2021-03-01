@@ -1,7 +1,7 @@
 ﻿using LiteNetLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets;
+using NebulaModel.Packets.Players;
 
 namespace NebulaServer
 {
@@ -9,7 +9,6 @@ namespace NebulaServer
     {
         public NebulaConnection connection { get; set; }
         public ushort Id => connection.Id;
-        public bool IsMasterClient { get; set; }
         public Float3 RootPosition { get; set; }
         public Float3 RootRotation { get; set; }
         public Float3 BodyRotation { get; set; }

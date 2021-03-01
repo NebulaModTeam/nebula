@@ -1,7 +1,7 @@
 ﻿using NebulaModel.DataStructures;
 using UnityEngine;
 
-namespace NebulaModel.Packets
+namespace NebulaModel.Packets.Players
 {
     public class Movement
     {

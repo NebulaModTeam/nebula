@@ -1,5 +1,4 @@
-﻿using NebulaModel.DataStructures;
-using NebulaModel.Packets;
+﻿using NebulaModel.Packets.Players;
 using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours.Local
@@ -30,7 +29,7 @@ namespace NebulaClient.MonoBehaviours.Local
                 Vector3 rotation = rootTransform.eulerAngles;
                 Vector3 bodyRotation = bodyTransform.eulerAngles;
 
-                MultiplayerSession.instance.Client?.SendPacket(new Movement(position, rotation, bodyRotation), LiteNetLib.DeliveryMethod.Unreliable);
+                MultiplayerSession.instance.Client?.SendPacket(new Movement(position, rotation, bodyRotation), LiteNetLib.DeliveryMethod.Sequenced);
             }
         }
     }

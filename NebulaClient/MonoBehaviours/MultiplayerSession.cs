@@ -1,4 +1,7 @@
-﻿using NebulaModel.Packets;
+﻿using NebulaClient.GameLogic;
+using NebulaModel.Packets.Planet;
+using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Session;
 using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours
@@ -8,7 +11,7 @@ namespace NebulaClient.MonoBehaviours
         public static MultiplayerSession instance;
 
         public Client Client { get; private set; }
-        public RemotePlayerManager RemotePlayerManager { get; private set; }
+        public PlayerManager PlayerManager { get; private set; }
 
         private string serverIp;
         private int serverPort;
@@ -18,10 +21,11 @@ namespace NebulaClient.MonoBehaviours
             instance = this;
 
             Client = new Client();
-            Client.PacketProcessor.SubscribeReusable<Movement>(OnPlayerMovement);
-            Client.PacketProcessor.SubscribeReusable<PlayerAnimationUpdate>(OnPlayerAnimationUpdate);
+            Client.PacketProcessor.SubscribeReusable<JoinSessionConfirmed>(OnJoinSessionConfirmed);
             Client.PacketProcessor.SubscribeReusable<RemotePlayerJoined>(OnRemotePlayerJoined);
             Client.PacketProcessor.SubscribeReusable<PlayerDisconnected>(OnRemotePlayerDisconnect);
+            Client.PacketProcessor.SubscribeReusable<Movement>(OnPlayerMovement);
+            Client.PacketProcessor.SubscribeReusable<PlayerAnimationUpdate>(OnPlayerAnimationUpdate);
             Client.PacketProcessor.SubscribeReusable<VegeMined>(OnVegeMined);
         }
 
@@ -31,7 +35,7 @@ namespace NebulaClient.MonoBehaviours
             serverPort = port;
             Client.Connect(ip, port);
 
-            RemotePlayerManager = new RemotePlayerManager();
+            PlayerManager = new PlayerManager();
         }
 
         public void TryToReconnect()
@@ -73,7 +77,7 @@ namespace NebulaClient.MonoBehaviours
 
         void CleanupSession()
         {
-            RemotePlayerManager.RemoveAll();
+            PlayerManager.RemoveAll();
         }
 
         void Update()
@@ -81,24 +85,29 @@ namespace NebulaClient.MonoBehaviours
             Client.Update();
         }
 
+        private void OnJoinSessionConfirmed(JoinSessionConfirmed packet)
+        {
+            PlayerManager.SetLocalPlayer(packet.LocalPlayerId);
+        }
+
         private void OnRemotePlayerJoined(RemotePlayerJoined packet)
         {
-            RemotePlayerManager.AddPlayer(packet.PlayerId);
+            PlayerManager.AddRemotePlayer(packet.PlayerId);
         }
 
         private void OnRemotePlayerDisconnect(PlayerDisconnected packet)
         {
-            RemotePlayerManager.RemovePlayer(packet.PlayerId);
+            PlayerManager.RemovePlayer(packet.PlayerId);
         }
 
         private void OnPlayerMovement(Movement packet)
         {
-            RemotePlayerManager.GetPlayerById(packet.PlayerId)?.Movement.UpdatePosition(packet);
+            PlayerManager.GetPlayerModelById(packet.PlayerId)?.Movement.UpdatePosition(packet);
         }
 
         private void OnPlayerAnimationUpdate(PlayerAnimationUpdate packet)
         {
-            RemotePlayerManager.GetPlayerById(packet.PlayerId)?.Animator.UpdateState(packet);
+            PlayerManager.GetPlayerModelById(packet.PlayerId)?.Animator.UpdateState(packet);
         }
 
         private void OnVegeMined(VegeMined packet)
