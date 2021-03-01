@@ -1,6 +1,6 @@
 ﻿using LiteNetLib;
 using NebulaModel.Networking;
-using NebulaModel.Packets;
+using NebulaModel.Packets.Session;
 using System.Collections.Generic;
 
 namespace NebulaServer.GameLogic
@@ -21,8 +21,7 @@ namespace NebulaServer.GameLogic
 
         public Player GetPlayer(NebulaConnection conn)
         {
-            Player player;
-            if (connectedPlayers.TryGetValue(conn, out player))
+            if (connectedPlayers.TryGetValue(conn, out Player player))
             {
                 return player;
             }
@@ -75,8 +74,7 @@ namespace NebulaServer.GameLogic
 
         public void PlayerDisconnected(NebulaConnection conn)
         {
-            Player player;
-            if (connectedPlayers.TryGetValue(conn, out player))
+            if (connectedPlayers.TryGetValue(conn, out Player player))
             {
                 SendPacketToOtherPlayers(new PlayerDisconnected(conn.Id), player);
                 connectedPlayers.Remove(conn);

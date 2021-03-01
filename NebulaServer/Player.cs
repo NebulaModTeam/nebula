@@ -1,7 +1,7 @@
 ﻿using LiteNetLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets;
+using NebulaModel.Packets.Players;
 
 namespace NebulaServer
 {

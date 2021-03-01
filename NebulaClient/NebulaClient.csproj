@@ -73,14 +73,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs" />
+    <Compile Include="GameLogic\LocalPlayerModel.cs" />
     <Compile Include="MonoBehaviours\Local\LocalPlayerAnimation.cs" />
     <Compile Include="MonoBehaviours\Local\LocalPlayerMovement.cs" />
     <Compile Include="MonoBehaviours\MultiplayerSession.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerMovement.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerAnimation.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="RemotePlayerManager.cs" />
+    <Compile Include="GameLogic\Player.cs" />
+    <Compile Include="GameLogic\PlayerManager.cs" />
+    <Compile Include="GameLogic\RemotePlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\MonoBehaviourUtils.cs" />
   </ItemGroup>

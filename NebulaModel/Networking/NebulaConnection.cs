@@ -11,6 +11,7 @@ namespace NebulaModel.Networking
         private readonly NetPacketProcessor packetProcessor;
 
         public ushort Id => (ushort)peer.Id;
+        public int Ping => peer.Ping;
         public IPEndPoint Endpoint => peer.EndPoint;
 
         public NebulaConnection(NetPeer peer, NetPacketProcessor packetProcessor)
@@ -44,7 +45,7 @@ namespace NebulaModel.Networking
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
