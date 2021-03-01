@@ -14,7 +14,7 @@ namespace NebulaServer
     {
         private readonly NetManager server;
 
-        PlayerManager playerManager;
+        private readonly PlayerManager playerManager;
 
         public NetPacketProcessor PacketProcessor { get; }
 
@@ -32,7 +32,6 @@ namespace NebulaServer
             PacketProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
             PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection> (OnPlayerAnimationUpdate);
             PacketProcessor.SubscribeReusable<VegeMined, NebulaConnection>(OnVegeMinedUpdate);
-
         }
 
         public void Start(int port)

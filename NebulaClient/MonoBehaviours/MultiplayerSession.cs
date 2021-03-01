@@ -1,7 +1,5 @@
 ﻿using NebulaModel.Packets;
-using System;
 using UnityEngine;
-using NebulaModel.Logger;
 
 namespace NebulaClient.MonoBehaviours
 {
@@ -102,10 +100,10 @@ namespace NebulaClient.MonoBehaviours
         {
             RemotePlayerManager.GetPlayerById(packet.PlayerId)?.Animator.UpdateState(packet);
         }
-        private void OnVegeMined(VegeMined packet)
-		{
-            GameMain.localPlanet?.factory?.RemoveVegeWithComponents(packet.VegeID);
-		}
 
+        private void OnVegeMined(VegeMined packet)
+	    {
+            GameMain.localPlanet?.factory?.RemoveVegeWithComponents(packet.VegeID);
+	    }
     }
 }

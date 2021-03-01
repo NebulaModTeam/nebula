@@ -4,7 +4,6 @@ using NebulaClient.MonoBehaviours;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Utils;
-using NebulaModel.Logger;
 using System;
 
 namespace NebulaClient
@@ -56,13 +55,6 @@ namespace NebulaClient
 			client?.PollEvents();
 		}
 
-		//This function is called when the local player mines a vegetation
-		public void OnVegetationMined(int id, int planetID)
-		{
-			SendPacket(new VegeMined(id, planetID), DeliveryMethod.ReliableUnordered);
-		}
-
-
 		public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
 		{
 			if (serverConnection != null)
@@ -111,6 +103,12 @@ namespace NebulaClient
 			LocalPlayerId = packet.LocalPlayerId;
 			IsSessionJoined = true;
 			Console.WriteLine($"Client PlayerId is: {LocalPlayerId}");
+		}
+
+		//This function is called when the local player mines a vegetation
+		public void OnVegetationMined(int id, int planetID)
+		{
+			SendPacket(new VegeMined(id, planetID), DeliveryMethod.ReliableUnordered);
 		}
 	}
 }
