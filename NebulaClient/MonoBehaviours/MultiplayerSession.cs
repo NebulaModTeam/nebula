@@ -1,6 +1,7 @@
 ﻿using NebulaModel.Packets;
 using System;
 using UnityEngine;
+using NebulaModel.Logger;
 
 namespace NebulaClient.MonoBehaviours
 {
@@ -23,6 +24,7 @@ namespace NebulaClient.MonoBehaviours
             Client.PacketProcessor.SubscribeReusable<PlayerAnimationUpdate>(OnPlayerAnimationUpdate);
             Client.PacketProcessor.SubscribeReusable<RemotePlayerJoined>(OnRemotePlayerJoined);
             Client.PacketProcessor.SubscribeReusable<PlayerDisconnected>(OnRemotePlayerDisconnect);
+            Client.PacketProcessor.SubscribeReusable<VegeMined>(OnVegeMined);
         }
 
         public void Connect(string ip, int port)
@@ -100,5 +102,10 @@ namespace NebulaClient.MonoBehaviours
         {
             RemotePlayerManager.GetPlayerById(packet.PlayerId)?.Animator.UpdateState(packet);
         }
+        private void OnVegeMined(VegeMined packet)
+		{
+            GameMain.localPlanet?.factory?.RemoveVegeWithComponents(packet.VegeID);
+		}
+
     }
 }

@@ -34,7 +34,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 multiplayerButton.GetComponentInChildren<Text>().text = "Multiplayer";
                 return;
             }
-
             AddMultiplayerButton();
             AddMultiplayerJoinMenu();
         }
