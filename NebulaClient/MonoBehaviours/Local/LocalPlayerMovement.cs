@@ -5,13 +5,14 @@ namespace NebulaClient.MonoBehaviours.Local
 {
     public class LocalPlayerMovement : MonoBehaviour
     {
-        public const float BROADCAST_INTERVAL = 0.05f; // 20 updates per seconds
+        public const int SEND_RATE = 15;
+        private const float BROADCAST_INTERVAL = 1f / SEND_RATE;
 
         private float time;
         private Transform rootTransform;
         private Transform bodyTransform;
 
-        void Start()
+        void Awake()
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
