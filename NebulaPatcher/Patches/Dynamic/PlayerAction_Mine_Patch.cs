@@ -30,7 +30,6 @@ namespace NebulaPatcher.Patches.Dynamic
 				// insert delegate before GetVegeData() to get miningId
 				if (countminingId == 10 && ((MethodInfo)instruction.operand).Name == "GetVegeData")
 				{
-					Debug.Log("FOUND IT");
 					yield return Transpilers.EmitDelegate<Func<int, int>>(miningId =>
 					{
 						if(PlayerAction_Mine_Transpiler.miningId == -1)
@@ -44,7 +43,6 @@ namespace NebulaPatcher.Patches.Dynamic
 				// insert delegate before GetVeinData() to get miningId
 				if(countminingId2 == 8 && ((MethodInfo)instruction.operand).Name == "GetVeinData")
                 {
-					Debug.Log("FOUND IT2");
 					yield return Transpilers.EmitDelegate<Func<int, int>>(miningId =>
 					{
 						if(PlayerAction_Mine_Transpiler.miningId == -1)
@@ -58,7 +56,6 @@ namespace NebulaPatcher.Patches.Dynamic
 				// insert delegate before RemoveVegeWithComponents to send information to other clients
 				if(countRemoveVege == 6 && ((MethodInfo)instruction.operand).Name == "RemoveVegeWithComponents")
                 {
-					Debug.Log("FOUND IT3");
 					yield return Transpilers.EmitDelegate<Func<int, int>>(VegeId =>
 					{
 						if(PlayerAction_Mine_Transpiler.miningId != -1)
@@ -73,7 +70,6 @@ namespace NebulaPatcher.Patches.Dynamic
 				// insert delegate after 'this.miningTick -= veinProto.MiningTime * 10000;' to send information to other clients
 				if(countMineVein == 6)
                 {
-					Debug.Log("FOUND IT4");
 					yield return Transpilers.EmitDelegate<Func<int, int>>(miningTick =>
 					{
 						if (PlayerAction_Mine_Transpiler.miningId != -1)

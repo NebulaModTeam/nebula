@@ -112,54 +112,71 @@ namespace NebulaClient.MonoBehaviours
 
         private void OnVegeMined(VegeMined packet)
 	    {
-            if (GameMain.localPlanet?.id == packet.PlanetID)
+            PlanetData planet = null;
+
+            if(GameMain.localPlanet?.id == packet.PlanetID)
             {
-                if (packet.isVegetable)
+                planet = GameMain.localPlanet;
+                if(planet == null)
                 {
-                    VegeData vData = (VegeData)GameMain.localPlanet?.factory?.GetVegeData(packet.MiningID);
-                    VegeProto vProto = LDB.veges.Select((int)vData.protoId);
-                    if (vProto != null)
-                    {
-                        VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, vData.rot);
-                        VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                    }
-                    GameMain.localPlanet?.factory?.RemoveVegeWithComponents(vData.id);
-                }
-                else
-                {
-                    VeinData vData = (VeinData)GameMain.localPlanet?.factory?.GetVeinData(packet.MiningID);
-                    VeinProto vProto = LDB.veins.Select((int)vData.type);
-                    // TODO: only have the visual effects in here and decrease the amounts even if vProto == null
-                    if(vProto != null)
-                    {
-                        if(GameMain.localPlanet?.factory?.veinPool[packet.MiningID].amount > 0)
-                        {
-                            VeinData[] vPool = GameMain.localPlanet?.factory?.veinPool;
-                            PlanetData.VeinGroup[] vGroups = GameMain.localPlanet?.factory?.planet.veinGroups;
-                            long[] vAmounts = GameMain.localPlanet?.veinAmounts;
-                            vPool[packet.MiningID].amount -= 1;
-                            vGroups[(int)vData.groupIndex].amount -= 1;
-                            vAmounts[(int)vData.type] -= 1;
-
-                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
-                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                        }
-                        else
-                        {
-                            PlanetData.VeinGroup[] vGroups = GameMain.localPlanet?.factory?.planet.veinGroups;
-                            vGroups[vData.groupIndex].count -= 1;
-
-                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
-                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-
-                            GameMain.localPlanet?.factory?.RemoveVeinWithComponents(vData.id);
-                        }
-                    }
+                    return;
                 }
             }
             else
             {
-                // TODO: what should i do here.. hmm
+                planet = GameMain.galaxy?.PlanetById(packet.PlanetID);
+                if(planet == null)
+                {
+                    return;
+                }
+            }
+
+            if (packet.isVegetable) // Trees, rocks, leaves, etc
+            {
+                VegeData vData = (VegeData)planet.factory?.GetVegeData(packet.MiningID);
+                VegeProto vProto = LDB.veges.Select((int)vData.protoId);
+                if (vProto != null && planet.id == GameMain.localPlanet?.id)
+                {
+                    VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, vData.rot);
+                    VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
+                }
+                planet.factory?.RemoveVegeWithComponents(vData.id);
+            }
+            else // veins
+            {
+                VeinData vData = (VeinData)planet.factory?.GetVeinData(packet.MiningID);
+                VeinProto vProto = LDB.veins.Select((int)vData.type);
+                if (vProto != null)
+                {
+                    if (planet.factory?.veinPool[packet.MiningID].amount > 0)
+                    {
+                        VeinData[] vPool = planet.factory?.veinPool;
+                        PlanetData.VeinGroup[] vGroups = planet.factory?.planet.veinGroups;
+                        long[] vAmounts = planet.veinAmounts;
+                        vPool[packet.MiningID].amount -= 1;
+                        vGroups[(int)vData.groupIndex].amount -= 1;
+                        vAmounts[(int)vData.type] -= 1;
+
+                        if(planet.id == GameMain.localPlanet?.id)
+                        {
+                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
+                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
+                        }
+                    }
+                    else
+                    {
+                        PlanetData.VeinGroup[] vGroups = planet.factory?.planet.veinGroups;
+                        vGroups[vData.groupIndex].count -= 1;
+
+                        if(planet.id == GameMain.localPlanet?.id)
+                        {
+                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
+                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
+                        }
+
+                        planet.factory?.RemoveVeinWithComponents(vData.id);
+                    }
+                }
             }
         }
     }
