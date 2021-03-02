@@ -27,6 +27,7 @@ namespace NebulaClient.MonoBehaviours
             Client.PacketProcessor.SubscribeReusable<Movement>(OnPlayerMovement);
             Client.PacketProcessor.SubscribeReusable<PlayerAnimationUpdate>(OnPlayerAnimationUpdate);
             Client.PacketProcessor.SubscribeReusable<VegeMined>(OnVegeMined);
+            Client.PacketProcessor.SubscribeReusable<PlayerColorChanged>(OnPlayerColorChanged);
         }
 
         public void Connect(string ip, int port)
@@ -114,5 +115,10 @@ namespace NebulaClient.MonoBehaviours
 	    {
             GameMain.localPlanet?.factory?.RemoveVegeWithComponents(packet.VegeID);
 	    }
+
+        private void OnPlayerColorChanged(PlayerColorChanged packet)
+		{
+            PlayerManager.GetPlayerById(packet.PlayerId).UpdateColor(packet.Color);
+		}
     }
 }

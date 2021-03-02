@@ -63,6 +63,7 @@
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
     <Compile Include="Packets\Players\Movement.cs" />
+    <Compile Include="Packets\Players\PlayerColorChanged.cs" />
     <Compile Include="Packets\Session\PlayerDisconnected.cs" />
     <Compile Include="Packets\Session\RemotePlayerJoined.cs" />
     <Compile Include="Packets\Session\JoinSessionConfirmed.cs" />

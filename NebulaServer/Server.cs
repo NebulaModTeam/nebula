@@ -33,6 +33,7 @@ namespace NebulaServer
             PacketProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
             PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection> (OnPlayerAnimationUpdate);
             PacketProcessor.SubscribeReusable<VegeMined, NebulaConnection>(OnVegeMinedUpdate);
+            PacketProcessor.SubscribeReusable<PlayerColorChanged, NebulaConnection>(OnPlayerColorChanged);
         }
 
         public void Start(int port)
@@ -98,6 +99,14 @@ namespace NebulaServer
         {
             Player player = playerManager.GetPlayer(conn);
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
+        }
+
+        private void OnPlayerColorChanged(PlayerColorChanged packet, NebulaConnection conn)
+		{
+            Player player = playerManager.GetPlayer(conn);
+            player.PlayerColor = packet.Color;
+            Console.WriteLine($"Player {player.Id} changed to color {packet.Color}");
+            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableOrdered);
         }
     }
 }

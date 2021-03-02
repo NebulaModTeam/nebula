@@ -1,6 +1,7 @@
 ﻿using LiteNetLib;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
+using NebulaModel.Packets.Players;
 using System.Collections.Generic;
 
 namespace NebulaServer.GameLogic
@@ -56,11 +57,15 @@ namespace NebulaServer.GameLogic
             {
                 // Make sure that each player that is currently in the game receive that a new player join so they can create its RemotePlayerCharacter
                 player.SendPacket(new RemotePlayerJoined(newPlayer.Id));
+                // IDEA: Maybe send the entire player data in a packet? 
+                // This way we won't need to send seperate packets for each property of the player
+                player.SendPacket(new PlayerColorChanged(newPlayer.Id, player.PlayerColor));
                 
                 // TODO: This could probably be done in the initial game state packet instead
                 // For now we will fake it, by sending a PlayerJoined packet to the new player for each player already joined.
                 // This will make sure that the new player creates a RemotePlayerCharacter for each players in the session.
-                newPlayer.SendPacket(new RemotePlayerJoined(player.Id));
+                newPlayer.SendPacket(new RemotePlayerJoined(player.Id));            
+                newPlayer.SendPacket(new PlayerColorChanged(player.Id, player.PlayerColor));
             }
 
             // Add the new player to the list
