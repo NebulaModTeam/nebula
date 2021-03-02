@@ -8,6 +8,7 @@ namespace NebulaClient.GameLogic
         Dictionary<ushort, Player> remotePlayers;
         Dictionary<ushort, RemotePlayerModel> remotePlayerModels;
 
+        public bool WeAreMainPlayer { get; set; } = false;
         public Player LocalPlayer { get; protected set; }
         public readonly LocalPlayerModel LocalPlayerModel = new LocalPlayerModel();
 
