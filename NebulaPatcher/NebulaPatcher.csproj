@@ -81,7 +81,7 @@
   <ItemGroup>
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="NebulaPlugin.cs" />
-    <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
+    <Compile Include="Patches\Dynamic\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlayerController_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
