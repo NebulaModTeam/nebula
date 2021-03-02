@@ -6,7 +6,7 @@ namespace NebulaClient.MonoBehaviours.Local
     public class LocalPlayerMovement : MonoBehaviour
     {
         public const int SEND_RATE = 15;
-        private const float BROADCAST_INTERVAL = 1f / SEND_RATE;
+        public const float BROADCAST_INTERVAL = 1f / SEND_RATE;
 
         private float time;
         private Transform rootTransform;

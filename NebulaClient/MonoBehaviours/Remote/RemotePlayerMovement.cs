@@ -8,6 +8,8 @@ namespace NebulaClient.MonoBehaviours.Remote
 {
     public class RemotePlayerMovement : MonoBehaviour
     {
+        private const int BUFFERED_SNAPSHOT_COUNT = 4;
+
         struct Snapshot
         {
             public long Timestamp { get; set; }
@@ -22,7 +24,7 @@ namespace NebulaClient.MonoBehaviours.Remote
         // To have a smooth transition between position updates, we keep a buffer of states received 
         // and once the buffer is full, we start replaying the states from the oldest to the newest state.
         // This will make sure player movement is still smooth in high latency cases and even if there are dropped packets.
-        Snapshot[] snapshotBuffer = new Snapshot[4];
+        private readonly Snapshot[] snapshotBuffer = new Snapshot[BUFFERED_SNAPSHOT_COUNT];
 
         void Awake()
         {
@@ -48,13 +50,16 @@ namespace NebulaClient.MonoBehaviours.Remote
                 if (renderTime <= t2 && renderTime >= t1)
                 {
                     var total = t2 - t1;
-                    var portion = renderTime - t1;
-                    var ratio = total > 0 ? portion / total : 1;
+                    var reminder = renderTime - t1;
+                    var ratio = total > 0 ? reminder / total : 1;
+
+                    // We interpolate to the appropriate position between our 2 known snapshot
                     MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i+1], (float)ratio);
                     break;
                 }
                 else if (i == snapshotBuffer.Length - 2 && renderTime > t2)
                 {
+                    // This will skip interpolation and will snap to the most recent position.
                     MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i+1], 1); 
                 }
             }
