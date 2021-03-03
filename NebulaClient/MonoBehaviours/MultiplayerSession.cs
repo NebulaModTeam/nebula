@@ -112,23 +112,10 @@ namespace NebulaClient.MonoBehaviours
 
         private void OnVegeMined(VegeMined packet)
 	    {
-            PlanetData planet = null;
-
-            if(GameMain.localPlanet?.id == packet.PlanetID)
+            PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetID);
+            if (planet == null)
             {
-                planet = GameMain.localPlanet;
-                if(planet == null)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                planet = GameMain.galaxy?.PlanetById(packet.PlanetID);
-                if(planet == null)
-                {
-                    return;
-                }
+                return;
             }
 
             if (packet.isVegetable) // Trees, rocks, leaves, etc
