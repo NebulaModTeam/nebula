@@ -102,9 +102,9 @@ namespace NebulaClient
 
 
 		//This function is called when the local player mines a vegetation
-		public void OnVegetationMined(int id, int planetID)
+		public void OnVegetationMined(int id, bool isVege, int planetID)
 		{
-			SendPacket(new VegeMined(id, planetID), DeliveryMethod.ReliableUnordered);
+			SendPacket(new VegeMined(id, isVege, planetID), DeliveryMethod.ReliableUnordered);
 		}
 	}
 }
