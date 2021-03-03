@@ -1,7 +1,6 @@
 ﻿using LiteNetLib;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
-using NebulaModel.Packets.Players;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +36,7 @@ namespace NebulaServer.GameLogic
 
         public Player GetSyncingPlayer(NebulaConnection conn)
         {
-            if(syncingPlayers.TryGetValue(conn, out Player player))
+            if (syncingPlayers.TryGetValue(conn, out Player player))
             {
                 return player;
             }
@@ -69,7 +68,7 @@ namespace NebulaServer.GameLogic
             // TODO: Load old player state if we have one. Perhaps some sort of client-generated UUID, or a steam ID?
             Player newPlayer = new Player(conn);
 
-            if(connectedPlayers.Count == 0)
+            if (connectedPlayers.Count == 0)
             {
                 newPlayer.IsMasterClient = true;
             }
@@ -82,7 +81,7 @@ namespace NebulaServer.GameLogic
         public void PlayerSentHandshake(NebulaConnection connection, HandshakeHello handshake)
         {
             Player player;
-            if(!pendingPlayers.TryGetValue(connection, out player))
+            if (!pendingPlayers.TryGetValue(connection, out player))
             {
                 connection.Disconnect();
                 Console.WriteLine("WARNING: Player tried to handshake without being in the pending list");
@@ -91,7 +90,7 @@ namespace NebulaServer.GameLogic
 
             pendingPlayers.Remove(connection);
 
-            if(handshake.ProtocolVersion != 0) //TODO: Maybe have a shared constants file somewhere for this
+            if (handshake.ProtocolVersion != 0) //TODO: Maybe have a shared constants file somewhere for this
             {
                 connection.Disconnect();
             }
@@ -99,7 +98,7 @@ namespace NebulaServer.GameLogic
             var playerList = GetAllPlayers();
 
             // Add the new player to the list
-            if(!player.IsMasterClient)
+            if (!player.IsMasterClient)
             {
                 syncingPlayers.Add(connection, player);
             }
@@ -112,7 +111,7 @@ namespace NebulaServer.GameLogic
                 activePlayer.SendPacket(new RemotePlayerJoined(player.Id));
             }
 
-            if(player.IsMasterClient)
+            if (player.IsMasterClient)
             {
                 connectedPlayers.Add(connection, player);
             }
@@ -141,7 +140,7 @@ namespace NebulaServer.GameLogic
 
         public void PlayerSentInitialState(Player player, InitialState packet)
         {
-            if(!player.IsMasterClient)
+            if (!player.IsMasterClient)
             {
                 // Someone is doing something nefarious here
                 return;

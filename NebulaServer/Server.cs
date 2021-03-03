@@ -37,8 +37,8 @@ namespace NebulaServer
             PacketProcessor = new NetPacketProcessor();
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
 
-            PacketProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
-            PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection> (OnPlayerAnimationUpdate);
+            PacketProcessor.SubscribeReusable<Movement, NebulaConnection>(OnPlayerMovement);
+            PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection>(OnPlayerAnimationUpdate);
             PacketProcessor.SubscribeReusable<VegeMined, NebulaConnection>(OnVegeMinedUpdate);
             PacketProcessor.SubscribeReusable<PlayerColorChanged, NebulaConnection>(OnPlayerColorChanged);
             PacketProcessor.SubscribeReusable<HandshakeHello, NebulaConnection>(OnHandshakeHelloRecieved);

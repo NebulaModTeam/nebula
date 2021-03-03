@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using NebulaClient.MonoBehaviours;
 using NebulaModel.DataStructures;
-using NebulaClient.MonoBehaviours;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
+using UnityEngine;
 
 namespace NebulaClient.GameLogic
 {

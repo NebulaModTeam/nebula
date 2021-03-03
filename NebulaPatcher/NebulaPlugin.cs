@@ -41,7 +41,7 @@ namespace NebulaPatcher
             try
             {
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                foreach(var assembly in assemblies)
+                foreach (var assembly in assemblies)
                 {
                     if (assembly.FullName.StartsWith("NebulaPatcher"))
                     {
@@ -52,7 +52,7 @@ namespace NebulaPatcher
 
                 Log.Info("Patching completed successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error("Unhandled exception occurred while patching the game:", ex);
             }

@@ -1,7 +1,7 @@
-﻿using NebulaModel.Logger;
+﻿using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using System.Collections.Generic;
 using UnityEngine;
-using NebulaModel.DataStructures;
 
 namespace NebulaClient.GameLogic
 {

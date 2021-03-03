@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using NebulaModel.Logger;
+﻿using NebulaModel.Logger;
+using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours
 {

@@ -2,11 +2,7 @@
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
-using System;
-using System.Collections;
-using System.IO;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace NebulaClient.MonoBehaviours
 {
@@ -193,7 +189,6 @@ namespace NebulaClient.MonoBehaviours
             }
         }
 
-
         private void OnHandshakeResponse(HandshakeResponse packet)
         {
             if (packet.IsFirstPlayer)
@@ -228,7 +223,6 @@ namespace NebulaClient.MonoBehaviours
 
             Client.SendPacket(new SyncComplete());
         }
-
 
         private void OnSyncComplete(SyncComplete packet)
         {

@@ -54,13 +54,13 @@ namespace NebulaClient.MonoBehaviours.Remote
                     var ratio = total > 0 ? reminder / total : 1;
 
                     // We interpolate to the appropriate position between our 2 known snapshot
-                    MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i+1], (float)ratio);
+                    MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i + 1], (float)ratio);
                     break;
                 }
                 else if (i == snapshotBuffer.Length - 2 && renderTime > t2)
                 {
                     // This will skip interpolation and will snap to the most recent position.
-                    MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i+1], 1); 
+                    MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i + 1], 1);
                 }
             }
         }
@@ -70,7 +70,7 @@ namespace NebulaClient.MonoBehaviours.Remote
             if (!rootTransform)
                 return;
 
-            for (int i = 0; i < snapshotBuffer.Length-1; ++i)
+            for (int i = 0; i < snapshotBuffer.Length - 1; ++i)
             {
                 snapshotBuffer[i] = snapshotBuffer[i + 1];
             }
