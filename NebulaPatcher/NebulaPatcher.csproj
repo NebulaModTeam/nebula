@@ -81,7 +81,7 @@
   <ItemGroup>
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="NebulaPlugin.cs" />
-    <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
+    <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlayerController_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
@@ -103,7 +103,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "%25PROGRAMFILES(x86)%25\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\$(TargetFileName)"
-copy /Y "$(ProjectDir)..\LiteNetLib\LiteNetLib\bin\$(Configuration)\LiteNetLib.dll" "%25PROGRAMFILES(x86)%25\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\LiteNetLib.dll"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"
+copy /Y "$(ProjectDir)..\LiteNetLib\LiteNetLib\bin\$(Configuration)\LiteNetLib.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LiteNetLib.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

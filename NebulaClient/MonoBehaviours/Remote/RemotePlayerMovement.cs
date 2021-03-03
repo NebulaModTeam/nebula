@@ -1,26 +1,30 @@
 ﻿using NebulaClient.MonoBehaviours.Local;
 using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
+using NebulaModel.Utils;
 using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours.Remote
 {
     public class RemotePlayerMovement : MonoBehaviour
     {
-        const float LERP_TIME = LocalPlayerMovement.BROADCAST_INTERVAL * 2;
+        private const int BUFFERED_SNAPSHOT_COUNT = 4;
 
-        private Vector3 targetRootPosition;
-        private Quaternion targetRootRotation;
-        private Quaternion targetBodyRotation;
-
-        private Vector3 lastRootPosition;
-        private Quaternion lastRootRotation;
-        private Quaternion lastBodyRotation;
-
-        private float timeSinceLastFrame;
+        struct Snapshot
+        {
+            public long Timestamp { get; set; }
+            public Vector3 Position { get; set; }
+            public Quaternion Rotation { get; set; }
+            public Quaternion BodyRotation { get; set; }
+        }
 
         private Transform rootTransform;
         private Transform bodyTransform;
+
+        // To have a smooth transition between position updates, we keep a buffer of states received 
+        // and once the buffer is full, we start replaying the states from the oldest to the newest state.
+        // This will make sure player movement is still smooth in high latency cases and even if there are dropped packets.
+        private readonly Snapshot[] snapshotBuffer = new Snapshot[BUFFERED_SNAPSHOT_COUNT];
 
         void Awake()
         {
@@ -30,21 +34,34 @@ namespace NebulaClient.MonoBehaviours.Remote
 
         public void Update()
         {
-            timeSinceLastFrame += Time.deltaTime;
+            // Wait for the entire buffer to be full before starting to interpolate the player position
+            if (snapshotBuffer[0].Timestamp == 0)
+                return;
 
-            if (timeSinceLastFrame <= LERP_TIME)
+            double past = (1000 / (double)LocalPlayerMovement.SEND_RATE) * (snapshotBuffer.Length - 1);
+            double now = TimeUtils.CurrentUnixTimestampMilliseconds();
+            double renderTime = now - past;
+
+            for (int i = 0; i < snapshotBuffer.Length - 1; ++i)
             {
-                // use linear interpolate
-                rootTransform.position = Vector3.Lerp(lastRootPosition, targetRootPosition, timeSinceLastFrame / LERP_TIME);
-                rootTransform.rotation = Quaternion.Slerp(lastRootRotation, targetRootRotation, timeSinceLastFrame / LERP_TIME);
-                bodyTransform.rotation = Quaternion.Slerp(lastBodyRotation, targetBodyRotation, timeSinceLastFrame / LERP_TIME);
-            }
-            else
-            {
-                // snap player to position
-                rootTransform.position = targetRootPosition;
-                rootTransform.rotation = targetRootRotation;
-                bodyTransform.rotation = targetBodyRotation;
+                var t1 = snapshotBuffer[i].Timestamp;
+                var t2 = snapshotBuffer[i + 1].Timestamp;
+
+                if (renderTime <= t2 && renderTime >= t1)
+                {
+                    var total = t2 - t1;
+                    var reminder = renderTime - t1;
+                    var ratio = total > 0 ? reminder / total : 1;
+
+                    // We interpolate to the appropriate position between our 2 known snapshot
+                    MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i+1], (float)ratio);
+                    break;
+                }
+                else if (i == snapshotBuffer.Length - 2 && renderTime > t2)
+                {
+                    // This will skip interpolation and will snap to the most recent position.
+                    MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i+1], 1); 
+                }
             }
         }
 
@@ -53,18 +70,25 @@ namespace NebulaClient.MonoBehaviours.Remote
             if (!rootTransform)
                 return;
 
-            // Set our last position / rotation to the current position / rotation
-            lastRootPosition = rootTransform.position;
-            lastRootRotation = rootTransform.rotation;
-            lastBodyRotation = bodyTransform.rotation;
+            for (int i = 0; i < snapshotBuffer.Length-1; ++i)
+            {
+                snapshotBuffer[i] = snapshotBuffer[i + 1];
+            }
 
-            // Set our target position / rotation
-            targetRootPosition = packet.Position.ToUnity();
-            targetRootRotation = Quaternion.Euler(packet.Rotation.ToUnity());
-            targetBodyRotation = Quaternion.Euler(packet.BodyRotation.ToUnity());
+            snapshotBuffer[snapshotBuffer.Length - 1] = new Snapshot()
+            {
+                Timestamp = TimeUtils.CurrentUnixTimestampMilliseconds(),
+                Position = packet.Position.ToUnity(),
+                Rotation = Quaternion.Euler(packet.Rotation.ToUnity()),
+                BodyRotation = Quaternion.Euler(packet.BodyRotation.ToUnity()),
+            };
+        }
 
-            // Reset time since we received a new packet
-            timeSinceLastFrame = 0;
+        private void MoveInterpolated(Snapshot previous, Snapshot current, float ratio)
+        {
+            rootTransform.position = Vector3.Lerp(previous.Position, current.Position, ratio);
+            rootTransform.rotation = Quaternion.Slerp(previous.Rotation, current.Rotation, ratio);
+            bodyTransform.rotation = Quaternion.Slerp(previous.BodyRotation, current.BodyRotation, ratio);
         }
     }
 }
