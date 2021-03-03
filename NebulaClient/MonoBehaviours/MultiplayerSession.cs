@@ -109,7 +109,7 @@ namespace NebulaClient.MonoBehaviours
             statusBox = UIMessageBox.Show("A new player is joining!", "A new player is joining, please wait while they load in", null, 0);
             GameMain.Pause();
 
-            if(PlayerManager.WeAreMainPlayer)
+            if(PlayerManager.IsMasterClient)
             {
                 Client.SendPacket(new InitialState(UniverseGen.algoVersion, 1, 64, 1f));
             }
@@ -143,7 +143,7 @@ namespace NebulaClient.MonoBehaviours
                 GameDesc gameDesc = new GameDesc();
                 gameDesc.SetForNewGame(UniverseGen.algoVersion, 1, 64, 1, 1f);
                 DSPGame.StartGameSkipPrologue(gameDesc);
-                PlayerManager.WeAreMainPlayer = true;
+                PlayerManager.IsMasterClient = true;
                 statusBox.FadeOut();
             }
             else
