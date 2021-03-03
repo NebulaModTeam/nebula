@@ -25,6 +25,12 @@ namespace NebulaServer
             server = new NetManager(this)
             {
                 AutoRecycle = true,
+#if DEBUG
+                SimulateLatency = true,
+                SimulatePacketLoss = true,
+                SimulationMinLatency = 20,
+                SimulationMaxLatency = 80,
+#endif
             };
 
             playerManager = new PlayerManager();
