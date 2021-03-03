@@ -73,6 +73,8 @@ namespace NebulaClient
 			Console.WriteLine("Connected to server");
 			serverConnection = new NebulaConnection(peer, PacketProcessor);
 			IsConnected = true;
+
+			SendPacket(new HandshakeHello());
 		}
 
 		public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)

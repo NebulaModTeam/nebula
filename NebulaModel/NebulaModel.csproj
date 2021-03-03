@@ -63,10 +63,14 @@
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
     <Compile Include="Packets\Players\Movement.cs" />
+    <Compile Include="Packets\Session\HandshakeHello.cs" />
+    <Compile Include="Packets\Session\HandshakeResponse.cs" />
+    <Compile Include="Packets\Session\InitialState.cs" />
     <Compile Include="Packets\Session\PlayerDisconnected.cs" />
     <Compile Include="Packets\Session\RemotePlayerJoined.cs" />
     <Compile Include="Packets\Session\JoinSessionConfirmed.cs" />
     <Compile Include="Packets\Planet\VegeMined.cs" />
+    <Compile Include="Packets\Session\SyncComplete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\AssembliesUtils.cs" />
     <Compile Include="Utils\LiteNetLibUtils.cs" />

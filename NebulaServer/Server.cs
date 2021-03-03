@@ -3,6 +3,7 @@ using LiteNetLib.Utils;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaServer.GameLogic;
 using System;
@@ -33,6 +34,9 @@ namespace NebulaServer
             PacketProcessor.SubscribeReusable<Movement, NebulaConnection> (OnPlayerMovement);
             PacketProcessor.SubscribeReusable<PlayerAnimationUpdate, NebulaConnection> (OnPlayerAnimationUpdate);
             PacketProcessor.SubscribeReusable<VegeMined, NebulaConnection>(OnVegeMinedUpdate);
+            PacketProcessor.SubscribeReusable<HandshakeHello, NebulaConnection>(OnHandshakeHelloRecieved);
+            PacketProcessor.SubscribeReusable<SyncComplete, NebulaConnection>(OnSyncComplete);
+            PacketProcessor.SubscribeReusable<InitialState, NebulaConnection>(OnInitialState);
         }
 
         public void Start(int port)
@@ -98,6 +102,23 @@ namespace NebulaServer
         {
             Player player = playerManager.GetPlayer(conn);
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
+        }
+
+        private void OnHandshakeHelloRecieved(HandshakeHello packet, NebulaConnection conn)
+        {
+            playerManager.PlayerSentHandshake(conn, packet);
+        }
+
+        private void OnSyncComplete(SyncComplete packet, NebulaConnection conn)
+        {
+            Player player = playerManager.GetSyncingPlayer(conn);
+            playerManager.PlayerSentSyncComplete(player);
+        }
+
+        private void OnInitialState(InitialState packet, NebulaConnection conn)
+        {
+            Player player = playerManager.GetPlayer(conn);
+            playerManager.PlayerSentInitialState(player, packet);
         }
     }
 }
