@@ -53,7 +53,7 @@ namespace NebulaClient.GameLogic
             // If we are the local player, we need to let other clients know we changed color
             if (pm.LocalPlayer?.PlayerId == this.PlayerId)
             {
-                MultiplayerSession.instance.Client.SendPacket(new PlayerColorChanged(this.PlayerId, newColor));
+                MultiplayerSession.instance.Client.SendPacket(new PlayerColorChanged(this.PlayerId, newColor), LiteNetLib.DeliveryMethod.ReliableUnordered);
             }
 
             this.PlayerColor = newColor;

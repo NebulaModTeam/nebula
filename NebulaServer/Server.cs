@@ -116,7 +116,7 @@ namespace NebulaServer
             Player player = playerManager.GetPlayer(conn);
             player.PlayerColor = packet.Color;
             Console.WriteLine($"Player {player.Id} changed to color {packet.Color}");
-            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableOrdered);
+            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
         }
 
         private void OnHandshakeHelloRecieved(HandshakeHello packet, NebulaConnection conn)
