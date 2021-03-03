@@ -1,5 +1,7 @@
 ﻿using NebulaModel.Logger;
 using System.Collections.Generic;
+using UnityEngine;
+using NebulaModel.DataStructures;
 
 namespace NebulaClient.GameLogic
 {
@@ -21,6 +23,9 @@ namespace NebulaClient.GameLogic
         public void SetLocalPlayer(ushort localPlayerId)
         {
             LocalPlayer = new Player(localPlayerId);
+
+            // TODO: Only give the player a random color when they join for the first time
+            LocalPlayer.UpdateColor(new Float3(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f)));
         }
 
         public void AddRemotePlayer(ushort playerId)
@@ -51,7 +56,7 @@ namespace NebulaClient.GameLogic
 
         public void RemoveAll()
         {
-            foreach(var playerModel in remotePlayerModels.Values)
+            foreach (var playerModel in remotePlayerModels.Values)
             {
                 playerModel.Destroy();
             }

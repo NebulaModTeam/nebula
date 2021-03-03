@@ -33,6 +33,7 @@ namespace NebulaClient.MonoBehaviours
             Client.PacketProcessor.SubscribeReusable<Movement>(OnPlayerMovement);
             Client.PacketProcessor.SubscribeReusable<PlayerAnimationUpdate>(OnPlayerAnimationUpdate);
             Client.PacketProcessor.SubscribeReusable<VegeMined>(OnVegeMined);
+            Client.PacketProcessor.SubscribeReusable<PlayerColorChanged>(OnPlayerColorChanged);
             Client.PacketProcessor.SubscribeReusable<HandshakeResponse>(OnHandshakeResponse);
             Client.PacketProcessor.SubscribeReusable<InitialState>(OnInitialState);
             Client.PacketProcessor.SubscribeReusable<SyncComplete>(OnSyncComplete);
@@ -109,7 +110,7 @@ namespace NebulaClient.MonoBehaviours
             statusBox = UIMessageBox.Show("A new player is joining!", "A new player is joining, please wait while they load in", null, 0);
             GameMain.Pause();
 
-            if(PlayerManager.IsMasterClient)
+            if (PlayerManager.IsMasterClient)
             {
                 Client.SendPacket(new InitialState(UniverseGen.algoVersion, 1, 64, 1f));
             }
@@ -130,8 +131,13 @@ namespace NebulaClient.MonoBehaviours
             PlayerManager.GetPlayerModelById(packet.PlayerId)?.Animator.UpdateState(packet);
         }
 
+        private void OnPlayerColorChanged(PlayerColorChanged packet)
+        {
+            PlayerManager.GetPlayerById(packet.PlayerId).UpdateColor(packet.Color);
+        }
+
         private void OnVegeMined(VegeMined packet)
-	    {
+        {
             PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetID);
             if (planet == null)
             {
@@ -164,7 +170,7 @@ namespace NebulaClient.MonoBehaviours
                         vGroups[(int)vData.groupIndex].amount -= 1;
                         vAmounts[(int)vData.type] -= 1;
 
-                        if(planet.id == GameMain.localPlanet?.id)
+                        if (planet.id == GameMain.localPlanet?.id)
                         {
                             VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
                             VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
@@ -175,7 +181,7 @@ namespace NebulaClient.MonoBehaviours
                         PlanetData.VeinGroup[] vGroups = planet.factory?.planet.veinGroups;
                         vGroups[vData.groupIndex].count -= 1;
 
-                        if(planet.id == GameMain.localPlanet?.id)
+                        if (planet.id == GameMain.localPlanet?.id)
                         {
                             VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
                             VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
@@ -185,11 +191,12 @@ namespace NebulaClient.MonoBehaviours
                     }
                 }
             }
-	      }
+        }
+
 
         private void OnHandshakeResponse(HandshakeResponse packet)
         {
-            if(packet.IsFirstPlayer)
+            if (packet.IsFirstPlayer)
             {
                 // We want to host the world here
                 GameDesc gameDesc = new GameDesc();
@@ -204,7 +211,7 @@ namespace NebulaClient.MonoBehaviours
                 statusBox = null;
                 statusBox = UIMessageBox.Show("Loading", "Loading state from server, please wait", null, UIMessageBox.INFO);
 
-                foreach(var playerId in packet.OtherPlayerIds)
+                foreach (var playerId in packet.OtherPlayerIds)
                 {
                     PlayerManager.AddRemotePlayer(playerId);
                 }
@@ -231,3 +238,4 @@ namespace NebulaClient.MonoBehaviours
         }
     }
 }
+

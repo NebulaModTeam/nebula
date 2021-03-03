@@ -13,6 +13,7 @@ namespace NebulaServer
         public Float3 RootPosition { get; set; }
         public Float3 RootRotation { get; set; }
         public Float3 BodyRotation { get; set; }
+        public Float3 PlayerColor { get; set; }
 
         public Player(NebulaConnection connection)
         {
