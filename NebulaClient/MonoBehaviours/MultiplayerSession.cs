@@ -99,11 +99,8 @@ namespace NebulaClient.MonoBehaviours
         private void OnJoinSessionConfirmed(JoinSessionConfirmed packet)
         {
             PlayerManager.SetLocalPlayer(packet.LocalPlayerId);
-            if (statusBox != null)
-            {
-                statusBox.FadeOut();
-                statusBox = null;
-            }
+            statusBox?.FadeOut();
+            statusBox = null;
         }
 
         private void OnRemotePlayerJoined(RemotePlayerJoined packet)
@@ -114,8 +111,7 @@ namespace NebulaClient.MonoBehaviours
 
             if(PlayerManager.WeAreMainPlayer)
             {
-                GameSave.SaveCurrentGame("MPSYNCSTATE");
-                Client.SendPacket(new InitialState(GameConfig.gameSaveFolder + "/MPSYNCSTATE.dsv"));
+                Client.SendPacket(new InitialState(UniverseGen.algoVersion, 1, 64, 1f));
             }
         }
 
@@ -163,82 +159,23 @@ namespace NebulaClient.MonoBehaviours
             }
         }
 
-        private void OnInitialState(InitialState packet)
+        private void OnInitialState(InitialState s)
         {
-            StartCoroutine(InitialStateSyncUtils.DownloadInitialState(packet.URI, statusBox, () => 
-            {
-                Debug.Log("Loading from: " + GameConfig.gameSaveFolder + "INITIALMPSTATE.dsv");
-                DSPGame.StartGame("INITIALMPSTATE");
-                statusBox.FadeOut();
-                statusBox = null;
+            GameDesc gameDesc = new GameDesc();
+            gameDesc.SetForNewGame(s.AlgoVersion, s.GalaxySeed, s.StarCount, 1, s.ResourceMultiplier);
+            DSPGame.StartGameSkipPrologue(gameDesc);
+            statusBox?.FadeOut();
+            statusBox = null;
 
-                Client.SendPacket(new SyncComplete());
-            }));
+            Client.SendPacket(new SyncComplete());
         }
 
 
         private void OnSyncComplete(SyncComplete packet)
         {
             GameMain.Resume();
-            if(statusBox != null)
-            {
-                statusBox.FadeOut();
-                statusBox = null;
-            }
-        }
-
-        private class InitialStateSyncUtils
-        {
-            private static bool isRunning = false;
-
-            public static IEnumerator DownloadInitialState(string uri, UIMessageBox messageBox, Action callback)
-            {
-                {
-                    using (UnityWebRequest request = UnityWebRequest.Get(uri))
-                    {
-                        isRunning = true;
-
-                        //TODO: Make the message box display a progress bar, will require harmony to be added as a reference
-                        messageBox.StartCoroutine(DownloadProgress(request));
-                        yield return request.SendWebRequest();
-                        isRunning = false;
-
-                        if (request.isNetworkError || request.isHttpError)
-                        {
-                            Debug.LogError("Failed to download!");
-                        }
-                        else
-                        {
-                            byte[] receivedBytes = request.downloadHandler.data;
-                            string path = GameConfig.gameSaveFolder + "INITIALMPSTATE.dsv";
-                            Debug.Log("Saving to: " + path + " - Length: " + receivedBytes.Length);
-                            if (File.Exists(path))
-                            {
-                                File.Delete(path);
-                            }
-
-                            using (FileStream fs = new FileStream(path, FileMode.Create))
-                            {
-                                fs.Write(receivedBytes, 0, receivedBytes.Length);
-                                fs.Flush();
-                            }
-                        }
-                    }
-                }
-
-                callback();
-            }
-
-            private static IEnumerator DownloadProgress(UnityWebRequest request)
-            {
-                while (isRunning)
-                {
-                    Debug.Log($"Download progress: { request.downloadProgress * 100 }%");
-                    yield return new WaitForSeconds(0.1f);
-                }
-
-                yield return null;
-            }
+            statusBox?.FadeOut();
+            statusBox = null;
         }
     }
 }

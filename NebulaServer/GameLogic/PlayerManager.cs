@@ -13,8 +13,6 @@ namespace NebulaServer.GameLogic
         private readonly Dictionary<NebulaConnection, Player> syncingPlayers;
         private readonly Dictionary<NebulaConnection, Player> connectedPlayers;
 
-        private HttpStateServer stateServer;
-
         public PlayerManager()
         {
             pendingPlayers = new Dictionary<NebulaConnection, Player>();
@@ -133,9 +131,6 @@ namespace NebulaServer.GameLogic
             syncingPlayers.Remove(player.connection);
             connectedPlayers.Add(player.connection, player);
 
-            stateServer.Stop();
-            stateServer = null;
-
             // Signal to all the other users that they can now unpause
             SendPacketToOtherPlayers(new SyncComplete(), player);
 
@@ -151,12 +146,9 @@ namespace NebulaServer.GameLogic
                 return;
             }
 
-            stateServer = new HttpStateServer($"http://{ Server.ServerIP }:17432", packet.URI);
-            stateServer.Start();
-
             foreach (var syncingPlayer in syncingPlayers.Values)
             {
-                syncingPlayer.SendPacket(new InitialState($"http://{ Server.ServerIP }:17432/initialstate/MPSYNCSTATE.dsv"));
+                syncingPlayer.SendPacket(packet);
             }
         }
     }

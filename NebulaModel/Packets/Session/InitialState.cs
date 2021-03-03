@@ -2,13 +2,19 @@
 {
     public class InitialState
     {
-        public string URI { get; set; }
+        public int AlgoVersion { get; set; }
+        public int GalaxySeed { get; set; }
+        public int StarCount { get; set; }
+        public float ResourceMultiplier { get; set; }
 
         public InitialState() { }
 
-        public InitialState(string uri)
+        public InitialState(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier)
         {
-            this.URI = uri;
+            this.AlgoVersion = algoVersion;
+            this.GalaxySeed = galaxySeed;
+            this.StarCount = starCount;
+            this.ResourceMultiplier = resourceMultiplier;
         }
     }
 }
