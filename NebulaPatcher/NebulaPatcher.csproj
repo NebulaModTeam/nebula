@@ -103,7 +103,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "%25PROGRAMFILES(x86)%25\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\$(TargetFileName)"
-copy /Y "$(ProjectDir)..\LiteNetLib\LiteNetLib\bin\$(Configuration)\LiteNetLib.dll" "%25PROGRAMFILES(x86)%25\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\LiteNetLib.dll"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"
+copy /Y "$(ProjectDir)..\LiteNetLib\LiteNetLib\bin\$(Configuration)\LiteNetLib.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LiteNetLib.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

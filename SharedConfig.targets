@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" InitialTargets="TestDSPGameFolder">
+  <PropertyGroup>
+    <DevEnv>DevEnv.targets</DevEnv>
+    <DevEnvLoc>$(SolutionDir)\$(DevEnv)</DevEnvLoc>
+    <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program</DSPGameDir>
+  </PropertyGroup>
+
+  <Import Project="$(DevEnvLoc)" Condition="Exists('$(DevEnvLoc)')" />
+
+  <Target Name="MaybeCopyDevEnv" Condition="!Exists('$(DSPGameDir)') and !Exists('$(DevEnvLoc)')">
+    <Copy SourceFiles="$(DevEnvLoc).example" DestinationFiles="$(DevEnvLoc)" />
+    <Error Text="It appears your Dyson Sphere Program installation is not in the default Steam directory. Please set the path correctly in $(DevEnv) (it has been created for you)." />
+  </Target>
+
+  <Target Name="DevEnvInvalid" Condition="!Exists('$(DSPGameDir)') and Exists('$(DevEnvLoc)')">
+    <!-- If the default path is overriden in DevEnv, and it doesn't exist -->
+    <Error Text="Your Dyson Sphere Program installation folder has not been found at the path defined in $(DevEnv). Please set it correctly." Condition="Exists('$(DevEnvLoc)')" />
+  </Target>
+
+  <!-- Using DependsOnTarget with Conditional targets as an if else structure... -->
+  <!-- Note that this is the first target, called by InitialTargets -->
+  <Target Name="TestDSPGameFolder" DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid" Condition="!Exists('$(DSPGameDir)')" />
+</Project>
