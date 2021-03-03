@@ -28,11 +28,6 @@ namespace NebulaModel.DataStructures
             w = value.w;
         }
 
-        public Color ToColor()
-		{
-            return new Color(x, y, z, w);
-		}
-
         public void Serialize(NetDataWriter writer)
         {
             writer.Put(x);

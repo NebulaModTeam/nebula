@@ -23,8 +23,8 @@ namespace NebulaClient.GameLogic
         {
             LocalPlayer = new Player(localPlayerId);
 
-            // For now give the player a random color
-            LocalPlayer.UpdateColor(new Float4(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1.0f));
+            // TODO: Only give the player a random color when the join, first check if the player has already played on this server.
+            LocalPlayer.UpdateColor(new Float3(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f)));
         }
 
         public void AddRemotePlayer(ushort playerId)

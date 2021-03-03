@@ -9,16 +9,16 @@ namespace NebulaClient.GameLogic
     public class Player
     {
         public ushort PlayerId { get; protected set; }
-        public Float4 PlayerColor { get; protected set; }
+        public Float3 PlayerColor { get; protected set; }
 
         public Player(ushort playerId)
         {
             PlayerId = playerId;
             //Set default player color
-            PlayerColor = new Float4(1.0f, 0.6846404f, 0.243137181f, 1.0f);
+            PlayerColor = new Float3(1.0f, 0.6846404f, 0.243137181f);
         }
 
-        public void UpdateColor(Float4 newColor)
+        public void UpdateColor(Float3 newColor)
         {
             PlayerManager pm = MultiplayerSession.instance.PlayerManager;
             Transform transformToColor;
