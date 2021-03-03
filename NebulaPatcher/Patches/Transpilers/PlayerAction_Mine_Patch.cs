@@ -8,16 +8,7 @@ using System.Reflection.Emit;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
-{ 
-	[HarmonyPatch(typeof(GameHistoryData), "EnqueueTech")]
-	class patch
-    {
-		public static void Postfix(GameHistoryData __instance, int techId)
-        {
-			__instance.UnlockTech(techId);
-        }
-    }
-
+{
 	[HarmonyPatch(typeof(PlayerAction_Mine), "GameTick")]
 	class PlayerAction_Mine_Transpiler
 	{
