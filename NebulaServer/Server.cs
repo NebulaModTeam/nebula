@@ -14,9 +14,6 @@ namespace NebulaServer
 {
     public class Server : INetEventListener
     {
-        //TODO: Some sort of config file
-        public static String ServerIP = "192.168.88.31";
-
         private readonly NetManager server;
 
         private readonly PlayerManager playerManager;
