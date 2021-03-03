@@ -138,10 +138,6 @@ namespace NebulaClient.MonoBehaviours
 
         private void OnVegeMined(VegeMined packet)
         {
-            GameMain.localPlanet?.factory?.RemoveVegeWithComponents(packet.VegeID);
-
-
-
             PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetID);
             if (planet == null)
             {
@@ -241,4 +237,5 @@ namespace NebulaClient.MonoBehaviours
             statusBox = null;
         }
     }
+}
 

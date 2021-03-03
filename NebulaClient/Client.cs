@@ -38,7 +38,6 @@ namespace NebulaClient
         }
 
         public void Connect(string ip, int port)
-<<<<<<< HEAD
         {
             client.Start();
             client.Connect(ip, port, "nebula");
@@ -74,6 +73,8 @@ namespace NebulaClient
             Console.WriteLine("Connected to server");
             serverConnection = new NebulaConnection(peer, PacketProcessor);
             IsConnected = true;
+
+            SendPacket(new HandshakeHello());
         }
 
         public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
@@ -101,80 +102,9 @@ namespace NebulaClient
 
 
         //This function is called when the local player mines a vegetation
-        public void OnVegetationMined(int id, int planetID)
+        public void OnVegetationMined(int id, bool isVege, int planetID)
         {
-            SendPacket(new VegeMined(id, planetID), DeliveryMethod.ReliableUnordered);
+            SendPacket(new VegeMined(id, isVege, planetID), DeliveryMethod.ReliableUnordered);
         }
     }
-=======
-		{
-			client.Start();
-			client.Connect(ip, port, "nebula");
-		}
-
-		public void Disconnect()
-		{
-			IsConnected = false;
-			IsSessionJoined = false;
-			client.Stop();
-		}
-
-		public void Update()
-		{
-			client?.PollEvents();
-		}
-
-		public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
-		{
-			if (serverConnection != null)
-			{
-				serverConnection.SendPacket(packet, deliveryMethod);
-			}
-		}
-
-		public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
-		{
-			PacketProcessor.ReadAllPackets(reader, new NebulaConnection(peer, PacketProcessor));
-		}
-
-		public void OnPeerConnected(NetPeer peer)
-		{
-			Console.WriteLine("Connected to server");
-			serverConnection = new NebulaConnection(peer, PacketProcessor);
-			IsConnected = true;
-
-			SendPacket(new HandshakeHello());
-		}
-
-		public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
-		{
-			Console.WriteLine($"Disconnected from server: {disconnectInfo.Reason}");
-			serverConnection = null;
-			IsConnected = false;
-			IsSessionJoined = false;
-
-			UIMessageBox.Show(
-				"Connection Lost",
-				$"You have been disconnect of the server.\nReason{disconnectInfo.Reason}",
-				"Quit",
-				"Reconnect",
-				0,
-				new UIMessageBox.Response(() =>
-				{
-					MultiplayerSession.instance.LeaveGame();
-				}),
-				new UIMessageBox.Response(() =>
-				{
-					MultiplayerSession.instance.TryToReconnect();
-				}));
-		}
-
-
-		//This function is called when the local player mines a vegetation
-		public void OnVegetationMined(int id, bool isVege, int planetID)
-		{
-			SendPacket(new VegeMined(id, isVege, planetID), DeliveryMethod.ReliableUnordered);
-		}
-	}
->>>>>>> 2ded33a9c142e4b2a0821c2b4cfa19af4828249d
 }

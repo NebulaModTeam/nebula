@@ -24,7 +24,7 @@ namespace NebulaClient.GameLogic
         {
             LocalPlayer = new Player(localPlayerId);
 
-            // TODO: Only give the player a random color when the join, first check if the player has already played on this server.
+            // TODO: Only give the player a random color when they join for the first time
             LocalPlayer.UpdateColor(new Float3(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f)));
         }
 
