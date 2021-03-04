@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaClient.MonoBehaviours;
+using NebulaHost.MonoBehaviours;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -10,7 +11,8 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static void Postfix()
         {
-            GameObject.FindObjectOfType<MultiplayerSession>()?.Disconnect();
+            Object.FindObjectOfType<MultiplayerClientSession>()?.Disconnect();
+            Object.FindObjectOfType<MultiplayerHostSession>()?.StopServer();
         }
     }
 }

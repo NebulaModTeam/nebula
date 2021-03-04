@@ -1,7 +1,6 @@
 ﻿using NebulaClient.MonoBehaviours;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Players;
 using UnityEngine;
 
 namespace NebulaClient.GameLogic
@@ -20,7 +19,7 @@ namespace NebulaClient.GameLogic
 
         public void UpdateColor(Float3 newColor)
         {
-            PlayerManager pm = MultiplayerSession.instance.PlayerManager;
+            PlayerManager pm = MultiplayerClientSession.Instance.PlayerManager;
             Transform transformToColor;
 
             // Find the Transform of the mecha, either the local player or a remote player
@@ -50,14 +49,18 @@ namespace NebulaClient.GameLogic
                 }
             }
 
+            // TODO: We should maybe create some kind of PlayerActions class that would list all the actions
+            // that a player can do and do the appropriate logic depending on if the player is the host or remote.
+            /*
             // If we are the local player, we need to let other clients know we changed color
             if (pm.LocalPlayer?.PlayerId == this.PlayerId)
             {
                 MultiplayerSession.instance.Client.SendPacket(new PlayerColorChanged(this.PlayerId, newColor), LiteNetLib.DeliveryMethod.ReliableUnordered);
             }
+            */
 
-            this.PlayerColor = newColor;
-            Log.Info($"Changed color of player {this.PlayerId} to {newColor}");
+            PlayerColor = newColor;
+            Log.Info($"Changed color of player {PlayerId} to {newColor}");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using NebulaModel.DataStructures;
+using NebulaModel.GameLogic;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace NebulaClient.MonoBehaviours.Local
             {
                 time = 0;
 
-                MultiplayerSession.instance.Client?.SendPacket(new PlayerAnimationUpdate()
+                LocalPlayer.SendPacket(new PlayerAnimationUpdate()
                 {
                     Idle = playerAnimator.idle.ToNebula(),
                     RunSlow = playerAnimator.runSlow.ToNebula(),

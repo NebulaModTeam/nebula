@@ -1,6 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using NebulaClient.MonoBehaviours;
+using NebulaPatcher.MonoBehaviours;
 using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using System;
@@ -63,7 +63,7 @@ namespace NebulaPatcher
             Log.Info("Applying Nebula behaviours..");
 
             GameObject nebulaRoot = new GameObject();
-            nebulaRoot.name = "Nebula";
+            nebulaRoot.name = "Nebula Multiplayer Mod";
             nebulaRoot.AddComponent<NebulaBootstrapper>();
 
             Log.Info("Behaviours applied.");

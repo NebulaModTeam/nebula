@@ -1,6 +1,6 @@
 ﻿namespace NebulaModel.Packets.Session
 {
-    public class HandshakeHello
+    public class HandshakeRequest
     {
         public readonly uint ProtocolVersion = 0;
     }

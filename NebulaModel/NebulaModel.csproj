@@ -54,17 +54,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\RegisterNestedTypeAttribute.cs" />
+    <Compile Include="Attributes\RegisterPacketProcessorAttribute.cs" />
     <Compile Include="DataStructures\DataStructureExtensions.cs" />
     <Compile Include="DataStructures\Float3.cs" />
     <Compile Include="DataStructures\NebulaAnimationState.cs" />
     <Compile Include="DataStructures\Float4.cs" />
+    <Compile Include="GameLogic\INetworkProvider.cs" />
+    <Compile Include="GameLogic\LocalPlayer.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
-    <Compile Include="Packets\Players\Movement.cs" />
+    <Compile Include="Packets\Players\PlayerMovement.cs" />
     <Compile Include="Packets\Players\PlayerColorChanged.cs" />
-    <Compile Include="Packets\Session\HandshakeHello.cs" />
+    <Compile Include="Packets\Processors\IPacketProcessor.cs" />
+    <Compile Include="Packets\Session\HandshakeRequest.cs" />
     <Compile Include="Packets\Session\HandshakeResponse.cs" />
     <Compile Include="Packets\Session\InitialState.cs" />
     <Compile Include="Packets\Session\PlayerDisconnected.cs" />

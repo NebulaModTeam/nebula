@@ -65,7 +65,7 @@ namespace NebulaClient.MonoBehaviours.Remote
             }
         }
 
-        public void UpdatePosition(Movement packet)
+        public void UpdatePosition(PlayerMovement packet)
         {
             if (!rootTransform)
                 return;

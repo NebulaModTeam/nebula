@@ -1,25 +1,31 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using NebulaClient.MonoBehaviours;
+using NebulaClient.GameLogic;
+using NebulaModel.GameLogic;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
-using System;
+using UnityEngine;
 
-namespace NebulaClient
+namespace NebulaClient.MonoBehaviours
 {
-    public class Client
+    public class MultiplayerClientSession : MonoBehaviour, INetworkProvider
     {
-        private readonly NetManager client;
+        public static MultiplayerClientSession Instance { get; protected set; }
+
+        private NetManager client;
         private NebulaConnection serverConnection;
 
+        public PlayerManager PlayerManager { get; protected set; }
+        public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
-        public bool IsSessionJoined { get; protected set; }
 
-        public NetPacketProcessor PacketProcessor { get; }
-
-        public Client()
+        private void Awake()
+        {
+            Instance = this;
+        }
+        
+        public void Connect(string ip, int port)
         {
             EventBasedNetListener listener = new EventBasedNetListener();
             listener.PeerConnectedEvent += OnPeerConnected;
@@ -33,20 +39,20 @@ namespace NebulaClient
 
             PacketProcessor = new NetPacketProcessor();
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
-            PacketProcessor.SubscribeReusable<JoinSessionConfirmed>((_) => { IsSessionJoined = true; });
-        }
-
-        public void Connect(string ip, int port)
-        {
             client.Start();
             client.Connect(ip, port, "nebula");
+
+            PlayerManager = new PlayerManager();
+
+            LocalPlayer.IsMasterClient = false;
+            LocalPlayer.SetNetworkProvider(this);
         }
 
         public void Disconnect()
         {
             IsConnected = false;
-            IsSessionJoined = false;
             client.Stop();
         }
 
@@ -57,33 +63,27 @@ namespace NebulaClient
 
         public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
         {
-            if (serverConnection != null)
-            {
-                serverConnection.SendPacket(packet, deliveryMethod);
-            }
+            serverConnection?.SendPacket(packet, deliveryMethod);
         }
 
-        public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+        private void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
         {
             PacketProcessor.ReadAllPackets(reader, new NebulaConnection(peer, PacketProcessor));
         }
 
-        public void OnPeerConnected(NetPeer peer)
+        private void OnPeerConnected(NetPeer peer)
         {
-            Console.WriteLine("Connected to server");
             serverConnection = new NebulaConnection(peer, PacketProcessor);
             IsConnected = true;
-
-            SendPacket(new HandshakeHello());
+            SendPacket(new HandshakeRequest());
         }
 
-        public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+        private void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
         {
-            Console.WriteLine($"Disconnected from server: {disconnectInfo.Reason}");
-            serverConnection = null;
             IsConnected = false;
-            IsSessionJoined = false;
+            serverConnection = null;
 
+            /*
             UIMessageBox.Show(
                 "Connection Lost",
                 $"You have been disconnect of the server.\nReason{disconnectInfo.Reason}",
@@ -92,19 +92,13 @@ namespace NebulaClient
                 0,
                 new UIMessageBox.Response(() =>
                 {
-                    MultiplayerSession.instance.LeaveGame();
+                    // MultiplayerSession.instance.LeaveGame();
                 }),
                 new UIMessageBox.Response(() =>
                 {
-                    MultiplayerSession.instance.TryToReconnect();
+                    // MultiplayerSession.instance.TryToReconnect();
                 }));
-        }
-
-
-        //This function is called when the local player mines a vegetation
-        public void OnVegetationMined(int id, bool isVege, int planetID)
-        {
-            SendPacket(new VegeMined(id, isVege, planetID), DeliveryMethod.ReliableUnordered);
+            */
         }
     }
 }

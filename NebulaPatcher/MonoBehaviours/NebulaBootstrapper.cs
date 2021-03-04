@@ -1,7 +1,9 @@
-﻿using NebulaModel.Logger;
+﻿using NebulaClient.MonoBehaviours;
+using NebulaHost.MonoBehaviours;
+using NebulaModel.Logger;
 using UnityEngine;
 
-namespace NebulaClient.MonoBehaviours
+namespace NebulaPatcher.MonoBehaviours
 {
     public class NebulaBootstrapper : MonoBehaviour
     {
@@ -15,8 +17,6 @@ namespace NebulaClient.MonoBehaviours
 #if DEBUG
             EnableDeveloperFeatures();
 #endif
-
-            CreateMultiplayer();
         }
 
         private void EnableDeveloperFeatures()
@@ -27,12 +27,20 @@ namespace NebulaClient.MonoBehaviours
             Log.Info($"Unity run in background set to \"{Application.runInBackground}\"");
         }
 
-        private void CreateMultiplayer()
+        public MultiplayerHostSession CreateMultiplayerHostSession()
         {
             GameObject go = new GameObject();
             go.transform.SetParent(transform);
-            go.name = "Nebula - Multiplayer";
-            go.AddComponent<MultiplayerSession>();
+            go.name = "Nebula - Multiplayer Host Session";
+            return go.AddComponent<MultiplayerHostSession>();
+        }
+
+        public MultiplayerClientSession CreateMultiplayerClientSession()
+        {
+            GameObject go = new GameObject();
+            go.transform.SetParent(transform);
+            go.name = "Nebula - Multiplayer Client Session";
+            return go.AddComponent<MultiplayerClientSession>();
         }
     }
 }

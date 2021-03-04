@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaModel", "NebulaModel\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNetLib", "LiteNetLib\LiteNetLib\LiteNetLib.csproj", "{B0A014E4-0392-4E35-AA42-8FB5A40417E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebulaServer", "NebulaServer\NebulaServer.csproj", "{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaPatcher", "NebulaPatcher\NebulaPatcher.csproj", "{28B0716C-3926-4865-AB43-6C4431D022D6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{08DB0E29-5C9B-41F3-A130-4CB9CAFAED70}"
@@ -19,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.targets = Directory.Build.targets
 		SharedConfig.targets = SharedConfig.targets
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaHost", "NebulaHost\NebulaHost.csproj", "{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,14 +38,14 @@ Global
 		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0A014E4-0392-4E35-AA42-8FB5A40417E0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9CC129C5-8B19-47E4-AF64-9AAD00F5F10E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28B0716C-3926-4865-AB43-6C4431D022D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
