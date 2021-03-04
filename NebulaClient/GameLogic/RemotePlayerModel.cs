@@ -1,6 +1,12 @@
 ﻿using NebulaClient.MonoBehaviours.Remote;
 using UnityEngine;
 
+using System.Security;
+using System.Security.Permissions;
+
+[module: UnverifiableCode]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+
 namespace NebulaClient.GameLogic
 {
     public class RemotePlayerModel
@@ -11,6 +17,7 @@ namespace NebulaClient.GameLogic
         public Transform PlayerModelTransform { get; set; }
         public RemotePlayerMovement Movement { get; set; }
         public RemotePlayerAnimation Animator { get; set; }
+        public RemotePlayerEffects Effects { get; set; }
 
         public RemotePlayerModel(ushort playerId)
         {
@@ -20,6 +27,9 @@ namespace NebulaClient.GameLogic
             {
                 PlayerTransform = Object.Instantiate(Resources.Load<Transform>(playerPrefabPath));
                 PlayerModelTransform = PlayerTransform.Find("Model");
+
+                ParticleSystem[] backEngineEffect = PlayerTransform.GetComponent<PlayerEffect>().backEngineEffect;
+                ParticleSystemRenderer[] backEngineFlameRenderer = PlayerTransform.GetComponent<PlayerEffect>().backEngineFlameRenderer;
 
                 // Remove local player components
                 Object.Destroy(PlayerTransform.GetComponent<PlayerFootsteps>());
@@ -32,6 +42,9 @@ namespace NebulaClient.GameLogic
                 // Add remote player components
                 Movement = PlayerTransform.gameObject.AddComponent<RemotePlayerMovement>();
                 Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
+                Effects = PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
+
+                Effects.setOrigParticlesValues(backEngineEffect, backEngineFlameRenderer);
             }
 
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";

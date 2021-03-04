@@ -108,6 +108,7 @@ namespace NebulaClient.MonoBehaviours
         private void OnPlayerAnimationUpdate(PlayerAnimationUpdate packet)
         {
             PlayerManager.GetPlayerModelById(packet.PlayerId)?.Animator.UpdateState(packet);
+            PlayerManager.GetPlayerModelById(packet.PlayerId)?.Effects.UpdateState();
         }
 
         private void OnVegeMined(VegeMined packet)

@@ -3,6 +3,7 @@ using LiteNetLib.Utils;
 using NebulaClient.MonoBehaviours;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using System;

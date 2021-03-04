@@ -38,8 +38,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp.refstub">
+      <HintPath>..\Libs\Assembly-CSharp.refstub.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -53,6 +53,10 @@
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -78,6 +82,7 @@
     <Compile Include="MonoBehaviours\Local\LocalPlayerMovement.cs" />
     <Compile Include="MonoBehaviours\MultiplayerSession.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
+    <Compile Include="MonoBehaviours\Remote\RemotePlayerEffects.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerMovement.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerAnimation.cs" />
     <Compile Include="GameLogic\Player.cs" />
