@@ -1,9 +1,8 @@
 ﻿using NebulaModel.DataStructures;
-using NebulaModel.GameLogic;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 
-namespace NebulaClient.MonoBehaviours.Local
+namespace NebulaWorld.MonoBehaviours.Local
 {
     public class LocalPlayerAnimation : MonoBehaviour
     {

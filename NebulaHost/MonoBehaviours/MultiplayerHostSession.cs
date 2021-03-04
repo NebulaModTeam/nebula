@@ -1,9 +1,9 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using NebulaModel.GameLogic;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Utils;
+using NebulaWorld;
 using UnityEngine;
 
 namespace NebulaHost.MonoBehaviours
@@ -54,6 +54,7 @@ namespace NebulaHost.MonoBehaviours
 
             LocalPlayer.IsMasterClient = true;
             LocalPlayer.SetNetworkProvider(this);
+            SimulatedWorld.Initialize();
         }
 
         private void OnConnectionRequest(ConnectionRequest request)
@@ -87,8 +88,6 @@ namespace NebulaHost.MonoBehaviours
             Log.Info($"Client connected: {peer.EndPoint}");
             NebulaConnection conn = new NebulaConnection(peer, PacketProcessor);
             PlayerManager.PlayerConnected(conn);
-
-            UIMessageBox.Show("Player connected to my game", "Player connected to my game", "Ok", 0);
         }
 
         private void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)

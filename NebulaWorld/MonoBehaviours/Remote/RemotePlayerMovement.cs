@@ -1,10 +1,10 @@
-﻿using NebulaClient.MonoBehaviours.Local;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
+using NebulaWorld.MonoBehaviours.Local;
 using UnityEngine;
 
-namespace NebulaClient.MonoBehaviours.Remote
+namespace NebulaWorld.MonoBehaviours.Remote
 {
     public class RemotePlayerMovement : MonoBehaviour
     {
@@ -26,13 +26,13 @@ namespace NebulaClient.MonoBehaviours.Remote
         // This will make sure player movement is still smooth in high latency cases and even if there are dropped packets.
         private readonly Snapshot[] snapshotBuffer = new Snapshot[BUFFERED_SNAPSHOT_COUNT];
 
-        void Awake()
+        private void Awake()
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
         }
 
-        public void Update()
+        private void Update()
         {
             // Wait for the entire buffer to be full before starting to interpolate the player position
             if (snapshotBuffer[0].Timestamp == 0)
@@ -65,7 +65,7 @@ namespace NebulaClient.MonoBehaviours.Remote
             }
         }
 
-        public void UpdatePosition(PlayerMovement packet)
+        public void UpdatePosition(PlayerMovement movement)
         {
             if (!rootTransform)
                 return;
@@ -78,9 +78,9 @@ namespace NebulaClient.MonoBehaviours.Remote
             snapshotBuffer[snapshotBuffer.Length - 1] = new Snapshot()
             {
                 Timestamp = TimeUtils.CurrentUnixTimestampMilliseconds(),
-                Position = packet.Position.ToUnity(),
-                Rotation = Quaternion.Euler(packet.Rotation.ToUnity()),
-                BodyRotation = Quaternion.Euler(packet.BodyRotation.ToUnity()),
+                Position = movement.Position.ToUnity(),
+                Rotation = Quaternion.Euler(movement.Rotation.ToUnity()),
+                BodyRotation = Quaternion.Euler(movement.BodyRotation.ToUnity()),
             };
         }
 

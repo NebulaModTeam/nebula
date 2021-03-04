@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="LocalPlayer.cs" />
     <Compile Include="Logger\BepInExLogger.cs" />
+    <Compile Include="MonoBehaviours\MonoBehaviourExtension.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
@@ -105,6 +106,10 @@
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
       <Project>{c6237195-f77c-40c0-b06a-4ad51cad314d}</Project>
       <Name>NebulaModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj">
+      <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
+      <Name>NebulaWorld</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

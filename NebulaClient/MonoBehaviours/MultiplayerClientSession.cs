@@ -1,10 +1,9 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using NebulaClient.GameLogic;
-using NebulaModel.GameLogic;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
+using NebulaWorld;
 using UnityEngine;
 
 namespace NebulaClient.MonoBehaviours
@@ -16,7 +15,6 @@ namespace NebulaClient.MonoBehaviours
         private NetManager client;
         private NebulaConnection serverConnection;
 
-        public PlayerManager PlayerManager { get; protected set; }
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
 
@@ -44,10 +42,9 @@ namespace NebulaClient.MonoBehaviours
             client.Start();
             client.Connect(ip, port, "nebula");
 
-            PlayerManager = new PlayerManager();
-
             LocalPlayer.IsMasterClient = false;
             LocalPlayer.SetNetworkProvider(this);
+            SimulatedWorld.Initialize();
         }
 
         public void Disconnect()

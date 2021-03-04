@@ -1,9 +1,7 @@
 ﻿using HarmonyLib;
 using LiteNetLib;
-using NebulaClient.MonoBehaviours;
-using NebulaHost.MonoBehaviours;
-using NebulaModel.GameLogic;
 using NebulaModel.Packets.Planet;
+using NebulaWorld;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

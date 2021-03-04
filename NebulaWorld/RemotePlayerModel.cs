@@ -1,7 +1,7 @@
-﻿using NebulaClient.MonoBehaviours.Remote;
+﻿using NebulaWorld.MonoBehaviours.Remote;
 using UnityEngine;
 
-namespace NebulaClient.GameLogic
+namespace NebulaWorld
 {
     public class RemotePlayerModel
     {

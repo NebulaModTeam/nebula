@@ -2,7 +2,7 @@
 using NebulaModel.Packets.Players;
 using UnityEngine;
 
-namespace NebulaClient.MonoBehaviours.Remote
+namespace NebulaWorld.MonoBehaviours.Remote
 {
     // TODO: Missing client side interpolation
     public class RemotePlayerAnimation : MonoBehaviour
@@ -20,7 +20,7 @@ namespace NebulaClient.MonoBehaviours.Remote
         public AnimationState Sail { get; private set; }
         public AnimationState Mining0 { get; private set; }
 
-        public void Awake()
+        private void Awake()
         {
             anim = GetComponentInChildren<Animation>();
 

@@ -1,6 +1,6 @@
 ﻿using LiteNetLib;
 
-namespace NebulaModel.GameLogic
+namespace NebulaWorld
 {
     public interface INetworkProvider
     {

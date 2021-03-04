@@ -19,7 +19,16 @@ namespace NebulaHost.PacketProcessors.Session
         public void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
             Player player = playerManager.GetSyncingPlayer(conn);
-            playerManager.OnPlayerSyncComplete(player);
+            playerManager.SyncingPlayers.Remove(player.connection);
+            playerManager.ConnectedPlayers.Add(player.connection, player);
+
+            if (playerManager.SyncingPlayers.Count == 0)
+            {
+                playerManager.SendPacketToOtherPlayers(new SyncComplete(), player);
+            } 
+
+            // Send a confirmation to the new player containing his player id.
+            player.SendPacket(new JoinSessionConfirmed(player.Id));
         }
     }
 }

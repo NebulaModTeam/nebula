@@ -1,10 +1,12 @@
 ﻿using LiteNetLib;
 
-namespace NebulaModel.GameLogic
+namespace NebulaWorld
 {
     public static class LocalPlayer
     {
         public static bool IsMasterClient { get; set; }
+        public static ushort PlayerId { get; set; }
+
         private static INetworkProvider networkProvider;
 
         public static void SetNetworkProvider(INetworkProvider provider)

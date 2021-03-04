@@ -57,7 +57,6 @@
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Session\InitialStateProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerManager.cs" />
@@ -71,6 +70,10 @@
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
       <Project>{C6237195-F77C-40C0-B06A-4AD51CAD314D}</Project>
       <Name>NebulaModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj">
+      <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
+      <Name>NebulaWorld</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

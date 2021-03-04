@@ -72,26 +72,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameLogic\LocalPlayerModel.cs" />
-    <Compile Include="MonoBehaviours\Local\LocalPlayerAnimation.cs" />
-    <Compile Include="MonoBehaviours\Local\LocalPlayerMovement.cs" />
     <Compile Include="MonoBehaviours\MultiplayerClientSession.cs" />
-    <Compile Include="MonoBehaviours\Remote\RemotePlayerMovement.cs" />
-    <Compile Include="MonoBehaviours\Remote\RemotePlayerAnimation.cs" />
-    <Compile Include="GameLogic\Player.cs" />
-    <Compile Include="GameLogic\PlayerManager.cs" />
-    <Compile Include="GameLogic\RemotePlayerModel.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Session\JoinSessionConfirmedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeResponseProcessor.cs" />
-    <Compile Include="PacketProcessors\Session\InitialStateProcessor.cs" />
     <Compile Include="PacketProcessors\Session\RemotePlayerJoinedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Extensions\MonoBehaviourUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LiteNetLib\LiteNetLib\LiteNetLib.csproj">
@@ -101,6 +91,10 @@
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
       <Project>{c6237195-f77c-40c0-b06a-4ad51cad314d}</Project>
       <Name>NebulaModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj">
+      <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
+      <Name>NebulaWorld</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
