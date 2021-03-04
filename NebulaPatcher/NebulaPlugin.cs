@@ -1,8 +1,8 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using NebulaPatcher.MonoBehaviours;
 using NebulaModel.Logger;
 using NebulaPatcher.Logger;
+using NebulaPatcher.MonoBehaviours;
 using System;
 using UnityEngine;
 

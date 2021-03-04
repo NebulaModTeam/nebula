@@ -22,7 +22,7 @@ namespace NebulaClient.MonoBehaviours
         {
             Instance = this;
         }
-        
+
         public void Connect(string ip, int port)
         {
             EventBasedNetListener listener = new EventBasedNetListener();

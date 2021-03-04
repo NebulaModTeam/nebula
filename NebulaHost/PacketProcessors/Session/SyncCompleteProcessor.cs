@@ -25,7 +25,7 @@ namespace NebulaHost.PacketProcessors.Session
             if (playerManager.SyncingPlayers.Count == 0)
             {
                 playerManager.SendPacketToOtherPlayers(new SyncComplete(), player);
-            } 
+            }
 
             // Send a confirmation to the new player containing his player id.
             player.SendPacket(new JoinSessionConfirmed(player.Id));
