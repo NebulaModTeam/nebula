@@ -130,12 +130,6 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // TODO: Should display a loader during the connection and only open the game once the player is connected to the server.
             multiplayerMenu.gameObject.SetActive(false);
-            
-            // TODO: For now I'm only starting the same world on all clients by using the same seed. But we will need to change this 
-            // code to instead share the save game to all clients that join the game to make sure that everyone has the same initial state.
-            GameDesc gameDesc = new GameDesc();
-            gameDesc.SetForNewGame(UniverseGen.algoVersion, 1, 64, 1, 1f);
-            DSPGame.StartGameSkipPrologue(gameDesc);
         }
 
         private static void OnBackButtonClick()

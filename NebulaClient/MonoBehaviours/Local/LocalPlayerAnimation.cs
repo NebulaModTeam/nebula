@@ -6,12 +6,13 @@ namespace NebulaClient.MonoBehaviours.Local
 {
     public class LocalPlayerAnimation : MonoBehaviour
     {
-        public const float BROADCAST_INTERVAL = 0.2f; // 5 updates per seconds
+        public const int SEND_RATE = 5;
+        public const float BROADCAST_INTERVAL = 1f / SEND_RATE;
 
         private float time;
         private PlayerAnimator playerAnimator;
 
-        void Start()
+        void Awake()
         {
             playerAnimator = GetComponent<PlayerAnimator>();
         }

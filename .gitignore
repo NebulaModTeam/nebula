@@ -6,6 +6,7 @@
 # Nebula-specific files
 Libs/*
 !Libs/DowngradeDll.exe
+DevEnv.targets
 
 
 # User-specific files

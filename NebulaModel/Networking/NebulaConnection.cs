@@ -33,6 +33,12 @@ namespace NebulaModel.Networking
             }
         }
 
+        public void Disconnect()
+        {
+            //TODO: Create a disconnectReason packet type so the users know why the server disconnected them
+            peer.Disconnect();
+        }
+
         public static bool operator ==(NebulaConnection left, NebulaConnection right)
         {
             return Equals(left, right);
