@@ -169,8 +169,7 @@ namespace NebulaWorld
             Log.Info("Game has finished loading");
 
             //Assign our own color
-            UpdatePlayerColor(LocalPlayer.PlayerId,
-                new Float3(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f)));
+            UpdatePlayerColor(LocalPlayer.PlayerId,LocalPlayer.Data.Color);
 
             LocalPlayer.SetReady();
         }
