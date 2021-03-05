@@ -83,6 +83,8 @@
     <Compile Include="MonoBehaviours\MonoBehaviourExtension.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\GameLoader_Patch.cs" />
+    <Compile Include="Patches\Dynamic\DSPGame_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlayerController_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />

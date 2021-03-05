@@ -57,8 +57,7 @@ namespace NebulaHost
 
             LocalPlayer.SetNetworkProvider(this);
             LocalPlayer.IsMasterClient = true;
-            // TODO: Load local player data
-            // TODO: For some reason the local player color does not work even if we set the color to the materials.
+            
             LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), new Float3(Random.value, Random.value, Random.value))); // Default color: new Float3(1.0f, 0.6846404f, 0.243137181f)));
         }
 
