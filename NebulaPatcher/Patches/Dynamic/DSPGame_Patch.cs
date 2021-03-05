@@ -1,6 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

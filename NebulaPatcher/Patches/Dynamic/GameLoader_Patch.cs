@@ -1,7 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
-using System;
-using NebulaHost;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -11,7 +8,6 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static void Postfix(int ___frame)
         {
-            Log.Info(___frame);
             if(___frame >= 11 && SimulatedWorld.Initialized)
             {
                 SimulatedWorld.OnGameLoadCompleted();

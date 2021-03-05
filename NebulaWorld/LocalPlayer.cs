@@ -37,7 +37,9 @@ namespace NebulaWorld
             Data = data;
             GameMain.mainPlayer.transform.position = data.Position.ToUnity();
             GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
-            SimulatedWorld.UpdatePlayerColor(data.PlayerId, data.Color);
+            
+            // Don't update color, only do it when the game finished loading
+            // SimulatedWorld.UpdatePlayerColor(data.PlayerId, data.Color);
         }
 
         public static void LeaveGame()
@@ -51,6 +53,5 @@ namespace NebulaWorld
                 DSPGame.EndGame();
             }
         }
-
     }
 }

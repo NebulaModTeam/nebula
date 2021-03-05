@@ -20,6 +20,12 @@ namespace NebulaHost.PacketProcessors.Players
         public void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
+            NebulaModel.Logger.Log.Info(conn.Id);
+            if(player == null)
+            {
+                NebulaModel.Logger.Log.Warn($"Received PlayerColorChanged packet from unknown player {conn.Id}");
+                return;
+            }
             player.Data.Color = packet.Color;
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
 

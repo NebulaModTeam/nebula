@@ -73,7 +73,7 @@ namespace NebulaWorld
         {
             Transform transform;
             RemotePlayerModel remotePlayerModel;
-            if (LocalPlayer.IsMasterClient)
+            if ( playerId == LocalPlayer.PlayerId)
             {
                 transform = GameMain.data.mainPlayer.transform;
             }
