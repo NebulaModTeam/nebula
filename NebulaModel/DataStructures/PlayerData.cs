@@ -20,7 +20,7 @@ namespace NebulaModel.DataStructures
             Position = position;
             Rotation = rotation;
             BodyRotation = bodyRotation;
-    }
+        }
 
         public void Serialize(NetDataWriter writer)
         {

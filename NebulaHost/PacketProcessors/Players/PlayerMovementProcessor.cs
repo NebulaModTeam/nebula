@@ -1,6 +1,5 @@
 ﻿using LiteNetLib;
 using NebulaModel.Attributes;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Processors;

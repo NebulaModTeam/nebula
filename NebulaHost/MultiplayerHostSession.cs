@@ -49,7 +49,7 @@ namespace NebulaHost
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
             server.Start(port);
-            
+
             SimulatedWorld.Initialize();
 
             LocalPlayer.SetNetworkProvider(this);

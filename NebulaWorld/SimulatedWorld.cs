@@ -25,7 +25,7 @@ namespace NebulaWorld
         /// </summary>
         public static void Clear()
         {
-            foreach(var model in remotePlayersModels.Values)
+            foreach (var model in remotePlayersModels.Values)
             {
                 model.Destroy();
             }
