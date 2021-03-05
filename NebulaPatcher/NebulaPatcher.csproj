@@ -80,6 +80,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logger\BepInExLogger.cs" />
+    <Compile Include="MonoBehaviours\MonoBehaviourExtension.cs" />
+    <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlayerController_Patch.cs" />
@@ -96,11 +98,20 @@
       <Project>{5be9c74b-7832-4ef1-a53d-bf461bbdb0be}</Project>
       <Name>NebulaClient</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NebulaHost\NebulaHost.csproj">
+      <Project>{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}</Project>
+      <Name>NebulaHost</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
       <Project>{c6237195-f77c-40c0-b06a-4ad51cad314d}</Project>
       <Name>NebulaModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj">
+      <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
+      <Name>NebulaWorld</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"

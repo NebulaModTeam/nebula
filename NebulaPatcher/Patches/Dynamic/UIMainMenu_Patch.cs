@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using NebulaClient.MonoBehaviours;
 using NebulaModel.Logger;
+using NebulaPatcher.MonoBehaviours;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -69,7 +69,6 @@ namespace NebulaPatcher.Patches.Dynamic
             Object.Destroy(multiplayerMenu.gameObject.GetComponent<UIGalaxySelect>());
 
             multiplayerMenu.gameObject.name = "Nebula - Multiplayer Menu";
-            multiplayerMenu.Find("random-button").gameObject.SetActive(false);
             multiplayerMenu.Find("star-count").gameObject.SetActive(false);
             multiplayerMenu.Find("resource-multiplier").gameObject.SetActive(false);
             multiplayerMenu.Find("right-group").gameObject.SetActive(false);
@@ -97,6 +96,13 @@ namespace NebulaPatcher.Patches.Dynamic
             backButton.onClick.RemoveAllListeners();
             backButton.onClick.AddListener(new UnityAction(OnBackButtonClick));
 
+            // TODO: Temporary way of hosting a game
+            var hostButton = multiplayerMenu.Find("random-button").GetComponent<Button>();
+            hostButton.GetComponentInChildren<Localizer>().enabled = false;
+            hostButton.GetComponentInChildren<Text>().text = "Host Game";
+            hostButton.onClick.RemoveAllListeners();
+            hostButton.onClick.AddListener(new UnityAction(OnHostGameButtonClick));
+
             multiplayerMenu.gameObject.SetActive(false);
         }
 
@@ -105,6 +111,34 @@ namespace NebulaPatcher.Patches.Dynamic
             UIRoot.instance.CloseMainMenuUI();
             multiplayerMenu.gameObject.SetActive(true);
             hostIPAdressInput.characterLimit = 30;
+        }
+
+        // TODO: Remove all this once we change the way we deal with hosting a game.
+        // We could it should probably be done from the in game Esc Menu.
+        private static void OnHostGameButtonClick()
+        {
+            string[] parts = hostIPAdressInput.text.Split(':');
+            int port;
+
+            if (parts.Length == 1)
+            {
+                port = 8469;
+            }
+            else if (!int.TryParse(parts[1], out port))
+            {
+                Log.Info($"Port must be a valid number above 1024");
+                return;
+            }
+
+            multiplayerMenu.gameObject.SetActive(false);
+
+            Log.Info($"Listening server on port {port}");
+            var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
+            session.StartServer(port);
+
+            GameDesc gameDesc = new GameDesc();
+            gameDesc.SetForNewGame(UniverseGen.algoVersion, 1, 64, 1, 1f);
+            DSPGame.StartGameSkipPrologue(gameDesc);
         }
 
         private static void OnJoinGameButtonClick()
@@ -124,12 +158,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Log.Info($"Connecting to server... {ip}:{port}");
-
-            Object.FindObjectOfType<MultiplayerSession>().Connect(ip, port);
-
             // TODO: Should display a loader during the connection and only open the game once the player is connected to the server.
             multiplayerMenu.gameObject.SetActive(false);
+
+            Log.Info($"Connecting to server... {ip}:{port}");
+
+            var session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
+            session.Connect(ip, port);
         }
 
         private static void OnBackButtonClick()

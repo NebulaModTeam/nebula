@@ -10,8 +10,8 @@ namespace NebulaModel.Packets.Players
         public PlayerColorChanged() { }
         public PlayerColorChanged(ushort playerID, Float3 color)
         {
-            this.PlayerId = playerID;
-            this.Color = color;
+            PlayerId = playerID;
+            Color = color;
         }
     }
 }

@@ -1,17 +1,26 @@
-﻿namespace NebulaModel.Packets.Session
+﻿using NebulaModel.DataStructures;
+
+namespace NebulaModel.Packets.Session
 {
     public class HandshakeResponse
     {
-        public bool IsFirstPlayer { get; set; }
-
-        public ushort[] OtherPlayerIds { get; set; }
+        public int AlgoVersion { get; set; }
+        public int GalaxySeed { get; set; }
+        public int StarCount { get; set; }
+        public float ResourceMultiplier { get; set; }
+        public PlayerData LocalPlayerData { get; set; }
+        public PlayerData[] OtherPlayers { get; set; }
 
         public HandshakeResponse() { }
 
-        public HandshakeResponse(bool isFirstPlayer, ushort[] otherPlayerIds)
+        public HandshakeResponse(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier, PlayerData localPlayerData, PlayerData[] otherPlayers)
         {
-            this.IsFirstPlayer = isFirstPlayer;
-            this.OtherPlayerIds = otherPlayerIds;
+            AlgoVersion = algoVersion;
+            GalaxySeed = galaxySeed;
+            StarCount = starCount;
+            ResourceMultiplier = resourceMultiplier;
+            LocalPlayerData = localPlayerData;
+            OtherPlayers = otherPlayers;
         }
     }
 }

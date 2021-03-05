@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaClient.MonoBehaviours;
-using UnityEngine;
+using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -10,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static void Postfix()
         {
-            GameObject.FindObjectOfType<MultiplayerSession>()?.Disconnect();
+            LocalPlayer.LeaveGame();
         }
     }
 }

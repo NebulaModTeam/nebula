@@ -2,8 +2,6 @@
 
 namespace NebulaModel.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class RegisterNestedTypeAttribute : Attribute
-    {
-    }
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
+    public class RegisterNestedTypeAttribute : Attribute { }
 }
