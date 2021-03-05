@@ -1,35 +1,24 @@
 ﻿using LiteNetLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Players;
 
 namespace NebulaHost
 {
     public class Player
     {
-        public NebulaConnection connection { get; set; }
-        public ushort Id { get; }
-        public Float3 Position { get; set; }
-        public Float3 Rotation { get; set; }
-        public Float3 BodyRotation { get; set; }
-        public Float3 PlayerColor { get; set; }
+        public NebulaConnection Connection { get; private set; }
+        public PlayerData Data { get; private set; }
+        public ushort Id => Data.PlayerId;
 
-        public Player(NebulaConnection connection, ushort playerId)
+        public Player(NebulaConnection connection, PlayerData data)
         {
-            this.connection = connection;
-            Id = playerId;
+            Connection = connection;
+            Data = data;
         }
 
         public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
         {
-            connection.SendPacket(packet, deliveryMethod);
-        }
-
-        public void SetPosition(PlayerMovement packet)
-        {
-            Position = packet.Position;
-            Rotation = packet.Rotation;
-            BodyRotation = packet.BodyRotation;
+            Connection.SendPacket(packet, deliveryMethod);
         }
     }
 }

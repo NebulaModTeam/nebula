@@ -62,6 +62,8 @@
     <Compile Include="DataStructures\Float3.cs" />
     <Compile Include="DataStructures\NebulaAnimationState.cs" />
     <Compile Include="DataStructures\Float4.cs" />
+    <Compile Include="DataStructures\NetDataReaderExtensions.cs" />
+    <Compile Include="DataStructures\PlayerData.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
@@ -74,7 +76,6 @@
     <Compile Include="Packets\Session\InitialState.cs" />
     <Compile Include="Packets\Session\PlayerDisconnected.cs" />
     <Compile Include="Packets\Session\PlayerJoining.cs" />
-    <Compile Include="Packets\Session\JoinSessionConfirmed.cs" />
     <Compile Include="Packets\Planet\VegeMined.cs" />
     <Compile Include="Packets\Session\SyncComplete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

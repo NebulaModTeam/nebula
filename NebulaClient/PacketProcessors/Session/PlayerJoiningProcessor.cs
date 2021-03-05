@@ -11,7 +11,7 @@ namespace NebulaClient.PacketProcessors.Session
     {
         public void ProcessPacket(PlayerJoining packet, NebulaConnection conn)
         {
-            SimulatedWorld.SpawnRemotePlayerModel(packet.PlayerId);
+            SimulatedWorld.SpawnRemotePlayerModel(packet.PlayerData);
             GameMain.Pause();
             InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
         }

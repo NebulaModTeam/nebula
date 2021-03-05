@@ -1,10 +1,12 @@
-﻿namespace NebulaModel.Packets.Session
+﻿using NebulaModel.DataStructures;
+
+namespace NebulaModel.Packets.Session
 {
     public class PlayerJoining
     {
-        public ushort PlayerId { get; set; }
+        public PlayerData PlayerData { get; set; }
 
         public PlayerJoining() { }
-        public PlayerJoining(ushort id) { PlayerId = id; }
+        public PlayerJoining(PlayerData playerData) { PlayerData = playerData; }
     }
 }

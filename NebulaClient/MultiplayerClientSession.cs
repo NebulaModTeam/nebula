@@ -18,7 +18,6 @@ namespace NebulaClient
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
-        public bool IsLoadingGame { get; set; }
 
         private string serverIp;
         private int serverPort;
@@ -50,9 +49,10 @@ namespace NebulaClient
             client.Start();
             client.Connect(ip, port, "nebula");
 
+            SimulatedWorld.Initialize();
+
             LocalPlayer.IsMasterClient = false;
             LocalPlayer.SetNetworkProvider(this);
-            SimulatedWorld.Initialize();
         }
 
         void Disconnect()
@@ -108,14 +108,6 @@ namespace NebulaClient
         private void Update()
         {
             client?.PollEvents();
-
-            // The first 10 ticks are used while loading
-            if (IsLoadingGame && GameMain.gameTick > 10)
-            {
-                IsLoadingGame = false;
-                serverConnection?.SendPacket(new SyncComplete());
-                InGamePopup.FadeOut();
-            }
         }
     }
 }

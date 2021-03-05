@@ -1,11 +1,14 @@
 ﻿using LiteNetLib;
+using NebulaModel.DataStructures;
+using NebulaModel.Packets.Session;
 
 namespace NebulaWorld
 {
     public static class LocalPlayer
     {
         public static bool IsMasterClient { get; set; }
-        public static ushort PlayerId { get; set; }
+        public static ushort PlayerId => Data.PlayerId;
+        public static PlayerData Data { get; private set; }
 
         private static INetworkProvider networkProvider;
 
@@ -17,6 +20,24 @@ namespace NebulaWorld
         public static void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
         {
             networkProvider?.SendPacket(packet, deliveryMethod);
+        }
+
+        public static void SetReady()
+        {
+            if (!IsMasterClient)
+            {
+                // Notify the server that we are done with loading the game
+                networkProvider.SendPacket(new SyncComplete());
+                InGamePopup.FadeOut();
+            }
+        }
+
+        public static void SetPlayerData(PlayerData data)
+        {
+            Data = data;
+            GameMain.mainPlayer.transform.position = data.Position.ToUnity();
+            GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
+            SimulatedWorld.UpdatePlayerColor(GameMain.mainPlayer.transform, data.Color);
         }
 
         public static void LeaveGame()

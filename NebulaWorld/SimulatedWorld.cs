@@ -1,4 +1,5 @@
-﻿using NebulaModel.Logger;
+﻿using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
 using System.Collections.Generic;
@@ -32,10 +33,11 @@ namespace NebulaWorld
             remotePlayersModels.Clear();
         }
 
-        public static void SpawnRemotePlayerModel(ushort playerId)
+        public static void SpawnRemotePlayerModel(PlayerData playerData)
         {
-            RemotePlayerModel model = new RemotePlayerModel(playerId);
-            remotePlayersModels.Add(playerId, model);
+            RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
+            remotePlayersModels.Add(playerData.PlayerId, model);
+            UpdatePlayerColor(playerData.PlayerId, playerData.Color);
         }
 
         public static void DestroyRemotePlayerModel(ushort playerId)
@@ -63,19 +65,26 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdatePlayerColor(ushort playerId, Color color)
+        public static void UpdatePlayerColor(ushort playerId, Float3 color)
         {
             RemotePlayerModel player;
             if (!remotePlayersModels.TryGetValue(playerId, out player))
                 return;
+            UpdatePlayerColor(player.PlayerTransform, color);
+        }
 
+        public static void UpdatePlayerColor(Transform transform, Float3 color)
+        {
             // Apply new color to each part of the mecha
-            Renderer[] componentsInChildren = player.PlayerTransform.gameObject.GetComponentsInChildren<Renderer>(includeInactive: true);
+            Renderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<Renderer>(includeInactive: true);
+
             foreach (Renderer r in componentsInChildren)
             {
-                if (r.material?.name == "icarus-armor (Instance)")
+                Log.Warn(r.material?.name);
+                if (r.material?.name.StartsWith("icarus-armor") ?? false)
                 {
-                    r.material.SetColor("_Color", color);
+                    Log.Warn($"Applying color to {r.material?.name}");
+                    r.material.SetColor("_Color", color.ToColor());
                 }
             }
         }

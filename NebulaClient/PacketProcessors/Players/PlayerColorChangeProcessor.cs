@@ -11,7 +11,7 @@ namespace NebulaClient.PacketProcessors.Players
     {
         public void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
         {
-            SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color.ToColor());
+            SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color);
         }
     }
 }

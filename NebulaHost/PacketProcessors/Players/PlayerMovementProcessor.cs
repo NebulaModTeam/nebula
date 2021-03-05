@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using NebulaModel.Attributes;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Processors;
@@ -20,9 +21,9 @@ namespace NebulaHost.PacketProcessors.Players
         public void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            player.Position = packet.Position;
-            player.Rotation = packet.Rotation;
-            player.BodyRotation = packet.BodyRotation;
+            player.Data.Position = packet.Position;
+            player.Data.Rotation = packet.Rotation;
+            player.Data.BodyRotation = packet.BodyRotation;
 
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
 

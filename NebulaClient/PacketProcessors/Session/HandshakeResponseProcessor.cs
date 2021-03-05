@@ -16,16 +16,17 @@ namespace NebulaClient.PacketProcessors.Session
             DSPGame.StartGameSkipPrologue(gameDesc);
 
             LocalPlayer.IsMasterClient = false;
-            LocalPlayer.PlayerId = packet.LocalPlayerId;
+            LocalPlayer.SetPlayerData(packet.LocalPlayerData);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
 
-            foreach (var playerId in packet.OtherPlayerIds)
+            foreach (var playerData in packet.OtherPlayers)
             {
-                SimulatedWorld.SpawnRemotePlayerModel(playerId);
+                SimulatedWorld.SpawnRemotePlayerModel(playerData);
             }
 
-            MultiplayerClientSession.Instance.IsLoadingGame = true;
+            // This should be called after the loading screen not instantly
+            LocalPlayer.SetReady();
         }
     }
 }

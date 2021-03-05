@@ -20,10 +20,10 @@ namespace NebulaHost.PacketProcessors.Players
         public void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            player.PlayerColor = packet.Color;
+            player.Data.Color = packet.Color;
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
 
-            SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color.ToColor());
+            SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color);
         }
     }
 }

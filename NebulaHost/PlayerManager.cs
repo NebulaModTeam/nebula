@@ -1,9 +1,11 @@
 ﻿using LiteNetLib;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace NebulaHost
 {
@@ -28,9 +30,9 @@ namespace NebulaHost
         public Dictionary<NebulaConnection, Player> SyncingPlayers => syncingPlayers;
         public Dictionary<NebulaConnection, Player> ConnectedPlayers => connectedPlayers;
 
-        public IEnumerable<ushort> GetAllPlayerIdsIncludingHost()
+        public IEnumerable<PlayerData> GetAllPlayerIdsIncludingHost()
         {
-            return new ushort[] { LocalPlayer.PlayerId }.Concat(GetConnectedPlayers().Select(p => p.Id));
+            return new PlayerData[] { LocalPlayer.Data }.Concat(GetConnectedPlayers().Select(p => p.Data));
         }
 
         public IEnumerable<Player> GetConnectedPlayers()
@@ -78,8 +80,12 @@ namespace NebulaHost
 
         public Player PlayerConnected(NebulaConnection conn)
         {
-            // TODO: Load old player state if we have one. Perhaps some sort of client-generated UUID, or a steam ID?
-            Player newPlayer = new Player(conn, GetNextAvailablePlayerId());
+            // TODO: Load old player state if we have one. We generate a random one for now.
+            ushort playerId = GetNextAvailablePlayerId();
+            Float3 randomColor = new Float3(Random.value, Random.value, Random.value);
+            PlayerData playerData = new PlayerData(playerId, randomColor);
+
+            Player newPlayer = new Player(conn, playerData);
             pendingPlayers.Add(conn, newPlayer);
 
             return newPlayer;
@@ -105,21 +111,5 @@ namespace NebulaHost
             else
                 return ++highestPlayerID;
         }
-
-        /*
-        public void  PlayerSentInitialState(Player player, InitialState packet)
-        {
-            if (!player.IsMasterClient)
-            {
-                // Someone is doing something nefarious here
-                return;
-            }
-
-            foreach (var syncingPlayer in syncingPlayers.Values)
-            {
-                syncingPlayer.SendPacket(packet);
-            }
-        }
-        */
     }
 }

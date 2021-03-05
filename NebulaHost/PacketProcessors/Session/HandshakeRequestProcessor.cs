@@ -42,7 +42,7 @@ namespace NebulaHost.PacketProcessors.Session
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             foreach (Player activePlayer in playerManager.GetConnectedPlayers())
             {
-                activePlayer.SendPacket(new PlayerJoining(player.Id));
+                activePlayer.SendPacket(new PlayerJoining(player.Data));
             }
 
             // Add the new player to the list
@@ -50,9 +50,9 @@ namespace NebulaHost.PacketProcessors.Session
 
             // TODO: This should be our actual GameDesc and not an hardcoded value.
             var inGamePlayersIds = playerManager.GetAllPlayerIdsIncludingHost();
-            player.SendPacket(new HandshakeResponse(UniverseGen.algoVersion, 1, 64, 1f, player.Id, inGamePlayersIds.ToArray()));
+            player.SendPacket(new HandshakeResponse(UniverseGen.algoVersion, 1, 64, 1f, player.Data, inGamePlayersIds.ToArray()));
 
-            SimulatedWorld.SpawnRemotePlayerModel(player.Id);
+            SimulatedWorld.SpawnRemotePlayerModel(player.Data);
         }
     }
 }
