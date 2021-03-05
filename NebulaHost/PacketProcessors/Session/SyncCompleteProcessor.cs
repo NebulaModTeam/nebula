@@ -28,7 +28,6 @@ namespace NebulaHost.PacketProcessors.Session
             playerManager.SyncingPlayers.Remove(player.Connection);
             playerManager.ConnectedPlayers.Add(player.Connection, player);
 
-
             if (playerManager.SyncingPlayers.Count == 0)
             {
                 playerManager.SendPacketToOtherPlayers(new SyncComplete(), player);

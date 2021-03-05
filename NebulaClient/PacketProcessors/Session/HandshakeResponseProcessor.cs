@@ -24,9 +24,6 @@ namespace NebulaClient.PacketProcessors.Session
             {
                 SimulatedWorld.SpawnRemotePlayerModel(playerData);
             }
-
-            // This should be called after the loading screen not instantly
-            //LocalPlayer.SetReady();
         }
     }
 }

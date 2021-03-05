@@ -2,9 +2,7 @@
 using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace NebulaWorld
@@ -87,7 +85,7 @@ namespace NebulaWorld
             Renderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<Renderer>(includeInactive: false);
             foreach (Renderer r in componentsInChildren)
             {
-                if (r.material?.name.Contains("icarus-armor") ?? false)
+                if (r.material?.name.StartsWith("icarus-armor") ?? false)
                 {
                     r.material.SetColor("_Color", color.ToColor());
                 }
