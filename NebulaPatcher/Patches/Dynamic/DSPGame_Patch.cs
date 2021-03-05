@@ -1,21 +1,15 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
-using System;
-using NebulaHost;
-using NebulaWorld;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(GameLoader), "FixedUpdate")]
-    class GameLoader_Patch
+    [HarmonyPatch(typeof(DSPGame), "Update")]
+    class DSPGame_Patch
     {
-        public static void Postfix(int ___frame)
+        public static void Postfix()
         {
-            Log.Info(___frame);
-            if(___frame >= 11 && SimulatedWorld.Initialized)
-            {
-                SimulatedWorld.OnGameLoadCompleted();
-            }
+            //Use this function if you need to check/do something every frame
         }
     }
 }
