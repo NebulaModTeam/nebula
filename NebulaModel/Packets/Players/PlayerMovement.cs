@@ -12,11 +12,9 @@ namespace NebulaModel.Packets.Players
 
         public PlayerMovement() { }
 
-        public PlayerMovement(Vector3 position, Vector3 rotation, Vector3 bodyRotation)
+        public PlayerMovement(ushort playerId, Vector3 position, Vector3 rotation, Vector3 bodyRotation)
         {
-            // This will be set for packet sent from server only
-            PlayerId = 0;
-
+            PlayerId = playerId;
             Position = new Float3(position);
             Rotation = new Float3(rotation);
             BodyRotation = new Float3(bodyRotation);

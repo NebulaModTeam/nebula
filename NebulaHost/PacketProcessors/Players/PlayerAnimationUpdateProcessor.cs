@@ -4,6 +4,7 @@ using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Processors;
+using NebulaWorld;
 
 namespace NebulaHost.PacketProcessors.Players
 {
@@ -23,7 +24,7 @@ namespace NebulaHost.PacketProcessors.Players
             packet.PlayerId = player.Id;
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
 
-            // TODO: Should update the host state immediatly here
+            SimulatedWorld.UpdateRemotePlayerAnimation(packet);
         }
     }
 }

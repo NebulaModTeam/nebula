@@ -1,7 +1,9 @@
 ﻿using LiteNetLib;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
+using NebulaWorld;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NebulaHost
 {
@@ -11,16 +13,25 @@ namespace NebulaHost
         private readonly Dictionary<NebulaConnection, Player> syncingPlayers;
         private readonly Dictionary<NebulaConnection, Player> connectedPlayers;
 
+        private readonly Queue<ushort> availablePlayerIds;
+        private ushort highestPlayerID = 0;
+
         public PlayerManager()
         {
             pendingPlayers = new Dictionary<NebulaConnection, Player>();
             syncingPlayers = new Dictionary<NebulaConnection, Player>();
             connectedPlayers = new Dictionary<NebulaConnection, Player>();
+            availablePlayerIds = new Queue<ushort>();
         }
 
         public Dictionary<NebulaConnection, Player> PendingPlayers => pendingPlayers;
         public Dictionary<NebulaConnection, Player> SyncingPlayers => syncingPlayers;
         public Dictionary<NebulaConnection, Player> ConnectedPlayers => connectedPlayers;
+
+        public IEnumerable<ushort> GetAllPlayerIdsIncludingHost()
+        {
+            return new ushort[] { LocalPlayer.PlayerId }.Concat(GetConnectedPlayers().Select(p => p.Id));
+        }
 
         public IEnumerable<Player> GetConnectedPlayers()
         {
@@ -68,7 +79,7 @@ namespace NebulaHost
         public Player PlayerConnected(NebulaConnection conn)
         {
             // TODO: Load old player state if we have one. Perhaps some sort of client-generated UUID, or a steam ID?
-            Player newPlayer = new Player(conn);
+            Player newPlayer = new Player(conn, GetNextAvailablePlayerId());
             pendingPlayers.Add(conn, newPlayer);
 
             return newPlayer;
@@ -78,11 +89,20 @@ namespace NebulaHost
         {
             if (connectedPlayers.TryGetValue(conn, out Player player))
             {
-                SendPacketToOtherPlayers(new PlayerDisconnected(conn.Id), player);
+                SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
                 connectedPlayers.Remove(conn);
+                availablePlayerIds.Enqueue(player.Id);
             }
 
-            // TODO: Should also handle disconnecting player during pending or synching steps.
+            // TODO: Should probably also handle playing that disconnect during "pending" or "syncing" steps.
+        }
+
+        public ushort GetNextAvailablePlayerId()
+        {
+            if (availablePlayerIds.Count > 0)
+                return availablePlayerIds.Dequeue();
+            else
+                return ++highestPlayerID;
         }
 
         /*

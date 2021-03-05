@@ -4,6 +4,7 @@ using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Processors;
+using NebulaWorld;
 
 namespace NebulaHost.PacketProcessors.Players
 {
@@ -20,10 +21,13 @@ namespace NebulaHost.PacketProcessors.Players
         public void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            packet.PlayerId = player.Id;
+            player.Position = packet.Position;
+            player.Rotation = packet.Rotation;
+            player.BodyRotation = packet.BodyRotation;
+
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
 
-            // TODO: Should update the host state immediatly here
+            SimulatedWorld.UpdateRemotePlayerPosition(packet);
         }
     }
 }

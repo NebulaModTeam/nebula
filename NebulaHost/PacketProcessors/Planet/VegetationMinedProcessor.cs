@@ -4,6 +4,7 @@ using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
+using NebulaWorld;
 
 namespace NebulaHost.PacketProcessors.Planet
 {
@@ -22,7 +23,7 @@ namespace NebulaHost.PacketProcessors.Planet
             Player player = playerManager.GetPlayer(conn);
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
 
-            // TODO: Should update the host state immediatly here
+            SimulatedWorld.MineVegetable(packet);
         }
     }
 }

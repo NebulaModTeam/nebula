@@ -6,7 +6,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 {
     public class LocalPlayerAnimation : MonoBehaviour
     {
-        public const int SEND_RATE = 5;
+        public const int SEND_RATE = 10;
         public const float BROADCAST_INTERVAL = 1f / SEND_RATE;
 
         private float time;
@@ -27,6 +27,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
                 LocalPlayer.SendPacket(new PlayerAnimationUpdate()
                 {
+                    PlayerId = LocalPlayer.PlayerId,
                     Idle = playerAnimator.idle.ToNebula(),
                     RunSlow = playerAnimator.runSlow.ToNebula(),
                     RunFast = playerAnimator.runFast.ToNebula(),

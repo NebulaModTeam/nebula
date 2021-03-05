@@ -48,11 +48,10 @@ namespace NebulaHost.MonoBehaviours
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
             server.Start(port);
-
-            // TODO: SINCE WE ARE NOW ONLY THE HOST, WE WILL NEED TO INCLUDE OURSELF INTO THE CLIENT LIST
-            // LOOK INTO HOW TO RESERVED THE ID 0 FOR US.
-
+            
             LocalPlayer.IsMasterClient = true;
+            LocalPlayer.PlayerId = PlayerManager.GetNextAvailablePlayerId();
+            Log.Warn($"Host ID: {LocalPlayer.PlayerId}");
             LocalPlayer.SetNetworkProvider(this);
             SimulatedWorld.Initialize();
         }
@@ -85,7 +84,7 @@ namespace NebulaHost.MonoBehaviours
 
         private void OnPeerConnected(NetPeer peer)
         {
-            Log.Info($"Client connected: {peer.EndPoint}");
+            Log.Info($"Client connected ID: {peer.Id}, {peer.EndPoint}");
             NebulaConnection conn = new NebulaConnection(peer, PacketProcessor);
             PlayerManager.PlayerConnected(conn);
         }

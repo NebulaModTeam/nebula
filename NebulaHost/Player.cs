@@ -8,16 +8,16 @@ namespace NebulaHost
     public class Player
     {
         public NebulaConnection connection { get; set; }
-        public ushort Id => connection.Id;
-        public bool IsMasterClient { get; set; }
-        public Float3 RootPosition { get; set; }
-        public Float3 RootRotation { get; set; }
+        public ushort Id { get; }
+        public Float3 Position { get; set; }
+        public Float3 Rotation { get; set; }
         public Float3 BodyRotation { get; set; }
         public Float3 PlayerColor { get; set; }
 
-        public Player(NebulaConnection connection)
+        public Player(NebulaConnection connection, ushort playerId)
         {
             this.connection = connection;
+            Id = playerId;
         }
 
         public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
@@ -27,8 +27,8 @@ namespace NebulaHost
 
         public void SetPosition(PlayerMovement packet)
         {
-            RootPosition = packet.Position;
-            RootRotation = packet.Rotation;
+            Position = packet.Position;
+            Rotation = packet.Rotation;
             BodyRotation = packet.BodyRotation;
         }
     }

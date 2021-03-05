@@ -1,5 +1,6 @@
 ﻿using NebulaHost.MonoBehaviours;
 using NebulaModel.Attributes;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;

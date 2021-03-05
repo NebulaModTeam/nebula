@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
@@ -70,6 +71,7 @@ namespace NebulaClient.MonoBehaviours
 
         private void OnPeerConnected(NetPeer peer)
         {
+            Log.Info($"Server connection established: {peer.EndPoint}");
             serverConnection = new NebulaConnection(peer, PacketProcessor);
             IsConnected = true;
             SendPacket(new HandshakeRequest());
