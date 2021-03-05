@@ -51,7 +51,6 @@ namespace NebulaHost
             
             LocalPlayer.IsMasterClient = true;
             LocalPlayer.PlayerId = PlayerManager.GetNextAvailablePlayerId();
-            Log.Warn($"Host ID: {LocalPlayer.PlayerId}");
             LocalPlayer.SetNetworkProvider(this);
             SimulatedWorld.Initialize();
         }
@@ -62,14 +61,15 @@ namespace NebulaHost
             request.AcceptIfKey("nebula");
         }
 
-        public void StopServer()
+        private void StopServer()
         {
             server?.Stop();
         }
 
-        private void Update()
+        public void DestroySession()
         {
-            server?.PollEvents();
+            StopServer();
+            Destroy(gameObject);
         }
 
         public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
@@ -93,6 +93,11 @@ namespace NebulaHost
         {
             Log.Info($"Client disconnected: {peer.EndPoint}, reason: {disconnectInfo.Reason}");
             PlayerManager.PlayerDisconnected(new NebulaConnection(peer, PacketProcessor));
+        }
+
+        private void Update()
+        {
+            server?.PollEvents();
         }
     }
 }

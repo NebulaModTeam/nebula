@@ -79,7 +79,7 @@
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Session\JoinSessionConfirmedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeResponseProcessor.cs" />
-    <Compile Include="PacketProcessors\Session\RemotePlayerJoinedProcessor.cs" />
+    <Compile Include="PacketProcessors\Session\PlayerJoiningProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

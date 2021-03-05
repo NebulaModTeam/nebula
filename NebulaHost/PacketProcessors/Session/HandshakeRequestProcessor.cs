@@ -35,6 +35,10 @@ namespace NebulaHost.PacketProcessors.Session
                 conn.Disconnect();
             }
 
+            //
+            GameMain.Pause();
+            InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
+
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             foreach (Player activePlayer in playerManager.GetConnectedPlayers())
             {

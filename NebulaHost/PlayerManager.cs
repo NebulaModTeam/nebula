@@ -92,6 +92,7 @@ namespace NebulaHost
                 SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
                 connectedPlayers.Remove(conn);
                 availablePlayerIds.Enqueue(player.Id);
+                SimulatedWorld.DestroyRemotePlayerModel(player.Id);
             }
 
             // TODO: Should probably also handle playing that disconnect during "pending" or "syncing" steps.

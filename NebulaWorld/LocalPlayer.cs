@@ -18,5 +18,18 @@ namespace NebulaWorld
         {
             networkProvider?.SendPacket(packet, deliveryMethod);
         }
+
+        public static void LeaveGame()
+        {
+            networkProvider.DestroySession();
+            SimulatedWorld.Clear();
+
+            if (!UIRoot.instance.backToMainMenu)
+            {
+                UIRoot.instance.backToMainMenu = true;
+                DSPGame.EndGame();
+            }
+        }
+
     }
 }

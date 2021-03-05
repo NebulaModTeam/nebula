@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="INetworkProvider.cs" />
+    <Compile Include="InGamePopup.cs" />
     <Compile Include="LocalPlayer.cs" />
     <Compile Include="MonoBehaviours\Local\LocalPlayerAnimation.cs" />
     <Compile Include="MonoBehaviours\Local\LocalPlayerMovement.cs" />

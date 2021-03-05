@@ -1,5 +1,4 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
@@ -18,18 +17,15 @@ namespace NebulaClient.PacketProcessors.Session
 
             LocalPlayer.IsMasterClient = false;
             LocalPlayer.PlayerId = packet.LocalPlayerId;
-            Log.Warn($"My Player ID: {LocalPlayer.PlayerId}");
 
-            // TODO: Make our own InGameMessageBox class that will keep the reference of the currently open popup internally instead.
-            // UIMessageBox.Show("Loading", "Loading state from server, please wait", null, UIMessageBox.INFO);
+            InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
 
             foreach (var playerId in packet.OtherPlayerIds)
             {
                 SimulatedWorld.SpawnRemotePlayerModel(playerId);
             }
 
-            // TODO: This packet should be sent by the MultiplayerClientSession once the game is loaded not before.
-            conn.SendPacket(new SyncComplete());
+            MultiplayerClientSession.Instance.IsLoadingGame = true;
         }
     }
 }

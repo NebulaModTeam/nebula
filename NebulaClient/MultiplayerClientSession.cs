@@ -18,6 +18,10 @@ namespace NebulaClient
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
+        public bool IsLoadingGame { get; set; }
+
+        private string serverIp;
+        private int serverPort;
 
         private void Awake()
         {
@@ -26,6 +30,9 @@ namespace NebulaClient
 
         public void Connect(string ip, int port)
         {
+            serverIp = ip;
+            serverPort = port;
+
             EventBasedNetListener listener = new EventBasedNetListener();
             listener.PeerConnectedEvent += OnPeerConnected;
             listener.PeerDisconnectedEvent += OnPeerDisconnected;
@@ -48,20 +55,28 @@ namespace NebulaClient
             SimulatedWorld.Initialize();
         }
 
-        public void Disconnect()
+        void Disconnect()
         {
             IsConnected = false;
             client.Stop();
         }
 
-        public void Update()
+        public void DestroySession()
         {
-            client?.PollEvents();
+            Disconnect();
+            Destroy(gameObject);
         }
 
         public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
         {
             serverConnection?.SendPacket(packet, deliveryMethod);
+        }
+
+        public void Reconnect()
+        {
+            SimulatedWorld.Clear();
+            Disconnect();
+            Connect(serverIp, serverPort);
         }
 
         private void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
@@ -82,22 +97,25 @@ namespace NebulaClient
             IsConnected = false;
             serverConnection = null;
 
-            /*
-            UIMessageBox.Show(
+            InGamePopup.ShowWarning(
                 "Connection Lost",
                 $"You have been disconnect of the server.\nReason{disconnectInfo.Reason}",
-                "Quit",
-                "Reconnect",
-                0,
-                new UIMessageBox.Response(() =>
-                {
-                    // MultiplayerSession.instance.LeaveGame();
-                }),
-                new UIMessageBox.Response(() =>
-                {
-                    // MultiplayerSession.instance.TryToReconnect();
-                }));
-            */
+                "Quit", "Reconnect",
+                () => { LocalPlayer.LeaveGame(); },
+                () => { Reconnect(); });
+        }
+
+        private void Update()
+        {
+            client?.PollEvents();
+
+            // The first 10 ticks are used while loading
+            if (IsLoadingGame && GameMain.gameTick > 10)
+            {
+                IsLoadingGame = false;
+                serverConnection?.SendPacket(new SyncComplete());
+                InGamePopup.FadeOut();
+            }
         }
     }
 }

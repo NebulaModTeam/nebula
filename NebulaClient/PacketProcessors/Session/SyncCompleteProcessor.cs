@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
+using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.Session
 {
@@ -10,8 +11,8 @@ namespace NebulaClient.PacketProcessors.Session
     {
         public void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
+            InGamePopup.FadeOut();
             GameMain.Resume();
-            // TODO: HIDE PREVIOUSLY OPENED POPUP
         }
     }
 }

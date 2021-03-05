@@ -12,7 +12,6 @@ namespace NebulaWorld
     /// </summary>
     public static class SimulatedWorld
     {
-        // TODO: Keep track here of any additional multiplayer stuff that gets created that is not really there in the single player game.
         static Dictionary<ushort, RemotePlayerModel> remotePlayersModels;
 
         public static void Initialize()
@@ -20,12 +19,23 @@ namespace NebulaWorld
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
         }
 
+        /// <summary>
+        /// Removes any simulated entities that was added to the scene for a game.
+        /// </summary>
+        public static void Clear()
+        {
+            foreach(var model in remotePlayersModels.Values)
+            {
+                model.Destroy();
+            }
+
+            remotePlayersModels.Clear();
+        }
+
         public static void SpawnRemotePlayerModel(ushort playerId)
         {
             RemotePlayerModel model = new RemotePlayerModel(playerId);
             remotePlayersModels.Add(playerId, model);
-
-            Log.Error($"Spawning a player model for the player ID: {playerId}");
         }
 
         public static void DestroyRemotePlayerModel(ushort playerId)
@@ -42,10 +52,6 @@ namespace NebulaWorld
             if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
             {
                 player.Movement.UpdatePosition(packet);
-            }
-            else
-            {
-                Log.Error($"No player found with ID: {packet.PlayerId}");
             }
         }
 

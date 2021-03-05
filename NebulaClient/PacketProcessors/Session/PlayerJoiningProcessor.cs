@@ -7,12 +7,13 @@ using NebulaWorld;
 namespace NebulaClient.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
-    public class RemotePlayerJoinedProcessor : IPacketProcessor<PlayerJoining>
+    public class PlayerJoiningProcessor : IPacketProcessor<PlayerJoining>
     {
         public void ProcessPacket(PlayerJoining packet, NebulaConnection conn)
         {
             SimulatedWorld.SpawnRemotePlayerModel(packet.PlayerId);
             GameMain.Pause();
+            InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
         }
     }
 }

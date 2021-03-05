@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
+using NebulaWorld;
 
 namespace NebulaHost.PacketProcessors.Session
 {
@@ -28,6 +29,10 @@ namespace NebulaHost.PacketProcessors.Session
 
             // Send a confirmation to the new player containing his player id.
             player.SendPacket(new JoinSessionConfirmed(player.Id));
+
+            // Unpause the game
+            InGamePopup.FadeOut();
+            GameMain.Resume();
         }
     }
 }
