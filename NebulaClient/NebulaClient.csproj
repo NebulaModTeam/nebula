@@ -72,7 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MonoBehaviours\MultiplayerClientSession.cs" />
+    <Compile Include="MultiplayerClientSession.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangeProcessor.cs" />

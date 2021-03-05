@@ -6,7 +6,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using UnityEngine;
 
-namespace NebulaHost.MonoBehaviours
+namespace NebulaHost
 {
     public class MultiplayerHostSession : MonoBehaviour, INetworkProvider
     {

@@ -1,5 +1,4 @@
 ﻿using LiteNetLib;
-using NebulaHost.MonoBehaviours;
 using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;

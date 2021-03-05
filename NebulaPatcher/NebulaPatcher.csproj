@@ -79,7 +79,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LocalPlayer.cs" />
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\MonoBehaviourExtension.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />

@@ -7,7 +7,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using UnityEngine;
 
-namespace NebulaClient.MonoBehaviours
+namespace NebulaClient
 {
     public class MultiplayerClientSession : MonoBehaviour, INetworkProvider
     {

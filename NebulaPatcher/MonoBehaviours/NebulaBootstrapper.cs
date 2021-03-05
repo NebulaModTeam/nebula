@@ -1,5 +1,5 @@
-﻿using NebulaClient.MonoBehaviours;
-using NebulaHost.MonoBehaviours;
+﻿using NebulaClient;
+using NebulaHost;
 using NebulaModel.Logger;
 using UnityEngine;
 

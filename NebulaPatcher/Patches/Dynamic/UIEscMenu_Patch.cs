@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using NebulaClient.MonoBehaviours;
-using NebulaHost.MonoBehaviours;
+using NebulaClient;
+using NebulaHost;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
