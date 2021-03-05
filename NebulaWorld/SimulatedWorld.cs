@@ -15,12 +15,12 @@ namespace NebulaWorld
     {
         static Dictionary<ushort, RemotePlayerModel> remotePlayersModels;
 
-        private static bool initialized;
+        public static bool Initialized { get; private set; }
 
         public static void Initialize()
         {
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
-            initialized = true;
+            Initialized = true;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace NebulaWorld
             }
 
             remotePlayersModels.Clear();
-            initialized = false;
+            Initialized = false;
         }
 
         public static void SpawnRemotePlayerModel(PlayerData playerData)
@@ -71,24 +71,38 @@ namespace NebulaWorld
 
         public static void UpdatePlayerColor(ushort playerId, Float3 color)
         {
-            RemotePlayerModel player;
-            if (!remotePlayersModels.TryGetValue(playerId, out player))
+            Transform transform;
+            RemotePlayerModel remotePlayerModel;
+            if (LocalPlayer.IsMasterClient)
+            {
+                transform = GameMain.data.mainPlayer.transform;
+            }
+            else if (remotePlayersModels.TryGetValue(playerId, out remotePlayerModel))
+            {
+                transform = remotePlayerModel.PlayerTransform;
+            }
+            else
+            {
+                Log.Error("Could not find the transform for player with ID " + playerId);
                 return;
-            UpdatePlayerColor(player.PlayerTransform, color);
-        }
+            }
 
-        public static void UpdatePlayerColor(Transform transform, Float3 color)
-        {
-            Log.Info($"Changing color of {transform.gameObject.name} to {color}");
+            Log.Info($"Changing color of player {playerId} to {color}");
 
             // Apply new color to each part of the mecha
-            Renderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<Renderer>(includeInactive: false);
+            SkinnedMeshRenderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
             foreach (Renderer r in componentsInChildren)
             {
                 if (r.material?.name.StartsWith("icarus-armor") ?? false)
                 {
                     r.material.SetColor("_Color", color.ToColor());
                 }
+            }
+
+            // We changed our own color, so we have to let others know
+            if (LocalPlayer.PlayerId == playerId)
+            {
+                LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
             }
         }
 
@@ -149,12 +163,13 @@ namespace NebulaWorld
 
         public static void OnGameLoadCompleted()
         {
-            if (initialized == false)
+            if (Initialized == false)
                 return;
 
             Log.Info("Game has finished loading");
-            //Assign our own coler
-            UpdatePlayerColor(GameMain.data.mainPlayer.transform,
+
+            //Assign our own color
+            UpdatePlayerColor(LocalPlayer.PlayerId,
                 new Float3(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f)));
 
             LocalPlayer.SetReady();

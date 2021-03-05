@@ -24,6 +24,7 @@ namespace NebulaHost.PacketProcessors.Session
             if (player == null)
             {
                 Log.Warn("Received a SyncComplete packet, but no player is joining.");
+                return;
             }
             playerManager.SyncingPlayers.Remove(player.Connection);
             playerManager.ConnectedPlayers.Add(player.Connection, player);

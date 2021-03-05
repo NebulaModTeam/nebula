@@ -37,7 +37,7 @@ namespace NebulaWorld
             Data = data;
             GameMain.mainPlayer.transform.position = data.Position.ToUnity();
             GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
-            SimulatedWorld.UpdatePlayerColor(GameMain.mainPlayer.transform, data.Color);
+            SimulatedWorld.UpdatePlayerColor(data.PlayerId, data.Color);
         }
 
         public static void LeaveGame()

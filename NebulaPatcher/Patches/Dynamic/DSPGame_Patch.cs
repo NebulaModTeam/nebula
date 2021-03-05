@@ -11,8 +11,8 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static void Postfix(int ___frame)
         {
-            Log.Info("FixedUpdate: " + ___frame);
-            if(___frame >= 10)
+            Log.Info(___frame);
+            if(___frame >= 11 && SimulatedWorld.Initialized)
             {
                 SimulatedWorld.OnGameLoadCompleted();
             }
