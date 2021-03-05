@@ -27,7 +27,6 @@ namespace NebulaModel.Utils
             var processors = Assembly.GetCallingAssembly().GetTypes()
                 .Where(t => t.GetCustomAttributes(typeof(RegisterPacketProcessorAttribute), true).Length > 0);
 
-
             foreach (Type type in processors)
             {
                 var packetProcessorInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPacketProcessor<>));

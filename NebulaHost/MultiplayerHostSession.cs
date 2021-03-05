@@ -3,6 +3,7 @@ using LiteNetLib.Utils;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
 using UnityEngine;
@@ -17,6 +18,8 @@ namespace NebulaHost
 
         public PlayerManager PlayerManager { get; protected set; }
         public NetPacketProcessor PacketProcessor { get; protected set; }
+
+        float gameStateUpdateTimer = 0;
 
         private void Awake()
         {
@@ -102,6 +105,12 @@ namespace NebulaHost
         private void Update()
         {
             server?.PollEvents();
+
+            gameStateUpdateTimer += Time.deltaTime;
+            if (gameStateUpdateTimer > 1)
+            {
+                SendPacket(new GameStateUpdate() { State = new GameState(GameMain.gameTick) });
+            }
         }
     }
 }

@@ -33,6 +33,16 @@ namespace NebulaWorld
             remotePlayersModels.Clear();
         }
 
+        public static void UpdateGameState(GameState state)
+        {
+            // We allow for a small drift of 5 ticks since the tick offset using the ping is only an approximation
+            if (GameMain.gameTick > 0 && Mathf.Abs(state.gameTick - GameMain.gameTick) > 5)
+            {
+                Log.Info($"Game Tick got updated since it was desynced, was {GameMain.gameTick}, received {state.gameTick}");
+                GameMain.gameTick = state.gameTick;
+            }
+        }
+
         public static void SpawnRemotePlayerModel(PlayerData playerData)
         {
             RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
