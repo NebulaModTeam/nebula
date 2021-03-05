@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using NebulaModel.Attributes;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Processors;
@@ -20,12 +21,12 @@ namespace NebulaHost.PacketProcessors.Players
         public void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            NebulaModel.Logger.Log.Info(conn.Id);
-            if(player == null)
+            if (player == null)
             {
-                NebulaModel.Logger.Log.Warn($"Received PlayerColorChanged packet from unknown player {conn.Id}");
+                Log.Warn($"Received PlayerColorChanged packet from unknown player {packet.PlayerId}");
                 return;
             }
+
             player.Data.Color = packet.Color;
             playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
 

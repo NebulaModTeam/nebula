@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace NebulaPatcher.MonoBehaviours
+namespace NebulaWorld.MonoBehaviours
 {
     public static class MonoBehaviourExtension
     {

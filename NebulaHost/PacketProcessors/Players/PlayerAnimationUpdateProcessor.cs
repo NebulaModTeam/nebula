@@ -20,10 +20,13 @@ namespace NebulaHost.PacketProcessors.Players
         public void ProcessPacket(PlayerAnimationUpdate packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            packet.PlayerId = player.Id;
-            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
+            if (player != null)
+            {
+                packet.PlayerId = player.Id;
+                playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
 
-            SimulatedWorld.UpdateRemotePlayerAnimation(packet);
+                SimulatedWorld.UpdateRemotePlayerAnimation(packet);
+            }
         }
     }
 }

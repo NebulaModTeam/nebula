@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static void Postfix(int ___frame)
         {
-            if(___frame >= 11 && SimulatedWorld.Initialized)
+            if (___frame >= 11 && SimulatedWorld.Initialized)
             {
                 SimulatedWorld.OnGameLoadCompleted();
             }

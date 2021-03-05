@@ -1,6 +1,8 @@
 ﻿using LiteNetLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Packets.Session;
+using NebulaWorld.MonoBehaviours;
+using NebulaWorld.MonoBehaviours.Local;
 
 namespace NebulaWorld
 {
@@ -30,16 +32,15 @@ namespace NebulaWorld
                 networkProvider.SendPacket(new SyncComplete());
                 InGamePopup.FadeOut();
             }
+
+            // Finally we add the local player components to the player character
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
         }
 
         public static void SetPlayerData(PlayerData data)
         {
             Data = data;
-            GameMain.mainPlayer.transform.position = data.Position.ToUnity();
-            GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
-            
-            // Don't update color, only do it when the game finished loading
-            // SimulatedWorld.UpdatePlayerColor(data.PlayerId, data.Color);
         }
 
         public static void LeaveGame()

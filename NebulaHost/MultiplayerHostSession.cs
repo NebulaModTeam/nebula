@@ -57,7 +57,7 @@ namespace NebulaHost
 
             LocalPlayer.SetNetworkProvider(this);
             LocalPlayer.IsMasterClient = true;
-            
+
             LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), new Float3(Random.value, Random.value, Random.value))); // Default color: new Float3(1.0f, 0.6846404f, 0.243137181f)));
         }
 

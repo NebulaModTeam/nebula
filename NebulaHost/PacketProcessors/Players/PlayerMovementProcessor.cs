@@ -20,13 +20,16 @@ namespace NebulaHost.PacketProcessors.Players
         public void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            player.Data.Position = packet.Position;
-            player.Data.Rotation = packet.Rotation;
-            player.Data.BodyRotation = packet.BodyRotation;
+            if (player != null)
+            {
+                player.Data.Position = packet.Position;
+                player.Data.Rotation = packet.Rotation;
+                player.Data.BodyRotation = packet.BodyRotation;
 
-            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
+                playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
 
-            SimulatedWorld.UpdateRemotePlayerPosition(packet);
+                SimulatedWorld.UpdateRemotePlayerPosition(packet);
+            }
         }
     }
 }

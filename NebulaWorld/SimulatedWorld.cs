@@ -83,7 +83,7 @@ namespace NebulaWorld
         {
             Transform transform;
             RemotePlayerModel remotePlayerModel;
-            if ( playerId == LocalPlayer.PlayerId)
+            if (playerId == LocalPlayer.PlayerId)
             {
                 transform = GameMain.data.mainPlayer.transform;
             }
@@ -178,8 +178,12 @@ namespace NebulaWorld
 
             Log.Info("Game has finished loading");
 
-            //Assign our own color
-            UpdatePlayerColor(LocalPlayer.PlayerId,LocalPlayer.Data.Color);
+            // Assign our own color
+            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.Color);
+
+            // TODO: Investigate where are the weird position coming from ?
+            // GameMain.mainPlayer.transform.position = data.Position.ToUnity();
+            // GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
 
             LocalPlayer.SetReady();
         }
