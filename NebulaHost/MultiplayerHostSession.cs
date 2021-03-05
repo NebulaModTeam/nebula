@@ -46,7 +46,6 @@ namespace NebulaHost
             };
 
             PlayerManager = new PlayerManager();
-            // TODO: Load saved player info here
             PacketProcessor = new NetPacketProcessor();
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
@@ -58,7 +57,8 @@ namespace NebulaHost
             LocalPlayer.SetNetworkProvider(this);
             LocalPlayer.IsMasterClient = true;
 
-            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), new Float3(Random.value, Random.value, Random.value))); // Default color: new Float3(1.0f, 0.6846404f, 0.243137181f)));
+            // TODO: Load saved player info here
+            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), new Float3(1.0f, 0.6846404f, 0.243137181f)));
         }
 
         private void OnConnectionRequest(ConnectionRequest request)
