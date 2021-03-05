@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
+using NebulaModel.Logger;
 
 namespace NebulaHost.PacketProcessors.Session
 {
@@ -18,9 +19,15 @@ namespace NebulaHost.PacketProcessors.Session
 
         public void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
+
             Player player = playerManager.GetSyncingPlayer(conn);
+            if (player == null)
+            {
+                Log.Warn("Received a SyncComplete packet, but no player is joining.");
+            }
             playerManager.SyncingPlayers.Remove(player.Connection);
             playerManager.ConnectedPlayers.Add(player.Connection, player);
+
 
             if (playerManager.SyncingPlayers.Count == 0)
             {

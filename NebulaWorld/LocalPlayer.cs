@@ -1,6 +1,7 @@
 ﻿using LiteNetLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Packets.Session;
+using NebulaModel.Logger;
 
 namespace NebulaWorld
 {
@@ -37,6 +38,7 @@ namespace NebulaWorld
             Data = data;
             GameMain.mainPlayer.transform.position = data.Position.ToUnity();
             GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
+            Log.Info("Setting local player data");
             SimulatedWorld.UpdatePlayerColor(GameMain.mainPlayer.transform, data.Color);
         }
 

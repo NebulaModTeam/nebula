@@ -2,7 +2,9 @@
 using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NebulaWorld
@@ -15,9 +17,12 @@ namespace NebulaWorld
     {
         static Dictionary<ushort, RemotePlayerModel> remotePlayersModels;
 
+        private static bool initialized;
+
         public static void Initialize()
         {
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
+            initialized = true;
         }
 
         /// <summary>
@@ -31,6 +36,7 @@ namespace NebulaWorld
             }
 
             remotePlayersModels.Clear();
+            initialized = false;
         }
 
         public static void SpawnRemotePlayerModel(PlayerData playerData)
@@ -75,15 +81,14 @@ namespace NebulaWorld
 
         public static void UpdatePlayerColor(Transform transform, Float3 color)
         {
-            // Apply new color to each part of the mecha
-            Renderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<Renderer>(includeInactive: true);
+            Log.Info($"Changing color of {transform.gameObject.name} to {color}");
 
+            // Apply new color to each part of the mecha
+            Renderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<Renderer>(includeInactive: false);
             foreach (Renderer r in componentsInChildren)
             {
-                Log.Warn(r.material?.name);
-                if (r.material?.name.StartsWith("icarus-armor") ?? false)
+                if (r.material?.name.Contains("icarus-armor") ?? false)
                 {
-                    Log.Warn($"Applying color to {r.material?.name}");
                     r.material.SetColor("_Color", color.ToColor());
                 }
             }
@@ -144,5 +149,17 @@ namespace NebulaWorld
             }
         }
 
+        public static void OnGameLoadCompleted()
+        {
+            if (initialized == false)
+                return;
+
+            Log.Info("Game has finished loading");
+            //Assign our own coler
+            UpdatePlayerColor(GameMain.data.mainPlayer.transform,
+                new Float3(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f)));
+
+            LocalPlayer.SetReady();
+        }
     }
 }

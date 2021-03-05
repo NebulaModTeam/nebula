@@ -26,7 +26,7 @@ namespace NebulaClient.PacketProcessors.Session
             }
 
             // This should be called after the loading screen not instantly
-            LocalPlayer.SetReady();
+            //LocalPlayer.SetReady();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace NebulaPatcher
     public class NebulaPlugin : BaseUnityPlugin
     {
         Harmony harmony = new Harmony("com.github.hubertgendron.nebula");
-
+        
         void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
