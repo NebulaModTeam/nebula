@@ -149,10 +149,41 @@ namespace NebulaWorld
             if(proto != null)
             {
                 PrefabDesc prefab = proto.prefabDesc;
+                int pcID = -1; // used to connect power consumers to power generators
+
+                if (prefab.isPowerGen)
+                {
+                    // NOTE: not sure if entityId needs to be unique or whatsoever, just testing things here
+                    int entityId;
+                    if(GameMain.mainPlayer.factory.powerSystem.genCursor > 0)
+                    {
+                        entityId = GameMain.mainPlayer.factory.powerSystem.genPool[GameMain.mainPlayer.factory.powerSystem.genCursor - 1].entityId;
+                    }
+                    else
+                    {
+                        entityId = 0;
+                        Console.WriteLine("using 0");
+                    }
+                    int powerId = GameMain.mainPlayer.factory.powerSystem.NewGeneratorComponent(entityId, prefab);
+                    Console.WriteLine("added, id is " + powerId);
+                    GameMain.mainPlayer.factory.powerSystem.genPool[powerId].productId = prefab.powerProductId;
+                }
+                if (prefab.isPowerConsumer) // this is actually essential to connect the consumer with the generators
+                {
+                    int entityId;
+                    if(GameMain.mainPlayer.factory.powerSystem.consumerCursor > 0)
+                    {
+                        entityId = GameMain.mainPlayer.factory.powerSystem.consumerPool[GameMain.mainPlayer.factory.powerSystem.consumerCursor - 1].entityId;
+                    }
+                    else
+                    {
+                        entityId = 0;
+                    }
+                    pcID = GameMain.mainPlayer.factory.powerSystem.NewConsumerComponent(entityId, prefab.workEnergyPerTick, prefab.idleEnergyPerTick);
+                }
                 if(prefab.minerType != EMinerType.None && prefab.minerPeriod > 0)
                 {
-                    // get veins that the miner could connect to (i guess)
-                    Console.WriteLine("doing miner stuff");
+                    // get veins that the miner could connect to
                     Pose pose;
                     pose.position = pos;
                     pose.rotation = rot;
@@ -170,7 +201,6 @@ namespace NebulaWorld
                     VeinData[] veinPool = GameMain.mainPlayer.factory.veinPool;
 
                     veinIDs = new int[veinsInAreaNonAlloc];
-                    Console.WriteLine("got " + veinsInAreaNonAlloc + " veins in total");
 
                     for(int i = 0; i < veinsInAreaNonAlloc; i++)
                     {
@@ -191,8 +221,7 @@ namespace NebulaWorld
                             }
                         }
                     }
-                    Console.WriteLine("got " + veinCount + " veins to connect to");
-                    // veinIDs should now contain the id's the miner can connect to (i guess)
+                    // veinIDs should now contain the id's the miner can connect to
                     // now we need to add it to the miner pool and tell it the veins to connect to
                     // entityId should be the last one in the array as we just added it
                     int entityId = GameMain.mainPlayer.factory.entityPool[GameMain.mainPlayer.factory.entityCursor - 1].id;
@@ -210,7 +239,11 @@ namespace NebulaWorld
                             GameMain.mainPlayer.factory.RefreshVeinMiningDisplay(minerPool[minerId].veins[i], entityId, 0);
                         }
                         minerPool[minerId].ArrageVeinArray();
-                        //pcId??
+                        if(pcID != 0)
+                        {
+                            // this is hugely important to get power to the building!!!
+                            minerPool[minerId].pcId = pcID;
+                        }
                         minerPool[minerId].GetMinimumVeinAmount(GameMain.mainPlayer.factory, GameMain.mainPlayer.factory.veinPool);
                         // TODO: do some stuff with entitySignPool
                     }
