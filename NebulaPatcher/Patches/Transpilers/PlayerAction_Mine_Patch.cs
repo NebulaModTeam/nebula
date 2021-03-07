@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
-using NebulaClient.MonoBehaviours;
+using LiteNetLib;
+using NebulaModel.Packets.Planet;
+using NebulaWorld;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -67,7 +69,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     {
                         if (PlayerAction_Mine_Transpiler.miningId != -1)
                         {
-                            MultiplayerSession.instance.Client.OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, true, GameMain.localPlanet.id);
+                            OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, true, GameMain.localPlanet.id);
                             PlayerAction_Mine_Transpiler.miningId = -1;
                         }
                         return VegeId;
@@ -81,7 +83,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     {
                         if (PlayerAction_Mine_Transpiler.miningId != -1)
                         {
-                            MultiplayerSession.instance.Client.OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, false, GameMain.localPlanet.id);
+                            OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, false, GameMain.localPlanet.id);
                             PlayerAction_Mine_Transpiler.miningId = -1;
                         }
                         return miningTick;
@@ -90,6 +92,12 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 yield return instruction;
             }
+        }
+
+        private static void OnVegetationMined(int id, bool isVege, int planetID)
+        {
+            var packet = new VegeMined(id, isVege, planetID);
+            LocalPlayer.SendPacket(packet, DeliveryMethod.ReliableUnordered);
         }
 
         private static void patch_findMineVein(CodeInstruction instruction)
