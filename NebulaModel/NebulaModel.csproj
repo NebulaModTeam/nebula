@@ -65,6 +65,7 @@
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
+    <Compile Include="Packets\Factory\EntityPlaced.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
     <Compile Include="Packets\Players\PlayerMovement.cs" />

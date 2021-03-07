@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
+    <Compile Include="PacketProcessors\Factory\EntityPlacedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
