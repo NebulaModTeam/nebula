@@ -5,6 +5,12 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Players;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Security;
+using System.Security.Permissions;
+
+[module: UnverifiableCode]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 
 namespace NebulaWorld
 {
@@ -119,15 +125,97 @@ namespace NebulaWorld
 
         public static void PlaceEntity(EntityPlaced packet)
         {
+            Vector3 pos = new Vector3(packet.pos.x, packet.pos.y, packet.pos.z);
+            Quaternion rot = new Quaternion(packet.rot.x, packet.rot.y, packet.rot.z, packet.rot.w);
+
+            // make room for entity if needed
+            ItemProto proto = LDB.items.Select((int)packet.protoId);
+            if(proto != null && GameMain.localPlanet.type != EPlanetType.Gas)
+            {
+                int sandGathered = GameMain.mainPlayer.factory.FlattenTerrain(pos, rot, new Bounds(proto.prefabDesc.buildCollider.pos, proto.prefabDesc.buildCollider.ext * 2f), 6f, 1f, false, false);
+                // dont give sand to player as he did not build it (or should i?)
+            }
+            // place the entity
             int ret = GameMain.mainPlayer.factory.AddEntityDataWithComponents(new EntityData
             {
                 protoId = packet.protoId,
-                pos = new Vector3(packet.pos.x, packet.pos.y, packet.pos.z),
-                rot = new Quaternion(packet.rot.x, packet.rot.y, packet.rot.z, packet.rot.w)
+                pos = pos, // uff its smart
+                rot = rot
             }, 0);
 
             GameMain.mainPlayer.controller.actionBuild.NotifyBuilt(-0, ret);
             GameMain.history.MarkItemBuilt((int)packet.protoId);
+            // check if its a miner and connect to veins
+            if(proto != null)
+            {
+                PrefabDesc prefab = proto.prefabDesc;
+                if(prefab.minerType != EMinerType.None && prefab.minerPeriod > 0)
+                {
+                    // get veins that the miner could connect to (i guess)
+                    Console.WriteLine("doing miner stuff");
+                    Pose pose;
+                    pose.position = pos;
+                    pose.rotation = rot;
+
+                    Vector3 center = pose.position + pose.forward * -1.2f;
+                    Vector3 rhs = -pose.forward;
+                    Vector3 up = pose.up;
+                    int[] tmp_ids = new int[1024];
+                    int[] veinIDs;
+                    int veinCount = 0;
+
+                    GameMain.mainPlayer.controller.actionBuild.nearcdLogic = GameMain.mainPlayer.planetData.physics.nearColliderLogic;
+                    // following line throws nullreferenceexception if the above is not done
+                    int veinsInAreaNonAlloc = GameMain.mainPlayer.controller.actionBuild.nearcdLogic.GetVeinsInAreaNonAlloc(center, 12f, tmp_ids);
+                    VeinData[] veinPool = GameMain.mainPlayer.factory.veinPool;
+
+                    veinIDs = new int[veinsInAreaNonAlloc];
+                    Console.WriteLine("got " + veinsInAreaNonAlloc + " veins in total");
+
+                    for(int i = 0; i < veinsInAreaNonAlloc; i++)
+                    {
+                        if(tmp_ids[i] != 0 && veinPool[tmp_ids[i]].id == tmp_ids[i])
+                        {
+                            if(veinPool[tmp_ids[i]].type != EVeinType.Oil)
+                            {
+                                Vector3 vpos = veinPool[tmp_ids[i]].pos;
+                                Vector3 vposCenter = vpos - center;
+                                float num = Vector3.Dot(up, vposCenter);
+                                vposCenter -= up * num;
+                                float sqrMagnitude = vposCenter.sqrMagnitude;
+                                float num2 = Vector3.Dot(vposCenter.normalized, rhs);
+                                if(sqrMagnitude <= 60.0625f && num2 >= 0.73 && Mathf.Abs(num) <= 2f)
+                                {
+                                    veinIDs[veinCount++] = tmp_ids[i];
+                                }
+                            }
+                        }
+                    }
+                    Console.WriteLine("got " + veinCount + " veins to connect to");
+                    // veinIDs should now contain the id's the miner can connect to (i guess)
+                    // now we need to add it to the miner pool and tell it the veins to connect to
+                    // entityId should be the last one in the array as we just added it
+                    int entityId = GameMain.mainPlayer.factory.entityPool[GameMain.mainPlayer.factory.entityCursor - 1].id;
+                    int minerId = GameMain.mainPlayer.factory.factorySystem.NewMinerComponent(entityId, prefab.minerType, prefab.minerPeriod);
+                    if(minerId != 0)
+                    {
+                        MinerComponent[] minerPool = GameMain.mainPlayer.factory.factorySystem.minerPool;
+                        minerPool[minerId].InitVeinArray(veinCount);
+                        if(veinCount > 0)
+                        {
+                            Array.Copy(veinIDs, minerPool[minerId].veins, veinCount);
+                        }
+                        for(int i = 0; i < minerPool[minerId].veinCount; i++)
+                        {
+                            GameMain.mainPlayer.factory.RefreshVeinMiningDisplay(minerPool[minerId].veins[i], entityId, 0);
+                        }
+                        minerPool[minerId].ArrageVeinArray();
+                        //pcId??
+                        minerPool[minerId].GetMinimumVeinAmount(GameMain.mainPlayer.factory, GameMain.mainPlayer.factory.veinPool);
+                        // TODO: do some stuff with entitySignPool
+                    }
+                }
+            }
         }
 
         public static void MineVegetable(VegeMined packet)

@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp.refstub">
+      <HintPath>..\Libs\Assembly-CSharp.refstub.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
