@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaClient.GameLogic;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
@@ -76,6 +77,7 @@ namespace NebulaWorld
             if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
             {
                 player.Animator.UpdateState(packet);
+                player.Effects.UpdateState();
             }
         }
 
