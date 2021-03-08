@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         static bool Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client
-            if(LocalPlayer.IsMasterClient)
+            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
