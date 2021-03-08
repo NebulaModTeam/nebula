@@ -16,11 +16,11 @@ The mod is in very early stages of development and still in a proof of concept s
 - [x] Player core animation synching
 - [ ] Remote Game Save loading
 - [ ] Planets synching (terrain deformation, rocks, trees interactions)
-- [ ] Game clock synching (planets orbit needs to be in sync)
+- [x] Game clock synching (planets orbit needs to be in sync)
 - [ ] Buildings synching
 - [ ] Inventory synching (containers)
 - [ ] Belts synching
-- [ ] Being able to start hosting a game from within the game
+- [x] Being able to start hosting a game from within the game
 - and so much more...
 
 ## How can I play this mod?

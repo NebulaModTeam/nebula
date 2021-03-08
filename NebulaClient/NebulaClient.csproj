@@ -75,6 +75,7 @@
     <Compile Include="MultiplayerClientSession.cs" />
     <Compile Include="PacketProcessors\Factory\EntityPlacedProcessor.cs" />
     <Compile Include="PacketProcessors\GameStates\GameStateUpdateProcessor.cs" />
+    <Compile Include="PacketProcessors\Planet\FactoryDataProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangeProcessor.cs" />
