@@ -11,7 +11,7 @@ namespace NebulaHost.PacketProcessors.Factory
     {
         public void ProcessPacket(EntityPlaced packet, NebulaConnection conn)
         {
-            SimulatedWorld.PlaceEntity(packet);
+            SimulatedWorld.OnPlaceEntity(packet);
         }
     }
 }

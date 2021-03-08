@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory\EntityManager.cs" />
     <Compile Include="INetworkProvider.cs" />
     <Compile Include="InGamePopup.cs" />
     <Compile Include="LocalPlayer.cs" />
