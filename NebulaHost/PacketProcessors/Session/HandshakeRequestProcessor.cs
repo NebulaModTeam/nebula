@@ -50,7 +50,9 @@ namespace NebulaHost.PacketProcessors.Session
 
             // TODO: This should be our actual GameDesc and not an hardcoded value.
             var inGamePlayersIds = playerManager.GetAllPlayerIdsIncludingHost();
-            player.SendPacket(new HandshakeResponse(UniverseGen.algoVersion, 1, 64, 1f, player.Data, inGamePlayersIds.ToArray()));
+
+            var gameDesc = GameMain.data.gameDesc;
+            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, inGamePlayersIds.ToArray()));
 
             SimulatedWorld.SpawnRemotePlayerModel(player.Data);
         }

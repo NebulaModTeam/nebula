@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaWorld;
-using System;
 using System.IO;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -9,10 +8,10 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(GameData), "GetOrCreateFactory")]
     class GameData_Patch
     {
-        static bool Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
+        public static bool Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
-            // We want the original method to run on the host client
-            if(LocalPlayer.IsMasterClient)
+            // We want the original method to run on the host client or in single player games
+            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
