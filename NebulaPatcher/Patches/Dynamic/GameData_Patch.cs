@@ -37,7 +37,8 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.factories[__instance.factoryCount] = new PlanetFactory();
             using (MemoryStream ms = new MemoryStream(factoryBytes))
             using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
-            using (BinaryReader br =  new BinaryReader(ls))
+            using (BufferedStream bs = new BufferedStream(ls, 8192))
+            using (BinaryReader br =  new BinaryReader(bs))
             {
                 __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
             }
