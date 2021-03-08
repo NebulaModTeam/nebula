@@ -30,6 +30,7 @@ namespace NebulaClient.GameLogic
 
                 ParticleSystem[] backEngineEffect = PlayerTransform.GetComponent<PlayerEffect>().backEngineEffect;
                 ParticleSystemRenderer[] backEngineFlameRenderer = PlayerTransform.GetComponent<PlayerEffect>().backEngineFlameRenderer;
+                ParticleSystem torchEffect = PlayerTransform.GetComponent<PlayerEffect>().torchEffect;
 
                 // Remove local player components
                 Object.Destroy(PlayerTransform.GetComponent<PlayerFootsteps>());
@@ -44,7 +45,7 @@ namespace NebulaClient.GameLogic
                 Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
                 Effects = PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
 
-                Effects.setOrigParticlesValues(backEngineEffect, backEngineFlameRenderer);
+                Effects.setOrigParticlesValues(backEngineEffect, backEngineFlameRenderer, torchEffect);
             }
 
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";

@@ -77,7 +77,7 @@ namespace NebulaWorld
             if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
             {
                 player.Animator.UpdateState(packet);
-                player.Effects.UpdateState();
+                player.Effects.UpdateState(packet);
             }
         }
 

@@ -19,5 +19,9 @@ namespace NebulaModel.Packets.Players
         public NebulaAnimationState Fly { get; set; }
         public NebulaAnimationState Sail { get; set; }
         public NebulaAnimationState Mining0 { get; set; }
+        // some extra values to compute backpack flame size
+        // i put them here because i update the player fx together with the animation update
+        public float vertSpeed { get; set; }
+        public float horzSpeed { get; set; }
     }
 }
