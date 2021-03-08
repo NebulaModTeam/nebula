@@ -3,6 +3,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Packets.Session;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
+using System.Collections.Generic;
 
 namespace NebulaWorld
 {
@@ -11,6 +12,8 @@ namespace NebulaWorld
         public static bool IsMasterClient { get; set; }
         public static ushort PlayerId => Data.PlayerId;
         public static PlayerData Data { get; private set; }
+
+        public static Dictionary<int, byte[]> PendingFactories { get; set; } = new Dictionary<int, byte[]>();
 
         private static INetworkProvider networkProvider;
 
