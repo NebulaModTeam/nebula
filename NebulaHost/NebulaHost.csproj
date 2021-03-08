@@ -37,6 +37,9 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="LZ4, Version=1.0.15.93, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\lz4net.1.0.15.93\lib\net2\LZ4.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -77,8 +80,12 @@
       <Name>NebulaWorld</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"
+copy /Y "$(TargetDir)/LZ4.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LZ4.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

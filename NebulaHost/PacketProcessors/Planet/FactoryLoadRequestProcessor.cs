@@ -1,8 +1,10 @@
-﻿using NebulaModel.Attributes;
+﻿using LZ4;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
 using System.IO;
+using System.IO.Compression;
 
 namespace NebulaHost.PacketProcessors.Planet
 {
@@ -16,7 +18,9 @@ namespace NebulaHost.PacketProcessors.Planet
 
             using(MemoryStream ms = new MemoryStream())
             {
-                using(BinaryWriter bw = new BinaryWriter(ms))
+                using(LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Compress))
+                using(BufferedStream bs = new BufferedStream(ls, 8192))
+                using(BinaryWriter bw = new BinaryWriter(bs))
                 {
                     factory.Export(bw);
                 }
