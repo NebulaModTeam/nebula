@@ -1,12 +1,6 @@
 ﻿using NebulaWorld.MonoBehaviours.Remote;
 using UnityEngine;
 
-using System.Security;
-using System.Security.Permissions;
-
-[module: UnverifiableCode]
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
-
 namespace NebulaClient.GameLogic
 {
     public class RemotePlayerModel
@@ -25,12 +19,21 @@ namespace NebulaClient.GameLogic
             string playerPrefabPath = LDB.players.Select(PLAYER_PROTO_ID).PrefabPath;
             if (playerPrefabPath != null)
             {
+                // get effects from model
                 PlayerTransform = Object.Instantiate(Resources.Load<Transform>(playerPrefabPath));
                 PlayerModelTransform = PlayerTransform.Find("Model");
 
-                ParticleSystem[] backEngineEffect = PlayerTransform.GetComponent<PlayerEffect>().backEngineEffect;
-                ParticleSystemRenderer[] backEngineFlameRenderer = PlayerTransform.GetComponent<PlayerEffect>().backEngineFlameRenderer;
-                ParticleSystem torchEffect = PlayerTransform.GetComponent<PlayerEffect>().torchEffect;
+                ParticleSystem[] backEngineEffect = new ParticleSystem[2];
+                ParticleSystemRenderer[] backEngineFlameRenderer = new ParticleSystemRenderer[2];
+                ParticleSystem torchEffect = PlayerModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/r-clavicle/r-upper-arm/r-forearm/r-torch/vfx-torch/blast").GetComponent<ParticleSystem>();
+
+                Transform VFX = PlayerModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/backpack/VFX").GetComponent<Transform>();
+
+                backEngineEffect[0] = VFX.GetChild(0).GetComponent<ParticleSystem>();
+                backEngineEffect[1] = VFX.GetChild(1).GetComponent<ParticleSystem>();
+
+                backEngineFlameRenderer[0] = VFX.GetChild(0).GetComponent<ParticleSystemRenderer>();
+                backEngineFlameRenderer[1] = VFX.GetChild(1).GetComponent<ParticleSystemRenderer>();
 
                 // Remove local player components
                 Object.Destroy(PlayerTransform.GetComponent<PlayerFootsteps>());
