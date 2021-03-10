@@ -12,243 +12,100 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(PlayerAction_Mine), "GameTick")]
     class PlayerAction_Mine_Transpiler
     {
-        private static int countminingId = 0, countminingId2 = 0;
-        private static int countRemoveVege = 0, countMineVein = 0;
-
         private static int miningId = -1;
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            // search for the place where miningId is checked against 0 and then miningType is checked against Vegetable/Vein
-            // as thats where we grab the miningId
-            foreach (CodeInstruction instruction in instructions)
-            {
-                patch_findMiningId(instruction);
-                patch_findMiningId2(instruction);
-                patch_findRemoveVege(instruction);
-                patch_findMineVein(instruction);
-
-                // insert delegate before GetVegeData() to get miningId
-                if (countminingId == 10 && ((MethodInfo)instruction.operand).Name == "GetVegeData")
+            // insert delegate before GetVegeData() to get miningId
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Brfalse),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Bne_Un),
+                    new CodeMatch(OpCodes.Ldloc_1),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "GetVegeData"))
+                .Insert(Transpilers.EmitDelegate<Func<int, int>>(miningId =>
                 {
-                    yield return Transpilers.EmitDelegate<Func<int, int>>(miningId =>
+                    if (PlayerAction_Mine_Transpiler.miningId == -1 || PlayerAction_Mine_Transpiler.miningId != miningId)
                     {
-                        if (PlayerAction_Mine_Transpiler.miningId == -1)
-                        {
-                            PlayerAction_Mine_Transpiler.miningId = miningId;
-                        }
-                        return miningId;
-                    });
-                }
+                        PlayerAction_Mine_Transpiler.miningId = miningId;
+                        Console.WriteLine("updated to id " + miningId);
+                    }
+                    return miningId;
+                })).InstructionEnumeration();
 
-                // insert delegate before GetVeinData() to get miningId
-                if (countminingId2 == 8 && ((MethodInfo)instruction.operand).Name == "GetVeinData")
+            // insert delegate before GetVeinData() to get miningId
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldc_I4_2),
+                    new CodeMatch(OpCodes.Bne_Un),
+                    new CodeMatch(OpCodes.Ldloc_1),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "GetVeinData"))
+                .Insert(Transpilers.EmitDelegate<Func<int, int>>(miningId =>
                 {
-                    yield return Transpilers.EmitDelegate<Func<int, int>>(miningId =>
+                    if (PlayerAction_Mine_Transpiler.miningId == -1 || PlayerAction_Mine_Transpiler.miningId != miningId)
                     {
-                        if (PlayerAction_Mine_Transpiler.miningId == -1)
-                        {
-                            PlayerAction_Mine_Transpiler.miningId = miningId;
-                        }
-                        return miningId;
-                    });
-                }
+                        PlayerAction_Mine_Transpiler.miningId = miningId;
+                        Console.WriteLine("updated to id " + miningId);
+                    }
+                    return miningId;
+                })).InstructionEnumeration();
 
-                // insert delegate before RemoveVegeWithComponents to send information to other clients
-                if (countRemoveVege == 6 && ((MethodInfo)instruction.operand).Name == "RemoveVegeWithComponents")
+            // insert delegate before RemoveVegeWithComponents to send information to other clients
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Create"),
+                    new CodeMatch(OpCodes.Pop),
+                    new CodeMatch(OpCodes.Ldloc_1),
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "RemoveVegeWithComponents"))
+                .Insert(Transpilers.EmitDelegate<Func<int, int>>(VegeId =>
                 {
-                    yield return Transpilers.EmitDelegate<Func<int, int>>(VegeId =>
+                    if (PlayerAction_Mine_Transpiler.miningId != -1)
                     {
-                        if (PlayerAction_Mine_Transpiler.miningId != -1)
-                        {
-                            OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, true, GameMain.localPlanet.id);
-                            PlayerAction_Mine_Transpiler.miningId = -1;
-                        }
-                        return VegeId;
-                    });
-                }
+                        Console.WriteLine("sending id " + miningId);
+                        OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, true, GameMain.localPlanet.id);
+                        PlayerAction_Mine_Transpiler.miningId = -1;
+                    }
+                    return VegeId;
+                })).InstructionEnumeration();
 
-                // insert delegate after 'this.miningTick -= veinProto.MiningTime * 10000;' to send information to other clients
-                if (countMineVein == 6)
+            // insert delegate after 'this.miningTick -= veinProto.MiningTime * 10000;' to send information to other clients
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true, // move at the end of the matches
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldc_I4),
+                    new CodeMatch(OpCodes.Mul),
+                    new CodeMatch(OpCodes.Sub))
+                .Insert(Transpilers.EmitDelegate<Func<int, int>>(miningTick =>
                 {
-                    yield return Transpilers.EmitDelegate<Func<int, int>>(miningTick =>
+                    if (PlayerAction_Mine_Transpiler.miningId != -1)
                     {
-                        if (PlayerAction_Mine_Transpiler.miningId != -1)
-                        {
-                            OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, false, GameMain.localPlanet.id);
-                            PlayerAction_Mine_Transpiler.miningId = -1;
-                        }
-                        return miningTick;
-                    });
-                }
+                        Console.WriteLine("sending id " + miningId);
+                        OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, false, GameMain.localPlanet.id);
+                        PlayerAction_Mine_Transpiler.miningId = -1;
+                    }
+                    return miningTick;
+                })).InstructionEnumeration();
 
-                yield return instruction;
-            }
+            return instructions;
         }
 
         private static void OnVegetationMined(int id, bool isVege, int planetID)
         {
             var packet = new VegeMined(id, isVege, planetID);
             LocalPlayer.SendPacket(packet, DeliveryMethod.ReliableUnordered);
-        }
-
-        private static void patch_findMineVein(CodeInstruction instruction)
-        {
-
-            if (countMineVein == 0 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countMineVein++;
-            }
-            else if (countMineVein == 1 && instruction.opcode == OpCodes.Ldloc_S)
-            {
-                countMineVein++;
-            }
-            else if (countMineVein == 2 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countMineVein++;
-            }
-            else if (countMineVein == 3 && instruction.opcode == OpCodes.Ldc_I4)
-            {
-                countMineVein++;
-            }
-            else if (countMineVein == 4 && instruction.opcode == OpCodes.Mul)
-            {
-                countMineVein++;
-            }
-            else if (countMineVein == 5 && instruction.opcode == OpCodes.Sub)
-            {
-                countMineVein++;
-            }
-            else
-            {
-                countMineVein = 0;
-            }
-
-        }
-
-        private static void patch_findRemoveVege(CodeInstruction instruction)
-        {
-
-            if (countRemoveVege == 0 && instruction.opcode == OpCodes.Call && ((MethodInfo)instruction.operand).Name == "Create")
-            {
-                countRemoveVege++;
-            }
-            else if (countRemoveVege == 1 && instruction.opcode == OpCodes.Pop)
-            {
-                countRemoveVege++;
-            }
-            else if (countRemoveVege == 2 && instruction.opcode == OpCodes.Ldloc_1)
-            {
-                countRemoveVege++;
-            }
-            else if (countRemoveVege == 3 && instruction.opcode == OpCodes.Ldloca_S)
-            {
-                countRemoveVege++;
-            }
-            else if (countRemoveVege == 4 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countRemoveVege++;
-            }
-            else if (countRemoveVege == 5 && instruction.opcode == OpCodes.Callvirt)
-            {
-                countRemoveVege++;
-            }
-            else
-            {
-                countRemoveVege = 0;
-            }
-
-        }
-
-        private static void patch_findMiningId2(CodeInstruction instruction)
-        {
-
-            if (countminingId2 == 0 && instruction.opcode == OpCodes.Ldarg_0)
-            {
-                countminingId2++;
-            }
-            else if (countminingId2 == 1 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countminingId2++;
-            }
-            else if (countminingId2 == 2 && instruction.opcode == OpCodes.Ldc_I4_2)
-            {
-                countminingId2++;
-            }
-            else if (countminingId2 == 3 && instruction.opcode == OpCodes.Bne_Un)
-            {
-                countminingId2++;
-            }
-            else if (countminingId2 == 4 && instruction.opcode == OpCodes.Ldloc_1)
-            {
-                countminingId2++;
-            }
-            else if (countminingId2 == 5 && instruction.opcode == OpCodes.Ldarg_0)
-            {
-                countminingId2++;
-            }
-            else if (countminingId2 == 6 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countminingId2++;
-            }
-            else if (countminingId2 == 7 && instruction.opcode == OpCodes.Callvirt)
-            {
-                countminingId2++;
-            }
-            else
-            {
-                countminingId2 = 0;
-            }
-
-        }
-
-        private static void patch_findMiningId(CodeInstruction instruction)
-        {
-
-            if (countminingId == 0 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 1 && instruction.opcode == OpCodes.Brfalse)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 2 && instruction.opcode == OpCodes.Ldarg_0)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 3 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 4 && instruction.opcode == OpCodes.Ldc_I4_1)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 5 && instruction.opcode == OpCodes.Bne_Un)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 6 && instruction.opcode == OpCodes.Ldloc_1)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 7 && instruction.opcode == OpCodes.Ldarg_0)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 8 && instruction.opcode == OpCodes.Ldfld)
-            {
-                countminingId++;
-            }
-            else if (countminingId == 9 && instruction.opcode == OpCodes.Callvirt)
-            {
-                countminingId++;
-            }
-            else
-            {
-                countminingId = 0;
-            }
-
         }
     }
 }
