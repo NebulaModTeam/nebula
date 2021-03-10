@@ -78,8 +78,14 @@
       <Name>NebulaWorld</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="lz4net">
+      <Version>1.0.15.93</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"
+copy /Y "$(TargetDir)/LZ4.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LZ4.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
