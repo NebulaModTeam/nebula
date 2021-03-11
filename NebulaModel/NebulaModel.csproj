@@ -68,6 +68,7 @@
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Packets\Planet\FactoryData.cs" />
     <Compile Include="Packets\Planet\FactoryLoadRequest.cs" />
+    <Compile Include="Packets\Planet\localPlanetSyncPckt.cs" />
     <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
     <Compile Include="Packets\Players\PlayerMovement.cs" />
     <Compile Include="Packets\Players\PlayerColorChanged.cs" />

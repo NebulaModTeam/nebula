@@ -53,6 +53,18 @@ namespace NebulaWorld
             RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
             remotePlayersModels.Add(playerData.PlayerId, model);
             UpdatePlayerColor(playerData.PlayerId, playerData.Color);
+            // Send localPlanet.id update request to other players if we are not the host
+            if (!LocalPlayer.IsMasterClient)
+            {
+                if (GameMain.localPlanet != null)
+                {
+                    LocalPlayer.SendPacket(new localPlanetSyncPckt(GameMain.localPlanet.id, true));
+                }
+                else
+                {
+                    LocalPlayer.SendPacket(new localPlanetSyncPckt(0, true));
+                }
+            }
         }
 
         public static void DestroyRemotePlayerModel(ushort playerId)
@@ -78,6 +90,14 @@ namespace NebulaWorld
             {
                 player.Animator.UpdateState(packet);
                 player.Effects.UpdateState(packet);
+            }
+        }
+
+        public static void UpdateRemotePlayerLocalPlanetId(localPlanetSyncPckt packet)
+        {
+            if(remotePlayersModels.TryGetValue(packet.playerId, out RemotePlayerModel player))
+            {
+                player.localPlanetId = packet.planetId;
             }
         }
 
@@ -120,7 +140,10 @@ namespace NebulaWorld
 
         public static void MineVegetable(VegeMined packet)
         {
-            PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetID);
+            if(!remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel)){
+                Debug.Log("FAILED TO SYNC VEGE DATA");
+            }
+            PlanetData planet = GameMain.galaxy?.PlanetById(pModel.localPlanetId);
             if (planet == null)
                 return;
 

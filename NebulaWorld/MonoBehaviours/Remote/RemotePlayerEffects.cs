@@ -22,6 +22,16 @@ namespace NebulaWorld.MonoBehaviours.Remote
             rootTransform = GetComponent<Transform>();
         }
 
+        public void OnDestroy()
+        {
+            stopAllFlyAudio();
+            if(miningAudio != null)
+            {
+                miningAudio.Stop();
+                miningAudio = null;
+            }
+        }
+
         private void stopAllFlyAudio()
         {
             if (driftAudio != null)

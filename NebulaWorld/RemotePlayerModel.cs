@@ -6,6 +6,7 @@ namespace NebulaClient.GameLogic
     public class RemotePlayerModel
     {
         const int PLAYER_PROTO_ID = 1;
+        public int localPlanetId = 0;
 
         public Transform PlayerTransform { get; set; }
         public Transform PlayerModelTransform { get; set; }
@@ -61,6 +62,7 @@ namespace NebulaClient.GameLogic
             PlayerModelTransform = null;
             Movement = null;
             Animator = null;
+            Effects = null;
         }
     }
 }
