@@ -20,7 +20,7 @@ namespace NebulaHost.PacketProcessors.Planet
         public void ProcessPacket(VegeMined packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
+            playerManager.SendPacketToOtherPlayers(packet, player);
 
             SimulatedWorld.MineVegetable(packet);
         }

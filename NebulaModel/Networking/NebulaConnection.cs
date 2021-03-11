@@ -1,42 +1,40 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
+﻿using LiteNetLib.Utils;
 using System;
-using System.Net;
+using WebSocketSharp;
 
 namespace NebulaModel.Networking
 {
     public class NebulaConnection
     {
-        private readonly NetPeer peer;
+        private readonly WebSocket peerSocket;
         private readonly NetPacketProcessor packetProcessor;
 
-        public ushort Id => (ushort)peer.Id;
-        public int Ping => peer.Ping;
-        public IPEndPoint Endpoint => peer.EndPoint;
+        //public ushort Id => (ushort)peer.Id;
+        //public int Ping => peer.Ping;
+        //public IPEndPoint Endpoint => peerSocket.UserEndPoint;
 
-        public NebulaConnection(NetPeer peer, NetPacketProcessor packetProcessor)
+        public NebulaConnection(WebSocket peerSocket, NetPacketProcessor packetProcessor)
         {
-            this.peer = peer;
+            this.peerSocket = peerSocket;
             this.packetProcessor = packetProcessor;
         }
 
-        public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
+        public void SendPacket<T>(T packet) where T : class, new()
         {
-            if (peer.ConnectionState == ConnectionState.Connected)
+            if(peerSocket.ReadyState == WebSocketState.Open)
             {
-                peer.Send(packetProcessor.Write(packet), deliveryMethod);
-                peer.Flush();
+                peerSocket.Send(packetProcessor.Write(packet));
             }
             else
             {
-                Console.WriteLine($"Cannot send packet {packet?.GetType()} to a closed connection {peer?.EndPoint}");
+                Console.WriteLine($"Cannot send packet {packet?.GetType()} to a closed connection {peerSocket?.Url}");
             }
         }
 
         public void Disconnect()
         {
             //TODO: Create a disconnectReason packet type so the users know why the server disconnected them
-            peer.Disconnect();
+            peerSocket.Close();
         }
 
         public static bool operator ==(NebulaConnection left, NebulaConnection right)
@@ -68,12 +66,14 @@ namespace NebulaModel.Networking
 
         public override int GetHashCode()
         {
-            return peer?.Id.GetHashCode() ?? 0;
+            // TODO: Check if this works
+            return peerSocket?.GetHashCode() ?? 0;
         }
 
         protected bool Equals(NebulaConnection other)
         {
-            return peer?.Id == other.peer?.Id;
+            // TODO: Check if this works
+            return peerSocket == other.peerSocket;
         }
     }
 }

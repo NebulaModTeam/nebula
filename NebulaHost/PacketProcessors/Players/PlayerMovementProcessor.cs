@@ -26,7 +26,7 @@ namespace NebulaHost.PacketProcessors.Players
                 player.Data.Rotation = packet.Rotation;
                 player.Data.BodyRotation = packet.BodyRotation;
 
-                playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
+                playerManager.SendPacketToOtherPlayers(packet, player);
 
                 SimulatedWorld.UpdateRemotePlayerPosition(packet);
             }

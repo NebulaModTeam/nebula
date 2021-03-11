@@ -23,7 +23,7 @@ namespace NebulaHost.PacketProcessors.Players
             if (player != null)
             {
                 packet.PlayerId = player.Id;
-                playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
+                playerManager.SendPacketToOtherPlayers(packet, player);
 
                 SimulatedWorld.UpdateRemotePlayerAnimation(packet);
             }

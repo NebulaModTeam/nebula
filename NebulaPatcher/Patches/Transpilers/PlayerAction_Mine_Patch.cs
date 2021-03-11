@@ -88,7 +88,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnVegetationMined(int id, bool isVege, int planetID)
         {
             var packet = new VegeMined(id, isVege, planetID);
-            LocalPlayer.SendPacket(packet, DeliveryMethod.ReliableUnordered);
+            LocalPlayer.SendPacket(packet);
         }
 
         private static void patch_findMineVein(CodeInstruction instruction)

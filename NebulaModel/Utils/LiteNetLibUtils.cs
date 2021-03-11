@@ -43,11 +43,13 @@ namespace NebulaModel.Utils
                     // Register our processor callback to the PacketProcessor
                     Type subscribeGenericType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));
 
-                    // TODO: Find a better way to get the "SubscribeReusable" that as the Action<T, TUserData> param.
+/*                    // TODO: Find a better way to get the "SubscribeReusable" that as the Action<T, TUserData> param.
                     MethodInfo method = packetProcessor.GetType().GetMethods().Where(m => m.Name == "SubscribeReusable").ToArray()[1];
 
                     MethodInfo generic = method.MakeGenericMethod(packetType, typeof(NebulaConnection));
-                    generic.Invoke(packetProcessor, new object[] { callback });
+                    generic.Invoke(packetProcessor, new object[] { callback });*/
+
+                    // TODO: Find an alternative serializer
                 }
             }
         }

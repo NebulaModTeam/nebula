@@ -6,6 +6,7 @@ using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
 using UnityEngine;
+using WebSocketSharp;
 
 namespace NebulaClient
 {
@@ -13,7 +14,7 @@ namespace NebulaClient
     {
         public static MultiplayerClientSession Instance { get; protected set; }
 
-        private NetManager client;
+        private WebSocket clientSocket;
         private NebulaConnection serverConnection;
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
@@ -32,22 +33,27 @@ namespace NebulaClient
             serverIp = ip;
             serverPort = port;
 
-            EventBasedNetListener listener = new EventBasedNetListener();
-            listener.PeerConnectedEvent += OnPeerConnected;
-            listener.PeerDisconnectedEvent += OnPeerDisconnected;
-            listener.NetworkReceiveEvent += OnNetworkReceive;
+            /*            EventBasedNetListener listener = new EventBasedNetListener();
+                        listener.PeerConnectedEvent += OnPeerConnected;
+                        listener.PeerDisconnectedEvent += OnPeerDisconnected;
+                        listener.NetworkReceiveEvent += OnNetworkReceive;
 
-            client = new NetManager(listener)
-            {
-                AutoRecycle = true,
-            };
+                        client = new NetManager(listener)
+                        {
+                            AutoRecycle = true,
+                        };*/
+
+            clientSocket = new WebSocket($"ws://{ip}:{port}/socket");
+            clientSocket.OnOpen += ClientSocket_OnOpen;
+            clientSocket.OnClose += ClientSocket_OnClose;
+            clientSocket.OnMessage += ClientSocket_OnMessage;
 
             PacketProcessor = new NetPacketProcessor();
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
-            client.Start();
-            client.Connect(ip, port, "nebula");
+/*            client.Start();
+            client.Connect(ip, port, "nebula");*/
 
             SimulatedWorld.Initialize();
 
@@ -58,7 +64,7 @@ namespace NebulaClient
         void Disconnect()
         {
             IsConnected = false;
-            client.Stop();
+            clientSocket.Close();
         }
 
         public void DestroySession()
@@ -67,9 +73,9 @@ namespace NebulaClient
             Destroy(gameObject);
         }
 
-        public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
+        public void SendPacket<T>(T packet) where T : class, new()
         {
-            serverConnection?.SendPacket(packet, deliveryMethod);
+            serverConnection?.SendPacket(packet);
         }
 
         public void Reconnect()
@@ -79,27 +85,27 @@ namespace NebulaClient
             Connect(serverIp, serverPort);
         }
 
-        private void OnNetworkReceive(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
+        private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            PacketProcessor.ReadAllPackets(reader, new NebulaConnection(peer, PacketProcessor));
+            PacketProcessor.ReadPacket(new NetDataReader(e.RawData), new NebulaConnection(clientSocket, PacketProcessor));
         }
 
-        private void OnPeerConnected(NetPeer peer)
+        private void ClientSocket_OnOpen(object sender, System.EventArgs e)
         {
-            Log.Info($"Server connection established: {peer.EndPoint}");
-            serverConnection = new NebulaConnection(peer, PacketProcessor);
+            Log.Info($"Server connection established: {clientSocket.Url}");
+            serverConnection = new NebulaConnection(clientSocket, PacketProcessor);
             IsConnected = true;
             SendPacket(new HandshakeRequest());
         }
 
-        private void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+        private void ClientSocket_OnClose(object sender, CloseEventArgs e)
         {
             IsConnected = false;
             serverConnection = null;
 
             InGamePopup.ShowWarning(
                 "Connection Lost",
-                $"You have been disconnect of the server.\nReason{disconnectInfo.Reason}",
+                $"You have been disconnect of the server.\nReason{e.Reason}",
                 "Quit", "Reconnect",
                 () => { LocalPlayer.LeaveGame(); },
                 () => { Reconnect(); });
@@ -107,7 +113,7 @@ namespace NebulaClient
 
         private void Update()
         {
-            client?.PollEvents();
+            //client?.PollEvents();
         }
     }
 }
