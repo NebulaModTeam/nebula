@@ -1,7 +1,5 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
+﻿using LiteNetLib.Utils;
 using NebulaModel.DataStructures;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
@@ -88,7 +86,7 @@ namespace NebulaHost
             gameStateUpdateTimer += Time.deltaTime;
             if (gameStateUpdateTimer > 1)
             {
-                SendPacket(new GameStateUpdate() { State = new GameState(GameMain.gameTick) });
+                SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
             }
         }
 
@@ -105,7 +103,7 @@ namespace NebulaHost
 
             protected override void OnClose(CloseEventArgs e)
             {
-                Log.Info($"Client disconnected: {this.Context.UserEndPoint}, reason: {e.Reason}");
+                NebulaModel.Logger.Log.Info($"Client disconnected: {this.Context.UserEndPoint}, reason: {e.Reason}");
                 playerManager.PlayerDisconnected(new NebulaConnection(this.Context.WebSocket, packetProcessor));
             }
 
@@ -121,7 +119,7 @@ namespace NebulaHost
 
             protected override void OnOpen()
             {
-                Log.Info($"Client connected ID: {this.ID}, {this.Context.UserEndPoint}");
+                NebulaModel.Logger.Log.Info($"Client connected ID: {this.ID}, {this.Context.UserEndPoint}");
                 NebulaConnection conn = new NebulaConnection(this.Context.WebSocket, packetProcessor);
                 playerManager.PlayerConnected(conn);
             }

@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using LiteNetLib;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using System;
@@ -16,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static int countRemoveVege = 0, countMineVein = 0;
 
         private static int miningId = -1;
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             // search for the place where miningId is checked against 0 and then miningType is checked against Vegetable/Vein
             // as thats where we grab the miningId
@@ -58,10 +57,10 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     yield return Transpilers.EmitDelegate<Func<int, int>>(VegeId =>
                     {
-                        if (PlayerAction_Mine_Transpiler.miningId != -1)
+                        if (miningId != -1)
                         {
-                            OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, true, GameMain.localPlanet.id);
-                            PlayerAction_Mine_Transpiler.miningId = -1;
+                            OnVegetationMined(miningId, true, GameMain.localPlanet.id);
+                            miningId = -1;
                         }
                         return VegeId;
                     });
@@ -72,10 +71,10 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     yield return Transpilers.EmitDelegate<Func<int, int>>(miningTick =>
                     {
-                        if (PlayerAction_Mine_Transpiler.miningId != -1)
+                        if (miningId != -1)
                         {
-                            OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, false, GameMain.localPlanet.id);
-                            PlayerAction_Mine_Transpiler.miningId = -1;
+                            OnVegetationMined(miningId, false, GameMain.localPlanet.id);
+                            miningId = -1;
                         }
                         return miningTick;
                     });
@@ -93,7 +92,6 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void patch_findMineVein(CodeInstruction instruction)
         {
-
             if (countMineVein == 0 && instruction.opcode == OpCodes.Ldfld)
             {
                 countMineVein++;
@@ -122,7 +120,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 countMineVein = 0;
             }
-
         }
 
         private static void patch_findRemoveVege(CodeInstruction instruction)

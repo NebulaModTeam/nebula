@@ -98,6 +98,9 @@
     <PackageReference Include="WebSocketSharp">
       <Version>1.0.3-rc11</Version>
     </PackageReference>
+    <PackageReference Include="WebSocketSharp-netstandard">
+      <Version>1.0.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
