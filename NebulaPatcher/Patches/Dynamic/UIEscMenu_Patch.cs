@@ -54,6 +54,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnHostCurrentGameClick()
         {
+            // Make sure to save the game before enabling the multiplayer mod
+            GameSave.AutoSave();
+
             // TODO: This port should come from the server.config file.
             int port = 8469;
 
@@ -65,7 +68,6 @@ namespace NebulaPatcher.Patches.Dynamic
             SimulatedWorld.OnGameLoadCompleted();
 
             GameMain.Resume();
-            InGamePopup.ShowInfo("Multiplayer", "Server started successfully!", "OK");
         }
     }
 }
