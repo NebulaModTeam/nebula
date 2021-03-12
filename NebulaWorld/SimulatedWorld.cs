@@ -98,6 +98,7 @@ namespace NebulaWorld
             if(remotePlayersModels.TryGetValue(packet.playerId, out RemotePlayerModel player))
             {
                 player.localPlanetId = packet.planetId;
+                player.Effects.UpdatePlanet(packet.planetId);
             }
         }
 
