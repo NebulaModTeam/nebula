@@ -5,6 +5,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp;
 
@@ -20,6 +21,8 @@ namespace NebulaClient
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
 
+        private Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
+
         private string serverIp;
         private int serverPort;
 
@@ -33,16 +36,6 @@ namespace NebulaClient
             serverIp = ip;
             serverPort = port;
 
-            /*            EventBasedNetListener listener = new EventBasedNetListener();
-                        listener.PeerConnectedEvent += OnPeerConnected;
-                        listener.PeerDisconnectedEvent += OnPeerDisconnected;
-                        listener.NetworkReceiveEvent += OnNetworkReceive;
-
-                        client = new NetManager(listener)
-                        {
-                            AutoRecycle = true,
-                        };*/
-
             clientSocket = new WebSocket($"ws://{ip}:{port}/socket");
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
@@ -51,9 +44,6 @@ namespace NebulaClient
             PacketProcessor = new NetPacketProcessor();
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
-
-/*            client.Start();
-            client.Connect(ip, port, "nebula");*/
 
             SimulatedWorld.Initialize();
 
@@ -87,7 +77,10 @@ namespace NebulaClient
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            PacketProcessor.ReadPacket(new NetDataReader(e.RawData), new NebulaConnection(clientSocket, PacketProcessor));
+            lock(pendingPackets)
+            {
+                pendingPackets.Enqueue(new PendingPacket(e.RawData, new NebulaConnection(clientSocket, PacketProcessor)));
+            }
         }
 
         private void ClientSocket_OnOpen(object sender, System.EventArgs e)
@@ -113,7 +106,14 @@ namespace NebulaClient
 
         private void Update()
         {
-            //client?.PollEvents();
+            lock(pendingPackets)
+            {
+                while (pendingPackets.Count > 0)
+                {
+                    PendingPacket packet = pendingPackets.Dequeue();
+                    PacketProcessor.ReadPacket(new NetDataReader(packet.Data), packet.Connection);
+                }
+            }
         }
     }
 }

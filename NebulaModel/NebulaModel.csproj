@@ -66,6 +66,7 @@
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
+    <Compile Include="Networking\PendingPacket.cs" />
     <Compile Include="Packets\Planet\FactoryData.cs" />
     <Compile Include="Packets\Planet\FactoryLoadRequest.cs" />
     <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
