@@ -1,5 +1,5 @@
 ﻿using LiteNetLib.Utils;
-using System;
+using NebulaModel.Logger;
 using WebSocketSharp;
 
 namespace NebulaModel.Networking
@@ -27,7 +27,7 @@ namespace NebulaModel.Networking
             }
             else
             {
-                Console.WriteLine($"Cannot send packet {packet?.GetType()} to a closed connection {peerSocket?.Url}");
+                Log.Info($"Cannot send packet {packet?.GetType()} to a closed connection {peerSocket?.Url}");
             }
         }
 

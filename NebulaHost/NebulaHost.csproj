@@ -84,6 +84,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"
-copy /Y "$(TargetDir)/LZ4.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LZ4.dll"</PostBuildEvent>
+copy /Y "$(TargetDir)/LZ4.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LZ4.dll"
+copy /Y "$(TargetDir)/websocket-sharp.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\websocket-sharp.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
