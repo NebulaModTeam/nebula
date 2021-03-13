@@ -3,8 +3,6 @@ using LiteNetLib;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 
-using UnityEngine;
-
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameData), "ArrivePlanet")]
