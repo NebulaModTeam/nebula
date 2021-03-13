@@ -18,15 +18,19 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private ParticleSystemRenderer[] psysr;
         private ParticleSystem torchEffect;
 
-        VFAudio miningAudio = null;
-        VFAudio driftAudio = null;
-        VFAudio flyAudio0 = null, flyAudio1 = null;
+        private VFAudio miningAudio = null;
+        private VFAudio driftAudio = null;
+        private VFAudio flyAudio0 = null, flyAudio1 = null;
 
-        string[] solidSoundEvents = new string[4];
-        string waterSoundEvent = "footsteps-6";
+        private string[] solidSoundEvents = new string[4];
+        private string waterSoundEvent = "footsteps-6";
 
-        int lastTriggeredFood = 0;
-        int localPlanetId = -1;
+        private float maxAltitude = 0;
+        private int lastTriggeredFood = 0;
+        private int localPlanetId = -1;
+
+        Collider[] collider;
+        float vegeCollideColdTime = 0;
 
         public void Awake()
         {
@@ -70,6 +74,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
             solidSoundEvents[1] = "footsteps-1";
             solidSoundEvents[2] = "footsteps-2";
             solidSoundEvents[3] = "footsteps-3";
+
+            collider = new Collider[16];
 
         }
 
@@ -301,6 +307,134 @@ namespace NebulaWorld.MonoBehaviours.Remote
             return result;
         }
 
+        private bool DriftDetermineInWater(PlanetData pData)
+        {
+            if(localPlanetId < 0)
+            {
+                return false;
+            }
+
+            if(pData != null)
+            {
+                float currAltitude = Mathf.Max(rootTransform.position.magnitude, pData.realRadius * 0.9f) - pData.realRadius;
+                Vector3 origin = rootTransform.position + rootTransform.position.normalized * 10f;
+                Vector3 direction = -rootTransform.position.normalized;
+                float rDist1 = 0f, rDist2 = 0f;
+                bool trigger = false;
+                RaycastHit rHit;
+
+                if(Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 8704, QueryTriggerInteraction.Collide))
+                {
+                    rDist1 = rHit.distance;
+                }
+                else
+                {
+                    trigger = true;
+                }
+                if(Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 16, QueryTriggerInteraction.Collide))
+                {
+                    rDist2 = rHit.distance;
+                }
+                else
+                {
+                    trigger = true;
+                }
+
+                if(!trigger && currAltitude > -2.3f + pData.waterHeight)
+                {
+                    if(rDist1 - rDist2 > 0.7f && currAltitude < -0.6f)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // collision with vegetation, landing sound effect
+        private void UpdateExtraSoundEffects(PlayerAnimationUpdate packet)
+        {
+            if(localPlanetId < 0)
+            {
+                return;
+            }
+
+            if(localPlanetId > 0)
+            {
+                PlanetData pData = GameMain.galaxy.PlanetById(localPlanetId);
+                PlanetPhysics pPhys = (pData != null) ? pData.physics : null;
+                PlanetFactory pFactory = (pData != null) ? pData.factory : null;
+                float tmpMaxAltitude = rootTransform.localPosition.magnitude - pData.realRadius;
+                if(tmpMaxAltitude > 1000f)
+                {
+                    tmpMaxAltitude = 1000f;
+                }
+
+                if(rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftR.enabled || rootAnimation.DriftL.enabled)
+                {
+                    bool ground = isGrounded();
+
+                    if(DriftDetermineInWater(pData))
+                    {
+                        if(maxAltitude > 1f && pData.waterItemId > 0)
+                        {
+                            VFAudio audio = VFAudio.Create("landing-water", base.transform, Vector3.zero, false, 0);
+                            audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 5f + 0.5f);
+                            audio.Play();
+                            playFootstepEffect(true, 0f, true);
+                            playFootstepEffect(false, 0f, true);
+                        }
+                        maxAltitude = 0f;
+                    }
+                    if (ground && maxAltitude > 3f)
+                    {
+                        VFAudio audio = VFAudio.Create("landing", base.transform, Vector3.zero, false, 0);
+                        audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 25f + 0.5f);
+                        audio.Play();
+                        maxAltitude = 0f;
+                    }
+                    if (!ground && tmpMaxAltitude > maxAltitude)
+                    {
+                        maxAltitude = tmpMaxAltitude;
+                    }
+                }
+                else
+                {
+                    maxAltitude = 15f;
+                }
+
+                // NOTE: the pPhys can only be loaded if the player trying to load it has the planet actually loaded (meaning he is on the same planet or near it)
+                if(pPhys != null && pFactory != null && packet.horzSpeed > 5f)
+                {
+                    int number = Physics.OverlapSphereNonAlloc(base.transform.localPosition, 1.8f, collider, 1024, QueryTriggerInteraction.Collide);
+                    for(int i = 0; i < number; i++)
+                    {
+                        int colId = pPhys.nearColliderLogic.FindColliderId(collider[i]);
+                        ColliderData cData = pPhys.GetColliderData(colId);
+                        if(cData.objType == EObjectType.Vegetable && cData.objId > 0)
+                        {
+                            VegeData vData = pFactory.vegePool[cData.objId];
+                            VegeProto vProto = LDB.veges.Select((int)vData.protoId);
+                            if(vProto != null && vProto.CollideAudio > 0 && vegeCollideColdTime <= 0)
+                            {
+                                VFAudio.Create(vProto.CollideAudio, base.transform, Vector3.zero, true, 0);
+                                vegeCollideColdTime = UnityEngine.Random.value * 0.23f + 0.1f;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(vegeCollideColdTime > 0)
+            {
+                vegeCollideColdTime -= Time.deltaTime * 2;
+            }
+            else
+            {
+                vegeCollideColdTime = 0;
+            }
+        }
+
         public void UpdateState(PlayerAnimationUpdate packet)
         {
             bool anyMovingAnimationActive = rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Fly.enabled || rootAnimation.Sail.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftL.enabled || rootAnimation.DriftR.enabled || !isGrounded();
@@ -309,6 +443,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             if (anyMovingAnimationActive)
             {
+                UpdateExtraSoundEffects(packet);
                 if (fireParticleOkay)
                 {
                     if ((!rootAnimation.RunSlow.enabled && !rootAnimation.RunFast.enabled) || anyDriftActive)
