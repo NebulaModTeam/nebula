@@ -22,7 +22,8 @@ namespace NebulaHost.PacketProcessors.Players
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {
-                player.Data.Position = packet.Position;
+                player.Data.LocalPlanetId = packet.LocalPlanetId;
+                player.Data.UPosition = packet.UPosition;
                 player.Data.Rotation = packet.Rotation;
                 player.Data.BodyRotation = packet.BodyRotation;
 

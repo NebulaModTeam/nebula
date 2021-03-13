@@ -13,7 +13,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
         struct Snapshot
         {
             public long Timestamp { get; set; }
-            public Vector3 Position { get; set; }
+            public int LocalPlanetId { get; set; }
+            public Double3 UPosition { get; set; }
             public Quaternion Rotation { get; set; }
             public Quaternion BodyRotation { get; set; }
         }
@@ -78,7 +79,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             snapshotBuffer[snapshotBuffer.Length - 1] = new Snapshot()
             {
                 Timestamp = TimeUtils.CurrentUnixTimestampMilliseconds(),
-                Position = movement.Position.ToUnity(),
+                UPosition = movement.UPosition,
                 Rotation = Quaternion.Euler(movement.Rotation.ToUnity()),
                 BodyRotation = Quaternion.Euler(movement.BodyRotation.ToUnity()),
             };
@@ -86,9 +87,24 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void MoveInterpolated(Snapshot previous, Snapshot current, float ratio)
         {
-            rootTransform.position = Vector3.Lerp(previous.Position, current.Position, ratio);
+            Vector3 previousPosition = GetRelativePosition(previous);
+            Vector3 currentPosition = GetRelativePosition(current);
+
+            rootTransform.position = Vector3.Lerp(previousPosition, currentPosition, ratio);
             rootTransform.rotation = Quaternion.Slerp(previous.Rotation, current.Rotation, ratio);
             bodyTransform.rotation = Quaternion.Slerp(previous.BodyRotation, current.BodyRotation, ratio);
+        }
+
+        private Vector3 GetRelativePosition(Snapshot snapshot)
+        {
+            // If we are on a local planet, the snapshot position is already in local planet space.
+            if (snapshot.LocalPlanetId >= 0)
+            {
+                return new Vector3((float)snapshot.UPosition.x, (float)snapshot.UPosition.y, (float)snapshot.UPosition.z);
+            }
+
+            // If the remote player is in space, we need to calculate his current "universe position" relative to the local player position in his world.
+            return (Vector3)Maths.QInvRotateLF(GameMain.data.relativeRot, new VectorLF3(snapshot.UPosition.x, snapshot.UPosition.y, snapshot.UPosition.z) - GameMain.data.relativePos);
         }
     }
 }

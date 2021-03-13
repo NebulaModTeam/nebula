@@ -83,7 +83,9 @@ namespace NebulaHost
             // TODO: Load old player state if we have one. We generate a random one for now.
             ushort playerId = GetNextAvailablePlayerId();
             Float3 randomColor = new Float3(Random.value, Random.value, Random.value);
-            PlayerData playerData = new PlayerData(playerId, randomColor);
+
+            // TODO: We will need to check if we know on which planet this player was
+            PlayerData playerData = new PlayerData(playerId, -1, randomColor);
 
             Player newPlayer = new Player(conn, playerData);
             pendingPlayers.Add(conn, newPlayer);
