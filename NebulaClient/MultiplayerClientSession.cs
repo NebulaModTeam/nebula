@@ -45,6 +45,8 @@ namespace NebulaClient
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
+            clientSocket.Connect();
+
             SimulatedWorld.Initialize();
 
             LocalPlayer.IsMasterClient = false;
