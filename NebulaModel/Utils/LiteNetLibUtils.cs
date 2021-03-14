@@ -19,27 +19,17 @@ namespace NebulaModel.Utils
                 Console.WriteLine($"Registering Nested Type: {type.Name}");
                 if (type.IsClass)
                 {
-                    // TODO: Hubastard :: Fix this
-                    /*
                     // TODO: Find a better way to get the "NetPacketProcessor.RegisterNestedType" that as the Func<T> param instead of by index.
-                    MethodInfo registerMethod = packetProcessor.GetType().GetMethods().Where(m => m.Name == nameof(NetPacketProcessor.RegisterNestedType)).ToArray()[2];
-                    Log.Warn($"registerMethod: {registerMethod}");
+                    MethodInfo registerMethod = packetProcessor.GetType()
+                        .GetMethods()
+                        .Where(m => m.Name == nameof(NetPacketProcessor.RegisterNestedType))
+                        .ToArray()[2]
+                        .MakeGenericMethod(type);
 
                     MethodInfo delegateMethod = packetProcessor.GetType().GetMethod(nameof(NetPacketProcessor.CreateNestedClassInstance)).MakeGenericMethod(type);
-                    Log.Warn($"delegateMethod: {delegateMethod}");
-
                     var funcType = typeof(Func<>).MakeGenericType(type);
-                    Log.Warn($"funcType: {funcType}");
-
-                    var callback = Delegate.CreateDelegate(funcType, delegateMethod);
-                    Log.Warn($"callback: {callback}");
-
-                    // Invoke the register method with the appropriate params
-                    MethodInfo generic = registerMethod.MakeGenericMethod(type);
-                    Log.Warn($"generic: {generic}");
-
-                    generic.Invoke(packetProcessor, new object[] { callback });
-                    */
+                    var callback = Delegate.CreateDelegate(funcType, packetProcessor, delegateMethod);
+                    registerMethod.Invoke(packetProcessor, new object[] { callback });
                 } 
                 else if (type.IsValueType)
                 {

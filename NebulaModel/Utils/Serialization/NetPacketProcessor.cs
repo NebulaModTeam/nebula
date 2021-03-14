@@ -60,6 +60,11 @@ namespace LiteNetLib.Utils
             writer.Put(GetHash<T>());
         }
 
+        public T CreateNestedClassInstance<T>() where T : class, INetSerializable, new()
+        {
+            return new T();
+        } 
+
         /// <summary>
         /// Register nested property type
         /// </summary>

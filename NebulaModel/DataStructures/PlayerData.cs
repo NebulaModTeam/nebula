@@ -1,11 +1,9 @@
 ﻿using LiteNetLib.Utils;
 using NebulaModel.Attributes;
-using NebulaModel.Logger;
 
 namespace NebulaModel.DataStructures
 {
-    // TODO: Hubastard :: Fix this
-    // [RegisterNestedType]
+    [RegisterNestedType]
     public class PlayerData : INetSerializable
     {
         public ushort PlayerId { get; set; }
