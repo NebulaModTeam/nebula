@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
 
-namespace NebulaPatcher.Patches
+namespace NebulaPatcher.Patches.Dynamic
 {
+#if DEBUG
+
     [HarmonyPatch(typeof(GameHistoryData), "EnqueueTech")]
     class patch
     {
@@ -20,4 +22,5 @@ namespace NebulaPatcher.Patches
             __result = true;
         }
     }
+#endif
 }
