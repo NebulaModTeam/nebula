@@ -1,5 +1,7 @@
-﻿using LiteNetLib.Utils;
+﻿using HarmonyLib;
+using LiteNetLib.Utils;
 using NebulaModel.Logger;
+using System.Reflection;
 using WebSocketSharp;
 
 namespace NebulaModel.Networking
@@ -8,6 +10,8 @@ namespace NebulaModel.Networking
     {
         private readonly WebSocket peerSocket;
         private readonly NetPacketProcessor packetProcessor;
+
+        private readonly FieldInfo webSocket_base64Key = AccessTools.Field(typeof(WebSocket), "_base64Key");
 
         //public ushort Id => (ushort)peer.Id;
         //public int Ping => peer.Ping;
@@ -66,14 +70,14 @@ namespace NebulaModel.Networking
 
         public override int GetHashCode()
         {
-            // TODO: Check if this works
-            return peerSocket?.GetHashCode() ?? 0;
+            return peerSocket == null ? 0 : ((string)webSocket_base64Key.GetValue(peerSocket)).GetHashCode();
         }
 
         protected bool Equals(NebulaConnection other)
         {
+            return string.Equals((string)webSocket_base64Key.GetValue(peerSocket), (string)webSocket_base64Key.GetValue(other.peerSocket));
             // TODO: Check if this works
-            return peerSocket == other.peerSocket;
+            //return peerSocket == other.peerSocket;
         }
     }
 }
