@@ -1,9 +1,11 @@
 ﻿using LiteNetLib.Utils;
 using NebulaModel.Attributes;
+using NebulaModel.Logger;
 
 namespace NebulaModel.DataStructures
 {
-    [RegisterNestedType]
+    // TODO: Hubastard :: Fix this
+    // [RegisterNestedType]
     public class PlayerData : INetSerializable
     {
         public ushort PlayerId { get; set; }
@@ -13,6 +15,7 @@ namespace NebulaModel.DataStructures
         public Float3 BodyRotation { get; set; }
 
         public PlayerData() { }
+
         public PlayerData(ushort playerId, Float3 color, Float3 position = new Float3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
         {
             PlayerId = playerId;

@@ -46,7 +46,7 @@ namespace NebulaModel.DataStructures
 
         public override string ToString()
         {
-            return $"x: {x}, y: {y}, z: {z}";
+            return $"(x: {x}, y: {y}, z: {z})";
         }
     }
 }

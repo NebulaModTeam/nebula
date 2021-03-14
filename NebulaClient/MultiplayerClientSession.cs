@@ -1,5 +1,5 @@
-﻿using LiteNetLib;
-using LiteNetLib.Utils;
+﻿using LiteNetLib.Utils;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
@@ -42,6 +42,10 @@ namespace NebulaClient
             clientSocket.OnMessage += ClientSocket_OnMessage;
 
             PacketProcessor = new NetPacketProcessor();
+
+            // TODO: Fix RegisterNestedType for classes
+            PacketProcessor.RegisterNestedType<PlayerData>(() => { return new PlayerData(); });
+
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 

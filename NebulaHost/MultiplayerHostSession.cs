@@ -34,6 +34,10 @@ namespace NebulaHost
         {
             PlayerManager = new PlayerManager();
             PacketProcessor = new NetPacketProcessor();
+
+            // TODO: Fix RegisterNestedType for classes
+            PacketProcessor.RegisterNestedType<PlayerData>(() => { return new PlayerData(); });
+
             LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
