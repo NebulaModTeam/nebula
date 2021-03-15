@@ -23,7 +23,7 @@ namespace NebulaHost.PacketProcessors.Players
             if (player != null)
             {
                 player.Data.LocalPlanetId = packet.LocalPlanetId;
-                player.Data.UPosition = packet.UPosition;
+                player.Data.UPosition = packet.Position;
                 player.Data.Rotation = packet.Rotation;
                 player.Data.BodyRotation = packet.BodyRotation;
 

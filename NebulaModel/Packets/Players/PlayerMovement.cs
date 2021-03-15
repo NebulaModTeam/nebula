@@ -7,7 +7,7 @@ namespace NebulaModel.Packets.Players
     {
         public ushort PlayerId { get; set; }
         public int LocalPlanetId { get; set; }
-        public Double3 UPosition { get; set; }
+        public Double3 Position { get; set; }
         public Float3 Rotation { get; set; }
         public Float3 BodyRotation { get; set; }
 
@@ -17,7 +17,7 @@ namespace NebulaModel.Packets.Players
         {
             PlayerId = playerId;
             LocalPlanetId = localPlanetId;
-            UPosition = uPosition;
+            Position = uPosition;
             Rotation = rotation;
             BodyRotation = bodyRotation;
         }
