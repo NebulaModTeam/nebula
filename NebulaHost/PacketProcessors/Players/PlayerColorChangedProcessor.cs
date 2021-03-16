@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
@@ -28,7 +27,7 @@ namespace NebulaHost.PacketProcessors.Players
             }
 
             player.Data.Color = packet.Color;
-            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
+            playerManager.SendPacketToOtherPlayers(packet, player);
 
             SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color);
         }

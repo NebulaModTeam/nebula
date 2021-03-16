@@ -38,7 +38,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                     Fly = playerAnimator.fly.ToNebula(),
                     Sail = playerAnimator.sail.ToNebula(),
                     Mining0 = playerAnimator.mining0.ToNebula(),
-                }, LiteNetLib.DeliveryMethod.Unreliable);
+                });
             }
         }
     }

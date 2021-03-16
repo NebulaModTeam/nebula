@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
@@ -20,7 +19,7 @@ namespace NebulaHost.PacketProcessors.Planet
         public void ProcessPacket(VegeMined packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
+            playerManager.SendPacketToOtherPlayers(packet, player);
 
             SimulatedWorld.MineVegetable(packet);
         }
