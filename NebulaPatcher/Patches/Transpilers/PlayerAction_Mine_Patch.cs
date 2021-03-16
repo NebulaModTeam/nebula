@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using LiteNetLib;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using System;
@@ -121,7 +120,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             var packet = new VegeMined(id, isVege);
             packet.PlayerId = LocalPlayer.PlayerId;
-            LocalPlayer.SendPacket(packet, DeliveryMethod.ReliableUnordered);
+            LocalPlayer.SendPacket(packet);
         }
     }
 }

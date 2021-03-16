@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 
 namespace NebulaHost
@@ -16,9 +15,9 @@ namespace NebulaHost
             Data = data;
         }
 
-        public void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
+        public void SendPacket<T>(T packet) where T : class, new()
         {
-            Connection.SendPacket(packet, deliveryMethod);
+            Connection.SendPacket(packet);
         }
     }
 }

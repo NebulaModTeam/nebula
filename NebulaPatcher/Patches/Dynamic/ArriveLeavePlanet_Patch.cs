@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using LiteNetLib;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 
@@ -12,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             var packet = new localPlanetSyncPckt(__instance.localPlanet.id, false);
             packet.playerId = LocalPlayer.PlayerId;
-            LocalPlayer.SendPacket(packet, DeliveryMethod.ReliableUnordered);
+            LocalPlayer.SendPacket(packet);
         }
     }
 
@@ -25,7 +24,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 var packet = new localPlanetSyncPckt(0, false);
                 packet.playerId = LocalPlayer.PlayerId;
-                LocalPlayer.SendPacket(packet, DeliveryMethod.ReliableUnordered);
+                LocalPlayer.SendPacket(packet);
             }
         }
     }

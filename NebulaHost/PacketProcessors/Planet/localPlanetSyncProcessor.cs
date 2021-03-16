@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
@@ -23,7 +22,7 @@ namespace NebulaHost.PacketProcessors.Planet
             if(player != null)
             {
                 packet.playerId = player.Id;
-                playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
+                playerManager.SendPacketToOtherPlayers(packet, player);
             }
             else
             {
@@ -31,7 +30,7 @@ namespace NebulaHost.PacketProcessors.Planet
                 if(player != null)
                 {
                     packet.playerId = player.Id;
-                    playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.ReliableUnordered);
+                    playerManager.SendPacketToOtherPlayers(packet, player);
                 }
             }
 
@@ -50,7 +49,7 @@ namespace NebulaHost.PacketProcessors.Planet
                 if(playerManager.SyncingPlayers.TryGetValue(conn, out Player p))
                 {
                     Upacket.playerId = LocalPlayer.PlayerId;
-                    p.SendPacket(Upacket, DeliveryMethod.ReliableUnordered);
+                    p.SendPacket(Upacket);
                 }
             }
 

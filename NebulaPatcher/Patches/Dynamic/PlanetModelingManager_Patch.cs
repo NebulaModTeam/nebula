@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix(PlanetData planet)
         {
             // Run the original method if this is the master client
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (LocalPlayer.IsMasterClient)
             {
                 return true;
             }

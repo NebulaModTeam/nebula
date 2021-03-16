@@ -38,6 +38,15 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\Libs\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>..\Libs\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Harmony">
+      <HintPath>..\Libs\BepInEx.Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -66,6 +75,7 @@
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
+    <Compile Include="Networking\PendingPacket.cs" />
     <Compile Include="Packets\Planet\FactoryData.cs" />
     <Compile Include="Packets\Planet\FactoryLoadRequest.cs" />
     <Compile Include="Packets\Planet\localPlanetSyncPckt.cs" />
@@ -82,13 +92,24 @@
     <Compile Include="Packets\Session\SyncComplete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\AssembliesUtils.cs" />
-    <Compile Include="Utils\LiteNetLibUtils.cs" />
+    <Compile Include="Networking\PacketUtils.cs" />
+    <Compile Include="Networking\Serialization\FastBitConverter.cs" />
+    <Compile Include="Networking\Serialization\INetSerializable.cs" />
+    <Compile Include="Networking\Serialization\NetDataReader.cs" />
+    <Compile Include="Networking\Serialization\NetDataWriter.cs" />
+    <Compile Include="Networking\Serialization\NetPacketProcessor.cs" />
+    <Compile Include="Networking\Serialization\NetSerializer.cs" />
+    <Compile Include="Networking\Serialization\NetUtils.cs" />
     <Compile Include="Utils\TimeUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LiteNetLib\LiteNetLib\LiteNetLib.csproj">
-      <Project>{b0a014e4-0392-4e35-aa42-8fb5a40417e0}</Project>
-      <Name>LiteNetLib</Name>
+    <Content Include="Networking\Serialization\LICENSE.txt" />
+    <Content Include="Networking\Serialization\README.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\websocket-sharp\websocket-sharp\websocket-sharp.csproj">
+      <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
+      <Name>websocket-sharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

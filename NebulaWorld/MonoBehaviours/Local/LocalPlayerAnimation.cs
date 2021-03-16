@@ -45,7 +45,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                     Mining0 = playerAnimator.mining0.ToNebula(),
                     horzSpeed = horzSpeed,
                     vertSpeed = vertSpeed,
-                }, LiteNetLib.DeliveryMethod.Unreliable);
+                });
             }
         }
     }
