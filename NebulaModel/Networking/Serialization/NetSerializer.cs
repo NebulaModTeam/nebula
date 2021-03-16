@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Net;
-using System.Runtime.Serialization;
+using System.Reflection;
 
-namespace LiteNetLib.Utils
+namespace NebulaModel.Networking.Serialization
 {
     public class InvalidTypeException : ArgumentException
     {

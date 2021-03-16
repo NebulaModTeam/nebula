@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace LiteNetLib.Utils
+namespace NebulaModel.Networking.Serialization
 {
     public static class FastBitConverter
     {

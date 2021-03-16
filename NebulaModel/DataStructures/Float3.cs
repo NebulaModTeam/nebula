@@ -1,5 +1,5 @@
-﻿using LiteNetLib.Utils;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
+using NebulaModel.Networking.Serialization;
 using UnityEngine;
 
 namespace NebulaModel.DataStructures

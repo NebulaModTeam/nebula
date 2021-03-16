@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LiteNetLib.Utils
+namespace NebulaModel.Networking.Serialization
 {
     public class NetPacketProcessor
     {
@@ -63,7 +63,7 @@ namespace LiteNetLib.Utils
         public T CreateNestedClassInstance<T>() where T : class, INetSerializable, new()
         {
             return new T();
-        } 
+        }
 
         /// <summary>
         /// Register nested property type
@@ -125,33 +125,33 @@ namespace LiteNetLib.Utils
             ReadPacket(reader, null);
         }
 
-/*        public void Send<T>(NetPeer peer, T packet, DeliveryMethod options) where T : class, new()
-        {
-            _netDataWriter.Reset();
-            Write(_netDataWriter, packet);
-            peer.Send(_netDataWriter, options);
-        }
+        /*        public void Send<T>(NetPeer peer, T packet, DeliveryMethod options) where T : class, new()
+                {
+                    _netDataWriter.Reset();
+                    Write(_netDataWriter, packet);
+                    peer.Send(_netDataWriter, options);
+                }
 
-        public void SendNetSerializable<T>(NetPeer peer, T packet, DeliveryMethod options) where T : INetSerializable
-        {
-            _netDataWriter.Reset();
-            WriteNetSerializable(_netDataWriter, packet);
-            peer.Send(_netDataWriter, options);
-        }
+                public void SendNetSerializable<T>(NetPeer peer, T packet, DeliveryMethod options) where T : INetSerializable
+                {
+                    _netDataWriter.Reset();
+                    WriteNetSerializable(_netDataWriter, packet);
+                    peer.Send(_netDataWriter, options);
+                }
 
-        public void Send<T>(NetManager manager, T packet, DeliveryMethod options) where T : class, new()
-        {
-            _netDataWriter.Reset();
-            Write(_netDataWriter, packet);
-            manager.SendToAll(_netDataWriter, options);
-        }
+                public void Send<T>(NetManager manager, T packet, DeliveryMethod options) where T : class, new()
+                {
+                    _netDataWriter.Reset();
+                    Write(_netDataWriter, packet);
+                    manager.SendToAll(_netDataWriter, options);
+                }
 
-        public void SendNetSerializable<T>(NetManager manager, T packet, DeliveryMethod options) where T : INetSerializable
-        {
-            _netDataWriter.Reset();
-            WriteNetSerializable(_netDataWriter, packet);
-            manager.SendToAll(_netDataWriter, options);
-        }*/
+                public void SendNetSerializable<T>(NetManager manager, T packet, DeliveryMethod options) where T : INetSerializable
+                {
+                    _netDataWriter.Reset();
+                    WriteNetSerializable(_netDataWriter, packet);
+                    manager.SendToAll(_netDataWriter, options);
+                }*/
 
         public void Write<T>(NetDataWriter writer, T packet) where T : class, new()
         {

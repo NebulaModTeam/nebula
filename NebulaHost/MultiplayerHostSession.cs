@@ -1,6 +1,6 @@
-﻿using LiteNetLib.Utils;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
@@ -15,7 +15,6 @@ namespace NebulaHost
     {
         public static MultiplayerHostSession Instance { get; protected set; }
 
-        //private NetManager server;
         private WebSocketServer socketServer;
 
         public PlayerManager PlayerManager { get; protected set; }
@@ -34,8 +33,8 @@ namespace NebulaHost
         {
             PlayerManager = new PlayerManager();
             PacketProcessor = new NetPacketProcessor();
-            LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
-            LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
+            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
             socketServer = new WebSocketServer(port);
             socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor, pendingPackets));

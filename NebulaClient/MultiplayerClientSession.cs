@@ -1,9 +1,7 @@
-﻿using LiteNetLib.Utils;
-using NebulaModel.DataStructures;
-using NebulaModel.Logger;
+﻿using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Session;
-using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,8 +40,8 @@ namespace NebulaClient
             clientSocket.OnMessage += ClientSocket_OnMessage;
 
             PacketProcessor = new NetPacketProcessor();
-            LiteNetLibUtils.RegisterAllPacketNestedTypes(PacketProcessor);
-            LiteNetLibUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
+            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
             clientSocket.Connect();
 
@@ -79,7 +77,7 @@ namespace NebulaClient
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            lock(pendingPackets)
+            lock (pendingPackets)
             {
                 pendingPackets.Enqueue(new PendingPacket(e.RawData, new NebulaConnection(clientSocket, PacketProcessor)));
             }
@@ -108,7 +106,7 @@ namespace NebulaClient
 
         private void Update()
         {
-            lock(pendingPackets)
+            lock (pendingPackets)
             {
                 while (pendingPackets.Count > 0)
                 {

@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text;
 
-namespace LiteNetLib.Utils
+namespace NebulaModel.Networking.Serialization
 {
     public class NetDataReader
     {

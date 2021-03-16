@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using LiteNetLib.Utils;
 using NebulaModel.Logger;
+using NebulaModel.Networking.Serialization;
 using System.Reflection;
 using WebSocketSharp;
 
@@ -13,9 +13,7 @@ namespace NebulaModel.Networking
 
         private readonly FieldInfo webSocket_base64Key = AccessTools.Field(typeof(WebSocket), "_base64Key");
 
-        //public ushort Id => (ushort)peer.Id;
-        //public int Ping => peer.Ping;
-        //public IPEndPoint Endpoint => peerSocket.UserEndPoint;
+        public bool IsAlive => peerSocket?.IsAlive ?? false;
 
         public NebulaConnection(WebSocket peerSocket, NetPacketProcessor packetProcessor)
         {
@@ -25,7 +23,7 @@ namespace NebulaModel.Networking
 
         public void SendPacket<T>(T packet) where T : class, new()
         {
-            if(peerSocket.ReadyState == WebSocketState.Open)
+            if (peerSocket.ReadyState == WebSocketState.Open)
             {
                 peerSocket.Send(packetProcessor.Write(packet));
             }

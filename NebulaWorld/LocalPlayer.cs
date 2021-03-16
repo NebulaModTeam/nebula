@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets.Session;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;

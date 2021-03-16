@@ -1,4 +1,4 @@
-﻿namespace LiteNetLib.Utils
+﻿namespace NebulaModel.Networking.Serialization
 {
     public interface INetSerializable
     {

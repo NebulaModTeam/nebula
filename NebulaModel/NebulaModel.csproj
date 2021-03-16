@@ -91,18 +91,19 @@
     <Compile Include="Packets\Session\SyncComplete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\AssembliesUtils.cs" />
-    <Compile Include="Utils\LiteNetLibUtils.cs" />
-    <Compile Include="Utils\Serialization\FastBitConverter.cs" />
-    <Compile Include="Utils\Serialization\INetSerializable.cs" />
-    <Compile Include="Utils\Serialization\NetDataReader.cs" />
-    <Compile Include="Utils\Serialization\NetDataWriter.cs" />
-    <Compile Include="Utils\Serialization\NetPacketProcessor.cs" />
-    <Compile Include="Utils\Serialization\NetSerializer.cs" />
-    <Compile Include="Utils\Serialization\NetUtils.cs" />
+    <Compile Include="Networking\PacketUtils.cs" />
+    <Compile Include="Networking\Serialization\FastBitConverter.cs" />
+    <Compile Include="Networking\Serialization\INetSerializable.cs" />
+    <Compile Include="Networking\Serialization\NetDataReader.cs" />
+    <Compile Include="Networking\Serialization\NetDataWriter.cs" />
+    <Compile Include="Networking\Serialization\NetPacketProcessor.cs" />
+    <Compile Include="Networking\Serialization\NetSerializer.cs" />
+    <Compile Include="Networking\Serialization\NetUtils.cs" />
     <Compile Include="Utils\TimeUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Utils\Serialization\README.txt" />
+    <Content Include="Networking\Serialization\LICENSE.txt" />
+    <Content Include="Networking\Serialization\README.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\websocket-sharp\websocket-sharp\websocket-sharp.csproj">

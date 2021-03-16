@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
-namespace LiteNetLib
+namespace NebulaModel.Networking.Serialization
 {
     /// <summary>
     /// Address type that you want to receive from NetUtils.GetLocalIp method
@@ -37,7 +37,7 @@ namespace LiteNetLib
             {
                 // We can assume true because the version of unity is new enough (2018.4)
                 //if (NetSocket.IPv6Support)
-                    ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetworkV6);
+                ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetworkV6);
                 if (ipAddress == null)
                     ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetwork);
             }

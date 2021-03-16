@@ -1,15 +1,15 @@
-﻿using LiteNetLib.Utils;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Processors;
+using NebulaModel.Utils;
 using System;
 using System.Linq;
 using System.Reflection;
 
-namespace NebulaModel.Utils
+namespace NebulaModel.Networking
 {
-    public static class LiteNetLibUtils
+    public static class PacketUtils
     {
         public static void RegisterAllPacketNestedTypes(NetPacketProcessor packetProcessor)
         {
@@ -30,13 +30,13 @@ namespace NebulaModel.Utils
                     var funcType = typeof(Func<>).MakeGenericType(type);
                     var callback = Delegate.CreateDelegate(funcType, packetProcessor, delegateMethod);
                     registerMethod.Invoke(packetProcessor, new object[] { callback });
-                } 
+                }
                 else if (type.IsValueType)
                 {
                     MethodInfo method = typeof(NetPacketProcessor).GetMethod(nameof(NetPacketProcessor.RegisterNestedType), Type.EmptyTypes);
                     MethodInfo generic = method.MakeGenericMethod(type);
                     generic.Invoke(packetProcessor, null);
-                } 
+                }
                 else
                 {
                     Log.Error($"Could not register nested type: {type.Name}. Must be a class or struct.");
@@ -70,8 +70,6 @@ namespace NebulaModel.Utils
 
                     MethodInfo generic = method.MakeGenericMethod(packetType, typeof(NebulaConnection));
                     generic.Invoke(packetProcessor, new object[] { callback });
-
-                    // TODO: Find an alternative serializer
                 }
             }
         }
