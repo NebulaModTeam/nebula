@@ -30,7 +30,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 Vector3 rotation = rootTransform.eulerAngles;
                 Vector3 bodyRotation = bodyTransform.eulerAngles;
 
-                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, position, rotation, bodyRotation), LiteNetLib.DeliveryMethod.Sequenced);
+                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, position, rotation, bodyRotation));
             }
         }
     }

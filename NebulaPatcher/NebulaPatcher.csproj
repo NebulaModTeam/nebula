@@ -92,10 +92,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LiteNetLib\LiteNetLib\LiteNetLib.csproj">
-      <Project>{b0a014e4-0392-4e35-aa42-8fb5a40417e0}</Project>
-      <Name>LiteNetLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NebulaClient\NebulaClient.csproj">
       <Project>{5be9c74b-7832-4ef1-a53d-bf461bbdb0be}</Project>
       <Name>NebulaClient</Name>
@@ -120,7 +116,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"
-copy /Y "$(ProjectDir)..\LiteNetLib\LiteNetLib\bin\$(Configuration)\LiteNetLib.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LiteNetLib.dll"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

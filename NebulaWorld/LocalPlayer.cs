@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets.Session;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
@@ -22,9 +21,9 @@ namespace NebulaWorld
             networkProvider = provider;
         }
 
-        public static void SendPacket<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
+        public static void SendPacket<T>(T packet) where T : class, new()
         {
-            networkProvider?.SendPacket(packet, deliveryMethod);
+            networkProvider?.SendPacket(packet);
         }
 
         public static void SetReady()
