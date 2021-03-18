@@ -40,15 +40,26 @@ namespace NebulaPatcher.Patches.Dynamic
             using (BufferedStream bs = new BufferedStream(ls, 8192))
             using (BinaryReader br = new BinaryReader(bs))
             {
-                __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
+                if(planet.factory == null)
+                {
+                    __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
+                    planet.factory = __instance.factories[__instance.factoryCount];
+                    planet.factoryIndex = __instance.factoryCount;
+
+                    __instance.factoryCount++;
+                }
+                else
+                {
+                    __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, br);
+                    planet.factory = __instance.factories[planet.factoryIndex];
+                }
             }
 
-            // Bump the factory count up and clear the flag
-            __instance.factoryCount++;
+            // clear the flag
             planet.factoryLoading = false;
 
             // Assign the factory to the result
-            __result = __instance.factories[__instance.factoryCount];
+            __result = __instance.factories[planet.factoryIndex];
 
             // Do not run the original method
             return false;

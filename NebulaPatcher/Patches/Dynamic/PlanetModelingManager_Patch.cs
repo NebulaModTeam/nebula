@@ -3,6 +3,12 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 
+using System.Security;
+using System.Security.Permissions;
+
+[module: UnverifiableCode]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetModelingManager), "RequestLoadPlanetFactory")]
@@ -29,6 +35,25 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Skip running the actual method
             return false;
+        }
+    }
+    [HarmonyPatch(typeof(PlanetModelingManager), "LoadingPlanetFactoryMain")]
+    public class PlanetModelingManager_Patch2
+    {
+        public static bool Prefix(PlanetData planet)
+        {
+            if (LocalPlayer.IsMasterClient)
+            {
+                return true;
+            }
+
+            //if we are the client we always need to call GetOrCreateFactory() as this is where we handle the FactoryData received from the server
+            // NOTE: currentFactingStage is a private field so i need to use the refstub for now
+            if(planet.factory != null && PlanetModelingManager.currentFactingStage == 0)
+            {
+                GameMain.data.GetOrCreateFactory(planet);
+            }
+            return true;
         }
     }
 }
