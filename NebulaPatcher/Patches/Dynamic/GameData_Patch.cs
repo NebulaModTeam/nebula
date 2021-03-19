@@ -1,9 +1,11 @@
 ﻿using HarmonyLib;
 using LZ4;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using System.IO;
 using System.IO.Compression;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -17,6 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
+            Debug.Log("Called GetOrCreateFactory");
 
             // Get the recieved bytes from the remote server that we will import
             byte[] factoryBytes;
@@ -55,14 +58,83 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
-            // clear the flag
-            planet.factoryLoading = false;
-
             // Assign the factory to the result
             __result = __instance.factories[planet.factoryIndex];
 
             // Do not run the original method
             return false;
+        }
+    }
+
+    // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
+    [HarmonyPatch(typeof(GameData), "OnActivePlanetLoaded")]
+    class GameData_Patch2
+    {
+        public static bool Prefix(GameData __instance, PlanetData planet)
+        {
+            if (LocalPlayer.IsMasterClient)
+            {
+                return true;
+            }
+            if(planet != null)
+            {
+                if (planet.factoryLoaded)
+                {
+                    __instance.OnActivePlanetFactoryLoaded(planet);
+                }
+                else
+                {
+                    planet.LoadFactory();
+                    planet.onFactoryLoaded += __instance.OnActivePlanetFactoryLoaded;
+                }
+            }
+            planet.onLoaded -= __instance.OnActivePlanetLoaded;
+            return false;
+        }
+    }
+
+    // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
+    [HarmonyPatch(typeof(GameData), "OnActivePlanetFactoryLoaded")]
+    class GameData_Patch3
+    {
+        public static bool Prefix(GameData __instance, PlanetData planet)
+        {
+            if (LocalPlayer.IsMasterClient)
+            {
+                return true;
+            }
+            if(planet != null)
+            {
+                if(GameMain.gameTick == 0L && DSPGame.SkipPrologue)
+                {
+                    GameData_Patch3_Helper.InitLandingPlace(__instance, planet);
+                }
+                // now set localPlanet and planetId and also send the update to the server/other players (to sync localPlanet.id)
+                __instance.localPlanet = planet;
+                __instance.mainPlayer.planetId = planet.id;
+
+                var packet = new localPlanetSyncPckt(__instance.localPlanet.id, false);
+                packet.playerId = LocalPlayer.PlayerId;
+                LocalPlayer.SendPacket(packet);
+            }
+            planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
+            return false;
+        }
+    }
+
+    class GameData_Patch3_Helper
+    {
+        public static void InitLandingPlace(GameData gameData, PlanetData planet)
+        {
+            Vector3 birthPoint = planet.birthPoint;
+            Quaternion quaternion = Maths.SphericalRotation(birthPoint, 0f);
+            gameData.mainPlayer.transform.localPosition = birthPoint;
+            gameData.mainPlayer.transform.localRotation = quaternion;
+            gameData.mainPlayer.transform.localScale = Vector3.one;
+            gameData.mainPlayer.uPosition = (Vector3)planet.uPosition + planet.runtimeRotation * birthPoint;
+            gameData.mainPlayer.uRotation = planet.runtimeRotation * quaternion;
+            gameData.mainPlayer.uVelocity = VectorLF3.zero;
+            gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
         }
     }
 }

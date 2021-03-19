@@ -3,12 +3,6 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 
-using System.Security;
-using System.Security.Permissions;
-
-[module: UnverifiableCode]
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
-
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetModelingManager), "RequestLoadPlanetFactory")]
