@@ -85,10 +85,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LiteNetLib\LiteNetLib\LiteNetLib.csproj">
-      <Project>{b0a014e4-0392-4e35-aa42-8fb5a40417e0}</Project>
-      <Name>LiteNetLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
       <Project>{c6237195-f77c-40c0-b06a-4ad51cad314d}</Project>
       <Name>NebulaModel</Name>
@@ -97,8 +93,11 @@
       <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
       <Name>NebulaWorld</Name>
     </ProjectReference>
+    <ProjectReference Include="..\websocket-sharp\websocket-sharp\websocket-sharp.csproj">
+      <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
+      <Name>websocket-sharp</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>

@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Get the recieved bytes from the remote server that we will import
             byte[] factoryBytes;
-            if(!LocalPlayer.PendingFactories.TryGetValue(planet.id, out factoryBytes))
+            if (!LocalPlayer.PendingFactories.TryGetValue(planet.id, out factoryBytes))
             {
                 // We messed up, just defer to the default behaviour on the client (will cause desync but not outright crash)
                 Log.Error($"PendingFactories did not have value we wanted, factory will not be synced!");
@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
             using (MemoryStream ms = new MemoryStream(factoryBytes))
             using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
             using (BufferedStream bs = new BufferedStream(ls, 8192))
-            using (BinaryReader br =  new BinaryReader(bs))
+            using (BinaryReader br = new BinaryReader(bs))
             {
                 __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
             }

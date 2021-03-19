@@ -1,14 +1,15 @@
-﻿using LiteNetLib.Utils;
-using NebulaModel.Attributes;
-using NebulaModel.Networking;
+﻿using NebulaModel.Attributes;
+using NebulaModel.Logger;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Processors;
+using NebulaModel.Utils;
 using System;
 using System.Linq;
 using System.Reflection;
 
-namespace NebulaModel.Utils
+namespace NebulaModel.Networking
 {
-    public static class LiteNetLibUtils
+    public static class PacketUtils
     {
         public static void RegisterAllPacketNestedTypes(NetPacketProcessor packetProcessor)
         {
@@ -16,9 +17,30 @@ namespace NebulaModel.Utils
             foreach (Type type in nestedTypes)
             {
                 Console.WriteLine($"Registering Nested Type: {type.Name}");
-                MethodInfo method = typeof(NetPacketProcessor).GetMethod(nameof(NetPacketProcessor.RegisterNestedType), Type.EmptyTypes);
-                MethodInfo generic = method.MakeGenericMethod(type);
-                generic.Invoke(packetProcessor, null);
+                if (type.IsClass)
+                {
+                    // TODO: Find a better way to get the "NetPacketProcessor.RegisterNestedType" that as the Func<T> param instead of by index.
+                    MethodInfo registerMethod = packetProcessor.GetType()
+                        .GetMethods()
+                        .Where(m => m.Name == nameof(NetPacketProcessor.RegisterNestedType))
+                        .ToArray()[2]
+                        .MakeGenericMethod(type);
+
+                    MethodInfo delegateMethod = packetProcessor.GetType().GetMethod(nameof(NetPacketProcessor.CreateNestedClassInstance)).MakeGenericMethod(type);
+                    var funcType = typeof(Func<>).MakeGenericType(type);
+                    var callback = Delegate.CreateDelegate(funcType, packetProcessor, delegateMethod);
+                    registerMethod.Invoke(packetProcessor, new object[] { callback });
+                }
+                else if (type.IsValueType)
+                {
+                    MethodInfo method = typeof(NetPacketProcessor).GetMethod(nameof(NetPacketProcessor.RegisterNestedType), Type.EmptyTypes);
+                    MethodInfo generic = method.MakeGenericMethod(type);
+                    generic.Invoke(packetProcessor, null);
+                }
+                else
+                {
+                    Log.Error($"Could not register nested type: {type.Name}. Must be a class or struct.");
+                }
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using LiteNetLib.Utils;
+﻿using NebulaModel.Networking.Serialization;
 
 namespace NebulaModel.DataStructures
 {

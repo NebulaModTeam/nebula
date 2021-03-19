@@ -1,5 +1,4 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
@@ -14,7 +13,7 @@ namespace NebulaClient.PacketProcessors.Planet
         {
             LocalPlayer.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
 
-            lock(PlanetModelingManager.fctPlanetReqList)
+            lock (PlanetModelingManager.fctPlanetReqList)
             {
                 PlanetModelingManager.fctPlanetReqList.Enqueue(GameMain.galaxy.PlanetById(packet.PlanetId));
             }

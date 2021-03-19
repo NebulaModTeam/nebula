@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
@@ -59,21 +58,21 @@ namespace NebulaHost
             return null;
         }
 
-        public void SendPacketToAllPlayers<T>(T packet, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
+        public void SendPacketToAllPlayers<T>(T packet) where T : class, new()
         {
             foreach (Player player in GetConnectedPlayers())
             {
-                player.SendPacket(packet, deliveryMethod);
+                player.SendPacket(packet);
             }
         }
 
-        public void SendPacketToOtherPlayers<T>(T packet, Player sender, DeliveryMethod deliveryMethod = DeliveryMethod.ReliableOrdered) where T : class, new()
+        public void SendPacketToOtherPlayers<T>(T packet, Player sender) where T : class, new()
         {
             foreach (Player player in GetConnectedPlayers())
             {
                 if (player != sender)
                 {
-                    player.SendPacket(packet, deliveryMethod);
+                    player.SendPacket(packet);
                 }
             }
         }

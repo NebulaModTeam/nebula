@@ -45,7 +45,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                     position.z = GameMain.mainPlayer.uPosition.z;
                 }
 
-                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, GameMain.localPlanet?.id ?? -1, position, rotation, bodyRotation), LiteNetLib.DeliveryMethod.Sequenced);
+                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, GameMain.localPlanet?.id ?? -1, position, rotation, bodyRotation));
             }
         }
     }
