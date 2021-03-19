@@ -13,11 +13,11 @@ namespace NebulaModel.Packets.Players
 
         public PlayerMovement() { }
 
-        public PlayerMovement(ushort playerId, int localPlanetId, Double3 uPosition, Float3 rotation, Float3 bodyRotation)
+        public PlayerMovement(ushort playerId, int localPlanetId, Double3 position, Float3 rotation, Float3 bodyRotation)
         {
             PlayerId = playerId;
             LocalPlanetId = localPlanetId;
-            Position = uPosition;
+            Position = position;
             Rotation = rotation;
             BodyRotation = bodyRotation;
         }
