@@ -3,12 +3,12 @@
     public class PendingPacket
     {
         public byte[] Data { get; }
-        public NebulaConnection Connection { get; }
+        public object UserData { get; }
 
-        public PendingPacket(byte[] data, NebulaConnection connection)
+        public PendingPacket(byte[] data, object userData)
         {
             this.Data = data;
-            this.Connection = connection;
+            this.UserData = userData;
         }
     }
 }

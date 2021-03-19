@@ -73,6 +73,7 @@
     <Compile Include="DataStructures\PlayerData.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
+    <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
