@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static bool Prefix(GameData __instance, PlanetData planet)
         {
-            if (LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
@@ -99,7 +99,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static bool Prefix(GameData __instance, PlanetData planet)
         {
-            if (LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
