@@ -50,6 +50,8 @@ namespace NebulaWorld
         public static void LeaveGame()
         {
             networkProvider.DestroySession();
+            PendingFactories.Clear();
+            IsMasterClient = false;
             SimulatedWorld.Clear();
 
             if (!UIRoot.instance.backToMainMenu)
