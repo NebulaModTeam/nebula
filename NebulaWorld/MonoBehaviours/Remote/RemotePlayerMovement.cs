@@ -79,6 +79,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             snapshotBuffer[snapshotBuffer.Length - 1] = new Snapshot()
             {
                 Timestamp = TimeUtils.CurrentUnixTimestampMilliseconds(),
+                LocalPlanetId = movement.LocalPlanetId,
                 Position = movement.Position,
                 Rotation = Quaternion.Euler(movement.Rotation.ToUnity()),
                 BodyRotation = Quaternion.Euler(movement.BodyRotation.ToUnity()),
@@ -102,10 +103,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 return new Vector3((float)snapshot.Position.x, (float)snapshot.Position.y, (float)snapshot.Position.z);
             }
-
-            // If the remote player is in space, we need to calculate his current "universe position" relative to the local player position in his world.
+            
+            // If the remote player is in space, we need to calculate the remote player relative position from our local player position.
             VectorLF3 uPosition = new VectorLF3(snapshot.Position.x, snapshot.Position.y, snapshot.Position.z);
-            return (Vector3)Maths.QInvRotateLF(GameMain.data.relativeRot, uPosition - GameMain.data.relativePos);
+            return Maths.QInvRotateLF(GameMain.data.relativeRot, uPosition - GameMain.data.relativePos);
         }
     }
 }
