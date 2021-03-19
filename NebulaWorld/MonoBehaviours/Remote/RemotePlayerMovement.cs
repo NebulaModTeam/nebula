@@ -103,7 +103,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 return new Vector3((float)snapshot.Position.x, (float)snapshot.Position.y, (float)snapshot.Position.z);
             }
-            
+
             // If the remote player is in space, we need to calculate the remote player relative position from our local player position.
             VectorLF3 uPosition = new VectorLF3(snapshot.Position.x, snapshot.Position.y, snapshot.Position.z);
             return Maths.QInvRotateLF(GameMain.data.relativeRot, uPosition - GameMain.data.relativePos);

@@ -1,5 +1,4 @@
 ﻿using NebulaModel.DataStructures;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 
@@ -30,14 +29,14 @@ namespace NebulaWorld.MonoBehaviours.Local
 
                 var rotation = new Float3(rootTransform.eulerAngles);
                 var bodyRotation = new Float3(bodyTransform.eulerAngles);
-                
+
                 var position = new Double3();
                 if (GameMain.localPlanet != null)
                 {
                     position.x = rootTransform.position.x;
                     position.y = rootTransform.position.y;
                     position.z = rootTransform.position.z;
-                } 
+                }
                 else
                 {
                     position.x = GameMain.mainPlayer.uPosition.x;
