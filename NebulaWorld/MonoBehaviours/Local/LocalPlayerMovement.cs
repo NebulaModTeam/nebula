@@ -30,21 +30,8 @@ namespace NebulaWorld.MonoBehaviours.Local
                 var rotation = new Float3(rootTransform.eulerAngles);
                 var bodyRotation = new Float3(bodyTransform.eulerAngles);
 
-                var position = new Double3();
-                if (GameMain.localPlanet != null)
-                {
-                    position.x = rootTransform.position.x;
-                    position.y = rootTransform.position.y;
-                    position.z = rootTransform.position.z;
-                }
-                else
-                {
-                    position.x = GameMain.mainPlayer.uPosition.x;
-                    position.y = GameMain.mainPlayer.uPosition.y;
-                    position.z = GameMain.mainPlayer.uPosition.z;
-                }
-
-                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, GameMain.localPlanet?.id ?? -1, position, rotation, bodyRotation));
+                Double3 uPosition = new Double3(GameMain.mainPlayer.uPosition.x, GameMain.mainPlayer.uPosition.y, GameMain.mainPlayer.uPosition.z);
+                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToNebula(), uPosition, rotation, bodyRotation));
             }
         }
     }
