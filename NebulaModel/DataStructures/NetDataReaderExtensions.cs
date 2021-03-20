@@ -17,5 +17,12 @@ namespace NebulaModel.DataStructures
             value.Deserialize(reader);
             return value;
         }
+
+        public static Double3 GetDouble3(this NetDataReader reader)
+        {
+            Double3 value = new Double3();
+            value.Deserialize(reader);
+            return value;
+        }
     }
 }
