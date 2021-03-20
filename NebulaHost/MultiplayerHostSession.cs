@@ -20,8 +20,6 @@ namespace NebulaHost
         public PlayerManager PlayerManager { get; protected set; }
         public NetPacketProcessor PacketProcessor { get; protected set; }
 
-        private readonly Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
-
         float gameStateUpdateTimer = 0;
 
         private void Awake()
@@ -33,11 +31,15 @@ namespace NebulaHost
         {
             PlayerManager = new PlayerManager();
             PacketProcessor = new NetPacketProcessor();
+#if DEBUG
+            PacketProcessor.SimulateLatency = true;
+#endif
+
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
             socketServer = new WebSocketServer(port);
-            socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor, pendingPackets));
+            socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
 
             socketServer.Start();
 
@@ -74,27 +76,18 @@ namespace NebulaHost
                 SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
             }
 
-            lock (pendingPackets)
-            {
-                while (pendingPackets.Count > 0)
-                {
-                    PendingPacket packet = pendingPackets.Dequeue();
-                    PacketProcessor.ReadPacket(new NetDataReader(packet.Data), packet.Connection);
-                }
-            }
+            PacketProcessor.ProcessPacketQueue();
         }
 
         private class WebSocketService : WebSocketBehavior
         {
             private readonly PlayerManager playerManager;
             private readonly NetPacketProcessor packetProcessor;
-            private readonly Queue<PendingPacket> pendingPackets;
 
-            public WebSocketService(PlayerManager playerManager, NetPacketProcessor packetProcessor, Queue<PendingPacket> pendingPackets)
+            public WebSocketService(PlayerManager playerManager, NetPacketProcessor packetProcessor)
             {
                 this.playerManager = playerManager;
                 this.packetProcessor = packetProcessor;
-                this.pendingPackets = pendingPackets;
             }
 
             protected override void OnClose(CloseEventArgs e)
@@ -110,10 +103,7 @@ namespace NebulaHost
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                lock (pendingPackets)
-                {
-                    pendingPackets.Enqueue(new PendingPacket(e.RawData, new NebulaConnection(this.Context.WebSocket, packetProcessor)));
-                }
+                packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(this.Context.WebSocket, packetProcessor));
             }
 
             protected override void OnOpen()
