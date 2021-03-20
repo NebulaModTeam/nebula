@@ -2,9 +2,8 @@
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Session;
+using NebulaModel.Utils;
 using NebulaWorld;
-using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using WebSocketSharp;
 
@@ -57,7 +56,7 @@ namespace NebulaClient
         void Disconnect()
         {
             IsConnected = false;
-            clientSocket.Close();
+            clientSocket.Close((ushort)NebulaStatusCode.ClientRequestedDisconnect, "Player left the game");
         }
 
         public void DestroySession()
@@ -96,12 +95,38 @@ namespace NebulaClient
             IsConnected = false;
             serverConnection = null;
 
-            InGamePopup.ShowWarning(
-                "Connection Lost",
-                $"You have been disconnect of the server.\nReason{e.Reason}",
-                "Quit", "Reconnect",
-                () => { LocalPlayer.LeaveGame(); },
-                () => { Reconnect(); });
+            // If the client is Quitting by himself, we don't have to inform him of his disconnection.
+            if (e.Code == (ushort)NebulaStatusCode.ClientRequestedDisconnect)
+                return;
+
+            if (SimulatedWorld.IsGameLoaded)
+            {
+                UnityDispatchQueue.RunOnMainThread(() =>
+                {
+                    InGamePopup.ShowWarning(
+                        "Connection Lost",
+                        $"You have been disconnect of the server.\n{e.Reason}",
+                        "Quit", "Reconnect",
+                        () => { LocalPlayer.LeaveGame(); },
+                        () => { Reconnect(); });
+                });
+            }
+            else
+            {
+                UnityDispatchQueue.RunOnMainThread(() =>
+                {
+                    InGamePopup.ShowWarning(
+                        "Server Unavailable",
+                        $"Could not reach the server, please try again later.",
+                        "OK",
+                        () =>
+                        {
+                            GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
+                            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
+                            multiplayerMenu?.gameObject?.SetActive(true);
+                        });
+                });
+            }
         }
 
         private void Update()
