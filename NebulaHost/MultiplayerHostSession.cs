@@ -92,6 +92,12 @@ namespace NebulaHost
 
             protected override void OnClose(CloseEventArgs e)
             {
+                // If the reason of a client disonnect is because we are still loading the game,
+                // we don't need to inform the other clients since the disconnected client never
+                // joined the game in the first place.
+                if (e.Code == (short)NebulaStatusCode.HostStillLoading)
+                    return;
+
                 NebulaModel.Logger.Log.Info($"Client disconnected: {this.Context.UserEndPoint}, reason: {e.Reason}");
                 playerManager.PlayerDisconnected(new NebulaConnection(this.Context.WebSocket, packetProcessor));
             }
@@ -108,6 +114,13 @@ namespace NebulaHost
 
             protected override void OnOpen()
             {
+                if (SimulatedWorld.IsGameLoaded == false)
+                {
+                    // Reject any connection that occurs while the host's game is loading.
+                    this.Context.WebSocket.Close((ushort)NebulaStatusCode.HostStillLoading, "Host still loading, please try again later.");
+                    return;
+                }
+
                 NebulaModel.Logger.Log.Info($"Client connected ID: {this.ID}, {this.Context.UserEndPoint}");
                 NebulaConnection conn = new NebulaConnection(this.Context.WebSocket, packetProcessor);
                 playerManager.PlayerConnected(conn);
