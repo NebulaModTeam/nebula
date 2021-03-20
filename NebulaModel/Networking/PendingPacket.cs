@@ -1,6 +1,6 @@
 ﻿namespace NebulaModel.Networking
 {
-    public class PendingPacket
+    public struct PendingPacket
     {
         public byte[] Data { get; }
         public object UserData { get; }

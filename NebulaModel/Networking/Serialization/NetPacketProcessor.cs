@@ -43,7 +43,7 @@ namespace NebulaModel.Networking.Serialization
                 lock (delayedPackets)
                 {
                     PendingPacket packet = new PendingPacket(rawData, userData);
-                    DateTime dueTime = DateTime.Now.AddMilliseconds(simulationRandom.Next(SimulatedMinLatency, SimulatedMaxLatency));
+                    DateTime dueTime = DateTime.UtcNow.AddMilliseconds(simulationRandom.Next(SimulatedMinLatency, SimulatedMaxLatency));
                     delayedPackets.Add(new DelayedPacket(packet, dueTime));
                 }
             }
@@ -81,7 +81,7 @@ namespace NebulaModel.Networking.Serialization
         {
             lock (delayedPackets)
             {
-                var now = DateTime.Now;
+                var now = DateTime.UtcNow;
                 for (int i = delayedPackets.Count - 1; i >= 0; --i)
                 {
                     if (now >= delayedPackets[i].DueTime)

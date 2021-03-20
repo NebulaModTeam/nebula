@@ -2,7 +2,7 @@
 
 namespace NebulaModel.Networking
 {
-    public class DelayedPacket
+    public struct DelayedPacket
     {
         public PendingPacket Packet { get; }
         public DateTime DueTime { get; }
