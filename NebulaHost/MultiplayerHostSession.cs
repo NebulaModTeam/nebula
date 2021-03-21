@@ -14,7 +14,7 @@ namespace NebulaHost
     public class MultiplayerHostSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerHostSession Instance { get; protected set; }
-        public static bool isDedicated = false;
+        public static bool IsDedicated = false;
 
         private WebSocketServer socketServer;
 
@@ -50,10 +50,8 @@ namespace NebulaHost
             LocalPlayer.IsMasterClient = true;
 
             // TODO: Load saved player info here
-            if (!isDedicated)
-            {
-                LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(1.0f, 0.6846404f, 0.243137181f)));
-            }
+            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(1.0f, 0.6846404f, 0.243137181f)));
+            LocalPlayer.IsDedicated = IsDedicated;
         }
 
         private void StopServer()

@@ -13,11 +13,13 @@ namespace NebulaPatcher.MonoBehaviours
         {
             string[] args = System.Environment.GetCommandLineArgs();
             for (int i = 0; i < args.Length; i++)
+            {
                 if (args[i] == "-server")
                 {
-                    MultiplayerHostSession.isDedicated = true;
+                    MultiplayerHostSession.IsDedicated = true;
                     break;
                 }
+            }
             DontDestroyOnLoad(gameObject);
             Instance = this;
 

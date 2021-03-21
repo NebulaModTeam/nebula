@@ -85,7 +85,7 @@ namespace NebulaWorld
         {
             Transform transform;
             RemotePlayerModel remotePlayerModel;
-            if (LocalPlayer.Data != null && playerId == LocalPlayer.PlayerId)
+            if (!LocalPlayer.IsDedicated && playerId == LocalPlayer.PlayerId)
             {
                 transform = GameMain.data.mainPlayer.transform;
             }
@@ -112,7 +112,7 @@ namespace NebulaWorld
             }
 
             // We changed our own color, so we have to let others know
-            if (LocalPlayer.Data != null && LocalPlayer.PlayerId == playerId)
+            if (!LocalPlayer.IsDedicated && LocalPlayer.PlayerId == playerId)
             {
                 LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
             }
@@ -181,7 +181,7 @@ namespace NebulaWorld
             Log.Info("Game has finished loading");
 
            //This check is required when executed in dedicated mode
-            if (LocalPlayer.Data != null)
+            if (!LocalPlayer.IsDedicated)
             {
                 // Assign our own color
                 UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.Color);

@@ -49,7 +49,7 @@ namespace NebulaHost.PacketProcessors.Session
             playerManager.SyncingPlayers.Add(conn, player);
 
             // TODO: This should be our actual GameDesc and not an hardcoded value.
-            var inGamePlayersIds = MultiplayerHostSession.isDedicated ? playerManager.GetAllPlayerIdsExcludingHost() : playerManager.GetAllPlayerIdsIncludingHost();
+            var inGamePlayersIds = MultiplayerHostSession.IsDedicated ? playerManager.GetAllPlayerDataExcludingHost() : playerManager.GetAllPlayerIdsIncludingHost();
 
             var gameDesc = GameMain.data.gameDesc;
             player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, inGamePlayersIds.ToArray()));

@@ -62,7 +62,7 @@ namespace NebulaPatcher.Patches.Dynamic
         static bool Prefix()
         {
             //We do not want to draw anything in dedicated mode
-            return !MultiplayerHostSession.isDedicated;
+            return !MultiplayerHostSession.IsDedicated;
         }
     }
 }

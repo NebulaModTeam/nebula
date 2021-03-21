@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         static bool Prefix()
         {
-            return !MultiplayerHostSession.isDedicated;
+            return !MultiplayerHostSession.IsDedicated;
         }
     }
 }

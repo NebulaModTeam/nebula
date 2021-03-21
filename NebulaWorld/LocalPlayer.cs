@@ -9,6 +9,7 @@ namespace NebulaWorld
     public static class LocalPlayer
     {
         public static bool IsMasterClient { get; set; }
+        public static bool IsDedicated { get; set; }
         public static ushort PlayerId => Data.PlayerId;
         public static PlayerData Data { get; private set; }
 

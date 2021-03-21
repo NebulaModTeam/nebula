@@ -34,9 +34,9 @@ namespace NebulaHost
             return new PlayerData[] { LocalPlayer.Data }.Concat(GetConnectedPlayers().Select(p => p.Data));
         }
 
-        public IEnumerable<PlayerData> GetAllPlayerIdsExcludingHost()
+        public IEnumerable<PlayerData> GetAllPlayerDataExcludingHost()
         {
-            return new PlayerData[] { }.Concat(GetConnectedPlayers().Select(p => p.Data));
+            return GetConnectedPlayers().Select(p => p.Data);
         }
 
         public IEnumerable<Player> GetConnectedPlayers()
