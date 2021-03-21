@@ -19,9 +19,26 @@ namespace NebulaPatcher.Patches.Dynamic
                     Log.Info($"Listening server on port {port}");
                     var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
                     session.StartServer(port);
-                    GameDesc gameDesc = new GameDesc();
-                    gameDesc.SetForNewGame(UniverseGen.algoVersion, 1, 64, 1, 1f);
-                    DSPGame.StartGameSkipPrologue(gameDesc);
+                    string loadfile = "";
+
+                    //reading parameters
+                    string[] args = System.Environment.GetCommandLineArgs();
+                    for (int i = 0; i < args.Length; i++)
+                    {
+                        if (args[i] == "-load" && i+1 < args.Length)
+                        {
+                            loadfile = args[i + 1];
+                        }
+                    }
+
+                    if (loadfile == "") {
+                        GameDesc gameDesc = new GameDesc();
+                        gameDesc.SetForNewGame(UniverseGen.algoVersion, 1, 64, 1, 1f);
+                        DSPGame.StartGameSkipPrologue(gameDesc);
+                    } else
+                    {
+                        DSPGame.StartGame(loadfile);
+                    }
                     Debug.Log("Starting server!");
                 }
 
