@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void Postfix()
         {
             bool isServerAlreadyRunning = NebulaBootstrapper.Instance.GetComponentInChildren<MultiplayerHostSession>() != null;
-                if (NebulaBootstrapper.isDedicated && !isServerAlreadyRunning)
+                if (MultiplayerHostSession.isDedicated && !isServerAlreadyRunning)
                 { 
                     int port = 8469;
                     Log.Info($"Listening server on port {port}");

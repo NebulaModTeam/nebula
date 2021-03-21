@@ -8,7 +8,6 @@ namespace NebulaPatcher.MonoBehaviours
     public class NebulaBootstrapper : MonoBehaviour
     {
         internal static NebulaBootstrapper Instance;
-        public static bool isDedicated = false;
 
         private void Awake()
         {
@@ -16,7 +15,7 @@ namespace NebulaPatcher.MonoBehaviours
             for (int i = 0; i < args.Length; i++)
                 if (args[i] == "-server")
                 {
-                    isDedicated = true;
+                    MultiplayerHostSession.isDedicated = true;
                     break;
                 }
             DontDestroyOnLoad(gameObject);

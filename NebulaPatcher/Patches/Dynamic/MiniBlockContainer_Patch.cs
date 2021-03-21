@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaPatcher.MonoBehaviours;
+using NebulaHost;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         static bool Prefix()
         {
-            return !NebulaBootstrapper.isDedicated;
+            return !MultiplayerHostSession.isDedicated;
         }
     }
 }

@@ -51,7 +51,7 @@ namespace NebulaWorld
 
         public static void SpawnRemotePlayerModel(PlayerData playerData)
         {
-            RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
+            RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId); 
             remotePlayersModels.Add(playerData.PlayerId, model);
             UpdatePlayerColor(playerData.PlayerId, playerData.Color);
         }
@@ -85,7 +85,7 @@ namespace NebulaWorld
         {
             Transform transform;
             RemotePlayerModel remotePlayerModel;
-            if (playerId == LocalPlayer.PlayerId)
+            if (LocalPlayer.Data != null && playerId == LocalPlayer.PlayerId)
             {
                 transform = GameMain.data.mainPlayer.transform;
             }
@@ -112,7 +112,7 @@ namespace NebulaWorld
             }
 
             // We changed our own color, so we have to let others know
-            if (LocalPlayer.PlayerId == playerId)
+            if (LocalPlayer.Data != null && LocalPlayer.PlayerId == playerId)
             {
                 LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
             }
@@ -180,15 +180,18 @@ namespace NebulaWorld
 
             Log.Info("Game has finished loading");
 
-            // Assign our own color
-            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.Color);
+           //This check is required when executed in dedicated mode
+            if (LocalPlayer.Data != null)
+            {
+                // Assign our own color
+                UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.Color);
 
-            // TODO: Investigate where are the weird position coming from ?
-            // GameMain.mainPlayer.transform.position = data.Position.ToUnity();
-            // GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
+                // TODO: Investigate where are the weird position coming from ?
+                // GameMain.mainPlayer.transform.position = data.Position.ToUnity();
+                // GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
 
-            LocalPlayer.SetReady();
-
+                LocalPlayer.SetReady();
+            }
             IsGameLoaded = true;
         }
     }

@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaPatcher.MonoBehaviours;
+using NebulaHost;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
         static bool Prefix()
         {
             //This methods calculates shaders on DysonSwarm which causes crashes in dedicated mode.
-            return !NebulaBootstrapper.isDedicated;
+            return !MultiplayerHostSession.isDedicated;
         }
     }
 } 

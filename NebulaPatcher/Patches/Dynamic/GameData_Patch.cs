@@ -4,6 +4,7 @@ using NebulaModel.Logger;
 using NebulaWorld;
 using System.IO;
 using System.IO.Compression;
+using NebulaHost;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -52,6 +53,16 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Do not run the original method
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GameData), "OnDraw")]
+    class GameData_Patch2
+    {
+        static bool Prefix()
+        {
+            //We do not want to draw anything in dedicated mode
+            return !MultiplayerHostSession.isDedicated;
         }
     }
 }
