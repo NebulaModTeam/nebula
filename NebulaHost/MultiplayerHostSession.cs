@@ -20,8 +20,6 @@ namespace NebulaHost
         public PlayerManager PlayerManager { get; protected set; }
         public NetPacketProcessor PacketProcessor { get; protected set; }
 
-        private readonly Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
-
         float gameStateUpdateTimer = 0;
 
         private void Awake()
@@ -33,11 +31,15 @@ namespace NebulaHost
         {
             PlayerManager = new PlayerManager();
             PacketProcessor = new NetPacketProcessor();
+#if DEBUG
+            PacketProcessor.SimulateLatency = true;
+#endif
+
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
             socketServer = new WebSocketServer(port);
-            socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor, pendingPackets));
+            socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
 
             socketServer.Start();
 
@@ -47,7 +49,7 @@ namespace NebulaHost
             LocalPlayer.IsMasterClient = true;
 
             // TODO: Load saved player info here
-            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), new Float3(1.0f, 0.6846404f, 0.243137181f)));
+            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(1.0f, 0.6846404f, 0.243137181f)));
         }
 
         private void StopServer()
@@ -74,31 +76,28 @@ namespace NebulaHost
                 SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
             }
 
-            lock (pendingPackets)
-            {
-                while (pendingPackets.Count > 0)
-                {
-                    PendingPacket packet = pendingPackets.Dequeue();
-                    PacketProcessor.ReadPacket(new NetDataReader(packet.Data), packet.Connection);
-                }
-            }
+            PacketProcessor.ProcessPacketQueue();
         }
 
         private class WebSocketService : WebSocketBehavior
         {
             private readonly PlayerManager playerManager;
             private readonly NetPacketProcessor packetProcessor;
-            private readonly Queue<PendingPacket> pendingPackets;
 
-            public WebSocketService(PlayerManager playerManager, NetPacketProcessor packetProcessor, Queue<PendingPacket> pendingPackets)
+            public WebSocketService(PlayerManager playerManager, NetPacketProcessor packetProcessor)
             {
                 this.playerManager = playerManager;
                 this.packetProcessor = packetProcessor;
-                this.pendingPackets = pendingPackets;
             }
 
             protected override void OnClose(CloseEventArgs e)
             {
+                // If the reason of a client disonnect is because we are still loading the game,
+                // we don't need to inform the other clients since the disconnected client never
+                // joined the game in the first place.
+                if (e.Code == (short)NebulaStatusCode.HostStillLoading)
+                    return;
+
                 NebulaModel.Logger.Log.Info($"Client disconnected: {this.Context.UserEndPoint}, reason: {e.Reason}");
                 playerManager.PlayerDisconnected(new NebulaConnection(this.Context.WebSocket, packetProcessor));
             }
@@ -110,14 +109,18 @@ namespace NebulaHost
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                lock (pendingPackets)
-                {
-                    pendingPackets.Enqueue(new PendingPacket(e.RawData, new NebulaConnection(this.Context.WebSocket, packetProcessor)));
-                }
+                packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(this.Context.WebSocket, packetProcessor));
             }
 
             protected override void OnOpen()
             {
+                if (SimulatedWorld.IsGameLoaded == false)
+                {
+                    // Reject any connection that occurs while the host's game is loading.
+                    this.Context.WebSocket.Close((ushort)NebulaStatusCode.HostStillLoading, "Host still loading, please try again later.");
+                    return;
+                }
+
                 NebulaModel.Logger.Log.Info($"Client connected ID: {this.ID}, {this.Context.UserEndPoint}");
                 NebulaConnection conn = new NebulaConnection(this.Context.WebSocket, packetProcessor);
                 playerManager.PlayerConnected(conn);

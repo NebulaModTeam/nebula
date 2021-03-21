@@ -65,6 +65,7 @@
     <Compile Include="Attributes\RegisterNestedTypeAttribute.cs" />
     <Compile Include="Attributes\RegisterPacketProcessorAttribute.cs" />
     <Compile Include="DataStructures\DataStructureExtensions.cs" />
+    <Compile Include="DataStructures\Double3.cs" />
     <Compile Include="DataStructures\Float3.cs" />
     <Compile Include="DataStructures\GameState.cs" />
     <Compile Include="DataStructures\NebulaAnimationState.cs" />
@@ -73,7 +74,9 @@
     <Compile Include="DataStructures\PlayerData.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
+    <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
+    <Compile Include="Networking\NebulaStatusCode.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
     <Compile Include="Packets\Planet\FactoryData.cs" />
@@ -101,6 +104,7 @@
     <Compile Include="Networking\Serialization\NetSerializer.cs" />
     <Compile Include="Networking\Serialization\NetUtils.cs" />
     <Compile Include="Utils\TimeUtils.cs" />
+    <Compile Include="Utils\UnityDispatchQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Networking\Serialization\LICENSE.txt" />

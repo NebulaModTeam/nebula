@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace NebulaModel.Networking.Serialization
 {
@@ -16,6 +17,14 @@ namespace NebulaModel.Networking.Serialization
         private readonly Dictionary<ulong, SubscribeDelegate> _callbacks = new Dictionary<ulong, SubscribeDelegate>();
         private readonly NetDataWriter _netDataWriter = new NetDataWriter();
 
+        private readonly Random simulationRandom = new Random();
+        private List<DelayedPacket> delayedPackets = new List<DelayedPacket>();
+        private Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
+
+        public bool SimulateLatency = false;
+        public int SimulatedMinLatency = 20;
+        public int SimulatedMaxLatency = 50;
+
         public NetPacketProcessor()
         {
             _netSerializer = new NetSerializer();
@@ -24,6 +33,64 @@ namespace NebulaModel.Networking.Serialization
         public NetPacketProcessor(int maxStringLength)
         {
             _netSerializer = new NetSerializer(maxStringLength);
+        }
+
+        public void EnqueuePacketForProcessing(byte[] rawData, object userData)
+        {
+#if DEBUG
+            if (SimulateLatency)
+            {
+                lock (delayedPackets)
+                {
+                    PendingPacket packet = new PendingPacket(rawData, userData);
+                    DateTime dueTime = DateTime.UtcNow.AddMilliseconds(simulationRandom.Next(SimulatedMinLatency, SimulatedMaxLatency));
+                    delayedPackets.Add(new DelayedPacket(packet, dueTime));
+                }
+            }
+            else
+            {
+                lock (pendingPackets)
+                {
+                    pendingPackets.Enqueue(new PendingPacket(rawData, userData));
+                }
+            }
+#else
+            lock (pendingPackets)
+            {
+                pendingPackets.Enqueue(new PendingPacket(rawData, userData));
+            }
+#endif
+        }
+
+        public void ProcessPacketQueue()
+        {
+            lock (pendingPackets)
+            {
+                ProcessDelayedPackets();
+
+                while (pendingPackets.Count > 0)
+                {
+                    PendingPacket packet = pendingPackets.Dequeue();
+                    ReadPacket(new NetDataReader(packet.Data), packet.UserData);
+                }
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private void ProcessDelayedPackets()
+        {
+            lock (delayedPackets)
+            {
+                var now = DateTime.UtcNow;
+                for (int i = delayedPackets.Count - 1; i >= 0; --i)
+                {
+                    if (now >= delayedPackets[i].DueTime)
+                    {
+                        pendingPackets.Enqueue(delayedPackets[i].Packet);
+                        delayedPackets.RemoveAt(i);
+                    }
+                }
+            }
         }
 
         //FNV-1 64 bit hash

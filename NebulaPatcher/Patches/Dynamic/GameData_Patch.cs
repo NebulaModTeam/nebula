@@ -15,11 +15,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
-            Debug.Log("Called GetOrCreateFactory");
 
             // Get the recieved bytes from the remote server that we will import
             byte[] factoryBytes;
@@ -43,7 +42,7 @@ namespace NebulaPatcher.Patches.Dynamic
             using (BufferedStream bs = new BufferedStream(ls, 8192))
             using (BinaryReader br = new BinaryReader(bs))
             {
-                if(planet.factory == null)
+                if (planet.factory == null)
                 {
                     __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
                     planet.factory = __instance.factories[__instance.factoryCount];
@@ -65,7 +64,6 @@ namespace NebulaPatcher.Patches.Dynamic
             return false;
         }
     }
-
     // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
     [HarmonyPatch(typeof(GameData), "OnActivePlanetLoaded")]
     class GameData_Patch2
@@ -109,6 +107,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     GameData_Patch3_Helper.InitLandingPlace(__instance, planet);
                 }
+
                 // now set localPlanet and planetId and also send the update to the server/other players (to sync localPlanet.id)
                 __instance.localPlanet = planet;
                 __instance.mainPlayer.planetId = planet.id;

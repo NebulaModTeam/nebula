@@ -36,14 +36,14 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         public static bool Prefix(PlanetData planet)
         {
-            if (LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
 
             //if we are the client we always need to call GetOrCreateFactory() as this is where we handle the FactoryData received from the server
             // NOTE: currentFactingStage is a private field so i need to use the refstub for now
-            if(planet.factory != null && PlanetModelingManager.currentFactingStage == 0)
+            if (planet.factory != null && PlanetModelingManager.currentFactingStage == 0)
             {
                 GameMain.data.GetOrCreateFactory(planet);
             }

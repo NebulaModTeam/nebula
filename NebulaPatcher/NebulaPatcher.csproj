@@ -86,6 +86,7 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\Debugging.cs" />
     <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameLoader_Patch.cs" />

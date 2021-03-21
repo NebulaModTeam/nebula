@@ -8,25 +8,6 @@ using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(GameHistoryData), "EnqueueTech")]
-    class patch
-    {
-        public static void Postfix(GameHistoryData __instance, int techId)
-        {
-            __instance.UnlockTech(techId);
-            GameMain.mainPlayer.mecha.corePowerGen = 10000000;
-        }
-    }
-
-    [HarmonyPatch(typeof(Mecha), "UseWarper")]
-    class patch2
-    {
-        public static void Postfix(ref bool __result)
-        {
-            __result = true;
-        }
-    }
-
     [HarmonyPatch(typeof(PlayerAction_Mine), "GameTick")]
     class PlayerAction_Mine_Transpiler
     {
