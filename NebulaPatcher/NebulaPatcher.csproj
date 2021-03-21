@@ -83,10 +83,17 @@
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
+    <Compile Include="Patches\Dynamic\DysonSwarm_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameLoader_Patch.cs" />
     <Compile Include="Patches\Dynamic\DSPGame_Patch.cs" />
+    <Compile Include="Patches\Dynamic\GameMain_Patch.cs" />
+    <Compile Include="Patches\Dynamic\GPUInstancingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\MiniBlockContainer_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\TranslucentImageSource_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIMinimap3DControl_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIStarmap_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />

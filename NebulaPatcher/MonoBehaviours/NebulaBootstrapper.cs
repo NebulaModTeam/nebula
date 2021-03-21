@@ -8,9 +8,17 @@ namespace NebulaPatcher.MonoBehaviours
     public class NebulaBootstrapper : MonoBehaviour
     {
         internal static NebulaBootstrapper Instance;
+        public static bool isDedicated = false;
 
         private void Awake()
         {
+            string[] args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+                if (args[i] == "-server")
+                {
+                    isDedicated = true;
+                    break;
+                }
             DontDestroyOnLoad(gameObject);
             Instance = this;
 
