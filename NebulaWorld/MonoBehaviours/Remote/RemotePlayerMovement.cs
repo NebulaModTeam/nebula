@@ -128,7 +128,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             /*
              * 170 is round about where vanilla warping starts, for better testing lower this to something like 30
              * then you can trigger the warping animation by sailing at around 300
-             * when its at 170 you will probably not be able to see the effect ingame
+             * when its at 170 you will probably not be able to see the effect ingame   
              */
             if(deltaPosition >= 170 && rootWarp != null)
             {

@@ -46,6 +46,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     {
                         __instance.ArriveStar(planet.star);
                     }
+                    //typeof(GameData).GetField("localPlanet", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(__instance, planet);
                     __instance.localPlanet = planet;
                     __instance.mainPlayer.planetId = planet.id;
                     if (planet.loaded)

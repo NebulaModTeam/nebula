@@ -43,9 +43,11 @@ namespace NebulaPatcher.Patches.Dynamic
 
             //if we are the client we always need to call GetOrCreateFactory() as this is where we handle the FactoryData received from the server
             // NOTE: currentFactingStage is a private field so i need to use the refstub for now
+            //int currentFactingStage = (int)typeof(PlanetModelingManager).GetField("currentFactingStage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(null);
             if (planet.factory != null && PlanetModelingManager.currentFactingStage == 0)
             {
                 // now set localPlanet and planetId and also send the update to the server/other players (to sync localPlanet.id)
+                //typeof(GameData).GetField("localPlanet", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(GameMain.data, planet);
                 GameMain.data.localPlanet = planet;
                 GameMain.mainPlayer.planetId = planet.id;
 
