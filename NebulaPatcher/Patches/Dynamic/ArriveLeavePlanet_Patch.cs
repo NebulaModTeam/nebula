@@ -77,7 +77,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 if (planet != null && !planet.factoryLoading)
                 {
-                    Debug.Log("ArrivePlanet: " + planet.factoryLoading);
                     if (__instance.localStar != planet.star)
                     {
                         __instance.ArriveStar(planet.star);

@@ -1,8 +1,211 @@
 ﻿using NebulaModel.Packets.Players;
+using System;
 using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Remote
 {
+    public class RemoteWarpEffect: MonoBehaviour
+    {
+        private Transform rootTransform;
+
+        private VFWarpEffect warpEffect = null;
+        private bool isWarping = false;
+
+        private Material tunnelMat;
+        private Material distortMat;
+        private Material astrosMat;
+        private Material nebulasMat;
+
+        private ParticleSystem astrosParticles;
+        private ParticleSystem nebulasParticles;
+
+        private MeshRenderer tunnelRenderer;
+        private MeshRenderer distortRenderer;
+
+        private ParticleSystemRenderer astrosRenderer;
+        private ParticleSystemRenderer nebulasRenderer;
+
+        private AnimationCurve intensByState;
+        private AnimationCurve intensByState_astro;
+
+        private float tunnelMul;
+        private float distortMul;
+        private float astrosMul;
+        private float nebulasMul;
+
+        public float warpState = 0;
+        private bool warpEffectActivated = false;
+
+        Vector4[] warpRotations;
+        Vector3 velocity;
+
+        RemotePlayerAnimation rootAnimation = null;
+        public void Awake()
+        {
+            rootTransform = GetComponent<Transform>();
+            rootAnimation = GetComponent<RemotePlayerAnimation>();
+
+            warpEffect = UnityEngine.Object.Instantiate<VFWarpEffect>(Configs.builtin.warpEffectPrefab, GetComponent<Transform>());
+            warpEffect.enabled = false;
+
+            tunnelMat = (Material)typeof(VFWarpEffect).GetField("tunnelMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            distortMat = (Material)typeof(VFWarpEffect).GetField("distortMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            astrosMat = (Material)typeof(VFWarpEffect).GetField("astrosMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            nebulasMat = (Material)typeof(VFWarpEffect).GetField("nebulasMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+
+            astrosParticles = (ParticleSystem)typeof(VFWarpEffect).GetField("astrosParticles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            nebulasParticles = (ParticleSystem)typeof(VFWarpEffect).GetField("nebulasParticles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            
+            tunnelRenderer = (MeshRenderer)typeof(VFWarpEffect).GetField("tunnelRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            distortRenderer = (MeshRenderer)typeof(VFWarpEffect).GetField("distortRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            
+            astrosRenderer = (ParticleSystemRenderer)typeof(VFWarpEffect).GetField("astrosRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            nebulasRenderer = (ParticleSystemRenderer)typeof(VFWarpEffect).GetField("nebulasRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            
+            tunnelMul = (float)typeof(VFWarpEffect).GetField("tunnelMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            distortMul = (float)typeof(VFWarpEffect).GetField("distortMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            astrosMul = (float)typeof(VFWarpEffect).GetField("astrosMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            nebulasMul = (float)typeof(VFWarpEffect).GetField("nebulasMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+
+            intensByState_astro = (AnimationCurve)typeof(VFWarpEffect).GetField("intensByState_astro", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            intensByState = (AnimationCurve)typeof(VFWarpEffect).GetField("intensByState", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+
+            warpRotations = new Vector4[24];
+
+            tunnelMat = UnityEngine.Object.Instantiate<Material>(tunnelRenderer.sharedMaterial);
+            distortMat = UnityEngine.Object.Instantiate<Material>(distortRenderer.sharedMaterial);
+            astrosMat = UnityEngine.Object.Instantiate<Material>(astrosRenderer.sharedMaterial);
+            nebulasMat = UnityEngine.Object.Instantiate<Material>(nebulasRenderer.sharedMaterial);
+
+            tunnelRenderer.sharedMaterial = tunnelMat;
+            distortRenderer.sharedMaterial = distortMat;
+            astrosRenderer.sharedMaterial = astrosMat;
+            nebulasRenderer.sharedMaterial = nebulasMat;
+
+            tunnelMul = tunnelMat.GetFloat("_Multiplier");
+            distortMul = distortMat.GetFloat("_DistortionStrength");
+            astrosMul = astrosMat.GetFloat("_Multiplier");
+            nebulasMul = nebulasMat.GetFloat("_Multiplier");
+
+            for(int i = 0; i < warpRotations.Length; i++)
+            {
+                warpRotations[i] = new Vector4(0f, 0f, 0f, 1f);
+            }
+
+            toggleEffect(false);
+        }
+
+        public void updateVelocity(Vector3 vel)
+        {
+            velocity = vel;
+        }
+
+        private void toggleEffect(bool toggle)
+        {
+            if (toggle)
+            {
+                astrosParticles.Play();
+                nebulasParticles.Play();
+
+                warpEffectActivated = true;
+            }
+            else
+            {
+                astrosParticles.Stop();
+                nebulasParticles.Stop();
+
+                warpEffectActivated = false;
+            }
+            tunnelRenderer.gameObject.SetActive(toggle);
+            distortRenderer.gameObject.SetActive(toggle);
+            astrosRenderer.gameObject.SetActive(toggle);
+            nebulasRenderer.gameObject.SetActive(toggle);
+        }
+
+        public void startWarp()
+        {
+            if (!rootAnimation.Sail.enabled || isWarping)
+            {
+                return;
+            }
+            
+            isWarping = true;
+        }
+
+        public void stopWarp()
+        {
+            if (!rootAnimation.Sail.enabled || !isWarping)
+            {
+                return;
+            }
+
+            isWarping = false;
+        }
+
+        public void Update()
+        {
+            if (isWarping)
+            {
+                warpState += 0.0055655558f;
+                if(warpState > 1f)
+                {
+                    warpState = 1f;
+                }
+            }
+            else
+            {
+                warpState -= 0.06667667f;
+                if(warpState < 0f)
+                {
+                    warpState = 0f;
+                }
+            }
+
+            Vector4 playerRot = new Vector4(rootTransform.rotation.x, rootTransform.rotation.y, rootTransform.rotation.z, rootTransform.rotation.w);
+            if (warpState > 0.001f && !warpEffectActivated)
+            {
+                for(int i = 0; i < warpRotations.Length; i++)
+                {
+                    warpRotations[i] = playerRot;
+                }
+                VFAudio.Create("warp-begin", base.transform, Vector3.zero, true, 0);
+                toggleEffect(true);
+            }
+            else if(warpState == 0 && warpEffectActivated)
+            {
+                VFAudio.Create("warp-end", base.transform, Vector3.zero, true, 0);
+                toggleEffect(false);
+            }
+
+            Array.Copy(warpRotations, 0, warpRotations, 1, warpRotations.Length - 1);
+            warpRotations[0] = playerRot;
+
+            ParticleSystem.EmissionModule emission = astrosParticles.emission;
+            ParticleSystem.VelocityOverLifetimeModule velocityOverTime = astrosParticles.velocityOverLifetime;
+            ParticleSystem.ShapeModule shape = astrosParticles.shape;
+
+            Vector3 lhs = velocity.normalized;
+
+            // to compute the emission we would need to know the players local star, so default to this for now
+            emission.rateOverTime = 120f;
+            velocityOverTime.speedModifierMultiplier = 20000f;
+            velocityOverTime.x = (float)lhs.x;
+            velocityOverTime.y = (float)lhs.y;
+            velocityOverTime.z = (float)lhs.z;
+            shape.position = lhs * 10000.0f;
+            shape.rotation = rootTransform.rotation.eulerAngles;
+
+            distortRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
+            nebulasRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
+            float num1 = intensByState.Evaluate(warpState);
+            float num2 = intensByState_astro.Evaluate(warpState);
+            tunnelMat.SetFloat("_Multiplier", tunnelMul * num1);
+            tunnelMat.SetVectorArray("_WarpRotations", warpRotations);
+            distortMat.SetFloat("_DistortionStrength", distortMul * num1);
+            astrosMat.SetFloat("_Multiplier", astrosMul * num2);
+            nebulasMat.SetFloat("_Multiplier", nebulasMul * num2);
+        }
+    }
     public class RemotePlayerEffects : MonoBehaviour
     {
         private RemotePlayerAnimation rootAnimation;
@@ -54,8 +257,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
             psys[0] = VFX.GetChild(0).GetComponent<ParticleSystem>();
             psys[1] = VFX.GetChild(1).GetComponent<ParticleSystem>();
 
-            psysr[0] = VFX.GetChild(0).GetComponent<ParticleSystemRenderer>();
-            psysr[1] = VFX.GetChild(1).GetComponent<ParticleSystemRenderer>();
+            psysr[0] = VFX.GetChild(0).Find("flames").GetComponent<ParticleSystemRenderer>();
+            psysr[1] = VFX.GetChild(1).Find("flames").GetComponent<ParticleSystemRenderer>();
 
             WaterEffect[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/vfx-footsteps/water").GetComponent<ParticleSystem>();
             WaterEffect[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/vfx-footsteps/water").GetComponent<ParticleSystem>();
@@ -76,6 +279,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
             solidSoundEvents[3] = "footsteps-3";
 
             collider = new Collider[16];
+
+            rootTransform.gameObject.AddComponent<RemoteWarpEffect>();
 
         }
 
@@ -172,6 +377,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             if(localPlanetId < 0)
             {
                 // wait for update that should happen soon
+                // its updated by localPlanetSyncProcessor.cs
                 return;
             }
 
@@ -446,7 +652,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 UpdateExtraSoundEffects(packet);
                 if (fireParticleOkay)
                 {
-                    if ((!rootAnimation.RunSlow.enabled && !rootAnimation.RunFast.enabled) || anyDriftActive)
+                    if ((!rootAnimation.RunSlow.enabled && !rootAnimation.RunFast.enabled) || anyDriftActive || rootAnimation.Sail.enabled)
                     {
                         for (int i = 0; i < psys.Length; i++)
                         {
@@ -475,12 +681,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
                             if (rootAnimation.RunFast.weight != 0)
                             {
                                 // when flying over the planet
-                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.03f);
+                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.04f);
                             }
                             else
                             {
                                 // when "walking" over water and moving in air without button press or while "walking" over water
-                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.04f);
+                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.03f);
                             }
                         }
                         if (rootAnimation.Drift.enabled)
@@ -504,7 +710,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         {
                             // when pressing spacebar but also when landing (Drift is disabled when landing)
                             psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.03f);
-                            if(flyAudio0 == null)
+                            if (flyAudio0 == null)
                             {
                                 flyAudio0 = VFAudio.Create("fly-atmos", base.transform, Vector3.zero, false);
                                 flyAudio0.Play();
@@ -520,7 +726,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         }
                         if (rootAnimation.Sail.enabled)
                         {
-                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.03f);
+                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 15f);
                             if (flyAudio1 == null)
                             {
                                 flyAudio1 = VFAudio.Create("fly-space", base.transform, Vector3.zero, false);

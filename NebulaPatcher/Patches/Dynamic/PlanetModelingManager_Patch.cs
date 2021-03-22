@@ -45,6 +45,14 @@ namespace NebulaPatcher.Patches.Dynamic
             // NOTE: currentFactingStage is a private field so i need to use the refstub for now
             if (planet.factory != null && PlanetModelingManager.currentFactingStage == 0)
             {
+                // now set localPlanet and planetId and also send the update to the server/other players (to sync localPlanet.id)
+                GameMain.data.localPlanet = planet;
+                GameMain.mainPlayer.planetId = planet.id;
+
+                var packet = new localPlanetSyncPckt(GameMain.data.localPlanet.id, false);
+                packet.playerId = LocalPlayer.PlayerId;
+                LocalPlayer.SendPacket(packet);
+
                 GameMain.data.GetOrCreateFactory(planet);
             }
             return true;
