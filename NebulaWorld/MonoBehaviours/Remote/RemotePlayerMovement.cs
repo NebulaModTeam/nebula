@@ -22,6 +22,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private Transform rootTransform;
         private Transform bodyTransform;
+        private RemotePlayerEffects rootEffects;
+        private RemoteWarpEffect rootWarp;
+
+        public int localPlanetId;
 
 #if DEBUG
         private GameObject positionDebugger;
@@ -36,6 +40,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
+            rootEffects = GetComponent<RemotePlayerEffects>();
+            rootWarp = rootTransform.GetComponent<RemoteWarpEffect>();
+
+            localPlanetId = -1;
 
 #if DEBUG
             positionDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -112,6 +120,31 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             Vector3 previousPosition = GetRelativePosition(previous);
             Vector3 currentPosition = GetRelativePosition(current);
+            float deltaPosition = Vector3.Distance(previousPosition, currentPosition);
+            Vector3 velocity = (previousPosition - currentPosition) / (previous.Timestamp - current.Timestamp);
+
+            // needed as its null for some reason when we arrive here for the first time
+            if(rootWarp == null)
+            {
+                rootWarp = rootTransform.GetComponent<RemoteWarpEffect>();
+            }
+
+            /*
+             * 170 is round about where vanilla warping starts, for better testing lower this to something like 30
+             * then you can trigger the warping animation by sailing at around 300
+             * when its at 170 you will probably not be able to see the effect ingame   
+             */
+            if(deltaPosition >= 170 && rootWarp != null)
+            {
+                rootWarp.startWarp();
+            }
+            else if(deltaPosition < 170 && rootWarp != null && rootWarp.warpState >= 0.9)
+            {
+                rootWarp.stopWarp();
+            }
+            rootWarp.updateVelocity(velocity);
+
+            localPlanetId = current.LocalPlanetId;
 
             rootTransform.position = Vector3.Lerp(previousPosition, currentPosition, ratio);
             rootTransform.rotation = Quaternion.Slerp(previous.Rotation, current.Rotation, ratio);

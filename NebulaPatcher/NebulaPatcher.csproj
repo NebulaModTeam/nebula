@@ -62,6 +62,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>..\Libs\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
@@ -83,11 +87,14 @@
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
+    <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameLoader_Patch.cs" />
     <Compile Include="Patches\Dynamic\DSPGame_Patch.cs" />
+    <Compile Include="Patches\Dynamic\GPUInstancingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\GuideMissionStandardMode_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />

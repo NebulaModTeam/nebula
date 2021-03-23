@@ -78,6 +78,7 @@ namespace NebulaWorld
             if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
             {
                 player.Animator.UpdateState(packet);
+                player.Effects.UpdateState(packet);
             }
         }
 
@@ -120,7 +121,10 @@ namespace NebulaWorld
 
         public static void MineVegetable(VegeMined packet)
         {
-            PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetID);
+            if(!remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel)){
+                Debug.Log("FAILED TO SYNC VEGE DATA");
+            }
+            PlanetData planet = GameMain.galaxy?.PlanetById(pModel.Movement.localPlanetId);
             if (planet == null)
                 return;
 
