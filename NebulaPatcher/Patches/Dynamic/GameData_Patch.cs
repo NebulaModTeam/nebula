@@ -1,9 +1,11 @@
 ﻿using HarmonyLib;
 using LZ4;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using System.IO;
 using System.IO.Compression;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -13,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
@@ -38,22 +40,51 @@ namespace NebulaPatcher.Patches.Dynamic
             using (BufferedStream bs = new BufferedStream(ls, 8192))
             using (BinaryReader br = new BinaryReader(bs))
             {
-                __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
+                if (planet.factory == null)
+                {
+                    __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
+                    planet.factory = __instance.factories[__instance.factoryCount];
+                    planet.factoryIndex = __instance.factoryCount;
+
+                    __instance.factoryCount++;
+                }
+                else
+                {
+                    __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, br);
+                    planet.factory = __instance.factories[planet.factoryIndex];
+                }
             }
 
             // Assign the factory to the result
-            __result = __instance.factories[__instance.factoryCount];
-
-            // TODO: Possibly rework this a little bit when we implement production stats to match the indexes host and client side
-            // Loading factories in a different order will cause the indexes to mismatch
-            planet.factory = __result;
-            planet.factoryIndex = __instance.factoryCount;
-
-            // Bump the factory count up and clear the flag
-            __instance.factoryCount++;
-            planet.factoryLoading = false;
+            __result = __instance.factories[planet.factoryIndex];
 
             // Do not run the original method
+            return false;
+        }
+    }
+    // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
+    [HarmonyPatch(typeof(GameData), "OnActivePlanetLoaded")]
+    class GameData_Patch2
+    {
+        public static bool Prefix(GameData __instance, PlanetData planet)
+        {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return true;
+            }
+            if(planet != null)
+            {
+                if (planet.factoryLoaded)
+                {
+                    __instance.OnActivePlanetFactoryLoaded(planet);
+                }
+                else
+                {
+                    planet.LoadFactory();
+                    planet.onFactoryLoaded += __instance.OnActivePlanetFactoryLoaded;
+                }
+            }
+            planet.onLoaded -= __instance.OnActivePlanetLoaded;
             return false;
         }
     }
