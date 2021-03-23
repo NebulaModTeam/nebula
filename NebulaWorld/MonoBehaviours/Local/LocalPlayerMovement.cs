@@ -1,4 +1,5 @@
-﻿using NebulaModel.Packets.Players;
+﻿using NebulaModel.DataStructures;
+using NebulaModel.Packets.Players;
 using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Local
@@ -26,11 +27,11 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 time = 0;
 
-                Vector3 position = rootTransform.position;
-                Vector3 rotation = rootTransform.eulerAngles;
-                Vector3 bodyRotation = bodyTransform.eulerAngles;
+                var rotation = new Float3(rootTransform.eulerAngles);
+                var bodyRotation = new Float3(bodyTransform.eulerAngles);
 
-                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, position, rotation, bodyRotation), LiteNetLib.DeliveryMethod.Sequenced);
+                Double3 uPosition = new Double3(GameMain.mainPlayer.uPosition.x, GameMain.mainPlayer.uPosition.y, GameMain.mainPlayer.uPosition.z);
+                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToNebula(), uPosition, rotation, bodyRotation));
             }
         }
     }

@@ -1,4 +1,3 @@
-[submodule "LiteNetLib"]
-	path = LiteNetLib
-	url = https://github.com/RevenantX/LiteNetLib
-	branch = 0.8
+[submodule "websocket-sharp"]
+	path = websocket-sharp
+	url = https://github.com/sta/websocket-sharp.git

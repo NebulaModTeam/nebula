@@ -1,5 +1,5 @@
-﻿using LiteNetLib.Utils;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
+using NebulaModel.Networking.Serialization;
 using UnityEngine;
 
 namespace NebulaModel.DataStructures
@@ -46,7 +46,7 @@ namespace NebulaModel.DataStructures
 
         public override string ToString()
         {
-            return $"x: {x}, y: {y}, z: {z}";
+            return $"(x: {x}, y: {y}, z: {z})";
         }
     }
 }

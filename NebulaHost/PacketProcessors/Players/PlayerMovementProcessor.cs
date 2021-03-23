@@ -1,5 +1,4 @@
-﻿using LiteNetLib;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Processors;
@@ -22,11 +21,12 @@ namespace NebulaHost.PacketProcessors.Players
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {
-                player.Data.Position = packet.Position;
+                player.Data.LocalPlanetId = packet.LocalPlanetId;
+                player.Data.UPosition = packet.UPosition;
                 player.Data.Rotation = packet.Rotation;
                 player.Data.BodyRotation = packet.BodyRotation;
 
-                playerManager.SendPacketToOtherPlayers(packet, player, DeliveryMethod.Unreliable);
+                playerManager.SendPacketToOtherPlayers(packet, player);
 
                 SimulatedWorld.UpdateRemotePlayerPosition(packet);
             }

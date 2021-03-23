@@ -1,14 +1,13 @@
 ﻿using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using HarmonyLib;
-using LiteNetLib;
 
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetFactory), "BuildFinally")]
-    class patch
+    class BuildFinally_patch
     {
         public static bool Prefix(PlanetFactory __instance, Player player, int prebuildId)
         {
@@ -29,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnEntityPlaced(short protoId, Vector3 pos, Quaternion rot)
         {
             var packet = new EntityPlaced(protoId, pos, rot);
-            LocalPlayer.SendPacket(packet, DeliveryMethod.ReliableUnordered);
+            LocalPlayer.SendPacket(packet);
         }
     }
 }

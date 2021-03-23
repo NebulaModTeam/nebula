@@ -6,18 +6,22 @@ namespace NebulaModel.Packets.Players
     public class PlayerMovement
     {
         public ushort PlayerId { get; set; }
-        public Float3 Position { get; set; }
+        public int LocalPlanetId { get; set; }
+        public Float3 LocalPlanetPosition { get; set; }
+        public Double3 UPosition { get; set; }
         public Float3 Rotation { get; set; }
         public Float3 BodyRotation { get; set; }
 
         public PlayerMovement() { }
 
-        public PlayerMovement(ushort playerId, Vector3 position, Vector3 rotation, Vector3 bodyRotation)
+        public PlayerMovement(ushort playerId, int localPlanetId, Float3 localPlanetPosition, Double3 uPosition, Float3 rotation, Float3 bodyRotation)
         {
             PlayerId = playerId;
-            Position = new Float3(position);
-            Rotation = new Float3(rotation);
-            BodyRotation = new Float3(bodyRotation);
+            LocalPlanetId = localPlanetId;
+            LocalPlanetPosition = localPlanetPosition;
+            UPosition = uPosition;
+            Rotation = rotation;
+            BodyRotation = bodyRotation;
         }
     }
 }

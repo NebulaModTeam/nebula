@@ -3,6 +3,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Processors;
+using NebulaModel.Utils;
 using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.GameStates
@@ -13,8 +14,10 @@ namespace NebulaClient.PacketProcessors.GameStates
         public void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
         {
             GameState state = packet.State;
-            // We offset the tick received to account for the current player ping
-            long tickOffsetSinceSent = (long)System.Math.Round((conn.Ping / 2.0) / (GameMain.tickDeltaTime * 1000));
+
+            // We offset the tick received to account for the time it took to receive the packet
+            long timeOffset = TimeUtils.CurrentUnixTimestampMilliseconds() - packet.State.timestamp;
+            long tickOffsetSinceSent = (long)System.Math.Round(timeOffset / (GameMain.tickDeltaTime * 1000));
             state.gameTick += tickOffsetSinceSent;
 
             SimulatedWorld.UpdateGameState(state);

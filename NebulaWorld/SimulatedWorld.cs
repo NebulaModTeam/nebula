@@ -23,6 +23,7 @@ namespace NebulaWorld
         static Dictionary<ushort, RemotePlayerModel> remotePlayersModels;
 
         public static bool Initialized { get; private set; }
+        public static bool IsGameLoaded { get; private set; }
 
         public static void Initialize()
         {
@@ -42,6 +43,7 @@ namespace NebulaWorld
 
             remotePlayersModels.Clear();
             Initialized = false;
+            IsGameLoaded = false;
         }
 
         public static void UpdateGameState(GameState state)
@@ -198,6 +200,8 @@ namespace NebulaWorld
             // GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
 
             LocalPlayer.SetReady();
+
+            IsGameLoaded = true;
         }
     }
 }
