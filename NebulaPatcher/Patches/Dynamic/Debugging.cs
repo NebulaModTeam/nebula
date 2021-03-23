@@ -43,7 +43,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 GameMain.mainPlayer.package.AddItemStacked(recipe.productIds[i], count);
             }
-            //__instance.tasks.Add(recipe);
             __result = null;
             return false;
         }

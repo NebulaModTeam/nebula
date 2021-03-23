@@ -6,11 +6,6 @@ using NebulaModel.Packets.Players;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Security;
-using System.Security.Permissions;
-
-[module: UnverifiableCode]
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 
 namespace NebulaWorld
 {
