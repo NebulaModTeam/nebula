@@ -30,11 +30,9 @@ namespace NebulaPatcher.Patches.Dynamic
             // Take it off the list, as we will process it now
             LocalPlayer.PendingFactories.Remove(planet.id);
 
-            // TODO: Possibly rework this a little bit when we implement production stats to match the indexes host and client side
-            // Needs more investigation, as we use PlanetFactory.Import()
-
             // Import the factory from the given bytes, which will have been gotten or created on the host by the original function
             __instance.factories[__instance.factoryCount] = new PlanetFactory();
+
             using (MemoryStream ms = new MemoryStream(factoryBytes))
             using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
             using (BufferedStream bs = new BufferedStream(ls, 8192))
@@ -43,12 +41,17 @@ namespace NebulaPatcher.Patches.Dynamic
                 __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
             }
 
+            // Assign the factory to the result
+            __result = __instance.factories[__instance.factoryCount];
+
+            // TODO: Possibly rework this a little bit when we implement production stats to match the indexes host and client side
+            // Loading factories in a different order will cause the indexes to mismatch
+            planet.factory = __result;
+            planet.factoryIndex = __instance.factoryCount;
+
             // Bump the factory count up and clear the flag
             __instance.factoryCount++;
             planet.factoryLoading = false;
-
-            // Assign the factory to the result
-            __result = __instance.factories[__instance.factoryCount];
 
             // Do not run the original method
             return false;
