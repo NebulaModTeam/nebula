@@ -1,7 +1,9 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
+using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Players;
+using NebulaWorld.Factory;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -117,6 +119,11 @@ namespace NebulaWorld
             {
                 LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
             }
+        }
+
+        public static void OnPlaceEntity(EntityPlaced packet)
+        {
+            EntityManager.PlaceEntity(packet);
         }
 
         public static void MineVegetable(VegeMined packet)

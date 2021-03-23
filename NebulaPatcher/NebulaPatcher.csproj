@@ -41,6 +41,7 @@
       <HintPath>..\Libs\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
@@ -86,6 +87,7 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\BuildFinally_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
     <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameData_Patch.cs" />

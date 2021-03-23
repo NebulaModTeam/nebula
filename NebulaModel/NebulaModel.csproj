@@ -76,6 +76,7 @@
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
+    <Compile Include="Packets\Factory\EntityPlaced.cs" />
     <Compile Include="Networking\NebulaStatusCode.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
