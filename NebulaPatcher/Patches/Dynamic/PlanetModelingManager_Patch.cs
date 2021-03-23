@@ -4,13 +4,7 @@ using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
-
-using System.Security;
-using System.Security.Permissions;
 using UnityEngine;
-
-[module: UnverifiableCode]
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 
 namespace NebulaPatcher.Patches.Dynamic
 {

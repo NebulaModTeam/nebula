@@ -22,7 +22,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private Transform rootTransform;
         private Transform bodyTransform;
-        private RemotePlayerEffects rootEffects;
         private RemoteWarpEffect rootWarp;
 
         public int localPlanetId;
@@ -36,11 +35,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
         // This will make sure player movement is still smooth in high latency cases and even if there are dropped packets.
         private readonly Snapshot[] snapshotBuffer = new Snapshot[BUFFERED_SNAPSHOT_COUNT];
 
-        private void Awake()
+        private void Start()
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
-            rootEffects = GetComponent<RemotePlayerEffects>();
             rootWarp = rootTransform.GetComponent<RemoteWarpEffect>();
 
             localPlanetId = -1;
@@ -122,12 +120,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
             Vector3 currentPosition = GetRelativePosition(current);
             float deltaPosition = Vector3.Distance(previousPosition, currentPosition);
             Vector3 velocity = (previousPosition - currentPosition) / (previous.Timestamp - current.Timestamp);
-
-            // needed as its null for some reason when we arrive here for the first time
-            if(rootWarp == null)
-            {
-                rootWarp = rootTransform.GetComponent<RemoteWarpEffect>();
-            }
 
             /*
              * 170 is round about where vanilla warping starts, for better testing lower this to something like 30
