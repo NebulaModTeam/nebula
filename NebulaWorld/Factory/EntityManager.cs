@@ -22,7 +22,7 @@ namespace NebulaWorld.Factory
                 rot = rot
             }, 0);
 
-            GameMain.mainPlayer.controller.actionBuild.NotifyBuilt(-0, ret);
+            GameMain.mainPlayer.controller.actionBuild.NotifyBuilt(0, ret);
             GameMain.history.MarkItemBuilt((int)protoId);
         }
         public static int[] MinerGetUsefullVeins(ref int[] tmp_ids, ref int veinCount, Vector3 entityPos, Quaternion entityRot, EMinerType minerType)
