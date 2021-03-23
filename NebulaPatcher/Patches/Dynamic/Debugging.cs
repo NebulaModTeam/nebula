@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -39,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix(MechaForge __instance, ForgeTask __result, int recipeId, int count)
         {
             ForgeTask recipe = new ForgeTask(recipeId, count);
-            for(int i = 0; i < recipe.productIds.Length; i++)
+            for (int i = 0; i < recipe.productIds.Length; i++)
             {
                 GameMain.mainPlayer.package.AddItemStacked(recipe.productIds[i], count);
             }

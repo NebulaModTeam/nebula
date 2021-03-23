@@ -1,11 +1,9 @@
 ﻿using HarmonyLib;
 using LZ4;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using System.IO;
 using System.IO.Compression;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -72,7 +70,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
-            if(planet != null)
+            if (planet != null)
             {
                 if (planet.factoryLoaded)
                 {

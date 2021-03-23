@@ -1,7 +1,7 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Factory;
+using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
@@ -128,7 +128,8 @@ namespace NebulaWorld
 
         public static void MineVegetable(VegeMined packet)
         {
-            if(!remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel)){
+            if (!remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
+            {
                 Debug.Log("FAILED TO SYNC VEGE DATA");
             }
             PlanetData planet = GameMain.galaxy?.PlanetById(pModel.Movement.localPlanetId);

@@ -7,7 +7,8 @@ namespace NebulaModel.Utils
     public class UnityDispatchQueue : MonoBehaviour
     {
         private static UnityDispatchQueue _instance;
-        private static UnityDispatchQueue GetInstance() {
+        private static UnityDispatchQueue GetInstance()
+        {
             if (!_instance)
             {
                 _instance = FindObjectOfType<UnityDispatchQueue>();
@@ -38,7 +39,7 @@ namespace NebulaModel.Utils
         {
             lock (actionsQueue)
             {
-                while(actionsQueue.Count > 0)
+                while (actionsQueue.Count > 0)
                 {
                     actionsQueue.Dequeue().Invoke();
                 }

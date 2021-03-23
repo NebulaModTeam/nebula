@@ -75,7 +75,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 List<int> planetsToRequest = new List<int>();
 
-                foreach(PlanetData planet in planetsToLoad)
+                foreach (PlanetData planet in planetsToLoad)
                 {
                     planet.wanted = true;
                     if (planet.loaded || planet.loading)
@@ -87,7 +87,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     planetsToRequest.Add(planet.id);
                 }
 
-                if(planetsToRequest.Any())
+                if (planetsToRequest.Any())
                 {
                     LocalPlayer.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
                 }

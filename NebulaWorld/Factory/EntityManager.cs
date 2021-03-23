@@ -1,5 +1,5 @@
-﻿using System;
-using NebulaModel.Packets.Factory;
+﻿using NebulaModel.Packets.Factory;
+using System;
 using UnityEngine;
 
 namespace NebulaWorld.Factory
@@ -45,7 +45,7 @@ namespace NebulaWorld.Factory
 
             for (int i = 0; i < veinsInAreaNonAlloc; i++)
             {
-                if(minerType == EMinerType.Vein)
+                if (minerType == EMinerType.Vein)
                 {
                     if (tmp_ids[i] != 0 && veinPool[tmp_ids[i]].id == tmp_ids[i])
                     {
@@ -64,28 +64,28 @@ namespace NebulaWorld.Factory
                         }
                     }
                 }
-                else if(minerType == EMinerType.Oil)
+                else if (minerType == EMinerType.Oil)
                 {
-                    if(tmp_ids[i] != 0 && veinPool[tmp_ids[i]].id == tmp_ids[i] && veinPool[tmp_ids[i]].type == EVeinType.Oil)
+                    if (tmp_ids[i] != 0 && veinPool[tmp_ids[i]].id == tmp_ids[i] && veinPool[tmp_ids[i]].type == EVeinType.Oil)
                     {
                         Vector3 vpos = veinPool[tmp_ids[i]].pos;
                         Vector3 vposCenter = vpos - center;
                         float num = Vector3.Dot(up, vposCenter);
                         float sqrMagnitude = (vposCenter - up * num).sqrMagnitude;
-                        if(sqrMagnitude < veinOildClosest)
+                        if (sqrMagnitude < veinOildClosest)
                         {
                             veinOildClosest = sqrMagnitude;
                             oilVeinId = tmp_ids[i];
                         }
                     }
                 }
-                else if(minerType == EMinerType.Water)
+                else if (minerType == EMinerType.Water)
                 {
                     // TODO
                 }
             }
 
-            if(oilVeinId != 0 && minerType == EMinerType.Oil)
+            if (oilVeinId != 0 && minerType == EMinerType.Oil)
             {
                 veinIDs = new int[1];
                 veinIDs[0] = oilVeinId;

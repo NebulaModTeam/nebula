@@ -126,11 +126,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
              * then you can trigger the warping animation by sailing at around 300
              * when its at 170 you will probably not be able to see the effect ingame   
              */
-            if(deltaPosition >= 170 && rootWarp != null)
+            if (deltaPosition >= 170 && rootWarp != null)
             {
                 rootWarp.startWarp();
             }
-            else if(deltaPosition < 170 && rootWarp != null && rootWarp.warpState >= 0.9)
+            else if (deltaPosition < 170 && rootWarp != null && rootWarp.warpState >= 0.9)
             {
                 rootWarp.stopWarp();
             }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Remote
 {
-    public class RemoteWarpEffect: MonoBehaviour
+    public class RemoteWarpEffect : MonoBehaviour
     {
         private Transform rootTransform;
 
@@ -55,13 +55,13 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             astrosParticles = (ParticleSystem)typeof(VFWarpEffect).GetField("astrosParticles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
             nebulasParticles = (ParticleSystem)typeof(VFWarpEffect).GetField("nebulasParticles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            
+
             tunnelRenderer = (MeshRenderer)typeof(VFWarpEffect).GetField("tunnelRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
             distortRenderer = (MeshRenderer)typeof(VFWarpEffect).GetField("distortRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            
+
             astrosRenderer = (ParticleSystemRenderer)typeof(VFWarpEffect).GetField("astrosRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
             nebulasRenderer = (ParticleSystemRenderer)typeof(VFWarpEffect).GetField("nebulasRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            
+
             tunnelMul = (float)typeof(VFWarpEffect).GetField("tunnelMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
             distortMul = (float)typeof(VFWarpEffect).GetField("distortMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
             astrosMul = (float)typeof(VFWarpEffect).GetField("astrosMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
@@ -87,7 +87,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             astrosMul = astrosMat.GetFloat("_Multiplier");
             nebulasMul = nebulasMat.GetFloat("_Multiplier");
 
-            for(int i = 0; i < warpRotations.Length; i++)
+            for (int i = 0; i < warpRotations.Length; i++)
             {
                 warpRotations[i] = new Vector4(0f, 0f, 0f, 1f);
             }
@@ -128,7 +128,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 return;
             }
-            
+
             isWarping = true;
         }
 
@@ -147,7 +147,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             if (isWarping)
             {
                 warpState += 0.0055655558f;
-                if(warpState > 1f)
+                if (warpState > 1f)
                 {
                     warpState = 1f;
                 }
@@ -155,7 +155,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             else
             {
                 warpState -= 0.06667667f;
-                if(warpState < 0f)
+                if (warpState < 0f)
                 {
                     warpState = 0f;
                 }
@@ -164,14 +164,14 @@ namespace NebulaWorld.MonoBehaviours.Remote
             Vector4 playerRot = new Vector4(rootTransform.rotation.x, rootTransform.rotation.y, rootTransform.rotation.z, rootTransform.rotation.w);
             if (warpState > 0.001f && !warpEffectActivated)
             {
-                for(int i = 0; i < warpRotations.Length; i++)
+                for (int i = 0; i < warpRotations.Length; i++)
                 {
                     warpRotations[i] = playerRot;
                 }
                 VFAudio.Create("warp-begin", base.transform, Vector3.zero, true, 0);
                 toggleEffect(true);
             }
-            else if(warpState == 0 && warpEffectActivated)
+            else if (warpState == 0 && warpEffectActivated)
             {
                 VFAudio.Create("warp-end", base.transform, Vector3.zero, true, 0);
                 toggleEffect(false);
@@ -287,7 +287,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         public void OnDestroy()
         {
             stopAllFlyAudio();
-            if(miningAudio != null)
+            if (miningAudio != null)
             {
                 miningAudio.Stop();
                 miningAudio = null;
@@ -301,12 +301,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 driftAudio.Stop();
                 driftAudio = null;
             }
-            if(flyAudio0 != null)
+            if (flyAudio0 != null)
             {
                 flyAudio0.Stop();
                 flyAudio0 = null;
             }
-            if(flyAudio1 != null)
+            if (flyAudio1 != null)
             {
                 flyAudio1.Stop();
                 flyAudio1 = null;
@@ -337,7 +337,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 float normalizedTimeDiff = (rootAnimation.RunFast.normalizedTime * 2f - 0.02f) - (float)normalizedTime;
                 bool timeIsEven = normalizedTime % 2 == 0;
 
-                if(lastTriggeredFood != normalizedTime)
+                if (lastTriggeredFood != normalizedTime)
                 {
                     lastTriggeredFood = normalizedTime;
 
@@ -350,21 +350,21 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     float biomo = -1f;
                     RaycastHit rHit1, rHit2;
 
-                    if(Physics.Raycast(ray, out rHit1, 2f, 512, QueryTriggerInteraction.Collide))
+                    if (Physics.Raycast(ray, out rHit1, 2f, 512, QueryTriggerInteraction.Collide))
                     {
                         rDist1 = rHit1.distance;
                         biomo = rHit1.textureCoord2.x;
                     }
-                    if(Physics.Raycast(ray, out rHit2, 2f, 16, QueryTriggerInteraction.Collide))
+                    if (Physics.Raycast(ray, out rHit2, 2f, 16, QueryTriggerInteraction.Collide))
                     {
                         rDist2 = rHit2.distance + 0.1f;
                     }
 
-                    if(normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFood || normalizedTime < 2))
+                    if (normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFood || normalizedTime < 2))
                     {
                         playFootstepSound(moveWeight, biomo, rDist2 < rDist1);
                     }
-                    if(normalizedTimeDiff < 0.5f && moveWeight > 0.5f && (rDist1 < 3f || rDist2 < 3f))
+                    if (normalizedTimeDiff < 0.5f && moveWeight > 0.5f && (rDist1 < 3f || rDist2 < 3f))
                     {
                         playFootstepEffect(timeIsEven, biomo, rDist2 < rDist1);
                     }
@@ -374,7 +374,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void playFootstepSound(float vol, float biomo, bool water)
         {
-            if(localPlanetId < 0)
+            if (localPlanetId < 0)
             {
                 // wait for update that should happen soon
                 // its updated by localPlanetSyncProcessor.cs
@@ -388,11 +388,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 if (!water)
                 {
-                    if((double)biomo <= 0.8)
+                    if ((double)biomo <= 0.8)
                     {
                         name = solidSoundEvents[ambientDesc.biomoSound0];
                     }
-                    else if((double)biomo <= 1.8)
+                    else if ((double)biomo <= 1.8)
                     {
                         name = solidSoundEvents[ambientDesc.biomoSound1];
                     }
@@ -435,17 +435,17 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             if (!water)
             {
-                if(biomo <= 0f)
+                if (biomo <= 0f)
                 {
                     color = ambientDesc.biomoDustColor0;
                     dustStrength = ambientDesc.biomoDustStrength0;
                 }
-                else if(biomo <= 1f)
+                else if (biomo <= 1f)
                 {
                     color = Color.Lerp(ambientDesc.biomoDustColor0, ambientDesc.biomoColor1, biomo);
                     dustStrength = Mathf.Lerp(ambientDesc.biomoDustStrength0, ambientDesc.biomoDustStrength1, biomo);
                 }
-                else if(biomo <= 2f)
+                else if (biomo <= 2f)
                 {
                     color = Color.Lerp(ambientDesc.biomoDustColor1, ambientDesc.biomoColor2, biomo - 1f);
                     dustStrength = Mathf.Lerp(ambientDesc.biomoDustStrength1, ambientDesc.biomoDustStrength2, biomo - 1f);
@@ -456,22 +456,22 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     dustStrength = ambientDesc.biomoDustStrength2;
                 }
             }
-            if(biomo >= 0f || water)
+            if (biomo >= 0f || water)
             {
                 ParticleSystem.MainModule main = waterParticle.main;
                 main.startColor = ((!water) ? Color.clear : Color.white);
-                foreach(ParticleSystem p in smokeParticle)
+                foreach (ParticleSystem p in smokeParticle)
                 {
                     main = p.main;
                     main.startColor = color;
                 }
-                foreach(ParticleSystem p in FootSmallSmoke)
+                foreach (ParticleSystem p in FootSmallSmoke)
                 {
                     main = p.main;
                     main.startLifetime = 0.8f + 0.2f * dustStrength;
                     main.startSize = 1.1f + 0.2f * dustStrength;
                 }
-                foreach(ParticleSystem p in FootLargeSmoke)
+                foreach (ParticleSystem p in FootLargeSmoke)
                 {
                     main = p.main;
                     main.startLifetime = 1.2f * dustStrength;
@@ -515,12 +515,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private bool DriftDetermineInWater(PlanetData pData)
         {
-            if(localPlanetId < 0)
+            if (localPlanetId < 0)
             {
                 return false;
             }
 
-            if(pData != null)
+            if (pData != null)
             {
                 float currAltitude = Mathf.Max(rootTransform.position.magnitude, pData.realRadius * 0.9f) - pData.realRadius;
                 Vector3 origin = rootTransform.position + rootTransform.position.normalized * 10f;
@@ -529,7 +529,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 bool trigger = false;
                 RaycastHit rHit;
 
-                if(Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 8704, QueryTriggerInteraction.Collide))
+                if (Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 8704, QueryTriggerInteraction.Collide))
                 {
                     rDist1 = rHit.distance;
                 }
@@ -537,7 +537,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 {
                     trigger = true;
                 }
-                if(Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 16, QueryTriggerInteraction.Collide))
+                if (Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 16, QueryTriggerInteraction.Collide))
                 {
                     rDist2 = rHit.distance;
                 }
@@ -546,9 +546,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     trigger = true;
                 }
 
-                if(!trigger && currAltitude > -2.3f + pData.waterHeight)
+                if (!trigger && currAltitude > -2.3f + pData.waterHeight)
                 {
-                    if(rDist1 - rDist2 > 0.7f && currAltitude < -0.6f)
+                    if (rDist1 - rDist2 > 0.7f && currAltitude < -0.6f)
                     {
                         return true;
                     }
@@ -560,29 +560,29 @@ namespace NebulaWorld.MonoBehaviours.Remote
         // collision with vegetation, landing sound effect
         private void UpdateExtraSoundEffects(PlayerAnimationUpdate packet)
         {
-            if(localPlanetId < 0)
+            if (localPlanetId < 0)
             {
                 return;
             }
 
-            if(localPlanetId > 0)
+            if (localPlanetId > 0)
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(localPlanetId);
                 PlanetPhysics pPhys = (pData != null) ? pData.physics : null;
                 PlanetFactory pFactory = (pData != null) ? pData.factory : null;
                 float tmpMaxAltitude = rootTransform.localPosition.magnitude - pData.realRadius;
-                if(tmpMaxAltitude > 1000f)
+                if (tmpMaxAltitude > 1000f)
                 {
                     tmpMaxAltitude = 1000f;
                 }
 
-                if(rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftR.enabled || rootAnimation.DriftL.enabled)
+                if (rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftR.enabled || rootAnimation.DriftL.enabled)
                 {
                     bool ground = isGrounded();
 
-                    if(DriftDetermineInWater(pData))
+                    if (DriftDetermineInWater(pData))
                     {
-                        if(maxAltitude > 1f && pData.waterItemId > 0)
+                        if (maxAltitude > 1f && pData.waterItemId > 0)
                         {
                             VFAudio audio = VFAudio.Create("landing-water", base.transform, Vector3.zero, false, 0);
                             audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 5f + 0.5f);
@@ -610,18 +610,18 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 }
 
                 // NOTE: the pPhys can only be loaded if the player trying to load it has the planet actually loaded (meaning he is on the same planet or near it)
-                if(pPhys != null && pFactory != null && packet.horzSpeed > 5f)
+                if (pPhys != null && pFactory != null && packet.horzSpeed > 5f)
                 {
                     int number = Physics.OverlapSphereNonAlloc(base.transform.localPosition, 1.8f, collider, 1024, QueryTriggerInteraction.Collide);
-                    for(int i = 0; i < number; i++)
+                    for (int i = 0; i < number; i++)
                     {
                         int colId = pPhys.nearColliderLogic.FindColliderId(collider[i]);
                         ColliderData cData = pPhys.GetColliderData(colId);
-                        if(cData.objType == EObjectType.Vegetable && cData.objId > 0)
+                        if (cData.objType == EObjectType.Vegetable && cData.objId > 0)
                         {
                             VegeData vData = pFactory.vegePool[cData.objId];
                             VegeProto vProto = LDB.veges.Select((int)vData.protoId);
-                            if(vProto != null && vProto.CollideAudio > 0 && vegeCollideColdTime <= 0)
+                            if (vProto != null && vProto.CollideAudio > 0 && vegeCollideColdTime <= 0)
                             {
                                 VFAudio.Create(vProto.CollideAudio, base.transform, Vector3.zero, true, 0);
                                 vegeCollideColdTime = UnityEngine.Random.value * 0.23f + 0.1f;
@@ -631,7 +631,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 }
             }
 
-            if(vegeCollideColdTime > 0)
+            if (vegeCollideColdTime > 0)
             {
                 vegeCollideColdTime -= Time.deltaTime * 2;
             }
@@ -701,7 +701,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         }
                         else
                         {
-                            if(driftAudio != null){
+                            if (driftAudio != null)
+                            {
                                 driftAudio.Stop();
                                 driftAudio = null;
                             }
@@ -718,7 +719,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         }
                         else
                         {
-                            if(flyAudio0 != null)
+                            if (flyAudio0 != null)
                             {
                                 flyAudio0.Stop();
                                 flyAudio0 = null;
@@ -735,7 +736,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         }
                         else
                         {
-                            if(flyAudio1 != null)
+                            if (flyAudio1 != null)
                             {
                                 flyAudio1.Stop();
                                 flyAudio1 = null;
@@ -758,8 +759,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     stopAllFlyAudio();
                 }
             }
-            
-            if(torchEffect != null && rootAnimation.Mining0.weight > 0.99f)
+
+            if (torchEffect != null && rootAnimation.Mining0.weight > 0.99f)
             {
                 if (!torchEffect.isPlaying && miningAudio == null)
                 {
@@ -768,7 +769,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     miningAudio?.Play();
                 }
             }
-            else if(torchEffect != null && rootAnimation.Mining0.weight <= 0.99f)
+            else if (torchEffect != null && rootAnimation.Mining0.weight <= 0.99f)
             {
                 if (torchEffect.isPlaying)
                 {

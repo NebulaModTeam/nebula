@@ -1,7 +1,6 @@
-﻿using NebulaModel.Packets.Factory;
+﻿using HarmonyLib;
+using NebulaModel.Packets.Factory;
 using NebulaWorld;
-using HarmonyLib;
-
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic

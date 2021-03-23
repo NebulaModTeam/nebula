@@ -11,7 +11,7 @@ namespace NebulaModel.Packets.Planet
 
         public PlanetDataResponse() { }
 
-        public PlanetDataResponse(Dictionary<int, byte[]> planetData) 
+        public PlanetDataResponse(Dictionary<int, byte[]> planetData)
         {
             this.PlanetDataIDs = planetData.Keys.ToArray();
 
