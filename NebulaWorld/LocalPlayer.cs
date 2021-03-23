@@ -9,7 +9,6 @@ namespace NebulaWorld
     public static class LocalPlayer
     {
         public static bool IsMasterClient { get; set; }
-        public static bool FinishedGameLoad { get; set; }
         public static ushort PlayerId => Data.PlayerId;
         public static PlayerData Data { get; private set; }
         public static Dictionary<int, byte[]> PendingFactories { get; set; } = new Dictionary<int, byte[]>();
@@ -38,8 +37,6 @@ namespace NebulaWorld
             // Finally we add the local player components to the player character
             GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
             GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
-
-            FinishedGameLoad = true;
         }
 
         public static void SetPlayerData(PlayerData data)

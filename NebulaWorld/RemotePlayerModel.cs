@@ -1,12 +1,11 @@
 ﻿using NebulaWorld.MonoBehaviours.Remote;
 using UnityEngine;
 
-namespace NebulaClient.GameLogic
+namespace NebulaWorld
 {
     public class RemotePlayerModel
     {
         const int PLAYER_PROTO_ID = 1;
-        public int localPlanetId = 0;
 
         public Transform PlayerTransform { get; set; }
         public Transform PlayerModelTransform { get; set; }

@@ -25,6 +25,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private RemotePlayerEffects rootEffects;
         private RemoteWarpEffect rootWarp;
 
+        public int localPlanetId;
+
 #if DEBUG
         private GameObject positionDebugger;
 #endif
@@ -40,6 +42,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
             bodyTransform = rootTransform.Find("Model");
             rootEffects = GetComponent<RemotePlayerEffects>();
             rootWarp = rootTransform.GetComponent<RemoteWarpEffect>();
+
+            localPlanetId = -1;
 
 #if DEBUG
             positionDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -139,6 +143,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 rootWarp.stopWarp();
             }
             rootWarp.updateVelocity(velocity);
+
+            localPlanetId = current.LocalPlanetId;
 
             rootTransform.position = Vector3.Lerp(previousPosition, currentPosition, ratio);
             rootTransform.rotation = Quaternion.Slerp(previous.Rotation, current.Rotation, ratio);

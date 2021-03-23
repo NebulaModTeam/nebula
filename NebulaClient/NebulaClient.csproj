@@ -38,8 +38,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp.refstub">
-      <HintPath>..\Libs\Assembly-CSharp.refstub.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -79,7 +79,6 @@
     <Compile Include="MultiplayerClientSession.cs" />
     <Compile Include="PacketProcessors\GameStates\GameStateUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryDataProcessor.cs" />
-    <Compile Include="PacketProcessors\Planet\localPlanetSyncProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangeProcessor.cs" />

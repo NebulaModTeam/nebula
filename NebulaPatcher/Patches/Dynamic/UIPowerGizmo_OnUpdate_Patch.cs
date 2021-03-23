@@ -15,11 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             public static bool Prefix()
             {
-                if(GameMain.localPlanet?.factory == null)
-                {
-                    return false;
-                }
-                return true;
+                return GameMain.localPlanet?.factory != null;
             }
         }
     }

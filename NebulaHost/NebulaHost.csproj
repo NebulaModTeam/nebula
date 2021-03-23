@@ -53,7 +53,6 @@
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryLoadRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Planet\localPlanetSyncProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
