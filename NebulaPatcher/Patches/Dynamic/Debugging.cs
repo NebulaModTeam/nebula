@@ -58,7 +58,7 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.reactorPowerGen = 20000000;
             __instance.coreLevel = 5;
             __instance.thrusterLevel = 5;
-            __instance.maxSailSpeed = 10000f;
+            __instance.maxSailSpeed = 2000f;
             __instance.maxWarpSpeed = 1000000f;
             __instance.walkSpeed = 25f;
         }
