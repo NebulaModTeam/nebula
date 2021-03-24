@@ -67,9 +67,11 @@ namespace NebulaPatcher.Patches.Dynamic
             InternalLoadPlanetsRequestGenerator(star.planets);
 
             // Request initial dysonSphere data
-            Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
-            LocalPlayer.SendPacket(new DysonSphereLoadRequest(star.index));
-
+            if (GameMain.data.dysonSpheres[star.index] == null)
+            {
+                Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
+                LocalPlayer.SendPacket(new DysonSphereLoadRequest(star.index));
+            }
             return false;
         }
 
