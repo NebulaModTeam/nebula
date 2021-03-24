@@ -46,5 +46,22 @@ namespace NebulaPatcher.Patches.Dynamic
             return false;
         }
     }
+
+    [HarmonyPatch(typeof(Mecha), "SetForNewGame")]
+    class patch5
+    {
+        public static void Postfix(Mecha __instance)
+        {
+            __instance.coreEnergyCap = 30000000000;
+            __instance.coreEnergy = 30000000000;
+            __instance.corePowerGen = 5000000;
+            __instance.reactorPowerGen = 20000000;
+            __instance.coreLevel = 5;
+            __instance.thrusterLevel = 5;
+            __instance.maxSailSpeed = 2000f;
+            __instance.maxWarpSpeed = 1000000f;
+            __instance.walkSpeed = 25f;
+        }
+    }
 #endif
 }
