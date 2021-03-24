@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class PlayerAction_Mine_Transpiler
     {
         private static int miningId = -1;
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             // insert delegate before GetVegeData() to get miningId
             instructions = new CodeMatcher(instructions)
@@ -69,7 +69,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     if (PlayerAction_Mine_Transpiler.miningId != -1)
                     {
-                        OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, true, GameMain.localPlanet.id);
+                        OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, true);
                         PlayerAction_Mine_Transpiler.miningId = -1;
                     }
                     return VegeId;
@@ -88,7 +88,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     if (PlayerAction_Mine_Transpiler.miningId != -1)
                     {
-                        OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, false, GameMain.localPlanet.id);
+                        OnVegetationMined(PlayerAction_Mine_Transpiler.miningId, false);
                         PlayerAction_Mine_Transpiler.miningId = -1;
                     }
                     return miningTick;
@@ -97,9 +97,10 @@ namespace NebulaPatcher.Patches.Dynamic
             return instructions;
         }
 
-        private static void OnVegetationMined(int id, bool isVege, int planetID)
+        private static void OnVegetationMined(int id, bool isVege)
         {
-            var packet = new VegeMined(id, isVege, planetID);
+            var packet = new VegeMined(id, isVege);
+            packet.PlayerId = LocalPlayer.PlayerId;
             LocalPlayer.SendPacket(packet);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using NebulaModel.DataStructures;
-using UnityEngine;
 
 namespace NebulaModel.Packets.Players
 {

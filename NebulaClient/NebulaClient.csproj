@@ -54,6 +54,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\UnityEngine.PhysicsModule.dll</HintPath>
@@ -73,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiplayerClientSession.cs" />
+    <Compile Include="PacketProcessors\Factory\EntityPlacedProcessor.cs" />
     <Compile Include="PacketProcessors\GameStates\GameStateUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryDataProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\PlanetDataResponseProcessor.cs" />

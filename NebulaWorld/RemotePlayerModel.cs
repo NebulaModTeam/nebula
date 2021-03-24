@@ -11,6 +11,7 @@ namespace NebulaWorld
         public Transform PlayerModelTransform { get; set; }
         public RemotePlayerMovement Movement { get; set; }
         public RemotePlayerAnimation Animator { get; set; }
+        public RemotePlayerEffects Effects { get; set; }
 
         public RemotePlayerModel(ushort playerId)
         {
@@ -32,6 +33,7 @@ namespace NebulaWorld
                 // Add remote player components
                 Movement = PlayerTransform.gameObject.AddComponent<RemotePlayerMovement>();
                 Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
+                Effects = PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
             }
 
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";
@@ -44,6 +46,7 @@ namespace NebulaWorld
             PlayerModelTransform = null;
             Movement = null;
             Animator = null;
+            Effects = null;
         }
     }
 }

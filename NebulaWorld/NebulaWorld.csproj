@@ -49,11 +49,16 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libs\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>..\Libs\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory\EntityManager.cs" />
     <Compile Include="INetworkProvider.cs" />
     <Compile Include="InGamePopup.cs" />
     <Compile Include="LocalPlayer.cs" />
@@ -61,6 +66,7 @@
     <Compile Include="MonoBehaviours\Local\LocalPlayerMovement.cs" />
     <Compile Include="MonoBehaviours\MonoBehaviourExtension.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerAnimation.cs" />
+    <Compile Include="MonoBehaviours\Remote\RemotePlayerEffects.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerMovement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemotePlayerModel.cs" />
