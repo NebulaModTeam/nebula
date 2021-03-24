@@ -34,21 +34,12 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\Libs\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
@@ -67,14 +58,17 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
+      <SpecificVersion>true</SpecificVersion>
       <Project>{C6237195-F77C-40C0-B06A-4AD51CAD314D}</Project>
       <Name>NebulaModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj">
+      <SpecificVersion>true</SpecificVersion>
       <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
       <Name>NebulaWorld</Name>
     </ProjectReference>
     <ProjectReference Include="..\websocket-sharp\websocket-sharp\websocket-sharp.csproj">
+      <SpecificVersion>true</SpecificVersion>
       <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
       <Name>websocket-sharp</Name>
     </ProjectReference>
@@ -85,9 +79,12 @@
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"
-copy /Y "$(TargetDir)/LZ4.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\LZ4.dll"
-copy /Y "$(TargetDir)/websocket-sharp.dll" "$(DSPGameDir)\BepInEx\plugins\Nebula\websocket-sharp.dll"</PostBuildEvent>
-  </PropertyGroup>
+  <Import Project="$(PluginImports)" />
+  
+  <Target Name="AfterBuild">
+    <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)\LZ4.dll;$(TargetDir)\websocket-sharp.dll"
+          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>

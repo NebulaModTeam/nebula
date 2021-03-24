@@ -4,6 +4,7 @@
     <DevEnv>DevEnv.targets</DevEnv>
     <DevEnvLoc>$(SolutionDir)\$(DevEnv)</DevEnvLoc>
     <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
+    <PluginImports>$(MSBuildThisFileDirectory)PluginImports.targets</PluginImports>
   </PropertyGroup>
 
   <Import Project="$(DevEnvLoc)" Condition="Exists('$(DevEnvLoc)')" />
@@ -28,6 +29,6 @@
   <!-- Using DependsOnTarget with Conditional targets as an if else structure... -->
   <!-- Note that this is the first target, called by InitialTargets -->
   <Target Name="TestDSPGameFolder"
-          DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid"
+          DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid;CreatePluginDirectory"
           Condition="!Exists('$(DSPGameDir)')" />
 </Project>
