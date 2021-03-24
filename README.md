@@ -29,4 +29,4 @@ Please do keep in mind that this mod is still in heavy development. I do not enc
 
 ## How can I contribute
 
-Please join our [Discord](https://discord.gg/vPvPv2vh) to see if someone is already working on the task that you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment). Until I create a discord channel dedicated to this mod, most of the discussion will be done over the [discussion tab](https://github.com/hubastard/nebula/discussions/categories)
+Please join our [Discord](https://discord.gg/vPvPv2vh) to see if someone is already working on the task that you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment).
