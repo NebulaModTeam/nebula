@@ -4,6 +4,7 @@ using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
+using NebulaModel.Packets.Universe;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -64,6 +65,10 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             InternalLoadPlanetsRequestGenerator(star.planets);
+
+            // Request initial dysonSphere data
+            Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
+            LocalPlayer.SendPacket(new DysonSphereLoadRequest(star.index));
 
             return false;
         }
