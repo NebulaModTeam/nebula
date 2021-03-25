@@ -21,6 +21,11 @@ namespace NebulaWorld.Factory
                     return;
                 }
             }
+            if (pData.physics == null)
+            {
+                pData.physics = new PlanetPhysics(pData);
+                pData.physics.Init();
+            }
             // make room for entity if needed
             if (proto != null && pData.type != EPlanetType.Gas)
             {
@@ -28,11 +33,6 @@ namespace NebulaWorld.Factory
                 // dont give sand to player as he did not build it (or should i?)
             }
             // place the entity
-            if(pData.physics == null)
-            {
-                pData.physics = new PlanetPhysics(pData);
-                pData.physics.Init();
-            }
             int ret = pData.factory.AddEntityDataWithComponents(new EntityData
             {
                 protoId = protoId,
@@ -57,7 +57,6 @@ namespace NebulaWorld.Factory
             NearColliderLogic collider = pData.physics.nearColliderLogic;
             if(collider == null)
             {
-                Debug.Log("nearColliderLogic null in MinerGetUsefullVeins, this is not good!");
                 int[] rip = new int[1];
                 rip[0] = 0;
                 return rip;

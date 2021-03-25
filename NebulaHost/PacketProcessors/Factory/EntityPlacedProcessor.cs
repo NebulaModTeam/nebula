@@ -12,10 +12,10 @@ namespace NebulaHost.PacketProcessors.Factory
         private PlayerManager playerManager;
         public void ProcessPacket(EntityPlaced packet, NebulaConnection conn)
         {
-            Player player = PlayerManager.GetPlayer(conn);
+            Player player = playerManager.GetPlayer(conn);
             if(player != null)
             {
-                PlayerManager.SendPacketToOtherPlayers(packet, player);
+                playerManager.SendPacketToOtherPlayers(packet, player);
             }
             SimulatedWorld.OnPlaceEntity(packet);
         }

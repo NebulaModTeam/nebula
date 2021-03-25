@@ -47,7 +47,6 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
     }
-
     class sendPacket
     {
         public static void OnEntityPlaced(short protoId, Vector3 pos, Quaternion rot, bool isPrebuild)
