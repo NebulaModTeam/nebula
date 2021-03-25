@@ -25,6 +25,11 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 time = 0;
 
+                PlayerController controller = playerAnimator.player.controller;
+                float vertSpeed = Vector3.Dot(base.transform.up, controller.velocity);
+                Vector3 horzVel = controller.velocity - vertSpeed * base.transform.up;
+                float horzSpeed = horzVel.magnitude;
+
                 LocalPlayer.SendPacket(new PlayerAnimationUpdate()
                 {
                     PlayerId = LocalPlayer.PlayerId,
@@ -38,6 +43,8 @@ namespace NebulaWorld.MonoBehaviours.Local
                     Fly = playerAnimator.fly.ToNebula(),
                     Sail = playerAnimator.sail.ToNebula(),
                     Mining0 = playerAnimator.mining0.ToNebula(),
+                    horzSpeed = horzSpeed,
+                    vertSpeed = vertSpeed,
                 });
             }
         }
