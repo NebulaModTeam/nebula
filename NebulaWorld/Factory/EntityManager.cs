@@ -254,11 +254,7 @@ namespace NebulaWorld.Factory
             Vector3 pos = new Vector3(packet.pos.x, packet.pos.y, packet.pos.z);
             Quaternion rot = new Quaternion(packet.rot.x, packet.rot.y, packet.rot.z, packet.rot.w);
 
-            Debug.Log("1");
-
             PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
-
-            Debug.Log("2");
 
             // remove prebuild from internal list
             if (LocalPlayer.prebuildReceivedList.ContainsValue(packet.planetId))
@@ -274,8 +270,6 @@ namespace NebulaWorld.Factory
                 }
             }
 
-            Debug.Log("3");
-
             // the following should care for factory loading.
             BuildEntity(pos, rot, proto, packet.protoId, pData);
             // if the factory is still null it means we are a client and have not loaded the factory yet
@@ -285,8 +279,6 @@ namespace NebulaWorld.Factory
             {
                 return;
             }
-
-            Debug.Log("4");
 
             if (proto != null)
             {
