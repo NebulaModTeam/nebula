@@ -18,7 +18,7 @@ namespace NebulaClient.PacketProcessors.Planet
             // We have to track the offset we are currently at in the flattened jagged array as we decode
             int currentOffset = 0;
 
-            for(int i = 0; i < packet.PlanetDataIDs.Length; i++)
+            for (int i = 0; i < packet.PlanetDataIDs.Length; i++)
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetDataIDs[i]);
 

@@ -17,7 +17,7 @@ namespace NebulaHost.PacketProcessors.Planet
         {
             Dictionary<int, byte[]> planetDataToReturn = new Dictionary<int, byte[]>();
 
-            foreach(int planetId in packet.PlanetIDs)
+            foreach (int planetId in packet.PlanetIDs)
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(planetId);
                 Log.Info($"Returning terrain for {planet.name}");

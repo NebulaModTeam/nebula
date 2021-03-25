@@ -5,6 +5,7 @@ using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
 using NebulaModel.Packets.Universe;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -81,7 +82,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 List<int> planetsToRequest = new List<int>();
 
-                foreach(PlanetData planet in planetsToLoad)
+                foreach (PlanetData planet in planetsToLoad)
                 {
                     planet.wanted = true;
                     if (planet.loaded || planet.loading)
@@ -93,10 +94,96 @@ namespace NebulaPatcher.Patches.Dynamic
                     planetsToRequest.Add(planet.id);
                 }
 
-                if(planetsToRequest.Any())
+                if (planetsToRequest.Any())
                 {
                     LocalPlayer.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
                 }
+            }
+        }
+    }
+    [HarmonyPatch(typeof(PlanetModelingManager), "LoadingPlanetFactoryMain")]
+    public class PlanetModelingManager_Patch2
+    {
+        public static bool Prefix(PlanetData planet)
+        {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return true;
+            }
+
+            //if we are the client we always need to call GetOrCreateFactory() as this is where we handle the FactoryData received from the server
+            // NOTE: currentFactingStage is a private field so i need to use the refstub for now
+            int currentFactingStage = (int)AccessTools.Field(typeof(PlanetModelingManager), "currentFactingStage").GetValue(null);
+            if (planet.factory != null && currentFactingStage == 0)
+            {
+                GameMain.data.GetOrCreateFactory(planet);
+            }
+            return true;
+        }
+
+        // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
+        [HarmonyPatch(typeof(GameData), "OnActivePlanetLoaded")]
+        class GameData_Patch2
+        {
+            public static bool Prefix(GameData __instance, PlanetData planet)
+            {
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                if (planet != null)
+                {
+                    if (planet.factoryLoaded)
+                    {
+                        __instance.OnActivePlanetFactoryLoaded(planet);
+                    }
+                    else
+                    {
+                        planet.LoadFactory();
+                        planet.onFactoryLoaded += __instance.OnActivePlanetFactoryLoaded;
+                    }
+                }
+                planet.onLoaded -= __instance.OnActivePlanetLoaded;
+                return false;
+            }
+        }
+        // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
+        [HarmonyPatch(typeof(GameData), "OnActivePlanetFactoryLoaded")]
+        class GameData_Patch3
+        {
+            public static bool Prefix(GameData __instance, PlanetData planet)
+            {
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                if (planet != null)
+                {
+                    if (GameMain.gameTick == 0L && DSPGame.SkipPrologue)
+                    {
+                        GameData_Patch3_Helper.InitLandingPlace(__instance, planet);
+                    }
+                    // now set localPlanet and planetId
+                    AccessTools.Property(typeof(GameData), "localPlanet").SetValue(GameMain.data, planet, null);
+                    __instance.mainPlayer.planetId = planet.id;
+                }
+                planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
+                return false;
+            }
+        }
+        class GameData_Patch3_Helper
+        {
+            public static void InitLandingPlace(GameData gameData, PlanetData planet)
+            {
+                Vector3 birthPoint = planet.birthPoint;
+                Quaternion quaternion = Maths.SphericalRotation(birthPoint, 0f);
+                gameData.mainPlayer.transform.localPosition = birthPoint;
+                gameData.mainPlayer.transform.localRotation = quaternion;
+                gameData.mainPlayer.transform.localScale = Vector3.one;
+                gameData.mainPlayer.uPosition = (Vector3)planet.uPosition + planet.runtimeRotation * birthPoint;
+                gameData.mainPlayer.uRotation = planet.runtimeRotation * quaternion;
+                gameData.mainPlayer.uVelocity = VectorLF3.zero;
+                gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
             }
         }
     }

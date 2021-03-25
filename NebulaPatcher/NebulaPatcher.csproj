@@ -33,61 +33,23 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>..\Libs\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\Libs\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx">
-      <HintPath>..\Libs\BepInEx.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx.Harmony">
-      <HintPath>..\Libs\BepInEx.Harmony.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>..\Libs\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIElementsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.UIElementsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libs\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\BuildFinally_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
+    <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameLoader_Patch.cs" />
     <Compile Include="Patches\Dynamic\DSPGame_Patch.cs" />
+    <Compile Include="Patches\Dynamic\GPUInstancingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\GuideMissionStandardMode_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
@@ -95,18 +57,22 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebulaClient\NebulaClient.csproj">
+      <SpecificVersion>true</SpecificVersion>
       <Project>{5be9c74b-7832-4ef1-a53d-bf461bbdb0be}</Project>
       <Name>NebulaClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\NebulaHost\NebulaHost.csproj">
+      <SpecificVersion>true</SpecificVersion>
       <Project>{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}</Project>
       <Name>NebulaHost</Name>
     </ProjectReference>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
+      <SpecificVersion>true</SpecificVersion>
       <Project>{c6237195-f77c-40c0-b06a-4ad51cad314d}</Project>
       <Name>NebulaModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj">
+      <SpecificVersion>true</SpecificVersion>
       <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
       <Name>NebulaWorld</Name>
     </ProjectReference>
@@ -117,7 +83,12 @@
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(DSPGameDir)\BepInEx\plugins\Nebula\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
+  <Import Project="$(PluginImports)" />
+
+  <Target Name="AfterBuild">
+    <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>
