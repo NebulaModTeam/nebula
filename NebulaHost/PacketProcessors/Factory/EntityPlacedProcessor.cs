@@ -10,6 +10,10 @@ namespace NebulaHost.PacketProcessors.Factory
     public class EntityPlacedProcessor : IPacketProcessor<EntityPlaced>
     {
         private PlayerManager playerManager;
+        public EntityPlacedProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance.PlayerManager;
+        }
         public void ProcessPacket(EntityPlaced packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);

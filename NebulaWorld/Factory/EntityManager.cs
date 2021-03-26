@@ -274,7 +274,6 @@ namespace NebulaWorld.Factory
             BuildEntity(pos, rot, proto, packet.protoId, pData);
             // if the factory is still null it means we are a client and have not loaded the factory yet
             // thats why we exit here. factory will be synced on arrival
-            Debug.Log("1");
             if (pData.factory == null)
             {
                 return;

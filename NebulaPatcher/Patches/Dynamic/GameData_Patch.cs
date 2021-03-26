@@ -108,8 +108,8 @@ namespace NebulaPatcher.Patches.Dynamic
                     planet.LoadFactory();
                     planet.onFactoryLoaded += __instance.OnActivePlanetFactoryLoaded;
                 }
+                planet.onLoaded -= __instance.OnActivePlanetLoaded;
             }
-            planet.onLoaded -= __instance.OnActivePlanetLoaded;
             return false;
         }
     }
@@ -132,8 +132,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 // now set localPlanet and planetId
                 AccessTools.Property(typeof(GameData), "localPlanet").SetValue(GameMain.data, planet, null);
                 __instance.mainPlayer.planetId = planet.id;
+
+                planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
             }
-            planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
             return false;
         }
     }

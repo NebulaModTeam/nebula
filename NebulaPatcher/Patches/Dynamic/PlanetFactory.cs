@@ -19,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 PrebuildData data = __instance.prebuildPool[prebuildId];
                 if (data.id == prebuildId)
                 {
-                    sendPacket.OnEntityPlaced(data.protoId, data.pos, data.rot, false);
+                    SendPacket.OnEntityPlaced(data.protoId, data.pos, data.rot, false);
                 }
             }
 
@@ -43,11 +43,11 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                 }
             }
-            sendPacket.OnEntityPlaced(prebuild.protoId, prebuild.pos, prebuild.rot, true);
+            SendPacket.OnEntityPlaced(prebuild.protoId, prebuild.pos, prebuild.rot, true);
             return true;
         }
     }
-    class sendPacket
+    class SendPacket
     {
         public static void OnEntityPlaced(short protoId, Vector3 pos, Quaternion rot, bool isPrebuild)
         {
