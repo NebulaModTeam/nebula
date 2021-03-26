@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -61,6 +62,25 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.maxSailSpeed = 2000f;
             __instance.maxWarpSpeed = 1000000f;
             __instance.walkSpeed = 25f;
+        }
+    }
+
+    [HarmonyPatch(typeof(GameHistoryData), "dysonSphereSystemUnlocked", MethodType.Getter)]
+    class patch6
+    {
+        public static bool Prefix(GameHistoryData __instance, ref bool __result)
+        {
+            __result = true;
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GameHistoryData), "SetForNewGame")]
+    class patch7
+    {
+        public static void Postfix(GameHistoryData __instance)
+        {
+            __instance.dysonNodeLatitude = 90f;
         }
     }
 #endif
