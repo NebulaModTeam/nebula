@@ -40,7 +40,7 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
-    <Compile Include="Patches\Dynamic\PlanetFactory.cs" />
+    <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
     <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameData_Patch.cs" />
@@ -84,11 +84,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />
-
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
-    <Copy SourceFiles="$(TargetPath)"
-          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
   </Target>
 </Project>
