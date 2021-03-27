@@ -48,6 +48,8 @@
     <Compile Include="DataStructures\Float4.cs" />
     <Compile Include="DataStructures\NetDataReaderExtensions.cs" />
     <Compile Include="DataStructures\PlayerData.cs" />
+    <Compile Include="DataStructures\ThreadSafeDictionnary.cs" />
+    <Compile Include="DataStructures\ThreadSafeQueue.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Networking\DelayedPacket.cs" />
@@ -98,11 +100,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />
-
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
-    <Copy SourceFiles="$(TargetPath)"
-          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
   </Target>
 </Project>

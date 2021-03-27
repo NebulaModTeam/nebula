@@ -4,6 +4,7 @@ using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System.Net;
 using UnityEngine;
 using WebSocketSharp;
 
@@ -14,6 +15,7 @@ namespace NebulaClient
         public static MultiplayerClientSession Instance { get; protected set; }
 
         private WebSocket clientSocket;
+        private IPEndPoint serverEndpoint;
         private NebulaConnection serverConnection;
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
@@ -31,6 +33,7 @@ namespace NebulaClient
         {
             serverIp = ip;
             serverPort = port;
+            serverEndpoint = new IPEndPoint(IPAddress.Parse(serverIp), port);
 
             clientSocket = new WebSocket($"ws://{ip}:{port}/socket");
             clientSocket.OnOpen += ClientSocket_OnOpen;
@@ -79,13 +82,13 @@ namespace NebulaClient
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, PacketProcessor));
+            PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
         }
 
         private void ClientSocket_OnOpen(object sender, System.EventArgs e)
         {
             Log.Info($"Server connection established: {clientSocket.Url}");
-            serverConnection = new NebulaConnection(clientSocket, PacketProcessor);
+            serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
             IsConnected = true;
             SendPacket(new HandshakeRequest());
         }

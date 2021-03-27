@@ -48,6 +48,7 @@
     <Compile Include="PacketProcessors\Players\PlayerColorChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeResponseProcessor.cs" />
+    <Compile Include="PacketProcessors\Session\PlayerDisconnectedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\PlayerJoiningProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereDataProcessor.cs" />
@@ -76,11 +77,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />
-
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
-    <Copy SourceFiles="$(TargetPath)"
-          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -78,11 +78,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />
-  
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)\LZ4.dll;$(TargetDir)\websocket-sharp.dll"
-          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)\LZ4.dll;$(TargetDir)\websocket-sharp.dll" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
   </Target>
 </Project>
