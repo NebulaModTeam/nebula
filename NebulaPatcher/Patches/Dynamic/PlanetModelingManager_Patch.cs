@@ -5,7 +5,6 @@ using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
 using NebulaModel.Packets.Universe;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
