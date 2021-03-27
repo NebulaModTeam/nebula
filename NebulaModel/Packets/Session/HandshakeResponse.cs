@@ -9,18 +9,16 @@ namespace NebulaModel.Packets.Session
         public int StarCount { get; set; }
         public float ResourceMultiplier { get; set; }
         public PlayerData LocalPlayerData { get; set; }
-        public PlayerData[] OtherPlayers { get; set; }
 
         public HandshakeResponse() { }
 
-        public HandshakeResponse(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier, PlayerData localPlayerData, PlayerData[] otherPlayers)
+        public HandshakeResponse(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier, PlayerData localPlayerData)
         {
             AlgoVersion = algoVersion;
             GalaxySeed = galaxySeed;
             StarCount = starCount;
             ResourceMultiplier = resourceMultiplier;
             LocalPlayerData = localPlayerData;
-            OtherPlayers = otherPlayers;
         }
     }
 }

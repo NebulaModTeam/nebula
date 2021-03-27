@@ -1,4 +1,5 @@
 ﻿using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
@@ -10,26 +11,25 @@ namespace NebulaHost
 {
     public class PlayerManager
     {
-        private readonly Dictionary<NebulaConnection, Player> pendingPlayers;
-        private readonly Dictionary<NebulaConnection, Player> syncingPlayers;
-        private readonly Dictionary<NebulaConnection, Player> connectedPlayers;
-
-        private readonly Queue<ushort> availablePlayerIds;
+        private readonly ThreadSafeDictionary<NebulaConnection, Player> pendingPlayers;
+        private readonly ThreadSafeDictionary<NebulaConnection, Player> syncingPlayers;
+        private readonly ThreadSafeDictionary<NebulaConnection, Player> connectedPlayers;
+        private readonly ThreadSafeQueue<ushort> availablePlayerIds;
         private ushort highestPlayerID = 0;
 
         public PlayerManager()
         {
-            pendingPlayers = new Dictionary<NebulaConnection, Player>();
-            syncingPlayers = new Dictionary<NebulaConnection, Player>();
-            connectedPlayers = new Dictionary<NebulaConnection, Player>();
-            availablePlayerIds = new Queue<ushort>();
+            pendingPlayers = new ThreadSafeDictionary<NebulaConnection, Player>();
+            syncingPlayers = new ThreadSafeDictionary<NebulaConnection, Player>();
+            connectedPlayers = new ThreadSafeDictionary<NebulaConnection, Player>();
+            availablePlayerIds = new ThreadSafeQueue<ushort>();
         }
 
-        public Dictionary<NebulaConnection, Player> PendingPlayers => pendingPlayers;
-        public Dictionary<NebulaConnection, Player> SyncingPlayers => syncingPlayers;
-        public Dictionary<NebulaConnection, Player> ConnectedPlayers => connectedPlayers;
+        public ThreadSafeDictionary<NebulaConnection, Player> PendingPlayers => pendingPlayers;
+        public ThreadSafeDictionary<NebulaConnection, Player> SyncingPlayers => syncingPlayers;
+        public ThreadSafeDictionary<NebulaConnection, Player> ConnectedPlayers => connectedPlayers;
 
-        public IEnumerable<PlayerData> GetAllPlayerIdsIncludingHost()
+        public IEnumerable<PlayerData> GetAllPlayerDataIncludingHost()
         {
             return new PlayerData[] { LocalPlayer.Data }.Concat(GetConnectedPlayers().Select(p => p.Data));
         }
@@ -97,9 +97,13 @@ namespace NebulaHost
             if (connectedPlayers.TryGetValue(conn, out Player player))
             {
                 SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
+                SimulatedWorld.DestroyRemotePlayerModel(player.Id);
                 connectedPlayers.Remove(conn);
                 availablePlayerIds.Enqueue(player.Id);
-                SimulatedWorld.DestroyRemotePlayerModel(player.Id);
+            }
+            else
+            {
+                Log.Warn($"PlayerDisconnected NOT CALLED!");
             }
 
             // TODO: Should probably also handle playing that disconnect during "pending" or "syncing" steps.

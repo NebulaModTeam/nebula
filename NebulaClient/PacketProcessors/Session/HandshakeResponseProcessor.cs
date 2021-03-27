@@ -19,11 +19,6 @@ namespace NebulaClient.PacketProcessors.Session
             LocalPlayer.SetPlayerData(packet.LocalPlayerData);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
-
-            foreach (var playerData in packet.OtherPlayers)
-            {
-                SimulatedWorld.SpawnRemotePlayerModel(playerData);
-            }
         }
     }
 }

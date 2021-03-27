@@ -7,12 +7,11 @@ using NebulaWorld;
 namespace NebulaClient.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
-    public class PlayerJoiningProcessor : IPacketProcessor<PlayerJoining>
+    public class PlayerDisconnectedProcessor : IPacketProcessor<PlayerDisconnected>
     {
-        public void ProcessPacket(PlayerJoining packet, NebulaConnection conn)
+        public void ProcessPacket(PlayerDisconnected packet, NebulaConnection conn)
         {
-            SimulatedWorld.SpawnRemotePlayerModel(packet.PlayerData);
-            SimulatedWorld.OnPlayerJoining();
+            SimulatedWorld.DestroyRemotePlayerModel(packet.PlayerId);
         }
     }
 }
