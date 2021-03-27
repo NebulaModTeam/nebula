@@ -74,6 +74,7 @@
     <Compile Include="Packets\Universe\DysonSphereAddFramePacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddLayerPacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddNodePacket.cs" />
+    <Compile Include="Packets\Universe\DysonSphereBulletCorrectionPacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddShellPacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereData.cs" />
     <Compile Include="Packets\Universe\DysonSphereLoadRequest.cs" />

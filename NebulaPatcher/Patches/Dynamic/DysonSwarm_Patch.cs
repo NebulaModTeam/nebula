@@ -32,5 +32,17 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             return true;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("AddBullet")]
+        public static void Postfix(DysonSwarm __instance, SailBullet bullet, int orbitId)
+        {
+            //Host is sending correction / authorization packet to correct constants of the generated bullet
+            Debug.Log($"Sending sync packet to the other players {SimulatedWorld.Initialized} - {LocalPlayer.IsMasterClient}");
+            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+            {
+                LocalPlayer.SendPacket(new DysonSphereBulletCorrectionPacket(__instance.starData.index, bullet.id, bullet.uEndVel, bullet.uEnd));
+            }
+        }
     }
 }
