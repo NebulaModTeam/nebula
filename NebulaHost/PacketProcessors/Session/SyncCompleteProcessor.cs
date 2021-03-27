@@ -4,6 +4,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
+using System.Linq;
 
 namespace NebulaHost.PacketProcessors.Session
 {
@@ -19,7 +20,6 @@ namespace NebulaHost.PacketProcessors.Session
 
         public void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
-
             Player player = playerManager.GetSyncingPlayer(conn);
             if (player == null)
             {
@@ -30,14 +30,15 @@ namespace NebulaHost.PacketProcessors.Session
             playerManager.SyncingPlayers.Remove(player.Connection);
             playerManager.ConnectedPlayers.Add(player.Connection, player);
 
+            // Since the player is now connected, we can safely spawn his player model
+            SimulatedWorld.SpawnRemotePlayerModel(player.Data);
+
             if (playerManager.SyncingPlayers.Count == 0)
             {
-                playerManager.SendPacketToOtherPlayers(new SyncComplete(), player);
+                var inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
+                playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas.ToArray()));
+                SimulatedWorld.OnAllPlayersSyncCompleted();
             }
-
-            // Unpause the game
-            InGamePopup.FadeOut();
-            GameMain.Resume();
         }
     }
 }
