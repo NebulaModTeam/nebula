@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace NebulaModel.DataStructures
@@ -14,7 +13,22 @@ namespace NebulaModel.DataStructures
             dictionary = new Dictionary<TKey, TValue>();
         }
 
-        public TValue this[TKey key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public TValue this[TKey key] {
+            get 
+            {
+                lock(lockObj)
+                {
+                    return dictionary[key];
+                }
+            }
+            set 
+            {
+                lock (lockObj)
+                {
+                    dictionary[key] = value;
+                }
+            }
+        }
 
         public ICollection<TKey> Keys
         {
