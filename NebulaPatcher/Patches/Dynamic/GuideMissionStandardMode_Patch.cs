@@ -3,10 +3,12 @@ using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(GuideMissionStandardMode), "Skip")]
+    [HarmonyPatch(typeof(GuideMissionStandardMode))]
     class GuideMissionStandardMode_Patch
     {
-        public static bool Prefix()
+        [HarmonyPrefix]
+        [HarmonyPatch("Skip")]
+        public static bool Skip_Prefix()
         {
             //This prevents spawning landing capsule and preparing spawn area for the clients in multiplayer.
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient;

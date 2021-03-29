@@ -7,14 +7,16 @@ using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(UIMainMenu), "_OnOpen")]
+    [HarmonyPatch(typeof(UIMainMenu))]
     class UIMainMenu_Patch
     {
         private static RectTransform multiplayerButton;
         private static RectTransform multiplayerMenu;
         private static InputField hostIPAdressInput;
 
-        public static void Postfix()
+        [HarmonyPostfix]
+        [HarmonyPatch("_OnOpen")]
+        public static void _OnOpen_Postfix()
         {
             GameObject overlayCanvas = GameObject.Find("Overlay Canvas");
             if (overlayCanvas == null)

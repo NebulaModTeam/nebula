@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using System.Collections.Generic;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

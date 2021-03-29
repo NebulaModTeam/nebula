@@ -1,11 +1,13 @@
 ﻿using HarmonyLib;
-using NebulaWorld;
+
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(GameMain), "Pause")]
+    [HarmonyPatch(typeof(GameMain))]
     class GameMain_Patch
     {
-        public static bool Prefix()
+        [HarmonyPrefix]
+        [HarmonyPatch("Pause")]
+        public static bool Pause_Prefix()
         {
             // TODO: We cannot really do that since it will prevent the Esc Menu from opening and the
             // players won't be able to exit the game or change their game settings. We should instead

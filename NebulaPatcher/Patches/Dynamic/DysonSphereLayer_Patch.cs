@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch("NewDysonNode")]
-        public static bool Prefix1(DysonSphereLayer __instance, int __result, int protoId, Vector3 pos)
+        public static bool NewDysonNode_Prefix(DysonSphereLayer __instance, int __result, int protoId, Vector3 pos)
         {
             //Notify others that user added node to the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("NewDysonFrame")]
-        public static bool Prefix2(DysonSphereLayer __instance, int __result, int protoId, int nodeAId, int nodeBId, bool euler)
+        public static bool NewDysonFrame_Prefix(DysonSphereLayer __instance, int __result, int protoId, int nodeAId, int nodeBId, bool euler)
         {
             //Notify others that user added frame to the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("RemoveDysonFrame")]
-        public static bool Prefix3(DysonSphereLayer __instance, int frameId)
+        public static bool RemoveDysonFrame_Prefix(DysonSphereLayer __instance, int frameId)
         {
             //Notify others that user removed frame from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
@@ -49,7 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("RemoveDysonNode")]
-        public static bool Prefix4(DysonSphereLayer __instance, int nodeId)
+        public static bool RemoveDysonNode_Prefix(DysonSphereLayer __instance, int nodeId)
         {
             //Notify others that user removed node from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
@@ -61,7 +61,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("NewDysonShell")]
-        public static bool Prefix5(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
+        public static bool NewDysonShell_Prefix(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
         {
             //Notify others that user removed node from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
@@ -73,7 +73,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("RemoveDysonShell")]
-        public static bool Prefix6(DysonSphereLayer __instance, int shellId)
+        public static bool RemoveDysonShell_Prefix(DysonSphereLayer __instance, int shellId)
         {
             //Notify others that user removed node from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)

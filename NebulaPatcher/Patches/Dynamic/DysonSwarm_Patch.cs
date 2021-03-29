@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch("NewOrbit")]
-        public static bool Prefix1(DysonSwarm __instance, int __result, float radius, Quaternion rotation)
+        public static bool NewOrbit_Prefix(DysonSwarm __instance, int __result, float radius, Quaternion rotation)
         {
             //Notify others that orbit for Dyson Swarm was created
             if (!DysonSphere_Manager.IncomingDysonSwarmPacket)
@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("RemoveOrbit")]
-        public static bool Prefix2(DysonSwarm __instance, int orbitId)
+        public static bool RemoveOrbit_Prefix(DysonSwarm __instance, int orbitId)
         {
             //Notify others that orbit for Dyson Swarm was deleted
             if (!DysonSphere_Manager.IncomingDysonSwarmPacket)
@@ -33,9 +33,9 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("AddBullet")]
-        public static void Postfix(DysonSwarm __instance, SailBullet bullet, int orbitId)
+        public static void AddBullet_Postfix(DysonSwarm __instance, SailBullet bullet, int orbitId)
         {
             //Host is sending correction / authorization packet to correct constants of the generated bullet
             Debug.Log($"Sending sync packet to the other players {SimulatedWorld.Initialized} - {LocalPlayer.IsMasterClient}");

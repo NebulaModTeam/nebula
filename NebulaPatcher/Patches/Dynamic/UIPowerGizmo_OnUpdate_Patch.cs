@@ -10,10 +10,12 @@ namespace NebulaPatcher.Patches.Dynamic
 {
     class UIPowerGizmo_OnUpdate_Patch
     {
-        [HarmonyPatch(typeof(UIPowerGizmo), "_OnUpdate")]
+        [HarmonyPatch(typeof(UIPowerGizmo))]
         class OnUpdatePatch
         {
-            public static bool Prefix()
+            [HarmonyPrefix]
+            [HarmonyPatch("_OnUpdate")]
+            public static bool _OnUpdate_Prefix()
             {
                 return GameMain.localPlanet?.factory != null;
             }
