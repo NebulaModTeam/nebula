@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
+using NebulaModel.Packets.Universe;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
-using NebulaModel.Packets.Universe;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch("RequestLoadPlanetFactory")]
-        public static bool RequestLoadPlanetFactory(PlanetData planet)
+        public static bool RequestLoadPlanetFactory_Prefix(PlanetData planet)
         {
             // Run the original method if this is the master client or in single player games
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
@@ -48,7 +48,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("RequestLoadPlanet")]
-        public static bool RequestLoadPlanet(PlanetData planet)
+        public static bool RequestLoadPlanet_Prefix(PlanetData planet)
         {
             // NOTE: This does not appear to ever be called in the game code, but just in case, let's override it
             // RequestLoadStar takes care of these instead currently
@@ -66,7 +66,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("RequestLoadStar")]
-        public static bool RequestLoadStar(StarData star)
+        public static bool RequestLoadStar_Prefix(StarData star)
         {
             // Run the original method if this is the master client or in single player games
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)

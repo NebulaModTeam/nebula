@@ -89,28 +89,6 @@ namespace NebulaHost
                 this.packetProcessor = packetProcessor;
             }
 
-            protected override void OnClose(CloseEventArgs e)
-            {
-                // If the reason of a client disonnect is because we are still loading the game,
-                // we don't need to inform the other clients since the disconnected client never
-                // joined the game in the first place.
-                if (e.Code == (short)NebulaStatusCode.HostStillLoading)
-                    return;
-
-                NebulaModel.Logger.Log.Info($"Client disconnected: {this.Context.UserEndPoint}, reason: {e.Reason}");
-                playerManager.PlayerDisconnected(new NebulaConnection(this.Context.WebSocket, packetProcessor));
-            }
-
-            protected override void OnError(ErrorEventArgs e)
-            {
-                // TODO: Decide what to do here - does OnClose get called too?
-            }
-
-            protected override void OnMessage(MessageEventArgs e)
-            {
-                packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(this.Context.WebSocket, packetProcessor));
-            }
-
             protected override void OnOpen()
             {
                 if (SimulatedWorld.IsGameLoaded == false)
@@ -120,9 +98,31 @@ namespace NebulaHost
                     return;
                 }
 
-                NebulaModel.Logger.Log.Info($"Client connected ID: {this.ID}, {this.Context.UserEndPoint}");
-                NebulaConnection conn = new NebulaConnection(this.Context.WebSocket, packetProcessor);
+                NebulaModel.Logger.Log.Info($"Client connected ID: {ID}, {Context.UserEndPoint}");
+                NebulaConnection conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor);
                 playerManager.PlayerConnected(conn);
+            }
+
+            protected override void OnMessage(MessageEventArgs e)
+            {
+                packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+            }
+
+            protected override void OnClose(CloseEventArgs e)
+            {
+                // If the reason of a client disonnect is because we are still loading the game,
+                // we don't need to inform the other clients since the disconnected client never
+                // joined the game in the first place.
+                if (e.Code == (short)NebulaStatusCode.HostStillLoading)
+                    return;
+
+                NebulaModel.Logger.Log.Info($"Client disconnected: {Context.UserEndPoint}, reason: {e.Reason}");
+                playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+            }
+
+            protected override void OnError(ErrorEventArgs e)
+            {
+                // TODO: Decide what to do here - does OnClose get called too?
             }
         }
     }

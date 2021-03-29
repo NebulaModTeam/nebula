@@ -49,7 +49,17 @@
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddFrameProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddLayerProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddNodeProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddShellProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveFrameProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveLayerProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveNodeProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveShellProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSwarmAddOrbitProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSwarmRemoveOrbitProcessor.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -78,11 +88,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />
-  
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)\LZ4.dll;$(TargetDir)\websocket-sharp.dll"
-          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)\LZ4.dll;$(TargetDir)\websocket-sharp.dll" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
   </Target>
 </Project>

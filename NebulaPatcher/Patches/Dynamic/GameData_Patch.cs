@@ -8,10 +8,12 @@ using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(GameData), "GetOrCreateFactory")]
+    [HarmonyPatch(typeof(GameData))]
     class GameData_Patch
     {
-        public static bool Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
+        [HarmonyPrefix]
+        [HarmonyPatch("GetOrCreateFactory")]
+        public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
@@ -60,13 +62,13 @@ namespace NebulaPatcher.Patches.Dynamic
             // Do not run the original method
             return false;
         }
-    }
-    // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
-    [HarmonyPatch(typeof(GameData), "OnActivePlanetLoaded")]
-    class GameData_Patch2
-    {
-        public static bool Prefix(GameData __instance, PlanetData planet)
+
+        [HarmonyPrefix]
+        [HarmonyPatch("OnActivePlanetLoaded")]
+        public static bool OnActivePlanetLoaded_Prefix(GameData __instance, PlanetData planet)
         {
+            // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
+
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
@@ -86,39 +88,13 @@ namespace NebulaPatcher.Patches.Dynamic
             planet.onLoaded -= __instance.OnActivePlanetLoaded;
             return false;
         }
-    }
-    // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
-    [HarmonyPatch(typeof(GameData), "OnActivePlanetLoaded")]
-    class GameData_Patch3
-    {
-        public static bool Prefix(GameData __instance, PlanetData planet)
+
+        [HarmonyPrefix]
+        [HarmonyPatch("OnActivePlanetFactoryLoaded")]
+        public static bool OnActivePlanetFactoryLoaded_Prefix(GameData __instance, PlanetData planet)
         {
-            if (LocalPlayer.IsMasterClient)
-            {
-                return true;
-            }
-            if (planet != null)
-            {
-                if (planet.factoryLoaded)
-                {
-                    __instance.OnActivePlanetFactoryLoaded(planet);
-                }
-                else
-                {
-                    planet.LoadFactory();
-                    planet.onFactoryLoaded += __instance.OnActivePlanetFactoryLoaded;
-                }
-                planet.onLoaded -= __instance.OnActivePlanetLoaded;
-            }
-            return false;
-        }
-    }
-    // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
-    [HarmonyPatch(typeof(GameData), "OnActivePlanetFactoryLoaded")]
-    class GameData_Patch4
-    {
-        public static bool Prefix(GameData __instance, PlanetData planet)
-        {
+            // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
+
             if (LocalPlayer.IsMasterClient)
             {
                 return true;
@@ -127,7 +103,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if (GameMain.gameTick == 0L && DSPGame.SkipPrologue)
                 {
-                    GameData_Patch4_Helper.InitLandingPlace(__instance, planet);
+                    InitLandingPlace(__instance, planet);
                 }
                 // now set localPlanet and planetId
                 AccessTools.Property(typeof(GameData), "localPlanet").SetValue(GameMain.data, planet, null);
@@ -137,10 +113,8 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             return false;
         }
-    }
-    class GameData_Patch4_Helper
-    {
-        public static void InitLandingPlace(GameData gameData, PlanetData planet)
+
+        private static void InitLandingPlace(GameData gameData, PlanetData planet)
         {
             Vector3 birthPoint = planet.birthPoint;
             Quaternion quaternion = Maths.SphericalRotation(birthPoint, 0f);

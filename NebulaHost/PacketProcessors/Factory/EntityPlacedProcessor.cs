@@ -17,7 +17,7 @@ namespace NebulaHost.PacketProcessors.Factory
         public void ProcessPacket(EntityPlaced packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
-            if(player != null)
+            if (player != null)
             {
                 playerManager.SendPacketToOtherPlayers(packet, player);
             }

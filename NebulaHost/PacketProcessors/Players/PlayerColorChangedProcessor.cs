@@ -22,7 +22,7 @@ namespace NebulaHost.PacketProcessors.Players
             Player player = playerManager.GetPlayer(conn);
             if (player == null)
             {
-                Log.Warn($"Received PlayerColorChanged packet from unknown player {packet.PlayerId}");
+                Log.Info($"Received PlayerColorChanged packet from unknown player {packet.PlayerId}");
                 return;
             }
 

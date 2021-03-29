@@ -1,22 +1,21 @@
-﻿using HarmonyLib;
-using NebulaModel.Logger;
+﻿using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
-using System.Reflection;
+using System.Net;
 using WebSocketSharp;
 
 namespace NebulaModel.Networking
 {
     public class NebulaConnection
     {
+        private readonly IPEndPoint peerEndpoint;
         private readonly WebSocket peerSocket;
         private readonly NetPacketProcessor packetProcessor;
 
-        private readonly FieldInfo webSocket_base64Key = AccessTools.Field(typeof(WebSocket), "_base64Key");
-
         public bool IsAlive => peerSocket?.IsAlive ?? false;
 
-        public NebulaConnection(WebSocket peerSocket, NetPacketProcessor packetProcessor)
+        public NebulaConnection(WebSocket peerSocket, IPEndPoint peerEndpoint, NetPacketProcessor packetProcessor)
         {
+            this.peerEndpoint = peerEndpoint;
             this.peerSocket = peerSocket;
             this.packetProcessor = packetProcessor;
         }
@@ -29,7 +28,7 @@ namespace NebulaModel.Networking
             }
             else
             {
-                Log.Info($"Cannot send packet {packet?.GetType()} to a closed connection {peerSocket?.Url}");
+                Log.Warn($"Cannot send packet {packet?.GetType()} to a closed connection {peerSocket?.Url}");
             }
         }
 
@@ -63,19 +62,12 @@ namespace NebulaModel.Networking
             {
                 return false;
             }
-            return Equals((NebulaConnection)obj);
+            return (obj as NebulaConnection).peerEndpoint.Equals(this.peerEndpoint);
         }
 
         public override int GetHashCode()
         {
-            return peerSocket == null ? 0 : ((string)webSocket_base64Key.GetValue(peerSocket)).GetHashCode();
-        }
-
-        protected bool Equals(NebulaConnection other)
-        {
-            return string.Equals((string)webSocket_base64Key.GetValue(peerSocket), (string)webSocket_base64Key.GetValue(other.peerSocket));
-            // TODO: Check if this works
-            //return peerSocket == other.peerSocket;
+            return peerEndpoint?.GetHashCode() ?? 0;
         }
     }
 }

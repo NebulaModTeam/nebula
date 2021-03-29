@@ -11,8 +11,16 @@ namespace NebulaClient.PacketProcessors.Session
     {
         public void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
-            InGamePopup.FadeOut();
-            GameMain.Resume();
+            // Everyone is now connected, we can safely spawn the player model of all the other players that are currently connected
+            foreach (var playerData in packet.AllPlayers)
+            {
+                if (playerData.PlayerId != LocalPlayer.PlayerId)
+                {
+                    SimulatedWorld.SpawnRemotePlayerModel(playerData);
+                }
+            }
+
+            SimulatedWorld.OnAllPlayersSyncCompleted();
         }
     }
 }

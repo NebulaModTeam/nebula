@@ -4,8 +4,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
-using System.Linq;
-using System.Reflection;
 
 namespace NebulaHost.PacketProcessors.Session
 {
@@ -36,9 +34,7 @@ namespace NebulaHost.PacketProcessors.Session
                 conn.Disconnect();
             }
 
-            //
-            typeof(GameMain).GetField("_paused", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(GameMain.instance, true);
-            InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
+            SimulatedWorld.OnPlayerJoining();
 
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             foreach (Player activePlayer in playerManager.GetConnectedPlayers())
@@ -49,13 +45,8 @@ namespace NebulaHost.PacketProcessors.Session
             // Add the new player to the list
             playerManager.SyncingPlayers.Add(conn, player);
 
-            // TODO: This should be our actual GameDesc and not an hardcoded value.
-            var inGamePlayersIds = playerManager.GetAllPlayerIdsIncludingHost();
-
             var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, inGamePlayersIds.ToArray()));
-
-            SimulatedWorld.SpawnRemotePlayerModel(player.Data);
+            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data));
         }
     }
 }

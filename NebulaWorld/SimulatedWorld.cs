@@ -19,6 +19,7 @@ namespace NebulaWorld
 
         public static bool Initialized { get; private set; }
         public static bool IsGameLoaded { get; private set; }
+        public static bool IsPlayerJoining { get; set; }
 
         public static void Initialize()
         {
@@ -39,6 +40,24 @@ namespace NebulaWorld
             remotePlayersModels.Clear();
             Initialized = false;
             IsGameLoaded = false;
+            IsPlayerJoining = false;
+        }
+
+        public static void OnPlayerJoining()
+        {
+            if (!IsPlayerJoining)
+            {
+                IsPlayerJoining = true;
+                GameMain.Pause();
+                InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
+            }
+        }
+
+        public static void OnAllPlayersSyncCompleted()
+        {
+            IsPlayerJoining = false;
+            InGamePopup.FadeOut();
+            GameMain.Resume();
         }
 
         public static void UpdateGameState(GameState state)
@@ -53,8 +72,12 @@ namespace NebulaWorld
 
         public static void SpawnRemotePlayerModel(PlayerData playerData)
         {
-            RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
-            remotePlayersModels.Add(playerData.PlayerId, model);
+            if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
+            {
+                RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
+                remotePlayersModels.Add(playerData.PlayerId, model);
+            }
+
             UpdatePlayerColor(playerData.PlayerId, playerData.Color);
         }
 
@@ -127,7 +150,7 @@ namespace NebulaWorld
             {
                 EntityManager.PlaceEntityPrebuild(packet);
             }
-            else if(!packet.isPrebuild)
+            else if (!packet.isPrebuild)
             {
                 // if this player is currently not on the planet where the building is placed then dont spawn a prebuild
                 // and we only place the entity once it truly is placed and not a prebuild anymore for the original issuer.
