@@ -85,6 +85,7 @@
     <Compile Include="Networking\Serialization\NetPacketProcessor.cs" />
     <Compile Include="Networking\Serialization\NetSerializer.cs" />
     <Compile Include="Networking\Serialization\NetUtils.cs" />
+    <Compile Include="Utils\CryptoUtils.cs" />
     <Compile Include="Utils\TimeUtils.cs" />
     <Compile Include="Utils\UnityDispatchQueue.cs" />
   </ItemGroup>

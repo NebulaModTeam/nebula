@@ -3,8 +3,8 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
+using NebulaModel.Utils;
 using NebulaWorld;
-using System.Linq;
 
 namespace NebulaHost.PacketProcessors.Session
 {
@@ -37,6 +37,17 @@ namespace NebulaHost.PacketProcessors.Session
 
             SimulatedWorld.OnPlayerJoining();
 
+            //TODO: some validation of client cert / generating auth challenge for the client
+            // Load old data of the client
+            string clientCertHash = CryptoUtils.Hash(packet.ClientCert);
+            if (playerManager.SavedPlayerData.ContainsKey(clientCertHash))
+            {
+                player.LoadUserData(playerManager.SavedPlayerData[clientCertHash]);
+            } else
+            {
+                playerManager.SavedPlayerData.Add(clientCertHash, player.Data);
+            }
+            
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             foreach (Player activePlayer in playerManager.GetConnectedPlayers())
             {

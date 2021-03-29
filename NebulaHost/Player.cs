@@ -19,5 +19,12 @@ namespace NebulaHost
         {
             Connection.SendPacket(packet);
         }
+
+        public void LoadUserData(PlayerData data)
+        {
+            ushort localId = Id;
+            Data = data;
+            Data.PlayerId = localId;
+        }
     }
 }

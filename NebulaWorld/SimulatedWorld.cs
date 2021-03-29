@@ -227,10 +227,17 @@ namespace NebulaWorld
             // Assign our own color
             UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.Color);
 
-            // TODO: Investigate where are the weird position coming from ?
-            // GameMain.mainPlayer.transform.position = data.Position.ToUnity();
-            // GameMain.mainPlayer.transform.eulerAngles = data.Rotation.ToUnity();
-
+            // Change player location from spawn to the last known
+            VectorLF3 UPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
+            if (UPosition != VectorLF3.zero)
+            {
+                GameMain.mainPlayer.planetId = LocalPlayer.Data.LocalPlanetId;
+                GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity(); ;
+                GameMain.mainPlayer.uPosition = UPosition;
+                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToUnity());
+                GameMain.mainPlayer.transform.localScale = Vector3.one;
+            }
+            
             LocalPlayer.SetReady();
 
             IsGameLoaded = true;
