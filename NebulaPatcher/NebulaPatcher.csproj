@@ -40,9 +40,7 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
-    <Compile Include="Patches\Dynamic\GameHistoryData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameMain_Patch.cs" />
-    <Compile Include="Patches\Dynamic\GameScenarioLogic_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
     <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />

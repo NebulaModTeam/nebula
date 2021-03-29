@@ -1,7 +1,6 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
-using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
@@ -21,9 +20,6 @@ namespace NebulaHost
         public NetPacketProcessor PacketProcessor { get; protected set; }
 
         float gameStateUpdateTimer = 0;
-        float gameResearchHashUpdateTimer = 0;
-
-        const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
 
         private void Awake()
         {
@@ -74,20 +70,9 @@ namespace NebulaHost
         private void Update()
         {
             gameStateUpdateTimer += Time.deltaTime;
-            gameResearchHashUpdateTimer += Time.deltaTime;
             if (gameStateUpdateTimer > 1)
             {
                 SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
-            }
-
-            if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
-            {
-                gameResearchHashUpdateTimer = 0;
-                if (GameMain.data.history.currentTech != 0)
-                {
-                    TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
-                    SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded));
-                }
             }
 
             PacketProcessor.ProcessPacketQueue();
