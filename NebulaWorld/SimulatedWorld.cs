@@ -231,11 +231,11 @@ namespace NebulaWorld
             VectorLF3 UPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
             if (UPosition != VectorLF3.zero)
             {
+                GameMain.data.ArrivePlanet(GameMain.data.galaxy.PlanetById(LocalPlayer.Data.LocalPlanetId));
                 GameMain.mainPlayer.planetId = LocalPlayer.Data.LocalPlanetId;
                 GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity(); ;
                 GameMain.mainPlayer.uPosition = UPosition;
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToUnity());
-                GameMain.mainPlayer.transform.localScale = Vector3.one;
             }
             
             LocalPlayer.SetReady();
