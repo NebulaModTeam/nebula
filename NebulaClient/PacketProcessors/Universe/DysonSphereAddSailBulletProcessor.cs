@@ -1,9 +1,9 @@
-﻿using NebulaModel.Networking;
-using NebulaModel.Packets.Universe;
-using NebulaModel.Logger;
+﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
-using NebulaModel.Attributes;
+using NebulaModel.Packets.Universe;
 
 namespace NebulaClient.PacketProcessors.Universe
 {
@@ -20,7 +20,8 @@ namespace NebulaClient.PacketProcessors.Universe
                 SailBullet bullet = GameMain.data.dysonSpheres[packet.StarIndex].swarm.bulletPool[packet.BulletId];
                 bullet.uEnd = DataStructureExtensions.ToUnity(packet.UEnd);
                 bullet.uEndVel = DataStructureExtensions.ToUnity(packet.UEndVel);
-            } else
+            }
+            else
             {
                 //TODO: Maybe queue it and check next frame if the bullet already exist?
                 //Note: this situation was not observed during test, but maybe it can due to the severe lags?

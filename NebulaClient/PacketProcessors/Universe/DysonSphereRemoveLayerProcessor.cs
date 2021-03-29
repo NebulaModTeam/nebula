@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.Universe;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
+using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
 
 namespace NebulaClient.PacketProcessors.Universe

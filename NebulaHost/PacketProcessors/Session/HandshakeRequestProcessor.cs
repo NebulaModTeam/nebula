@@ -4,7 +4,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
-using System.Linq;
 
 namespace NebulaHost.PacketProcessors.Session
 {

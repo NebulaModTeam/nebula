@@ -1,9 +1,9 @@
-﻿using NebulaModel.Networking;
-using NebulaModel.Packets.Universe;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
+using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
-using NebulaModel.Attributes;
 
 namespace NebulaClient.PacketProcessors.Universe
 {
@@ -16,12 +16,13 @@ namespace NebulaClient.PacketProcessors.Universe
             DysonSphere_Manager.IncomingDysonSpherePacket = true;
             DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
             //Check if target nodes exists (if not, assume that AddNode packet is on the way)
-            if (DysonSphere_Manager.CanCreateFrame(packet.NodeAId, packet.NodeBId, dsl)) {
+            if (DysonSphere_Manager.CanCreateFrame(packet.NodeAId, packet.NodeBId, dsl))
+            {
                 dsl.NewDysonFrame(packet.ProtoId, packet.NodeAId, packet.NodeBId, packet.Euler);
             }
             else
             {
-               DysonSphere_Manager.QueuedAddFramePackets.Add(packet);
+                DysonSphere_Manager.QueuedAddFramePackets.Add(packet);
             }
             DysonSphere_Manager.IncomingDysonSpherePacket = false;
         }

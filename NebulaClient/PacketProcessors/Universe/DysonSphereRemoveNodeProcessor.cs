@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.Universe;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
+using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
 
 namespace NebulaClient.PacketProcessors.Universe
@@ -15,7 +15,8 @@ namespace NebulaClient.PacketProcessors.Universe
             Log.Info($"Processing DysonSphere Remove Node notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
             DysonSphere_Manager.IncomingDysonSpherePacket = true;
             DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-            if (dsl != null) {
+            if (dsl != null)
+            {
                 int num = 0;
                 DysonNode dysonNode = dsl.nodePool[packet.NodeId];
                 //Remove all frames that are part of the node

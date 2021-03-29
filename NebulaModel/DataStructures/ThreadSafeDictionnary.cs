@@ -13,15 +13,16 @@ namespace NebulaModel.DataStructures
             dictionary = new Dictionary<TKey, TValue>();
         }
 
-        public TValue this[TKey key] {
-            get 
+        public TValue this[TKey key]
+        {
+            get
             {
-                lock(lockObj)
+                lock (lockObj)
                 {
                     return dictionary[key];
                 }
             }
-            set 
+            set
             {
                 lock (lockObj)
                 {
