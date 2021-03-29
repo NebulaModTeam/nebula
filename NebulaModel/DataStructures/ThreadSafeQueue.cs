@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace NebulaModel.DataStructures
 {
@@ -14,7 +12,8 @@ namespace NebulaModel.DataStructures
             queue = new Queue<T>();
         }
 
-        public int Count {
+        public int Count
+        {
             get
             {
                 lock (lockObj)
@@ -26,7 +25,7 @@ namespace NebulaModel.DataStructures
 
         public void Clear()
         {
-            lock(lockObj)
+            lock (lockObj)
             {
                 queue.Clear();
             }
@@ -34,7 +33,7 @@ namespace NebulaModel.DataStructures
 
         public bool Contains(T item)
         {
-            lock(lockObj)
+            lock (lockObj)
             {
                 return queue.Contains(item);
             }
@@ -66,7 +65,7 @@ namespace NebulaModel.DataStructures
 
         public T Peek()
         {
-            lock(lockObj)
+            lock (lockObj)
             {
                 return queue.Peek();
             }

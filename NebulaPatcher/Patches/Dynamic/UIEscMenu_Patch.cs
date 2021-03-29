@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("_OnOpen")]
-        public static void _OnOpen()
+        public static void _OnOpen_Prefix()
         {
             // If we are in a multiplayer game already make sure to hide the host game button
             if (SimulatedWorld.Initialized)
@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch("OnButton5Click")]
         [HarmonyPatch("OnButton6Click")]
-        public static void OnGameQuit()
+        public static void OnGameQuit_Prefix()
         {
             if (SimulatedWorld.Initialized)
             {

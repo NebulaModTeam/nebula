@@ -51,7 +51,18 @@
     <Compile Include="PacketProcessors\Session\PlayerDisconnectedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\PlayerJoiningProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddFrameProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddNodeProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddSailBulletProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddShellProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveFrameProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveLayerProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereDataProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereAddLayerProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveNodeProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveShellProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSwarmAddOrbitProcessor.cs" />
+    <Compile Include="PacketProcessors\Universe\DysonSwarmRemoveOrbitProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
