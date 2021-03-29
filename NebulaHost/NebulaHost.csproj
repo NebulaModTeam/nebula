@@ -41,6 +41,11 @@
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
     <Compile Include="PacketProcessors\Factory\EntityPlacedProcessor.cs" />
+    <Compile Include="PacketProcessors\GameHistory\GameHistoryDataRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\GameHistory\GameHistoryEnqueueTechProcessor.cs" />
+    <Compile Include="PacketProcessors\GameHistory\GameHistoryNotificationProcessor.cs" />
+    <Compile Include="PacketProcessors\GameHistory\GameHistoryRemoveTechProcessor.cs" />
+    <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryLoadRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\PlanetDataRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
