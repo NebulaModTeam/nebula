@@ -44,6 +44,9 @@
     <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
     <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
+    <Compile Include="Patches\Dynamic\DysonSphereLayer_Patch.cs" />
+    <Compile Include="Patches\Dynamic\DysonSphere_Patch.cs" />
+    <Compile Include="Patches\Dynamic\DysonSwarm_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameLoader_Patch.cs" />
     <Compile Include="Patches\Dynamic\DSPGame_Patch.cs" />
