@@ -13,11 +13,6 @@ namespace NebulaModel.Utils
         public static RSA GetOrCreateUserCert()
         {
             RSA rsa = RSA.Create();
-            if (rsa != null)
-            {
-                return rsa;
-            }
-            rsa = RSA.Create();
             if (File.Exists(KeyFile))
             {
                 rsa.FromXmlString(File.ReadAllText(KeyFile));
