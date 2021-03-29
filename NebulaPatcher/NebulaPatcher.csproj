@@ -40,7 +40,6 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
-    <Compile Include="Patches\Dynamic\GalacticTransport_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameMain_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
@@ -51,6 +50,7 @@
     <Compile Include="Patches\Dynamic\GPUInstancingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\GuideMissionStandardMode_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\StationComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />

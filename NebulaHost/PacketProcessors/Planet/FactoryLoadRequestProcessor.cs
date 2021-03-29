@@ -3,7 +3,6 @@ using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
-using NebulaWorld;
 using System.IO;
 using System.IO.Compression;
 
@@ -26,7 +25,7 @@ namespace NebulaHost.PacketProcessors.Planet
                     factory.Export(bw);
                 }
 
-                conn.SendPacket(new FactoryData(packet.PlanetID, ms.ToArray(), LocalPlayer.PlanetIdsWithLogistics.ToArray()));
+                conn.SendPacket(new FactoryData(packet.PlanetID, ms.ToArray()));
             }
         }
     }

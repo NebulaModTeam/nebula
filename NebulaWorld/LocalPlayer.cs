@@ -13,8 +13,6 @@ namespace NebulaWorld
         public static PlayerData Data { get; private set; }
         public static Dictionary<int, byte[]> PendingFactories { get; set; } = new Dictionary<int, byte[]>();
         public static Dictionary<PrebuildData, int> prebuildReceivedList { get; set; } = new Dictionary<PrebuildData, int>();
-        public static List<int> PlanetIdsWithLogistics { get; set; } = new List<int>();
-        public static bool requestedAllLogistics = false;
 
         private static INetworkProvider networkProvider;
 
