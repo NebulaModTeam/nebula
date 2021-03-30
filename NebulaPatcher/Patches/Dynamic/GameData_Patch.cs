@@ -116,7 +116,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch("SetForNewGame")]
-        public static void Postfix(GameData __instance)
+        public static void SetForNewGame_Postfix(GameData __instance)
         {
             //Set starting star and planet to request from the server
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
