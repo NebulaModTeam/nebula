@@ -90,7 +90,8 @@ namespace NebulaClient
             Log.Info($"Server connection established: {clientSocket.Url}");
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
             IsConnected = true;
-            SendPacket(new HandshakeRequest());
+            //TODO: Maybe some challenge-response authentication mechanism?
+            SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert())));
         }
 
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)
