@@ -138,6 +138,33 @@ namespace NebulaPatcher.Patches.Dynamic
             return false;
         }
     }
+
+    [HarmonyPatch(typeof(GameData), "SetForNewGame")]
+    class GameData_Patch5
+    {
+        public static void Postfix(GameData __instance)
+        {
+            //Set starting star and planet to request from the server
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                Debug.Log("Setting target star!");
+                if (LocalPlayer.Data.LocalPlanetId != -1)
+                {
+                    PlanetData planet = __instance.galaxy.PlanetById(LocalPlayer.Data.LocalPlanetId);
+                    __instance.ArrivePlanet(planet);
+                } else
+                {
+                    StarData nearestStar = null;
+                    PlanetData nearestPlanet = null;
+                    //Update player's position before searching for closest star
+                    __instance.mainPlayer.uPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
+                    GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
+                    __instance.ArriveStar(nearestStar);
+                }
+            }
+        }
+    }
+
     class GameData_Patch4_Helper
     {
         public static void InitLandingPlace(GameData gameData, PlanetData planet)

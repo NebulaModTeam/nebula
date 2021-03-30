@@ -77,7 +77,7 @@ namespace NebulaWorld
                 RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
                 remotePlayersModels.Add(playerData.PlayerId, model);
             }
-            
+
             UpdatePlayerColor(playerData.PlayerId, playerData.Color);
         }
 
@@ -231,13 +231,19 @@ namespace NebulaWorld
             VectorLF3 UPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
             if (UPosition != VectorLF3.zero)
             {
-                GameMain.data.ArrivePlanet(GameMain.data.galaxy.PlanetById(LocalPlayer.Data.LocalPlanetId));
                 GameMain.mainPlayer.planetId = LocalPlayer.Data.LocalPlanetId;
-                GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity(); ;
-                GameMain.mainPlayer.uPosition = UPosition;
+                if (LocalPlayer.Data.LocalPlanetId == -1)
+                {
+                    GameMain.mainPlayer.uPosition = UPosition;
+                }
+                else
+                {
+                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity();
+                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x,GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y,GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
+                }
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToUnity());
             }
-            
+
             LocalPlayer.SetReady();
 
             IsGameLoaded = true;
