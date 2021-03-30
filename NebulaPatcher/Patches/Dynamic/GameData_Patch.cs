@@ -121,12 +121,12 @@ namespace NebulaPatcher.Patches.Dynamic
             //Set starting star and planet to request from the server
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
             {
-                Debug.Log("Setting target star!");
                 if (LocalPlayer.Data.LocalPlanetId != -1)
                 {
                     PlanetData planet = __instance.galaxy.PlanetById(LocalPlayer.Data.LocalPlanetId);
                     __instance.ArrivePlanet(planet);
-                } else
+                } 
+                else
                 {
                     StarData nearestStar = null;
                     PlanetData nearestPlanet = null;
@@ -137,10 +137,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
         }
-    }
 
-    class GameData_Patch4_Helper
-    {
         private static void InitLandingPlace(GameData gameData, PlanetData planet)
         {
             Vector3 birthPoint = planet.birthPoint;
