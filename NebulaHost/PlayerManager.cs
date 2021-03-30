@@ -14,6 +14,7 @@ namespace NebulaHost
         private readonly ThreadSafeDictionary<NebulaConnection, Player> pendingPlayers;
         private readonly ThreadSafeDictionary<NebulaConnection, Player> syncingPlayers;
         private readonly ThreadSafeDictionary<NebulaConnection, Player> connectedPlayers;
+        private readonly ThreadSafeDictionary<string, PlayerData> savedPlayerData;
         private readonly ThreadSafeQueue<ushort> availablePlayerIds;
         private ushort highestPlayerID = 0;
 
@@ -22,12 +23,14 @@ namespace NebulaHost
             pendingPlayers = new ThreadSafeDictionary<NebulaConnection, Player>();
             syncingPlayers = new ThreadSafeDictionary<NebulaConnection, Player>();
             connectedPlayers = new ThreadSafeDictionary<NebulaConnection, Player>();
+            savedPlayerData = new ThreadSafeDictionary<string, PlayerData>();
             availablePlayerIds = new ThreadSafeQueue<ushort>();
         }
 
         public ThreadSafeDictionary<NebulaConnection, Player> PendingPlayers => pendingPlayers;
         public ThreadSafeDictionary<NebulaConnection, Player> SyncingPlayers => syncingPlayers;
         public ThreadSafeDictionary<NebulaConnection, Player> ConnectedPlayers => connectedPlayers;
+        public ThreadSafeDictionary<string, PlayerData> SavedPlayerData => savedPlayerData;
 
         public IEnumerable<PlayerData> GetAllPlayerDataIncludingHost()
         {
@@ -79,11 +82,9 @@ namespace NebulaHost
 
         public Player PlayerConnected(NebulaConnection conn)
         {
-            // TODO: Load old player state if we have one. We generate a random one for now.
+            //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
             Float3 randomColor = new Float3(Random.value, Random.value, Random.value);
-
-            // TODO: We will need to check if we know on which planet this player was
             PlayerData playerData = new PlayerData(playerId, -1, randomColor);
 
             Player newPlayer = new Player(conn, playerData);
