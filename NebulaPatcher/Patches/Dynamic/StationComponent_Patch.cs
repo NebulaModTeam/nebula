@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using UnityEngine;
 
@@ -21,21 +22,37 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch("RematchRemotePairs")]
+        public static bool RematchRemotePairs_Prefix(StationComponent __instance, StationComponent[] gStationPool, int gStationCursor, int keyStationGId, int shipCarries)
+        {
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                // skip vanilla code entirely for clients as we do this event based triggered by the server
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch("IdleShipGetToWork")]
-        public static bool IdleShipGetToWork_Prefix(StationComponent __instance, int index)
+        public static void IdleShipGetToWork_Postfix(StationComponent __instance, int index)
         {
             if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
-                Log.Info($"starting ship {index} and array length is {__instance.workShipDatas.Length}");
-                PlanetData planetA = GameMain.galaxy.PlanetById(__instance.workShipDatas[index].planetA);
-                PlanetData planetB = GameMain.galaxy.PlanetById(__instance.workShipDatas[index].planetA);
-                if (planetA != null && planetB != null)
-                {
-                    Log.Info($"ship goes from {planetA.displayName} to {planetB.displayName}");
-                }
-                Log.Info($"it transfers {__instance.workShipDatas[index].itemCount} of item {__instance.workShipDatas[index].itemId}");
+                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[index].planetA, __instance.workShipDatas[index].planetB, __instance.workShipDatas[index].itemId, __instance.workShipDatas[index].itemCount, index);
+                LocalPlayer.SendPacket(packet);
             }
-            return true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("WorkShipBackToIdle")]
+        public static void WorkShipBackToIdle_Postfix(StationComponent __instance, int index)
+        {
+            if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+            {
+                ILSShipData packet = new ILSShipData(false, index);
+                LocalPlayer.SendPacket(packet);
+            }
         }
     }
 }

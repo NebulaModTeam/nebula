@@ -12,7 +12,7 @@ namespace NebulaClient.PacketProcessors.Universe
     {
         public void ProcessPacket(DysonSphereBulletCorrectionPacket packet, NebulaConnection conn)
         {
-            Log.Info($"Processing authorization/correction packet for bullet (ID: {packet.BulletId})");
+            //Log.Info($"Processing authorization/correction packet for bullet (ID: {packet.BulletId})");
             //Check if the bullet that needs to be corrected exists
             if (GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.bulletPool[packet.BulletId] != null)
             {

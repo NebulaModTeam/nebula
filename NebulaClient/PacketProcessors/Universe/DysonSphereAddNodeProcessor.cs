@@ -13,7 +13,7 @@ namespace NebulaClient.PacketProcessors.Universe
     {
         public void ProcessPacket(DysonSphereAddNodePacket packet, NebulaConnection conn)
         {
-            Log.Info($"Processing DysonSphere Add Node notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
+            //Log.Info($"Processing DysonSphere Add Node notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
             DysonSphere_Manager.IncomingDysonSpherePacket = true;
             int? addedID = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonNode(packet.NodeProtoId, DataStructureExtensions.ToUnity(packet.Position));
             //Try to add frames that failed due to the missing nodes

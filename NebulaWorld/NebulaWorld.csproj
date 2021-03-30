@@ -43,6 +43,7 @@
     <Compile Include="INetworkProvider.cs" />
     <Compile Include="InGamePopup.cs" />
     <Compile Include="LocalPlayer.cs" />
+    <Compile Include="Logistics\ILSShipManager.cs" />
     <Compile Include="MonoBehaviours\Local\LocalPlayerAnimation.cs" />
     <Compile Include="MonoBehaviours\Local\LocalPlayerMovement.cs" />
     <Compile Include="MonoBehaviours\MonoBehaviourExtension.cs" />
@@ -63,11 +64,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />
-  
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
-    <Copy SourceFiles="$(TargetPath)"
-          DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
   </Target>
 </Project>

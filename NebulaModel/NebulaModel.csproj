@@ -58,6 +58,8 @@
     <Compile Include="Networking\NebulaStatusCode.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
+    <Compile Include="Packets\Logistics\ILSShipData.cs" />
+    <Compile Include="Packets\Logistics\StationUI.cs" />
     <Compile Include="Packets\Planet\FactoryData.cs" />
     <Compile Include="Packets\Planet\FactoryLoadRequest.cs" />
     <Compile Include="Packets\Planet\PlanetDataRequest.cs" />

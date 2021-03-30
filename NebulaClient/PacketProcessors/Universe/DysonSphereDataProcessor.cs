@@ -28,7 +28,7 @@ namespace NebulaClient.PacketProcessors.Universe
                 GameMain.data.dysonSpheres[packet.StarIndex].Init(GameMain.data, GameMain.data.galaxy.stars[packet.StarIndex]);
             }
 
-            Log.Info($"Parsing {packet.BinaryData.Length} bytes of data for DysonSphere in system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
+            //Log.Info($"Parsing {packet.BinaryData.Length} bytes of data for DysonSphere in system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
             using (MemoryStream ms = new MemoryStream(packet.BinaryData))
             using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
             using (BufferedStream bs = new BufferedStream(ls, 8192))

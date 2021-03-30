@@ -20,7 +20,7 @@ namespace NebulaHost.PacketProcessors.Universe
 
         public void ProcessPacket(DysonSphereAddNodePacket packet, NebulaConnection conn)
         {
-            Log.Info($"Processing DysonSphere Add Node notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
+            //Log.Info($"Processing DysonSphere Add Node notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {

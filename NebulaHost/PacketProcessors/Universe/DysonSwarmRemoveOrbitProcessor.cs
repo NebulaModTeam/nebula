@@ -19,7 +19,7 @@ namespace NebulaHost.PacketProcessors.Universe
 
         public void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
         {
-            Log.Info($"Processing DysonSwarm Remove Orbit notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
+            //Log.Info($"Processing DysonSwarm Remove Orbit notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {

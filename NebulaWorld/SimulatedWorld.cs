@@ -1,9 +1,11 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
+using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
 using NebulaWorld.Factory;
+using NebulaWorld.Logistics;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -155,6 +157,58 @@ namespace NebulaWorld
                 // if this player is currently not on the planet where the building is placed then dont spawn a prebuild
                 // and we only place the entity once it truly is placed and not a prebuild anymore for the original issuer.
                 EntityManager.PlaceEntity(packet);
+            }
+        }
+
+        public static void OnILSShipUpdate(ILSShipData packet)
+        {
+            if (packet.IdleToWork)
+            {
+                ILSShipManager.IdleShipGetToWork(packet);
+            }
+            else
+            {
+                ILSShipManager.WorkShipBackToIdle(packet);
+            }
+        }
+
+        public static void OnStationUIChange(StationUI packet)
+        {
+            int planetId = 0;
+            PlanetData pData = null;
+            Debug.Log("1");
+            for(int i = 0; i < GameMain.data.galacticTransport.stationPool.Length; i++)
+            {
+                Debug.Log("1.1");
+                Debug.Log((GameMain.data.galacticTransport.stationPool[i] == null) ? "null" : "not null");
+                if(GameMain.data.galacticTransport.stationPool[i].id == packet.stationId)
+                {
+                    planetId = GameMain.data.galacticTransport.stationPool[i].planetId;
+                }
+            }
+            Debug.Log("2");
+            // if we did not find a corresponding station we exit (should only happen for clients that have not received any transporting or did not visit that planet)
+            // TODO: call PlanetTransport::NewStationComponent() for clients when we add one, else PlanetTransport::GetStationComponent() will not be able to find it
+            if(planetId == 0)
+            {
+                return;
+            }
+
+            pData = GameMain.galaxy.PlanetById(planetId);
+            Debug.Log("3");
+            if(pData == null)
+            {
+                // this should never happen
+                return;
+            }
+            if(pData.factory == null && !LocalPlayer.IsMasterClient)
+            {
+                //TODO: now we need to manually do what PlanetTransport::SetStationStorage does because we cant access it through pData.factory.transport
+            }
+            else
+            {
+                Debug.Log("4");
+                pData.factory.transport.SetStationStorage(packet.stationId, packet.storageIdx, packet.itemId, packet.itemCountMax, packet.localLogic, packet.remoteLogic, null);
             }
         }
 
