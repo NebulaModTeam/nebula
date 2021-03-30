@@ -7,7 +7,7 @@ namespace NebulaWorld.Factory
 {
     public class EntityManager
     {
-        public static void BuildEntity(Vector3 pos, Quaternion rot, ItemProto proto, short protoId, PlanetData pData)
+        public static void BuildEntity(Vector3 pos, Quaternion rot, ItemProto proto, short protoId, PlanetData pData, int prebuildId)
         {
             if (pData.factory == null)
             {
@@ -38,7 +38,7 @@ namespace NebulaWorld.Factory
                 protoId = protoId,
                 pos = pos,
                 rot = rot
-            }, 0);
+            }, (prebuildId == -1) ? 0 : prebuildId);
 
             GameMain.mainPlayer.controller.actionBuild.NotifyBuilt(0, ret);
             GameMain.history.MarkItemBuilt((int)protoId);
@@ -166,10 +166,27 @@ namespace NebulaWorld.Factory
             }
 
             PrebuildData prebuild = createPrebuildData(proto, packet.protoId, pos, rot, pData);
+            foreach(PrebuildData preData in pData.factory.prebuildPool)
+            {
+                if(preData.pos == prebuild.pos && preData.rot == prebuild.rot)
+                {
+                    return;
+                }
+            }
 
-            LocalPlayer.prebuildReceivedList.Add(prebuild, packet.planetId);
             // the following should work as we only spawn a prebuild when the player is on the same planet.
             int id = pData.factory.AddPrebuildDataWithComponents(prebuild);
+            prebuild.id = id;
+            /*
+             * READTHIS IF YOU WANT TO UNDERSTAND
+             * so the problem was my dumbness
+             * kinda
+             * when you AddPrebuildDataWithComponents() it creates on in the internal array (prebuildPool)
+             * and we need to work ON THAT ONE instead of the PrebuildData created here
+             * because it will contain all the needed and valid data to remove it later
+             */
+            //LocalPlayer.prebuildReceivedList.Add(prebuild, packet.planetId);
+            LocalPlayer.prebuildReceivedList.Add(pData.factory.prebuildPool[id], packet.planetId);
 
             pData.factory.prebuildPool[id].id = 0; // this effectively prevents drones from interacting with it
         }
@@ -234,15 +251,20 @@ namespace NebulaWorld.Factory
                 }
             }
 
+            if (factory.planet.physics != null)
+            {
+                if(factory.prebuildPool.Length > prebuild.id)
+                {
+                    Debug.Log(factory.prebuildPool[prebuild.id].colliderId + " vs " + prebuild.colliderId);
+                }
+                factory.planet.physics.RemoveLinkedColliderData(prebuild.colliderId);
+                factory.planet.physics.NotifyObjectRemove(EObjectType.Prebuild, prebuild.id);
+            }
+
             factory.prebuildPool[prebuild.id].SetNull();
             factory.ClearObjectConn(-prebuild.id);
             Array.Clear(factory.prebuildConnPool, prebuild.id * 16, 16);
 
-            if (factory.planet.physics != null)
-            {
-                factory.planet.physics.RemoveLinkedColliderData(prebuild.colliderId);
-                factory.planet.physics.NotifyObjectRemove(EObjectType.Prebuild, prebuild.id);
-            }
             if (factory.planet.audio != null)
             {
                 factory.planet.audio.NotifyObjectRemove(EObjectType.Prebuild, prebuild.id);
@@ -255,15 +277,18 @@ namespace NebulaWorld.Factory
             Quaternion rot = new Quaternion(packet.rot.x, packet.rot.y, packet.rot.z, packet.rot.w);
 
             PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
+            PrebuildData prData = default(PrebuildData);
+            prData.id = -1;
 
-            // remove prebuild from internal list
+            // search prebuild in internal list
             if (LocalPlayer.prebuildReceivedList.ContainsValue(packet.planetId))
             {
                 foreach (PrebuildData preData in LocalPlayer.prebuildReceivedList.Keys)
                 {
                     if (preData.pos == pos && preData.rot == rot)
                     {
-                        RemovePrebuildWithComponents(preData, pData);
+                        //RemovePrebuildWithComponents(preData, pData);
+                        prData = preData;
                         LocalPlayer.prebuildReceivedList.Remove(preData);
                         break;
                     }
@@ -271,7 +296,11 @@ namespace NebulaWorld.Factory
             }
 
             // the following should care for factory loading.
-            BuildEntity(pos, rot, proto, packet.protoId, pData);
+            BuildEntity(pos, rot, proto, packet.protoId, pData, prData.id);
+            if(prData.id != -1)
+            {
+                RemovePrebuildWithComponents(prData, pData);
+            }
             // if the factory is still null it means we are a client and have not loaded the factory yet
             // thats why we exit here. factory will be synced on arrival
             if (pData.factory == null)
