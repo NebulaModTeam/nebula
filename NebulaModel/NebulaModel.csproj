@@ -56,6 +56,14 @@
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\Factory\EntityPlaced.cs" />
     <Compile Include="Networking\NebulaStatusCode.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryDataRequest.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryDataResponse.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryEnqueueTechPacket.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryNotificationPacket.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryRemoveTechPacket.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryResearchContributionPacket.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryResearchUpdatePacket.cs" />
+    <Compile Include="Packets\GameHistory\GameHistoryUnlockTechPacket.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
     <Compile Include="Packets\Planet\FactoryData.cs" />
@@ -96,6 +104,7 @@
     <Compile Include="Networking\Serialization\NetPacketProcessor.cs" />
     <Compile Include="Networking\Serialization\NetSerializer.cs" />
     <Compile Include="Networking\Serialization\NetUtils.cs" />
+    <Compile Include="Utils\CryptoUtils.cs" />
     <Compile Include="Utils\TimeUtils.cs" />
     <Compile Include="Utils\UnityDispatchQueue.cs" />
   </ItemGroup>
