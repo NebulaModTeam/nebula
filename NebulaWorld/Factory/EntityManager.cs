@@ -9,7 +9,7 @@ namespace NebulaWorld.Factory
     {
         public static void BuildEntity(Vector3 pos, Quaternion rot, ItemProto proto, short protoId, PlanetData pData)
         {
-            if(pData.factory == null)
+            if (pData.factory == null)
             {
                 if (LocalPlayer.IsMasterClient)
                 {
@@ -55,7 +55,7 @@ namespace NebulaWorld.Factory
             Vector3 up = pose.up;
 
             NearColliderLogic collider = pData.physics.nearColliderLogic;
-            if(collider == null)
+            if (collider == null)
             {
                 int[] rip = new int[1];
                 rip[0] = 0;
@@ -152,7 +152,7 @@ namespace NebulaWorld.Factory
             {
                 return;
             }
-            if(pData.factory == null)
+            if (pData.factory == null)
             {
                 if (LocalPlayer.IsMasterClient)
                 {
@@ -176,7 +176,7 @@ namespace NebulaWorld.Factory
         public static void RemovePrebuildModel(int modelIndex, int id, bool setBuffer = true)
         {
             ObjectRenderer renderer = GameMain.gpuiManager.GetPrebuildRenderer(modelIndex);
-            if(renderer == null)
+            if (renderer == null)
             {
                 return;
             }
@@ -190,7 +190,7 @@ namespace NebulaWorld.Factory
             renderer.instPool[id].rotw = 0f;
             renderer.instRecycle[renderer.instRecycleCursor++] = id;
             ComputeBuffer instBuffer = (ComputeBuffer)typeof(ObjectRenderer).GetField("instBuffer", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(renderer);
-            if(instBuffer == null)
+            if (instBuffer == null)
             {
                 return;
             }
@@ -220,7 +220,7 @@ namespace NebulaWorld.Factory
             RemovePrebuildModel(prebuild.modelIndex, prebuild.modelId, true);
 
             PlanetFactory factory = pData.factory;
-            if(factory == null)
+            if (factory == null)
             {
                 if (LocalPlayer.IsMasterClient)
                 {
@@ -243,7 +243,7 @@ namespace NebulaWorld.Factory
                 factory.planet.physics.RemoveLinkedColliderData(prebuild.colliderId);
                 factory.planet.physics.NotifyObjectRemove(EObjectType.Prebuild, prebuild.id);
             }
-            if(factory.planet.audio != null)
+            if (factory.planet.audio != null)
             {
                 factory.planet.audio.NotifyObjectRemove(EObjectType.Prebuild, prebuild.id);
             }

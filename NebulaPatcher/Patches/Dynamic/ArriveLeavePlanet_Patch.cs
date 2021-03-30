@@ -3,10 +3,12 @@ using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(GameData), "ArrivePlanet")]
+    [HarmonyPatch(typeof(GameData))]
     class ArrivePlanet_Patch
     {
-        public static bool Prefix(GameData __instance, PlanetData planet)
+        [HarmonyPrefix]
+        [HarmonyPatch("ArrivePlanet")]
+        public static bool ArrivePlanet_Prefix(GameData __instance, PlanetData planet)
         {
             // we need to supply our own ArrivePlanet() logic as we load the PlanetFactory from the server (if we are a client at least).
             // due to that we have a time window between the vanilla ArrivePlanet() setting the localPlanet and planetId values and

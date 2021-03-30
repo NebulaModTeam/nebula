@@ -150,7 +150,7 @@ namespace NebulaWorld
             {
                 EntityManager.PlaceEntityPrebuild(packet);
             }
-            else if(!packet.isPrebuild)
+            else if (!packet.isPrebuild)
             {
                 // if this player is currently not on the planet where the building is placed then dont spawn a prebuild
                 // and we only place the entity once it truly is placed and not a prebuild anymore for the original issuer.

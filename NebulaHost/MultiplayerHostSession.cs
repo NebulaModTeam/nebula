@@ -88,7 +88,7 @@ namespace NebulaHost
                 this.playerManager = playerManager;
                 this.packetProcessor = packetProcessor;
             }
-           
+
             protected override void OnOpen()
             {
                 if (SimulatedWorld.IsGameLoaded == false)

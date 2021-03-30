@@ -3,10 +3,12 @@ using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(GameLoader), "FixedUpdate")]
+    [HarmonyPatch(typeof(GameLoader))]
     class GameLoader_Patch
     {
-        public static void Postfix(int ___frame)
+        [HarmonyPostfix]
+        [HarmonyPatch("FixedUpdate")]
+        public static void FixedUpdate_Postfix(int ___frame)
         {
             if (___frame >= 11 && SimulatedWorld.Initialized)
             {
