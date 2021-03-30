@@ -1,11 +1,10 @@
-﻿using System.IO;
-using System.IO.Compression;
-using LZ4;
+﻿using LZ4;
 using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Universe;
 using NebulaModel.Packets.Processors;
-using NebulaModel.Logger;
+using NebulaModel.Packets.Universe;
+using System.IO;
+using System.IO.Compression;
 
 namespace NebulaHost.PacketProcessors.Universe
 {

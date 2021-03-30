@@ -61,6 +61,34 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.maxSailSpeed = 2000f;
             __instance.maxWarpSpeed = 1000000f;
             __instance.walkSpeed = 25f;
+            __instance.player.package.AddItemStacked(1803, 40); //add antimatter
+            __instance.player.package.AddItemStacked(1501, 600); //add sails
+            __instance.player.package.AddItemStacked(1503, 60); //add rockets
+            __instance.player.package.AddItemStacked(2312, 10); //add launching silo
+            __instance.player.package.AddItemStacked(2210, 10); //add artifical sun
+            __instance.player.package.AddItemStacked(2311, 20); //add railgun
+            __instance.player.package.AddItemStacked(2003, 600); //add MK3 belts
+            __instance.player.package.AddItemStacked(2013, 100); //add MK3 inserters
+            __instance.player.package.AddItemStacked(2212, 20); //add satelite sub-station
+        }
+    }
+
+    [HarmonyPatch(typeof(GameHistoryData), "dysonSphereSystemUnlocked", MethodType.Getter)]
+    class patch6
+    {
+        public static bool Prefix(GameHistoryData __instance, ref bool __result)
+        {
+            __result = true;
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GameHistoryData), "SetForNewGame")]
+    class patch7
+    {
+        public static void Postfix(GameHistoryData __instance)
+        {
+            __instance.dysonNodeLatitude = 90f;
         }
     }
 #endif
