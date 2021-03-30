@@ -14,7 +14,6 @@ namespace NebulaHost.PacketProcessors.GameHistory
         public void ProcessPacket(GameHistoryDataRequest packet, NebulaConnection conn)
         {
             using (MemoryStream ms = new MemoryStream())
-            using (MemoryStream ms2 = new MemoryStream())
             {
                 using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Compress))
                 using (BufferedStream bs = new BufferedStream(ls, 8192))
