@@ -109,7 +109,7 @@ namespace NebulaHost
                 if (SimulatedWorld.IsGameLoaded == false)
                 {
                     // Reject any connection that occurs while the host's game is loading.
-                    this.Context.WebSocket.Close((ushort)NebulaStatusCode.HostStillLoading, "Host still loading, please try again later.");
+                    this.Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");
                     return;
                 }
 
@@ -128,7 +128,7 @@ namespace NebulaHost
                 // If the reason of a client disonnect is because we are still loading the game,
                 // we don't need to inform the other clients since the disconnected client never
                 // joined the game in the first place.
-                if (e.Code == (short)NebulaStatusCode.HostStillLoading)
+                if (e.Code == (short)DisconnectionReason.HostStillLoading)
                     return;
 
                 NebulaModel.Logger.Log.Info($"Client disconnected: {Context.UserEndPoint}, reason: {e.Reason}");

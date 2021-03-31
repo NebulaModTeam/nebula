@@ -23,7 +23,7 @@ namespace NebulaHost.PacketProcessors.Session
             Player player;
             if (!playerManager.PendingPlayers.TryGetValue(conn, out player))
             {
-                conn.Disconnect();
+                conn.Disconnect(DisconnectionReason.InvalidData);
                 Log.Warn("WARNING: Player tried to handshake without being in the pending list");
                 return;
             }
@@ -32,7 +32,8 @@ namespace NebulaHost.PacketProcessors.Session
 
             if (packet.ProtocolVersion != 0) //TODO: Maybe have a shared constants file somewhere for this
             {
-                conn.Disconnect();
+                conn.Disconnect(DisconnectionReason.ProtocolError);
+                return;
             }
 
             SimulatedWorld.OnPlayerJoining();

@@ -59,7 +59,7 @@ namespace NebulaClient
         void Disconnect()
         {
             IsConnected = false;
-            clientSocket.Close((ushort)NebulaStatusCode.ClientRequestedDisconnect, "Player left the game");
+            clientSocket.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
         }
 
         public void DestroySession()
@@ -100,7 +100,7 @@ namespace NebulaClient
             serverConnection = null;
 
             // If the client is Quitting by himself, we don't have to inform him of his disconnection.
-            if (e.Code == (ushort)NebulaStatusCode.ClientRequestedDisconnect)
+            if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
                 return;
 
             if (SimulatedWorld.IsGameLoaded)
