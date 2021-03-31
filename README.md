@@ -6,7 +6,7 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 ## What is the current status ?
 
-The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/vPvPv2vh) if you want to see to latest state of our development. 
+The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development. 
 
 ## How can I play this mod?
 
@@ -14,4 +14,4 @@ Please do keep in mind that this mod is still in heavy development. I do not enc
 
 ## How can I contribute
 
-Please join our [Discord Server](https://discord.gg/vPvPv2vh) to ask if someone is already working on the task that you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment).
+Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) to ask if someone is already working on the task that you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment).
