@@ -15,10 +15,26 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
-            // we use the GameMain.data.galacticTransport.stationPool array in our own way, so prevent the client from using it with vanilla code
-            return false;
+            // if we are a client and have a fake station already saved, update it with the full data given now
+            // this should happen when this client arrives at a planet for the first time whichs interplanetar logistic
+            // he was already syncing
+            for(int i = 0; i < GameMain.data.galacticTransport.stationPool.Length; i++)
+            {
+                if(GameMain.data.galacticTransport.stationPool[i]?.id == station.id)
+                {
+                    GameMain.data.galacticTransport.RemoveStationComponent(i);
+                    return true;
+                }
+            }
+            // if we are a client and have no fake station then just add the new one normally
+            // this should happen when a player places an ILS on a FactoryData known to this client
+            // or when this client arrives at a planet for the first time which contains ILS
+            return true;
         }
 
+        /*
+         * We probably dont need to patch this as EntityManager.cs will at some point keep track of removed entities.
+         * And as such will be able to call this for clients if needed
         [HarmonyPrefix]
         [HarmonyPatch("RemoveStationComponent")]
         public static bool RemoveStationComponent_Prefix(GalacticTransport __instance, int gid)
@@ -27,8 +43,9 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
-            // we use the GameMain.data.galacticTransport.stationPool array in our own way, so prevent the client from using it with vanilla code
+            
             return false;
         }
+        */
     }
 }

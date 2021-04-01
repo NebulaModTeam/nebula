@@ -21,6 +21,7 @@ namespace NebulaHost.PacketProcessors.Logistics
             {
                 playerManager.SendPacketToOtherPlayers(packet, player);
             }
+            SimulatedWorld.OnStationUIChange(packet);
         }
     }
 }

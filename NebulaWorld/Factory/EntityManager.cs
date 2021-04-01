@@ -253,10 +253,6 @@ namespace NebulaWorld.Factory
 
             if (factory.planet.physics != null)
             {
-                if(factory.prebuildPool.Length > prebuild.id)
-                {
-                    Debug.Log(factory.prebuildPool[prebuild.id].colliderId + " vs " + prebuild.colliderId);
-                }
                 factory.planet.physics.RemoveLinkedColliderData(prebuild.colliderId);
                 factory.planet.physics.NotifyObjectRemove(EObjectType.Prebuild, prebuild.id);
             }
