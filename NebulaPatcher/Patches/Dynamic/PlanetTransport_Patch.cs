@@ -20,11 +20,10 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch("SetStationStorage")]
-        public static void SetStationStorage_Postfix(PlanetTransport __instance, int stationId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, StorageComponent package)
+        public static void SetStationStorage_Postfix(PlanetTransport __instance, int stationId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, Player player)
         {
-            if (!LocalPlayer.PatchLocks["PlanetTransport"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["PlanetTransport"])
             {
-                Debug.Log("CALLED!");
                 StationUI packet = new StationUI(stationId, __instance.planet.id, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
                 LocalPlayer.SendPacket(packet);
             }

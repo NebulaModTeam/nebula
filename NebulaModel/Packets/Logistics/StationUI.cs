@@ -9,6 +9,12 @@
         // 3 == MinDeliverDrone
         // 4 == MinDeliverVessel
         // 5 == WarpDistance
+        // 6 == warperNeeded
+        // 7 == includeCollectors
+        // 8 == setDroneCount
+        // 9 == setShipCount
+        // 10 == setWarperCount
+        // 11 == addOrRemoveItemFromStorage
         public int settingIndex { get; set; }
         public float settingValue { get; set; }
         public int stationId { get; set;}
@@ -38,6 +44,14 @@
             this.isStorageUI = false;
             this.settingIndex = settingIndex;
             this.settingValue = value;
+        }
+        public StationUI(int stationId, int planetId, int settingIndex, int itemId, int settingValue)
+        {
+            this.stationId = stationId;
+            this.planetId = planetId;
+            this.settingIndex = settingIndex;
+            this.itemId = itemId;
+            this.settingValue = settingValue;
         }
     }
 }

@@ -58,6 +58,7 @@
     <Compile Include="Patches\Dynamic\StationComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetTransport_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIStationStorage_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStationWindow_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
