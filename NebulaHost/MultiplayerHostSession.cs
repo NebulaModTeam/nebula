@@ -23,6 +23,7 @@ namespace NebulaHost
         float gameStateUpdateTimer = 0;
         float gameResearchHashUpdateTimer = 0;
 
+        const float GAME_STATE_UPDATE_INTERVAL = 1;
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
 
         private void Awake()
@@ -75,8 +76,9 @@ namespace NebulaHost
         {
             gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
-            if (gameStateUpdateTimer > 1)
+            if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
             {
+                gameStateUpdateTimer = 0;
                 SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
             }
 
