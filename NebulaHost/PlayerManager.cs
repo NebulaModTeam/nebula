@@ -101,6 +101,7 @@ namespace NebulaHost
                 SimulatedWorld.DestroyRemotePlayerModel(player.Id);
                 connectedPlayers.Remove(conn);
                 availablePlayerIds.Enqueue(player.Id);
+                StatisticsManager.instance.UnRegisterPlayer(player.Id);
             }
             else
             {

@@ -54,6 +54,7 @@
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
+    <Compile Include="PacketProcessors\Statistics\StatisticsRequestEventProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddFrameProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddLayerProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddNodeProcessor.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="PlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatisticsManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">

@@ -33,21 +33,21 @@ namespace NebulaPatcher.Patches.Dynamic
             // Take it off the list, as we will process it now
             LocalPlayer.PendingFactories.Remove(planet.id);
 
-            // Import the factory from the given bytes, which will have been gotten or created on the host by the original function
-            __instance.factories[__instance.factoryCount] = new PlanetFactory();
-
             using (MemoryStream ms = new MemoryStream(factoryBytes))
             using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
             using (BufferedStream bs = new BufferedStream(ls, 8192))
             using (BinaryReader br = new BinaryReader(bs))
             {
+                GameMain.data.factoryCount = br.ReadInt32();
+                int factoryIndex = br.ReadInt32();
+                // Import the factory from the given bytes, which will have been gotten or created on the host by the original function
+                __instance.factories[factoryIndex] = new PlanetFactory();
+
                 if (planet.factory == null)
                 {
-                    __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
-                    planet.factory = __instance.factories[__instance.factoryCount];
-                    planet.factoryIndex = __instance.factoryCount;
-
-                    __instance.factoryCount++;
+                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, br);
+                    planet.factory = __instance.factories[factoryIndex];
+                    planet.factoryIndex = factoryIndex;
                 }
                 else
                 {

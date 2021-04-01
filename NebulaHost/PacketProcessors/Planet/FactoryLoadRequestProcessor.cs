@@ -21,12 +21,15 @@ namespace NebulaHost.PacketProcessors.Planet
                 using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Compress))
                 using (BufferedStream bs = new BufferedStream(ls, 8192))
                 using (BinaryWriter bw = new BinaryWriter(bs))
-                {
+                {//Send update for the factory count and their planetsIds for statistics
+                    bw.Write(GameMain.data.factoryCount);
+                    bw.Write(planet.factoryIndex);
                     factory.Export(bw);
                 }
 
                 conn.SendPacket(new FactoryData(packet.PlanetID, ms.ToArray()));
             }
+            conn.SendPacket(StatisticsManager.instance.GetFactoryPlanetIds());
         }
     }
 }

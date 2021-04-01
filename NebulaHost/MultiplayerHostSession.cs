@@ -19,11 +19,14 @@ namespace NebulaHost
 
         public PlayerManager PlayerManager { get; protected set; }
         public NetPacketProcessor PacketProcessor { get; protected set; }
+        public StatisticsManager StatisticsManager { get; protected set; }
 
         float gameStateUpdateTimer = 0;
         float gameResearchHashUpdateTimer = 0;
-
+        float productionStatisticsUpdateTimer = 0;
+        
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
+        const float PRODUCTION_STATISTICS_UPDATE_INTERVAL = 1;
 
         private void Awake()
         {
@@ -34,6 +37,7 @@ namespace NebulaHost
         {
             PlayerManager = new PlayerManager();
             PacketProcessor = new NetPacketProcessor();
+            StatisticsManager = new StatisticsManager();
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
@@ -70,11 +74,18 @@ namespace NebulaHost
         {
             PlayerManager.SendPacketToAllPlayers(packet);
         }
+        
+        private void FixedUpdate()
+        {
+            StatisticsManager.CaptureStatisticalSnapshot();
+        }
 
         private void Update()
         {
             gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
+            productionStatisticsUpdateTimer += Time.deltaTime;
+
             if (gameStateUpdateTimer > 1)
             {
                 SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
@@ -88,6 +99,12 @@ namespace NebulaHost
                     TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
                     SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded));
                 }
+            }
+
+            if (productionStatisticsUpdateTimer > PRODUCTION_STATISTICS_UPDATE_INTERVAL)
+            {
+                productionStatisticsUpdateTimer = 0;
+                StatisticsManager.SendBroadcastIfNeeded();
             }
 
             PacketProcessor.ProcessPacketQueue();
