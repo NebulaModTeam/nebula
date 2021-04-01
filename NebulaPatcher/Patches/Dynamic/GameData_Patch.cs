@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using LZ4;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaWorld;
 using System.IO;
 using System.IO.Compression;
@@ -36,14 +37,11 @@ namespace NebulaPatcher.Patches.Dynamic
             // Import the factory from the given bytes, which will have been gotten or created on the host by the original function
             __instance.factories[__instance.factoryCount] = new PlanetFactory();
 
-            using (MemoryStream ms = new MemoryStream(factoryBytes))
-            using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
-            using (BufferedStream bs = new BufferedStream(ls, 8192))
-            using (BinaryReader br = new BinaryReader(bs))
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(factoryBytes))
             {
                 if (planet.factory == null)
                 {
-                    __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, br);
+                    __instance.factories[__instance.factoryCount].Import(__instance.factoryCount, __instance, reader.BinaryReader);
                     planet.factory = __instance.factories[__instance.factoryCount];
                     planet.factoryIndex = __instance.factoryCount;
 
@@ -51,7 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 else
                 {
-                    __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, br);
+                    __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, reader.BinaryReader);
                     planet.factory = __instance.factories[planet.factoryIndex];
                 }
             }

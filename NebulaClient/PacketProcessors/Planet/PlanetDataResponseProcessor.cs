@@ -23,13 +23,11 @@ namespace NebulaClient.PacketProcessors.Planet
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetDataIDs[i]);
 
                 Log.Info($"Parsing {packet.PlanetDataBytesLengths[i]} bytes of data for planet {planet.name} (ID: {planet.id})");
-
-                using (MemoryStream ms = new MemoryStream(packet.PlanetDataBytes.Skip(currentOffset).Take(packet.PlanetDataBytesLengths[i]).ToArray()))
-                using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
-                using (BufferedStream bs = new BufferedStream(ls, 8192))
-                using (BinaryReader br = new BinaryReader(bs))
+                byte[] planetData = packet.PlanetDataBytes.Skip(currentOffset).Take(packet.PlanetDataBytesLengths[i]).ToArray();
+      
+                using (BinaryUtils.Reader reader = new BinaryUtils.Reader(planetData))
                 {
-                    planet.ImportRuntime(br);
+                    planet.ImportRuntime(reader.BinaryReader);
                 }
 
                 lock (PlanetModelingManager.genPlanetReqList)

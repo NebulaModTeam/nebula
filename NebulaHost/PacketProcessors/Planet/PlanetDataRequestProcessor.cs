@@ -47,16 +47,10 @@ namespace NebulaHost.PacketProcessors.Planet
                     }
                 }
 
-                using (MemoryStream ms = new MemoryStream())
+                using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
                 {
-                    using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Compress))
-                    using (BufferedStream bs = new BufferedStream(ls, 8192))
-                    using (BinaryWriter bw = new BinaryWriter(bs))
-                    {
-                        planet.ExportRuntime(bw);
-                    }
-
-                    planetDataToReturn.Add(planetId, ms.ToArray());
+                    planet.ExportRuntime(writer.BinaryWriter);
+                    planetDataToReturn.Add(planetId, writer.CloseAndGetBytes());
                 }
             }
 

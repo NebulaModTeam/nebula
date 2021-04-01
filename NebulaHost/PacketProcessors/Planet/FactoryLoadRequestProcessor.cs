@@ -16,16 +16,10 @@ namespace NebulaHost.PacketProcessors.Planet
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetID);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
 
-            using (MemoryStream ms = new MemoryStream())
+            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
-                using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Compress))
-                using (BufferedStream bs = new BufferedStream(ls, 8192))
-                using (BinaryWriter bw = new BinaryWriter(bs))
-                {
-                    factory.Export(bw);
-                }
-
-                conn.SendPacket(new FactoryData(packet.PlanetID, ms.ToArray()));
+                factory.Export(writer.BinaryWriter);
+                conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
             }
         }
     }

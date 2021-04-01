@@ -115,7 +115,6 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             //Clients just sends contributing packet to the server
-            Debug.Log($"Contributing to research with {addcnt} hashes!");
             LocalPlayer.SendPacket(new GameHistoryResearchContributionPacket(addcnt, __instance.currentTech));
             return false;
         }
