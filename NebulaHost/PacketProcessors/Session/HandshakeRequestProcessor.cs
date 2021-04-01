@@ -44,11 +44,12 @@ namespace NebulaHost.PacketProcessors.Session
             if (playerManager.SavedPlayerData.ContainsKey(clientCertHash))
             {
                 player.LoadUserData(playerManager.SavedPlayerData[clientCertHash]);
-            } else
+            }
+            else
             {
                 playerManager.SavedPlayerData.Add(clientCertHash, player.Data);
             }
-            
+
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             foreach (Player activePlayer in playerManager.GetConnectedPlayers())
             {

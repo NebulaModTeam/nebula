@@ -1,11 +1,8 @@
-﻿using LZ4;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 
 namespace NebulaClient.PacketProcessors.Planet
@@ -24,7 +21,7 @@ namespace NebulaClient.PacketProcessors.Planet
 
                 Log.Info($"Parsing {packet.PlanetDataBytesLengths[i]} bytes of data for planet {planet.name} (ID: {planet.id})");
                 byte[] planetData = packet.PlanetDataBytes.Skip(currentOffset).Take(packet.PlanetDataBytesLengths[i]).ToArray();
-      
+
                 using (BinaryUtils.Reader reader = new BinaryUtils.Reader(planetData))
                 {
                     planet.ImportRuntime(reader.BinaryReader);

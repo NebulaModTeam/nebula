@@ -1,10 +1,7 @@
-﻿using LZ4;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Processors;
-using System.IO;
-using System.IO.Compression;
 
 namespace NebulaHost.PacketProcessors.GameHistory
 {

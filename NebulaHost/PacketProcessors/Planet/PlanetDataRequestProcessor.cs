@@ -1,12 +1,9 @@
-﻿using LZ4;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 
 namespace NebulaHost.PacketProcessors.Planet
 {
