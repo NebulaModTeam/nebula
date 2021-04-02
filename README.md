@@ -22,11 +22,12 @@ Here is a short list of what is currently implemented
 - [x] Planet vegetation mining syncing
 - [x] Planet resources syncing
 - [x] Build preview syncing
-- [x] Building creation syncing
-- [ ] Building desctruction syncing
+- [x] Entity creation syncing
+- [ ] Entity desctruction syncing
+- [ ] Entity upgrade syncing
 - [x] Dyson spheres syncing
 - [x] Researches syncing
-- [ ] Factories statistics syncing
+- [x] Factories statistics syncing
 - [ ] Containers inventory syncing
 - [ ] Belts syncing
 - [ ] Dropped items syncing
