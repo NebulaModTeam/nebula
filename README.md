@@ -10,13 +10,14 @@ The mod is in very early stages of development and still in a proof of concept s
 
 Here is a short list of what is currently implemented
 - [x] Server / Client communication
-- [x] Multiplayer menu in-game
+- [x] Custom Multiplayer menu in-game
 - [x] Player Movement syncing on Planet
 - [x] Player Movement syncing in Space
 - [x] Player VFX syncing (jetpack, torch, ...)
 - [x] Player SFX syncing (footsteps sound, torch sound, ...)
 - [x] Players have different colors
-- [x] Remote Factory Loading (loading planet from host)
+- [x] Game Time syncing
+- [x] Remote Factory Loading (loading planet from server)
 - [x] Build preview syncing
 - [x] Building creation syncing
 - [ ] Building desctruction syncing
@@ -28,6 +29,7 @@ Here is a short list of what is currently implemented
 - [ ] Interstellar Station syncing
 - [ ] Drones position syncing
 - [ ] Foundation syncing (terrain deformation)
+- [ ] Server state persistence
 
 ## How can I play this mod?
 
