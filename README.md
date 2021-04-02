@@ -6,7 +6,34 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 ## What is the current status ?
 
-The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development. 
+The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.
+
+Here is a short list of what is currently implemented
+- [x] Server / Client communication
+- [x] Custom Multiplayer menu in-game
+- [x] Player Movement syncing on Planet
+- [x] Player Movement syncing in Space
+- [x] Player VFX syncing (jetpack, torch, ...)
+- [x] Player SFX syncing (footsteps sound, torch sound, ...)
+- [x] Players have different colors
+- [x] Game Time syncing
+- [x] Universe settings syncing
+- [x] Client planet loading from server
+- [x] Planet vegetation mining syncing
+- [x] Planet resources syncing
+- [x] Build preview syncing
+- [x] Building creation syncing
+- [ ] Building desctruction syncing
+- [x] Dyson spheres syncing
+- [x] Researches syncing
+- [ ] Factories statistics syncing
+- [ ] Containers inventory syncing
+- [ ] Belts syncing
+- [ ] Dropped items syncing
+- [ ] Interstellar Station syncing
+- [ ] Drones position syncing
+- [ ] Foundation syncing (terrain deformation)
+- [ ] Server state persistence
 
 ## How can I play this mod?
 
