@@ -54,10 +54,11 @@
     <Compile Include="DataStructures\ThreadSafeQueue.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
+    <Compile Include="Networking\BinaryUtils.cs" />
     <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\Factory\EntityPlaced.cs" />
-    <Compile Include="Networking\NebulaStatusCode.cs" />
+    <Compile Include="Networking\DisconnectionReason.cs" />
     <Compile Include="Packets\GameHistory\GameHistoryDataRequest.cs" />
     <Compile Include="Packets\GameHistory\GameHistoryDataResponse.cs" />
     <Compile Include="Packets\GameHistory\GameHistoryEnqueueTechPacket.cs" />
@@ -123,6 +124,11 @@
       <Project>{b357bac7-529e-4d81-a0d2-71041b19c8de}</Project>
       <Name>websocket-sharp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="lz4net">
+      <Version>1.0.15.93</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />

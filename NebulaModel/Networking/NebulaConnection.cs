@@ -32,10 +32,9 @@ namespace NebulaModel.Networking
             }
         }
 
-        public void Disconnect()
+        public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal)
         {
-            //TODO: Create a disconnectReason packet type so the users know why the server disconnected them
-            peerSocket.Close();
+            peerSocket.Close((ushort)reason);
         }
 
         public static bool operator ==(NebulaConnection left, NebulaConnection right)

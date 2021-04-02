@@ -21,7 +21,7 @@ namespace NebulaHost.PacketProcessors.GameHistory
             if (player != null)
             {
                 GameDataHistoryManager.IsIncommingRequest = true;
-                switch(packet.Event)
+                switch (packet.Event)
                 {
                     case GameHistoryEvent.ResumeQueue:
                         GameMain.history.ResumeTechQueue();
