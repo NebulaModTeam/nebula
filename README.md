@@ -17,7 +17,10 @@ Here is a short list of what is currently implemented
 - [x] Player SFX syncing (footsteps sound, torch sound, ...)
 - [x] Players have different colors
 - [x] Game Time syncing
-- [x] Remote Factory Loading (loading planet from server)
+- [x] Universe settings syncing
+- [x] Client planet loading from server
+- [x] Planet vegetation mining syncing
+- [x] Planet resources syncing
 - [x] Build preview syncing
 - [x] Building creation syncing
 - [ ] Building desctruction syncing
