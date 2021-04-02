@@ -3,6 +3,7 @@ using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
+using NebulaWorld.Statistics;
 using System.IO;
 using System.IO.Compression;
 

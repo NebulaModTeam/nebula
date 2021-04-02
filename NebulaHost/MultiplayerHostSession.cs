@@ -1,10 +1,12 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaHost.PacketProcessors.Statistics;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
+using NebulaWorld.Statistics;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -26,7 +28,7 @@ namespace NebulaHost
         float productionStatisticsUpdateTimer = 0;
         
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
-        const float PRODUCTION_STATISTICS_UPDATE_INTERVAL = 1;
+        const float STATISTICS_UPDATE_INTERVAL = 1;
 
         private void Awake()
         {
@@ -74,11 +76,6 @@ namespace NebulaHost
         {
             PlayerManager.SendPacketToAllPlayers(packet);
         }
-        
-        private void FixedUpdate()
-        {
-            StatisticsManager.CaptureStatisticalSnapshot();
-        }
 
         private void Update()
         {
@@ -101,10 +98,10 @@ namespace NebulaHost
                 }
             }
 
-            if (productionStatisticsUpdateTimer > PRODUCTION_STATISTICS_UPDATE_INTERVAL)
+            if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
             {
                 productionStatisticsUpdateTimer = 0;
-                StatisticsManager.SendBroadcastIfNeeded();
+                StatisticsSender.SendBroadcastIfNeeded();
             }
 
             PacketProcessor.ProcessPacketQueue();
