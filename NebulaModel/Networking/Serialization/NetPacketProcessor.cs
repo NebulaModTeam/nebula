@@ -82,13 +82,25 @@ namespace NebulaModel.Networking.Serialization
             lock (delayedPackets)
             {
                 var now = DateTime.UtcNow;
-                for (int i = delayedPackets.Count - 1; i >= 0; --i)
+                int deleteCount = 0;
+
+                for (int i = 0; i < delayedPackets.Count; ++i)
                 {
                     if (now >= delayedPackets[i].DueTime)
                     {
                         pendingPackets.Enqueue(delayedPackets[i].Packet);
-                        delayedPackets.RemoveAt(i);
+                        deleteCount = i+1;
                     }
+                    else
+                    {
+                        // We need to break to avoid messing up the order of the packets.
+                        break;
+                    }
+                }
+
+                if (deleteCount > 0)
+                {
+                    delayedPackets.RemoveRange(0, deleteCount);
                 }
             }
         }

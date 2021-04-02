@@ -43,7 +43,6 @@ namespace NebulaModel.DataStructures
             z = reader.GetFloat();
         }
 
-
         public override string ToString()
         {
             return $"(x: {x}, y: {y}, z: {z})";

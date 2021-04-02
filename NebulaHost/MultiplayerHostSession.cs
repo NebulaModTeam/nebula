@@ -27,6 +27,8 @@ namespace NebulaHost
         float gameResearchHashUpdateTimer = 0;
         float productionStatisticsUpdateTimer = 0;
         
+
+        const float GAME_STATE_UPDATE_INTERVAL = 1;
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         const float STATISTICS_UPDATE_INTERVAL = 1;
 
@@ -83,8 +85,9 @@ namespace NebulaHost
             gameResearchHashUpdateTimer += Time.deltaTime;
             productionStatisticsUpdateTimer += Time.deltaTime;
 
-            if (gameStateUpdateTimer > 1)
+            if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
             {
+                gameStateUpdateTimer = 0;
                 SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
             }
 
@@ -123,7 +126,7 @@ namespace NebulaHost
                 if (SimulatedWorld.IsGameLoaded == false)
                 {
                     // Reject any connection that occurs while the host's game is loading.
-                    this.Context.WebSocket.Close((ushort)NebulaStatusCode.HostStillLoading, "Host still loading, please try again later.");
+                    this.Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");
                     return;
                 }
 
@@ -142,7 +145,7 @@ namespace NebulaHost
                 // If the reason of a client disonnect is because we are still loading the game,
                 // we don't need to inform the other clients since the disconnected client never
                 // joined the game in the first place.
-                if (e.Code == (short)NebulaStatusCode.HostStillLoading)
+                if (e.Code == (short)DisconnectionReason.HostStillLoading)
                     return;
 
                 NebulaModel.Logger.Log.Info($"Client disconnected: {Context.UserEndPoint}, reason: {e.Reason}");

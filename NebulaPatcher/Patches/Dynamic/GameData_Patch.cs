@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using LZ4;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaWorld;
 using System.IO;
 using System.IO.Compression;
@@ -33,10 +34,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // Take it off the list, as we will process it now
             LocalPlayer.PendingFactories.Remove(planet.id);
 
-            using (MemoryStream ms = new MemoryStream(factoryBytes))
-            using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
-            using (BufferedStream bs = new BufferedStream(ls, 8192))
-            using (BinaryReader br = new BinaryReader(bs))
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(factoryBytes))
             {
                 GameMain.data.factoryCount = br.ReadInt32();
                 int factoryIndex = br.ReadInt32();
@@ -51,7 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 else
                 {
-                    __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, br);
+                    __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, reader.BinaryReader);
                     planet.factory = __instance.factories[planet.factoryIndex];
                 }
             }

@@ -1,10 +1,7 @@
-﻿using LZ4;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Universe;
-using System.IO;
-using System.IO.Compression;
 
 namespace NebulaHost.PacketProcessors.Universe
 {
@@ -15,15 +12,10 @@ namespace NebulaHost.PacketProcessors.Universe
         {
             DysonSphere dysonSphere = GameMain.data.CreateDysonSphere(packet.StarIndex);
 
-            using (MemoryStream ms = new MemoryStream())
+            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
-                using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Compress))
-                using (BufferedStream bs = new BufferedStream(ls, 8192))
-                using (BinaryWriter bw = new BinaryWriter(bs))
-                {
-                    dysonSphere.Export(bw);
-                }
-                conn.SendPacket(new DysonSphereData(packet.StarIndex, ms.ToArray()));
+                dysonSphere.Export(writer.BinaryWriter);
+                conn.SendPacket(new DysonSphereData(packet.StarIndex, writer.CloseAndGetBytes()));
             }
         }
     }
