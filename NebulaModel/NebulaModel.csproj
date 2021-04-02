@@ -48,6 +48,8 @@
     <Compile Include="DataStructures\Float4.cs" />
     <Compile Include="DataStructures\NetDataReaderExtensions.cs" />
     <Compile Include="DataStructures\PlayerData.cs" />
+    <Compile Include="DataStructures\ProductionChangeStruct.cs" />
+    <Compile Include="DataStructures\StatisticalSnapshot.cs" />
     <Compile Include="DataStructures\ThreadSafeDictionnary.cs" />
     <Compile Include="DataStructures\ThreadSafeQueue.cs" />
     <Compile Include="Logger\ILogger.cs" />
@@ -82,6 +84,10 @@
     <Compile Include="Packets\Session\PlayerJoining.cs" />
     <Compile Include="Packets\Planet\VegeMined.cs" />
     <Compile Include="Packets\Session\SyncComplete.cs" />
+    <Compile Include="Packets\Statistics\StatisticsDataPacket.cs" />
+    <Compile Include="Packets\Statistics\StatisticsPlanetDataPacket.cs" />
+    <Compile Include="Packets\Statistics\StatisticsRequestEvent.cs" />
+    <Compile Include="Packets\Statistics\StatisticUpdateDataPacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddFramePacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddLayerPacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddNodePacket.cs" />
