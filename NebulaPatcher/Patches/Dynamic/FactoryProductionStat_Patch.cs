@@ -11,11 +11,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("GameTick")]
         public static bool GameTick_Prefix(FactoryProductionStat __instance)
         {
-            //Do not calculate statistics in the multiplayer for the clients if it is not triggered by the server
+            //Do not run in single player for host
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
-            }
+            }       
 
             //Multiplayer clients should not include their own calculated statistics
             if (!StatisticsManager.IsIncommingRequest)

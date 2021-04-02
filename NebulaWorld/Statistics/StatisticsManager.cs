@@ -1,13 +1,182 @@
 ﻿using System.IO;
 using UnityEngine;
+using NebulaModel.DataStructures;
+using NebulaModel.Networking;
+using NebulaModel.Packets.Statistics;
+using System.Collections.Generic;
 
 namespace NebulaWorld.Statistics
 {
-    public static class StatisticsManager
+    public class StatisticsManager
     {
         public static bool IsIncommingRequest = false;
         public static bool IsStatisticsNeeded = false;
-        public static long[] FakePowerSystemData;
+        public static long[] PowerEnergyStoredData;
+
+        public static StatisticsManager instance;
+        public ThreadSafeDictionary<ushort, NebulaConnection> Requestors;
+
+        private List<StatisticalSnapShot> StatisticalSnapShots;
+
+        public StatisticsManager()
+        {
+            Requestors = new ThreadSafeDictionary<ushort, NebulaConnection>();
+            StatisticalSnapShots = new List<StatisticalSnapShot>();
+            IsStatisticsNeeded = false;
+            instance = this;
+            ClearCapturedData();
+        }
+
+        public void ClearCapturedData()
+        {
+            StatisticalSnapShots.Clear();
+        }
+
+        public void CaptureStatisticalSnapshot()
+        {
+            if (!IsStatisticsNeeded || GameMain.statistics?.production == null)
+            {
+                return;
+            }
+            //Calculate number of active factories
+            int factoryNum = 0;
+            for (ushort i = 0; i < GameMain.statistics.production.factoryStatPool.Length; i++)
+            {
+                if (GameMain.statistics.production.factoryStatPool[i] != null)
+                {
+                    factoryNum++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            StatisticalSnapShot snapshot = new StatisticalSnapShot(GameMain.gameTick, factoryNum);
+            FactoryProductionStat stat;
+            for (ushort i = 0; i < factoryNum; i++)
+            {
+                if (GameMain.statistics.production.factoryStatPool[i] != null)
+                {
+                    stat = GameMain.statistics.production.factoryStatPool[i];
+                    //Collect only those that really changed:
+                    for (ushort j = 0; j < stat.productRegister.Length; j++)
+                    {
+                        //Collect production statistics
+                        if (stat.productRegister[j] != 0)
+                        {
+                            snapshot.ProductionChangesPerFactory[i].Add(new ProductionChangeStruct(true, j, stat.productRegister[j]));
+                        }
+
+                        //Collect consumption statistics
+                        if (stat.consumeRegister[j] != 0)
+                        {
+                            snapshot.ProductionChangesPerFactory[i].Add(new ProductionChangeStruct(false, j, stat.consumeRegister[j]));
+                        }
+                    }
+
+                    //Collect Power statistics
+                    snapshot.PowerGenerationRegister[i] = stat.powerGenRegister;
+                    snapshot.PowerConsumptionRegister[i] = stat.powerConRegister;
+                    snapshot.PowerChargingRegister[i] = stat.powerChaRegister;
+                    snapshot.PowerDischargingRegister[i] = stat.powerDisRegister;
+
+                    //Collect Energy Stored Values
+                    for (int cursor = 0; cursor < GameMain.data.factories[i].powerSystem.netCursor; cursor++)
+                    {
+                        snapshot.EnergyStored[i] += GameMain.data.factories[i].powerSystem.netPool[cursor].energyStored;
+                    }
+
+                    //Collect Research statistics
+                    snapshot.HashRegister[i] = stat.hashRegister;
+                }
+            }
+            StatisticalSnapShots.Add(snapshot);
+        }
+
+        public void SendBroadcastIfNeeded()
+        {
+            if (!IsStatisticsNeeded)
+            {
+                return;
+            }
+            if (instance.Requestors.Count > 0)
+            {
+                //Export and prepare update packet
+                StatisticUpdateDataPacket updatePacket;
+                using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                {
+                    ExportCurrentTickData(writer.BinaryWriter);
+                    updatePacket = new StatisticUpdateDataPacket(writer.CloseAndGetBytes());
+                }
+                //Broadcast the update packet to the people with opened statistic window
+                foreach (var player in Requestors)
+                {
+                    player.Value.SendPacket(updatePacket);
+                }
+                ClearCapturedData();
+            }
+        }
+
+        public void ExportCurrentTickData(BinaryWriter bw)
+        {
+            bw.Write(StatisticalSnapShots.Count);
+            for (int i = 0; i < StatisticalSnapShots.Count; i++)
+            {
+                StatisticalSnapShots[i].Export(bw);
+            }
+        }
+
+        public void RegisterPlayer(NebulaConnection nebulaConnection, ushort playerId)
+        {
+            Requestors.Add(playerId, nebulaConnection);
+            if (!IsStatisticsNeeded)
+            {
+                ClearCapturedData();
+                IsStatisticsNeeded = true;
+            }
+        }
+
+        public void UnRegisterPlayer(ushort playerId)
+        {
+            if (Requestors.ContainsKey(playerId))
+            {
+                Requestors.Remove(playerId);
+                if (Requestors.Count == 0)
+                {
+                    IsStatisticsNeeded = false;
+                }
+            }
+        }
+
+        public static void ExportAllData(BinaryWriter bw)
+        {
+            GameStatData Stats = GameMain.statistics;
+            bw.Write(GameMain.data.factoryCount);
+
+            //Export production statistics for every planet
+            for (int i = 0; i < GameMain.data.factoryCount; i++)
+            {
+                Debug.Log("Exporting data for " + i);
+                Stats.production.factoryStatPool[i].Export(bw);
+            }
+
+            //Export Research statistics
+            bw.Write(Stats.techHashedHistory.Length);
+            for (int i = 0; i < Stats.techHashedHistory.Length; i++)
+            {
+                bw.Write(Stats.techHashedHistory[i]);
+            }
+        }
+
+        public StatisticsPlanetDataPacket GetFactoryPlanetIds()
+        {
+            int[] result = new int[GameMain.data.factoryCount];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = GameMain.data.factories[i].planetId;
+            }
+            return new StatisticsPlanetDataPacket(result);
+        }
 
         public static void UpdateTotalChargedEnergy(ref long num2, int targetIndex)
         {
@@ -18,9 +187,9 @@ namespace NebulaWorld.Statistics
                 //For the host and singleplayer, use normal calculation. For the clients, use Data from the server
                 if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
                 {
-                    for (int i = 0; i < FakePowerSystemData.Length; i++)
+                    for (int i = 0; i < PowerEnergyStoredData.Length; i++)
                     {
-                        num2 += FakePowerSystemData[i];
+                        num2 += PowerEnergyStoredData[i];
                     }
                 }
                 else
@@ -42,7 +211,7 @@ namespace NebulaWorld.Statistics
             {
                 if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
                 {
-                    num2 = GameMain.data.localPlanet.factoryIndex != -1 ? FakePowerSystemData[GameMain.data.localPlanet.factoryIndex] : 0;
+                    num2 = GameMain.data.localPlanet.factoryIndex != -1 ? PowerEnergyStoredData[GameMain.data.localPlanet.factoryIndex] : 0;
                 }
                 else
                 {
@@ -64,7 +233,7 @@ namespace NebulaWorld.Statistics
                     {
                         if (targetIndex == GameMain.data.factories[i].planetId)
                         {
-                            num2 = FakePowerSystemData[i];
+                            num2 = PowerEnergyStoredData[i];
                             break;
                         }
                     }
@@ -93,7 +262,7 @@ namespace NebulaWorld.Statistics
                     {
                         if (starData.planets[n].factoryIndex != -1)
                         {
-                            num2 += FakePowerSystemData[starData.planets[n].factoryIndex];
+                            num2 += PowerEnergyStoredData[starData.planets[n].factoryIndex];
                         }
                     }
                     else if (starData.planets[n].factory != null)

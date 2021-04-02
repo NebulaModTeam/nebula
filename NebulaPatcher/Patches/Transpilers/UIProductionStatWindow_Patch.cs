@@ -34,6 +34,22 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyPatch("UpdatePower")]
         static IEnumerable<CodeInstruction> UpdatePower_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            /* This is fix for the power statistics.
+               Originally, this function is iterating through all factories and manually summing up "energyStored" values from their PowerSystems.
+               Since client does not have all factories loaded it would cause exceptions.
+             * This fix is basically replacing this on 4 different places:
+             
+                PowerSystem powerSystem = this.gameData.factories[i].powerSystem;
+				int netCursor = powerSystem.netCursor;
+				PowerNetwork[] netPool = powerSystem.netPool;
+				for (int j = 1; j < netCursor; j++)
+				{
+					num2 += netPool[j].energyStored;
+				}
+
+                With: StatisticsManager.UpdateTotalChargedEnergy(ref num2, targetIndex);
+                   
+             * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
             bool[] patchActive = { false, false, false, false };
             int[] patchLength = { 30, 33, 33, 27 };
             var targetIndex = typeof(UIProductionStatWindow).GetField("targetIndex", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -108,7 +124,6 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
                 }   
             }
-            //return codes.AsEnumerable();
             return ReplaceFactoryCondition(codes);
         }
 

@@ -36,10 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 return false;
             }
-            else
-            {
-                return true;
-            }
+            return true;
         }
 
         [HarmonyPrefix]

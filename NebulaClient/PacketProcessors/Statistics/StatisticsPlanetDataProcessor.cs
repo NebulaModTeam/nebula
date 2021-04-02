@@ -1,7 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Statistics;
 using System.Reflection;
 
@@ -12,7 +11,6 @@ namespace NebulaClient.PacketProcessors.Statistics
     {
         public void ProcessPacket(StatisticsPlanetDataPacket packet, NebulaConnection conn)
         {
-            Log.Info($"Parsing Statistics planet data from the server.");
             for(int i = 0; i < packet.PlanetsIds.Length; i++)
             {
                 if (GameMain.data.factories[i] == null)

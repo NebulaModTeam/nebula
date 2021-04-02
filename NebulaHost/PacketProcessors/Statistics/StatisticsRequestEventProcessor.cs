@@ -2,9 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Statistics;
-using System.IO;
-using System.IO.Compression;
-using LZ4;
+using NebulaWorld.Statistics;
 
 namespace NebulaHost.PacketProcessors.Statistics
 {
@@ -27,15 +25,10 @@ namespace NebulaHost.PacketProcessors.Statistics
                 {
                     StatisticsManager.instance.RegisterPlayer(conn, player.Id);
 
-                    using (MemoryStream ms = new MemoryStream())
+                    using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
                     {
-                        using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Compress))
-                        using (BufferedStream bs = new BufferedStream(ls, 8192))
-                        using (BinaryWriter bw = new BinaryWriter(bs))
-                        {
-                            StatisticsManager.ExportAllData(bw);
-                        }
-                        conn.SendPacket(new StatisticsDataPacket(ms.ToArray()));
+                       StatisticsManager.ExportAllData(writer.BinaryWriter);
+                       conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
                     }
                 }
                 else if (packet.Event == StatisticEvent.WindowClosed)

@@ -7,10 +7,10 @@ namespace NebulaModel.DataStructures
     {
         //List of statistical changes for each planet that happend in one gameTick
         public List<ProductionChangeStruct>[] ProductionChangesPerFactory;
-        public long[] PowerGenRegister;
-        public long[] PowerConRegister;
-        public long[] PowerChaRegister;
-        public long[] PowerDisRegister;
+        public long[] PowerGenerationRegister;
+        public long[] PowerConsumptionRegister;
+        public long[] PowerChargingRegister;
+        public long[] PowerDischargingRegister;
         public long[] HashRegister;
         public long CapturedGameTick;
         public long[] EnergyStored;
@@ -22,10 +22,10 @@ namespace NebulaModel.DataStructures
             {
                 ProductionChangesPerFactory[i] = new List<ProductionChangeStruct>();
             }
-            PowerGenRegister = new long[numOfActiveFactories];
-            PowerConRegister = new long[numOfActiveFactories];
-            PowerChaRegister = new long[numOfActiveFactories];
-            PowerDisRegister = new long[numOfActiveFactories];
+            PowerGenerationRegister = new long[numOfActiveFactories];
+            PowerConsumptionRegister = new long[numOfActiveFactories];
+            PowerChargingRegister = new long[numOfActiveFactories];
+            PowerDischargingRegister = new long[numOfActiveFactories];
             HashRegister = new long[numOfActiveFactories];
             EnergyStored = new long[numOfActiveFactories];
             CapturedGameTick = gameTick;
@@ -37,10 +37,10 @@ namespace NebulaModel.DataStructures
             int factoryCount = br.ReadInt32();
 
             ProductionChangesPerFactory = new List<ProductionChangeStruct>[factoryCount];
-            PowerGenRegister = new long[factoryCount];
-            PowerConRegister = new long[factoryCount];
-            PowerChaRegister = new long[factoryCount];
-            PowerDisRegister = new long[factoryCount];
+            PowerGenerationRegister = new long[factoryCount];
+            PowerConsumptionRegister = new long[factoryCount];
+            PowerChargingRegister = new long[factoryCount];
+            PowerDischargingRegister = new long[factoryCount];
             EnergyStored = new long[factoryCount];
             HashRegister = new long[factoryCount];
 
@@ -52,10 +52,10 @@ namespace NebulaModel.DataStructures
                 {
                     ProductionChangesPerFactory[factoryId].Add(new ProductionChangeStruct(br));
                 }
-                PowerGenRegister[factoryId] = br.ReadInt64();
-                PowerConRegister[factoryId] = br.ReadInt64();
-                PowerChaRegister[factoryId] = br.ReadInt64();
-                PowerDisRegister[factoryId] = br.ReadInt64();
+                PowerGenerationRegister[factoryId] = br.ReadInt64();
+                PowerConsumptionRegister[factoryId] = br.ReadInt64();
+                PowerChargingRegister[factoryId] = br.ReadInt64();
+                PowerDischargingRegister[factoryId] = br.ReadInt64();
                 EnergyStored[factoryId] = br.ReadInt64();
                 HashRegister[factoryId] = br.ReadInt64();
             }
@@ -78,10 +78,10 @@ namespace NebulaModel.DataStructures
                 stat = GameMain.statistics.production.factoryStatPool[factoryId];
 
                 //Collect info about power system of the factory
-                bw.Write(PowerGenRegister[factoryId]);
-                bw.Write(PowerConRegister[factoryId]);
-                bw.Write(PowerChaRegister[factoryId]);
-                bw.Write(PowerDisRegister[factoryId]);
+                bw.Write(PowerGenerationRegister[factoryId]);
+                bw.Write(PowerConsumptionRegister[factoryId]);
+                bw.Write(PowerChargingRegister[factoryId]);
+                bw.Write(PowerDischargingRegister[factoryId]);
                 bw.Write(EnergyStored[factoryId]);
                 bw.Write(HashRegister[factoryId]);
             }
