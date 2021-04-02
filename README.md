@@ -28,6 +28,7 @@ Here is a short list of what is currently implemented
 - [x] Researches syncing
 - [ ] Factories statistics syncing
 - [ ] Containers inventory syncing
+- [ ] Belts syncing
 - [ ] Dropped items syncing
 - [ ] Interstellar Station syncing
 - [ ] Drones position syncing
