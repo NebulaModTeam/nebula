@@ -104,7 +104,7 @@ namespace NebulaHost
             if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
             {
                 productionStatisticsUpdateTimer = 0;
-                StatisticsSender.SendBroadcastIfNeeded();
+                StatisticsManager.SendBroadcastIfNeeded();
             }
 
             PacketProcessor.ProcessPacketQueue();
