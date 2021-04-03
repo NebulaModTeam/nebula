@@ -21,7 +21,22 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("LoadCurrentGame")]
         public static void LoadCurrentGame_Prefix(string saveName)
         {
-            SaveManager.SetLastSave(saveName); 
+            SaveManager.SetLastSave(saveName);
+        }
+
+        [HarmonyPatch("AutoSave")]
+        public static bool AutoSave_Prefix()
+        {
+            //Do not trigger autosave for the clients in multiplayer
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("SaveAsLastExit")]
+        public static bool SaveAsLastExit_Prefix()
+        {
+            //Do not trigger autosave for the clients in multiplayer
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient;
         }
     }
 }

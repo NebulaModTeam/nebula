@@ -40,10 +40,12 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\FactoryProductionStat_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameHistoryData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameMain_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameScenarioLogic_Patch.cs" />
+    <Compile Include="Patches\Dynamic\GameStatData_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
     <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
@@ -55,10 +57,13 @@
     <Compile Include="Patches\Dynamic\GPUInstancingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\GuideMissionStandardMode_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\ProductionStatistics_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIProductionStatWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
+    <Compile Include="Patches\Transpilers\UIProductionStatWindow_Patch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

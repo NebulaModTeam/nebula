@@ -55,6 +55,7 @@
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
+    <Compile Include="PacketProcessors\Statistics\StatisticsRequestEventProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddFrameProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddLayerProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddNodeProcessor.cs" />
