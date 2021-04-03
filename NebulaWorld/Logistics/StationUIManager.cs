@@ -268,18 +268,15 @@ namespace NebulaWorld.Logistics
                     }
                     if(packet.settingIndex == 11)
                     {
-                        Debug.Log("RECEIVED");
                         if (pData?.factory != null && pData?.factory?.transport != null)
                         {
                             StationComponent[] stationPool = pData.factory.transport.stationPool;
                             if (stationPool.Length > packet.stationId && stationPool[packet.stationId].storage != null)
                             {
-                                Debug.Log("FOUND VALID STATION AND STORAGE");
                                 for (int i = 0; i < stationPool[packet.stationId].storage.Length; i++)
                                 {
                                     if (stationPool[packet.stationId].storage[i].itemId == packet.itemId)
                                     {
-                                        Debug.Log("FOUND ITEM IN STORAGE");
                                         stationPool[packet.stationId].storage[i].count = (int)packet.settingValue;
                                         break;
                                     }

@@ -39,7 +39,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
-                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[index].planetA, __instance.workShipDatas[index].planetB, __instance.workShipDatas[index].itemId, __instance.workShipDatas[index].itemCount, index);
+                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[index].planetA, __instance.workShipDatas[index].planetB, __instance.workShipDatas[index].itemId, __instance.workShipDatas[index].itemCount, __instance.workShipDatas[index].otherGId, __instance.gid, index);
                 LocalPlayer.SendPacket(packet);
             }
         }
@@ -50,7 +50,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
-                ILSShipData packet = new ILSShipData(false, index);
+                ILSShipData packet = new ILSShipData(false, __instance.gid, index);
                 LocalPlayer.SendPacket(packet);
             }
         }

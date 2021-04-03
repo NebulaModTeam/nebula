@@ -172,6 +172,11 @@ namespace NebulaWorld
             }
         }
 
+        public static void OnILSShipItemsUpdate(ILSShipItems packet)
+        {
+            ILSShipManager.AddTakeItem(packet);
+        }
+
         public static void OnStationUIChange(StationUI packet)
         {
             StationUIManager.UpdateUI(packet);

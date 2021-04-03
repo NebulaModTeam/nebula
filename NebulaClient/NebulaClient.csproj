@@ -47,6 +47,7 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryUnlockTechProcessor.cs" />
     <Compile Include="PacketProcessors\GameStates\GameStateUpdateProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSShipItemsProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\StationUIProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryDataProcessor.cs" />

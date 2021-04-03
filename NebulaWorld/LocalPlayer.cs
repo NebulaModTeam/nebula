@@ -29,6 +29,7 @@ namespace NebulaWorld
 
         public static void SetReady()
         {
+            PatchLocks.Clear();
             PatchLocks.Add("PlanetTransport", false);
             PatchLocks.Add("UIStationWindow", false);
 

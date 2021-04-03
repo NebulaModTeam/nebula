@@ -15,7 +15,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized)
             {
-                Debug.Log("SENDING");
                 StationUI packet = new StationUI(__instance.station.id, __instance.stationWindow.factory.planet.id, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
                 LocalPlayer.SendPacket(packet);
             }
@@ -27,7 +26,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized)
             {
-                Debug.Log("SENDING");
                 StationUI packet = new StationUI(__instance.station.id, __instance.stationWindow.factory.planet.id, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
                 LocalPlayer.SendPacket(packet);
             }
