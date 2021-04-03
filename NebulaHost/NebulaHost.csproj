@@ -69,6 +69,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="PlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SaveManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
