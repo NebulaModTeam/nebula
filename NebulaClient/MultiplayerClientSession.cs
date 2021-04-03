@@ -23,7 +23,7 @@ namespace NebulaClient
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
 
-        private const int MECHA_SYNCHONIZATION_INTERVAL = 1;
+        private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private string serverIp;
         private int serverPort;
