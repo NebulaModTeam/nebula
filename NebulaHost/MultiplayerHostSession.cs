@@ -1,10 +1,12 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaHost.PacketProcessors.Statistics;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
+using NebulaWorld.Statistics;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -19,12 +21,16 @@ namespace NebulaHost
 
         public PlayerManager PlayerManager { get; protected set; }
         public NetPacketProcessor PacketProcessor { get; protected set; }
+        public StatisticsManager StatisticsManager { get; protected set; }
 
         float gameStateUpdateTimer = 0;
         float gameResearchHashUpdateTimer = 0;
+        float productionStatisticsUpdateTimer = 0;
+        
 
         const float GAME_STATE_UPDATE_INTERVAL = 1;
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
+        const float STATISTICS_UPDATE_INTERVAL = 1;
 
         private void Awake()
         {
@@ -35,6 +41,7 @@ namespace NebulaHost
         {
             PlayerManager = new PlayerManager();
             PacketProcessor = new NetPacketProcessor();
+            StatisticsManager = new StatisticsManager();
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
@@ -76,6 +83,8 @@ namespace NebulaHost
         {
             gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
+            productionStatisticsUpdateTimer += Time.deltaTime;
+
             if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
             {
                 gameStateUpdateTimer = 0;
@@ -90,6 +99,12 @@ namespace NebulaHost
                     TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
                     SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded));
                 }
+            }
+
+            if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
+            {
+                productionStatisticsUpdateTimer = 0;
+                StatisticsManager.SendBroadcastIfNeeded();
             }
 
             PacketProcessor.ProcessPacketQueue();
