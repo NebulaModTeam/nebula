@@ -1,6 +1,8 @@
 ﻿using NebulaModel.Attributes;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
@@ -51,13 +53,17 @@ namespace NebulaHost.PacketProcessors.Session
             }
 
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
+            PlayerData pdata = player.Data.CreateCopyWithoutMechaData(); // Remove inventory from mecha data
             foreach (Player activePlayer in playerManager.GetConnectedPlayers())
             {
-                activePlayer.SendPacket(new PlayerJoining(player.Data));
+                activePlayer.SendPacket(new PlayerJoining(pdata));
             }
 
             // Add the new player to the list
             playerManager.SyncingPlayers.Add(conn, player);
+
+            //Add current tech bonuses to the connecting player based on the Host's mecha
+            player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
             var gameDesc = GameMain.data.gameDesc;
             player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data));

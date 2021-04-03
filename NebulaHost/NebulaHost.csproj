@@ -50,6 +50,7 @@
     <Compile Include="PacketProcessors\Planet\PlanetDataRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
+    <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
