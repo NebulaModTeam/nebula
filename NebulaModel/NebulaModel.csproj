@@ -66,6 +66,7 @@
     <Compile Include="Packets\GameHistory\GameHistoryUnlockTechPacket.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
+    <Compile Include="Packets\Logistics\ILSRemoteOrderData.cs" />
     <Compile Include="Packets\Logistics\ILSShipData.cs" />
     <Compile Include="Packets\Logistics\ILSShipItems.cs" />
     <Compile Include="Packets\Logistics\StationUI.cs" />

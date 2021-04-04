@@ -182,6 +182,11 @@ namespace NebulaWorld
             StationUIManager.UpdateUI(packet);
         }
 
+        public static void OnILSRemoteOrderUpdate(ILSRemoteOrderData packet)
+        {
+            ILSShipManager.UpdateRemoteOrder(packet);
+        }
+
         public static void MineVegetable(VegeMined packet)
         {
             if (!remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))

@@ -33,6 +33,35 @@ namespace NebulaWorld.Logistics
             Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
         }
 
+        public static void UpdateRemoteOrder(ILSRemoteOrderData packet)
+        {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
+            foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+            {
+                if(stationComponent != null && stationComponent.gid == packet.stationGID)
+                {
+                    PlanetData pData = GameMain.galaxy.PlanetById(stationComponent.planetId);
+                    if(pData?.factory?.transport != null)
+                    {
+                        foreach(StationComponent stationComponentPlanet in pData.factory.transport.stationPool)
+                        {
+                            if(stationComponentPlanet != null && stationComponentPlanet.gid == stationComponent.gid)
+                            {
+                                stationComponentPlanet.storage[packet.storageIndex].remoteOrder = packet.remoteOrder;
+                                Log.Info($"Updated station {stationComponentPlanet.id} on {pData.displayName} to {packet.remoteOrder}");
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
         public static void AddTakeItem(ILSShipItems packet)
         {
             if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)

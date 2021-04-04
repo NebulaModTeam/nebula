@@ -128,7 +128,11 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 4))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                         {
-                            Debug.Log("TADAAAA 1: " + stationComponent.gid + " " + stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                                LocalPlayer.SendPacket(packet);
+                            }
                             return 0;
                         }))
                         .Insert(new CodeInstruction(OpCodes.Pop));
@@ -143,7 +147,11 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 23))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                         {
-                            Debug.Log("TADAAAA 2: " + stationComponent.gid + " " + stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                                LocalPlayer.SendPacket(packet);
+                            }
                             return 0;
                         }))
                         .Insert(new CodeInstruction(OpCodes.Pop));
@@ -158,7 +166,11 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 135))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                         {
-                            Debug.Log("TADAAAA 5: " + stationComponent.gid + " " + stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                                LocalPlayer.SendPacket(packet);
+                            }
                             return 0;
                         }))
                         .Insert(new CodeInstruction(OpCodes.Pop));
@@ -186,7 +198,11 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 4))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                 {
-                    Debug.Log("TADAAAA 8: " + stationComponent.gid + " " + stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                        LocalPlayer.SendPacket(packet);
+                    }
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
@@ -210,7 +226,11 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 4))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                 {
-                    Debug.Log("TADAAAA 9: " + stationComponent.gid + " " + stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.supplyIndex, stationComponent.storage[supplyDemandPair.supplyIndex].remoteOrder);
+                        LocalPlayer.SendPacket(packet);
+                    }
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
@@ -241,7 +261,11 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 34))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                 {
-                    Debug.Log("TADAAAA 3: " + stationComponent.gid + " " + stationComponent.storage[index].remoteOrder);
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                        LocalPlayer.SendPacket(packet);
+                    }
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
@@ -280,7 +304,11 @@ namespace NebulaPatcher.Patches.Transpilers
                                         new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex"))) // get this.workShipOrders[j].otherIndex
                             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                             {
-                                Debug.Log("TADAAAA 4/6: " + stationComponent.gid + " " + stationComponent.storage[index].remoteOrder);
+                                if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                                {
+                                    ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                    LocalPlayer.SendPacket(packet);
+                                }
                                 return 0;
                             }))
                             .Insert(new CodeInstruction(OpCodes.Pop));
@@ -314,11 +342,16 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                 {
-                    Debug.Log("TADAAAA 7: " + stationComponent.gid + " " + stationComponent.storage[index].remoteOrder);
+                    if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                        LocalPlayer.SendPacket(packet);
+                    }
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
+            // END: transpilers to catch StationStore::remoteOrder changes
 
             return instructions;
         }
