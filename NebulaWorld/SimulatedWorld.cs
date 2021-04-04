@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Planet;
@@ -239,9 +240,25 @@ namespace NebulaWorld
                 else
                 {
                     GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity();
-                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x,GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y,GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
+                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
                 }
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToUnity());
+
+                //Load player's saved data from the last session.
+                AccessTools.Property(typeof(Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
+                GameMain.mainPlayer.mecha.forge = LocalPlayer.Data.Mecha.Forge;
+                GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Data.Mecha.CoreEnergy;
+                GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
+                GameMain.mainPlayer.mecha.reactorStorage = LocalPlayer.Data.Mecha.ReactorStorage;
+                GameMain.mainPlayer.mecha.warpStorage = LocalPlayer.Data.Mecha.WarpStorage;
+
+                //Fix references that brokes during import
+                AccessTools.Property(typeof(MechaForge), "mecha").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer.mecha, null);
+                AccessTools.Property(typeof(MechaForge), "player").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer, null);
+                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+
+                //Update player's Mecha tech bonuses
+                LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
             }
 
             LocalPlayer.SetReady();

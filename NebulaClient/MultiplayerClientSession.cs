@@ -1,6 +1,7 @@
 ﻿using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
@@ -17,9 +18,12 @@ namespace NebulaClient
         private WebSocket clientSocket;
         private IPEndPoint serverEndpoint;
         private NebulaConnection serverConnection;
+        private float mechaSynchonizationTimer = 0f;
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
+
+        private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private string serverIp;
         private int serverPort;
@@ -136,6 +140,16 @@ namespace NebulaClient
         private void Update()
         {
             PacketProcessor.ProcessPacketQueue();
+
+            if (SimulatedWorld.IsGameLoaded)
+            {
+                mechaSynchonizationTimer += Time.deltaTime;
+                if (mechaSynchonizationTimer > MECHA_SYNCHONIZATION_INTERVAL)
+                {
+                    SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+                    mechaSynchonizationTimer = 0f;
+                }
+            }
         }
     }
 }

@@ -37,9 +37,13 @@ namespace NebulaHost
             Instance = this;
         }
 
-        public void StartServer(int port)
+        public void StartServer(int port, bool loadSaveFile = false)
         {
             PlayerManager = new PlayerManager();
+            if (loadSaveFile)
+            {
+                SaveManager.LoadServerData();
+            }
             PacketProcessor = new NetPacketProcessor();
             StatisticsManager = new StatisticsManager();
 #if DEBUG
