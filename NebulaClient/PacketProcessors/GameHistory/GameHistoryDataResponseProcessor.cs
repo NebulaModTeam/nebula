@@ -1,11 +1,8 @@
 ﻿using NebulaModel.Attributes;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Processors;
-using System.IO;
-using LZ4;
-using System.IO.Compression;
-using NebulaModel.Logger;
 
 namespace NebulaClient.PacketProcessors.GameHistory
 {
@@ -18,12 +15,9 @@ namespace NebulaClient.PacketProcessors.GameHistory
             GameMain.data.history.Init(GameMain.data);
 
             Log.Info($"Parsing History data from the server.");
-            using (MemoryStream ms = new MemoryStream(packet.HistoryBinaryData))
-            using (LZ4Stream ls = new LZ4Stream(ms, CompressionMode.Decompress))
-            using (BufferedStream bs = new BufferedStream(ls, 8192))
-            using (BinaryReader br = new BinaryReader(bs))
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.HistoryBinaryData))
             {
-                GameMain.data.history.Import(br);
+                GameMain.data.history.Import(reader.BinaryReader);
             }
         }
     }

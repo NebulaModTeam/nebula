@@ -55,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemotePlayerModel.cs" />
     <Compile Include="SimulatedWorld.cs" />
+    <Compile Include="Statistics\StatisticsManager.cs" />
     <Compile Include="Universe\DysonSphere_Manager.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -50,7 +50,7 @@ namespace NebulaWorld
             if (!IsPlayerJoining)
             {
                 IsPlayerJoining = true;
-                GameMain.Pause();
+                GameMain.isFullscreenPaused = true;
                 InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
             }
         }
@@ -59,7 +59,7 @@ namespace NebulaWorld
         {
             IsPlayerJoining = false;
             InGamePopup.FadeOut();
-            GameMain.Resume();
+            GameMain.isFullscreenPaused = false;
         }
 
         public static void UpdateGameState(GameState state)
