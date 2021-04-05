@@ -91,6 +91,12 @@
     <Compile Include="Packets\Statistics\StatisticsPlanetDataPacket.cs" />
     <Compile Include="Packets\Statistics\StatisticsRequestEvent.cs" />
     <Compile Include="Packets\Statistics\StatisticUpdateDataPacket.cs" />
+    <Compile Include="Packets\Trash\TrashSystemClearAllTrashPacket.cs" />
+    <Compile Include="Packets\Trash\TrashSystemCorrectionIdPacket.cs" />
+    <Compile Include="Packets\Trash\TrashSystemNewTrashCreatedPacket.cs" />
+    <Compile Include="Packets\Trash\TrashSystemRequestDataPacket.cs" />
+    <Compile Include="Packets\Trash\TrashSystemResponseDataPacket.cs" />
+    <Compile Include="Packets\Trash\TrashSystemTrashRemovedPacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddFramePacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddLayerPacket.cs" />
     <Compile Include="Packets\Universe\DysonSphereAddNodePacket.cs" />

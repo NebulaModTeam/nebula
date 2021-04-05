@@ -4,7 +4,10 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Trash;
 using NebulaWorld.Factory;
+using NebulaWorld.MonoBehaviours.Remote;
+using NebulaWorld.Trash;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -216,6 +219,24 @@ namespace NebulaWorld
                     }
                 }
             }
+        }
+
+        public static int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
+        {
+            if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
+            {
+                TrashData trashData = packet.GetTrashData();
+                //Calculate trash position based on the current player's model position
+                RemotePlayerMovement.Snapshot lastPosition = player.Movement.GetLastPosition();
+                trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y, lastPosition.UPosition.z);
+
+                TrashManager.NewTrashFromOtherPlayers = true;
+                int myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
+                TrashManager.NewTrashFromOtherPlayers = false;
+
+                return myId;
+            }
+            return 0;
         }
 
         public static void OnGameLoadCompleted()
