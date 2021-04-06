@@ -17,10 +17,10 @@ namespace NebulaClient.PacketProcessors.Factory
             // Else he will get it once it goes to the planet for the first time. 
             if (planet.factory != null)
             {
-                FactoryManager.IsIncommingRequest = true;
+                FactoryManager.EventFromServer = true;
                 ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
                 planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
-                FactoryManager.IsIncommingRequest = false;
+                FactoryManager.EventFromServer = false;
             }
         }
     }

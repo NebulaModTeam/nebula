@@ -18,9 +18,9 @@ namespace NebulaClient.PacketProcessors.Factory
             if (planet.factory != null)
             {
                 int protoId = 0;
-                FactoryManager.IsIncommingRequest = true;
+                FactoryManager.EventFromServer = true;
                 planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
-                FactoryManager.IsIncommingRequest = false;
+                FactoryManager.EventFromServer = false;
             }
         }
     }

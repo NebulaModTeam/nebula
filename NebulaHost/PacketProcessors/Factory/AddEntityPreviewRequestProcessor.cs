@@ -34,7 +34,7 @@ namespace NebulaHost.PacketProcessors.Factory
                 planet.factory = GameMain.data.GetOrCreateFactory(planet);
             }
 
-            FactoryManager.IsIncommingRequest = true;
+            FactoryManager.EventFromClient = true;
             int nextPrebuildId = FactoryManager.GetNextPrebuildId(packet.PlanetId);
             FactoryManager.SetPrebuildRequest(packet.PlanetId, nextPrebuildId, player.Id);
             PrebuildData prebuild = packet.GetPrebuildData();
@@ -50,7 +50,7 @@ namespace NebulaHost.PacketProcessors.Factory
                 // AddPrebuildData is not patched so we need to send the packet manually here
                 LocalPlayer.SendPacket(packet);
             }
-            FactoryManager.IsIncommingRequest = false;
+            FactoryManager.EventFromClient = false;
         }
     }
 }

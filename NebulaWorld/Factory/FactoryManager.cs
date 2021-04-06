@@ -8,11 +8,14 @@ namespace NebulaWorld.Factory
     {
         private static ThreadSafeDictionary<PrebuildOwnerKey, ushort> prebuildRequests;
 
-        public static bool IsIncommingRequest { get; set; }
+        public static bool EventFromServer { get; set; }
+        public static bool EventFromClient { get; set; }
 
         public static void Initialize()
         {
             prebuildRequests = new ThreadSafeDictionary<PrebuildOwnerKey, ushort>();
+            EventFromServer = false;
+            EventFromClient = false;
         }
 
         public static void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)

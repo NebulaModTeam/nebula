@@ -17,7 +17,7 @@ namespace NebulaClient.PacketProcessors.Factory
             // Else it will get it once it goes to the planet for the first time. 
             if (planet.factory != null)
             {
-                FactoryManager.IsIncommingRequest = true;
+                FactoryManager.EventFromServer = true;
 
                 // Physics could be null, if the host is not on the requested planet
                 if (packet.PlanetId != GameMain.localPlanet?.id)
@@ -43,7 +43,7 @@ namespace NebulaClient.PacketProcessors.Factory
                     planet.audio = null;
                 }
 
-                FactoryManager.IsIncommingRequest = false;
+                FactoryManager.EventFromServer = false;
             }
         }
     }

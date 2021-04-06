@@ -12,10 +12,10 @@ namespace NebulaHost.PacketProcessors.Factory
         public void ProcessPacket(DestructEntityRequest packet, NebulaConnection conn)
         {
             int protoId = 0;
-            FactoryManager.IsIncommingRequest = true;
+            FactoryManager.EventFromClient = true;
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
-            FactoryManager.IsIncommingRequest = false;
+            FactoryManager.EventFromClient = false;
         }
     }
 }

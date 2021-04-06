@@ -18,7 +18,7 @@ namespace NebulaHost.PacketProcessors.Factory
                 return;
             }
 
-            FactoryManager.IsIncommingRequest = true;
+            FactoryManager.EventFromClient = true;
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
 
             // Physics could be null, if the host is not on the requested planet
@@ -46,7 +46,7 @@ namespace NebulaHost.PacketProcessors.Factory
                 planet.audio = null;
             }
 
-            FactoryManager.IsIncommingRequest = false;
+            FactoryManager.EventFromClient = false;
         }
     }
 }

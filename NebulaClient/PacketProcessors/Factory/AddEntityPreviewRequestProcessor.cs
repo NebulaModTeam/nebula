@@ -18,7 +18,7 @@ namespace NebulaClient.PacketProcessors.Factory
             // Else it will get it once it goes to the planet for the first time. 
             if (planet.factory != null)
             {
-                FactoryManager.IsIncommingRequest = true;
+                FactoryManager.EventFromServer = true;
                 PrebuildData prebuild = packet.GetPrebuildData();
                 int localPlanetId = GameMain.localPlanet?.id ?? -1;
                 if (packet.PlanetId == localPlanetId)
@@ -29,7 +29,7 @@ namespace NebulaClient.PacketProcessors.Factory
                 {
                     planet.factory.AddPrebuildData(prebuild);
                 }
-                FactoryManager.IsIncommingRequest = false;
+                FactoryManager.EventFromServer = false;
             }
         }
     }
