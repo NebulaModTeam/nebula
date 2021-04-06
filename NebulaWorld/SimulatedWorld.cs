@@ -1,9 +1,13 @@
-﻿using NebulaModel.DataStructures;
+﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Trash;
 using NebulaWorld.Factory;
+using NebulaWorld.MonoBehaviours.Remote;
+using NebulaWorld.Trash;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -217,6 +221,24 @@ namespace NebulaWorld
             }
         }
 
+        public static int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
+        {
+            if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
+            {
+                TrashData trashData = packet.GetTrashData();
+                //Calculate trash position based on the current player's model position
+                RemotePlayerMovement.Snapshot lastPosition = player.Movement.GetLastPosition();
+                trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y, lastPosition.UPosition.z);
+
+                TrashManager.NewTrashFromOtherPlayers = true;
+                int myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
+                TrashManager.NewTrashFromOtherPlayers = false;
+
+                return myId;
+            }
+            return 0;
+        }
+
         public static void OnGameLoadCompleted()
         {
             if (Initialized == false)
@@ -239,9 +261,25 @@ namespace NebulaWorld
                 else
                 {
                     GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity();
-                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x,GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y,GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
+                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
                 }
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToUnity());
+
+                //Load player's saved data from the last session.
+                AccessTools.Property(typeof(Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
+                GameMain.mainPlayer.mecha.forge = LocalPlayer.Data.Mecha.Forge;
+                GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Data.Mecha.CoreEnergy;
+                GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
+                GameMain.mainPlayer.mecha.reactorStorage = LocalPlayer.Data.Mecha.ReactorStorage;
+                GameMain.mainPlayer.mecha.warpStorage = LocalPlayer.Data.Mecha.WarpStorage;
+
+                //Fix references that brokes during import
+                AccessTools.Property(typeof(MechaForge), "mecha").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer.mecha, null);
+                AccessTools.Property(typeof(MechaForge), "player").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer, null);
+                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+
+                //Update player's Mecha tech bonuses
+                LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
             }
 
             LocalPlayer.SetReady();

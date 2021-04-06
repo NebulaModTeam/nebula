@@ -30,7 +30,7 @@ Here is a short list of what is currently implemented
 - [x] Factories statistics syncing
 - [ ] Containers inventory syncing
 - [ ] Belts syncing
-- [ ] Dropped items syncing
+- [x] Dropped items syncing
 - [ ] Interstellar Station syncing
 - [ ] Drones position syncing
 - [ ] Foundation syncing (terrain deformation)

@@ -62,7 +62,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             Log.Info($"Listening server on port {port}");
             var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
-            session.StartServer(port);
+            session.StartServer(port, true);
 
             // Manually call the OnGameLoadCompleted here since we are already in a game.
             SimulatedWorld.OnGameLoadCompleted();
