@@ -41,6 +41,10 @@
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
     <Compile Include="PacketProcessors\Factory\EntityPlacedProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncRealtimeChangeProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncSetBansProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncSortProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryDataRequestProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryEnqueueTechProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryNotificationProcessor.cs" />
@@ -75,6 +79,7 @@
     <Compile Include="PlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveManager.cs" />
+    <Compile Include="StorageSyncManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">

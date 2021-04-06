@@ -60,6 +60,11 @@
     <Compile Include="Networking\NebulaConnection.cs" />
     <Compile Include="Packets\Factory\EntityPlaced.cs" />
     <Compile Include="Networking\DisconnectionReason.cs" />
+    <Compile Include="Packets\Factory\StorageSyncRealtimeChangePacket.cs" />
+    <Compile Include="Packets\Factory\StorageSyncSetBansPacket.cs" />
+    <Compile Include="Packets\Factory\StorageSyncSortPacket.cs" />
+    <Compile Include="Packets\Factory\StorageSyncRequestPacket.cs" />
+    <Compile Include="Packets\Factory\StorageSyncResponsePacket.cs" />
     <Compile Include="Packets\GameHistory\GameHistoryDataRequest.cs" />
     <Compile Include="Packets\GameHistory\GameHistoryDataResponse.cs" />
     <Compile Include="Packets\GameHistory\GameHistoryEnqueueTechPacket.cs" />
