@@ -42,6 +42,7 @@ namespace NebulaHost
             PlayerManager = new PlayerManager();
             PacketProcessor = new NetPacketProcessor();
             StatisticsManager = new StatisticsManager();
+
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
