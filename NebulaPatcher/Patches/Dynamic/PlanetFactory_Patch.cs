@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
+using NebulaWorld.Factory;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -40,6 +41,21 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             OnEntityPlaced(prebuild.protoId, prebuild.pos, prebuild.rot, true);
             return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("GameTick")]
+        public static bool InternalUpdate_Prefix()
+        {
+            StorageManager.IsHumanInput = false;
+            return true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("GameTick")]
+        public static void InternalUpdate_Postfix()
+        {
+            StorageManager.IsHumanInput = true;
         }
 
         private static void OnEntityPlaced(short protoId, Vector3 pos, Quaternion rot, bool isPrebuild)
