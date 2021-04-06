@@ -53,6 +53,10 @@ namespace NebulaWorld.Logistics
                             {
                                 stationComponentPlanet.storage[packet.storageIndex].remoteOrder = packet.remoteOrder;
                                 Log.Info($"Updated station {stationComponentPlanet.id} on {pData.displayName} to {packet.remoteOrder}");
+                                foreach(ShipData shipData in stationComponentPlanet.workShipDatas)
+                                {
+                                    Log.Info($"Ship {shipData.shipIndex} has item {shipData.itemId}");
+                                }
                                 break;
                             }
                         }

@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using NebulaWorld;
 using NebulaModel.Packets.Logistics;
-using UnityEngine;
 
 // thanks tanu and Therzok for the tipps!
 namespace NebulaPatcher.Patches.Transpilers
@@ -16,9 +15,200 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate int ShipFunc(StationComponent stationComponent, ref ShipData shipData);
         delegate int RemOrderFunc(StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair);
         delegate int RemOrderFunc2(StationComponent stationComponent, int index);
+        delegate int RemOrderFunc3(StationComponent stationComponent, StationComponent[] gStationPool, int n);
 
         private static int RemOrderCounter = 0;
         private static int RemOrderCounter2 = 0;
+        private static int RemOrderCounter3 = 0;
+
+        [HarmonyTranspiler]
+        [HarmonyPatch("RematchRemotePairs")]
+        public static IEnumerable<CodeInstruction> RematchRemotePairs_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            // BEGIN: transpilers to catch StationStore::remoteOrder changes
+            // c# 66 IL 371 AND c# 119 IL 621 AND c# 143 IL 754 AND c# 166 IL 897 AND c# 192 IL 1033
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stfld))
+            .Repeat(matcher =>
+            {
+                matcher
+                    .Advance(1)
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                        new CodeInstruction(OpCodes.Ldarg_0),
+                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                        new CodeInstruction(OpCodes.Ldloc_S, 10),
+                                        new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
+                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                    {
+                        if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                        {
+                            ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                            LocalPlayer.SendPacket(packet);
+                        }
+                        return 0;
+                    }))
+                    .Insert(new CodeInstruction(OpCodes.Pop));
+            })
+            .InstructionEnumeration();
+
+            // c# 72 IL 403 AND c# 125 IL 660 AND c# 172 IL 929 AND c# 198 IL 1065
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stfld))
+            .Repeat(matcher =>
+            {
+                matcher
+                    .Advance(1)
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                        new CodeInstruction(OpCodes.Ldarg_1),
+                                        new CodeInstruction(OpCodes.Ldloc_S, 10))
+                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc3>((StationComponent stationComponent, StationComponent[] gStationComponent, int n) =>
+                    {
+                        if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                        {
+                            int gIndex = stationComponent.workShipDatas[n].otherGId;
+                            StationStore[] storeArray = gStationComponent[gIndex]?.storage;
+                            if (storeArray != null)
+                            {
+                                int otherIndex = stationComponent.workShipOrders[n].otherIndex;
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
+                                LocalPlayer.SendPacket(packet);
+                            }
+                        }
+                        return 0;
+                    }))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Pop));
+            })
+            .InstructionEnumeration();
+
+            // c# 93 IL 508 AND c# 221 IL 1156
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldarg_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stfld))
+            .Repeat(matcher =>
+            {
+                if(RemOrderCounter3 == 0)
+                {
+                    matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 14))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                LocalPlayer.SendPacket(packet);
+                            }
+                            return 0;
+                        }))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+                        .Advance(9) // TODO: check if this should be 9 or 8
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldarg_1),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 10))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc3>((StationComponent stationComponent, StationComponent[] gStationComponent, int n) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                int gIndex = stationComponent.workShipDatas[n].otherGId;
+                                StationStore[] storeArray = gStationComponent[gIndex]?.storage;
+                                if (storeArray != null)
+                                {
+                                    int otherIndex = stationComponent.workShipOrders[n].otherIndex;
+                                    ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
+                                    LocalPlayer.SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+                    RemOrderCounter3++;
+                }
+                else if(RemOrderCounter3 == 1)
+                {
+                    matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 18)) // this is the only difference
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                LocalPlayer.SendPacket(packet);
+                            }
+                            return 0;
+                        }))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+                        .Advance(9) // TODO: check if this should be 9 or 8
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldarg_1),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 10))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc3>((StationComponent stationComponent, StationComponent[] gStationComponent, int n) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                int gIndex = stationComponent.workShipDatas[n].otherGId;
+                                StationStore[] storeArray = gStationComponent[gIndex]?.storage;
+                                if (storeArray != null)
+                                {
+                                    int otherIndex = stationComponent.workShipOrders[n].otherIndex;
+                                    ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
+                                    LocalPlayer.SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+                    RemOrderCounter3++;
+                }
+            })
+            .InstructionEnumeration();
+            // END: transpilers to catch StationStore::remoteOrder changes
+            return instructions;
+        }
 
         [HarmonyTranspiler]
         [HarmonyPatch("InternalTickRemote")]
