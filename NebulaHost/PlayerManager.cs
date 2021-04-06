@@ -119,5 +119,18 @@ namespace NebulaHost
             else
                 return ++highestPlayerID;
         }
+
+        public void UpdateMechaData(MechaData mechaData, NebulaConnection conn)
+        {
+            if (mechaData == null)
+            {
+                return;
+            }
+            if (connectedPlayers.TryGetValue(conn, out Player player))
+            {
+                //Find correct player for data to update
+                player.Data.Mecha = mechaData;
+            }
+        }
     }
 }
