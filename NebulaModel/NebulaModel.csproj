@@ -58,6 +58,9 @@
     <Compile Include="Networking\BinaryUtils.cs" />
     <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
+    <Compile Include="Packets\Factory\Assembler\AssemblerRecipeEventPacket.cs" />
+    <Compile Include="Packets\Factory\Assembler\AssemblerUpdateProducesPacket.cs" />
+    <Compile Include="Packets\Factory\Assembler\AssemblerUpdateStoragePacket.cs" />
     <Compile Include="Packets\Factory\EntityPlaced.cs" />
     <Compile Include="Networking\DisconnectionReason.cs" />
     <Compile Include="Packets\Factory\StorageSyncRealtimeChangePacket.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="Packets\Players\PlayerColorChanged.cs" />
     <Compile Include="Packets\Players\PlayerTechBonuses.cs" />
     <Compile Include="Packets\Processors\IPacketProcessor.cs" />
+    <Compile Include="Packets\Routers\PlanetBroadcastPacket.cs" />
     <Compile Include="Packets\Session\HandshakeRequest.cs" />
     <Compile Include="Packets\Session\HandshakeResponse.cs" />
     <Compile Include="Packets\Session\InitialState.cs" />
