@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return true;
-            }       
+            }
 
             //Multiplayer clients should not include their own calculated statistics
             if (!StatisticsManager.IsIncommingRequest)

@@ -14,7 +14,7 @@ namespace NebulaModel.Utils
             if (File.Exists(KeyFile))
             {
                 rsa.FromXmlString(File.ReadAllText(KeyFile));
-            } 
+            }
             else
             {
                 File.WriteAllText(KeyFile, rsa.ToXmlString(true));

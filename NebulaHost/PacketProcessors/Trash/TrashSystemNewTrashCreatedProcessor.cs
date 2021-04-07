@@ -22,12 +22,13 @@ namespace NebulaHost.PacketProcessors.Statistics
             if (player != null)
             {
                 int myId = SimulatedWorld.GenerateTrashOnPlayer(packet);
-               
+
                 //Send to other players trash with valid ID
                 playerManager.SendPacketToOtherPlayers(packet, player);
 
                 //Send correction packet to the creator with authotaritive ID if the ID does not match
-                if (myId != packet.TrashId) {
+                if (myId != packet.TrashId)
+                {
                     player.SendPacket(new TrashSystemCorrectionIdPacket(packet.TrashId, myId));
                 }
             }

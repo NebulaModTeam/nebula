@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
+using NebulaHost;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
 using System;
-using NebulaHost;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

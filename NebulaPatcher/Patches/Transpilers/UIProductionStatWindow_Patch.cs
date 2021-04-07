@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using HarmonyLib;
+using NebulaWorld.Statistics;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using HarmonyLib;
-using NebulaWorld.Statistics;
 
 namespace NebulaPatcher.Patches.Transpiler
 {
@@ -55,7 +55,7 @@ namespace NebulaPatcher.Patches.Transpiler
             var targetIndex = typeof(UIProductionStatWindow).GetField("targetIndex", BindingFlags.NonPublic | BindingFlags.Instance);
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
-            { 
+            {
                 //Patch fix for the "Entire Star Cluster" Tab in statistics
                 if (codes[i].operand?.ToString() == "PlanetFactory[] factories" && !patchActive[0])
                 {
@@ -109,7 +109,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 8] = new CodeInstruction(OpCodes.Ldfld, typeof(FactoryProductionStat).GetField("energyConsumption", BindingFlags.Public | BindingFlags.Instance));
                     codes[i + 9] = new CodeInstruction(OpCodes.Stloc_S, 41);
                 }
-              
+
                 //Patch fix for the "Picking specific star system" in statistics
                 if (codes[i].operand?.ToString() == "PowerSystem powerSystem" && patchActive[2] && !patchActive[3])
                 {
@@ -122,7 +122,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 1] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 2] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
                     codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
-                }   
+                }
             }
             return ReplaceFactoryCondition(codes);
         }
