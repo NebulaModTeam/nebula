@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
@@ -75,6 +76,10 @@ namespace NebulaClient
         public void SendPacket<T>(T packet) where T : class, new()
         {
             serverConnection?.SendPacket(packet);
+        }
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
         }
 
         public void Reconnect()

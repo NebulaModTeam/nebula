@@ -40,6 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
+    <Compile Include="PacketProcessors\Factory\Assembler\AssemblerRecipeEventProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateProducesProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateStorageProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRealtimeChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncSetBansProcessor.cs" />
@@ -60,6 +63,7 @@
     <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
+    <Compile Include="PacketProcessors\Routers\PlanetBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="PacketProcessors\Statistics\StatisticsRequestEventProcessor.cs" />

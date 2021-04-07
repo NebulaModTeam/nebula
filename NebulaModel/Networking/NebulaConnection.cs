@@ -32,6 +32,18 @@ namespace NebulaModel.Networking
             }
         }
 
+        public void SendRawPacket(byte[] rawData)
+        {
+            if (peerSocket.ReadyState == WebSocketState.Open)
+            {
+                peerSocket.Send(rawData);
+            }
+            else
+            {
+                Log.Warn($"Cannot send raw packet to a closed connection {peerSocket?.Url}");
+            }
+        }
+
         public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal)
         {
             peerSocket.Close((ushort)reason);
