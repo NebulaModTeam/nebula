@@ -43,7 +43,6 @@
     <Compile Include="PacketProcessors\Factory\Assembler\AssemblerRecipeEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateProducesProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateStorageProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\EntityPlacedProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRealtimeChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncSetBansProcessor.cs" />
