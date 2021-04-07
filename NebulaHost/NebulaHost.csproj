@@ -40,6 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncRealtimeChangeProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncSetBansProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\StorageSyncSortProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\AddEntityPreviewRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\BuildEntityRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\DestructEntityRequestProcessor.cs" />
@@ -53,11 +57,16 @@
     <Compile Include="PacketProcessors\Planet\PlanetDataRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
+    <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="PacketProcessors\Statistics\StatisticsRequestEventProcessor.cs" />
+    <Compile Include="PacketProcessors\Trash\TrashSystemClearAllTrashProcessor.cs" />
+    <Compile Include="PacketProcessors\Trash\TrashSystemNewTrashCreatedProcessor.cs" />
+    <Compile Include="PacketProcessors\Trash\TrashSystemRequestDataProcessor.cs" />
+    <Compile Include="PacketProcessors\Trash\TrashSystemTrashRemovedProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddFrameProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddLayerProcessor.cs" />
     <Compile Include="PacketProcessors\Universe\DysonSphereAddNodeProcessor.cs" />
@@ -72,6 +81,8 @@
     <Compile Include="Player.cs" />
     <Compile Include="PlayerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SaveManager.cs" />
+    <Compile Include="StorageSyncManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">

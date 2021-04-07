@@ -118,4 +118,19 @@ namespace NebulaPatcher.Patches.Dynamic
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch("GameTick")]
+    public static bool InternalUpdate_Prefix()
+    {
+        StorageManager.IsHumanInput = false;
+        return true;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch("GameTick")]
+    public static void InternalUpdate_Postfix()
+    {
+        StorageManager.IsHumanInput = true;
+    }
 }

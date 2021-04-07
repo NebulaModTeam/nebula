@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factory\FactoryManager.cs" />
+    <Compile Include="Factory\StorageManager.cs" />
     <Compile Include="GameDataHistory\GameDataHistoryManager.cs" />
     <Compile Include="INetworkProvider.cs" />
     <Compile Include="InGamePopup.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="RemotePlayerModel.cs" />
     <Compile Include="SimulatedWorld.cs" />
     <Compile Include="Statistics\StatisticsManager.cs" />
+    <Compile Include="Trash\TrashManager.cs" />
     <Compile Include="Universe\DysonSphere_Manager.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,8 +1,12 @@
 # Nebula
 
-An open-source, multiplayer mod for the game [Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/). I also, want to say thank you to the contributers of the [Subnautica Nitrox](https://nitrox.rux.gg/download) mod as it as been a great source of inspiration for this mod.
+An open-source, multiplayer mod for the game [Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/).
 
 # FAQ
+
+## How can I play this mod?
+
+Please do keep in mind that this mod is still in heavy development. I do not encourage you to try to install this mod yet. I will update this section once I think the mod is in a decent state.
 
 ## What is the current status ?
 
@@ -30,15 +34,11 @@ Here is a short list of what is currently implemented
 - [x] Factories statistics syncing
 - [ ] Containers inventory syncing
 - [ ] Belts syncing
-- [ ] Dropped items syncing
+- [x] Dropped items syncing
 - [ ] Interstellar Station syncing
 - [ ] Drones position syncing
 - [ ] Foundation syncing (terrain deformation)
 - [ ] Server state persistence
-
-## How can I play this mod?
-
-Please do keep in mind that this mod is still in heavy development. I do not encourage you to try to install this mod yet. I will update this section once I think the mod is in a decent state.
 
 ## How can I contribute
 

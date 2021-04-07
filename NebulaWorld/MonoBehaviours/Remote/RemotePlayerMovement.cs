@@ -10,7 +10,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
     {
         private const int BUFFERED_SNAPSHOT_COUNT = 4;
 
-        struct Snapshot
+        public struct Snapshot
         {
             public long Timestamp { get; set; }
             public int LocalPlanetId { get; set; }
@@ -154,6 +154,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
             // If the remote player is in space, we need to calculate the remote player relative position from our local player position.
             VectorLF3 uPosition = new VectorLF3(snapshot.UPosition.x, snapshot.UPosition.y, snapshot.UPosition.z);
             return Maths.QInvRotateLF(GameMain.data.relativeRot, uPosition - GameMain.data.relativePos);
+        }
+
+        public Snapshot GetLastPosition()
+        {
+            return snapshotBuffer[snapshotBuffer.Length - 1];
         }
     }
 }
