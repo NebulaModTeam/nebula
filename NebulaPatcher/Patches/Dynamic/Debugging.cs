@@ -67,6 +67,8 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.player.package.AddItemStacked(2312, 10); //add launching silo
             __instance.player.package.AddItemStacked(2210, 10); //add artifical sun
             __instance.player.package.AddItemStacked(2311, 20); //add railgun
+            __instance.player.package.AddItemStacked(2001, 600); //add MK3 belts
+            __instance.player.package.AddItemStacked(2002, 600); //add MK3 belts
             __instance.player.package.AddItemStacked(2003, 600); //add MK3 belts
             __instance.player.package.AddItemStacked(2013, 100); //add MK3 inserters
             __instance.player.package.AddItemStacked(2212, 20); //add satelite sub-station

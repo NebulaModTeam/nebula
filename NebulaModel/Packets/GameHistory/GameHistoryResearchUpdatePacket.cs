@@ -7,7 +7,7 @@
 
         public GameHistoryResearchUpdatePacket() { }
 
-        public GameHistoryResearchUpdatePacket(int techId, long hashUploaded) 
+        public GameHistoryResearchUpdatePacket(int techId, long hashUploaded)
         {
             this.TechId = techId;
             this.HashUploaded = hashUploaded;

@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Trash;
@@ -27,6 +26,7 @@ namespace NebulaWorld
 
         public static void Initialize()
         {
+            FactoryManager.Initialize();
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
             Initialized = true;
         }
@@ -145,20 +145,6 @@ namespace NebulaWorld
             if (LocalPlayer.PlayerId == playerId)
             {
                 LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
-            }
-        }
-
-        public static void OnPlaceEntity(EntityPlaced packet)
-        {
-            if (packet.isPrebuild && packet.planetId == GameMain.localPlanet?.id)
-            {
-                EntityManager.PlaceEntityPrebuild(packet);
-            }
-            else if (!packet.isPrebuild)
-            {
-                // if this player is currently not on the planet where the building is placed then dont spawn a prebuild
-                // and we only place the entity once it truly is placed and not a prebuild anymore for the original issuer.
-                EntityManager.PlaceEntity(packet);
             }
         }
 

@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -10,37 +10,99 @@ namespace NebulaPatcher.Patches.Dynamic
     class BuildFinally_patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("BuildFinally")]
-        public static bool BuildFinally_Prefix(PlanetFactory __instance, Player player, int prebuildId)
-        {
-            if (prebuildId != 0)
-            {
-                PrebuildData data = __instance.prebuildPool[prebuildId];
-                if (data.id == prebuildId)
-                {
-                    OnEntityPlaced(data.protoId, data.pos, data.rot, false);
-                }
-            }
-
-            return true;
-        }
-
-        [HarmonyPrefix]
         [HarmonyPatch("AddPrebuildDataWithComponents")]
         public static bool AddPrebuildDataWithComponents_Prefix(PlanetFactory __instance, PrebuildData prebuild)
         {
-            for (int i = 0; i < LocalPlayer.prebuildReceivedList.Count; i++)
+            if (!SimulatedWorld.Initialized)
+                return true;
+
+            // If the host game called the method, we need to compute the PrebuildId ourself
+            if (LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
             {
-                foreach (PrebuildData pBuild in LocalPlayer.prebuildReceivedList.Keys)
-                {
-                    if (pBuild.pos == prebuild.pos && pBuild.rot == prebuild.rot)
-                    {
-                        return true;
-                    }
-                }
+                int nextPrebuildId = FactoryManager.GetNextPrebuildId(__instance);
+                FactoryManager.SetPrebuildRequest(__instance.planetId, nextPrebuildId, LocalPlayer.PlayerId);
             }
-            OnEntityPlaced(prebuild.protoId, prebuild.pos, prebuild.rot, true);
-            return true;
+
+            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            {
+                LocalPlayer.SendPacket(new AddEntityPreviewRequest(__instance.planetId, prebuild));
+            }
+
+            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("BuildFinally")]
+        public static bool BuildFinally_Prefix(PlanetFactory __instance, Player player, int prebuildId)
+        {
+            if (!SimulatedWorld.Initialized)
+                return true;
+
+            if (LocalPlayer.IsMasterClient)
+            {
+                if (!FactoryManager.ContainsPrebuildRequest(__instance.planetId, prebuildId))
+                {
+                    // This prevents duplicating the entity when multiple players trigger the BuildFinally for the same entity at the same time.
+                    // If it occurs in any other circumstances, it means that we have some desynchronization between clients and host prebuilds buffers.
+                    Log.Warn($"BuildFinally was called without having a corresponding PrebuildRequest for the prebuild {prebuildId} on the planet {__instance.planetId}");
+                    return false;
+                }
+
+                // Remove the prebuild request from the list since we will now convert it to a real building
+                FactoryManager.RemovePrebuildRequest(__instance.planetId, prebuildId);
+            }
+
+            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            {
+                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId));
+            }
+
+            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
+        }
+
+
+        [HarmonyPrefix]
+        [HarmonyPatch("DestructFinally")]
+        public static bool DestructFinally_Prefix(PlanetFactory __instance, Player player, int objId, ref int protoId)
+        {
+            if (!SimulatedWorld.Initialized)
+                return true;
+
+            // TODO: handle if 2 clients or if host and client trigger a destruct of the same object at the same time
+
+            // If the object is a prebuild, remove it from the prebuild request list
+            if (LocalPlayer.IsMasterClient && objId < 0)
+            {
+                if (!FactoryManager.ContainsPrebuildRequest(__instance.planetId, -objId))
+                {
+                    Log.Warn($"DestructFinally was called without having a corresponding PrebuildRequest for the prebuild {-objId} on the planet {__instance.planetId}");
+                    return false;
+                }
+
+                FactoryManager.RemovePrebuildRequest(__instance.planetId, -objId);
+            }
+
+            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            {
+                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.planetId, objId));
+            }
+
+            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("UpgradeFinally")]
+        public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
+        {
+            if (!SimulatedWorld.Initialized)
+                return true;
+
+            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            {
+                LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID));
+            }
+
+            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
         [HarmonyPrefix]
@@ -56,12 +118,6 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void InternalUpdate_Postfix()
         {
             StorageManager.IsHumanInput = true;
-        }
-
-        private static void OnEntityPlaced(short protoId, Vector3 pos, Quaternion rot, bool isPrebuild)
-        {
-            var packet = new EntityPlaced(GameMain.localPlanet.id, protoId, pos, rot, isPrebuild);
-            LocalPlayer.SendPacket(packet);
         }
     }
 }
