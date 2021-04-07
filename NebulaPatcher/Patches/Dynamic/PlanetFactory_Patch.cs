@@ -23,14 +23,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 FactoryManager.SetPrebuildRequest(__instance.planetId, nextPrebuildId, LocalPlayer.PlayerId);
             }
 
-            // If we are the host we need to notify all the clients to do the same in their game
-            // Or if the method was called by the game on a client, we need to send a request to the host to let the host create the object first. 
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
                 LocalPlayer.SendPacket(new AddEntityPreviewRequest(__instance.planetId, prebuild));
             }
 
-            // Perform the game code only if you are the host or a client which received a host request to do this action.
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
@@ -41,11 +38,12 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!SimulatedWorld.Initialized)
                 return true;
 
-            // If we are executing this on the host, make sure that we were having a corresponding prebuild request
             if (LocalPlayer.IsMasterClient)
             {
                 if (!FactoryManager.ContainsPrebuildRequest(__instance.planetId, prebuildId))
                 {
+                    // This prevents duplicating the entity when multiple players trigger the BuildFinally for the same entity at the same time.
+                    // If it occurs in any other circumstances, it means that we have some desynchronization between clients and host prebuilds buffers.
                     Log.Warn($"BuildFinally was called without having a corresponding PrebuildRequest for the prebuild {prebuildId} on the planet {__instance.planetId}");
                     return false;
                 }
@@ -54,15 +52,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 FactoryManager.RemovePrebuildRequest(__instance.planetId, prebuildId);
             }
 
-            // If we are the host we need to notify all the clients to do the same in their game
-            // Or if the method was called by the game on a client, we need to send a request to the host to let the host decide if we can create it or not.
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
                 LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId));
             }
 
-            // Perform the game code only if you are the host or a client which received a host request to do this action.
-            // TODO: Look at doing this in a transpiler
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
@@ -88,15 +82,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 FactoryManager.RemovePrebuildRequest(__instance.planetId, -objId);
             }
 
-
-            // If we are the host we need to notify all the clients to do the same in their game
-            // Or if the method was called by the game on a client, we need to send a request to the host to let the host decide if we can create it or not.
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
                 LocalPlayer.SendPacket(new DestructEntityRequest(__instance.planetId, objId));
             }
 
-            // Perform the game code only if you are the host or a client which received a host request to do this action.
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
@@ -107,30 +97,27 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!SimulatedWorld.Initialized)
                 return true;
 
-            // If we are the host we need to notify all the clients to do the same in their game
-            // Or if the method was called by the game on a client, we need to send a request to the host to let the host decide if we can create it or not.
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
                 LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID));
             }
 
-            // Perform the game code only if you are the host or a client which received a host request to do this action.
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
-    }
 
-    [HarmonyPrefix]
-    [HarmonyPatch("GameTick")]
-    public static bool InternalUpdate_Prefix()
-    {
-        StorageManager.IsHumanInput = false;
-        return true;
-    }
+        [HarmonyPrefix]
+        [HarmonyPatch("GameTick")]
+        public static bool InternalUpdate_Prefix()
+        {
+            StorageManager.IsHumanInput = false;
+            return true;
+        }
 
-    [HarmonyPostfix]
-    [HarmonyPatch("GameTick")]
-    public static void InternalUpdate_Postfix()
-    {
-        StorageManager.IsHumanInput = true;
+        [HarmonyPostfix]
+        [HarmonyPatch("GameTick")]
+        public static void InternalUpdate_Postfix()
+        {
+            StorageManager.IsHumanInput = true;
+        }
     }
 }
