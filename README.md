@@ -4,6 +4,10 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 # FAQ
 
+## How can I play this mod?
+
+Please do keep in mind that this mod is still in heavy development. I do not encourage you to try to install this mod yet. I will update this section once I think the mod is in a decent state.
+
 ## What is the current status ?
 
 The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.
@@ -35,10 +39,6 @@ Here is a short list of what is currently implemented
 - [ ] Drones position syncing
 - [ ] Foundation syncing (terrain deformation)
 - [ ] Server state persistence
-
-## How can I play this mod?
-
-Please do keep in mind that this mod is still in heavy development. I do not encourage you to try to install this mod yet. I will update this section once I think the mod is in a decent state.
 
 ## How can I contribute
 
