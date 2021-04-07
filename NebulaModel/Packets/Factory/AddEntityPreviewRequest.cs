@@ -8,7 +8,7 @@ namespace NebulaModel.Packets.Factory
         public byte[] PrebuildDataRaw { get; set; }
 
         public AddEntityPreviewRequest() { }
-        public AddEntityPreviewRequest(int planetId, PrebuildData prebuild) 
+        public AddEntityPreviewRequest(int planetId, PrebuildData prebuild)
         {
             PlanetId = planetId;
 

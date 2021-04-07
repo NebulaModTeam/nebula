@@ -1,5 +1,4 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;

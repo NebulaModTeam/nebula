@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Trash;

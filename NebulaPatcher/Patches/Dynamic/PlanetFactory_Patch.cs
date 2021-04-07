@@ -92,7 +92,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("UpgradeFinally")]
-        public static bool UpgradeFinally_Prefix(PlanetFactory __instance,  Player player, int objId, ItemProto replace_item_proto)
+        public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
         {
             if (!SimulatedWorld.Initialized)
                 return true;
