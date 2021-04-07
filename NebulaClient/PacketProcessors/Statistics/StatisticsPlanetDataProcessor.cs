@@ -11,7 +11,7 @@ namespace NebulaClient.PacketProcessors.Statistics
     {
         public void ProcessPacket(StatisticsPlanetDataPacket packet, NebulaConnection conn)
         {
-            for(int i = 0; i < packet.PlanetsIds.Length; i++)
+            for (int i = 0; i < packet.PlanetsIds.Length; i++)
             {
                 if (GameMain.data.factories[i] == null)
                 {
@@ -25,9 +25,9 @@ namespace NebulaClient.PacketProcessors.Statistics
                 if (GameMain.statistics.production.factoryStatPool[i] == null)
                 {
                     GameMain.statistics.production.factoryStatPool[i] = new FactoryProductionStat();
-                    GameMain.statistics.production.factoryStatPool[i].Init(); 
+                    GameMain.statistics.production.factoryStatPool[i].Init();
                 }
-            }            
+            }
         }
     }
 }

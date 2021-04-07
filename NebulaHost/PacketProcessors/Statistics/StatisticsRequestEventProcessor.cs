@@ -27,8 +27,8 @@ namespace NebulaHost.PacketProcessors.Statistics
 
                     using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
                     {
-                       StatisticsManager.ExportAllData(writer.BinaryWriter);
-                       conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
+                        StatisticsManager.ExportAllData(writer.BinaryWriter);
+                        conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
                     }
                 }
                 else if (packet.Event == StatisticEvent.WindowClosed)

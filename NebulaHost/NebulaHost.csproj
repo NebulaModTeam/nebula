@@ -40,11 +40,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiplayerHostSession.cs" />
-    <Compile Include="PacketProcessors\Factory\EntityPlacedProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRealtimeChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncSetBansProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncSortProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\AddEntityPreviewRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\BuildEntityRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\DestructEntityRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\UpgradeEntityRequestProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryDataRequestProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryEnqueueTechProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryNotificationProcessor.cs" />

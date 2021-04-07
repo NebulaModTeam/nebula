@@ -1,8 +1,7 @@
-﻿using NebulaModel.Networking;
+﻿using NebulaModel.Attributes;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
-using NebulaModel.Attributes;
-using NebulaWorld.Factory;
 
 namespace NebulaHost.PacketProcessors.Factory
 {
