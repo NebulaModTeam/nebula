@@ -27,18 +27,19 @@ Here is a short list of what is currently implemented
 - [x] Planet resources syncing
 - [x] Build preview syncing
 - [x] Entity creation syncing
-- [ ] Entity desctruction syncing
-- [ ] Entity upgrade syncing
+- [x] Entity desctruction syncing
+- [x] Entity upgrade syncing
 - [x] Dyson spheres syncing
 - [x] Researches syncing
 - [x] Factories statistics syncing
-- [ ] Containers inventory syncing
+- [x] Containers inventory syncing
 - [ ] Belts syncing
 - [x] Dropped items syncing
 - [ ] Interstellar Station syncing
 - [ ] Drones position syncing
 - [ ] Foundation syncing (terrain deformation)
-- [ ] Server state persistence
+- [x] Server state persistence
+- [x] Building Interaction sync
 
 ## How can I contribute
 
