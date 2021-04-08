@@ -48,6 +48,9 @@
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateCubesProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateStorageProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Miner\MinerStoragePickupProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerChangeModeProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerStorageUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\PowerGenerator\PowerGeneratorFuelUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\RayReceiver\RayReceiverChangeLensProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\RayReceiver\RayReceiverChangeModeProcessor.cs" />
@@ -61,6 +64,8 @@
     <Compile Include="PacketProcessors\Factory\AddEntityPreviewRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\BuildEntityRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\DestructEntityRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Tank\TankInputOutputSwitchProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Tank\TankStorageUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\UpgradeEntityRequestProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryDataResponseProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryEnqueueTechProcessor.cs" />
@@ -122,6 +127,7 @@
       <Version>1.0.15.93</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />
   <Target Name="AfterBuild">
