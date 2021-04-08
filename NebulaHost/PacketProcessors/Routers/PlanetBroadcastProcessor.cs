@@ -19,7 +19,7 @@ namespace NebulaHost.PacketProcessors.Routers
             if (player != null)
             {
                 //Forward packet to other users
-                playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId);
+                playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
 
                 //Check if host is also target for the packet
                 if(GameMain.data.mainPlayer.planetId == packet.PlanetId)
