@@ -42,6 +42,9 @@
     <Compile Include="PacketProcessors\Factory\Assembler\AssemblerRecipeEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateProducesProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateStorageProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Labratory\LaboratoryUpdateCubesProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Labratory\LaboratoryUpdateEventProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Labratory\LaboratoryUpdateStorageProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRealtimeChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncResponseProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncSetBansProcessor.cs" />

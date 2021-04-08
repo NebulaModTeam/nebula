@@ -81,11 +81,11 @@ namespace NebulaHost
             }
         }
 
-        public void SendRawPacketToPlanet(byte[] rawPacket, int planetId)
+        public void SendRawPacketToPlanet(byte[] rawPacket, int planetId, NebulaConnection sender)
         {
             foreach (Player player in GetConnectedPlayers())
             {
-                if (player.Data?.LocalPlanetId == planetId)
+                if (player.Data?.LocalPlanetId == planetId && player.Connection != sender)
                 {
                     player.SendRawPacket(rawPacket);
                 }
