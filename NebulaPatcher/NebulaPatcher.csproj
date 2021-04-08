@@ -62,9 +62,12 @@
     <Compile Include="Patches\Dynamic\TrashSystem_Patch.cs" />
     <Compile Include="Patches\Dynamic\StorageComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIAssemblerWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIEjectorWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UILabWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIPowerGeneratorWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIProductionStatWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UISiloWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStorageWindow_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
