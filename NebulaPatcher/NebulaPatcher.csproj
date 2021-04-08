@@ -57,6 +57,7 @@
     <Compile Include="Patches\Dynamic\GPUInstancingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\GuideMissionStandardMode_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\PlayerAction_Build_Patch.cs" />
     <Compile Include="Patches\Dynamic\ProductionStatistics_Patch.cs" />
     <Compile Include="Patches\Dynamic\SplitterComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\TrashContainer_Patch.cs" />
@@ -75,6 +76,8 @@
     <Compile Include="Patches\Dynamic\UISplitterWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStorageWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UITankWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\VFInput_Patch.cs" />
+    <Compile Include="Patches\Transpilers\PlayerAction_Build_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
