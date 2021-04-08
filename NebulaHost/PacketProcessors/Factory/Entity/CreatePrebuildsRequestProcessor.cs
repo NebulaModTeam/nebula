@@ -1,12 +1,12 @@
-﻿using NebulaModel.Attributes;
+﻿using HarmonyLib;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
-using HarmonyLib;
 using System.Collections.Generic;
 
-namespace NebulaClient.PacketProcessors.Factory
+namespace NebulaHost.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
     class CreatePrebuildsRequestProcessor : IPacketProcessor<CreatePrebuildsRequest>
@@ -25,12 +25,12 @@ namespace NebulaClient.PacketProcessors.Factory
                 //Create Prebuilds from incomming packet
                 pab.buildPreviews = packet.GetBuildPreviews();
                 pab.waitConfirm = true;
-                FactoryManager.EventFromServer = true;
+                FactoryManager.EventFromClient = true;
                 pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
                 pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
                 AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, GameMain.localPlanet.factory);
                 pab.CreatePrebuilds();
-                FactoryManager.EventFromServer = false;
+                FactoryManager.EventFromClient = false;
 
                 //Revert changes back
                 pab.buildPreviews = tmpList;

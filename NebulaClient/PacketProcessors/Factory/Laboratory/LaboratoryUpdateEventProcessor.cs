@@ -1,7 +1,7 @@
-﻿using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Factory.Laboratory;
+using NebulaModel.Packets.Processors;
 
 namespace NebulaClient.PacketProcessors.Factory.Labratory
 {
@@ -18,7 +18,7 @@ namespace NebulaClient.PacketProcessors.Factory.Labratory
                     //Widthdraw produced cubes
                     pool[packet.LabIndex].produced[0] = 0;
                 }
-                else if(packet.ProductId == -2)
+                else if (packet.ProductId == -2)
                 {
                     //Research recipe reseted
                     pool[packet.LabIndex].SetFunction(false, 0, 0, GameMain.localPlanet.factory.entitySignPool);

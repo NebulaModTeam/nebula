@@ -14,7 +14,8 @@ namespace NebulaPatcher.Patches.Dynamic
             LabComponent labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
             if (labComponent.researchMode)
             {
-                if (GameMain.mainPlayer.inhandItemId > 0 && GameMain.mainPlayer.inhandItemCount > 0) {
+                if (GameMain.mainPlayer.inhandItemId > 0 && GameMain.mainPlayer.inhandItemCount > 0)
+                {
                     //Notify about depositing source cubes
                     ItemProto[] matrixProtos = (ItemProto[])AccessTools.Field(typeof(UILabWindow), "matrixProtos").GetValue(__instance);
                     int id = matrixProtos[index].ID;
@@ -36,9 +37,10 @@ namespace NebulaPatcher.Patches.Dynamic
                 else
                 {
                     //Notify about widthrawing source cubes
-                    if ((int)(labComponent.matrixServed[index] / 3600) > 0) {
+                    if ((int)(labComponent.matrixServed[index] / 3600) > 0)
+                    {
                         LocalPlayer.SendPacketToLocalPlanet(new LaboratoryUpdateCubesPacket(0, index, __instance.labId));
-                    }      
+                    }
                 }
             }
             else if (labComponent.matrixMode)
@@ -83,12 +85,13 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 //Notify about withdrawing produced cubes
                 LocalPlayer.SendPacketToLocalPlanet(new LaboratoryUpdateEventPacket(-3, __instance.labId));
-            } else if (!labComponent.researchMode)
+            }
+            else if (!labComponent.researchMode)
             {
                 //Notify about selection of research mode
                 LocalPlayer.SendPacketToLocalPlanet(new LaboratoryUpdateEventPacket(-1, __instance.labId));
             }
-                
+
         }
 
         [HarmonyPrefix]

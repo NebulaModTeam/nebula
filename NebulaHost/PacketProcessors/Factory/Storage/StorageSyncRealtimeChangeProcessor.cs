@@ -4,7 +4,7 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
-namespace NebulaHost.PacketProcessors.Factory
+namespace NebulaHost.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
     class StorageSyncRealtimeChangeProcessor : IPacketProcessor<StorageSyncRealtimeChangePacket>

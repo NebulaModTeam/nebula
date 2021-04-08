@@ -4,7 +4,7 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
-namespace NebulaClient.PacketProcessors.Factory
+namespace NebulaClient.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
     class StorageSyncSetBansProcessor : IPacketProcessor<StorageSyncSetBansPacket>

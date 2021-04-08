@@ -4,12 +4,12 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
-namespace NebulaClient.PacketProcessors.Factory
+namespace NebulaHost.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
-    class StorageSyncSortProcessor : IPacketProcessor<StorageSyncSortPacket>
+    class StorageSyncSetBansProcessor : IPacketProcessor<StorageSyncSetBansPacket>
     {
-        public void ProcessPacket(StorageSyncSortPacket packet, NebulaConnection conn)
+        public void ProcessPacket(StorageSyncSetBansPacket packet, NebulaConnection conn)
         {
             StorageComponent storage = null;
             StorageComponent[] pool = GameMain.localPlanet?.factory?.factoryStorage?.storagePool;
@@ -21,7 +21,7 @@ namespace NebulaClient.PacketProcessors.Factory
             if (storage != null)
             {
                 StorageManager.EventFromClient = true;
-                storage.Sort();
+                storage.SetBans(packet.Bans);
                 StorageManager.EventFromClient = false;
             }
         }

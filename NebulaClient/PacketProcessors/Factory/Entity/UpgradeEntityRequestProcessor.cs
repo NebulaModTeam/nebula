@@ -4,7 +4,7 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
-namespace NebulaClient.PacketProcessors.Factory
+namespace NebulaClient.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
     public class UpgradeEntityRequestProcessor : IPacketProcessor<UpgradeEntityRequest>

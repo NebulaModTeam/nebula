@@ -11,7 +11,7 @@ namespace NebulaModel.Packets.Factory
         public byte[] BuildPreviewData { get; set; }
         public Float3 PosePosition { get; set; }
         public Float4 PoseRotation { get; set; }
-        
+
         public CreatePrebuildsRequest() { }
 
         public CreatePrebuildsRequest(List<BuildPreview> buildPreviews, Pose pose)
@@ -21,7 +21,7 @@ namespace NebulaModel.Packets.Factory
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 writer.BinaryWriter.Write(buildPreviews.Count);
-                for(int i = 0; i < buildPreviews.Count; i++)
+                for (int i = 0; i < buildPreviews.Count; i++)
                 {
                     SerializeBuildPreview(buildPreviews[i], buildPreviews, writer.BinaryWriter);
                 }
@@ -98,13 +98,13 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.objId);
             int num = buildPreview.nearestPowerObjId == null ? 0 : buildPreview.nearestPowerObjId.Length;
             bw.Write(num);
-            for(int i = 0; i < num; i++)
+            for (int i = 0; i < num; i++)
             {
                 bw.Write(buildPreview.nearestPowerObjId[i]);
             }
             bw.Write(buildPreview.coverObjId);
             bw.Write(buildPreview.willCover);
-            bw.Write(buildPreview.ignoreCollider); 
+            bw.Write(buildPreview.ignoreCollider);
             bw.Write(buildPreview.outputObjId);
             bw.Write(buildPreview.inputObjId);
             bw.Write(buildPreview.outputToSlot);
