@@ -33,13 +33,13 @@ Here is a short list of what is currently implemented
 - [x] Researches syncing
 - [x] Factories statistics syncing
 - [x] Containers inventory syncing
+- [x] Building Interaction syncing
 - [ ] Belts syncing
 - [x] Dropped items syncing
 - [ ] Interstellar Station syncing
 - [ ] Drones position syncing
 - [ ] Foundation syncing (terrain deformation)
 - [x] Server state persistence
-- [x] Building Interaction sync
 
 ## How can I contribute
 
