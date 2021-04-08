@@ -67,12 +67,16 @@
     <Compile Include="Packets\Factory\DestructEntityRequest.cs" />
     <Compile Include="Packets\Factory\Ejector\EjectorOrbitUpdatePacket.cs" />
     <Compile Include="Packets\Factory\Ejector\EjectorStorageUpdatePacket.cs" />
+    <Compile Include="Packets\Factory\Inserter\InserterFilterUpdatePacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateCubesPacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateEventPacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateStoragePacket.cs" />
+    <Compile Include="Packets\Factory\PowerGenerator\PowerGeneratorFuelUpdatePacket.cs" />
     <Compile Include="Packets\Factory\RayReceiver\RayReceiverChangeLensPacket.cs" />
     <Compile Include="Packets\Factory\RayReceiver\RayReceiverChangeModePacket.cs" />
     <Compile Include="Packets\Factory\Silo\SiloStorageUpdatePacket.cs" />
+    <Compile Include="Packets\Factory\Splitter\SplitterFilterChangePacket.cs" />
+    <Compile Include="Packets\Factory\Splitter\SplitterPriorityChangePacket.cs" />
     <Compile Include="Packets\Factory\UpgradeEntityRequest.cs" />
     <Compile Include="Packets\Factory\StorageSyncRealtimeChangePacket.cs" />
     <Compile Include="Packets\Factory\StorageSyncSetBansPacket.cs" />

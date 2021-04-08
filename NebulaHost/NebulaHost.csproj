@@ -45,12 +45,16 @@
     <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateStorageProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Ejector\EjectorOrbitUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Ejector\EjectorStorageUpdateProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Inserter\InserterFilterUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateCubesProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateStorageProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\PowerGenerator\PowerGeneratorFuelUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\RayReceiver\RayReceiverChangeLensProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\RayReceiver\RayReceiverChangeModeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Silo\SiloStorageUpdateProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Splitter\SplitterFilterChangeProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Splitter\SplitterPriorityChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRealtimeChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\StorageSyncSetBansProcessor.cs" />

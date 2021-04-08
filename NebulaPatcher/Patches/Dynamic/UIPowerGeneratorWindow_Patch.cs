@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Factory.PowerGenerator;
 using NebulaModel.Packets.Factory.RayReceiver;
 using NebulaWorld;
 
@@ -27,8 +28,18 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnCataButtonClick")]
         public static void OnCataButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
-            //Notify about changing amout of gravitational lens
+            //Notify about changing amount of gravitational lens
             LocalPlayer.SendPacketToLocalPlanet(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint));
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("OnFuelButtonClick")]
+        public static void OnFuelButtonClick_Postfix(UIPowerGeneratorWindow __instance)
+        {
+            //Notify about changing amount of fuel in power plant
+            PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
+            LocalPlayer.SendPacketToLocalPlanet(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount));
+        }
+        
     }
 }

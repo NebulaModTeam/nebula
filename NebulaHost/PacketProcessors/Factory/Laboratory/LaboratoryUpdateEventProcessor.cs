@@ -25,7 +25,7 @@ namespace NebulaHost.PacketProcessors.Factory.Labratory
                 }
                 else if (packet.ProductId == -1)
                 {
-                    //Center chenged to research-mode
+                    //Research center mode changed to research-mode
                     pool[packet.LabIndex].SetFunction(true, 0, GameMain.data.history.currentTech, GameMain.localPlanet.factory.entitySignPool);
                 }
                 else
