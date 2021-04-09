@@ -2,6 +2,7 @@
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
+using System.Collections.Generic;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -27,7 +28,34 @@ namespace NebulaPatcher.Patches.Dynamic
                 //If client builds, he need to first send request to the host and wait for reply
                 if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
                 {
-                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, __instance.buildPreviews, __instance.previewPose));
+                    //Check what client can build from his inventory
+                    List<BuildPreview> canBuild = new List<BuildPreview>();
+                    //Remove required items from the player's inventory and build only what client can
+                    foreach (BuildPreview buildPreview in __instance.buildPreviews)
+                    {
+                        //This code with flag was taken from original method:
+                        bool flag = true;
+                        if (buildPreview.coverObjId == 0 || buildPreview.willCover)
+                        {
+                            int id = buildPreview.item.ID;
+                            int num = 1;
+                            if (__instance.player.inhandItemId == id && __instance.player.inhandItemCount > 0)
+                            {
+                                __instance.player.UseHandItems(1);
+                            }
+                            else
+                            {
+                                __instance.player.package.TakeTailItems(ref id, ref num, false);
+                            }
+                            flag = (num == 1);
+                        }
+                        if (flag)
+                        {
+                            canBuild.Add(buildPreview);
+                        }
+                    }
+
+                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, canBuild, __instance.previewPose));
                     return false;
                 }
             }
