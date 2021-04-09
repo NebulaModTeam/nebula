@@ -1,4 +1,4 @@
 ﻿namespace NebulaModel.Packets.GameHistory
 {
-    public class GameHistoryDataRequest {}
+    public class GameHistoryDataRequest { }
 }

@@ -1,10 +1,7 @@
 ﻿using HarmonyLib;
-using LZ4;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaWorld;
-using System.IO;
-using System.IO.Compression;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -123,7 +120,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     PlanetData planet = __instance.galaxy.PlanetById(LocalPlayer.Data.LocalPlanetId);
                     __instance.ArrivePlanet(planet);
-                } 
+                }
                 else
                 {
                     StarData nearestStar = null;

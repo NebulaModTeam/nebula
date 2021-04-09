@@ -1,0 +1,17 @@
+﻿namespace NebulaModel.Packets.Factory
+{
+    public class UpgradeEntityRequest
+    {
+        public int PlanetId { get; set; }
+        public int ObjId { get; set; }
+        public int UpgradeProtoId { get; set; }
+
+        public UpgradeEntityRequest() { }
+        public UpgradeEntityRequest(int planetId, int objId, int upgradeProtoId)
+        {
+            PlanetId = planetId;
+            ObjId = objId;
+            UpgradeProtoId = upgradeProtoId;
+        }
+    }
+}

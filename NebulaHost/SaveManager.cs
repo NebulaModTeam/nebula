@@ -4,7 +4,6 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 namespace NebulaHost
 {
@@ -55,7 +54,10 @@ namespace NebulaHost
             {
                 string hash = netDataReader.GetString();
                 PlayerData playerData = netDataReader.Get<PlayerData>();
-                playerManager.SavedPlayerData.Add(hash, playerData);
+                if (!playerManager.SavedPlayerData.ContainsKey(hash))
+                {
+                    playerManager.SavedPlayerData.Add(hash, playerData);
+                }
             }
         }
     }

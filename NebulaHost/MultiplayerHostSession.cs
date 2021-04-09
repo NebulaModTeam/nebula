@@ -1,5 +1,4 @@
-﻿using NebulaHost.PacketProcessors.Statistics;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
@@ -26,7 +25,7 @@ namespace NebulaHost
         float gameStateUpdateTimer = 0;
         float gameResearchHashUpdateTimer = 0;
         float productionStatisticsUpdateTimer = 0;
-        
+
 
         const float GAME_STATE_UPDATE_INTERVAL = 1;
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
@@ -46,6 +45,7 @@ namespace NebulaHost
             }
             PacketProcessor = new NetPacketProcessor();
             StatisticsManager = new StatisticsManager();
+
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
@@ -81,6 +81,11 @@ namespace NebulaHost
         public void SendPacket<T>(T packet) where T : class, new()
         {
             PlayerManager.SendPacketToAllPlayers(packet);
+        }
+
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            PlayerManager.SendPacketToLocalPlanet(packet);
         }
 
         private void Update()
