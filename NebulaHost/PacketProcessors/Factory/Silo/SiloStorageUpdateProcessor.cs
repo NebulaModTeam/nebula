@@ -10,7 +10,7 @@ namespace NebulaHost.PacketProcessors.Factory.Ejector
     {
         public void ProcessPacket(SiloStorageUpdatePacket packet, NebulaConnection conn)
         {
-            SiloComponent[] pool = GameMain.localPlanet?.factory?.factorySystem.siloPool;
+            SiloComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.factorySystem?.siloPool;
             if (pool != null && packet.SiloIndex != -1 && packet.SiloIndex < pool.Length && pool[packet.SiloIndex].id != -1)
             {
                 pool[packet.SiloIndex].bulletCount = packet.NewRocketsAmount;

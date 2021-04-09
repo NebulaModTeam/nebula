@@ -114,5 +114,15 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             StorageManager.IsHumanInput = true;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("PasteEntitySetting")]
+        public static void PasteEntitySetting_Prefix(PlanetFactory __instance, int entityId)
+        {
+            if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
+            {
+                LocalPlayer.SendPacketToLocalStar(new PasteEntitySettingUpdate(entityId, EntitySettingDesc.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
+        }
     }
 }

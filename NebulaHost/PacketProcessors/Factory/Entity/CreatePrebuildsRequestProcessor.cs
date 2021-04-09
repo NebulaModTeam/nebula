@@ -29,6 +29,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 bool tmpConfirm = pab.waitConfirm;
                 UnityEngine.Vector3 tmpPos = pab.previewPose.position;
                 UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
+                PlanetFactory tmpFactory = (PlanetFactory)AccessTools.Field(typeof(PlayerAction_Build), "factory").GetValue(GameMain.mainPlayer.controller.actionBuild); 
 
                 //Create Prebuilds from incomming packet
                 pab.buildPreviews = packet.GetBuildPreviews();
@@ -37,12 +38,18 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 FactoryManager.EventFactory = planet.factory;
                 pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
                 pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
-                AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, GameMain.localPlanet.factory);
+                AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
+                if (planet.physics == null)
+                {
+                    planet.physics = new PlanetPhysics(planet);
+                    planet.physics.Init();
+                }
                 pab.CreatePrebuilds();
                 FactoryManager.EventFromServer = false;
                 FactoryManager.EventFactory = null;
 
                 //Revert changes back
+                AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos;

@@ -12,7 +12,7 @@ namespace NebulaClient.PacketProcessors.Factory.Storage
         public void ProcessPacket(StorageSyncRealtimeChangePacket packet, NebulaConnection conn)
         {
             StorageComponent storageComponent = null;
-            StorageComponent[] pool = GameMain.localPlanet?.factory?.factoryStorage?.storagePool;
+            StorageComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.factoryStorage?.storagePool;
             if (pool != null && packet.StorageIndex != -1 && packet.StorageIndex < pool.Length)
             {
                 storageComponent = pool[packet.StorageIndex];

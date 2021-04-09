@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnResetFilterButtonClick_Prefix(UIInserterWindow __instance)
         {
             //Notify about reseting inserter's filter
-            LocalPlayer.SendPacketToLocalPlanet(new InserterFilterUpdatePacket(__instance.inserterId, 0));
+            LocalPlayer.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, 0, GameMain.localPlanet?.factoryIndex ?? -1));
         }
 
         [HarmonyPrefix]
@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnItemPickerReturn_Prefix(UIInserterWindow __instance, ItemProto item)
         {
             //Notify about changing filter item
-            LocalPlayer.SendPacketToLocalPlanet(new InserterFilterUpdatePacket(__instance.inserterId, (item != null) ? item.ID : 0));
+            LocalPlayer.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.factoryIndex ?? -1));
         }
     }
 }

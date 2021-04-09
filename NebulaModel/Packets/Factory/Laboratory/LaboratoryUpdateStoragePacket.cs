@@ -5,12 +5,14 @@
         public int Value { get; set; }
         public int Index { get; set; }
         public int LabIndex { get; set; }
+        public int FactoryIndex { get; set; }
         public LaboratoryUpdateStoragePacket() { }
-        public LaboratoryUpdateStoragePacket(int value, int index, int labIndex)
+        public LaboratoryUpdateStoragePacket(int value, int index, int labIndex, int factoryIndex)
         {
-            this.Value = value;
-            this.Index = index;
-            this.LabIndex = labIndex;
+            Value = value;
+            Index = index;
+            LabIndex = labIndex;
+            FactoryIndex = factoryIndex;
         }
     }
 }

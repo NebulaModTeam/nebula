@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //Notify about manual rockets inserting / withdrawing change
             StorageComponent storage = (StorageComponent)AccessTools.Field(typeof(UISiloWindow), "servingStorage").GetValue(__instance);
-            LocalPlayer.SendPacketToLocalPlanet(new SiloStorageUpdatePacket(__instance.siloId, storage.grids[0].count));
+            LocalPlayer.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId, storage.grids[0].count, GameMain.localPlanet?.factoryIndex ?? -1));
         }
     }
 }

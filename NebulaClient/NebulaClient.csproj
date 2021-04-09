@@ -50,6 +50,7 @@
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateStorageProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Miner\MinerStoragePickupProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\PasteEntitySettingUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerChangeModeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerStorageUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\PowerGenerator\PowerGeneratorFuelUpdateProcessor.cs" />

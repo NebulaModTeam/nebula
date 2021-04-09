@@ -74,6 +74,7 @@
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateEventPacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateStoragePacket.cs" />
     <Compile Include="Packets\Factory\Miner\MinerStoragePickupPacket.cs" />
+    <Compile Include="Packets\Factory\PasteEntitySettingUpdate.cs" />
     <Compile Include="Packets\Factory\PowerExchanger\PowerExchangerChangeModePacket.cs" />
     <Compile Include="Packets\Factory\PowerExchanger\PowerExchangerStorageUpdatePacket.cs" />
     <Compile Include="Packets\Factory\PowerGenerator\PowerGeneratorFuelUpdatePacket.cs" />
@@ -110,7 +111,7 @@
     <Compile Include="Packets\Players\PlayerColorChanged.cs" />
     <Compile Include="Packets\Players\PlayerTechBonuses.cs" />
     <Compile Include="Packets\Processors\IPacketProcessor.cs" />
-    <Compile Include="Packets\Routers\PlanetBroadcastPacket.cs" />
+    <Compile Include="Packets\Routers\StarBroadcastPacket.cs" />
     <Compile Include="Packets\Session\HandshakeRequest.cs" />
     <Compile Include="Packets\Session\HandshakeResponse.cs" />
     <Compile Include="Packets\Session\InitialState.cs" />

@@ -9,12 +9,19 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch("SaveCurrentGame")]
-        public static void SaveCurrentGame_Prefix(string saveName)
+        public static bool SaveCurrentGame_Prefix(string saveName)
         {
             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
                 SaveManager.SaveServerData(saveName);
             }
+
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         [HarmonyPrefix]

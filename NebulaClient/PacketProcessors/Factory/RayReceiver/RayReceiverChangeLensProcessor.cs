@@ -10,7 +10,7 @@ namespace NebulaClient.PacketProcessors.Factory.RayReceiver
     {
         public void ProcessPacket(RayReceiverChangeLensPacket packet, NebulaConnection conn)
         {
-            PowerGeneratorComponent[] pool = GameMain.localPlanet?.factory?.powerSystem.genPool;
+            PowerGeneratorComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.powerSystem?.genPool;
             if (pool != null && packet.GeneratorId != -1 && packet.GeneratorId < pool.Length && pool[packet.GeneratorId].id != -1)
             {
                 pool[packet.GeneratorId].catalystPoint = packet.LensCount;

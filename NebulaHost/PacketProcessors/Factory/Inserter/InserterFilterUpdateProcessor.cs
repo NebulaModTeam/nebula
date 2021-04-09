@@ -10,13 +10,13 @@ namespace NebulaHost.PacketProcessors.Factory.Inserter
     {
         public void ProcessPacket(InserterFilterUpdatePacket packet, NebulaConnection conn)
         {
-            InserterComponent[] pool = GameMain.localPlanet?.factory?.factorySystem?.inserterPool;
+            InserterComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.factorySystem?.inserterPool;
             if (pool != null && packet.InserterIndex != -1 && packet.InserterIndex < pool.Length && pool[packet.InserterIndex].id != -1)
             {
                 pool[packet.InserterIndex].filter = packet.ItemId;
                 int entityId = pool[packet.InserterIndex].entityId;
-                GameMain.localPlanet.factory.entitySignPool[entityId].iconId0 = (uint)packet.ItemId;
-                GameMain.localPlanet.factory.entitySignPool[entityId].iconType = ((packet.ItemId <= 0) ? 0U : 1U);
+                GameMain.data.factories[packet.FactoryIndex].entitySignPool[entityId].iconId0 = (uint)packet.ItemId;
+                GameMain.data.factories[packet.FactoryIndex].entitySignPool[entityId].iconType = ((packet.ItemId <= 0) ? 0U : 1U);
             }
         }
     }

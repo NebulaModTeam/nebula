@@ -10,7 +10,7 @@ namespace NebulaHost.PacketProcessors.Factory.PowerExchanger
     {
         public void ProcessPacket(PowerExchangerChangeModePacket packet, NebulaConnection conn)
         {
-            PowerExchangerComponent[] pool = GameMain.localPlanet?.factory?.powerSystem?.excPool;
+            PowerExchangerComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.powerSystem?.excPool;
             if (pool != null && packet.PowerExchangerIndex != -1 && packet.PowerExchangerIndex < pool.Length && pool[packet.PowerExchangerIndex].id != -1)
             {
                 pool[packet.PowerExchangerIndex].targetState = packet.Mode;

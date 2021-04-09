@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnProductIconClick")]
         public static void OnProductIconClick_Prefix(UIMinerWindow __instance)
         {
-            LocalPlayer.SendPacketToLocalPlanet(new MinerStoragePickupPacket(__instance.minerId));
+            LocalPlayer.SendPacketToLocalStar(new MinerStoragePickupPacket(__instance.minerId, GameMain.localPlanet?.factoryIndex ?? -1));
         }
     }
 }
