@@ -20,6 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             //Notify all clients about unlocked tech
             Log.Info($"Sending Tech Unlocked notification");
+            GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
             LocalPlayer.SendPacket(new GameHistoryUnlockTechPacket(techId));
         }
     }
