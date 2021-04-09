@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
