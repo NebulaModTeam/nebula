@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnModeButtonClick_Prefix(UIPowerExchangerWindow __instance, int targetState)
         {
             //Notify other players about changing mode of the Power Exchenger
-            LocalPlayer.SendPacketToLocalPlanet(new PowerExchangerChangeModePacket(__instance.exchangerId, targetState));
+            LocalPlayer.SendPacketToLocalStar(new PowerExchangerChangeModePacket(__instance.exchangerId, targetState, GameMain.localPlanet?.factoryIndex ?? -1));
         }
 
         [HarmonyPostfix]
@@ -21,7 +21,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //Notify other about taking or inserting accumulators
             PowerExchangerComponent powerExchangerComponent = __instance.powerSystem.excPool[__instance.exchangerId];
-            LocalPlayer.SendPacketToLocalPlanet(new PowerExchangerStorageUpdatePacket(__instance.exchangerId, powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount));
+            LocalPlayer.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId, powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.factoryIndex ?? -1));
         }
     }
 }

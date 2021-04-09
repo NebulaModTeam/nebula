@@ -83,9 +83,9 @@ namespace NebulaHost
             PlayerManager.SendPacketToAllPlayers(packet);
         }
 
-        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        public void SendPacketToLocalStar<T>(T packet) where T : class, new()
         {
-            PlayerManager.SendPacketToLocalPlanet(packet);
+            PlayerManager.SendPacketToLocalStar(packet);
         }
 
         private void Update()

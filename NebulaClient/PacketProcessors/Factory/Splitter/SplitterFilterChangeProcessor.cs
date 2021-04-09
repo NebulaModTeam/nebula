@@ -10,7 +10,7 @@ namespace NebulaClient.PacketProcessors.Factory.Splitter
     {
         public void ProcessPacket(SplitterFilterChangePacket packet, NebulaConnection conn)
         {
-            SplitterComponent[] pool = GameMain.localPlanet?.factory?.cargoTraffic?.splitterPool;
+            SplitterComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.cargoTraffic?.splitterPool;
             if (pool != null && packet.SplitterIndex != -1 && packet.SplitterIndex < pool.Length && pool[packet.SplitterIndex].id != -1)
             {
                 pool[packet.SplitterIndex].outFilter = packet.ItemId;

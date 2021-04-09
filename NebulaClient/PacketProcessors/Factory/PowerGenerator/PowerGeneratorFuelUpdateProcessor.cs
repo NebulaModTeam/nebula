@@ -10,7 +10,7 @@ namespace NebulaClient.PacketProcessors.Factory.PowerGenerator
     {
         public void ProcessPacket(PowerGeneratorFuelUpdatePacket packet, NebulaConnection conn)
         {
-            PowerGeneratorComponent[] pool = GameMain.localPlanet?.factory?.powerSystem.genPool;
+            PowerGeneratorComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.powerSystem?.genPool;
             if (pool != null && packet.PowerGeneratorIndex != -1 && packet.PowerGeneratorIndex < pool.Length && pool[packet.PowerGeneratorIndex].id != -1)
             {
                 if (pool[packet.PowerGeneratorIndex].fuelId != packet.FuelId)

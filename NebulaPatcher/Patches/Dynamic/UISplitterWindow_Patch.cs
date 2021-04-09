@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnItemPickerReturn_Postfix(UISplitterWindow __instance, ItemProto item)
         {
             //Send notification about changing splitter output filter
-            LocalPlayer.SendPacketToLocalPlanet(new SplitterFilterChangePacket(__instance.splitterId, ((item != null) ? item.ID : 0)));
+            LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.factoryIndex ?? -1));
         }
 
         [HarmonyPrefix]
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (sendResetOutputFilter && thisComponent.outFilter != 0)
             {
-                LocalPlayer.SendPacketToLocalPlanet(new SplitterFilterChangePacket(__instance.splitterId, 0));
+                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, 0, GameMain.localPlanet?.factoryIndex ?? -1));
             }
         }
     }

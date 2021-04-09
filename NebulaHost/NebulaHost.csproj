@@ -51,6 +51,7 @@
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateStorageProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Miner\MinerStoragePickupProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\PasteEntitySettingUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerChangeModeProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerStorageUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\PowerGenerator\PowerGeneratorFuelUpdateProcessor.cs" />
@@ -81,7 +82,7 @@
     <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
-    <Compile Include="PacketProcessors\Routers\PlanetBroadcastProcessor.cs" />
+    <Compile Include="PacketProcessors\Routers\StarBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="PacketProcessors\Statistics\StatisticsRequestEventProcessor.cs" />

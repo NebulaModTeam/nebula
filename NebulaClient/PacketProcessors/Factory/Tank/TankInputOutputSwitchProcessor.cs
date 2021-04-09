@@ -10,7 +10,7 @@ namespace NebulaClient.PacketProcessors.Factory.Tank
     {
         public void ProcessPacket(TankInputOutputSwitchPacket packet, NebulaConnection conn)
         {
-            TankComponent[] pool = GameMain.localPlanet?.factory?.factoryStorage?.tankPool;
+            TankComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.factoryStorage?.tankPool;
             if (pool != null && packet.TankIndex != -1 && packet.TankIndex < pool.Length && pool[packet.TankIndex].id != -1)
             {
                 if (packet.IsInput)

@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnGammaMode1Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "electricity"
-            LocalPlayer.SendPacketToLocalPlanet(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity));
+            LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity, GameMain.localPlanet?.factoryIndex ?? -1));
         }
 
         [HarmonyPostfix]
@@ -21,7 +21,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnGammaMode2Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "produce photons"
-            LocalPlayer.SendPacketToLocalPlanet(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon));
+            LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon, GameMain.localPlanet?.factoryIndex ?? -1));
         }
 
         [HarmonyPostfix]
@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnCataButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about changing amount of gravitational lens
-            LocalPlayer.SendPacketToLocalPlanet(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint));
+            LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.factoryIndex ?? -1));
         }
 
         [HarmonyPostfix]
@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //Notify about changing amount of fuel in power plant
             PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-            LocalPlayer.SendPacketToLocalPlanet(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount));
+            LocalPlayer.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.factoryIndex ?? -1));
         }
 
     }
