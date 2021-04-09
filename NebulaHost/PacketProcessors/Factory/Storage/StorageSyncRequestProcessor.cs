@@ -3,7 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 
-namespace NebulaHost.PacketProcessors.Factory
+namespace NebulaHost.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
     class StorageSyncRequestProcessor : IPacketProcessor<StorageSyncRequestPacket>

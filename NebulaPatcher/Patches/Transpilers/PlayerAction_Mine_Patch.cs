@@ -6,13 +6,16 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace NebulaPatcher.Patches.Dynamic
+namespace NebulaPatcher.Patches.Transpiler
 {
-    [HarmonyPatch(typeof(PlayerAction_Mine), "GameTick")]
+    [HarmonyPatch(typeof(PlayerAction_Mine))]
     class PlayerAction_Mine_Transpiler
     {
         private static int miningId = -1;
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+
+        [HarmonyTranspiler]
+        [HarmonyPatch("GameTick")]
+        static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             // insert delegate before GetVegeData() to get miningId
             instructions = new CodeMatcher(instructions)

@@ -40,6 +40,6 @@ namespace NebulaPatcher.Patches.Dynamic
             PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
             LocalPlayer.SendPacketToLocalPlanet(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount));
         }
-        
+
     }
 }

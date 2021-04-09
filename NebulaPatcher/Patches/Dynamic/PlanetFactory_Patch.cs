@@ -9,22 +9,22 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(PlanetFactory))]
     class BuildFinally_patch
     {
-           [HarmonyPrefix]
-           [HarmonyPatch("AddPrebuildDataWithComponents")]
-           public static bool AddPrebuildDataWithComponents_Prefix(PlanetFactory __instance, PrebuildData prebuild)
-           {
-               if (!SimulatedWorld.Initialized)
-                   return true;
+        [HarmonyPrefix]
+        [HarmonyPatch("AddPrebuildDataWithComponents")]
+        public static bool AddPrebuildDataWithComponents_Prefix(PlanetFactory __instance, PrebuildData prebuild)
+        {
+            if (!SimulatedWorld.Initialized)
+                return true;
 
-               // If the host game called the method, we need to compute the PrebuildId ourself
-               if (LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
-               {
-                   int nextPrebuildId = FactoryManager.GetNextPrebuildId(__instance);
-                   FactoryManager.SetPrebuildRequest(__instance.planetId, nextPrebuildId, LocalPlayer.PlayerId);
-               }
+            // If the host game called the method, we need to compute the PrebuildId ourself
+            if (LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
+            {
+                int nextPrebuildId = FactoryManager.GetNextPrebuildId(__instance);
+                FactoryManager.SetPrebuildRequest(__instance.planetId, nextPrebuildId, LocalPlayer.PlayerId);
+            }
 
-               return true;
-           }
+            return true;
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch("BuildFinally")]
@@ -54,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
-        
+
 
         [HarmonyPrefix]
         [HarmonyPatch("DestructFinally")]

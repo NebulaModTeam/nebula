@@ -1,7 +1,7 @@
-﻿using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
-using NebulaModel.Attributes;
+﻿using NebulaModel.Attributes;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Factory.Splitter;
+using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
 namespace NebulaClient.PacketProcessors.Factory.Splitter

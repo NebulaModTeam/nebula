@@ -10,6 +10,7 @@ namespace NebulaWorld.Factory
 
         public static bool EventFromServer { get; set; }
         public static bool EventFromClient { get; set; }
+        public static PlanetFactory EventFactory { get; set; }
 
         public static void Initialize()
         {

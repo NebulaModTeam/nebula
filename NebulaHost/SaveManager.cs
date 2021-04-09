@@ -54,7 +54,8 @@ namespace NebulaHost
             {
                 string hash = netDataReader.GetString();
                 PlayerData playerData = netDataReader.Get<PlayerData>();
-                if (!playerManager.SavedPlayerData.ContainsKey(hash)) {
+                if (!playerManager.SavedPlayerData.ContainsKey(hash))
+                {
                     playerManager.SavedPlayerData.Add(hash, playerData);
                 }
             }

@@ -5,7 +5,7 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
-namespace NebulaHost.PacketProcessors.Factory
+namespace NebulaHost.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
     public class BuildEntityRequestProcessor : IPacketProcessor<BuildEntityRequest>

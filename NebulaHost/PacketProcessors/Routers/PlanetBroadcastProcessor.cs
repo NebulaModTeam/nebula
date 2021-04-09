@@ -22,7 +22,7 @@ namespace NebulaHost.PacketProcessors.Routers
                 playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
 
                 //Check if host is also target for the packet
-                if(GameMain.data.mainPlayer.planetId == packet.PlanetId)
+                if (GameMain.data.mainPlayer.planetId == packet.PlanetId)
                 {
                     MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
                 }

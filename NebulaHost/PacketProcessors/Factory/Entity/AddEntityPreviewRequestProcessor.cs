@@ -6,7 +6,7 @@ using NebulaModel.Packets.Processors;
 using NebulaWorld;
 using NebulaWorld.Factory;
 
-namespace NebulaHost.PacketProcessors.Factory
+namespace NebulaHost.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
     public class AddEntityPreviewRequestProcessor : IPacketProcessor<AddEntityPreviewRequest>
