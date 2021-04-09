@@ -20,12 +20,7 @@ namespace NebulaHost.PacketProcessors.Routers
             {
                 //Forward packet to other users
                 playerManager.SendRawPacketToStar(packet.PacketObject, packet.StarId, conn);
-
-                //Check if host is also target for the packet
-                if (GameMain.data.localStar?.id == packet.StarId)
-                {
-                    MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
-                }
+                MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
             }
         }
     }
