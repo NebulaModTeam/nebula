@@ -10,5 +10,6 @@
         // Nebula Specific Error Codes
         HostStillLoading = 2000,
         ClientRequestedDisconnect = 2001,
+        ModVersionMismatch = 2002,
     }
 }

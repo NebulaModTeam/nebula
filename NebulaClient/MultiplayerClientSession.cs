@@ -108,13 +108,28 @@ namespace NebulaClient
             IsConnected = false;
             serverConnection = null;
 
-            // If the client is Quitting by himself, we don't have to inform him of his disconnection.
-            if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
-                return;
-
-            if (SimulatedWorld.IsGameLoaded)
+            UnityDispatchQueue.RunOnMainThread(() =>
             {
-                UnityDispatchQueue.RunOnMainThread(() =>
+                // If the client is Quitting by himself, we don't have to inform him of his disconnection.
+                if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
+                    return;
+
+                if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
+                {
+                    InGamePopup.ShowWarning(
+                        "Mod Version Mismatch",
+                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nMake sure to use the same version.",
+                        "OK",
+                        () =>
+                        {
+                            GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
+                            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
+                            multiplayerMenu?.gameObject?.SetActive(true);
+                        });
+                    return;
+                }
+
+                if (SimulatedWorld.IsGameLoaded)
                 {
                     InGamePopup.ShowWarning(
                         "Connection Lost",
@@ -122,11 +137,8 @@ namespace NebulaClient
                         "Quit", "Reconnect",
                         () => { LocalPlayer.LeaveGame(); },
                         () => { Reconnect(); });
-                });
-            }
-            else
-            {
-                UnityDispatchQueue.RunOnMainThread(() =>
+                }
+                else
                 {
                     InGamePopup.ShowWarning(
                         "Server Unavailable",
@@ -138,8 +150,8 @@ namespace NebulaClient
                             Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
                             multiplayerMenu?.gameObject?.SetActive(true);
                         });
-                });
-            }
+                }
+            });
         }
 
         private void Update()
