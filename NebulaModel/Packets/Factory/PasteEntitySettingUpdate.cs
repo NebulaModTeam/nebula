@@ -10,10 +10,11 @@
         public int Mode { get; set; }
         public ERecipeType RecipeType { get; set; }
         public EntitySettingType Type { get; set; }
+        public int FactoryIndex { get; set; }
 
         public PasteEntitySettingUpdate() { }
 
-        public PasteEntitySettingUpdate(int entityId, EntitySettingDesc clipboard)
+        public PasteEntitySettingUpdate(int entityId, EntitySettingDesc clipboard, int factoryIndex)
         {
             EntityId = entityId;
             RecipeId = clipboard.recipeId;
@@ -23,6 +24,7 @@
             Mode = clipboard.mode;
             RecipeType = clipboard.recipeType;
             Type = clipboard.type;
+            FactoryIndex = factoryIndex;
         }
 
         public EntitySettingDesc GetEntitySettings()

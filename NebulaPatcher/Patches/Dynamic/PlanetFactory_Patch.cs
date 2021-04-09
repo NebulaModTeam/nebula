@@ -121,7 +121,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
-                LocalPlayer.SendPacketToLocalStar(new PasteEntitySettingUpdate(entityId, EntitySettingDesc.clipboard));
+                LocalPlayer.SendPacketToLocalStar(new PasteEntitySettingUpdate(entityId, EntitySettingDesc.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
             }
         }
     }

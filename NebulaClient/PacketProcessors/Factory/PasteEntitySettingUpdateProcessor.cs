@@ -11,12 +11,15 @@ namespace NebulaClient.PacketProcessors.Factory
     {
         public void ProcessPacket(PasteEntitySettingUpdate packet, NebulaConnection conn)
         {
-            EntitySettingDesc backup = EntitySettingDesc.clipboard;
-            EntitySettingDesc.clipboard = packet.GetEntitySettings();
-            FactoryManager.EventFromServer = true;
-            GameMain.localPlanet.factory.PasteEntitySetting(packet.EntityId);
-            FactoryManager.EventFromServer = false;
-            EntitySettingDesc.clipboard = backup;
+            if (GameMain.data.factories[packet.FactoryIndex] != null)
+            {
+                EntitySettingDesc backup = EntitySettingDesc.clipboard;
+                EntitySettingDesc.clipboard = packet.GetEntitySettings();
+                FactoryManager.EventFromServer = true;
+                GameMain.data.factories[packet.FactoryIndex].PasteEntitySetting(packet.EntityId);
+                FactoryManager.EventFromServer = false;
+                EntitySettingDesc.clipboard = backup;
+            }
         }
     }
 }
