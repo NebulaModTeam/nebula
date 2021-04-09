@@ -120,12 +120,17 @@ namespace NebulaClient
                         "Mod Version Mismatch",
                         $"Your Nebula Multiplayer Mod is not the same as the Host version.\nMake sure to use the same version.",
                         "OK",
-                        () =>
-                        {
-                            GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
-                            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
-                            multiplayerMenu?.gameObject?.SetActive(true);
-                        });
+                        OnDisconnectPopupCloseBeforeGameLoad);
+                    return;
+                }
+
+                if (e.Code == (ushort)DisconnectionReason.GameVersionMismatch)
+                {
+                    InGamePopup.ShowWarning(
+                        "Game Version Mismatch",
+                        $"Your version of the game is not the same as the one used by the Host.\nMake sure to use the same version.",
+                        "OK",
+                        OnDisconnectPopupCloseBeforeGameLoad);
                     return;
                 }
 
@@ -144,14 +149,16 @@ namespace NebulaClient
                         "Server Unavailable",
                         $"Could not reach the server, please try again later.",
                         "OK",
-                        () =>
-                        {
-                            GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
-                            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
-                            multiplayerMenu?.gameObject?.SetActive(true);
-                        });
+                        OnDisconnectPopupCloseBeforeGameLoad);
                 }
             });
+        }
+
+        private void OnDisconnectPopupCloseBeforeGameLoad()
+        {
+            GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
+            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
+            multiplayerMenu?.gameObject?.SetActive(true);
         }
 
         private void Update()

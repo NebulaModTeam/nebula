@@ -33,9 +33,15 @@ namespace NebulaHost.PacketProcessors.Session
 
             playerManager.PendingPlayers.Remove(conn);
 
-            if (packet.ModVersion != Config.ModVersion)
+            if (packet.ModVersion != Config.ModVersion.ToString())
             {
                 conn.Disconnect(DisconnectionReason.ModVersionMismatch);
+                return;
+            }
+
+            if (packet.GameVersionSig != GameConfig.gameVersion.sig)
+            {
+                conn.Disconnect(DisconnectionReason.GameVersionMismatch);
                 return;
             }
 

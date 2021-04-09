@@ -20,8 +20,6 @@ namespace NebulaPatcher
             
             NebulaModel.Config.ModInfo = Info;
 
-            Log.Warn($"Hubert Mod Version: {NebulaModel.Config.ModVersion}");
-
             try
             {
                 Initialize();
