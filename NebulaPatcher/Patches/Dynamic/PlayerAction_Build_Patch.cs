@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
@@ -17,16 +18,17 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (!SimulatedWorld.Initialized)
                     return true;
 
-                //Host will just broadcast event to other players
+                // Host will just broadcast event to other players
                 if (LocalPlayer.IsMasterClient)
                 {
-                    LocalPlayer.SendPacketToLocalPlanet(new CreatePrebuildsRequest(__instance.buildPreviews, __instance.previewPose));
+                    int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
+                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(planetId, __instance.buildPreviews, __instance.previewPose));
                 }
 
                 //If client builds, he need to first send request to the host and wait for reply
                 if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
                 {
-                    LocalPlayer.SendPacketToLocalPlanet(new CreatePrebuildsRequest(__instance.buildPreviews, __instance.previewPose));
+                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, __instance.buildPreviews, __instance.previewPose));
                     return false;
                 }
             }
