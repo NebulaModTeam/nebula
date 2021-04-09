@@ -35,6 +35,7 @@ namespace NebulaClient.PacketProcessors.Factory.Labratory
                     RecipeProto recipeProto = LDB.items.Select(matrixIds[packet.ProductId]).maincraft;
                     pool[packet.LabIndex].SetFunction(false, (recipeProto == null) ? 0 : recipeProto.ID, 0, GameMain.localPlanet.factory.entitySignPool);
                 }
+                GameMain.localPlanet.factory.factorySystem.SyncLabFunctions(GameMain.mainPlayer, packet.LabIndex);
             }
         }
     }
