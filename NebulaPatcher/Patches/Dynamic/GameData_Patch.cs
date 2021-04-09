@@ -109,6 +109,11 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
             }
+            // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor
+            // Arragement() updates galacticTransport.stationCursor
+            // galacticTransport.shipRenderer.Update() can then update galacticTransport.shipRenderer.shipCount
+            // galacticTransport.shipRenderer.Draw() can then render ships
+            GameMain.data.galacticTransport.Arragement();
             return false;
         }
 
