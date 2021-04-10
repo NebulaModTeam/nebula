@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -32,9 +33,15 @@ namespace NebulaHost.PacketProcessors.Session
 
             playerManager.PendingPlayers.Remove(conn);
 
-            if (packet.ProtocolVersion != 0) //TODO: Maybe have a shared constants file somewhere for this
+            if (packet.ModVersion != Config.ModVersion.ToString())
             {
-                conn.Disconnect(DisconnectionReason.ProtocolError);
+                conn.Disconnect(DisconnectionReason.ModVersionMismatch);
+                return;
+            }
+
+            if (packet.GameVersionSig != GameConfig.gameVersion.sig)
+            {
+                conn.Disconnect(DisconnectionReason.GameVersionMismatch);
                 return;
             }
 

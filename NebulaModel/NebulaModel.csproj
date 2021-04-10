@@ -55,6 +55,7 @@
     <Compile Include="DataStructures\ThreadSafeQueue.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Networking\BinaryUtils.cs" />
     <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />

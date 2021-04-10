@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaPatcher.MonoBehaviours;
 using UnityEngine;
@@ -124,7 +125,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (parts.Length == 1)
             {
-                port = 8469;
+                port = Config.DefaultPort;
             }
             else if (!int.TryParse(parts[1], out port))
             {
@@ -151,8 +152,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (parts.Length == 1)
             {
-                // Use default port
-                port = 8469;
+                port = Config.DefaultPort;
             }
             else if (!int.TryParse(parts[1], out port))
             {
