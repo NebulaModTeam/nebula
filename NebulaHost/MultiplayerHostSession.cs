@@ -43,6 +43,7 @@ namespace NebulaHost
             {
                 SaveManager.LoadServerData();
             }
+            SaveManager.SaveOnExit = true;
             PacketProcessor = new NetPacketProcessor();
             StatisticsManager = new StatisticsManager();
 
