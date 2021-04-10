@@ -127,7 +127,7 @@ namespace NebulaWorld.Logistics
         private static void RequestgStationDockPos(int GId)
         {
             Debug.Log("Requesting DockPos from " + GId);
-            ILSRequestShipDockPos packet = new ILSRequestShipDockPos(GId, Vector3.zero);
+            ILSRequestShipDock packet = new ILSRequestShipDock(GId, Vector3.zero, Quaternion.identity);
             LocalPlayer.SendPacket(packet);
         }
 

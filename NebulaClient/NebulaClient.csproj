@@ -100,7 +100,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockPosProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockProcessor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />

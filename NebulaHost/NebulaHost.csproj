@@ -47,7 +47,7 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryRemoveTechProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSRemoteOrderBroadcastProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockPosProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipItemsBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\StationUIBroadcaster.cs" />

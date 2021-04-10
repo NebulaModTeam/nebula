@@ -7,19 +7,19 @@ using UnityEngine;
 namespace NebulaHost.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSRequestShipDockPosProcessor: IPacketProcessor<ILSRequestShipDockPos>
+    public class ILSRequestShipDockProcessor: IPacketProcessor<ILSRequestShipDock>
     {
         private PlayerManager playerManager;
-        public ILSRequestShipDockPosProcessor()
+        public ILSRequestShipDockProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(ILSRequestShipDockPos packet, NebulaConnection conn)
+        public void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null && GameMain.data.galacticTransport.stationCapacity > packet.stationGId)
             {
-                ILSRequestShipDockPos packet2 = new ILSRequestShipDockPos(packet.stationGId, GameMain.data.galacticTransport.stationPool[packet.stationGId].shipDockPos);
+                ILSRequestShipDock packet2 = new ILSRequestShipDock(packet.stationGId, GameMain.data.galacticTransport.stationPool[packet.stationGId].shipDockPos, GameMain.data.galacticTransport.stationPool[packet.stationGId].shipDockRot);
                 player.SendPacket(packet2);
             }
         }

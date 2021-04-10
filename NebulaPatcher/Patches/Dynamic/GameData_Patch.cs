@@ -3,8 +3,7 @@ using LZ4;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaWorld;
-using System.IO;
-using System.IO.Compression;
+using NebulaPatcher.Patches.Transpilers;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -139,6 +138,41 @@ namespace NebulaPatcher.Patches.Dynamic
                     __instance.ArriveStar(nearestStar);
                 }
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("GameTick")]
+        public static void GameTick_Postfix(GameData __instance, long time)
+        {
+            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+            // call StationComponent::InternalTickRemote() from here, see StationComponent_Patch.cs for info
+            int timeGene = (int)(time % 60L);
+            if (timeGene < 0)
+            {
+                timeGene += 60;
+            }
+            float dt = 0.016666668f;
+            GameHistoryData history = GameMain.history;
+            float shipSailSpeed = history.logisticShipSailSpeedModified;
+            float shipWarpSpeed = (!history.logisticShipWarpDrive) ? shipSailSpeed : history.logisticShipWarpSpeedModified;
+            int shipCarries = history.logisticShipCarries;
+            StationComponent[] gStationPool = __instance.galacticTransport.stationPool;
+            AstroPose[] astroPoses = __instance.galaxy.astroPoses;
+            VectorLF3 relativePos = __instance.relativePos;
+            Quaternion relativeRot = __instance.relativeRot;
+            bool starmap = UIGame.viewMode == EViewMode.Starmap;
+
+            foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+            {
+                if(stationComponent != null)
+                {
+                    StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
+                }
+            }
+            //__instance.ShipRenderersOnTick(astroPoses, relativePos, relativeRot);
         }
 
         private static void InitLandingPlace(GameData gameData, PlanetData planet)

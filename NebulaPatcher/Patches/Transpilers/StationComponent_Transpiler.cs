@@ -601,7 +601,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
         [HarmonyReversePatch]
         [HarmonyPatch("InternalTickRemote")]
-        public static void ILSUpdateShipPos(StationComponent __instance, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
+        public static void ILSUpdateShipPos(StationComponent stationComponent, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
 
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
@@ -622,25 +622,12 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldc_R4),
                         new CodeMatch(OpCodes.Ble_Un))
                     .Pos;
-                // find end of ship movement computation, c# 946 IL 4670
-                int origShipUpdateCodeEndPos = new CodeMatcher(instructions)
-                    .MatchForward(true,
-                        new CodeMatch(OpCodes.Stfld),
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldc_I4_1),
-                        new CodeMatch(OpCodes.Add),
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Blt))
-                    .Pos;
 
                 // cut out only that part of original function, but keep the first 5 IL lines (they create the 'bool flag' which is needed)
                 CodeMatcher matcher = new CodeMatcher(instructions);
                 for(int i = 0; i < matcher.Length; i++)
                 {
-                    if (matcher.Pos > origShipUpdateCodeEndPos && matcher.Pos < origShipUpdateCodeBeginPos && matcher.Pos > 5)
+                    if (matcher.Pos < origShipUpdateCodeBeginPos && matcher.Pos > 5)
                     {
                         matcher.SetAndAdvance(OpCodes.Nop, null);
                     }
@@ -651,7 +638,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // remove c# 352 - 369 IL 118B - 12DE (which is just after the first AddItem() call)
+                // remove c# 352 - 365 IL 118B - 12DA (which is just after the first AddItem() call)
                 int origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
@@ -666,7 +653,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 matcher.Start()
                     .Advance(origTempBlockIndexStart + 1);
-                for(; matcher.Pos < origTempBlockIndexEnd;)
+                for(; matcher.Pos < origTempBlockIndexEnd - 4;) // note the -4 index here to still include j--
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
@@ -684,6 +671,8 @@ namespace NebulaPatcher.Patches.Transpilers
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                     .InstructionEnumeration();
 
+                // TODO: remove c# 865 - 891 (and fetch data from server) (NOTE: this would also remove the TakeItem() call)
+
                 // remove TakeItem() call
                 instructions = new CodeMatcher(instructions)
                     .MatchForward(false,
@@ -692,6 +681,8 @@ namespace NebulaPatcher.Patches.Transpilers
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Pop),
                                         new CodeInstruction(OpCodes.Pop))
                     .InstructionEnumeration();
+
+                // TODO: remove c# 814 - 862 (and fetch data from server)
                 
                 // insert patch to avoid NRE mentioned in issue 59 (gStationPool[shipData.otherGId] == null results in NRE)
                 Label jmpLabelDelegate;
@@ -712,16 +703,13 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 6), // load gStationPool[]
                                     new CodeInstruction(OpCodes.Ldloca_S, 35), // load shipData
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")), // load shipData.otherGId
-                                    new CodeInstruction(OpCodes.Ldelem_Ref)) // load gStationPool[shipData.otherGId]
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 35)); // load the ShipData to get the otherGId from inside delegate
-                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Pop), 
-                                            new CodeInstruction(OpCodes.Ret)); // exit out of original function
-                matcher3.CreateLabelAt(matcher3.Pos - 1, out jmpLabelDelegate); // create a label pointing behind the injected code
-                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Pop)); // pop gStationPool[shipData.otherGId] (needed because we land here in case it was NOT null and we need to remove traces of our loadings)
-                matcher3.Advance(-4); // go back to insert jmp
+                                    new CodeInstruction(OpCodes.Ldelem_Ref)); // load gStationPool[shipData.otherGId]
+                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Ret)); // exit out of original function
+                matcher3.CreateLabelAt(matcher3.Pos - 2, out jmpLabelDelegate); // create a label pointing behind the injected code
+                matcher3.Advance(-1); // go back to insert jmp
                 matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabelDelegate)); // if object is NOT null jump to the vanilla code
                 instructions = matcher3.InstructionEnumeration();
-                
+
                 return instructions;
             }
 

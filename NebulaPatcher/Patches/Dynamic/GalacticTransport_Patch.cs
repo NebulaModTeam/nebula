@@ -15,7 +15,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
-            Debug.Log("CALLED AddStationComponent");
             // if we are a client and have a fake station already saved, update it with the full data given now
             // this should happen when this client arrives at a planet for the first time whichs interplanetar logistic
             // he was already syncing
@@ -23,7 +22,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if(GameMain.data.galacticTransport.stationPool[i]?.gid == station.gid)
                 {
-                    Debug.Log("removing station " + station.gid + " from " + GameMain.galaxy.PlanetById(planetId).displayName);
                     GameMain.data.galacticTransport.RemoveStationComponent(i);
                     return true;
                 }
@@ -32,28 +30,6 @@ namespace NebulaPatcher.Patches.Dynamic
             // this should happen when a player places an ILS on a FactoryData known to this client
             // or when this client arrives at a planet for the first time which contains ILS
             return true;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch("Arragement")]
-        public static void Arragement_Prefix(GalacticTransport __instance)
-        {
-            for(int i = 1; i < __instance.stationCapacity; i++)
-            {
-                if(__instance.stationPool[i] != null && __instance.stationPool[i].gid != i)
-                {
-                    Debug.Log("Buuh: " + i + " => " + __instance.stationPool[i].gid);
-                }
-                else if(__instance.stationPool[i] != null)
-                {
-                    Debug.Log("Okay: " + i + " => " + __instance.stationPool[i].gid);
-                }
-                else
-                {
-                    Debug.Log("ITERATION");
-                }
-            }
-            Debug.Log("HERE: " + __instance.stationCursor + "/" + __instance.stationCapacity);
         }
 
         /*
