@@ -1,4 +1,5 @@
-﻿using NebulaWorld.MonoBehaviours.Remote;
+﻿using HarmonyLib;
+using NebulaWorld.MonoBehaviours.Remote;
 using UnityEngine;
 
 namespace NebulaWorld
@@ -12,6 +13,9 @@ namespace NebulaWorld
         public RemotePlayerMovement Movement { get; set; }
         public RemotePlayerAnimation Animator { get; set; }
         public RemotePlayerEffects Effects { get; set; }
+
+        public Player PlayerInstance { get; set; }
+        public Mecha MechaInstance { get; set; }
 
         public RemotePlayerModel(ushort playerId)
         {
@@ -37,6 +41,11 @@ namespace NebulaWorld
             }
 
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";
+
+            PlayerInstance = new Player();
+            MechaInstance = new Mecha();
+            AccessTools.Property(typeof(Player), "mecha").SetValue(PlayerInstance, MechaInstance, null);
+            MechaInstance.Init(PlayerInstance);
         }
 
         public void Destroy()
@@ -47,6 +56,8 @@ namespace NebulaWorld
             Movement = null;
             Animator = null;
             Effects = null;
+            PlayerInstance.Free();
+            PlayerInstance = null;
         }
     }
 }
