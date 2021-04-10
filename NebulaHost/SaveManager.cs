@@ -12,6 +12,7 @@ namespace NebulaHost
         private const string FILE_EXTENSION = ".server";
         private static string lastFileName = "";
 
+        public static bool SaveOnExit = false;
         public static void SaveServerData(string saveName)
         {
             string path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
@@ -27,7 +28,7 @@ namespace NebulaHost
                 data.Value.Serialize(netDataWriter);
             }
             //Add host's data
-            netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash());
+            netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash()); 
             LocalPlayer.Data.Serialize(netDataWriter);
 
             File.WriteAllBytes(path, netDataWriter.Data);
