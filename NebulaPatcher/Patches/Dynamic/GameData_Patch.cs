@@ -167,8 +167,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
             foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
             {
-                if(stationComponent != null)
+                if(stationComponent != null && stationComponent.isStellar)
                 {
+                    //Debug.Log("enter " + stationComponent.gid + " (" + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ")");
                     StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
                 }
             }

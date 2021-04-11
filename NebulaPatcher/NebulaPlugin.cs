@@ -4,6 +4,7 @@ using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using System;
+using System.IO;
 using UnityEngine;
 
 namespace NebulaPatcher
@@ -41,6 +42,12 @@ namespace NebulaPatcher
             try
             {
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                Environment.SetEnvironmentVariable("MONOMOD_DMD_TYPE", "mb");
+                Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "./mmdump");
+                foreach (FileInfo file in new DirectoryInfo("./mmdump").GetFiles())
+                {
+                    file.Delete();
+                }
                 foreach (var assembly in assemblies)
                 {
                     if (assembly.FullName.StartsWith("NebulaPatcher"))
@@ -49,6 +56,7 @@ namespace NebulaPatcher
                         harmony.PatchAll(assembly);
                     }
                 }
+                Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "");
 
                 Log.Info("Patching completed successfully");
             }

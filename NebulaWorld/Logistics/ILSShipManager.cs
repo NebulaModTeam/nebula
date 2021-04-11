@@ -63,7 +63,7 @@ namespace NebulaWorld.Logistics
                     stationComponent.workShipCount = 10;
                 }
                 stationComponent.IdleShipGetToWork(packet.origShipIndex);
-                //Log.Info($"Received ship message (departing): {planetA.displayName} -> {planetB.displayName} transporting {packet.itemCount} of {packet.itemId} and index is {packet.origShipIndex}");
+                Log.Info($"Received ship message (departing): {planetA.displayName} -> {planetB.displayName} transporting {packet.itemCount} of {packet.itemId} and index is {packet.origShipIndex}");
                 //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
             }
         }
@@ -99,13 +99,13 @@ namespace NebulaWorld.Logistics
                 stationComponent.workShipCount = 10;
             }
             stationComponent.WorkShipBackToIdle(packet.origShipIndex);
-            //Log.Info($"Received ship message (landing): transporting {packet.itemCount} of {packet.itemId} and index is {packet.origShipIndex}");
+            Log.Info($"Received ship message (landing): transporting {packet.itemCount} of {packet.itemId} and shipindex is {packet.origShipIndex} planet: {GameMain.galaxy.PlanetById(stationComponent.planetId).displayName}");
             //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
         }
 
         private static void CreateFakeStationComponent(int GId, int planetId)
         {
-            Debug.Log("Creating fake StationComponent with GId: " + GId + " on " + planetId);
+            Debug.Log("Creating fake StationComponent with GId: " + GId + " on " + GameMain.galaxy.PlanetById(planetId).displayName);
             while(GameMain.data.galacticTransport.stationCapacity <= GId)
             {
                 object[] args = new object[1];
