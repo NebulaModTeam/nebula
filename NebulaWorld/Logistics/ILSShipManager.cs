@@ -22,21 +22,25 @@ namespace NebulaWorld.Logistics
                 if (GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
                 {
                     CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
-                    RequestgStationDockPos(packet.planetAStationGID);
                 }
                 else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
                 {
                     CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
+                }
+                else if(GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
+                {
                     RequestgStationDockPos(packet.planetAStationGID);
                 }
                 if (GameMain.data.galacticTransport.stationCapacity <= packet.planetBStationGID)
                 {
                     CreateFakeStationComponent(packet.planetBStationGID, packet.planetB);
-                    RequestgStationDockPos(packet.planetBStationGID);
                 }
                 else if(GameMain.data.galacticTransport.stationPool[packet.planetBStationGID] == null)
                 {
                     CreateFakeStationComponent(packet.planetBStationGID, packet.planetB);
+                }
+                else if(GameMain.data.galacticTransport.stationPool[packet.planetBStationGID].shipDockPos == Vector3.zero)
+                {
                     RequestgStationDockPos(packet.planetBStationGID);
                 }
 
@@ -78,11 +82,13 @@ namespace NebulaWorld.Logistics
             if(GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
             {
                 CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
-                RequestgStationDockPos(packet.planetAStationGID);
             }
             else if(GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
             {
                 CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
+            }
+            else if(GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
+            {
                 RequestgStationDockPos(packet.planetAStationGID);
             }
 
@@ -112,14 +118,34 @@ namespace NebulaWorld.Logistics
                 args[0] = GameMain.data.galacticTransport.stationCapacity * 2;
                 AccessTools.Method(typeof(GalacticTransport), "SetStationCapacity").Invoke(GameMain.data.galacticTransport, args);
             }
+
             GameMain.data.galacticTransport.stationPool[GId] = new StationComponent();
-            GameMain.data.galacticTransport.stationPool[GId].gid = GId;
-            GameMain.data.galacticTransport.stationPool[GId].planetId = planetId;
-            GameMain.data.galacticTransport.stationPool[GId].workShipDatas = new ShipData[10]; // assume ILS have 10
-            GameMain.data.galacticTransport.stationPool[GId].shipRenderers = new ShipRenderingData[10];
-            GameMain.data.galacticTransport.stationPool[GId].shipUIRenderers = new ShipUIRenderingData[10];
-            GameMain.data.galacticTransport.stationPool[GId].workShipCount = 0;
-            GameMain.data.galacticTransport.stationPool[GId].idleShipCount = 0;
+            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[GId];
+            stationComponent.isStellar = true;
+            stationComponent.gid = GId;
+            stationComponent.planetId = planetId;
+            stationComponent.workShipDatas = new ShipData[10]; // assume ILS have 10
+            stationComponent.shipRenderers = new ShipRenderingData[10];
+            stationComponent.shipUIRenderers = new ShipUIRenderingData[10];
+            stationComponent.workShipCount = 0;
+            stationComponent.idleShipCount = 0;
+            stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
+            stationComponent.shipDockRot = Quaternion.identity; // gets updated later by server packet
+            stationComponent.shipDiskPos = new Vector3[10];
+            stationComponent.shipDiskRot = new Quaternion[10];
+
+            for (int i = 0; i < 10; i++)
+            {
+                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)10 * (float)i, 0f);
+                stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
+            }
+            for (int j = 0; j < 10; j++)
+            {
+                stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
+                stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
+            }
+
+            RequestgStationDockPos(GId);
 
             GameMain.data.galacticTransport.stationCursor++;
         }

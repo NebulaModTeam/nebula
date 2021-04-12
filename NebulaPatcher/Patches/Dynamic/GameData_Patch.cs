@@ -172,7 +172,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
                 }
             }
-            //__instance.ShipRenderersOnTick(astroPoses, relativePos, relativeRot);
         }
 
         private static void InitLandingPlace(GameData gameData, PlanetData planet)
