@@ -43,6 +43,7 @@ namespace NebulaHost
             {
                 SaveManager.LoadServerData();
             }
+            SaveManager.SaveOnExit = true;
             PacketProcessor = new NetPacketProcessor();
             StatisticsManager = new StatisticsManager();
 
@@ -158,7 +159,10 @@ namespace NebulaHost
                     return;
 
                 NebulaModel.Logger.Log.Info($"Client disconnected: {Context.UserEndPoint}, reason: {e.Reason}");
-                playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                UnityDispatchQueue.RunOnMainThread(() =>
+                {
+                    playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                });
             }
 
             protected override void OnError(ErrorEventArgs e)
