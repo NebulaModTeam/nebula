@@ -47,9 +47,9 @@ namespace NebulaPatcher.Patches.Transpiler
         static IEnumerable<CodeInstruction> CheckBuildConditions_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
-            
+
             //Apply Ignoring of inventory check
-            for (int i = 5; i < codes.Count-2; i++)
+            for (int i = 5; i < codes.Count - 2; i++)
             {
                 if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand?.ToString() == "System.Boolean willCover" &&
                     codes[i + 1].opcode == OpCodes.Brfalse &&
@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             //Apply ignoring of 3 ground checks
-            for (int i = 9; i < codes.Count-4; i++)
+            for (int i = 9; i < codes.Count - 4; i++)
             {
                 if (codes[i - 7].opcode == OpCodes.Callvirt &&
                     codes[i - 6].opcode == OpCodes.Callvirt &&
@@ -85,10 +85,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 1].opcode == OpCodes.Br)
                 {
                     int numOfPathes = 3;
-                    for (int a = i; a < i+100; a++)
+                    for (int a = i; a < i + 100; a++)
                     {
-                        
-                        if (codes[a].opcode == OpCodes.Stfld && 
+
+                        if (codes[a].opcode == OpCodes.Stfld &&
                             codes[a].operand?.ToString() == "EBuildCondition condition" &&
                             codes[a + 1].opcode == OpCodes.Br)
                         {
@@ -96,6 +96,14 @@ namespace NebulaPatcher.Patches.Transpiler
                                 new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_IgnoreBasicBuildConditionChecks")),
                                 new CodeInstruction(OpCodes.Brtrue_S, codes[a-3].operand),
                             });
+
+                            if (codes[a - 3].opcode == OpCodes.Br)
+                            {
+                                Label tmp = codes[a - 3].labels[0];
+                                codes[a - 3] = new CodeInstruction(OpCodes.Nop);
+                                codes[a - 3].labels.Add(tmp);
+                            }
+
                             a += 5;
                             numOfPathes--;
                             UnityEngine.Debug.Log($"{codes[a].opcode} - {codes[a].operand}");
@@ -104,7 +112,7 @@ namespace NebulaPatcher.Patches.Transpiler
                                 break;
                             }
                         }
-                        
+
                     }
                     break;
                 }
