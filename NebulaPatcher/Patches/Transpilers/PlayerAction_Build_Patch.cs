@@ -72,14 +72,17 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             //Apply ignoring of 3 ground checks
-            for (int i = 3; i < codes.Count-4; i++)
+            for (int i = 9; i < codes.Count-4; i++)
             {
-                if (codes[i - 1].opcode == OpCodes.Ldc_I4_S &&
+                if (codes[i - 7].opcode == OpCodes.Callvirt &&
+                    codes[i - 6].opcode == OpCodes.Callvirt &&
+                    codes[i - 5].opcode == OpCodes.Sub &&
+                    codes[i - 4].opcode == OpCodes.Ldc_R4 &&
+                    codes[i - 3].opcode == OpCodes.Bge_Un &&
+                    codes[i - 2].opcode == OpCodes.Ldloc_3 &&
+                    codes[i - 1].opcode == OpCodes.Ldc_I4_S &&
                     codes[i].opcode == OpCodes.Stfld && codes[i].operand?.ToString() == "EBuildCondition condition" &&
-                    codes[i + 1].opcode == OpCodes.Br &&
-                    codes[i + 2].opcode == OpCodes.Ldloca_S && codes[i + 2].operand?.ToString() == "UnityEngine.RaycastHit (125)" &&
-                    codes[i + 3].opcode == OpCodes.Call &&
-                    codes[i + 4].opcode == OpCodes.Stloc_S)
+                    codes[i + 1].opcode == OpCodes.Br)
                 {
                     int numOfPathes = 3;
                     for (int a = i; a < i+100; a++)
