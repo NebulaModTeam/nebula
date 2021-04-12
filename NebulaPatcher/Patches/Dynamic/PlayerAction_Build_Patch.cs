@@ -83,5 +83,12 @@ namespace NebulaPatcher.Patches.Dynamic
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
+      
+        [HarmonyPrefix]
+        [HarmonyPatch("AfterPrebuild")]
+        public static bool AfterPrebuild_Prefix()
+        {
+            return !FactoryManager.EventFromServer && !FactoryManager.EventFromClient;
+        }
     }
 }
