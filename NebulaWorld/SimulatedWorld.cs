@@ -219,7 +219,7 @@ namespace NebulaWorld
                     trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y, lastPosition.UPosition.z);
                 } else
                 {
-                    trashData.lPos = lastPosition.LocalPlanetPosition.ToUnity();
+                    trashData.lPos = lastPosition.LocalPlanetPosition.ToVector3();
                     PlanetData planet = GameMain.galaxy.PlanetById(lastPosition.LocalPlanetId);
                     trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
                 }
@@ -254,10 +254,10 @@ namespace NebulaWorld
                 }
                 else
                 {
-                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity();
+                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToVector3();
                     GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
                 }
-                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToUnity());
+                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToVector3());
 
                 //Load player's saved data from the last session.
                 AccessTools.Property(typeof(Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
@@ -304,7 +304,7 @@ namespace NebulaWorld
                     {
                         //To-do: fix the correct factory here
                         //To-do: Optimize getting local position of player
-                        drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToUnity(), dt, ref tmp, ref tmp2, 0);
+                        drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), dt, ref tmp, ref tmp2, 0);
                     }
                 }
                 remoteModel.Value.MechaInstance.droneRenderer.Update();

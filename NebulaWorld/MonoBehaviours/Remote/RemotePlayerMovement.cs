@@ -109,8 +109,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 LocalPlanetId = movement.LocalPlanetId,
                 LocalPlanetPosition = movement.LocalPlanetPosition,
                 UPosition = movement.UPosition,
-                Rotation = Quaternion.Euler(movement.Rotation.ToUnity()),
-                BodyRotation = Quaternion.Euler(movement.BodyRotation.ToUnity()),
+                Rotation = Quaternion.Euler(movement.Rotation.ToVector3()),
+                BodyRotation = Quaternion.Euler(movement.BodyRotation.ToVector3()),
             };
         }
 
@@ -148,7 +148,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             // If we are on a local planet and the remote player is on the same local planet, we use the LocalPlanetPosition that is more precise.
             if (GameMain.localPlanet != null && GameMain.localPlanet.id == snapshot.LocalPlanetId)
             {
-                return snapshot.LocalPlanetPosition.ToUnity();
+                return snapshot.LocalPlanetPosition.ToVector3();
             }
 
             // If the remote player is in space, we need to calculate the remote player relative position from our local player position.
