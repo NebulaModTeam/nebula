@@ -758,7 +758,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldloca_S, 35), // load shipData
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")), // load shipData.otherGId
                                     new CodeInstruction(OpCodes.Ldelem_Ref)); // load gStationPool[shipData.otherGId]
-                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0), // insert call to ShipRenderersOnTick() to not hide any ships :)
                                             new CodeInstruction(OpCodes.Ldarg_S, 7),
                                             new CodeInstruction(OpCodes.Ldarg_S, 8),
                                             new CodeInstruction(OpCodes.Ldarg_S, 9),
