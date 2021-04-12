@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
@@ -22,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (LocalPlayer.IsMasterClient)
                 {
                     int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
-                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(planetId, __instance.buildPreviews, __instance.previewPose));
+                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(planetId, __instance.buildPreviews, __instance.previewPose, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
                 }
 
                 //If client builds, he need to first send request to the host and wait for reply
@@ -48,6 +49,11 @@ namespace NebulaPatcher.Patches.Dynamic
                                 __instance.player.package.TakeTailItems(ref id, ref num, false);
                             }
                             flag = (num == 1);
+                            if (flag)
+                            {
+                                //Give item back to player inventory and wait for the response from the server
+                                __instance.player.package.AddItem(id, num);
+                            }
                         }
                         if (flag)
                         {
@@ -55,11 +61,34 @@ namespace NebulaPatcher.Patches.Dynamic
                         }
                     }
 
-                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, canBuild, __instance.previewPose));
+                    LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, canBuild, __instance.previewPose, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
                     return false;
                 }
             }
             return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("DoDestructObject")]
+        public static bool DoDestructObject_Prefix(PlayerAction_Build __instance, int objId)
+        {
+            if (!SimulatedWorld.Initialized)
+                return true;
+
+            //Clients needs to send destruction packet here
+            if (!LocalPlayer.IsMasterClient)
+            {
+                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
+            }
+
+            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
+        }
+      
+        [HarmonyPrefix]
+        [HarmonyPatch("AfterPrebuild")]
+        public static bool AfterPrebuild_Prefix()
+        {
+            return !FactoryManager.EventFromServer && !FactoryManager.EventFromClient;
         }
     }
 }

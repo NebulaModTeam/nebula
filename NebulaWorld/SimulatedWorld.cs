@@ -214,7 +214,15 @@ namespace NebulaWorld
                 TrashData trashData = packet.GetTrashData();
                 //Calculate trash position based on the current player's model position
                 RemotePlayerMovement.Snapshot lastPosition = player.Movement.GetLastPosition();
-                trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y, lastPosition.UPosition.z);
+                if (lastPosition.LocalPlanetId < 1)
+                {
+                    trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y, lastPosition.UPosition.z);
+                } else
+                {
+                    trashData.lPos = lastPosition.LocalPlanetPosition.ToVector3();
+                    PlanetData planet = GameMain.galaxy.PlanetById(lastPosition.LocalPlanetId);
+                    trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
+                }
 
                 TrashManager.NewTrashFromOtherPlayers = true;
                 int myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
@@ -246,10 +254,10 @@ namespace NebulaWorld
                 }
                 else
                 {
-                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToUnity();
+                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToVector3();
                     GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
                 }
-                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToUnity());
+                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToVector3());
 
                 //Load player's saved data from the last session.
                 AccessTools.Property(typeof(Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
@@ -271,6 +279,36 @@ namespace NebulaWorld
             LocalPlayer.SetReady();
 
             IsGameLoaded = true;
+        }
+
+        public static void OnDronesDraw()
+        {
+            foreach(KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
+            {
+                remoteModel.Value.MechaInstance.droneRenderer.Draw();
+            }
+        }
+
+        public static void OnDronesGameTick(long time, float dt)
+        {
+            double tmp = 0;
+            double tmp2 = 0;
+            //Update drones positions based on their targets
+            foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
+            {
+                MechaDrone[] drones = remoteModel.Value.PlayerInstance.mecha.drones;
+                int droneCount = remoteModel.Value.PlayerInstance.mecha.droneCount;
+                for (int i = 0; i < droneCount; i++)
+                {
+                    if (drones[i].stage != 0)
+                    {
+                        //To-do: fix the correct factory here
+                        //To-do: Optimize getting local position of player
+                        drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), dt, ref tmp, ref tmp2, 0);
+                    }
+                }
+                remoteModel.Value.MechaInstance.droneRenderer.Update();
+            }
         }
     }
 }

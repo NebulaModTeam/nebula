@@ -12,11 +12,13 @@ namespace NebulaModel.Packets.Factory
         public byte[] BuildPreviewData { get; set; }
         public Float3 PosePosition { get; set; }
         public Float4 PoseRotation { get; set; }
+        public int AuthorId { get; set; }
 
         public CreatePrebuildsRequest() { }
 
-        public CreatePrebuildsRequest(int planetId, List<BuildPreview> buildPreviews, Pose pose)
+        public CreatePrebuildsRequest(int planetId, List<BuildPreview> buildPreviews, Pose pose, int playerId)
         {
+            AuthorId = playerId;
             PlanetId = planetId;
             PosePosition = new Float3(pose.position);
             PoseRotation = new Float4(pose.rotation);
@@ -79,8 +81,62 @@ namespace NebulaModel.Packets.Factory
             buildPreview.isConnNode = br.ReadBoolean();
             buildPreview.desc = new PrefabDesc();
             buildPreview.desc.modelIndex = br.ReadInt32();
+
+            //Import more data about the Prefab to properly validate the build condition on server-side
+            buildPreview.desc.isBelt = br.ReadBoolean();
+            buildPreview.desc.isInserter = br.ReadBoolean();
+            buildPreview.desc.oilMiner = br.ReadBoolean();
+            buildPreview.desc.isTank = br.ReadBoolean();
+            buildPreview.desc.isStorage = br.ReadBoolean();
+            buildPreview.desc.isLab = br.ReadBoolean();
+            buildPreview.desc.isSplitter = br.ReadBoolean();
+            buildPreview.desc.isPowerNode = br.ReadBoolean();
+            buildPreview.desc.isAccumulator = br.ReadBoolean();
+            buildPreview.desc.powerConnectDistance = br.ReadSingle();
+            buildPreview.desc.windForcedPower = br.ReadBoolean();
+            buildPreview.desc.isPowerGen = br.ReadBoolean();
+            buildPreview.desc.isCollectStation = br.ReadBoolean();
+            buildPreview.desc.stationCollectSpeed = br.ReadInt32();
+            buildPreview.desc.workEnergyPerTick = br.ReadInt64();
+            buildPreview.desc.isStation = br.ReadBoolean();
+            buildPreview.desc.isStellarStation = br.ReadBoolean();
+            buildPreview.desc.cullingHeight = br.ReadSingle();
+            buildPreview.desc.isEjector = br.ReadBoolean();
+            buildPreview.desc.multiLevel = br.ReadBoolean();
+            buildPreview.desc.veinMiner = br.ReadBoolean();
+
+            //Import information about the position of build (land / sea)
+            num = br.ReadInt32();
+            buildPreview.desc.landPoints = new Vector3[num];
+            for (int i = 0; i < num; i++)
+            {
+                buildPreview.desc.landPoints[i] = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+            }
+            num = br.ReadInt32();
+            buildPreview.desc.waterPoints = new Vector3[num];
+            for (int i = 0; i < num; i++)
+            {
+                buildPreview.desc.waterPoints[i] = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+            }
+
+            //Import information about the collider to check the collisions
+            buildPreview.desc.hasBuildCollider = br.ReadBoolean();
+            num = br.ReadInt32();
+            buildPreview.desc.buildColliders = new ColliderData[num];
+            for (int i = 0; i < num; i++)
+            {
+                buildPreview.desc.buildColliders[i].pos = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                buildPreview.desc.buildColliders[i].ext = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                buildPreview.desc.buildColliders[i].q = new Quaternion(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+                buildPreview.desc.buildColliders[i].radius = br.ReadSingle();
+                buildPreview.desc.buildColliders[i].idType = br.ReadInt32();
+                buildPreview.desc.buildColliders[i].link = br.ReadInt32();
+            }
+
             buildPreview.item = new ItemProto();
             buildPreview.item.ID = br.ReadInt32();
+            buildPreview.item.BuildMode = br.ReadInt32();
+
             buildPreview.refCount = br.ReadInt32();
             buildPreview.refArr = new int[buildPreview.refCount];
             for (int i = 0; i < buildPreview.refCount; i++)
@@ -119,7 +175,70 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.filterId);
             bw.Write(buildPreview.isConnNode);
             bw.Write(buildPreview.desc.modelIndex);
+
+            //Export more data about the Prefab to properly validate the build condition on server-side
+            bw.Write(buildPreview.desc.isBelt);
+            bw.Write(buildPreview.desc.isInserter);
+            bw.Write(buildPreview.desc.oilMiner);
+            bw.Write(buildPreview.desc.isTank);
+            bw.Write(buildPreview.desc.isStorage);
+            bw.Write(buildPreview.desc.isLab);
+            bw.Write(buildPreview.desc.isSplitter);
+            bw.Write(buildPreview.desc.isPowerNode);
+            bw.Write(buildPreview.desc.isAccumulator);
+            bw.Write(buildPreview.desc.powerConnectDistance);
+            bw.Write(buildPreview.desc.windForcedPower);
+            bw.Write(buildPreview.desc.isPowerGen);
+            bw.Write(buildPreview.desc.isCollectStation);
+            bw.Write(buildPreview.desc.stationCollectSpeed);
+            bw.Write(buildPreview.desc.workEnergyPerTick);
+            bw.Write(buildPreview.desc.isStation);
+            bw.Write(buildPreview.desc.isStellarStation);
+            bw.Write(buildPreview.desc.cullingHeight);
+            bw.Write(buildPreview.desc.isEjector);
+            bw.Write(buildPreview.desc.multiLevel);
+            bw.Write(buildPreview.desc.veinMiner);
+
+            //Export information about the position of build (land / sea)
+            num = buildPreview.desc.landPoints.Length;
+            bw.Write(num);
+            for (int i = 0; i < num; i++)
+            {
+                bw.Write(buildPreview.desc.landPoints[i].x);
+                bw.Write(buildPreview.desc.landPoints[i].y);
+                bw.Write(buildPreview.desc.landPoints[i].z);
+            }
+            num = buildPreview.desc.waterPoints.Length;
+            bw.Write(num);
+            for (int i = 0; i < num; i++)
+            {
+                bw.Write(buildPreview.desc.waterPoints[i].x);
+                bw.Write(buildPreview.desc.waterPoints[i].y);
+                bw.Write(buildPreview.desc.waterPoints[i].z);
+            }
+            //Export information about the collider to check the collisions
+            bw.Write(buildPreview.desc.hasBuildCollider);
+            num = buildPreview.desc.buildColliders.Length;
+            bw.Write(num);
+            for (int i = 0; i < num; i++)
+            {
+                bw.Write(buildPreview.desc.buildColliders[i].pos.x);
+                bw.Write(buildPreview.desc.buildColliders[i].pos.y);
+                bw.Write(buildPreview.desc.buildColliders[i].pos.z);
+                bw.Write(buildPreview.desc.buildColliders[i].ext.x);
+                bw.Write(buildPreview.desc.buildColliders[i].ext.y);
+                bw.Write(buildPreview.desc.buildColliders[i].ext.z);
+                bw.Write(buildPreview.desc.buildColliders[i].q.x);
+                bw.Write(buildPreview.desc.buildColliders[i].q.y);
+                bw.Write(buildPreview.desc.buildColliders[i].q.z);
+                bw.Write(buildPreview.desc.buildColliders[i].q.w);
+                bw.Write(buildPreview.desc.buildColliders[i].radius);
+                bw.Write(buildPreview.desc.buildColliders[i].idType);
+                bw.Write(buildPreview.desc.buildColliders[i].link);
+            }
+
             bw.Write(buildPreview.item.ID);
+            bw.Write(buildPreview.item.BuildMode);
             bw.Write(buildPreview.refCount);
             for (int i = 0; i < buildPreview.refCount; i++)
             {

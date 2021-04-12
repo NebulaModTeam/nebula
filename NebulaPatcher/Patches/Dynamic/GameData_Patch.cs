@@ -145,5 +145,15 @@ namespace NebulaPatcher.Patches.Dynamic
             gameData.mainPlayer.uVelocity = VectorLF3.zero;
             gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("OnDraw")]
+        public static void OnDraw_Prefix()
+        {
+            if (SimulatedWorld.Initialized)
+            {
+                SimulatedWorld.OnDronesDraw();
+            }
+        }
     }
 }
