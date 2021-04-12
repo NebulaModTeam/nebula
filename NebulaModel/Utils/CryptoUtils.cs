@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace NebulaModel.Utils
 {
@@ -16,7 +14,7 @@ namespace NebulaModel.Utils
             if (File.Exists(KeyFile))
             {
                 rsa.FromXmlString(File.ReadAllText(KeyFile));
-            } 
+            }
             else
             {
                 File.WriteAllText(KeyFile, rsa.ToXmlString(true));
@@ -32,7 +30,12 @@ namespace NebulaModel.Utils
         public static string Hash(byte[] input)
         {
             byte[] hash = new SHA1Managed().ComputeHash(input);
-            return string.Concat(hash.Select(b => b.ToString("x2")));
+            return Convert.ToBase64String(hash);
+        }
+
+        public static string GetCurrentUserPublicKeyHash()
+        {
+            return Hash(GetPublicKey(GetOrCreateUserCert()));
         }
     }
 }

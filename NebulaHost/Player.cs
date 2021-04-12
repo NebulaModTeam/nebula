@@ -20,6 +20,11 @@ namespace NebulaHost
             Connection.SendPacket(packet);
         }
 
+        public void SendRawPacket(byte[] packet)
+        {
+            Connection.SendRawPacket(packet);
+        }
+
         public void LoadUserData(PlayerData data)
         {
             ushort localId = Id;

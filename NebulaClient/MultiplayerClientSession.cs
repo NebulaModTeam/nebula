@@ -1,6 +1,8 @@
 ﻿using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
+using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
@@ -17,9 +19,12 @@ namespace NebulaClient
         private WebSocket clientSocket;
         private IPEndPoint serverEndpoint;
         private NebulaConnection serverConnection;
+        private float mechaSynchonizationTimer = 0f;
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
+
+        private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private string serverIp;
         private int serverPort;
@@ -72,6 +77,10 @@ namespace NebulaClient
         {
             serverConnection?.SendPacket(packet);
         }
+        public void SendPacketToLocalStar<T>(T packet) where T : class, new()
+        {
+            serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.data.localStar?.id ?? -1));
+        }
 
         public void Reconnect()
         {
@@ -99,13 +108,33 @@ namespace NebulaClient
             IsConnected = false;
             serverConnection = null;
 
-            // If the client is Quitting by himself, we don't have to inform him of his disconnection.
-            if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
-                return;
-
-            if (SimulatedWorld.IsGameLoaded)
+            UnityDispatchQueue.RunOnMainThread(() =>
             {
-                UnityDispatchQueue.RunOnMainThread(() =>
+                // If the client is Quitting by himself, we don't have to inform him of his disconnection.
+                if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
+                    return;
+
+                if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
+                {
+                    InGamePopup.ShowWarning(
+                        "Mod Version Mismatch",
+                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nMake sure to use the same version.",
+                        "OK",
+                        OnDisconnectPopupCloseBeforeGameLoad);
+                    return;
+                }
+
+                if (e.Code == (ushort)DisconnectionReason.GameVersionMismatch)
+                {
+                    InGamePopup.ShowWarning(
+                        "Game Version Mismatch",
+                        $"Your version of the game is not the same as the one used by the Host.\nMake sure to use the same version.",
+                        "OK",
+                        OnDisconnectPopupCloseBeforeGameLoad);
+                    return;
+                }
+
+                if (SimulatedWorld.IsGameLoaded)
                 {
                     InGamePopup.ShowWarning(
                         "Connection Lost",
@@ -113,29 +142,38 @@ namespace NebulaClient
                         "Quit", "Reconnect",
                         () => { LocalPlayer.LeaveGame(); },
                         () => { Reconnect(); });
-                });
-            }
-            else
-            {
-                UnityDispatchQueue.RunOnMainThread(() =>
+                }
+                else
                 {
                     InGamePopup.ShowWarning(
                         "Server Unavailable",
                         $"Could not reach the server, please try again later.",
                         "OK",
-                        () =>
-                        {
-                            GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
-                            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
-                            multiplayerMenu?.gameObject?.SetActive(true);
-                        });
-                });
-            }
+                        OnDisconnectPopupCloseBeforeGameLoad);
+                }
+            });
+        }
+
+        private void OnDisconnectPopupCloseBeforeGameLoad()
+        {
+            GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
+            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
+            multiplayerMenu?.gameObject?.SetActive(true);
         }
 
         private void Update()
         {
             PacketProcessor.ProcessPacketQueue();
+
+            if (SimulatedWorld.IsGameLoaded)
+            {
+                mechaSynchonizationTimer += Time.deltaTime;
+                if (mechaSynchonizationTimer > MECHA_SYNCHONIZATION_INTERVAL)
+                {
+                    SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+                    mechaSynchonizationTimer = 0f;
+                }
+            }
         }
     }
 }

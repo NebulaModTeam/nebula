@@ -1,0 +1,33 @@
+﻿using HarmonyLib;
+using NebulaModel.Packets.Trash;
+using NebulaWorld;
+using NebulaWorld.Trash;
+
+namespace NebulaPatcher.Patches.Dynamic
+{
+    [HarmonyPatch(typeof(TrashSystem))]
+    class TrashSystem_Patch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch("SetForNewGame")]
+        public static void SetForNewGame_Postfix()
+        {
+            //Request trash data from the host
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                LocalPlayer.SendPacket(new TrashSystemRequestDataPacket(GameMain.localStar == null ? -1 : GameMain.localStar.id));
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("ClearAllTrash")]
+        public static void ClearAllTrash_Postfix()
+        {
+            //Send notification, that somebody clicked on "ClearAllTrash"
+            if (SimulatedWorld.Initialized && !TrashManager.ClearAllTrashFromOtherPlayers)
+            {
+                LocalPlayer.SendPacket(new TrashSystemClearAllTrashPacket());
+            }
+        }
+    }
+}

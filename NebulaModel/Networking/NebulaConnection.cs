@@ -28,7 +28,19 @@ namespace NebulaModel.Networking
             }
             else
             {
-                Log.Warn($"Cannot send packet {packet?.GetType()} to a closed connection {peerSocket?.Url}");
+                Log.Warn($"Cannot send packet {packet?.GetType()} to a closed connection {peerEndpoint}");
+            }
+        }
+
+        public void SendRawPacket(byte[] rawData)
+        {
+            if (peerSocket.ReadyState == WebSocketState.Open)
+            {
+                peerSocket.Send(rawData);
+            }
+            else
+            {
+                Log.Warn($"Cannot send raw packet to a closed connection {peerSocket?.Url}");
             }
         }
 

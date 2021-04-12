@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
-using NebulaWorld;
 using NebulaModel.Packets.GameHistory;
+using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -20,6 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             //Notify all clients about unlocked tech
             Log.Info($"Sending Tech Unlocked notification");
+            GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
             LocalPlayer.SendPacket(new GameHistoryUnlockTechPacket(techId));
         }
     }

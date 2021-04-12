@@ -1,9 +1,9 @@
-﻿using System.IO;
-using UnityEngine;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Statistics;
 using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 namespace NebulaWorld.Statistics
 {
@@ -223,7 +223,7 @@ namespace NebulaWorld.Statistics
                         num2 += netPool2[l].energyStored;
                     }
                 }
-            }   
+            }
             //Total Stored Energy for "Picking specific planet"
             else if (targetIndex % 100 > 0)
             {
@@ -286,7 +286,7 @@ namespace NebulaWorld.Statistics
             //Import Factory statistics
             int factoryCount = br.ReadInt32();
 
-                for (int i = 0; i < factoryCount; i++)
+            for (int i = 0; i < factoryCount; i++)
             {
                 if (Stats.production.factoryStatPool[i] == null)
                 {

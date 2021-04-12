@@ -70,6 +70,28 @@ namespace NebulaHost
             }
         }
 
+        public void SendPacketToLocalStar<T>(T packet) where T : class, new()
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.star.id == GameMain.data.localStar.id)
+                {
+                    player.SendPacket(packet);
+                }
+            }
+        }
+
+        public void SendRawPacketToStar(byte[] rawPacket, int starId, NebulaConnection sender)
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.star.id == starId && player.Connection != sender)
+                {
+                    player.SendRawPacket(rawPacket);
+                }
+            }
+        }
+
         public void SendPacketToOtherPlayers<T>(T packet, Player sender) where T : class, new()
         {
             foreach (Player player in GetConnectedPlayers())
@@ -118,6 +140,19 @@ namespace NebulaHost
                 return availablePlayerIds.Dequeue();
             else
                 return ++highestPlayerID;
+        }
+
+        public void UpdateMechaData(MechaData mechaData, NebulaConnection conn)
+        {
+            if (mechaData == null)
+            {
+                return;
+            }
+            if (connectedPlayers.TryGetValue(conn, out Player player))
+            {
+                //Find correct player for data to update
+                player.Data.Mecha = mechaData;
+            }
         }
     }
 }

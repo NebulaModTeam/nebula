@@ -89,7 +89,7 @@ namespace NebulaModel.Networking.Serialization
                     if (now >= delayedPackets[i].DueTime)
                     {
                         pendingPackets.Enqueue(delayedPackets[i].Packet);
-                        deleteCount = i+1;
+                        deleteCount = i + 1;
                     }
                     else
                     {

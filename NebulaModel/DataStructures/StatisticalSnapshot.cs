@@ -18,7 +18,7 @@ namespace NebulaModel.DataStructures
         public StatisticalSnapShot(long gameTick, int numOfActiveFactories)
         {
             ProductionChangesPerFactory = new List<ProductionChangeStruct>[numOfActiveFactories];
-            for(int i = 0; i < numOfActiveFactories; i++)
+            for (int i = 0; i < numOfActiveFactories; i++)
             {
                 ProductionChangesPerFactory[i] = new List<ProductionChangeStruct>();
             }

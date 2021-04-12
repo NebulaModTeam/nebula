@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace NebulaPatcher
 {
-    [BepInPlugin("com.github.hubertgendron.nebula", "Nebula - Multiplayer Mod", "0.0.0.1")]
+    [BepInPlugin("com.github.hubertgendron.nebula", "Nebula - Multiplayer Mod", "0.0.1.0")]
     [BepInProcess("DSPGAME.exe")]
     public class NebulaPlugin : BaseUnityPlugin
     {
@@ -18,6 +18,8 @@ namespace NebulaPatcher
         void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
+            
+            NebulaModel.Config.ModInfo = Info;
 
             try
             {

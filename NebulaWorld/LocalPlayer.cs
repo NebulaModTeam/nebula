@@ -27,6 +27,11 @@ namespace NebulaWorld
             networkProvider?.SendPacket(packet);
         }
 
+        public static void SendPacketToLocalStar<T>(T packet) where T : class, new()
+        {
+            networkProvider?.SendPacketToLocalStar(packet);
+        }
+
         public static void SetReady()
         {
             PatchLocks.Clear();

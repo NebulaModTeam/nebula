@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaWorld;
@@ -57,12 +58,11 @@ namespace NebulaPatcher.Patches.Dynamic
             // Make sure to save the game before enabling the multiplayer mod
             GameSave.AutoSave();
 
-            // TODO: This port should come from the server.config file.
-            int port = 8469;
+            int port = Config.DefaultPort;
 
             Log.Info($"Listening server on port {port}");
             var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
-            session.StartServer(port);
+            session.StartServer(port, true);
 
             // Manually call the OnGameLoadCompleted here since we are already in a game.
             SimulatedWorld.OnGameLoadCompleted();

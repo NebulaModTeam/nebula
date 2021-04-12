@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using LZ4;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaWorld;
@@ -127,7 +126,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     PlanetData planet = __instance.galaxy.PlanetById(LocalPlayer.Data.LocalPlanetId);
                     __instance.ArrivePlanet(planet);
-                } 
+                }
                 else
                 {
                     StarData nearestStar = null;
@@ -187,6 +186,16 @@ namespace NebulaPatcher.Patches.Dynamic
             gameData.mainPlayer.uRotation = planet.runtimeRotation * quaternion;
             gameData.mainPlayer.uVelocity = VectorLF3.zero;
             gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("OnDraw")]
+        public static void OnDraw_Prefix()
+        {
+            if (SimulatedWorld.Initialized)
+            {
+                SimulatedWorld.OnDronesDraw();
+            }
         }
     }
 }
