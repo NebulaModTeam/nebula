@@ -61,5 +61,12 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             return true;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("AfterPrebuild")]
+        public static bool AfterPrebuild_Prefix()
+        {
+            return !FactoryManager.EventFromServer && !FactoryManager.EventFromClient;
+        }
     }
 }
