@@ -89,6 +89,11 @@ namespace NebulaHost
             PlayerManager.SendPacketToLocalStar(packet);
         }
 
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            PlayerManager.SendPacketToLocalPlanet(packet);
+        }
+
         private void Update()
         {
             gameStateUpdateTimer += Time.deltaTime;

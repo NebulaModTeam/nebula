@@ -81,6 +81,10 @@ namespace NebulaClient
         {
             serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.data.localStar?.id ?? -1));
         }
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
+        }
 
         public void Reconnect()
         {

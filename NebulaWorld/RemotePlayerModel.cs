@@ -14,7 +14,7 @@ namespace NebulaWorld
         public RemotePlayerAnimation Animator { get; set; }
         public RemotePlayerEffects Effects { get; set; }
 
-        public Player PlayerInstance { get; set; }
+        public global::Player PlayerInstance { get; set; }
         public Mecha MechaInstance { get; set; }
 
         public RemotePlayerModel(ushort playerId)
@@ -42,9 +42,9 @@ namespace NebulaWorld
 
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";
 
-            PlayerInstance = new Player();
+            PlayerInstance = new global::Player();
             MechaInstance = new Mecha();
-            AccessTools.Property(typeof(Player), "mecha").SetValue(PlayerInstance, MechaInstance, null);
+            AccessTools.Property(typeof(global::Player), "mecha").SetValue(PlayerInstance, MechaInstance, null);
             MechaInstance.Init(PlayerInstance);
         }
 

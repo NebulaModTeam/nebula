@@ -82,6 +82,7 @@
     <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
+    <Compile Include="PacketProcessors\Routers\PlanetBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Routers\StarBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />

@@ -81,11 +81,33 @@ namespace NebulaHost
             }
         }
 
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId)
+                {
+                    player.SendPacket(packet);
+                }
+            }
+        }
+
         public void SendRawPacketToStar(byte[] rawPacket, int starId, NebulaConnection sender)
         {
             foreach (Player player in GetConnectedPlayers())
             {
                 if (GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.star.id == starId && player.Connection != sender)
+                {
+                    player.SendRawPacket(rawPacket);
+                }
+            }
+        }
+
+        public void SendRawPacketToPlanet(byte[] rawPacket, int planetId, NebulaConnection sender)
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (player.Data.LocalPlanetId == planetId && player.Connection != sender)
                 {
                     player.SendRawPacket(rawPacket);
                 }
