@@ -272,5 +272,35 @@ namespace NebulaWorld
 
             IsGameLoaded = true;
         }
+
+        public static void OnDronesDraw()
+        {
+            foreach(KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
+            {
+                remoteModel.Value.MechaInstance.droneRenderer.Draw();
+            }
+        }
+
+        public static void OnDronesGameTick(long time, float dt)
+        {
+            double tmp = 0;
+            double tmp2 = 0;
+            //Update drones positions based on their targets
+            foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
+            {
+                MechaDrone[] drones = remoteModel.Value.PlayerInstance.mecha.drones;
+                int droneCount = remoteModel.Value.PlayerInstance.mecha.droneCount;
+                for (int i = 0; i < droneCount; i++)
+                {
+                    if (drones[i].stage != 0)
+                    {
+                        //To-do: fix the correct factory here
+                        //To-do: Optimize getting local position of player
+                        drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToUnity(), dt, ref tmp, ref tmp2, 0);
+                    }
+                }
+                remoteModel.Value.MechaInstance.droneRenderer.Update();
+            }
+        }
     }
 }
