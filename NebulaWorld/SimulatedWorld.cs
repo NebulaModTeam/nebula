@@ -214,7 +214,15 @@ namespace NebulaWorld
                 TrashData trashData = packet.GetTrashData();
                 //Calculate trash position based on the current player's model position
                 RemotePlayerMovement.Snapshot lastPosition = player.Movement.GetLastPosition();
-                trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y, lastPosition.UPosition.z);
+                if (lastPosition.LocalPlanetId < 1)
+                {
+                    trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y, lastPosition.UPosition.z);
+                } else
+                {
+                    trashData.lPos = lastPosition.LocalPlanetPosition.ToUnity();
+                    PlanetData planet = GameMain.galaxy.PlanetById(lastPosition.LocalPlanetId);
+                    trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
+                }
 
                 TrashManager.NewTrashFromOtherPlayers = true;
                 int myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
