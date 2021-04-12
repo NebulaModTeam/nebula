@@ -81,8 +81,6 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 {
                     FactoryManager.PacketAuthor = packet.AuthorId;
                     pab.CreatePrebuilds();
-                    planet.physics.Update();
-                    planet.physics.GameTick();
                     FactoryManager.PacketAuthor = -1;
                     FactoryManager.EventFromServer = false;
                     FactoryManager.EventFactory = null;
