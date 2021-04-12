@@ -11,12 +11,18 @@ namespace NebulaWorld.Factory
         public static bool EventFromServer { get; set; }
         public static bool EventFromClient { get; set; }
         public static PlanetFactory EventFactory { get; set; }
+        public static bool IgnoreBasicBuildConditionChecks { get; set; }
+        public static bool DoNotAddItemsFromBuildingOnDestruct { get; set; }
+        public static int PacketAuthor { get; set; }
 
         public static void Initialize()
         {
             prebuildRequests = new ThreadSafeDictionary<PrebuildOwnerKey, ushort>();
             EventFromServer = false;
             EventFromClient = false;
+            IgnoreBasicBuildConditionChecks = false;
+            DoNotAddItemsFromBuildingOnDestruct = false;
+            PacketAuthor = -1;
         }
 
         public static void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)
