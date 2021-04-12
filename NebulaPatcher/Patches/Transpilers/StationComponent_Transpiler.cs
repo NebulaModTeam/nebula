@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
         [HarmonyTranspiler]
         [HarmonyPatch("RematchRemotePairs")]
-        public static IEnumerable<CodeInstruction> RematchRemotePairs_Transpiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> RematchRemotePairs_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             // BEGIN: transpilers to catch StationStore::remoteOrder changes
             // c# 66 IL 371 AND c# 119 IL 621 AND c# 143 IL 754 AND c# 166 IL 897 AND c# 192 IL 1033
@@ -546,57 +546,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InstructionEnumeration();
             // END: transpilers to catch StationStore::remoteOrder changes
 
-            /*
-             * NOTE:
-             * disabled for now as i think its the wrong way to go
-             * it may would work but needs way more work then just reimplementing whats needed to get ship rendering done
-             * this transpiler does semi-work. it seems to lock ships for host in place for some reason.
-            // BEGIN: transpilers to make gStationPool[] accessible for clients without NRE (issue 59)
-            // c# 438 IL 2156
-            Label jmpLabelDelegate;
-            CodeMatcher matcher = new CodeMatcher(instructions, il)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_S),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldobj),
-                    new CodeMatch(OpCodes.Stloc_S),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldc_I4_0),
-                    new CodeMatch(OpCodes.Ble))
-            .Advance(1);
-            // load the StationComponent out of gStationPool[]
-            matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 6), // load gStationPool[]
-                                new CodeInstruction(OpCodes.Ldloca_S, 35), // load shipData
-                                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")), // load shipData.otherGId
-                                new CodeInstruction(OpCodes.Ldelem_Ref)); // load gStationPool[shipData.otherGId]
-            matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 35)); // load the ShipData to get the otherGId from inside delegate
-            matcher.InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<CheckgStationPool>((ref ShipData shipData) =>
-            {
-                // only run this on the client to avoid the NRE (isue 59)
-                if(SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
-                {
-                    if (!requestedStationsGIds.Contains(shipData.otherGId))
-                    {
-                        // probably should remove it at some point again (when we got the data) but im lazy and want to know if things work atm
-                        requestedStationsGIds.Add(shipData.otherGId);
-                        ILSRequestShipDockPos packet = new ILSRequestShipDockPos(shipData.otherGId, Vector3.zero);
-                        LocalPlayer.SendPacket(packet);
-                    }
-                }
-                return 0;
-            }));
-            matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Pop),
-                                        new CodeInstruction(OpCodes.Ret)); // exit out of original function
-            matcher.CreateLabelAt(matcher.Pos - 1, out jmpLabelDelegate); // create a label pointing behind the injected code
-            matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Pop)); // pop gStationPool[shipData.otherGId] (needed because we land here in case it was NOT null and we need to remove traces of our loadings)
-            matcher.Advance(-5); // go back to insert jmp
-            matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabelDelegate)); // if object is NOT null jump to the vanilla code
-            instructions = matcher.InstructionEnumeration();
-            // END: transpilers to make gStationPool[] accessible for client without NRE
-            */
             return instructions;
         }
 
@@ -639,7 +588,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // remove c# 352 - 365 IL 118B - 12DA (which is just after the first AddItem() call)
+                // remove c# 352 - 369 IL 118B - 12DA (which is just after the first AddItem() call)
                 int origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),

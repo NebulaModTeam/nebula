@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace NebulaWorld.Logistics
 {
-    class ILSShipManager
+    public class ILSShipManager
     {
         public static void IdleShipGetToWork(ILSShipData packet)
         {
@@ -103,7 +103,7 @@ namespace NebulaWorld.Logistics
             //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
         }
 
-        private static void CreateFakeStationComponent(int GId, int planetId)
+        public static void CreateFakeStationComponent(int GId, int planetId)
         {
             Debug.Log("Creating fake StationComponent with GId: " + GId + " on " + GameMain.galaxy.PlanetById(planetId).displayName);
             while(GameMain.data.galacticTransport.stationCapacity <= GId)

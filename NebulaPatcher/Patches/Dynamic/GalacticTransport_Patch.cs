@@ -1,12 +1,22 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
-using UnityEngine;
+using NebulaModel.Packets.Logistics;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GalacticTransport))]
     class GalacticTransport_Patch
     {
+        [HarmonyPostfix]
+        [HarmonyPatch("SetForNewGame")]
+        public static void SetForNewGame_Postfix()
+        {
+            if(SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                LocalPlayer.SendPacket(new ILSgStationPoolSyncRequest());
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch("AddStationComponent")]
         public static bool AddStationComponent_Prefix(GalacticTransport __instance, int planetId, StationComponent station)
