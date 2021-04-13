@@ -30,6 +30,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                 List<int> planetId = new List<int>();
                 List<int> workShipCount = new List<int>();
                 List<int> idleShipCount = new List<int>();
+                List<ulong> workShipIndices = new List<ulong>();
+                List<ulong> idleShipIndices = new List<ulong>();
                 List<int> shipStationGId = new List<int>();
                 List<int> shipStage = new List<int>();
                 List<int> shipDirection = new List<int>();
@@ -42,6 +44,9 @@ namespace NebulaHost.PacketProcessors.Logistics
                 List<Float4> shipRot = new List<Float4>();
                 List<Float3> shipVel = new List<Float3>();
                 List<float> shipSpeed = new List<float>();
+                List<Float3> shipAngularVel = new List<Float3>();
+                List<Float3> shipPPosTemp = new List<Float3>();
+                List<Float4> shipPRotTemp = new List<Float4>();
 
                 foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
@@ -53,6 +58,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                         planetId.Add(stationComponent.planetId);
                         workShipCount.Add(stationComponent.workShipCount);
                         idleShipCount.Add(stationComponent.idleShipCount);
+                        workShipIndices.Add(stationComponent.workShipIndices);
+                        idleShipIndices.Add(stationComponent.idleShipIndices);
 
                         foreach(ShipData shipData in stationComponent.workShipDatas)
                         {
@@ -68,6 +75,9 @@ namespace NebulaHost.PacketProcessors.Logistics
                             shipRot.Add(new Float4(shipData.uRot));
                             shipVel.Add(new Float3(shipData.uVel));
                             shipSpeed.Add(shipData.uSpeed);
+                            shipAngularVel.Add(new Float3(shipData.uAngularVel));
+                            shipPPosTemp.Add(new Float3(shipData.pPosTemp));
+                            shipPRotTemp.Add(new Float4(shipData.pRotTemp));
                         }
                     }
                 }
@@ -79,6 +89,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                     planetId.ToArray(),
                     workShipCount.ToArray(),
                     idleShipCount.ToArray(),
+                    workShipIndices.ToArray(),
+                    idleShipIndices.ToArray(),
                     shipStationGId.ToArray(),
                     shipStage.ToArray(),
                     shipDirection.ToArray(),
@@ -90,7 +102,10 @@ namespace NebulaHost.PacketProcessors.Logistics
                     shipPos.ToArray(),
                     shipRot.ToArray(),
                     shipVel.ToArray(),
-                    shipSpeed.ToArray());
+                    shipSpeed.ToArray(),
+                    shipAngularVel.ToArray(),
+                    shipPPosTemp.ToArray(),
+                    shipPRotTemp.ToArray());
                 player.SendPacket(packet2);
             }
         }

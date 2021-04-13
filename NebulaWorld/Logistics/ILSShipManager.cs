@@ -109,7 +109,7 @@ namespace NebulaWorld.Logistics
             //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
         }
 
-        public static void CreateFakeStationComponent(int GId, int planetId)
+        public static void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
         {
             Debug.Log("Creating fake StationComponent with GId: " + GId + " on " + GameMain.galaxy.PlanetById(planetId).displayName);
             while(GameMain.data.galacticTransport.stationCapacity <= GId)
@@ -131,21 +131,24 @@ namespace NebulaWorld.Logistics
             stationComponent.idleShipCount = 0;
             stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
             stationComponent.shipDockRot = Quaternion.identity; // gets updated later by server packet
-            stationComponent.shipDiskPos = new Vector3[10];
-            stationComponent.shipDiskRot = new Quaternion[10];
-
-            for (int i = 0; i < 10; i++)
+            if (computeDisk)
             {
-                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)10 * (float)i, 0f);
-                stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
-            }
-            for (int j = 0; j < 10; j++)
-            {
-                stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
-                stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
-            }
+                stationComponent.shipDiskPos = new Vector3[10];
+                stationComponent.shipDiskRot = new Quaternion[10];
 
-            RequestgStationDockPos(GId);
+                for (int i = 0; i < 10; i++)
+                {
+                    stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)10 * (float)i, 0f);
+                    stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
+                }
+                for (int j = 0; j < 10; j++)
+                {
+                    stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
+                    stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
+                }
+
+                RequestgStationDockPos(GId);
+            }
 
             GameMain.data.galacticTransport.stationCursor++;
         }

@@ -32,7 +32,6 @@ namespace NebulaClient.PacketProcessors.Logistics
                 stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
                 stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
             }
-            Debug.Log("UPDATED DOCKING FOR " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
         }
     }
 }

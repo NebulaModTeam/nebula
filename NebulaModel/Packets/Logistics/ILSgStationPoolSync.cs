@@ -14,6 +14,8 @@ namespace NebulaModel.Packets.Logistics
         public int[] planetId { get; set; }
         public int[] workShipCount { get; set; }
         public int[] idleShipCount { get; set; }
+        public ulong[] workShipIndices { get; set; }
+        public ulong[] idleShipIndices { get; set; }
         public int[] shipStationGId { get; set; }
         public int[] shipStage { get; set; }
         public int[] shipDirection { get; set; }
@@ -26,6 +28,9 @@ namespace NebulaModel.Packets.Logistics
         public Float4[] shipRot { get; set; }
         public Float3[] shipVel { get; set; }
         public float[] shipSpeed { get; set; }
+        public Float3[] shipAngularVel { get; set; }
+        public Float3[] shipPPosTemp { get; set; }
+        public Float4[] shipPRotTemp { get; set; }
 
         public ILSgStationPoolSync() { }
         public ILSgStationPoolSync(int[] stationGId,
@@ -34,6 +39,8 @@ namespace NebulaModel.Packets.Logistics
                                     int[] planetId,
                                     int[] workShipCount,
                                     int[] idleShipCount,
+                                    ulong[] workShipIndices,
+                                    ulong[] idleShipIndices,
                                     int[] shipStationGId,
                                     int[] shipStage,
                                     int[] shipDirection,
@@ -45,7 +52,10 @@ namespace NebulaModel.Packets.Logistics
                                     Float3[] shipPos,
                                     Float4[] shipRot,
                                     Float3[] shipVel,
-                                    float[] shipSpeed)
+                                    float[] shipSpeed,
+                                    Float3[] shipAngularVel,
+                                    Float3[] shipPPosTemp,
+                                    Float4[] shipPRotTemp)
         {
             this.stationGId = new int[stationGId.Length];
             this.DockPos = new Float3[DockPos.Length];
@@ -53,6 +63,8 @@ namespace NebulaModel.Packets.Logistics
             this.planetId = new int[planetId.Length];
             this.workShipCount = new int[workShipCount.Length];
             this.idleShipCount = new int[idleShipCount.Length];
+            this.workShipIndices = new ulong[workShipIndices.Length];
+            this.idleShipIndices = new ulong[idleShipIndices.Length];
             this.shipStationGId = new int[shipStationGId.Length];
             this.shipStage = new int[shipStage.Length];
             this.shipDirection = new int[shipDirection.Length];
@@ -65,6 +77,9 @@ namespace NebulaModel.Packets.Logistics
             this.shipRot = new Float4[shipRot.Length];
             this.shipVel = new Float3[shipVel.Length];
             this.shipSpeed = new float[shipSpeed.Length];
+            this.shipAngularVel = new Float3[shipAngularVel.Length];
+            this.shipPPosTemp = new Float3[shipPPosTemp.Length];
+            this.shipPRotTemp = new Float4[shipPRotTemp.Length];
 
             Array.Copy(stationGId, this.stationGId, stationGId.Length);
             Array.Copy(DockPos, this.DockPos, DockPos.Length);
@@ -72,6 +87,8 @@ namespace NebulaModel.Packets.Logistics
             Array.Copy(planetId, this.planetId, planetId.Length);
             Array.Copy(workShipCount, this.workShipCount, workShipCount.Length);
             Array.Copy(idleShipCount, this.idleShipCount, idleShipCount.Length);
+            Array.Copy(workShipIndices, this.workShipIndices, workShipIndices.Length);
+            Array.Copy(idleShipIndices, this.idleShipIndices, idleShipIndices.Length);
             Array.Copy(shipStationGId, this.shipStationGId, shipStationGId.Length);
             Array.Copy(shipStage, this.shipStage, shipStage.Length);
             Array.Copy(shipDirection, this.shipDirection, shipDirection.Length);
@@ -84,6 +101,9 @@ namespace NebulaModel.Packets.Logistics
             Array.Copy(shipRot, this.shipRot, shipRot.Length);
             Array.Copy(shipVel, this.shipVel, shipVel.Length);
             Array.Copy(shipSpeed, this.shipSpeed, shipSpeed.Length);
+            Array.Copy(shipAngularVel, this.shipAngularVel, shipAngularVel.Length);
+            Array.Copy(shipPPosTemp, this.shipPPosTemp, shipPPosTemp.Length);
+            Array.Copy(shipPRotTemp, this.shipPRotTemp, shipPRotTemp.Length);
         }
     }
 }

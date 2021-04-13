@@ -169,6 +169,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if(stationComponent != null && stationComponent.isStellar)
                 {
                     //Debug.Log("enter " + stationComponent.gid + " (" + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ")");
+                    Debug.Log(GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + " (" + stationComponent.gid + "): " + stationComponent.renderShipCount + " " + stationComponent.workShipCount + "/" + stationComponent.idleShipCount);
                     StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
                 }
             }
