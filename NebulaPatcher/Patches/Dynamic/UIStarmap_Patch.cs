@@ -10,14 +10,20 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnLateUpdate")]
         public static void OnLateUpdate_Postfix(UIStarmap __instance)
         {
-            SimulatedWorld.RenderPlayerNameTagsOnStarmap(__instance);
+            if(SimulatedWorld.Initialized)
+            {
+                SimulatedWorld.RenderPlayerNameTagsOnStarmap(__instance);
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("_OnClose")]
         public static void OnClose_Postfix(UIStarmap __instance)
         {
-            SimulatedWorld.ClearPlayerNameTagsOnStarmap();
+            if (SimulatedWorld.Initialized)
+            {
+                SimulatedWorld.ClearPlayerNameTagsOnStarmap();
+            }
         }
     }
 }
