@@ -25,6 +25,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private RemoteWarpEffect rootWarp;
 
         public int localPlanetId;
+        public VectorLF3 absolutePosition;
 
 #if DEBUG
         private GameObject positionDebugger;
@@ -42,6 +43,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             rootWarp = rootTransform.GetComponent<RemoteWarpEffect>();
 
             localPlanetId = -1;
+            absolutePosition = Vector3.zero;
 
 #if DEBUG
             positionDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -116,10 +118,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void MoveInterpolated(Snapshot previous, Snapshot current, float ratio)
         {
-            Vector3 previousPosition = GetRelativePosition(previous);
-            Vector3 currentPosition = GetRelativePosition(current);
-            float deltaPosition = Vector3.Distance(previousPosition, currentPosition);
-            Vector3 velocity = (previousPosition - currentPosition) / (previous.Timestamp - current.Timestamp);
+            Vector3 previousRelativePosition = GetRelativePosition(previous);
+            Vector3 currentRelativePosition = GetRelativePosition(current);
+            Vector3 previousAbsolutePosition = GetAbsolutePosition(previous);
+            Vector3 currentAbsolutePosition = GetAbsolutePosition(current);
+            float deltaPosition = Vector3.Distance(previousRelativePosition, currentRelativePosition);
+            Vector3 velocity = (previousRelativePosition - currentRelativePosition) / (previous.Timestamp - current.Timestamp);
 
             /*
              * 170 is round about where vanilla warping starts, for better testing lower this to something like 30
@@ -138,9 +142,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             localPlanetId = current.LocalPlanetId;
 
-            rootTransform.position = Vector3.Lerp(previousPosition, currentPosition, ratio);
+            rootTransform.position = Vector3.Lerp(previousRelativePosition, currentRelativePosition, ratio);
             rootTransform.rotation = Quaternion.Slerp(previous.Rotation, current.Rotation, ratio);
             bodyTransform.rotation = Quaternion.Slerp(previous.BodyRotation, current.BodyRotation, ratio);
+
+            absolutePosition = Vector3.Lerp(previousAbsolutePosition, currentAbsolutePosition, ratio);
         }
 
         private Vector3 GetRelativePosition(Snapshot snapshot)
@@ -154,6 +160,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
             // If the remote player is in space, we need to calculate the remote player relative position from our local player position.
             VectorLF3 uPosition = new VectorLF3(snapshot.UPosition.x, snapshot.UPosition.y, snapshot.UPosition.z);
             return Maths.QInvRotateLF(GameMain.data.relativeRot, uPosition - GameMain.data.relativePos);
+        }
+
+        private Vector3 GetAbsolutePosition(Snapshot snapshot)
+        {
+            // We only need to bother with uPos for this part for now
+            return new VectorLF3(snapshot.UPosition.x, snapshot.UPosition.y, snapshot.UPosition.z);
         }
 
         public Snapshot GetLastPosition()

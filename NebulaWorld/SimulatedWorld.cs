@@ -7,8 +7,10 @@ using NebulaModel.Packets.Trash;
 using NebulaWorld.Factory;
 using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.Trash;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NebulaWorld
 {
@@ -308,6 +310,139 @@ namespace NebulaWorld
                     }
                 }
                 remoteModel.Value.MechaInstance.droneRenderer.Update();
+            }
+        }
+
+        public static void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
+        {
+            // Make a copy of the "Icarus" text from the starmap
+            Text starmap_playerNameText = (Text)AccessTools.Field(typeof(UIStarmap), "playerNameText").GetValue(starmap);
+
+            foreach (var player in remotePlayersModels)
+            {
+                RemotePlayerModel playerModel = player.Value;
+
+                Text nameText;
+                Text starmapMarker;
+                if (playerModel.StarmapNameText != null && playerModel.StarmapMarker != null)
+                {
+                    nameText = playerModel.StarmapNameText;
+                    starmapMarker = playerModel.StarmapMarker;
+                }
+                else
+                {
+                    // Make an instance of the "Icarus" text to represent the other player name
+                    nameText = playerModel.StarmapNameText = GameObject.Instantiate(starmap_playerNameText, starmap_playerNameText.transform.parent);
+                    nameText.text = $"Player {playerModel.PlayerId}";
+                    nameText.gameObject.SetActive(true);
+
+                    // Make another copy of it, but just replace it with a point to represent their location
+                    starmapMarker = playerModel.StarmapMarker = GameObject.Instantiate(starmap_playerNameText, starmap_playerNameText.transform.parent);
+                    starmapMarker.text = "•";
+                    starmapMarker.fontSize = nameText.fontSize * 4;
+                    starmapMarker.gameObject.SetActive(true);
+                }
+
+                VectorLF3 adjustedVector;
+                if (playerModel.Movement.localPlanetId > 0)
+                {
+                    // Get the position of the planet
+                    PlanetData planet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
+                    adjustedVector = planet.uPosition;
+
+                    // Add the local position of the player
+                    Vector3 localPlanetPosition = playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToUnity();
+                    adjustedVector += (VectorLF3)Maths.QRotate(planet.runtimeRotation, localPlanetPosition);
+
+                    // Scale as required
+                    adjustedVector = (adjustedVector - starmap.viewTargetUPos) * 0.00025;
+                }
+                else
+                {
+                    // Just use the raw uPos as we don't care too much about precise locations
+                    adjustedVector = (playerModel.Movement.absolutePosition - starmap.viewTargetUPos) * 0.00025;
+                }
+
+                // Get the point on the screen that represents the world position
+                if (!starmap.WorldPointIntoScreen(adjustedVector, out Vector2 rectPoint))
+                {
+                    continue;
+                }
+
+                // Put the marker directly on the location of the player
+                starmapMarker.rectTransform.anchoredPosition = rectPoint;
+                nameText.transform.localScale = Vector3.one;
+
+                // Put their name above or below it
+                nameText.rectTransform.anchoredPosition = new Vector2(rectPoint.x, rectPoint.y + (rectPoint.y >= -350.0 ? -19f : 19f));
+                nameText.transform.localScale = Vector3.one;
+            }
+        }
+
+        public static void ClearPlayerNameTagsOnStarmap()
+        {
+            foreach (var player in remotePlayersModels)
+            {
+                // Destroy the marker and name so they don't linger and cause problems
+                GameObject.Destroy(player.Value.StarmapNameText.gameObject);
+                GameObject.Destroy(player.Value.StarmapMarker);
+
+                // Null them out so they can be recreated next time the map is opened
+                player.Value.StarmapNameText = null;
+                player.Value.StarmapMarker = null;
+            }
+        }
+
+        public static void RenderPlayerNameTagsInGame()
+        {
+            TextMesh uiSailIndicator_targetText = null;
+
+            foreach (var player in remotePlayersModels)
+            {
+                RemotePlayerModel playerModel = player.Value;
+
+                GameObject playerNameText;
+                if (playerModel.InGameNameText != null)
+                {
+                    playerNameText = playerModel.InGameNameText;
+                }
+                else
+                {
+                    // Only get the field required if we actually need to, no point getting it every time
+                    if (uiSailIndicator_targetText == null)
+                    {
+                        uiSailIndicator_targetText = (TextMesh)AccessTools.Field(typeof(UISailIndicator), "targetText").GetValue(UIRoot.instance.uiGame.sailIndicator);
+                    }
+
+                    // Initialise a new game object to contain the text
+                    playerModel.InGameNameText = playerNameText = new GameObject();
+                    // Make it follow the player transform
+                    playerNameText.transform.SetParent(playerModel.PlayerTransform, false);
+                    // Add a meshrenderer and textmesh component to show the text with a different font
+                    MeshRenderer meshRenderer = playerNameText.AddComponent<MeshRenderer>();
+                    TextMesh textMesh = playerNameText.AddComponent<TextMesh>();
+
+                    // Set the text to be their name
+                    textMesh.text = $"Player {playerModel.PlayerId}";
+                    // Align it to be centered below them
+                    textMesh.anchor = TextAnchor.UpperCenter;
+                    // Copy the font over from the sail indicator
+                    textMesh.font = uiSailIndicator_targetText.font;
+                    meshRenderer.sharedMaterial = uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
+                    // Scale it down a little bit otherwise it looks too big when next to the player
+                    playerNameText.transform.localScale *= 0.6f;
+
+                    playerNameText.SetActive(true);
+                }
+
+                // If the player is not on the same planet or is in space, then do not render their in-world tag
+                if (playerModel.Movement.localPlanetId != LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
+                {
+                    playerNameText.gameObject.SetActive(false);
+                }
+
+                // Make sure the text is pointing at the camera
+                playerNameText.transform.rotation = GameCamera.main.transform.rotation;                
             }
         }
     }
