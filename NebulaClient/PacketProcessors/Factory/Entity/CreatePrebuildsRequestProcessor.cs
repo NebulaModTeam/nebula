@@ -41,13 +41,18 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
                 pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
                 AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
+                
                 //Create temporary physics for spawning building's colliders
-                if (planet.physics == null)
+                if (planet.physics == null || planet.physics.colChunks == null)
                 {
                     planet.physics = new PlanetPhysics(planet);
                     planet.physics.Init();
                 }
-                    
+                if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                {
+                    planet.factory.cargoTraffic.CreateRenderingBatches();
+                }
+
                 //Take item from the inventory if player is author of the build
                 if (packet.AuthorId == LocalPlayer.PlayerId)
                 {
@@ -69,6 +74,12 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 pab.CreatePrebuilds();
                 FactoryManager.EventFromServer = false;
                 FactoryManager.EventFactory = null;
+
+                //Author has to call this for the continuous belt building
+                if (packet.AuthorId == LocalPlayer.PlayerId)
+                {
+                    pab.AfterPrebuild();
+                }
 
                 //Revert changes back
                 AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
