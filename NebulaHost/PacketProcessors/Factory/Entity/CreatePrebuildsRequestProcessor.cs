@@ -64,6 +64,10 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 {
                     planet.factory.cargoTraffic.CreateRenderingBatches();
                 }
+                if (planet.aux == null)
+                {
+                    planet.aux = new PlanetAuxData(planet);
+                }
 
                 //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
                 AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
@@ -82,8 +86,6 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     FactoryManager.PacketAuthor = packet.AuthorId;
                     pab.CreatePrebuilds();
                     FactoryManager.PacketAuthor = -1;
-                    FactoryManager.EventFromServer = false;
-                    FactoryManager.EventFactory = null;
                 }
 
                 //Revert changes back to the original planet
@@ -98,6 +100,8 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpNearcdLogic);
                 }
 
+                FactoryManager.EventFromServer = false;
+                FactoryManager.EventFactory = null;
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos;

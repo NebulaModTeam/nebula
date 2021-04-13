@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using NebulaWorld;
+using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -27,6 +29,32 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
             return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("AddModel")]
+        public static bool AddModel_Prefix(GPUInstancingManager __instance, ref int __result)
+        {
+            //Do not add model to the GPU queue if player is not on the same planet as building that was build
+            if (SimulatedWorld.Initialized && FactoryManager.EventFactory != null && FactoryManager.EventFactory.planet != __instance.activePlanet)
+            {
+                __result = 0;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("AddPrebuildModel")]
+        public static bool AddPrebuildModel_Prefix(GPUInstancingManager __instance, ref int __result)
+        {
+            //Do not add model to the GPU queue if player is not on the same planet as building that was build
+            if (SimulatedWorld.Initialized && FactoryManager.EventFactory != null && FactoryManager.EventFactory.planet != __instance.activePlanet)
+            {
+                __result = 0;
+                return false;
+            }
+            return true;
         }
     }
 }
