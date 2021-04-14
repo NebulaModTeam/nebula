@@ -22,7 +22,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 // but do this at another place to not trigger it more often than needed (GameData::GameTick())
                 return false;
             }
-            Debug.Log(GameMain.galaxy.PlanetById(__instance.planetId).displayName + " (" + __instance.gid + "): " + __instance.renderShipCount + " " + __instance.workShipCount + "/" + __instance.idleShipCount);
             return true;
         }
 

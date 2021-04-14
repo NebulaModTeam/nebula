@@ -23,8 +23,10 @@ namespace NebulaModel.Packets.Logistics
         public int[] shipItemCount { get; set; }
         public int[] shipPlanetA { get; set; }
         public int[] shipPlanetB { get; set; }
+        public int[] shipOtherGId { get; set; }
+        public float[] shipT { get; set; }
         public int[] shipIndex { get; set; }
-        public Float3[] shipPos { get; set; }
+        public Double3[] shipPos { get; set; }
         public Float4[] shipRot { get; set; }
         public Float3[] shipVel { get; set; }
         public float[] shipSpeed { get; set; }
@@ -48,8 +50,10 @@ namespace NebulaModel.Packets.Logistics
                                     int[] shipItemCount,
                                     int[] shipPlanetA,
                                     int[] shipPlanetB,
+                                    int[] shipOtherGId,
+                                    float[] shipT,
                                     int[] shipIndex,
-                                    Float3[] shipPos,
+                                    Double3[] shipPos,
                                     Float4[] shipRot,
                                     Float3[] shipVel,
                                     float[] shipSpeed,
@@ -72,8 +76,10 @@ namespace NebulaModel.Packets.Logistics
             this.shipItemCount = new int[shipItemCount.Length];
             this.shipPlanetA = new int[shipPlanetA.Length];
             this.shipPlanetB = new int[shipPlanetB.Length];
+            this.shipOtherGId = new int[shipOtherGId.Length];
+            this.shipT = new float[shipT.Length];
             this.shipIndex = new int[shipIndex.Length];
-            this.shipPos = new Float3[shipPos.Length];
+            this.shipPos = new Double3[shipPos.Length];
             this.shipRot = new Float4[shipRot.Length];
             this.shipVel = new Float3[shipVel.Length];
             this.shipSpeed = new float[shipSpeed.Length];
@@ -96,6 +102,8 @@ namespace NebulaModel.Packets.Logistics
             Array.Copy(shipItemCount, this.shipItemCount, shipItemCount.Length);
             Array.Copy(shipPlanetA, this.shipPlanetA, shipPlanetA.Length);
             Array.Copy(shipPlanetB, this.shipPlanetB, shipPlanetB.Length);
+            Array.Copy(shipOtherGId, this.shipOtherGId, shipOtherGId.Length);
+            Array.Copy(shipT, this.shipT, shipT.Length);
             Array.Copy(shipIndex, this.shipIndex, shipIndex.Length);
             Array.Copy(shipPos, this.shipPos, shipPos.Length);
             Array.Copy(shipRot, this.shipRot, shipRot.Length);

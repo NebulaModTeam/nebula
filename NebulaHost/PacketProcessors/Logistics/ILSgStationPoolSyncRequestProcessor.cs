@@ -39,8 +39,10 @@ namespace NebulaHost.PacketProcessors.Logistics
                 List<int> shipItemCount = new List<int>();
                 List<int> shipPlanetA = new List<int>();
                 List<int> shipPlanetB = new List<int>();
+                List<int> shipOtherGId = new List<int>();
+                List<float> shipT = new List<float>();
                 List<int> shipIndex = new List<int>();
-                List<Float3> shipPos = new List<Float3>();
+                List<Double3> shipPos = new List<Double3>();
                 List<Float4> shipRot = new List<Float4>();
                 List<Float3> shipVel = new List<Float3>();
                 List<float> shipSpeed = new List<float>();
@@ -70,8 +72,10 @@ namespace NebulaHost.PacketProcessors.Logistics
                             shipItemCount.Add(shipData.itemCount);
                             shipPlanetA.Add(shipData.planetA);
                             shipPlanetB.Add(shipData.planetB);
+                            shipOtherGId.Add(shipData.otherGId);
+                            shipT.Add(shipData.t);
                             shipIndex.Add(shipData.shipIndex);
-                            shipPos.Add(new Float3(shipData.uPos));
+                            shipPos.Add(new Double3(shipData.uPos.x, shipData.uPos.y, shipData.uPos.z));
                             shipRot.Add(new Float4(shipData.uRot));
                             shipVel.Add(new Float3(shipData.uVel));
                             shipSpeed.Add(shipData.uSpeed);
@@ -98,6 +102,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                     shipItemCount.ToArray(),
                     shipPlanetA.ToArray(),
                     shipPlanetB.ToArray(),
+                    shipOtherGId.ToArray(),
+                    shipT.ToArray(),
                     shipIndex.ToArray(),
                     shipPos.ToArray(),
                     shipRot.ToArray(),

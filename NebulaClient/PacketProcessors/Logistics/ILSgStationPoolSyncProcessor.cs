@@ -56,6 +56,8 @@ namespace NebulaClient.PacketProcessors.Logistics
                 shipData.itemCount = packet.shipItemCount[i];
                 shipData.planetA = packet.shipPlanetA[i];
                 shipData.planetB = packet.shipPlanetB[i];
+                shipData.otherGId = packet.shipOtherGId[i];
+                shipData.t = packet.shipT[i];
                 shipData.shipIndex = packet.shipIndex[i];
 
                 shipData.uPos = packet.shipPos[i].ToUnity();
