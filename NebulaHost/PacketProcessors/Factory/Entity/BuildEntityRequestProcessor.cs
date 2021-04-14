@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using HarmonyLib;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
@@ -31,6 +32,11 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
                 planet.audio = new PlanetAudio(planet);
                 planet.audio.Init();
+
+                if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                {
+                    planet.factory.cargoTraffic.CreateRenderingBatches();
+                }
             }
 
             planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);

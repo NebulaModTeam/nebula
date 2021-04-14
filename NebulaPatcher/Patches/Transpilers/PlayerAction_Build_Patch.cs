@@ -73,6 +73,27 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
 
+            //Apply Ignoring if inserter match the planet grid check
+            for (i = 5; i < codes.Count - 2; i++)
+            {
+                if (codes[i].opcode == OpCodes.Brfalse &&
+                    codes[i + 1].opcode == OpCodes.Ldloca_S &&
+                    codes[i - 1].opcode == OpCodes.Ldloc_S &&
+                    codes[i - 2].opcode == OpCodes.Stfld &&
+                    codes[i - 3].opcode == OpCodes.Call &&
+                    codes[i - 4].opcode == OpCodes.Ldfld &&
+                    codes[i - 5].opcode == OpCodes.Ldloc_3 &&
+                    codes[i + 2].opcode == OpCodes.Ldloc_3)
+                {
+                    Label targetLabel = (Label)codes[i].operand;
+                    codes.InsertRange(i+1, new CodeInstruction[] {
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
+                                    });
+                    break;
+                }
+            }
+
             //Apply ignoring of 3 ground checks
             for (i = 9; i < codes.Count - 4; i++)
             {
