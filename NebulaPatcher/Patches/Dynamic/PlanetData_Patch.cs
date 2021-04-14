@@ -25,7 +25,6 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("UnloadData")]
         public static bool UnloadData_Prefix()
         {
-            //TODO: FIX: This causes that atmosphere dissapear
             //Host should not unload planet data, since he need to permorm all operations from users
             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
