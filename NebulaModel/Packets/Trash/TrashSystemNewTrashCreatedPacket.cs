@@ -49,8 +49,8 @@ namespace NebulaModel.Packets.Trash
         public TrashObject GetTrashObject()
         {
             TrashObject result = new TrashObject();
-            result.rPos = RPos.ToUnity();
-            result.rRot = RRot.ToUnity();
+            result.rPos = RPos.ToVector3();
+            result.rRot = RRot.ToQuaternion();
             result.item = Item;
             result.count = Count;
             result.expire = Expire;
@@ -60,12 +60,12 @@ namespace NebulaModel.Packets.Trash
         public TrashData GetTrashData()
         {
             TrashData result = new TrashData();
-            result.lPos = LPos.ToUnity();
+            result.lPos = LPos.ToVector3();
             result.uPos = new VectorLF3(UPos.x, UPos.y, UPos.z);
-            result.lRot = LRot.ToUnity();
-            result.uRot = URot.ToUnity();
+            result.lRot = LRot.ToQuaternion();
+            result.uRot = URot.ToQuaternion();
             result.uVel = new VectorLF3(UVel.x, UVel.y, UVel.z);
-            result.uAgl = UAgl.ToUnity();
+            result.uAgl = UAgl.ToVector3();
             result.landPlanetId = LandPlanetId;
             result.nearPlanetId = NearPlanetId;
             result.nearStarId = NearStarId;

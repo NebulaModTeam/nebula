@@ -26,7 +26,7 @@ namespace NebulaHost.PacketProcessors.Universe
             {
                 playerManager.SendPacketToOtherPlayers(packet, player);
                 DysonSphere_Manager.IncomingDysonSpherePacket = true;
-                GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonNode(packet.NodeProtoId, DataStructureExtensions.ToUnity(packet.Position));
+                GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonNode(packet.NodeProtoId, DataStructureExtensions.ToVector3(packet.Position));
                 DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
                 //Try to add queued Dyson Frames that failed due to the missing nodes
                 DysonSphereAddFramePacket queuedPacked;

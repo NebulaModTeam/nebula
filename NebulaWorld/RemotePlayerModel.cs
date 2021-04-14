@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaWorld.MonoBehaviours.Remote;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NebulaWorld
 {
@@ -8,16 +9,21 @@ namespace NebulaWorld
     {
         const int PLAYER_PROTO_ID = 1;
 
+        public string Username { get; }
+        public ushort PlayerId { get; }
         public Transform PlayerTransform { get; set; }
         public Transform PlayerModelTransform { get; set; }
         public RemotePlayerMovement Movement { get; set; }
         public RemotePlayerAnimation Animator { get; set; }
         public RemotePlayerEffects Effects { get; set; }
+        public GameObject InGameNameText { get; set; }
+        public Text StarmapNameText { get; set; }
+        public Text StarmapMarker { get; set; }
 
         public Player PlayerInstance { get; set; }
         public Mecha MechaInstance { get; set; }
 
-        public RemotePlayerModel(ushort playerId)
+        public RemotePlayerModel(ushort playerId, string username)
         {
             // Spawn remote player model by cloning the player prefab and replacing local player script by remote player ones.
             string playerPrefabPath = LDB.players.Select(PLAYER_PROTO_ID).PrefabPath;
@@ -46,6 +52,9 @@ namespace NebulaWorld
             MechaInstance = new Mecha();
             AccessTools.Property(typeof(Player), "mecha").SetValue(PlayerInstance, MechaInstance, null);
             MechaInstance.Init(PlayerInstance);
+
+            PlayerId = playerId;
+            Username = username;
         }
 
         public void Destroy()

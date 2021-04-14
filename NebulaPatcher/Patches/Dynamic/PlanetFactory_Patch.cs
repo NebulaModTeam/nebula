@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.planetId, objId));
+                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.planetId, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;

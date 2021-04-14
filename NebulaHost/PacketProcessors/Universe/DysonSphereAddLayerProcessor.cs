@@ -26,7 +26,7 @@ namespace NebulaHost.PacketProcessors.Universe
             {
                 playerManager.SendPacketToOtherPlayers(packet, player);
                 DysonSphere_Manager.IncomingDysonSpherePacket = true;
-                GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToUnity(packet.OrbitRotation), packet.OrbitAngularSpeed);
+                GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToQuaternion(packet.OrbitRotation), packet.OrbitAngularSpeed);
                 DysonSphere_Manager.IncomingDysonSpherePacket = false;
             }
         }

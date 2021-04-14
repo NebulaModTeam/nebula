@@ -11,6 +11,16 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameData_Patch
     {
         [HarmonyPrefix]
+        [HarmonyPatch("Update")]
+        public static void Update_Prefix()
+        {
+            if (!SimulatedWorld.Initialized || !SimulatedWorld.IsGameLoaded)
+                return;
+
+            SimulatedWorld.RenderPlayerNameTagsInGame();
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch("GetOrCreateFactory")]
         public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {

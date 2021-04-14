@@ -3,6 +3,7 @@ using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
+using NebulaWorld;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
 
@@ -30,6 +31,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 UnityEngine.Vector3 tmpPos = pab.previewPose.position;
                 UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
                 PlanetFactory tmpFactory = (PlanetFactory)AccessTools.Field(typeof(PlayerAction_Build), "factory").GetValue(GameMain.mainPlayer.controller.actionBuild);
+                PlanetPhysics tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
 
                 //Create Prebuilds from incomming packet
                 pab.buildPreviews = packet.GetBuildPreviews();
@@ -39,11 +41,48 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
                 pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
                 AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
+                
+                //Create temporary physics for spawning building's colliders
+                if (planet.physics == null || planet.physics.colChunks == null)
+                {
+                    planet.physics = new PlanetPhysics(planet);
+                    planet.physics.Init();
+                }
+                if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                {
+                    planet.factory.cargoTraffic.CreateRenderingBatches();
+                }
+
+                //Take item from the inventory if player is author of the build
+                if (packet.AuthorId == LocalPlayer.PlayerId)
+                {
+                    foreach (BuildPreview buildPreview in pab.buildPreviews)
+                    {
+                        if (GameMain.mainPlayer.inhandItemId == buildPreview.item.ID && GameMain.mainPlayer.inhandItemCount > 0)
+                        {
+                            GameMain.mainPlayer.UseHandItems(1);
+                        }
+                        else
+                        {
+                            int num = 1;
+                            GameMain.mainPlayer.package.TakeTailItems(ref buildPreview.item.ID, ref num, false);
+                        }
+                    }
+                }
+
+                AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
                 pab.CreatePrebuilds();
                 FactoryManager.EventFromServer = false;
                 FactoryManager.EventFactory = null;
 
+                //Author has to call this for the continuous belt building
+                if (packet.AuthorId == LocalPlayer.PlayerId)
+                {
+                    pab.AfterPrebuild();
+                }
+
                 //Revert changes back
+                AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
                 AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;

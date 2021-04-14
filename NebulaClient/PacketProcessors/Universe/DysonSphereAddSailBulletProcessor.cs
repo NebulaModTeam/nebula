@@ -18,8 +18,8 @@ namespace NebulaClient.PacketProcessors.Universe
             {
                 //Update destination values for the bullet
                 SailBullet bullet = GameMain.data.dysonSpheres[packet.StarIndex].swarm.bulletPool[packet.BulletId];
-                bullet.uEnd = DataStructureExtensions.ToUnity(packet.UEnd);
-                bullet.uEndVel = DataStructureExtensions.ToUnity(packet.UEndVel);
+                bullet.uEnd = DataStructureExtensions.ToVector3(packet.UEnd);
+                bullet.uEndVel = DataStructureExtensions.ToVector3(packet.UEndVel);
             }
             else
             {
