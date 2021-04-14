@@ -21,9 +21,9 @@ namespace NebulaClient.PacketProcessors.Logistics
                 ILSShipManager.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i], false); // handles array resizing
                 gStationPool = GameMain.data.galacticTransport.stationPool; // dont remove or you get an ArrayOutOfBounds
 
-                gStationPool[packet.stationGId[i]].shipDockPos = packet.DockPos[i].ToUnity();
+                gStationPool[packet.stationGId[i]].shipDockPos = DataStructureExtensions.ToVector3(packet.DockPos[i]);
 
-                gStationPool[packet.stationGId[i]].shipDockRot = packet.DockRot[i].ToUnity();
+                gStationPool[packet.stationGId[i]].shipDockRot = DataStructureExtensions.ToQuaternion(packet.DockRot[i]);
 
 
                 gStationPool[packet.stationGId[i]].planetId = packet.planetId[i];
@@ -60,13 +60,13 @@ namespace NebulaClient.PacketProcessors.Logistics
                 shipData.t = packet.shipT[i];
                 shipData.shipIndex = packet.shipIndex[i];
 
-                shipData.uPos = packet.shipPos[i].ToUnity();
-                shipData.uRot = packet.shipRot[i].ToUnity();
-                shipData.uVel = packet.shipVel[i].ToUnity();
+                shipData.uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
+                shipData.uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
+                shipData.uVel = DataStructureExtensions.ToVector3(packet.shipVel[i]);
                 shipData.uSpeed = packet.shipSpeed[i];
-                shipData.uAngularVel = packet.shipAngularVel[i].ToUnity();
-                shipData.pPosTemp = packet.shipPPosTemp[i].ToUnity();
-                shipData.pRotTemp = packet.shipPRotTemp[i].ToUnity();
+                shipData.uAngularVel = DataStructureExtensions.ToVector3(packet.shipAngularVel[i]);
+                shipData.pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
+                shipData.pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
             }
 
             gTransport.Arragement();

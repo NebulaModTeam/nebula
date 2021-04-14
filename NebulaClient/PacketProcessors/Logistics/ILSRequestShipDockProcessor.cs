@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
+using NebulaModel.DataStructures;
 using UnityEngine;
 
 namespace NebulaClient.PacketProcessors.Logistics
@@ -13,14 +14,9 @@ namespace NebulaClient.PacketProcessors.Logistics
         {
             // a fake entry should already have been created
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];
-            stationComponent.shipDockPos.x = packet.shipDockPos.x;
-            stationComponent.shipDockPos.y = packet.shipDockPos.y;
-            stationComponent.shipDockPos.z = packet.shipDockPos.z;
-
-            stationComponent.shipDockRot.x = packet.shipDockRot.x;
-            stationComponent.shipDockRot.y = packet.shipDockRot.y;
-            stationComponent.shipDockRot.z = packet.shipDockRot.z;
-            stationComponent.shipDockRot.w = packet.shipDockRot.w;
+            
+            stationComponent.shipDockPos = DataStructureExtensions.ToVector3(packet.shipDockPos);
+            stationComponent.shipDockRot = DataStructureExtensions.ToQuaternion(packet.shipDockRot);
 
             for (int i = 0; i < 10; i++)
             {
@@ -31,6 +27,16 @@ namespace NebulaClient.PacketProcessors.Logistics
             {
                 stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
                 stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
+            }
+
+            for(int i = 0; i < packet.shipOtherGId.Length; i++)
+            {
+                stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];
+
+                stationComponent.workShipDatas[packet.shipIndex[i]].uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
+                stationComponent.workShipDatas[packet.shipIndex[i]].uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
+                stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
+                stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
             }
         }
     }

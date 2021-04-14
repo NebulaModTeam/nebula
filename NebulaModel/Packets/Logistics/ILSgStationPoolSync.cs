@@ -31,7 +31,7 @@ namespace NebulaModel.Packets.Logistics
         public Float3[] shipVel { get; set; }
         public float[] shipSpeed { get; set; }
         public Float3[] shipAngularVel { get; set; }
-        public Float3[] shipPPosTemp { get; set; }
+        public Double3[] shipPPosTemp { get; set; }
         public Float4[] shipPRotTemp { get; set; }
 
         public ILSgStationPoolSync() { }
@@ -58,7 +58,7 @@ namespace NebulaModel.Packets.Logistics
                                     Float3[] shipVel,
                                     float[] shipSpeed,
                                     Float3[] shipAngularVel,
-                                    Float3[] shipPPosTemp,
+                                    Double3[] shipPPosTemp,
                                     Float4[] shipPRotTemp)
         {
             this.stationGId = new int[stationGId.Length];
@@ -84,7 +84,7 @@ namespace NebulaModel.Packets.Logistics
             this.shipVel = new Float3[shipVel.Length];
             this.shipSpeed = new float[shipSpeed.Length];
             this.shipAngularVel = new Float3[shipAngularVel.Length];
-            this.shipPPosTemp = new Float3[shipPPosTemp.Length];
+            this.shipPPosTemp = new Double3[shipPPosTemp.Length];
             this.shipPRotTemp = new Float4[shipPRotTemp.Length];
 
             Array.Copy(stationGId, this.stationGId, stationGId.Length);

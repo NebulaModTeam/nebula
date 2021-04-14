@@ -47,7 +47,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                 List<Float3> shipVel = new List<Float3>();
                 List<float> shipSpeed = new List<float>();
                 List<Float3> shipAngularVel = new List<Float3>();
-                List<Float3> shipPPosTemp = new List<Float3>();
+                List<Double3> shipPPosTemp = new List<Double3>();
                 List<Float4> shipPRotTemp = new List<Float4>();
 
                 foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
@@ -80,7 +80,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                             shipVel.Add(new Float3(shipData.uVel));
                             shipSpeed.Add(shipData.uSpeed);
                             shipAngularVel.Add(new Float3(shipData.uAngularVel));
-                            shipPPosTemp.Add(new Float3(shipData.pPosTemp));
+                            shipPPosTemp.Add(new Double3(shipData.pPosTemp.x, shipData.pPosTemp.y, shipData.pPosTemp.z));
                             shipPRotTemp.Add(new Float4(shipData.pRotTemp));
                         }
                     }
