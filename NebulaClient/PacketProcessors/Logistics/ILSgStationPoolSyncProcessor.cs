@@ -47,9 +47,11 @@ namespace NebulaClient.PacketProcessors.Logistics
                 }
             }
 
+            // thanks Baldy for the fix :D
+            // nearly lost all my hairs because of it
             for(int i = 0; i < packet.shipStationGId.Length; i++)
             {
-                ShipData shipData = gStationPool[packet.shipStationGId[i]].workShipDatas[packet.shipIndex[i]];
+                ShipData shipData = gStationPool[packet.shipStationGId[i]].workShipDatas[i % 10];
                 shipData.stage = packet.shipStage[i];
                 shipData.direction = packet.shipDirection[i];
                 shipData.itemId = packet.shipItemID[i];
@@ -67,6 +69,8 @@ namespace NebulaClient.PacketProcessors.Logistics
                 shipData.uAngularVel = DataStructureExtensions.ToVector3(packet.shipAngularVel[i]);
                 shipData.pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
                 shipData.pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
+
+                gStationPool[packet.shipStationGId[i]].workShipDatas[i % 10] = shipData;
             }
 
             gTransport.Arragement();

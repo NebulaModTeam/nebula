@@ -39,12 +39,12 @@ namespace NebulaHost.PacketProcessors.Logistics
                     {
                         ShipData[] shipData = GameMain.data.galacticTransport.stationPool[i].workShipDatas;
 
-                        for (int j = 0; j < GameMain.data.galacticTransport.stationPool[i].workShipDatas.Length; j++)
+                        for (int j = 0; j < shipData.Length; j++)
                         {
                             if (shipData[j].otherGId == packet.stationGId)
                             {
                                 shipOtherGId.Add(shipData[i].otherGId);
-                                shipIndex.Add(shipData[j].shipIndex);
+                                shipIndex.Add(j);
                                 shipPos.Add(new Double3(shipData[j].uPos.x, shipData[j].uPos.y, shipData[j].uPos.z));
                                 shipRot.Add(new Float4(shipData[j].uRot));
                                 shipPPosTemp.Add(new Double3(shipData[j].pPosTemp.x, shipData[j].pPosTemp.y, shipData[j].pPosTemp.z));
@@ -52,6 +52,19 @@ namespace NebulaHost.PacketProcessors.Logistics
                             }
                         }
                     }
+                }
+                // also add add ships of current station as they use the dock pos too in the pos calculation
+                // NOTE: we need to set this stations gid as otherStationGId so that the client accesses the array in the right way
+                ShipData[] shipData2 = GameMain.data.galacticTransport.stationPool[packet.stationGId].workShipDatas;
+
+                for(int i = 0; i < shipData2.Length; i++)
+                {
+                    shipOtherGId.Add(packet.stationGId);
+                    shipIndex.Add(i);
+                    shipPos.Add(new Double3(shipData2[i].uPos.x, shipData2[ji].uPos.y, shipData2[i].uPos.z));
+                    shipRot.Add(new Float4(shipData2[i].uRot));
+                    shipPPosTemp.Add(new Double3(shipData2[i].pPosTemp.x, shipData2[i].pPosTemp.y, shipData2[i].pPosTemp.z));
+                    shipPRotTemp.Add(new Float4(shipData2[i].pRotTemp));
                 }
 
                 ILSRequestShipDock packet2 = new ILSRequestShipDock(packet.stationGId,
