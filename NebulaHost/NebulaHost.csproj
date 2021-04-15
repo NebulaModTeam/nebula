@@ -77,6 +77,7 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryLoadRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\PlanetDataRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Players\NewDroneOrderProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />

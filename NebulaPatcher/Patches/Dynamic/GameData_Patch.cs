@@ -146,9 +146,9 @@ namespace NebulaPatcher.Patches.Dynamic
             gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("OnDraw")]
-        public static void OnDraw_Prefix()
+        public static void OnDraw_Postfix()
         {
             if (SimulatedWorld.Initialized)
             {

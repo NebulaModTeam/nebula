@@ -2,7 +2,6 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Routers;
-using NebulaWorld;
 
 namespace NebulaHost.PacketProcessors.Routers
 {
@@ -23,7 +22,7 @@ namespace NebulaHost.PacketProcessors.Routers
                 playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
 
                 //Host probably does not need to know about flying drones of other players if he is not on the same planet
-                if (LocalPlayer.Data.LocalPlanetId == packet.PlanetId)
+                if (GameMain.mainPlayer.planetId == packet.PlanetId)
                 {
                     MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
                 }

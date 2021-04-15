@@ -7,6 +7,7 @@
         void SendPacketToLocalStar<T>(T packet) where T : class, new();
 
         void SendPacketToLocalPlanet<T>(T packet) where T : class, new();
+
         void DestroySession();
     }
 }
