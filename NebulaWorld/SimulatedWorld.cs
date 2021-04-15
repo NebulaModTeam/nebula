@@ -351,7 +351,7 @@ namespace NebulaWorld
                     adjustedVector = planet.uPosition;
 
                     // Add the local position of the player
-                    Vector3 localPlanetPosition = playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToUnity();
+                    Vector3 localPlanetPosition = playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                     adjustedVector += (VectorLF3)Maths.QRotate(planet.runtimeRotation, localPlanetPosition);
 
                     // Scale as required

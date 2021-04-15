@@ -3,6 +3,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -122,6 +123,16 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
                 LocalPlayer.SendPacketToLocalStar(new PasteEntitySettingUpdate(entityId, EntitySettingDesc.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("FlattenTerrainReform")]
+        public static void FlattenTerrainReform_Prefix(PlanetFactory __instance, Vector3 center, float radius, int reformSize, bool veinBuried, float fade0)
+        {
+            if (SimulatedWorld.Initialized && !FactoryManager.EventFromClient && !FactoryManager.EventFromServer)
+            {
+                LocalPlayer.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
             }
         }
     }

@@ -46,6 +46,7 @@
     <Compile Include="PacketProcessors\Factory\Entity\CreatePrebuildsRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Ejector\EjectorOrbitUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Ejector\EjectorStorageUpdateProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Foundation\FoundationBuildUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Inserter\InserterFilterUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateCubesProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
+    <Compile Include="PacketProcessors\Players\PlayerUpdateLocalStarIdProcessor.cs" />
     <Compile Include="PacketProcessors\Routers\StarBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
