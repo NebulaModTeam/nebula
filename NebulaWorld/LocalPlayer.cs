@@ -36,6 +36,11 @@ namespace NebulaWorld
             networkProvider?.SendPacketToLocalPlanet(packet);
         }
 
+        public static void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        {
+            networkProvider?.SendPacketToPlanet(packet, planetId);
+        }
+
         public static void SetReady()
         {
             if (!IsMasterClient)

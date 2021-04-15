@@ -83,6 +83,7 @@
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangeProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
+    <Compile Include="PacketProcessors\Players\RemoveDroneOrdersProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeResponseProcessor.cs" />
     <Compile Include="PacketProcessors\Session\PlayerDisconnectedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\PlayerJoiningProcessor.cs" />

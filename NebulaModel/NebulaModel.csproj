@@ -111,6 +111,7 @@
     <Compile Include="Packets\Players\PlayerMovement.cs" />
     <Compile Include="Packets\Players\PlayerColorChanged.cs" />
     <Compile Include="Packets\Players\PlayerTechBonuses.cs" />
+    <Compile Include="Packets\Players\RemoveDroneOrdersPacket.cs" />
     <Compile Include="Packets\Processors\IPacketProcessor.cs" />
     <Compile Include="Packets\Routers\PlanetBroadcastPacket.cs" />
     <Compile Include="Packets\Routers\StarBroadcastPacket.cs" />

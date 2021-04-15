@@ -186,5 +186,16 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("LeavePlanet")]
+        public static void LeavePlanet_Prefix(GameData __instance)
+        {
+            //Players should clear the list of drone orders of other players when they leave the planet
+            if (SimulatedWorld.Initialized)
+            {
+                GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
+            }
+        }
     }
 }

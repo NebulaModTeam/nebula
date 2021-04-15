@@ -85,6 +85,11 @@ namespace NebulaClient
         {
             serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
         }
+        public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        {
+            //Should send packet to particular planet
+            //Not needed at the moment, used only on the host side
+        }
 
         public void Reconnect()
         {

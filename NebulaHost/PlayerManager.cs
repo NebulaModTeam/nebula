@@ -1,8 +1,10 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaHost.PacketProcessors.Players;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
+using NebulaWorld.Player;
 using NebulaWorld.Statistics;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,6 +94,17 @@ namespace NebulaHost
             }
         }
 
+        public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (player.Data.LocalPlanetId == planetId)
+                {
+                    player.SendPacket(packet);
+                }
+            }
+        }
+
         public void SendRawPacketToStar(byte[] rawPacket, int starId, NebulaConnection sender)
         {
             foreach (Player player in GetConnectedPlayers())
@@ -147,6 +160,21 @@ namespace NebulaHost
                 connectedPlayers.Remove(conn);
                 availablePlayerIds.Enqueue(player.Id);
                 StatisticsManager.instance.UnRegisterPlayer(player.Id);
+
+                //Notify players about queued building plans for drones
+                int[] DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
+                if (DronePlans != null && DronePlans.Length > 0 && player.Data.LocalPlanetId > 0)
+                {
+                    LocalPlayer.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
+                    //Remove it also from host queue, if host is on the same planet
+                    if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
+                    {
+                        for(int i = 0; i < DronePlans.Length; i++)
+                        {
+                            GameMain.mainPlayer.mecha.droneLogic.serving.Remove(DronePlans[i]);
+                        }
+                    }
+                }
             }
             else
             {

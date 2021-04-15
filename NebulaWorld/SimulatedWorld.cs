@@ -126,7 +126,7 @@ namespace NebulaWorld
                 drone.movement = droneLogic.player.mecha.droneMovement;
                 if (packet.Stage == 1)
                 {
-                    drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToUnity();
+                    drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                 }
                 drone.target = (Vector3)MethodInvoker.GetHandler(AccessTools.Method(typeof(MechaDroneLogic), "_obj_hpos", new System.Type[] { typeof(int) })).Invoke(GameMain.mainPlayer.mecha.droneLogic, packet.EntityId);
                 drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + UnityEngine.Random.insideUnitSphere) * 1.5f;
@@ -375,7 +375,7 @@ namespace NebulaWorld
                     //Update only moving drones of players on the same planet
                     if (drones[i].stage != 0 && GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
                     {
-                        drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToUnity(), dt, ref tmp, ref tmp2, 0);
+                        drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), dt, ref tmp, ref tmp2, 0);
                     }
                 }
                 remoteModel.Value.MechaInstance.droneRenderer.Update();
