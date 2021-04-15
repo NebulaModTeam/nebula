@@ -546,6 +546,33 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InstructionEnumeration();
             // END: transpilers to catch StationStore::remoteOrder changes
 
+            // START: transpilers to catch ShipData.warperCnt++
+            // c# 807 IL 4011
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stfld))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                    new CodeInstruction(OpCodes.Ldloca_S, 35))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
+                {
+                    LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // END: transpilers to catch ShipData.warperCnt++
+
             return instructions;
         }
 
@@ -716,6 +743,27 @@ namespace NebulaPatcher.Patches.Transpilers
                 matcher3.CreateLabelAt(matcher3.Pos, out jmpLabelDelegate); // create a label pointing behind the injected code
                 matcher3.Advance(-6); // go back to insert jmp
                 matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabelDelegate)); // if object is NOT null jump to the vanilla code
+                instructions = matcher3.InstructionEnumeration();
+
+                // remmove c# 807 and 808 (adding warper from station to ship) IL 4011-4022
+                matcher3.Start();
+                matcher3.MatchForward(false,
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stfld));
+                for(int i = 0; i < 12; i++)
+                {
+                    matcher3.SetAndAdvance(OpCodes.Nop, null);
+                }
                 instructions = matcher3.InstructionEnumeration();
 
                 // insert debugging delegate (at the start of the while loop)

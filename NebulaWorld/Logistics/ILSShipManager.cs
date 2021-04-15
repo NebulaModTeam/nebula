@@ -55,6 +55,7 @@ namespace NebulaWorld.Logistics
                 stationComponent.workShipDatas[packet.origShipIndex].itemCount = packet.itemCount;
                 stationComponent.workShipDatas[packet.origShipIndex].gene = 0; // WHAT IS THIS?
                 stationComponent.workShipDatas[packet.origShipIndex].shipIndex = packet.origShipIndex;
+                stationComponent.workShipDatas[packet.origShipIndex].warperCnt = packet.warperCnt;
 
                 stationComponent.workShipCount++;
                 stationComponent.idleShipCount--;

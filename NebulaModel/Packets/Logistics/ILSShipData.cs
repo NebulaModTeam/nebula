@@ -10,9 +10,10 @@
         public int planetAStationGID { get; set; }
         public int planetBStationGID { get; set; }
         public int origShipIndex { get; set; }
+        public int warperCnt { get; set; }
 
         public ILSShipData() { }
-        public ILSShipData(bool IdleToWork, int planetA, int planetB, int itemId, int itemCount, int AGID, int BGID, int origShipIndex)
+        public ILSShipData(bool IdleToWork, int planetA, int planetB, int itemId, int itemCount, int AGID, int BGID, int origShipIndex, int warperCnt)
         {
             this.IdleToWork = IdleToWork;
             this.planetA = planetA;
@@ -22,6 +23,7 @@
             this.planetAStationGID = AGID;
             this.planetBStationGID = BGID;
             this.origShipIndex = origShipIndex;
+            this.warperCnt = warperCnt;
         }
         public ILSShipData(bool IdleToWork, int AGID, int origShipIndex)
         {
@@ -33,6 +35,7 @@
             this.planetAStationGID = AGID;
             this.planetBStationGID = 0;
             this.origShipIndex = origShipIndex;
+            this.warperCnt = 0;
         }
     }
 }

@@ -54,6 +54,8 @@ namespace NebulaClient.PacketProcessors.Logistics
                 ShipData shipData = gStationPool[packet.shipStationGId[i]].workShipDatas[i % 10];
                 shipData.stage = packet.shipStage[i];
                 shipData.direction = packet.shipDirection[i];
+                shipData.warpState = packet.shipWarpState[i];
+                shipData.warperCnt = packet.shipWarperCnt[i];
                 shipData.itemId = packet.shipItemID[i];
                 shipData.itemCount = packet.shipItemCount[i];
                 shipData.planetA = packet.shipPlanetA[i];

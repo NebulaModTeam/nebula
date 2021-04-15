@@ -35,6 +35,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                 List<int> shipStationGId = new List<int>();
                 List<int> shipStage = new List<int>();
                 List<int> shipDirection = new List<int>();
+                List<float> shipWarpState = new List<float>();
+                List<int> shipWarperCnt = new List<int>();
                 List<int> shipItemID = new List<int>();
                 List<int> shipItemCount = new List<int>();
                 List<int> shipPlanetA = new List<int>();
@@ -68,6 +70,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                             shipStationGId.Add(stationComponent.gid);
                             shipStage.Add(shipData.stage);
                             shipDirection.Add(shipData.direction);
+                            shipWarpState.Add(shipData.warpState);
+                            shipWarperCnt.Add(shipData.warperCnt);
                             shipItemID.Add(shipData.itemId);
                             shipItemCount.Add(shipData.itemCount);
                             shipPlanetA.Add(shipData.planetA);
@@ -98,6 +102,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                     shipStationGId.ToArray(),
                     shipStage.ToArray(),
                     shipDirection.ToArray(),
+                    shipWarpState.ToArray(),
+                    shipWarperCnt.ToArray(),
                     shipItemID.ToArray(),
                     shipItemCount.ToArray(),
                     shipPlanetA.ToArray(),

@@ -19,6 +19,8 @@ namespace NebulaModel.Packets.Logistics
         public int[] shipStationGId { get; set; }
         public int[] shipStage { get; set; }
         public int[] shipDirection { get; set; }
+        public float[] shipWarpState { get; set; }
+        public int[] shipWarperCnt { get; set; }
         public int[] shipItemID { get; set; }
         public int[] shipItemCount { get; set; }
         public int[] shipPlanetA { get; set; }
@@ -46,6 +48,8 @@ namespace NebulaModel.Packets.Logistics
                                     int[] shipStationGId,
                                     int[] shipStage,
                                     int[] shipDirection,
+                                    float[] shipWarpState,
+                                    int[] shipWarperCnt,
                                     int[] shipItemID,
                                     int[] shipItemCount,
                                     int[] shipPlanetA,
@@ -72,6 +76,8 @@ namespace NebulaModel.Packets.Logistics
             this.shipStationGId = new int[shipStationGId.Length];
             this.shipStage = new int[shipStage.Length];
             this.shipDirection = new int[shipDirection.Length];
+            this.shipWarpState = new float[shipWarpState.Length];
+            this.shipWarperCnt = new int[shipWarperCnt.Length];
             this.shipItemID = new int[shipItemID.Length];
             this.shipItemCount = new int[shipItemCount.Length];
             this.shipPlanetA = new int[shipPlanetA.Length];
@@ -98,6 +104,8 @@ namespace NebulaModel.Packets.Logistics
             Array.Copy(shipStationGId, this.shipStationGId, shipStationGId.Length);
             Array.Copy(shipStage, this.shipStage, shipStage.Length);
             Array.Copy(shipDirection, this.shipDirection, shipDirection.Length);
+            Array.Copy(shipWarpState, this.shipWarpState, shipWarpState.Length);
+            Array.Copy(shipWarperCnt, this.shipWarperCnt, shipWarperCnt.Length);
             Array.Copy(shipItemID, this.shipItemID, shipItemID.Length);
             Array.Copy(shipItemCount, this.shipItemCount, shipItemCount.Length);
             Array.Copy(shipPlanetA, this.shipPlanetA, shipPlanetA.Length);

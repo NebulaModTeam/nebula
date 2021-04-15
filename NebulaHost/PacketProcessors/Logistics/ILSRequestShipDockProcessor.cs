@@ -61,7 +61,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                 {
                     shipOtherGId.Add(packet.stationGId);
                     shipIndex.Add(i);
-                    shipPos.Add(new Double3(shipData2[i].uPos.x, shipData2[ji].uPos.y, shipData2[i].uPos.z));
+                    shipPos.Add(new Double3(shipData2[i].uPos.x, shipData2[i].uPos.y, shipData2[i].uPos.z));
                     shipRot.Add(new Float4(shipData2[i].uRot));
                     shipPPosTemp.Add(new Double3(shipData2[i].pPosTemp.x, shipData2[i].pPosTemp.y, shipData2[i].pPosTemp.z));
                     shipPRotTemp.Add(new Float4(shipData2[i].pRotTemp));
