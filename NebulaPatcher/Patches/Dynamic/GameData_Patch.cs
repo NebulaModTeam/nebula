@@ -10,6 +10,16 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameData_Patch
     {
         [HarmonyPrefix]
+        [HarmonyPatch("Update")]
+        public static void Update_Prefix()
+        {
+            if (!SimulatedWorld.Initialized || !SimulatedWorld.IsGameLoaded)
+                return;
+
+            SimulatedWorld.RenderPlayerNameTagsInGame();
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch("GetOrCreateFactory")]
         public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
@@ -153,6 +163,27 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized)
             {
                 SimulatedWorld.OnDronesDraw();
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("LeaveStar")]
+        public static void LeaveStar_Prefix(GameData __instance)
+        {
+            //Client should unload all factories once they leave the star system
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                for (int i = 0; i < __instance.localStar.planetCount; i++)
+                {
+                    if (__instance.localStar.planets != null && __instance.localStar.planets[i] != null)
+                    {
+                        if (__instance.localStar.planets[i].factory != null)
+                        {
+                            __instance.localStar.planets[i].factory.Free();
+                            __instance.localStar.planets[i].factory = null;
+                        }
+                    }
+                }
             }
         }
     }

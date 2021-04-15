@@ -46,6 +46,7 @@
     <Compile Include="Patches\Dynamic\GameSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameScenarioLogic_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameStatData_Patch.cs" />
+    <Compile Include="Patches\Dynamic\PlanetData_Patch.cs" />
     <Compile Include="Patches\Dynamic\Mecha_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="Patches\Dynamic\GPUInstancingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\GuideMissionStandardMode_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
+    <Compile Include="Patches\Dynamic\PlanetPhysics_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlayerAction_Build_Patch.cs" />
     <Compile Include="Patches\Dynamic\ProductionStatistics_Patch.cs" />
     <Compile Include="Patches\Dynamic\SplitterComponent_Patch.cs" />
@@ -77,7 +79,9 @@
     <Compile Include="Patches\Dynamic\UISplitterWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStorageWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UITankWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIStarmap_Patch.cs" />
     <Compile Include="Patches\Dynamic\VFInput_Patch.cs" />
+    <Compile Include="Patches\Transpilers\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Transpilers\MechaDroneLogic_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Build_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />

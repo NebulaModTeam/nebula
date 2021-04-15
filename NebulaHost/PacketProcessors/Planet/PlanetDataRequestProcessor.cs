@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using HarmonyLib;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
@@ -33,6 +34,11 @@ namespace NebulaHost.PacketProcessors.Planet
                     planet.aux = new PlanetAuxData(planet);
                     planetAlgorithm.GenerateTerrain(planet.mod_x, planet.mod_y);
                     planetAlgorithm.CalcWaterPercent();
+
+                    //Load planet meshes and register callback to unload unneccessary stuff
+                    planet.wanted = true;
+                    planet.onLoaded += OnActivePlanetLoaded;
+                    PlanetModelingManager.modPlanetReqList.Enqueue(planet);
                 }
 
                 if (planet.factory == null)
@@ -52,6 +58,12 @@ namespace NebulaHost.PacketProcessors.Planet
             }
 
             conn.SendPacket(new PlanetDataResponse(planetDataToReturn));
+        }
+
+        public void OnActivePlanetLoaded(PlanetData planet)
+        {
+            planet.Unload();
+            planet.onLoaded -= OnActivePlanetLoaded;
         }
     }
 }

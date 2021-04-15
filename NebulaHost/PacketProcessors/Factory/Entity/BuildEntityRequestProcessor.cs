@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using HarmonyLib;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
@@ -20,6 +21,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
             FactoryManager.EventFromClient = true;
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+            FactoryManager.EventFactory = planet.factory;
 
             // Physics could be null, if the host is not on the requested planet
             // Make sure to init all the planet data required to perform the BuildFinally of the distant planet
@@ -31,7 +33,10 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 planet.audio = new PlanetAudio(planet);
                 planet.audio.Init();
 
-                // TODO: We also need to handle the FlattenTerrain issue here.
+                if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                {
+                    planet.factory.cargoTraffic.CreateRenderingBatches();
+                }
             }
 
             planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
@@ -47,6 +52,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
 
             FactoryManager.EventFromClient = false;
+            FactoryManager.EventFactory = null;
         }
     }
 }

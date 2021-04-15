@@ -18,6 +18,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             if (planet.factory != null)
             {
                 FactoryManager.EventFromServer = true;
+                FactoryManager.EventFactory = planet.factory;
 
                 // Physics could be null, if the host is not on the requested planet
                 if (packet.PlanetId != GameMain.localPlanet?.id)
@@ -27,8 +28,6 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
 
                     planet.audio = new PlanetAudio(planet);
                     planet.audio.Init();
-
-                    // TODO: We also need to handle the FlattenTerrain issue here.
                 }
 
                 planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
@@ -44,6 +43,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 }
 
                 FactoryManager.EventFromServer = false;
+                FactoryManager.EventFactory = null;
             }
         }
     }
