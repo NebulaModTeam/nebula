@@ -24,12 +24,14 @@ namespace NebulaWorld
         public static bool Initialized { get; private set; }
         public static bool IsGameLoaded { get; private set; }
         public static bool IsPlayerJoining { get; set; }
+        public static bool ExitingMultiplayerSession { get; set; }
 
         public static void Initialize()
         {
             FactoryManager.Initialize();
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
             Initialized = true;
+            ExitingMultiplayerSession = false;
         }
 
         /// <summary>

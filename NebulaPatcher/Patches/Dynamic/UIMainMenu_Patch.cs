@@ -2,6 +2,7 @@
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaPatcher.MonoBehaviours;
+using NebulaWorld;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -19,6 +20,8 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnOpen")]
         public static void _OnOpen_Postfix()
         {
+            SimulatedWorld.ExitingMultiplayerSession = false;
+
             GameObject overlayCanvas = GameObject.Find("Overlay Canvas");
             if (overlayCanvas == null)
             {
