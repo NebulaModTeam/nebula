@@ -59,6 +59,8 @@
     <Compile Include="Networking\BinaryUtils.cs" />
     <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
+    <Compile Include="Packets\Belt\BeltUpdatePickupItemsPacket.cs" />
+    <Compile Include="Packets\Belt\BeltUpdatePutItemOnPacket.cs" />
     <Compile Include="Packets\Factory\Assembler\AssemblerRecipeEventPacket.cs" />
     <Compile Include="Packets\Factory\Assembler\AssemblerUpdateProducesPacket.cs" />
     <Compile Include="Packets\Factory\Assembler\AssemblerUpdateStoragePacket.cs" />

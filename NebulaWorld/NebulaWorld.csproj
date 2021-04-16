@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory\BeltManager.cs" />
     <Compile Include="Factory\FactoryManager.cs" />
     <Compile Include="Factory\StorageManager.cs" />
     <Compile Include="GameDataHistory\GameDataHistoryManager.cs" />
