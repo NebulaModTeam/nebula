@@ -8,14 +8,14 @@ using System.Collections.Generic;
 namespace NebulaHost.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSgStationPoolSyncRequestProcessor : IPacketProcessor<ILSgStationPoolSyncRequest>
+    public class ILSgStationPoolSyncRequestProcessor : IPacketProcessor<ILSRequestgStationPoolSync>
     {
         private PlayerManager playerManager;
         public ILSgStationPoolSyncRequestProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(ILSgStationPoolSyncRequest packet, NebulaConnection conn)
+        public void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if(player == null)

@@ -8,9 +8,9 @@ using UnityEngine;
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRequestShipDockProcessor: IPacketProcessor<ILSRequestShipDock>
+    class ILSRequestShipDockProcessor: IPacketProcessor<ILSShipDock>
     {
-        public void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)
+        public void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
         {
             // a fake entry should already have been created
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];

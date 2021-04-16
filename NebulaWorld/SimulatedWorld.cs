@@ -29,6 +29,7 @@ namespace NebulaWorld
 
         public static void Initialize()
         {
+            StationUIManager.Initialize();
             FactoryManager.Initialize();
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
             Initialized = true;

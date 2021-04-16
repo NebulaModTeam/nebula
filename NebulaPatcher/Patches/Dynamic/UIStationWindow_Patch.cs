@@ -7,125 +7,235 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIStationWindow))]
     class UIStationWindow_Patch
     {
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnMaxChargePowerSliderValueChange")]
-        public static void OnMaxChargePowerSliderValueChange_Postfix(UIStationWindow __instance, float value)
+        public static bool OnMaxChargePowerSliderValueChange_Postfix(UIStationWindow __instance, float value)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 0, value);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 0, value);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnMaxTripDroneSliderValueChange")]
-        public static void OnMaxTripDroneSliderValueChange_Postfix(UIStationWindow __instance, float value)
+        public static bool OnMaxTripDroneSliderValueChange_Postfix(UIStationWindow __instance, float value)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 1, value);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 1, value);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnMaxTripVesselSliderValueChange")]
-        public static void OnMaxTripVesselSliderValueChange_Postfix(UIStationWindow __instance, float value)
+        public static bool OnMaxTripVesselSliderValueChange_Postfix(UIStationWindow __instance, float value)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 2, value);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 2, value);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnMinDeliverDroneValueChange")]
-        public static void OnMinDeliverDroneValueChange_Postfix(UIStationWindow __instance, float value)
+        public static bool OnMinDeliverDroneValueChange_Postfix(UIStationWindow __instance, float value)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 3, value);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 3, value);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnMinDeliverVesselValueChange")]
-        public static void OnMinDeliverVesselValueChange_Postfix(UIStationWindow __instance, float value)
+        public static bool OnMinDeliverVesselValueChange_Postfix(UIStationWindow __instance, float value)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 4, value);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 4, value);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnWarperDistanceValueChange")]
-        public static void OnWarperDistanceValueChange_Postfix(UIStationWindow __instance, float value)
+        public static bool OnWarperDistanceValueChange_Postfix(UIStationWindow __instance, float value)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 5, value);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 5, value);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnWarperNecessaryClick")]
-        public static void OnWarperNecessaryClick_Postfix(UIStationWindow __instance, int obj)
+        public static bool OnWarperNecessaryClick_Postfix(UIStationWindow __instance, int obj)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 6, 0f);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 6, 0f);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnIncludeOrbitCollectorClick")]
-        public static void OnIncludeOrbitCollectorClick_Postfix(UIStationWindow __instance, int obj)
+        public static bool OnIncludeOrbitCollectorClick_Postfix(UIStationWindow __instance, int obj)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 7, 0f);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 7, 0f);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnDroneIconClick")]
-        public static void OnDroneIconClick_Postfix(UIStationWindow __instance, int obj)
+        public static bool OnDroneIconClick_Postfix(UIStationWindow __instance, int obj)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 8, __instance.transport.stationPool[__instance.stationId].idleDroneCount);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 8, __instance.transport.stationPool[__instance.stationId].idleDroneCount);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnShipIconClick")]
-        public static void OnShipIconClick_Postfix(UIStationWindow __instance, int obj)
+        public static bool OnShipIconClick_Postfix(UIStationWindow __instance, int obj)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 9, __instance.transport.stationPool[__instance.stationId].idleShipCount);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 9, __instance.transport.stationPool[__instance.stationId].idleShipCount);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("OnWarperIconClick")]
-        public static void OnWarperIconClick_Postfix(UIStationWindow __instance, int obj)
+        public static bool OnWarperIconClick_Postfix(UIStationWindow __instance, int obj)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
             {
-                StationUI packet = new StationUI(__instance.stationId, __instance.factory.planet.id, 10, __instance.transport.stationPool[__instance.stationId].warperCount);
+                StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 10, __instance.transport.stationPool[__instance.stationId].warperCount);
                 LocalPlayer.SendPacket(packet);
+                if (LocalPlayer.IsMasterClient)
+                {
+                    return true;
+                }
+                return false;
             }
+            else if (SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+            return true;
         }
     }
 }

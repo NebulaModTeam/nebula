@@ -67,7 +67,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                     shipPRotTemp.Add(new Float4(shipData2[i].pRotTemp));
                 }
 
-                ILSRequestShipDock packet2 = new ILSRequestShipDock(packet.stationGId,
+                ILSShipDock packet2 = new ILSShipDock(packet.stationGId,
                                                                     GameMain.data.galacticTransport.stationPool[packet.stationGId].shipDockPos,
                                                                     GameMain.data.galacticTransport.stationPool[packet.stationGId].shipDockRot,
                                                                     shipOtherGId.ToArray(),

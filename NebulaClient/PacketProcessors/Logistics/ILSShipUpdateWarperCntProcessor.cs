@@ -2,8 +2,6 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
-using NebulaModel.DataStructures;
-using NebulaWorld.Logistics;
 
 namespace NebulaClient.PacketProcessors.Logistics
 {

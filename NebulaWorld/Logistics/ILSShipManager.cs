@@ -5,15 +5,10 @@ using UnityEngine;
 
 namespace NebulaWorld.Logistics
 {
-    public class ILSShipManager
+    public static class ILSShipManager
     {
         public static void IdleShipGetToWork(ILSShipData packet)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
-            {
-                return;
-            }
-
             PlanetData planetA = GameMain.galaxy.PlanetById(packet.planetA);
             PlanetData planetB = GameMain.galaxy.PlanetById(packet.planetB);
 
@@ -156,10 +151,7 @@ namespace NebulaWorld.Logistics
 
         private static void RequestgStationDockPos(int GId)
         {
-            Debug.Log("Requesting DockPos from " + GId);
-            // TODO: make this its own packet
-            ILSRequestShipDock packet = new ILSRequestShipDock(GId, Vector3.zero, Quaternion.identity, null, null, null, null, null, null);
-            LocalPlayer.SendPacket(packet);
+            LocalPlayer.SendPacket(new ILSRequestShipDock(GId));
         }
 
         public static void UpdateRemoteOrder(ILSRemoteOrderData packet)
@@ -181,11 +173,6 @@ namespace NebulaWorld.Logistics
                             if(stationComponentPlanet != null && stationComponentPlanet.gid == stationComponent.gid)
                             {
                                 stationComponentPlanet.storage[packet.storageIndex].remoteOrder = packet.remoteOrder;
-                                //Log.Info($"Updated station {stationComponentPlanet.id} on {pData.displayName} to {packet.remoteOrder}");
-                                foreach(ShipData shipData in stationComponentPlanet.workShipDatas)
-                                {
-                                    //Log.Info($"Ship {shipData.shipIndex} has item {shipData.itemId}");
-                                }
                                 break;
                             }
                         }

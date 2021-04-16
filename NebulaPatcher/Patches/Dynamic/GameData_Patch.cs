@@ -2,6 +2,7 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaWorld;
+using NebulaWorld.Logistics;
 using NebulaPatcher.Patches.Transpilers;
 using UnityEngine;
 
@@ -155,6 +156,10 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
+                if (SimulatedWorld.Initialized)
+                {
+                    StationUIManager.DecreaseCooldown();
+                }
                 return;
             }
             // call StationComponent::InternalTickRemote() from here, see StationComponent_Patch.cs for info

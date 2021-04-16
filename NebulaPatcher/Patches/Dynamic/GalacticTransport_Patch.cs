@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
             {
-                LocalPlayer.SendPacket(new ILSgStationPoolSyncRequest());
+                LocalPlayer.SendPacket(new ILSRequestgStationPoolSync());
             }
         }
 
