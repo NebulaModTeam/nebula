@@ -59,6 +59,9 @@ namespace NebulaHost.PacketProcessors.Session
                 playerManager.SavedPlayerData.Add(clientCertHash, player.Data);
             }
 
+            // Add the username to the player data
+            player.Data.Username = packet.Username;
+
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             PlayerData pdata = player.Data.CreateCopyWithoutMechaData(); // Remove inventory from mecha data
             foreach (Player activePlayer in playerManager.GetConnectedPlayers())

@@ -7,7 +7,6 @@ using NebulaModel.Packets.Trash;
 using NebulaWorld.Factory;
 using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.Trash;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,12 +24,14 @@ namespace NebulaWorld
         public static bool Initialized { get; private set; }
         public static bool IsGameLoaded { get; private set; }
         public static bool IsPlayerJoining { get; set; }
+        public static bool ExitingMultiplayerSession { get; set; }
 
         public static void Initialize()
         {
             FactoryManager.Initialize();
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
             Initialized = true;
+            ExitingMultiplayerSession = false;
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace NebulaWorld
         {
             if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
             {
-                RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId);
+                RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
                 remotePlayersModels.Add(playerData.PlayerId, model);
             }
 
@@ -333,7 +334,7 @@ namespace NebulaWorld
                 {
                     // Make an instance of the "Icarus" text to represent the other player name
                     nameText = playerModel.StarmapNameText = GameObject.Instantiate(starmap_playerNameText, starmap_playerNameText.transform.parent);
-                    nameText.text = $"Player {playerModel.PlayerId}";
+                    nameText.text = $"{ playerModel.Username }{ playerModel.PlayerId }";
                     nameText.gameObject.SetActive(true);
 
                     // Make another copy of it, but just replace it with a point to represent their location
@@ -351,7 +352,7 @@ namespace NebulaWorld
                     adjustedVector = planet.uPosition;
 
                     // Add the local position of the player
-                    Vector3 localPlanetPosition = playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToUnity();
+                    Vector3 localPlanetPosition = playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                     adjustedVector += (VectorLF3)Maths.QRotate(planet.runtimeRotation, localPlanetPosition);
 
                     // Scale as required
@@ -423,7 +424,7 @@ namespace NebulaWorld
                     TextMesh textMesh = playerNameText.AddComponent<TextMesh>();
 
                     // Set the text to be their name
-                    textMesh.text = $"Player {playerModel.PlayerId}";
+                    textMesh.text = $"{ playerModel.Username }{ playerModel.PlayerId }";
                     // Align it to be centered below them
                     textMesh.anchor = TextAnchor.UpperCenter;
                     // Copy the font over from the sail indicator

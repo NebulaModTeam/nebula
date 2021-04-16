@@ -6,6 +6,7 @@ namespace NebulaModel.DataStructures
     [RegisterNestedType]
     public class PlayerData : INetSerializable
     {
+        public string Username { get; set; }
         public ushort PlayerId { get; set; }
         public int LocalPlanetId { get; set; }
         public Float3 Color { get; set; }
@@ -14,12 +15,14 @@ namespace NebulaModel.DataStructures
         public Float3 Rotation { get; set; }
         public Float3 BodyRotation { get; set; }
         public MechaData Mecha { get; set; }
+        public int LocalStarId { get; set; }
 
         public PlayerData() { }
-        public PlayerData(ushort playerId, int localPlanetId, Float3 color, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
+        public PlayerData(ushort playerId, int localPlanetId, Float3 color, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
         {
             PlayerId = playerId;
             LocalPlanetId = localPlanetId;
+            Username = username ?? $"Player {playerId}";
             LocalPlanetPosition = localPlanetPosition;
             Color = color;
             UPosition = position;
@@ -30,6 +33,7 @@ namespace NebulaModel.DataStructures
 
         public void Serialize(NetDataWriter writer)
         {
+            writer.Put(Username);
             writer.Put(PlayerId);
             writer.Put(LocalPlanetId);
             Color.Serialize(writer);
@@ -42,6 +46,7 @@ namespace NebulaModel.DataStructures
 
         public void Deserialize(NetDataReader reader)
         {
+            Username = reader.GetString();
             PlayerId = reader.GetUShort();
             LocalPlanetId = reader.GetInt();
             Color = reader.GetFloat3();
@@ -55,7 +60,7 @@ namespace NebulaModel.DataStructures
 
         public PlayerData CreateCopyWithoutMechaData()
         {
-            return new PlayerData(PlayerId, LocalPlanetId, Color, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
+            return new PlayerData(PlayerId, LocalPlanetId, Color, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
         }
     }
 }
