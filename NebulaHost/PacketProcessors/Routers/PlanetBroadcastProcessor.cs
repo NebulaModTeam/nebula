@@ -20,12 +20,8 @@ namespace NebulaHost.PacketProcessors.Routers
             {
                 //Forward packet to other users
                 playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
-
-                //Host probably does not need to know about flying drones of other players if he is not on the same planet
-                if (GameMain.mainPlayer.planetId == packet.PlanetId)
-                {
-                    MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
-                }
+                //Forward packet to the host
+                MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
             }
         }
     }

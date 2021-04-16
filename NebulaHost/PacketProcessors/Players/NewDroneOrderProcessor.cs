@@ -19,6 +19,12 @@ namespace NebulaHost.PacketProcessors.Players
 
         public void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
         {
+            //Host does not need to know about flying drones of other players if he is not on the same planet
+            if (GameMain.mainPlayer.planetId != packet.PlanetId)
+            {
+                return;
+            }
+
             Player player = playerManager.GetPlayer(conn);
 
             if (player != null)
