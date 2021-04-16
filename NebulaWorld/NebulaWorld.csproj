@@ -51,6 +51,7 @@
     <Compile Include="MonoBehaviours\Remote\RemotePlayerAnimation.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerEffects.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerMovement.cs" />
+    <Compile Include="Player\DroneManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemotePlayerModel.cs" />
     <Compile Include="SimulatedWorld.cs" />

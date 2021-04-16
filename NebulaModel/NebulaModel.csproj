@@ -106,13 +106,16 @@
     <Compile Include="Packets\Planet\FactoryLoadRequest.cs" />
     <Compile Include="Packets\Planet\PlanetDataRequest.cs" />
     <Compile Include="Packets\Planet\PlanetDataResponse.cs" />
+    <Compile Include="Packets\Players\NewDroneOrderPacket.cs" />
     <Compile Include="Packets\Players\PlayerAnimationUpdate.cs" />
     <Compile Include="Packets\Players\PlayerMechaData.cs" />
     <Compile Include="Packets\Players\PlayerMovement.cs" />
     <Compile Include="Packets\Players\PlayerColorChanged.cs" />
     <Compile Include="Packets\Players\PlayerTechBonuses.cs" />
+    <Compile Include="Packets\Players\RemoveDroneOrdersPacket.cs" />
     <Compile Include="Packets\Players\PlayerUpdateLocalStarId.cs" />
     <Compile Include="Packets\Processors\IPacketProcessor.cs" />
+    <Compile Include="Packets\Routers\PlanetBroadcastPacket.cs" />
     <Compile Include="Packets\Routers\StarBroadcastPacket.cs" />
     <Compile Include="Packets\Session\HandshakeRequest.cs" />
     <Compile Include="Packets\Session\HandshakeResponse.cs" />

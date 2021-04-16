@@ -78,11 +78,13 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryLoadRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\PlanetDataRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Players\NewDroneOrderProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
+    <Compile Include="PacketProcessors\Routers\PlanetBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerUpdateLocalStarIdProcessor.cs" />
     <Compile Include="PacketProcessors\Routers\StarBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
