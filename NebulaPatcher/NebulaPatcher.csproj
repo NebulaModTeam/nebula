@@ -67,6 +67,7 @@
     <Compile Include="Patches\Dynamic\TrashSystem_Patch.cs" />
     <Compile Include="Patches\Dynamic\StorageComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIAssemblerWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIAutoSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEjectorWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIInserterWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UILabWindow_Patch.cs" />

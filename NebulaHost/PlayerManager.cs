@@ -76,7 +76,7 @@ namespace NebulaHost
         {
             foreach (Player player in GetConnectedPlayers())
             {
-                if (GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.star.id == GameMain.data.localStar.id)
+                if (player.Data.LocalStarId == GameMain.data.localStar.id)
                 {
                     player.SendPacket(packet);
                 }
@@ -109,7 +109,7 @@ namespace NebulaHost
         {
             foreach (Player player in GetConnectedPlayers())
             {
-                if (GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.star.id == starId && player.Connection != sender)
+                if (player.Data.LocalStarId == starId && player.Connection != sender)
                 {
                     player.SendRawPacket(rawPacket);
                 }

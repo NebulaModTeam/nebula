@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
 using UnityEngine;
 
@@ -184,6 +185,18 @@ namespace NebulaPatcher.Patches.Dynamic
                         }
                     }
                 }
+                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(-1));
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("ArriveStar")]
+        public static void ArriveStar_Prefix(GameData __instance, StarData star)
+        {
+            //Client should unload all factories once they leave the star system
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(star.id));
             }
         }
 

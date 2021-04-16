@@ -15,6 +15,7 @@ namespace NebulaModel.DataStructures
         public Float3 Rotation { get; set; }
         public Float3 BodyRotation { get; set; }
         public MechaData Mecha { get; set; }
+        public int LocalStarId { get; set; }
 
         public PlayerData() { }
         public PlayerData(ushort playerId, int localPlanetId, Float3 color, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())

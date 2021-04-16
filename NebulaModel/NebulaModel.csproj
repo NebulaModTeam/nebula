@@ -69,6 +69,7 @@
     <Compile Include="Packets\Factory\DestructEntityRequest.cs" />
     <Compile Include="Packets\Factory\Ejector\EjectorOrbitUpdatePacket.cs" />
     <Compile Include="Packets\Factory\Ejector\EjectorStorageUpdatePacket.cs" />
+    <Compile Include="Packets\Factory\FoundationBuildUpdatePacket.cs" />
     <Compile Include="Packets\Factory\Inserter\InserterFilterUpdatePacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateCubesPacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateEventPacket.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="Packets\Players\PlayerColorChanged.cs" />
     <Compile Include="Packets\Players\PlayerTechBonuses.cs" />
     <Compile Include="Packets\Players\RemoveDroneOrdersPacket.cs" />
+    <Compile Include="Packets\Players\PlayerUpdateLocalStarId.cs" />
     <Compile Include="Packets\Processors\IPacketProcessor.cs" />
     <Compile Include="Packets\Routers\PlanetBroadcastPacket.cs" />
     <Compile Include="Packets\Routers\StarBroadcastPacket.cs" />
