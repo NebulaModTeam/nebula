@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaWorld;
+using UnityEngine;
 
 namespace NebulaClient.PacketProcessors.Logistics
 {

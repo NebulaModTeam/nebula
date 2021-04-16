@@ -71,7 +71,7 @@ namespace NebulaWorld.Logistics
 
         public static void UpdateUI(StationUI packet)
         {
-            if((UpdateCooldown == 0 || packet.settingIndex == 12) && LocalPlayer.IsMasterClient)
+            if((UpdateCooldown == 0 || !packet.isStorageUI) && LocalPlayer.IsMasterClient)
             {
                 UpdateCooldown = 10;
                 if (packet.isStorageUI)
@@ -368,7 +368,6 @@ namespace NebulaWorld.Logistics
                     StationComponent[] stationPool = pData.factory.transport.stationPool;
                     if(stationPool[_stationId].storage != null)
                     {
-                        Debug.Log("setting real value " + packet.settingValue);
                         stationPool[_stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
                     }
                 }

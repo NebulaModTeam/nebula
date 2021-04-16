@@ -21,10 +21,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 return false;
             }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
-            }
             return true;
         }
 
@@ -41,10 +37,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     return true;
                 }
                 return false;
-            }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
             }
             return true;
         }
@@ -63,10 +55,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 return false;
             }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
-            }
             return true;
         }
 
@@ -83,10 +71,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     return true;
                 }
                 return false;
-            }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
             }
             return true;
         }
@@ -105,10 +89,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 return false;
             }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
-            }
             return true;
         }
 
@@ -125,10 +105,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     return true;
                 }
                 return false;
-            }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
             }
             return true;
         }
@@ -147,10 +123,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 return false;
             }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
-            }
             return true;
         }
 
@@ -167,10 +139,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     return true;
                 }
                 return false;
-            }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
             }
             return true;
         }
@@ -189,10 +157,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 return false;
             }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
-            }
             return true;
         }
 
@@ -210,10 +174,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 return false;
             }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
-            }
             return true;
         }
 
@@ -230,10 +190,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     return true;
                 }
                 return false;
-            }
-            else if (SimulatedWorld.Initialized)
-            {
-                return true;
             }
             return true;
         }

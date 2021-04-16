@@ -23,10 +23,9 @@ namespace NebulaHost.PacketProcessors.Logistics
             // if a user adds/removes a ship, drone or warper broadcast to everyone.
             if((packet.settingIndex == 8 || packet.settingIndex == 9 || packet.settingIndex == 10) && player != null && StationUIManager.UpdateCooldown == 0)
             {
-                Debug.Log("sending " + packet.settingIndex);
                 playerManager.SendPacketToAllPlayers(packet);
             }
-            else if(StationUIManager.UpdateCooldown == 0 || packet.settingIndex == 12)
+            else if(StationUIManager.UpdateCooldown == 0 || !packet.isStorageUI)
             {
                 List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(packet.stationGId);
                 for (int i = 0; i < subscribers.Count; i++)
@@ -37,14 +36,9 @@ namespace NebulaHost.PacketProcessors.Logistics
                         {
                             packet.shouldMimick = true;
                         }
-                        Debug.Log("sending " + packet.settingIndex);
                         subscribers[i].SendPacket(packet);
                     }
                 }
-            }
-            else
-            {
-                Debug.Log("locked by cooldown (" + packet.settingIndex + ")");
             }
             SimulatedWorld.OnStationUIChange(packet);
         }
