@@ -63,6 +63,7 @@ namespace NebulaWorld
             PendingFactories.Clear();
             IsMasterClient = false;
             SimulatedWorld.Clear();
+            SimulatedWorld.ExitingMultiplayerSession = true;
 
             if (!UIRoot.instance.backToMainMenu)
             {
