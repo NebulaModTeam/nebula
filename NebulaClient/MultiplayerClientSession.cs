@@ -6,6 +6,7 @@ using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System;
 using System.Net;
 using UnityEngine;
 using WebSocketSharp;
@@ -89,6 +90,7 @@ namespace NebulaClient
         {
             //Should send packet to particular planet
             //Not needed at the moment, used only on the host side
+            throw new NotImplementedException();
         }
 
         public void Reconnect()
