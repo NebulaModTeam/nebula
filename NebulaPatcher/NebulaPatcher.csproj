@@ -40,6 +40,7 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\CargoTraffic_Patch.cs" />
     <Compile Include="Patches\Dynamic\FactoryProductionStat_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameHistoryData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameMain_Patch.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Patches\Dynamic\UITankWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStarmap_Patch.cs" />
     <Compile Include="Patches\Dynamic\VFInput_Patch.cs" />
+    <Compile Include="Patches\Transpilers\CargoTraffic_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Build_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
