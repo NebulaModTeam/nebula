@@ -29,6 +29,7 @@ namespace NebulaModel.Packets.Players
         int droneCount { get; set; }
         float droneSpeed { get; set; }
         int droneMovement { get; set; }
+        int inventorySize { get; set; }
 
         public PlayerTechBonuses() { }
 
@@ -59,6 +60,7 @@ namespace NebulaModel.Packets.Players
             this.droneCount = source.droneCount;
             this.droneSpeed = source.droneSpeed;
             this.droneMovement = source.droneMovement;
+            this.inventorySize = source.player.package.size;
         }
 
         public void UpdateMech(Mecha destination)
@@ -88,6 +90,10 @@ namespace NebulaModel.Packets.Players
             destination.droneCount = this.droneCount;
             destination.droneSpeed = this.droneSpeed;
             destination.droneMovement = this.droneMovement;
+            if (this.inventorySize > destination.player.package.size)
+            {
+                destination.player.package.SetSize(this.inventorySize);
+            }
         }
 
         public void Serialize(NetDataWriter writer)
@@ -117,6 +123,7 @@ namespace NebulaModel.Packets.Players
             writer.Put(droneCount);
             writer.Put(droneSpeed);
             writer.Put(droneMovement);
+            writer.Put(inventorySize);
         }
 
         public void Deserialize(NetDataReader reader)
@@ -146,6 +153,7 @@ namespace NebulaModel.Packets.Players
             droneCount = reader.GetInt();
             droneSpeed = reader.GetFloat();
             droneMovement = reader.GetInt();
+            inventorySize = reader.GetInt();
         }
     }
 }
