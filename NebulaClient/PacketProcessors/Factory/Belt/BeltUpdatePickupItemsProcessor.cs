@@ -12,6 +12,7 @@ namespace NebulaClient.PacketProcessors.Factory.Belt
         {
             if (GameMain.data.factories[packet.FactoryIndex]?.cargoTraffic != null)
             {
+                //Iterate though belt updates and remove target items
                 for (int i = 0; i < packet.BeltUpdates.Length; i++)
                 {
                     CargoTraffic traffic = GameMain.data.factories[packet.FactoryIndex].cargoTraffic;
