@@ -79,6 +79,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                 FactoryManager.IgnoreBasicBuildConditionChecks = true;
                 bool canBuild = pab.CheckBuildConditions();
+                canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory);
                 FactoryManager.IgnoreBasicBuildConditionChecks = false;
 
                 if (canBuild)
@@ -104,9 +105,39 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 FactoryManager.EventFactory = null;
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
-                pab.previewPose.position = tmpPos;
+                pab.previewPose.position = tmpPos; 
                 pab.previewPose.rotation = tmpRot;
             }
+        }
+
+        public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, PlanetFactory factory)
+        {
+            //Check if some entity that is suppose to be connected to this building is missing
+            for(int i = 0; i < buildPreviews.Count; i++)
+            {
+                bool isInputOk = true;
+                if (buildPreviews[i].inputObjId > 0)
+                {
+                    isInputOk = factory.entityPool.Length >= buildPreviews[i].inputObjId && factory.entityPool[buildPreviews[i].inputObjId].id != 0;
+                } else if (buildPreviews[i].inputObjId < 0)
+                {
+                    isInputOk = factory.prebuildPool.Length >= -buildPreviews[i].inputObjId && factory.prebuildPool[-buildPreviews[i].inputObjId].id != 0;
+                }
+                bool isOutputOk = true;
+                if (buildPreviews[i].outputObjId > 0)
+                {
+                    isInputOk = factory.entityPool.Length >= buildPreviews[i].outputObjId && factory.entityPool[buildPreviews[i].outputObjId].id != 0;
+                }
+                else if (buildPreviews[i].outputObjId < 0)
+                {
+                    isInputOk = factory.prebuildPool.Length >= -buildPreviews[i].outputObjId && factory.prebuildPool[-buildPreviews[i].outputObjId].id != 0;
+                }
+                if (!isInputOk || !isOutputOk)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

@@ -16,8 +16,16 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("_OnOpen")]
-        public static void _OnOpen_Prefix()
+        public static void _OnOpen_Prefix(UIEscMenu __instance)
         {
+            // Disable save game button if you are a client in a multiplayer session
+            Button saveGameWindowButton = AccessTools.Field(typeof(UIEscMenu), "button2").GetValue(__instance) as Button;
+            SetButtonEnableState(saveGameWindowButton, !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient);
+
+            // Disable load game button if in a multiplayer session
+            Button loadGameWindowButton = AccessTools.Field(typeof(UIEscMenu), "button3").GetValue(__instance) as Button;
+            SetButtonEnableState(loadGameWindowButton, !SimulatedWorld.Initialized);
+
             // If we are in a multiplayer game already make sure to hide the host game button
             if (SimulatedWorld.Initialized)
             {
@@ -64,10 +72,18 @@ namespace NebulaPatcher.Patches.Dynamic
             var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
             session.StartServer(port, true);
 
-            // Manually call the OnGameLoadCompleted here since we are already in a game.
+            // Manually call the OnGameLoadCompleted manually since we are already in a game.
             SimulatedWorld.OnGameLoadCompleted();
 
             GameMain.Resume();
+        }
+
+        private static void SetButtonEnableState(Button button, bool enable)
+        {
+            ColorBlock buttonColors = button.colors;
+            buttonColors.disabledColor = new Color(1f, 1f, 1f, 0.15f);
+            button.interactable = enable;
+            button.colors = buttonColors;
         }
     }
 }

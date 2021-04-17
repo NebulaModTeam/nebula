@@ -35,6 +35,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     }
                 }
                 planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+                FactoryManager.DoNotAddItemsFromBuildingOnDestruct = false;
                 FactoryManager.EventFromServer = false;
             }
         }

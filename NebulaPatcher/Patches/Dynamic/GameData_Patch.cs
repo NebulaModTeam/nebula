@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
 using NebulaWorld.Logistics;
 using NebulaPatcher.Patches.Transpilers;
@@ -202,13 +203,57 @@ namespace NebulaPatcher.Patches.Dynamic
             gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("OnDraw")]
-        public static void OnDraw_Prefix()
+        public static void OnDraw_Postfix()
         {
             if (SimulatedWorld.Initialized)
             {
                 SimulatedWorld.OnDronesDraw();
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("LeaveStar")]
+        public static void LeaveStar_Prefix(GameData __instance)
+        {
+            //Client should unload all factories once they leave the star system
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                for (int i = 0; i < __instance.localStar.planetCount; i++)
+                {
+                    if (__instance.localStar.planets != null && __instance.localStar.planets[i] != null)
+                    {
+                        if (__instance.localStar.planets[i].factory != null)
+                        {
+                            __instance.localStar.planets[i].factory.Free();
+                            __instance.localStar.planets[i].factory = null;
+                        }
+                    }
+                }
+                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(-1));
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("ArriveStar")]
+        public static void ArriveStar_Prefix(GameData __instance, StarData star)
+        {
+            //Client should unload all factories once they leave the star system
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            {
+                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(star.id));
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("LeavePlanet")]
+        public static void LeavePlanet_Prefix(GameData __instance)
+        {
+            //Players should clear the list of drone orders of other players when they leave the planet
+            if (SimulatedWorld.Initialized)
+            {
+                GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using NebulaModel.DataStructures;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
@@ -31,6 +32,16 @@ namespace NebulaWorld
             networkProvider?.SendPacketToLocalStar(packet);
         }
 
+        public static void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            networkProvider?.SendPacketToLocalPlanet(packet);
+        }
+
+        public static void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        {
+            networkProvider?.SendPacketToPlanet(packet, planetId);
+        }
+
         public static void SetReady()
         {
             PatchLocks.Clear();
@@ -49,6 +60,12 @@ namespace NebulaWorld
             // Finally we add the local player components to the player character
             GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
             GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
+
+            if (!IsMasterClient)
+            {
+                //Subscribe for the local star events
+                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+            }
         }
 
         public static void SetPlayerData(PlayerData data)
@@ -62,6 +79,7 @@ namespace NebulaWorld
             PendingFactories.Clear();
             IsMasterClient = false;
             SimulatedWorld.Clear();
+            SimulatedWorld.ExitingMultiplayerSession = true;
 
             if (!UIRoot.instance.backToMainMenu)
             {

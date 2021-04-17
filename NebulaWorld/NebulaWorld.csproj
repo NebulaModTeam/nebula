@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory\BeltManager.cs" />
     <Compile Include="Factory\FactoryManager.cs" />
     <Compile Include="Factory\StorageManager.cs" />
     <Compile Include="GameDataHistory\GameDataHistoryManager.cs" />
@@ -53,6 +54,8 @@
     <Compile Include="MonoBehaviours\Remote\RemotePlayerAnimation.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerEffects.cs" />
     <Compile Include="MonoBehaviours\Remote\RemotePlayerMovement.cs" />
+    <Compile Include="Planet\PlanetManager.cs" />
+    <Compile Include="Player\DroneManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemotePlayerModel.cs" />
     <Compile Include="SimulatedWorld.cs" />

@@ -40,6 +40,7 @@
     <Compile Include="Logger\BepInExLogger.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
+    <Compile Include="Patches\Dynamic\CargoTraffic_Patch.cs" />
     <Compile Include="Patches\Dynamic\FactoryProductionStat_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameHistoryData_Patch.cs" />
     <Compile Include="Patches\Dynamic\GalacticTransport_Patch.cs" />
@@ -47,6 +48,8 @@
     <Compile Include="Patches\Dynamic\GameSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameScenarioLogic_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameStatData_Patch.cs" />
+    <Compile Include="Patches\Dynamic\PlanetData_Patch.cs" />
+    <Compile Include="Patches\Dynamic\Mecha_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Dynamic\Debugging.cs" />
     <Compile Include="Patches\Dynamic\ArriveLeavePlanet_Patch.cs" />
@@ -66,6 +69,7 @@
     <Compile Include="Patches\Dynamic\TrashSystem_Patch.cs" />
     <Compile Include="Patches\Dynamic\StorageComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIAssemblerWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIAutoSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEjectorWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIInserterWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UILabWindow_Patch.cs" />
@@ -81,7 +85,9 @@
     <Compile Include="Patches\Dynamic\UITankWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStarmap_Patch.cs" />
     <Compile Include="Patches\Dynamic\VFInput_Patch.cs" />
+    <Compile Include="Patches\Transpilers\CargoTraffic_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlanetFactory_Patch.cs" />
+    <Compile Include="Patches\Transpilers\MechaDroneLogic_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Build_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetTransport_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStationStorage_Patch.cs" />

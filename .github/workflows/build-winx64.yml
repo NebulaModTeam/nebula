@@ -1,0 +1,49 @@
+name: Build - Win x64
+
+on:
+  push:
+    branches: [ master ]
+  pull_request_review:
+    types: [ submitted ]
+
+jobs:
+
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    # We *only* want to run this if a collaborator or owner of the repo approves a pull request, or if something is merged into the main branch
+    if: ${{ github.event.ref == 'refs/heads/master' || (github.event.review.state == 'approved' && (github.event.review.author_association == 'COLLABORATOR' || github.event.review.author_association == 'OWNER')) }}
+    runs-on: dsp-installed
+
+    env:
+      Solution_Name: Nebula.sln
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+        
+    - name: Clear output directory in DSP files
+      # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
+      run: rm -R -ErrorAction SilentlyContinue "C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula"
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    # Build it
+    - name: Build the application
+      run: msbuild $env:Solution_Name /restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Upload it to the run results
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        # Artifact name
+        name: build-artifacts-${{ matrix.configuration }}
+        path: C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula

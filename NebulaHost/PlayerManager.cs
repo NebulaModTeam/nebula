@@ -1,8 +1,10 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaHost.PacketProcessors.Players;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
+using NebulaWorld.Player;
 using NebulaWorld.Statistics;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,7 +76,29 @@ namespace NebulaHost
         {
             foreach (Player player in GetConnectedPlayers())
             {
-                if (GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.star.id == GameMain.data.localStar.id)
+                if (player.Data.LocalStarId == GameMain.data.localStar.id)
+                {
+                    player.SendPacket(packet);
+                }
+            }
+        }
+
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId)
+                {
+                    player.SendPacket(packet);
+                }
+            }
+        }
+
+        public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (player.Data.LocalPlanetId == planetId)
                 {
                     player.SendPacket(packet);
                 }
@@ -85,7 +109,18 @@ namespace NebulaHost
         {
             foreach (Player player in GetConnectedPlayers())
             {
-                if (GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.star.id == starId && player.Connection != sender)
+                if (player.Data.LocalStarId == starId && player.Connection != sender)
+                {
+                    player.SendRawPacket(rawPacket);
+                }
+            }
+        }
+
+        public void SendRawPacketToPlanet(byte[] rawPacket, int planetId, NebulaConnection sender)
+        {
+            foreach (Player player in GetConnectedPlayers())
+            {
+                if (player.Data.LocalPlanetId == planetId && player.Connection != sender)
                 {
                     player.SendRawPacket(rawPacket);
                 }
@@ -125,6 +160,21 @@ namespace NebulaHost
                 connectedPlayers.Remove(conn);
                 availablePlayerIds.Enqueue(player.Id);
                 StatisticsManager.instance.UnRegisterPlayer(player.Id);
+
+                //Notify players about queued building plans for drones
+                int[] DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
+                if (DronePlans != null && DronePlans.Length > 0 && player.Data.LocalPlanetId > 0)
+                {
+                    LocalPlayer.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
+                    //Remove it also from host queue, if host is on the same planet
+                    if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
+                    {
+                        for(int i = 0; i < DronePlans.Length; i++)
+                        {
+                            GameMain.mainPlayer.mecha.droneLogic.serving.Remove(DronePlans[i]);
+                        }
+                    }
+                }
             }
             else
             {

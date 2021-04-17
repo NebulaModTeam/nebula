@@ -43,7 +43,6 @@ namespace NebulaHost
             {
                 SaveManager.LoadServerData();
             }
-            SaveManager.SaveOnExit = true;
             PacketProcessor = new NetPacketProcessor();
             StatisticsManager = new StatisticsManager();
 
@@ -87,6 +86,16 @@ namespace NebulaHost
         public void SendPacketToLocalStar<T>(T packet) where T : class, new()
         {
             PlayerManager.SendPacketToLocalStar(packet);
+        }
+
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            PlayerManager.SendPacketToLocalPlanet(packet);
+        }
+
+        public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        {
+            PlayerManager.SendPacketToPlanet(packet, planetId);
         }
 
         private void Update()
