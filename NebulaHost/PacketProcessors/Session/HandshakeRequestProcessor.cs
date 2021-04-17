@@ -24,14 +24,18 @@ namespace NebulaHost.PacketProcessors.Session
         public void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
         {
             Player player;
-            if (!playerManager.PendingPlayers.TryGetValue(conn, out player))
+            using (playerManager.GetPendingPlayers(out var pendingPlayers))
             {
-                conn.Disconnect(DisconnectionReason.InvalidData);
-                Log.Warn("WARNING: Player tried to handshake without being in the pending list");
-                return;
+                if (!pendingPlayers.TryGetValue(conn, out player))
+                {
+                    conn.Disconnect(DisconnectionReason.InvalidData);
+                    Log.Warn("WARNING: Player tried to handshake without being in the pending list");
+                    return;
+                }
+
+                pendingPlayers.Remove(conn);
             }
 
-            playerManager.PendingPlayers.Remove(conn);
 
             if (packet.ModVersion != Config.ModVersion.ToString())
             {
@@ -50,27 +54,36 @@ namespace NebulaHost.PacketProcessors.Session
             //TODO: some validation of client cert / generating auth challenge for the client
             // Load old data of the client
             string clientCertHash = CryptoUtils.Hash(packet.ClientCert);
-            if (playerManager.SavedPlayerData.ContainsKey(clientCertHash))
+            using (playerManager.GetSavedPlayerData(out var savedPlayerData))
             {
-                player.LoadUserData(playerManager.SavedPlayerData[clientCertHash]);
-            }
-            else
-            {
-                playerManager.SavedPlayerData.Add(clientCertHash, player.Data);
+                if (savedPlayerData.TryGetValue(clientCertHash, out var value))
+                {
+                    player.LoadUserData(value);
+                }
+                else
+                {
+                    savedPlayerData.Add(clientCertHash, player.Data);
+                }
             }
 
             // Add the username to the player data
             player.Data.Username = packet.Username;
 
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
-            PlayerData pdata = player.Data.CreateCopyWithoutMechaData(); // Remove inventory from mecha data
-            foreach (Player activePlayer in playerManager.GetConnectedPlayers())
+            PlayerJoining pdata = new PlayerJoining(player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
+            using (playerManager.GetConnectedPlayers(out var connectedPlayers))
             {
-                activePlayer.SendPacket(new PlayerJoining(pdata));
+                foreach (var kvp in connectedPlayers)
+                {
+                    kvp.Value.SendPacket(pdata);
+                }
             }
 
             // Add the new player to the list
-            playerManager.SyncingPlayers.Add(conn, player);
+            using (playerManager.GetSyncingPlayers(out var syncingPlayers))
+            {
+                syncingPlayers.Add(conn, player);
+            }
 
             //Add current tech bonuses to the connecting player based on the Host's mecha
             player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);

@@ -1,12 +1,20 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
+using System.Collections.Generic;
 
 namespace NebulaWorld.Factory
 {
     public class FactoryManager
     {
-        private static ThreadSafeDictionary<PrebuildOwnerKey, ushort> prebuildRequests;
+        sealed class ThreadSafe
+        {
+            internal readonly Dictionary<PrebuildOwnerKey, ushort> prebuildRequests = new Dictionary<PrebuildOwnerKey, ushort>();
+        }
+        private static readonly ThreadSafe threadSafe = new ThreadSafe();
+
+        static Locker GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests) =>
+            threadSafe.prebuildRequests.GetLocked(out prebuildRequests);
 
         public static bool EventFromServer { get; set; }
         public static bool EventFromClient { get; set; }
@@ -17,7 +25,6 @@ namespace NebulaWorld.Factory
 
         public static void Initialize()
         {
-            prebuildRequests = new ThreadSafeDictionary<PrebuildOwnerKey, ushort>();
             EventFromServer = false;
             EventFromClient = false;
             IgnoreBasicBuildConditionChecks = false;
@@ -27,17 +34,20 @@ namespace NebulaWorld.Factory
 
         public static void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)
         {
-            prebuildRequests[new PrebuildOwnerKey(planetId, prebuildId)] = playerId;
+            using (GetPrebuildRequests(out var prebuildRequests))
+                prebuildRequests[new PrebuildOwnerKey(planetId, prebuildId)] = playerId;
         }
 
-        public static void RemovePrebuildRequest(int planetId, int prebuildId)
+        public static bool RemovePrebuildRequest(int planetId, int prebuildId)
         {
-            prebuildRequests.Remove(new PrebuildOwnerKey(planetId, prebuildId));
+            using (GetPrebuildRequests(out var prebuildRequests))
+                return prebuildRequests.Remove(new PrebuildOwnerKey(planetId, prebuildId));
         }
 
         public static bool ContainsPrebuildRequest(int planetId, int prebuildId)
         {
-            return prebuildRequests.ContainsKey(new PrebuildOwnerKey(planetId, prebuildId));
+            using (GetPrebuildRequests(out var prebuildRequests))
+                return prebuildRequests.ContainsKey(new PrebuildOwnerKey(planetId, prebuildId));
         }
 
         public static int GetNextPrebuildId(int planetId)
