@@ -22,6 +22,7 @@ namespace NebulaHost
             private readonly Dictionary<NebulaConnection, Player> syncingPlayers = new Dictionary<NebulaConnection, Player>();
             private readonly Dictionary<NebulaConnection, Player> connectedPlayers = new Dictionary<NebulaConnection, Player>();
             private readonly Dictionary<string, PlayerData> savedPlayerData = new Dictionary<string, PlayerData>();
+            private readonly Queue<ushort> availablePlayerIds = new Queue<ushort>();
 
             public Locker GetPendingPlayers(out Dictionary<NebulaConnection, Player> result) =>
                 pendingPlayers.GetLocked(out result);
@@ -34,10 +35,12 @@ namespace NebulaHost
 
             public Locker GetSavedPlayerData(out Dictionary<string, PlayerData> result) =>
                 savedPlayerData.GetLocked(out result);
+
+            public Locker GetAvailablePlayerIds(out Queue<ushort> result) =>
+                availablePlayerIds.GetLocked(out result);
         }
 
         private readonly ThreadSafe threadSafe = new ThreadSafe();
-        private readonly ThreadSafeQueue<ushort> availablePlayerIds = new ThreadSafeQueue<ushort>();
         private int highestPlayerID = 0;
 
         public Locker GetPendingPlayers(out Dictionary<NebulaConnection, Player> pendingPlayers) =>
@@ -222,7 +225,10 @@ namespace NebulaHost
                     SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
                     SimulatedWorld.DestroyRemotePlayerModel(player.Id);
                     connectedPlayers.Remove(conn);
-                    availablePlayerIds.Enqueue(player.Id);
+                    using (threadSafe.GetAvailablePlayerIds(out var availablePlayerIds))
+                    {
+                        availablePlayerIds.Enqueue(player.Id);
+                    }
                     StatisticsManager.instance.UnRegisterPlayer(player.Id);
 
                     //Notify players about queued building plans for drones
@@ -251,10 +257,13 @@ namespace NebulaHost
 
         public ushort GetNextAvailablePlayerId()
         {
-            if (availablePlayerIds.Count > 0)
-                return availablePlayerIds.Dequeue();
-            else
-                return (ushort)Interlocked.Increment(ref highestPlayerID); // this is truncated to ushort.MaxValue
+            using (threadSafe.GetAvailablePlayerIds(out var availablePlayerIds))
+            {
+                if (availablePlayerIds.Count > 0)
+                    return availablePlayerIds.Dequeue();
+            }
+
+            return (ushort)Interlocked.Increment(ref highestPlayerID); // this is truncated to ushort.MaxValue
         }
 
         public void UpdateMechaData(MechaData mechaData, NebulaConnection conn)
