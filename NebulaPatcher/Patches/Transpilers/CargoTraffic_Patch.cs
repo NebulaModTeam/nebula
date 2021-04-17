@@ -82,11 +82,6 @@ namespace NebulaPatcher.Patches.Transpiler
                                     new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_DoNotAddItemsFromBuildingOnDestruct")),
                                     new CodeInstruction(OpCodes.Brtrue_S, codes[i-1].operand),
                                     });
-                    UnityEngine.Debug.Log("FOUND!");
-                    for(int j = 0; j < 10; j++)
-                    {
-                        UnityEngine.Debug.Log($"{codes[i-7+j].opcode} - {codes[i - 7 + j].operand}");
-                    }
                     break;
                 }
             }
