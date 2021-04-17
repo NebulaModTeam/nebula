@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Attributes\RegisterNestedTypeAttribute.cs" />
     <Compile Include="Attributes\RegisterPacketProcessorAttribute.cs" />
+    <Compile Include="DataStructures\CollectionExtensions.cs" />
     <Compile Include="DataStructures\DataStructureExtensions.cs" />
     <Compile Include="DataStructures\Double3.cs" />
     <Compile Include="DataStructures\Float3.cs" />
@@ -51,8 +52,6 @@
     <Compile Include="DataStructures\PlayerData.cs" />
     <Compile Include="DataStructures\ProductionChangeStruct.cs" />
     <Compile Include="DataStructures\StatisticalSnapshot.cs" />
-    <Compile Include="DataStructures\ThreadSafeDictionnary.cs" />
-    <Compile Include="DataStructures\ThreadSafeQueue.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Config.cs" />
