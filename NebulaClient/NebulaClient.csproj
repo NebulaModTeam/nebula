@@ -79,6 +79,7 @@
     <Compile Include="PacketProcessors\GameStates\GameStateUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryDataProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\PlanetDataResponseProcessor.cs" />
+    <Compile Include="PacketProcessors\Planet\RemoveVegetableProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangeProcessor.cs" />
