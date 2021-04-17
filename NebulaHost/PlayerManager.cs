@@ -18,42 +18,27 @@ namespace NebulaHost
     {
         sealed class ThreadSafe
         {
-            private readonly Dictionary<NebulaConnection, Player> pendingPlayers = new Dictionary<NebulaConnection, Player>();
-            private readonly Dictionary<NebulaConnection, Player> syncingPlayers = new Dictionary<NebulaConnection, Player>();
-            private readonly Dictionary<NebulaConnection, Player> connectedPlayers = new Dictionary<NebulaConnection, Player>();
-            private readonly Dictionary<string, PlayerData> savedPlayerData = new Dictionary<string, PlayerData>();
-            private readonly Queue<ushort> availablePlayerIds = new Queue<ushort>();
-
-            public Locker GetPendingPlayers(out Dictionary<NebulaConnection, Player> result) =>
-                pendingPlayers.GetLocked(out result);
-
-            public Locker GetSyncingPlayers(out Dictionary<NebulaConnection, Player> result) =>
-                syncingPlayers.GetLocked(out result);
-
-            public Locker GetConnectedPlayers(out Dictionary<NebulaConnection, Player> result) =>
-                connectedPlayers.GetLocked(out result);
-
-            public Locker GetSavedPlayerData(out Dictionary<string, PlayerData> result) =>
-                savedPlayerData.GetLocked(out result);
-
-            public Locker GetAvailablePlayerIds(out Queue<ushort> result) =>
-                availablePlayerIds.GetLocked(out result);
+            internal readonly Dictionary<NebulaConnection, Player> pendingPlayers = new Dictionary<NebulaConnection, Player>();
+            internal readonly Dictionary<NebulaConnection, Player> syncingPlayers = new Dictionary<NebulaConnection, Player>();
+            internal readonly Dictionary<NebulaConnection, Player> connectedPlayers = new Dictionary<NebulaConnection, Player>();
+            internal readonly Dictionary<string, PlayerData> savedPlayerData = new Dictionary<string, PlayerData>();
+            internal readonly Queue<ushort> availablePlayerIds = new Queue<ushort>();
         }
 
         private readonly ThreadSafe threadSafe = new ThreadSafe();
         private int highestPlayerID = 0;
 
         public Locker GetPendingPlayers(out Dictionary<NebulaConnection, Player> pendingPlayers) =>
-            threadSafe.GetPendingPlayers(out pendingPlayers);
+            threadSafe.pendingPlayers.GetLocked(out pendingPlayers);
 
         public Locker GetSyncingPlayers(out Dictionary<NebulaConnection, Player> syncingPlayers) =>
-            threadSafe.GetSyncingPlayers(out syncingPlayers);
+            threadSafe.syncingPlayers.GetLocked(out syncingPlayers);
 
         public Locker GetConnectedPlayers(out Dictionary<NebulaConnection, Player> connectedPlayers) =>
-            threadSafe.GetConnectedPlayers(out connectedPlayers);
+            threadSafe.connectedPlayers.GetLocked(out connectedPlayers);
 
         public Locker GetSavedPlayerData(out Dictionary<string, PlayerData> savedPlayerData) =>
-            threadSafe.GetSavedPlayerData(out savedPlayerData);
+            threadSafe.savedPlayerData.GetLocked(out savedPlayerData);
 
         public PlayerData[] GetAllPlayerDataIncludingHost()
         {
@@ -208,7 +193,7 @@ namespace NebulaHost
             PlayerData playerData = new PlayerData(playerId, -1, randomColor);
 
             Player newPlayer = new Player(conn, playerData);
-            using (threadSafe.GetPendingPlayers(out var pendingPlayers))
+            using (GetPendingPlayers(out var pendingPlayers))
             {
                 pendingPlayers.Add(conn, newPlayer);
             }
@@ -218,14 +203,14 @@ namespace NebulaHost
 
         public void PlayerDisconnected(NebulaConnection conn)
         {
-            using (threadSafe.GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out var connectedPlayers))
             {
                 if (connectedPlayers.TryGetValue(conn, out Player player))
                 {
                     SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
                     SimulatedWorld.DestroyRemotePlayerModel(player.Id);
                     connectedPlayers.Remove(conn);
-                    using (threadSafe.GetAvailablePlayerIds(out var availablePlayerIds))
+                    using (threadSafe.availablePlayerIds.GetLocked(out var availablePlayerIds))
                     {
                         availablePlayerIds.Enqueue(player.Id);
                     }
@@ -257,7 +242,7 @@ namespace NebulaHost
 
         public ushort GetNextAvailablePlayerId()
         {
-            using (threadSafe.GetAvailablePlayerIds(out var availablePlayerIds))
+            using (threadSafe.availablePlayerIds.GetLocked(out var availablePlayerIds))
             {
                 if (availablePlayerIds.Count > 0)
                     return availablePlayerIds.Dequeue();
