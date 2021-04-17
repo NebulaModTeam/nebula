@@ -27,7 +27,7 @@ jobs:
         submodules: true
         
     - name: Clear output directory in DSP files
-      # We use SilentlyContinue here because it errors out of the folder does not exist otherwise
+      # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
       run: rm -R -ErrorAction SilentlyContinue "C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula"
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
@@ -45,6 +45,5 @@ jobs:
       uses: actions/upload-artifact@v2.2.3
       with:
         # Artifact name
-        name: build-artifacts
-        # A file, directory or wildcard pattern that describes what to upload
+        name: build-artifacts-${{ matrix.configuration }}
         path: C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula
