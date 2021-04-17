@@ -71,6 +71,10 @@ namespace NebulaModel.Networking
                     MethodInfo generic = method.MakeGenericMethod(packetType, typeof(NebulaConnection));
                     generic.Invoke(packetProcessor, new object[] { callback });
                 }
+                else
+                {
+                    Log.Warn($"{type.FullName} registered, but doesn't implement {typeof(IPacketProcessor<>).FullName}");
+                }
             }
         }
     }
