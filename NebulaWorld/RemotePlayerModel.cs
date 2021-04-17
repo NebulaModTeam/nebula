@@ -20,7 +20,7 @@ namespace NebulaWorld
         public Text StarmapNameText { get; set; }
         public Text StarmapMarker { get; set; }
 
-        public Player PlayerInstance { get; set; }
+        public global::Player PlayerInstance { get; set; }
         public Mecha MechaInstance { get; set; }
 
         public RemotePlayerModel(ushort playerId, string username)
@@ -48,10 +48,15 @@ namespace NebulaWorld
 
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";
 
-            PlayerInstance = new Player();
+            PlayerInstance = new global::Player();
             MechaInstance = new Mecha();
-            AccessTools.Property(typeof(Player), "mecha").SetValue(PlayerInstance, MechaInstance, null);
+            AccessTools.Property(typeof(global::Player), "mecha").SetValue(PlayerInstance, MechaInstance, null);
             MechaInstance.Init(PlayerInstance);
+
+            //Fix MechaDroneRenderers
+            AccessTools.Field(typeof(MechaDroneRenderer), "mat_0").SetValue(MechaInstance.droneRenderer, new Material(Configs.builtin.mechaDroneMat.shader));
+            Material mat = (Material)AccessTools.Field(typeof(MechaDroneRenderer), "mat_0").GetValue(MechaInstance.droneRenderer);
+            MethodInvoker.GetHandler(AccessTools.Method(typeof(Material), "CopyPropertiesFromMaterial", new System.Type[] { typeof(Material) })).Invoke(mat, Configs.builtin.mechaDroneMat);
 
             PlayerId = playerId;
             Username = username;

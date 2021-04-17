@@ -157,9 +157,9 @@ namespace NebulaPatcher.Patches.Dynamic
             gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("OnDraw")]
-        public static void OnDraw_Prefix()
+        public static void OnDraw_Postfix()
         {
             if (SimulatedWorld.Initialized)
             {
@@ -197,6 +197,17 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
             {
                 LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(star.id));
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("LeavePlanet")]
+        public static void LeavePlanet_Prefix(GameData __instance)
+        {
+            //Players should clear the list of drone orders of other players when they leave the planet
+            if (SimulatedWorld.Initialized)
+            {
+                GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
             }
         }
     }
