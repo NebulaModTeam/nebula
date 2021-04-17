@@ -344,8 +344,10 @@ namespace NebulaWorld
                 AccessTools.Property(typeof(MechaForge), "mecha").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer.mecha, null);
                 AccessTools.Property(typeof(MechaForge), "player").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer, null);
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+            }
 
-                //Update player's Mecha tech bonuses
+            //Update player's Mecha tech bonuses
+            if (!LocalPlayer.IsMasterClient) {
                 LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
             }
 

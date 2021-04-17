@@ -12,12 +12,16 @@ namespace NebulaClient.PacketProcessors.Factory.Belt
         {
             if (GameMain.data.factories[packet.FactoryIndex]?.cargoTraffic != null)
             {
+                CargoTraffic traffic = GameMain.data.factories[packet.FactoryIndex].cargoTraffic;
                 //Iterate though belt updates and remove target items
                 for (int i = 0; i < packet.BeltUpdates.Length; i++)
                 {
-                    CargoTraffic traffic = GameMain.data.factories[packet.FactoryIndex].cargoTraffic;
                     CargoPath cargoPath = traffic.GetCargoPath(traffic.beltPool[packet.BeltUpdates[i].BeltId].segPathId);
-                    cargoPath.TryPickItem(packet.BeltUpdates[i].SegId - 4 - 1, 12);
+                    //Check if belt exists
+                    if (cargoPath != null)
+                    {
+                        cargoPath.TryPickItem(packet.BeltUpdates[i].SegId - 4 - 1, 12);
+                    }
                 }
             }
         }
