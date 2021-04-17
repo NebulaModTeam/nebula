@@ -7,6 +7,7 @@ using NebulaModel.Packets.Trash;
 using NebulaWorld.Factory;
 using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.Planet;
+using NebulaWorld.Player;
 using NebulaWorld.Trash;
 using System.Collections.Generic;
 using UnityEngine;
@@ -113,6 +114,72 @@ namespace NebulaWorld
             {
                 player.Animator.UpdateState(packet);
                 player.Effects.UpdateState(packet);
+            }
+        }
+
+        public static void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
+        {
+            if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
+            {
+                //Setup drone of remote player based on the drone data
+                ref MechaDrone drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
+                MechaDroneLogic droneLogic = player.PlayerInstance.mecha.droneLogic;
+
+                drone.stage = packet.Stage;
+                drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
+                drone.movement = droneLogic.player.mecha.droneMovement;
+                if (packet.Stage == 1)
+                {
+                    drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
+                }
+                drone.target = (Vector3)MethodInvoker.GetHandler(AccessTools.Method(typeof(MechaDroneLogic), "_obj_hpos", new System.Type[] { typeof(int) })).Invoke(GameMain.mainPlayer.mecha.droneLogic, packet.EntityId);
+                drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + UnityEngine.Random.insideUnitSphere) * 1.5f;
+                drone.forward = drone.initialVector;
+                drone.progress = 0f;
+                player.MechaInstance.droneCount = GameMain.mainPlayer.mecha.droneCount;
+                player.MechaInstance.droneSpeed = GameMain.mainPlayer.mecha.droneSpeed;
+                Mecha myMecha = GameMain.mainPlayer.mecha;
+                if (packet.Stage == 3)
+                {
+                    myMecha.droneLogic.serving.Remove(packet.EntityId);
+                }
+
+                if (drone.stage == 1 || drone.stage == 2) {
+                    //Check if my drone is already going there
+                    if (!myMecha.droneLogic.serving.Contains(packet.EntityId))
+                    {
+                        myMecha.droneLogic.serving.Add(packet.EntityId);
+                    } else
+                    {
+                        //resolve conflict (two drones are going to the same building)
+                        //find my drone that is going there
+                        int priority = 0;
+                        int droneId = 0;
+                        for (int i = 0; i < myMecha.droneCount; i++)
+                        {
+                            if (myMecha.drones[i].stage > 0 && myMecha.drones[i].targetObject == drone.targetObject)
+                            {
+                                priority = DroneManager.DronePriorities[i];
+                                droneId = i;
+                                break;
+                            }
+                        }
+                        //compare, who's drone has higher priority
+                        if (packet.Priority > priority)
+                        {
+                            //their drone won, my drone has to return
+                            ref MechaDrone myDrone = ref myMecha.drones[droneId];
+                            myDrone.stage = 3;
+                            myDrone.targetObject = 0;
+                        } else
+                        {
+                            //my drone won, their has to return
+                            drone.stage = 3;
+                            drone.targetObject = 0;
+                        }
+                    }
+                }
+                
             }
         }
 
@@ -266,7 +333,7 @@ namespace NebulaWorld
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToVector3());
 
                 //Load player's saved data from the last session.
-                AccessTools.Property(typeof(Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
+                AccessTools.Property(typeof(global::Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
                 GameMain.mainPlayer.mecha.forge = LocalPlayer.Data.Mecha.Forge;
                 GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Data.Mecha.CoreEnergy;
                 GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
@@ -291,25 +358,28 @@ namespace NebulaWorld
         {
             foreach(KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
             {
-                remoteModel.Value.MechaInstance.droneRenderer.Draw();
+                //Render drones of players only on the local planet
+                if (GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
+                {
+                    remoteModel.Value.MechaInstance.droneRenderer.Draw();
+                }
             }
         }
 
         public static void OnDronesGameTick(long time, float dt)
         {
-            double tmp = 0;
-            double tmp2 = 0;
+            double tmp = 1e10; //fake energy of remote player, needed to do the Update()
+            double tmp2 = 1;
             //Update drones positions based on their targets
             foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
             {
                 MechaDrone[] drones = remoteModel.Value.PlayerInstance.mecha.drones;
-                int droneCount = remoteModel.Value.PlayerInstance.mecha.droneCount;
+                int droneCount = GameMain.mainPlayer.mecha.droneCount;
                 for (int i = 0; i < droneCount; i++)
                 {
-                    if (drones[i].stage != 0)
+                    //Update only moving drones of players on the same planet
+                    if (drones[i].stage != 0 && GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
                     {
-                        //To-do: fix the correct factory here
-                        //To-do: Optimize getting local position of player
                         drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), dt, ref tmp, ref tmp2, 0);
                     }
                 }
