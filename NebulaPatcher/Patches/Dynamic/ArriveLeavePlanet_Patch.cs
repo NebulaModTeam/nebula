@@ -74,14 +74,16 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && RefreshMissingMeshes && __instance.localPlanet != null)
             {
                 PlanetData planetData = __instance.localPlanet;
-                for (int i = 0; i < planetData.meshColliders.Length; i++)
-                {
-                    if (planetData.meshColliders[i].sharedMesh == null)
+                if (planetData.meshColliders != null) {
+                    for (int i = 0; i < planetData.meshColliders.Length; i++)
                     {
-                        planetData.meshColliders[i].sharedMesh = planetData.meshes[i];
+                        if (planetData.meshColliders[i].sharedMesh == null)
+                        {
+                            planetData.meshColliders[i].sharedMesh = planetData.meshes[i];
+                        }
                     }
+                    RefreshMissingMeshes = false;
                 }
-                RefreshMissingMeshes = false;
             }
         }
 
