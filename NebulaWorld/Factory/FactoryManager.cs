@@ -93,6 +93,11 @@ namespace NebulaWorld.Factory
             this.PrebuildId = prebuildId;
         }
 
+        public override int GetHashCode()
+        {
+            return PlanetId ^ PrebuildId;
+        }
+
         public bool Equals(PrebuildOwnerKey other)
         {
             return other.PlanetId == this.PlanetId && other.PrebuildId == this.PrebuildId;
