@@ -2,7 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
-using NebulaWorld.Factory;
+using NebulaWorld.Planet;
 
 namespace NebulaHost.PacketProcessors.Planet
 {
@@ -11,11 +11,11 @@ namespace NebulaHost.PacketProcessors.Planet
     {
         public void ProcessPacket(RemoveVegetablePacket packet, NebulaConnection conn)
         {
-            if (GameMain.data.factories[packet.FactorytId] != null)
+            if (GameMain.data.factories[packet.FactorytIndex] != null)
             {
-                FactoryManager.EventFromClient = true;
-                GameMain.data.factories[packet.FactorytId].RemoveVegeWithComponents(packet.VegeId);
-                FactoryManager.EventFromClient = false;
+                PlanetManager.EventFromClient = true;
+                GameMain.data.factories[packet.FactorytIndex].RemoveVegeWithComponents(packet.VegeId);
+                PlanetManager.EventFromClient = false;
             }
         }
     }

@@ -2,14 +2,14 @@
 {
     public class RemoveVegetablePacket
     {
-        public int FactorytId { get; set; }
+        public int FactorytIndex { get; set; }
         public int VegeId { get; set; }
 
         public RemoveVegetablePacket() { }
 
         public RemoveVegetablePacket(int factoryId, int vegeId)
         {
-            FactorytId = factoryId;
+            FactorytIndex = factoryId;
             VegeId = vegeId;
         }
     }

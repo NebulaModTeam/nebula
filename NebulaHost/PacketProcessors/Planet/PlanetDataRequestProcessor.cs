@@ -39,10 +39,7 @@ namespace NebulaHost.PacketProcessors.Planet
                     planet.wanted = true;
                     planet.onLoaded += OnActivePlanetLoaded;
                     PlanetModelingManager.modPlanetReqList.Enqueue(planet);
-                }
 
-                if (planet.factory == null)
-                {
                     if (planet.type != EPlanetType.Gas)
                     {
                         planetAlgorithm.GenerateVegetables();
