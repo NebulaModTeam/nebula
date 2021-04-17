@@ -261,7 +261,7 @@ namespace NebulaWorld
             int localPlanetId = -1;
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
-                if (!remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
+                if (remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
                 {
                     localPlanetId = pModel.Movement.localPlanetId;
                 } 
