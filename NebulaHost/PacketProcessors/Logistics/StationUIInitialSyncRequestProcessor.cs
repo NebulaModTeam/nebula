@@ -64,7 +64,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                                                                             localLogic.ToArray(),
                                                                             remoteLogic.ToArray());
                     conn.SendPacket(packet2);
-                    Debug.Log("send syncing packet");
+                    Debug.Log("send syncing packet " + packet.stationGId);
                 }
             }
         }

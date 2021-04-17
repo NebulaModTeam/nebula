@@ -16,14 +16,14 @@ namespace NebulaWorld.Logistics
         public static BaseEventData lastMouseEvent;
         public static bool lastMouseEventWasDown;
         public static GameObject lastSelectedGameObj;
-        public static int UIIsSyncedStage; // -1 buffer to activate patch only when window gets opened (prevents NPE when leaving planet), 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
+        public static int UIIsSyncedStage; // 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
         public static int UIStationId;
 
         public static void Initialize()
         {
             StationUISubscribers = new ThreadSafeDictionary<int, List<NebulaConnection>>();
             UpdateCooldown = 0;
-            UIIsSyncedStage = -1;
+            UIIsSyncedStage = 0;
             UIStationId = 0;
         }
         public static void AddSubscriber(int stationGId, NebulaConnection player)

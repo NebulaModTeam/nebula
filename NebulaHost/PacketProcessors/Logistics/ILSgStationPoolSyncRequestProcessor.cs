@@ -25,6 +25,7 @@ namespace NebulaHost.PacketProcessors.Logistics
             if (player != null)
             {
                 List<int> stationGId = new List<int>();
+                List<int> stationId = new List<int>();
                 List<Float3> DockPos = new List<Float3>();
                 List<Float4> DockRot = new List<Float4>();
                 List<int> planetId = new List<int>();
@@ -57,6 +58,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                     if(stationComponent != null)
                     {
                         stationGId.Add(stationComponent.gid);
+                        stationId.Add(stationComponent.id);
                         DockPos.Add(new Float3(stationComponent.shipDockPos));
                         DockRot.Add(new Float4(stationComponent.shipDockRot));
                         planetId.Add(stationComponent.planetId);
@@ -92,6 +94,7 @@ namespace NebulaHost.PacketProcessors.Logistics
 
                 ILSgStationPoolSync packet2 = new ILSgStationPoolSync(
                     stationGId.ToArray(),
+                    stationId.ToArray(),
                     DockPos.ToArray(),
                     DockRot.ToArray(),
                     planetId.ToArray(),

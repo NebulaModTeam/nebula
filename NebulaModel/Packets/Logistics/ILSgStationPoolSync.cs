@@ -9,6 +9,7 @@ namespace NebulaModel.Packets.Logistics
     public class ILSgStationPoolSync
     {
         public int[] stationGId { get; set; }
+        public int[] stationId { get; set; }
         public Float3[] DockPos { get; set; }
         public Float4[] DockRot { get; set; }
         public int[] planetId { get; set; }
@@ -38,6 +39,7 @@ namespace NebulaModel.Packets.Logistics
 
         public ILSgStationPoolSync() { }
         public ILSgStationPoolSync(int[] stationGId,
+                                    int[] stationId,
                                     Float3[] DockPos,
                                     Float4[] DockRot,
                                     int[] planetId,
@@ -66,6 +68,7 @@ namespace NebulaModel.Packets.Logistics
                                     Float4[] shipPRotTemp)
         {
             this.stationGId = new int[stationGId.Length];
+            this.stationId = new int[stationId.Length];
             this.DockPos = new Float3[DockPos.Length];
             this.DockRot = new Float4[DockRot.Length];
             this.planetId = new int[planetId.Length];
@@ -94,6 +97,7 @@ namespace NebulaModel.Packets.Logistics
             this.shipPRotTemp = new Float4[shipPRotTemp.Length];
 
             Array.Copy(stationGId, this.stationGId, stationGId.Length);
+            Array.Copy(stationId, this.stationId, stationId.Length);
             Array.Copy(DockPos, this.DockPos, DockPos.Length);
             Array.Copy(DockRot, this.DockRot, DockRot.Length);
             Array.Copy(planetId, this.planetId, planetId.Length);

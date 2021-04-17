@@ -147,6 +147,7 @@ namespace NebulaWorld.Logistics
             }
 
             GameMain.data.galacticTransport.stationCursor++;
+            Debug.Log("cursor: " + GameMain.data.galacticTransport.stationCursor);
         }
 
         private static void RequestgStationDockPos(int GId)

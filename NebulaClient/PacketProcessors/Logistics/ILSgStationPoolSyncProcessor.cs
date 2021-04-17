@@ -25,7 +25,7 @@ namespace NebulaClient.PacketProcessors.Logistics
 
                 gStationPool[packet.stationGId[i]].shipDockRot = DataStructureExtensions.ToQuaternion(packet.DockRot[i]);
 
-
+                gStationPool[packet.stationGId[i]].id = packet.stationId[i];
                 gStationPool[packet.stationGId[i]].planetId = packet.planetId[i];
                 gStationPool[packet.stationGId[i]].workShipCount = packet.workShipCount[i];
                 gStationPool[packet.stationGId[i]].idleShipCount = packet.idleShipCount[i];
@@ -76,6 +76,7 @@ namespace NebulaClient.PacketProcessors.Logistics
             }
 
             gTransport.Arragement();
+            Debug.Log("CURSOR NOW AT: " + GameMain.data.galacticTransport.stationCursor);
         }
     }
 }
