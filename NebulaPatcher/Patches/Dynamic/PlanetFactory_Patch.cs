@@ -1,9 +1,11 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
+using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaWorld.Factory;
 using UnityEngine;
+using NebulaWorld.Planet;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -133,6 +135,16 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromClient && !FactoryManager.EventFromServer)
             {
                 LocalPlayer.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("RemoveVegeWithComponents")]
+        public static void RemoveVegeWithComponents_Prefix(PlanetFactory __instance, int id)
+        {
+            if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
+            {
+                LocalPlayer.SendPacketToLocalStar(new RemoveVegetablePacket(GameMain.localPlanet?.factoryIndex ?? -1, id));
             }
         }
     }

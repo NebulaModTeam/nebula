@@ -6,6 +6,7 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Trash;
 using NebulaWorld.Factory;
 using NebulaWorld.MonoBehaviours.Remote;
+using NebulaWorld.Planet;
 using NebulaWorld.Player;
 using NebulaWorld.Trash;
 using System.Collections.Generic;
@@ -30,6 +31,7 @@ namespace NebulaWorld
         public static void Initialize()
         {
             FactoryManager.Initialize();
+            PlanetManager.Initialize();
             remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
             Initialized = true;
             ExitingMultiplayerSession = false;
@@ -225,30 +227,31 @@ namespace NebulaWorld
                 Debug.Log("FAILED TO SYNC VEGE DATA");
             }
             PlanetData planet = GameMain.galaxy?.PlanetById(pModel.Movement.localPlanetId);
-            if (planet == null)
+            PlanetFactory factory = planet?.factory;
+            if (planet == null || factory == null)
                 return;
 
             if (packet.isVegetable) // Trees, rocks, leaves, etc
             {
-                VegeData vData = (VegeData)planet.factory?.GetVegeData(packet.MiningID);
+                VegeData vData = (VegeData)factory.GetVegeData(packet.MiningID);
                 VegeProto vProto = LDB.veges.Select((int)vData.protoId);
                 if (vProto != null && planet.id == GameMain.localPlanet?.id)
                 {
                     VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, vData.rot);
                     VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
                 }
-                planet.factory?.RemoveVegeWithComponents(vData.id);
+                factory.RemoveVegeWithComponents(vData.id);
             }
             else // veins
             {
-                VeinData vData = (VeinData)planet.factory?.GetVeinData(packet.MiningID);
+                VeinData vData = (VeinData)factory.GetVeinData(packet.MiningID);
                 VeinProto vProto = LDB.veins.Select((int)vData.type);
                 if (vProto != null)
                 {
-                    if (planet.factory?.veinPool[packet.MiningID].amount > 0)
+                    if (factory.veinPool[packet.MiningID].amount > 0)
                     {
-                        VeinData[] vPool = planet.factory?.veinPool;
-                        PlanetData.VeinGroup[] vGroups = planet.factory?.planet.veinGroups;
+                        VeinData[] vPool = factory.veinPool;
+                        PlanetData.VeinGroup[] vGroups = factory.planet.veinGroups;
                         long[] vAmounts = planet.veinAmounts;
                         vPool[packet.MiningID].amount -= 1;
                         vGroups[(int)vData.groupIndex].amount -= 1;
@@ -262,7 +265,7 @@ namespace NebulaWorld
                     }
                     else
                     {
-                        PlanetData.VeinGroup[] vGroups = planet.factory?.planet.veinGroups;
+                        PlanetData.VeinGroup[] vGroups = factory.planet.veinGroups;
                         vGroups[vData.groupIndex].count -= 1;
 
                         if (planet.id == GameMain.localPlanet?.id)
@@ -271,7 +274,7 @@ namespace NebulaWorld
                             VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
                         }
 
-                        planet.factory?.RemoveVeinWithComponents(vData.id);
+                        factory.RemoveVeinWithComponents(vData.id);
                     }
                 }
             }
