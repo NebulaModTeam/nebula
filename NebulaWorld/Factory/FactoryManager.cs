@@ -62,6 +62,12 @@ namespace NebulaWorld.Factory
             return GetNextPrebuildId(planet.factory);
         }
 
+        static readonly AccessTools.FieldRef<object, int> GetPrebuildRecycleCursor =
+            AccessTools.FieldRefAccess<int>(typeof(PlanetFactory), "prebuildRecycleCursor");
+
+        static readonly AccessTools.FieldRef<object, int[]> GetPrebuildRecycle =
+            AccessTools.FieldRefAccess<int[]>(typeof(PlanetFactory), "prebuildRecycle");
+
         public static int GetNextPrebuildId(PlanetFactory factory)
         {
             if (factory == null)
@@ -69,8 +75,9 @@ namespace NebulaWorld.Factory
                 return -1;
             }
 
-            int prebuildRecycleCursor = (int)AccessTools.Field(typeof(PlanetFactory), "prebuildRecycleCursor").GetValue(factory);
-            int[] prebuildRecycle = (int[])AccessTools.Field(typeof(PlanetFactory), "prebuildRecycle").GetValue(factory);
+
+            int prebuildRecycleCursor = GetPrebuildRecycleCursor(factory);
+            int[] prebuildRecycle = GetPrebuildRecycle(factory);
             return prebuildRecycleCursor <= 0 ? factory.prebuildCursor : prebuildRecycle[prebuildRecycleCursor - 1];
         }
     }
