@@ -82,6 +82,7 @@
     <Compile Include="PacketProcessors\Logistics\ILSShipItemsProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipUpdateWarperCntProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\StationUIInitialSyncProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\StationUIProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryDataProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\PlanetDataResponseProcessor.cs" />

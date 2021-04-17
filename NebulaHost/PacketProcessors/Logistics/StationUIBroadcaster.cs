@@ -21,7 +21,7 @@ namespace NebulaHost.PacketProcessors.Logistics
         {
             Player player = playerManager.GetPlayer(conn);
             // if a user adds/removes a ship, drone or warper broadcast to everyone.
-            if((packet.settingIndex == 8 || packet.settingIndex == 9 || packet.settingIndex == 10) && player != null && StationUIManager.UpdateCooldown == 0)
+            if((packet.settingIndex == 0 || packet.settingIndex == 8 || packet.settingIndex == 9 || packet.settingIndex == 10) && player != null && StationUIManager.UpdateCooldown == 0)
             {
                 playerManager.SendPacketToAllPlayers(packet);
             }
@@ -36,6 +36,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                         {
                             packet.shouldMimick = true;
                         }
+                        Debug.Log("sending packet to subscriber");
                         subscribers[i].SendPacket(packet);
                     }
                 }

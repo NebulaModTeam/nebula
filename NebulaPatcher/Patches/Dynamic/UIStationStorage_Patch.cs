@@ -21,13 +21,24 @@ namespace NebulaPatcher.Patches.Dynamic
                 StationUI packet;
                 if (LocalPlayer.IsMasterClient)
                 {
-                    packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
+                    PointerEventData pointEventData = evt as PointerEventData;
+                    if(GameMain.mainPlayer.inhandItemId == __instance.station.storage[__instance.index].itemId && pointEventData.button == PointerEventData.InputButton.Left)
+                    {
+                        int diff = __instance.station.storage[__instance.index].max - __instance.station.storage[__instance.index].count;
+                        int amount = (diff >= GameMain.mainPlayer.inhandItemCount) ? GameMain.mainPlayer.inhandItemCount : diff;
+                        if (amount < 0)
+                        {
+                            amount = 0;
+                        }
+                        packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count + amount);
+                        LocalPlayer.SendPacket(packet);
+                    }
                 }
                 else
                 {
                     packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
+                    LocalPlayer.SendPacket(packet);
                 }
-                LocalPlayer.SendPacket(packet);
                 if (LocalPlayer.IsMasterClient)
                 {
                     return true;
@@ -48,15 +59,19 @@ namespace NebulaPatcher.Patches.Dynamic
                 StationUI packet;
                 if (LocalPlayer.IsMasterClient)
                 {
-                    int splitVal = UIRoot.instance.uiGame.gridSplit.value;
-                    int diff = (splitVal >= __instance.station.storage[__instance.index].count) ? __instance.station.storage[__instance.index].count : splitVal;
-                    packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count - diff);
+                    if ((bool)AccessTools.Field(typeof(UIStationStorage), "insplit").GetValue(__instance))
+                    {
+                        int splitVal = UIRoot.instance.uiGame.gridSplit.value;
+                        int diff = (splitVal >= __instance.station.storage[__instance.index].count) ? __instance.station.storage[__instance.index].count : splitVal;
+                        packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count - diff);
+                        LocalPlayer.SendPacket(packet);
+                    }
                 }
                 else
                 {
                     packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
+                    LocalPlayer.SendPacket(packet);
                 }
-                LocalPlayer.SendPacket(packet);
                 if (LocalPlayer.IsMasterClient)
                 {
                     return true;
@@ -64,26 +79,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 return false;
             }
             return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch("_OnOpen")]
-        public static void _OnOpen_Postfix(UIStationStorage __instance)
-        {
-            if(SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
-            {
-                LocalPlayer.SendPacket(new StationSubscribeUIUpdates(true, __instance.station.gid));
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
-        public static void _OnClose_Postfix(UIStationStorage __instance)
-        {
-            if(SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
-            {
-                LocalPlayer.SendPacket(new StationSubscribeUIUpdates(false, __instance.station.gid));
-            }
         }
     }
 }

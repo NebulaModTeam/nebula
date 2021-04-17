@@ -15,11 +15,16 @@ namespace NebulaWorld.Logistics
         public static int UpdateCooldown;
         public static BaseEventData lastMouseEvent;
         public static bool lastMouseEventWasDown;
+        public static GameObject lastSelectedGameObj;
+        public static int UIIsSyncedStage; // -1 buffer to activate patch only when window gets opened (prevents NPE when leaving planet), 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
+        public static int UIStationId;
 
         public static void Initialize()
         {
             StationUISubscribers = new ThreadSafeDictionary<int, List<NebulaConnection>>();
             UpdateCooldown = 0;
+            UIIsSyncedStage = -1;
+            UIStationId = 0;
         }
         public static void AddSubscriber(int stationGId, NebulaConnection player)
         {
@@ -71,6 +76,7 @@ namespace NebulaWorld.Logistics
 
         public static void UpdateUI(StationUI packet)
         {
+            Debug.Log("handling packet " + packet.settingIndex);
             if((UpdateCooldown == 0 || !packet.isStorageUI) && LocalPlayer.IsMasterClient)
             {
                 UpdateCooldown = 10;
@@ -99,13 +105,21 @@ namespace NebulaWorld.Logistics
         private static void UpdateSettingsUIBackground(StationUI packet, PlanetData pData, int stationId)
         {
             // update drones, ships and warpers for everyone
-            if (packet.settingIndex >= 8 && packet.settingIndex <= 10)
+            if ((packet.settingIndex >= 8 && packet.settingIndex <= 10) || packet.settingIndex == 0)
             {
                 if (pData?.factory != null && pData?.factory?.transport != null)
                 {
                     StationComponent[] stationPool = pData.factory.transport.stationPool;
                     if (stationPool.Length > stationId)
                     {
+                        if(packet.settingIndex == 0 && pData.factory.powerSystem != null)
+                        {
+                            PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
+                            if (consumerPool.Length > stationPool[stationId].pcId)
+                            {
+                                consumerPool[stationPool[stationId].pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.settingValue + 0.5);
+                            }
+                        }
                         if (packet.settingIndex == 8)
                         {
                             stationPool[stationId].idleDroneCount = (int)packet.settingValue;
@@ -264,7 +278,7 @@ namespace NebulaWorld.Logistics
                     {
                         if(pData.factory.transport.stationPool[i].id != _stationId)
                         {
-                            // receiving side has the UI closed. still update drones, ships and warpers for clients and update all for host
+                            // receiving side has the UI closed. still update drones, ships, warpers and power consumption for clients and update all for host
                             UpdateSettingsUIBackground(packet, pData, pData.factory.transport.stationPool[i].id);
                             return;
                         }
@@ -365,6 +379,7 @@ namespace NebulaWorld.Logistics
                 }
                 if(packet.settingIndex == 12)
                 {
+                    Debug.Log("should set it");
                     StationComponent[] stationPool = pData.factory.transport.stationPool;
                     if(stationPool[_stationId].storage != null)
                     {

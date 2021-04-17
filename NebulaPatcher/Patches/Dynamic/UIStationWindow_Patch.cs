@@ -1,6 +1,10 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+using NebulaWorld.Logistics;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -28,7 +32,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnMaxTripDroneSliderValueChange")]
         public static bool OnMaxTripDroneSliderValueChange_Postfix(UIStationWindow __instance, float value)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"] && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
                 StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 1, value);
                 LocalPlayer.SendPacket(packet);
@@ -45,7 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnMaxTripVesselSliderValueChange")]
         public static bool OnMaxTripVesselSliderValueChange_Postfix(UIStationWindow __instance, float value)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"] && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
                 StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 2, value);
                 LocalPlayer.SendPacket(packet);
@@ -62,7 +66,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnMinDeliverDroneValueChange")]
         public static bool OnMinDeliverDroneValueChange_Postfix(UIStationWindow __instance, float value)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"] && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
                 StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 3, value);
                 LocalPlayer.SendPacket(packet);
@@ -79,7 +83,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnMinDeliverVesselValueChange")]
         public static bool OnMinDeliverVesselValueChange_Postfix(UIStationWindow __instance, float value)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"] && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
                 StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 4, value);
                 LocalPlayer.SendPacket(packet);
@@ -96,7 +100,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnWarperDistanceValueChange")]
         public static bool OnWarperDistanceValueChange_Postfix(UIStationWindow __instance, float value)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"] && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
                 StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 5, value);
                 LocalPlayer.SendPacket(packet);
@@ -113,7 +117,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnWarperNecessaryClick")]
         public static bool OnWarperNecessaryClick_Postfix(UIStationWindow __instance, int obj)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"] && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
                 StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 6, 0f);
                 LocalPlayer.SendPacket(packet);
@@ -130,7 +134,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnIncludeOrbitCollectorClick")]
         public static bool OnIncludeOrbitCollectorClick_Postfix(UIStationWindow __instance, int obj)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"])
+            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationWindow"] && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
                 StationUI packet = new StationUI(__instance.factory.transport.stationPool[__instance.stationId].gid, __instance.factory.planet.id, 7, 0f);
                 LocalPlayer.SendPacket(packet);
@@ -192,6 +196,84 @@ namespace NebulaPatcher.Patches.Dynamic
                 return false;
             }
             return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("OnStationIdChange")]
+        public static bool OnStationIdChange_Prefix(UIStationWindow __instance)
+        {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || StationUIManager.UIIsSyncedStage > 0 || StationUIManager.UIIsSyncedStage == -1)
+            {
+                Debug.Log("skip");
+                return true;
+            }
+            ((Text)AccessTools.Field(typeof(UIStationWindow), "titleText").GetValue(__instance)).text = "Loading...";
+            StationUIManager.lastSelectedGameObj = EventSystem.current.currentSelectedGameObject;
+            if(__instance.factory == null)
+            {
+                __instance.factory = GameMain.localPlanet.factory;
+            }
+            if(__instance.transport == null)
+            {
+                __instance.transport = __instance.factory.transport;
+            }
+            Debug.Log("sending initial sync request");
+            LocalPlayer.SendPacket(new StationUIInitialSyncRequest(__instance.transport.stationPool[__instance.stationId].gid));
+            StationUIManager.UIIsSyncedStage++;
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("_OnUpdate")]
+        public static bool _OnUpdate_Prefix(UIStationWindow __instance)
+        {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || StationUIManager.UIIsSyncedStage == 2)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("_OnClose")]
+        public static void _OnClose_Postfix(UIStationWindow __instance)
+        {
+            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+            if (__instance.factory == null)
+            {
+                __instance.factory = GameMain.localPlanet.factory;
+            }
+            if (__instance.transport == null)
+            {
+                __instance.transport = __instance.factory.transport;
+            }
+            if(__instance.stationId != 0 || StationUIManager.UIStationId != 0)
+            {
+                Debug.Log("sending unsubscriber");
+                // it is actually 0 before we manually set it to the right value in StationUIInitialSyncProcessor.cs and thus its a good check to skip sending the packet on the Free() call
+                LocalPlayer.SendPacket(new StationSubscribeUIUpdates(false, __instance.transport.stationPool[StationUIManager.UIStationId].gid));
+                StationUIManager.lastSelectedGameObj = null;
+                StationUIManager.UIIsSyncedStage = -1;
+                StationUIManager.UIStationId = 0;
+            }
+            else
+            {
+                Debug.Log("skiping unsubscribe");
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("_OnOpen")]
+        public static void _OnOpen_Postfix()
+        {
+            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || StationUIManager.UIIsSyncedStage > -1)
+            {
+                return;
+            }
+            StationUIManager.UIIsSyncedStage++;
         }
     }
 }
