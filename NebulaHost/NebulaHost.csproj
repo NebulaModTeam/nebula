@@ -80,6 +80,7 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryLoadRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\PlanetDataRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Planet\RemoveVegetableProcessor.cs" />
     <Compile Include="PacketProcessors\Players\NewDroneOrderProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
