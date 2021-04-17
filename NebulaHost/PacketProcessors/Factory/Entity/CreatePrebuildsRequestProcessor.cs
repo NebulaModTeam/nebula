@@ -79,7 +79,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                 FactoryManager.IgnoreBasicBuildConditionChecks = true;
                 bool canBuild = pab.CheckBuildConditions();
-                canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory);
+                canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 FactoryManager.IgnoreBasicBuildConditionChecks = false;
 
                 if (canBuild)
@@ -110,31 +110,44 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
         }
 
-        public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, PlanetFactory factory)
+        public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
         {
             //Check if some entity that is suppose to be connected to this building is missing
             for(int i = 0; i < buildPreviews.Count; i++)
             {
-                bool isInputOk = true;
-                if (buildPreviews[i].inputObjId > 0)
+                var buildPreview = buildPreviews[i];
+                int inputObjId = buildPreview.inputObjId;
+                if (inputObjId > 0)
                 {
-                    isInputOk = factory.entityPool.Length >= buildPreviews[i].inputObjId && factory.entityPool[buildPreviews[i].inputObjId].id != 0;
-                } else if (buildPreviews[i].inputObjId < 0)
-                {
-                    isInputOk = factory.prebuildPool.Length >= -buildPreviews[i].inputObjId && factory.prebuildPool[-buildPreviews[i].inputObjId].id != 0;
+                    if (inputObjId >= entityPool.Length || entityPool[inputObjId].id == 0)
+                    {
+                        return false;
+                    }
                 }
-                bool isOutputOk = true;
-                if (buildPreviews[i].outputObjId > 0)
+                else if (inputObjId < 0)
                 {
-                    isInputOk = factory.entityPool.Length >= buildPreviews[i].outputObjId && factory.entityPool[buildPreviews[i].outputObjId].id != 0;
+                    inputObjId = -inputObjId;
+                    if (inputObjId >= prebuildPool.Length || prebuildPool[inputObjId].id == 0)
+                    {
+                        return false;
+                    }
                 }
-                else if (buildPreviews[i].outputObjId < 0)
+
+                int outputObjId = buildPreview.outputObjId;
+                if (outputObjId > 0)
                 {
-                    isInputOk = factory.prebuildPool.Length >= -buildPreviews[i].outputObjId && factory.prebuildPool[-buildPreviews[i].outputObjId].id != 0;
+                    if (outputObjId >= entityPool.Length || entityPool[outputObjId].id == 0)
+                    {
+                        return false;
+                    }
                 }
-                if (!isInputOk || !isOutputOk)
+                else if (outputObjId < 0)
                 {
-                    return false;
+                    outputObjId = -outputObjId;
+                    if (outputObjId >= prebuildPool.Length || prebuildPool[outputObjId].id == 0)
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
