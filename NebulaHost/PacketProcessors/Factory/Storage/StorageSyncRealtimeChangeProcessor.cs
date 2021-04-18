@@ -23,23 +23,24 @@ namespace NebulaHost.PacketProcessors.Factory.Storage
 
             if (storage != null)
             {
-                StorageManager.EventFromClient = true;
-                if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.TakeItemFromGrid)
+                using (StorageManager.EventFromClient.On())
                 {
-                    storage.TakeItemFromGrid(packet.Length, ref itemId, ref count);
-                    StorageSyncManager.SendToOtherPlayersOnTheSamePlanet(conn, packet, packet.PlanetId);
+                    if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.TakeItemFromGrid)
+                    {
+                        storage.TakeItemFromGrid(packet.Length, ref itemId, ref count);
+                        StorageSyncManager.SendToOtherPlayersOnTheSamePlanet(conn, packet, packet.PlanetId);
+                    }
+                    else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItem2)
+                    {
+                        storage.AddItem(itemId, count, packet.StartIndex, packet.Length);
+                        StorageSyncManager.SendToOtherPlayersOnTheSamePlanet(conn, packet, packet.PlanetId);
+                    }
+                    else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItemStacked)
+                    {
+                        int result = storage.AddItemStacked(itemId, count);
+                        StorageSyncManager.SendToOtherPlayersOnTheSamePlanet(conn, packet, packet.PlanetId);
+                    }
                 }
-                else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItem2)
-                {
-                    storage.AddItem(itemId, count, packet.StartIndex, packet.Length);
-                    StorageSyncManager.SendToOtherPlayersOnTheSamePlanet(conn, packet, packet.PlanetId);
-                }
-                else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItemStacked)
-                {
-                    int result = storage.AddItemStacked(itemId, count);
-                    StorageSyncManager.SendToOtherPlayersOnTheSamePlanet(conn, packet, packet.PlanetId);
-                }
-                StorageManager.EventFromClient = false;
             }
         }
     }
