@@ -433,7 +433,7 @@ namespace NebulaWorld
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 //Update drones positions based on their targets
-                var prebuildPool = GameMain.localPlanet.factory.prebuildPool;
+                var prebuildPool = GameMain.localPlanet?.factory?.prebuildPool;
 
                 foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
                 {
