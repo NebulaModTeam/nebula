@@ -19,14 +19,18 @@ namespace NebulaHost
             PlayerManager playerManager = MultiplayerHostSession.Instance.PlayerManager;
             NetDataWriter netDataWriter = new NetDataWriter();
 
-            netDataWriter.Put(playerManager.SavedPlayerData.Count + 1);
-            //Add data about all players
-            foreach (KeyValuePair<string, PlayerData> data in playerManager.SavedPlayerData)
+            using (playerManager.GetSavedPlayerData(out var savedPlayerData))
             {
-                string hash = data.Key;
-                netDataWriter.Put(hash);
-                data.Value.Serialize(netDataWriter);
+                netDataWriter.Put(savedPlayerData.Count + 1);
+                //Add data about all players
+                foreach (KeyValuePair<string, PlayerData> data in savedPlayerData)
+                {
+                    string hash = data.Key;
+                    netDataWriter.Put(hash);
+                    data.Value.Serialize(netDataWriter);
+                }
             }
+
             //Add host's data
             netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash()); 
             LocalPlayer.Data.Serialize(netDataWriter);
@@ -51,15 +55,19 @@ namespace NebulaHost
             NetDataReader netDataReader = new NetDataReader(source);
             int playerNum = netDataReader.GetInt();
 
-            for (int i = 0; i < playerNum; i++)
+            using (playerManager.GetSavedPlayerData(out var savedPlayerData))
             {
-                string hash = netDataReader.GetString();
-                PlayerData playerData = netDataReader.Get<PlayerData>();
-                if (!playerManager.SavedPlayerData.ContainsKey(hash))
+                for (int i = 0; i < playerNum; i++)
                 {
-                    playerManager.SavedPlayerData.Add(hash, playerData);
+                    string hash = netDataReader.GetString();
+                    PlayerData playerData = netDataReader.Get<PlayerData>();
+                    if (!savedPlayerData.ContainsKey(hash))
+                    {
+                        savedPlayerData.Add(hash, playerData);
+                    }
                 }
             }
+
         }
     }
 }

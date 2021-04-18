@@ -111,7 +111,7 @@ namespace NebulaClient
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
             IsConnected = true;
             //TODO: Maybe some challenge-response authentication mechanism?
-            SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()), GameMain.data.account.userName));
+            SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()), AccountData.me.userName));
         }
 
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)
