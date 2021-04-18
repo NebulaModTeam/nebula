@@ -19,6 +19,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             {
                 FactoryManager.EventFromServer = true;
                 FactoryManager.EventFactory = planet.factory;
+                FactoryManager.PacketAuthor = packet.AuthorId;
 
                 // Physics could be null, if the host is not on the requested planet
                 if (packet.PlanetId != GameMain.localPlanet?.id)
@@ -42,6 +43,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     planet.audio = null;
                 }
 
+                FactoryManager.PacketAuthor = -1;
                 FactoryManager.EventFromServer = false;
                 FactoryManager.EventFactory = null;
             }
