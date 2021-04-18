@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             //Multiplayer clients should not include their own calculated statistics
-            if (!StatisticsManager.IsIncommingRequest)
+            if (!StatisticsManager.IsIncomingRequest)
             {
                 __instance.ClearRegisters();
                 return false;
