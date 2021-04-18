@@ -242,7 +242,7 @@ namespace NebulaWorld
                 SkinnedMeshRenderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
                 foreach (Renderer r in componentsInChildren)
                 {
-                    if (r.material?.name.StartsWith("icarus-armor") ?? false)
+                    if (r.material?.name.StartsWith("icarus-armor", System.StringComparison.Ordinal) ?? false)
                     {
                         r.material.SetColor("_Color", color.ToColor());
                     }
@@ -433,19 +433,24 @@ namespace NebulaWorld
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 //Update drones positions based on their targets
+                var prebuildPool = GameMain.localPlanet.factory.prebuildPool;
+
                 foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
                 {
-                    MechaDrone[] drones = remoteModel.Value.PlayerInstance.mecha.drones;
-                    int droneCount = GameMain.mainPlayer.mecha.droneCount;
+                    Mecha remoteMecha = remoteModel.Value.MechaInstance;
+                    MechaDrone[] drones = remoteMecha.drones;
+                    int droneCount = remoteMecha.droneCount;
+                    var remotePosition = remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
+
                     for (int i = 0; i < droneCount; i++)
                     {
                         //Update only moving drones of players on the same planet
                         if (drones[i].stage != 0 && GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
                         {
-                            drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), dt, ref tmp, ref tmp2, 0);
+                            drones[i].Update(prebuildPool, remotePosition, dt, ref tmp, ref tmp2, 0);
                         }
                     }
-                    remoteModel.Value.MechaInstance.droneRenderer.Update();
+                    remoteMecha.droneRenderer.Update();
                 }
             }
         }
@@ -492,15 +497,15 @@ namespace NebulaWorld
                         // Add the local position of the player
                         Vector3 localPlanetPosition = playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                         adjustedVector += (VectorLF3)Maths.QRotate(planet.runtimeRotation, localPlanetPosition);
-
-                        // Scale as required
-                        adjustedVector = (adjustedVector - starmap.viewTargetUPos) * 0.00025;
                     }
                     else
                     {
                         // Just use the raw uPos as we don't care too much about precise locations
-                        adjustedVector = (playerModel.Movement.absolutePosition - starmap.viewTargetUPos) * 0.00025;
+                        adjustedVector = playerModel.Movement.absolutePosition;
                     }
+
+                    // Scale as required
+                    adjustedVector = (adjustedVector - starmap.viewTargetUPos) * 0.00025;
 
                     // Get the point on the screen that represents the world position
                     if (!starmap.WorldPointIntoScreen(adjustedVector, out Vector2 rectPoint))
@@ -510,7 +515,7 @@ namespace NebulaWorld
 
                     // Put the marker directly on the location of the player
                     starmapMarker.rectTransform.anchoredPosition = rectPoint;
-                    nameText.transform.localScale = Vector3.one;
+                    starmapMarker.transform.localScale = Vector3.one;
 
                     // Put their name above or below it
                     nameText.rectTransform.anchoredPosition = new Vector2(rectPoint.x, rectPoint.y + (rectPoint.y >= -350.0 ? -19f : 19f));
