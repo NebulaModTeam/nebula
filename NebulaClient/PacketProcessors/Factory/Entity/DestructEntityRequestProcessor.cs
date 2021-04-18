@@ -19,8 +19,8 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             {
                 int protoId = 0;
                 using (FactoryManager.EventFromServer.On())
+                using (FactoryManager.DoNotAddItemsFromBuildingOnDestruct.On(packet.AuthorId != LocalPlayer.PlayerId))
                 {
-                    FactoryManager.DoNotAddItemsFromBuildingOnDestruct = packet.AuthorId != LocalPlayer.PlayerId;
                     if (packet.AuthorId == LocalPlayer.PlayerId)
                     {
                         //I am author so I will take item as a building
@@ -37,7 +37,6 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                         }
                     }
                     planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
-                    FactoryManager.DoNotAddItemsFromBuildingOnDestruct = false;
                 }
             }
         }
