@@ -34,23 +34,24 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 planet.factory = GameMain.data.GetOrCreateFactory(planet);
             }
 
-            FactoryManager.EventFromClient = true;
-            int nextPrebuildId = FactoryManager.GetNextPrebuildId(packet.PlanetId);
-            FactoryManager.SetPrebuildRequest(packet.PlanetId, nextPrebuildId, player.Id);
-            PrebuildData prebuild = packet.GetPrebuildData();
-            int localPlanetId = GameMain.localPlanet?.id ?? -1;
-            if (planet.id == localPlanetId)
+            using (FactoryManager.EventFromClient.On())
             {
-                planet.factory.AddPrebuildDataWithComponents(prebuild);
-            }
-            else
-            {
-                planet.factory.AddPrebuildData(prebuild);
+                int nextPrebuildId = FactoryManager.GetNextPrebuildId(packet.PlanetId);
+                FactoryManager.SetPrebuildRequest(packet.PlanetId, nextPrebuildId, player.Id);
+                PrebuildData prebuild = packet.GetPrebuildData();
+                int localPlanetId = GameMain.localPlanet?.id ?? -1;
+                if (planet.id == localPlanetId)
+                {
+                    planet.factory.AddPrebuildDataWithComponents(prebuild);
+                }
+                else
+                {
+                    planet.factory.AddPrebuildData(prebuild);
 
-                // AddPrebuildData is not patched so we need to send the packet manually here
-                LocalPlayer.SendPacket(packet);
+                    // AddPrebuildData is not patched so we need to send the packet manually here
+                    LocalPlayer.SendPacket(packet);
+                }
             }
-            FactoryManager.EventFromClient = false;
         }
     }
 }

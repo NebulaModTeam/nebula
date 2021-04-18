@@ -13,11 +13,12 @@ namespace NebulaClient.PacketProcessors.GameHistory
         public void ProcessPacket(GameHistoryUnlockTechPacket packet, NebulaConnection conn)
         {
             Log.Info($"Unlocking tech (ID: {packet.TechId})");
-            GameDataHistoryManager.IsIncommingRequest = true;
-            GameMain.history.UnlockTech(packet.TechId);
-            GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
-            GameMain.history.DequeueTech();
-            GameDataHistoryManager.IsIncommingRequest = false;
+            using (GameDataHistoryManager.IsIncomingRequest.On())
+            {
+                GameMain.history.UnlockTech(packet.TechId);
+                GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
+                GameMain.history.DequeueTech();
+            }
         }
     }
 }

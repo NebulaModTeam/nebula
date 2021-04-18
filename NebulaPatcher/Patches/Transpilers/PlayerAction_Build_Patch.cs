@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaWorld.Factory;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,8 @@ namespace NebulaPatcher.Patches.Transpiler
                 {
                     Label targetLabel = (Label)codes[i + 4].operand;
                     codes.InsertRange(i - 1, new CodeInstruction[] {
-                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_EventFromServer")),
+                        new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), nameof(FactoryManager.EventFromServer))),
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "get_Value")),
                         new CodeInstruction(OpCodes.Brtrue_S, targetLabel)
                         });
                     break;

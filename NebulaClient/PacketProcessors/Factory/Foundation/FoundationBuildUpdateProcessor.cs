@@ -35,9 +35,10 @@ namespace NebulaClient.PacketProcessors.Factory.Foundation
                 }
                 int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out reformCenterPoint);
                 factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, 3f, 1f);
-                FactoryManager.EventFromServer = true;
-                factory.FlattenTerrainReform(reformCenterPoint, packet.Radius, packet.ReformSize, packet.VeinBuried, 3f);
-                FactoryManager.EventFromServer = false;
+                using (FactoryManager.EventFromServer.On())
+                {
+                    factory.FlattenTerrainReform(reformCenterPoint, packet.Radius, packet.ReformSize, packet.VeinBuried, 3f);
+                }
                 int area = packet.ReformSize * packet.ReformSize;
                 for (int i = 0; i < area; i++)
                 {

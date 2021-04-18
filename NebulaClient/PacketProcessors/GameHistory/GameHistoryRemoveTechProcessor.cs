@@ -13,9 +13,10 @@ namespace NebulaClient.PacketProcessors.GameHistory
         public void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
         {
             Log.Info($"Removing tech (ID: {packet.Index}) from queue");
-            GameDataHistoryManager.IsIncommingRequest = true;
-            GameMain.history.RemoveTechInQueue(packet.Index);
-            GameDataHistoryManager.IsIncommingRequest = false;
+            using (GameDataHistoryManager.IsIncomingRequest.On())
+            {
+                GameMain.history.RemoveTechInQueue(packet.Index);
+            }
         }
     }
 }
