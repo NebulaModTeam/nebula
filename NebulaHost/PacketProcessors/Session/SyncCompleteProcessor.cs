@@ -27,16 +27,27 @@ namespace NebulaHost.PacketProcessors.Session
                 return;
             }
 
-            playerManager.SyncingPlayers.Remove(player.Connection);
-            playerManager.ConnectedPlayers.Add(player.Connection, player);
+            // Should these be locked together?
+
+            int syncingCount;
+            using (playerManager.GetSyncingPlayers(out var syncingPlayers))
+            {
+                bool removed = syncingPlayers.Remove(player.Connection);
+                syncingCount = syncingPlayers.Count;
+            }
+
+            using (playerManager.GetConnectedPlayers(out var connectedPlayers))
+            {
+                connectedPlayers.Add(player.Connection, player);
+            }
 
             // Since the player is now connected, we can safely spawn his player model
             SimulatedWorld.SpawnRemotePlayerModel(player.Data);
 
-            if (playerManager.SyncingPlayers.Count == 0)
+            if (syncingCount == 0)
             {
                 var inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
-                playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas.ToArray()));
+                playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
                 SimulatedWorld.OnAllPlayersSyncCompleted();
             }
         }

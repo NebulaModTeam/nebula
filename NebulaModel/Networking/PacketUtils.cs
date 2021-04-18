@@ -49,6 +49,11 @@ namespace NebulaModel.Networking
             var processors = Assembly.GetCallingAssembly().GetTypes()
                 .Where(t => t.GetCustomAttributes(typeof(RegisterPacketProcessorAttribute), true).Length > 0);
 
+            MethodInfo method = packetProcessor.GetType().GetMethods()
+                .Where(m => m.Name == nameof(NetPacketProcessor.SubscribeReusable))
+                .Where(m => m.IsGenericMethod && m.GetGenericArguments().Length == 2)
+                .FirstOrDefault();
+
             foreach (Type type in processors)
             {
                 var packetProcessorInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPacketProcessor<>));
@@ -60,16 +65,17 @@ namespace NebulaModel.Networking
                     // Create instance of the processor
                     Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));
                     object processor = Activator.CreateInstance(type);
-                    Delegate callback = Delegate.CreateDelegate(delegateType, processor, type.GetMethod("ProcessPacket"));
+                    Delegate callback = Delegate.CreateDelegate(delegateType, processor, type.GetMethod(nameof(IPacketProcessor<object>.ProcessPacket)));
 
                     // Register our processor callback to the PacketProcessor
                     Type subscribeGenericType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));
 
-                    // TODO: Find a better way to get the "SubscribeReusable" that as the Action<T, TUserData> param.
-                    MethodInfo method = packetProcessor.GetType().GetMethods().Where(m => m.Name == "SubscribeReusable").ToArray()[1];
-
                     MethodInfo generic = method.MakeGenericMethod(packetType, typeof(NebulaConnection));
                     generic.Invoke(packetProcessor, new object[] { callback });
+                }
+                else
+                {
+                    Log.Warn($"{type.FullName} registered, but doesn't implement {typeof(IPacketProcessor<>).FullName}");
                 }
             }
         }
