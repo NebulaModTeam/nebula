@@ -1,4 +1,5 @@
 ﻿using NebulaModel.Attributes;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
@@ -34,7 +35,10 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 //Remove building from drone queue
                 GameMain.mainPlayer.mecha.droneLogic.serving.Remove(-packet.PrebuildId);
                 planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
-                DroneManager.RemoveBuildRequest(-packet.PrebuildId);
+                if (!DroneManager.RemoveBuildRequest(-packet.PrebuildId))
+                {
+                    Log.Warn($"Build Request was not succesful removed.");
+                }
 
                 // Make sure to free the physics once the FlattenTerrain is done
                 if (packet.PlanetId != GameMain.localPlanet?.id)

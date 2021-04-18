@@ -67,9 +67,9 @@ namespace NebulaWorld.Player
             return PendingBuildRequests.Contains(entityId);
         }
 
-        public static void RemoveBuildRequest(int entityId)
+        public static bool RemoveBuildRequest(int entityId)
         {
-            PendingBuildRequests.Remove(entityId);
+            return PendingBuildRequests.Remove(entityId);
         }
     }
 }
