@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
+using NebulaWorld.Player;
 
 namespace NebulaClient.PacketProcessors.Factory.Entity
 {
@@ -30,7 +31,10 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     planet.audio.Init();
                 }
 
+                //Remove building from drone queue
+                GameMain.mainPlayer.mecha.droneLogic.serving.Remove(-packet.PrebuildId);
                 planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
+                DroneManager.RemoveBuildRequest(-packet.PrebuildId);
 
                 // Make sure to free the physics once the FlattenTerrain is done
                 if (packet.PlanetId != GameMain.localPlanet?.id)

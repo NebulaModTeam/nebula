@@ -8,14 +8,14 @@ namespace NebulaPatcher.Patches.Transpiler
     [HarmonyPatch(typeof(MechaDroneLogic))]
     class MechaDroneLogic_Patch
     {
-        /*
-         * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone gets new order
-         */
         [HarmonyTranspiler]
         [HarmonyPatch("UpdateTargets")]
         static IEnumerable<CodeInstruction> UpdateTargets_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
+            /*
+             * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone gets new order
+             */
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Pop &&
@@ -32,6 +32,32 @@ namespace NebulaPatcher.Patches.Transpiler
                     break;
                 }
             }
+
+            /*
+             * Update search for new targets. Do not include those for whose build request was sent and client is waiting for the response from server
+             * Change:
+                 if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2 && !this.serving.Contains(num4))
+             * 
+             * To:
+                 if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4))
+             */
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Brtrue &&
+                    codes[i - 1].opcode == OpCodes.Callvirt &&
+                    codes[i + 1].opcode == OpCodes.Ldloc_S &&
+                    codes[i - 2].opcode == OpCodes.Ldloc_S &&
+                    codes[i + 2].opcode == OpCodes.Stloc_2)
+                {
+                    codes.InsertRange(i + 1, new CodeInstruction[] {
+                        new CodeInstruction(OpCodes.Ldloc_S, 6),
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), "IsPendingBuildRequest", new System.Type[] { typeof(int) })),
+                        new CodeInstruction(OpCodes.Brtrue_S, codes[i].operand),
+                        });
+                    break;
+                }
+            }
+
             return codes;
         }
 

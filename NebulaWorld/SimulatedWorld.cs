@@ -124,7 +124,6 @@ namespace NebulaWorld
                 //Setup drone of remote player based on the drone data
                 ref MechaDrone drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
                 MechaDroneLogic droneLogic = player.PlayerInstance.mecha.droneLogic;
-
                 drone.stage = packet.Stage;
                 drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
                 drone.movement = droneLogic.player.mecha.droneMovement;
@@ -145,6 +144,19 @@ namespace NebulaWorld
                 }
 
                 if (drone.stage == 1 || drone.stage == 2) {
+                    //Check if target entity exists as Prebuild
+                    if (GameMain.data.localPlanet.factory.prebuildPool.Length <= -packet.EntityId || GameMain.data.localPlanet.factory.prebuildPool[-packet.EntityId].id == 0)
+                    {
+                        return;
+                    }
+
+                    //Check target prebuild if it is same prebuild that I have. Sometimes it is same ID, but different prebuild
+                    ref PrebuildData prebuildData = ref GameMain.data.localPlanet.factory.prebuildPool[-packet.EntityId];
+                    if (prebuildData.pos.x != packet.EntityPos.x || prebuildData.pos.y != packet.EntityPos.y || prebuildData.pos.z != packet.EntityPos.z)
+                    {
+                        return;
+                    }
+
                     //Check if my drone is already going there
                     if (!myMecha.droneLogic.serving.Contains(packet.EntityId))
                     {
@@ -179,7 +191,6 @@ namespace NebulaWorld
                         }
                     }
                 }
-                
             }
         }
 
@@ -372,6 +383,8 @@ namespace NebulaWorld
         {
             double tmp = 1e10; //fake energy of remote player, needed to do the Update()
             double tmp2 = 1;
+            int result = 0;
+            PlanetFactory factory = GameMain.data.localPlanet.factory;
             //Update drones positions based on their targets
             foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
             {
@@ -382,7 +395,14 @@ namespace NebulaWorld
                     //Update only moving drones of players on the same planet
                     if (drones[i].stage != 0 && GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
                     {
-                        drones[i].Update(GameMain.localPlanet.factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), dt, ref tmp, ref tmp2, 0);
+                        result = drones[i].Update(factory.prebuildPool, remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), dt, ref tmp, ref tmp2, 0);
+                        if (result != 0)
+                        {
+                            //Reset drone and release lock
+                            drones[i].stage = 3;
+                            GameMain.mainPlayer.mecha.droneLogic.serving.Remove(drones[i].targetObject);
+                            drones[i].targetObject = 0;
+                        }
                     }
                 }
                 remoteModel.Value.MechaInstance.droneRenderer.Update();
