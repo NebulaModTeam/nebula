@@ -17,33 +17,33 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             // Else it will get it once it goes to the planet for the first time. 
             if (planet.factory != null)
             {
-                FactoryManager.EventFromServer = true;
-                FactoryManager.EventFactory = planet.factory;
-
-                // Physics could be null, if the host is not on the requested planet
-                if (packet.PlanetId != GameMain.localPlanet?.id)
+                using (FactoryManager.EventFromServer.On())
                 {
-                    planet.physics = new PlanetPhysics(planet);
-                    planet.physics.Init();
+                    FactoryManager.EventFactory = planet.factory;
 
-                    planet.audio = new PlanetAudio(planet);
-                    planet.audio.Init();
+                    // Physics could be null, if the host is not on the requested planet
+                    if (packet.PlanetId != GameMain.localPlanet?.id)
+                    {
+                        planet.physics = new PlanetPhysics(planet);
+                        planet.physics.Init();
+
+                        planet.audio = new PlanetAudio(planet);
+                        planet.audio.Init();
+                    }
+
+                    planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
+
+                    // Make sure to free the physics once the FlattenTerrain is done
+                    if (packet.PlanetId != GameMain.localPlanet?.id)
+                    {
+                        planet.physics.Free();
+                        planet.physics = null;
+
+                        planet.audio.Free();
+                        planet.audio = null;
+                    }
+                    FactoryManager.EventFactory = null;
                 }
-
-                planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
-
-                // Make sure to free the physics once the FlattenTerrain is done
-                if (packet.PlanetId != GameMain.localPlanet?.id)
-                {
-                    planet.physics.Free();
-                    planet.physics = null;
-
-                    planet.audio.Free();
-                    planet.audio = null;
-                }
-
-                FactoryManager.EventFromServer = false;
-                FactoryManager.EventFactory = null;
             }
         }
     }

@@ -10,7 +10,9 @@ namespace NebulaModel.DataStructures
     {
         int onCount;
 
-        public static implicit operator bool(ToggleSwitch toggle) => toggle.onCount > 0;
+        public bool Value => onCount > 0;
+
+        public static implicit operator bool(ToggleSwitch toggle) => toggle.Value;
 
         public Toggle On() => new Toggle(this);
 

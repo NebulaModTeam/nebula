@@ -13,9 +13,10 @@ namespace NebulaClient.PacketProcessors.Factory.Belt
         {
             if (GameMain.data.factories[packet.FactoryIndex]?.cargoTraffic != null)
             {
-                FactoryManager.EventFromServer = true;
-                GameMain.data.factories[packet.FactoryIndex].cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId);
-                FactoryManager.EventFromServer = false;
+                using (FactoryManager.EventFromServer.On())
+                {
+                    GameMain.data.factories[packet.FactoryIndex].cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId);
+                }
             }
         }
     }
