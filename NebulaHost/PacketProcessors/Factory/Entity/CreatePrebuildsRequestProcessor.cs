@@ -33,7 +33,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 PlanetFactory tmpFactory = null;
                 NearColliderLogic tmpNearcdLogic = null;
                 PlanetPhysics tmpPlanetPhysics = null;
-                float tmpBuildArea = 0f;
+                float tmpBuildArea = GameMain.mainPlayer.mecha.buildArea;
                 PlanetData tmpData = null;
                 bool loadExternalPlanetData = GameMain.localPlanet != planet;
 
@@ -43,9 +43,9 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     tmpFactory = (PlanetFactory)AccessTools.Field(typeof(PlayerAction_Build), "factory").GetValue(GameMain.mainPlayer.controller.actionBuild);
                     tmpNearcdLogic = (NearColliderLogic)AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").GetValue(GameMain.mainPlayer.controller.actionBuild);
                     tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
-                    tmpBuildArea = GameMain.mainPlayer.mecha.buildArea;
                     tmpData = GameMain.mainPlayer.planetData;
                 }
+
                 //Create Prebuilds from incomming packet and prepare new position
                 pab.buildPreviews = packet.GetBuildPreviews();
                 pab.waitConfirm = true;
@@ -98,15 +98,15 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         planet.physics.Free();
                         planet.physics = null;
                         AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
-                        GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
                         AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
                         AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
                         AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpNearcdLogic);
                     }
 
+                    GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
                     FactoryManager.EventFactory = null;
                 }
-
+                
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos; 

@@ -434,7 +434,7 @@ namespace NebulaWorld
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 //Update drones positions based on their targets
-                var prebuildPool = GameMain.localPlanet.factory.prebuildPool;
+                var prebuildPool = GameMain.localPlanet?.factory?.prebuildPool;
 
                 foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
                 {
@@ -590,6 +590,10 @@ namespace NebulaWorld
                     if (playerModel.Movement.localPlanetId != LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
                     {
                         playerNameText.gameObject.SetActive(false);
+                    }
+                    else if (!playerNameText.gameObject.activeSelf)
+                    {
+                        playerNameText.gameObject.SetActive(true);
                     }
 
                     // Make sure the text is pointing at the camera

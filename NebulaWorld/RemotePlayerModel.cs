@@ -72,6 +72,12 @@ namespace NebulaWorld
             Effects = null;
             PlayerInstance.Free();
             PlayerInstance = null;
+            if (StarmapMarker != null) Object.Destroy(StarmapMarker);
+            if (StarmapNameText != null) Object.Destroy(StarmapNameText);
+            if (InGameNameText != null) Object.Destroy(InGameNameText);
+
+            StarmapMarker = StarmapNameText = null;
+            InGameNameText = null;
         }
     }
 }
