@@ -19,14 +19,12 @@ namespace NebulaWorld.Factory
         public static readonly ToggleSwitch EventFromServer = new ToggleSwitch();
         public static readonly ToggleSwitch EventFromClient = new ToggleSwitch();
         public static PlanetFactory EventFactory { get; set; }
-        public static bool IgnoreBasicBuildConditionChecks { get; set; }
-        public static bool DoNotAddItemsFromBuildingOnDestruct { get; set; }
+        public static readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
+        public static readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
         public static int PacketAuthor { get; set; }
 
         public static void Initialize()
         {
-            IgnoreBasicBuildConditionChecks = false;
-            DoNotAddItemsFromBuildingOnDestruct = false;
             PacketAuthor = -1;
         }
 

@@ -1,10 +1,12 @@
-﻿namespace NebulaWorld.Trash
+﻿using NebulaModel.DataStructures;
+
+namespace NebulaWorld.Trash
 {
     public static class TrashManager
     {
-        public static bool NewTrashFromOtherPlayers = false;
-        public static bool RemoveTrashFromOtherPlayers = false;
-        public static bool ClearAllTrashFromOtherPlayers = false;
+        public static readonly ToggleSwitch NewTrashFromOtherPlayers = new ToggleSwitch();
+        public static readonly ToggleSwitch RemoveTrashFromOtherPlayers = new ToggleSwitch();
+        public static readonly ToggleSwitch ClearAllTrashFromOtherPlayers = new ToggleSwitch();
 
         public static void SwitchTrashWithIds(int itemId1, int itemId2)
         {

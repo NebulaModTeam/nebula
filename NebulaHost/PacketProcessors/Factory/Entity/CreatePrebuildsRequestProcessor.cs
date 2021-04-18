@@ -78,10 +78,12 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
                     //Check if prebuilds can be build (collision check, height check, etc)
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
-                    FactoryManager.IgnoreBasicBuildConditionChecks = true;
-                    bool canBuild = pab.CheckBuildConditions();
-                    canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
-                    FactoryManager.IgnoreBasicBuildConditionChecks = false;
+                    bool canBuild;
+                    using (FactoryManager.IgnoreBasicBuildConditionChecks.On())
+                    {
+                        canBuild = pab.CheckBuildConditions();
+                        canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
+                    }
 
                     if (canBuild)
                     {
