@@ -17,7 +17,7 @@ namespace NebulaWorld.Factory
             threadSafe.prebuildRequests.GetLocked(out prebuildRequests);
 
         public static readonly ToggleSwitch EventFromServer = new ToggleSwitch();
-        public static bool EventFromClient { get; set; }
+        public static readonly ToggleSwitch EventFromClient = new ToggleSwitch();
         public static PlanetFactory EventFactory { get; set; }
         public static bool IgnoreBasicBuildConditionChecks { get; set; }
         public static bool DoNotAddItemsFromBuildingOnDestruct { get; set; }
@@ -25,7 +25,6 @@ namespace NebulaWorld.Factory
 
         public static void Initialize()
         {
-            EventFromClient = false;
             IgnoreBasicBuildConditionChecks = false;
             DoNotAddItemsFromBuildingOnDestruct = false;
             PacketAuthor = -1;
