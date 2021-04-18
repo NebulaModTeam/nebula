@@ -13,13 +13,14 @@ namespace NebulaClient.PacketProcessors.Universe
         public void ProcessPacket(DysonSphereRemoveShellPacket packet, NebulaConnection conn)
         {
             Log.Info($"Processing DysonSphere remove shell notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
-            DysonSphere_Manager.IncomingDysonSpherePacket = true;
-            DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-            if (DysonSphere_Manager.CanRemoveShell(packet.ShellId, dsl))
+            using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
             {
-                dsl.RemoveDysonShell(packet.ShellId);
+                DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+                if (DysonSphere_Manager.CanRemoveShell(packet.ShellId, dsl))
+                {
+                    dsl.RemoveDysonShell(packet.ShellId);
+                }
             }
-            DysonSphere_Manager.IncomingDysonSpherePacket = false;
         }
     }
 }

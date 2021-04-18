@@ -15,9 +15,8 @@ namespace NebulaClient.PacketProcessors.Universe
         public void ProcessPacket(DysonSphereAddShellPacket packet, NebulaConnection conn)
         {
             Log.Info($"Processing DysonSphere Add Shell notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
-            DysonSphere_Manager.IncomingDysonSpherePacket = true;
-            GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonShell(packet.ProtoId, new List<int>(packet.NodeIds));
-            DysonSphere_Manager.IncomingDysonSpherePacket = false;
+            using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
+                GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonShell(packet.ProtoId, new List<int>(packet.NodeIds));
         }
     }
 }
