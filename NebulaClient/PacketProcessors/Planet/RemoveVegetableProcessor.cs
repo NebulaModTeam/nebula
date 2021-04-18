@@ -13,9 +13,10 @@ namespace NebulaClient.PacketProcessors.Planet
         {
             if (GameMain.data.factories[packet.FactorytIndex] != null)
             {
-                PlanetManager.EventFromServer = true;
-                GameMain.data.factories[packet.FactorytIndex].RemoveVegeWithComponents(packet.VegeId);
-                PlanetManager.EventFromServer = false;
+                using (PlanetManager.EventFromServer.On())
+                {
+                    GameMain.data.factories[packet.FactorytIndex].RemoveVegeWithComponents(packet.VegeId);
+                }
             }
         }
     }
