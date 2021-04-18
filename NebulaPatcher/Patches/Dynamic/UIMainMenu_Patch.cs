@@ -12,7 +12,10 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIMainMenu))]
     class UIMainMenu_Patch
     {
+        private static RectTransform mainMenuButtonGroup;
         private static RectTransform multiplayerButton;
+        private static RectTransform multiplayerSubMenu;
+
         private static RectTransform multiplayerMenu;
         private static InputField hostIPAdressInput;
 
@@ -35,30 +38,93 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            if (multiplayerButton)
+            // Check if the main menu already includes our modification
+            if (mainMenuButtonGroup != null)
             {
-                multiplayerButton.GetComponentInChildren<Text>().text = "Multiplayer";
                 return;
             }
 
+            mainMenuButtonGroup = GameObject.Find("Main Menu/button-group").GetComponent<RectTransform>();
+
             AddMultiplayerButton();
+            AddMultiplayerSubMenu();
             AddMultiplayerJoinMenu();
         }
 
+        // Main Menu
         private static void AddMultiplayerButton()
         {
-            RectTransform buttonGroup = GameObject.Find("Main Menu/button-group").GetComponent<RectTransform>();
             RectTransform buttonTemplate = GameObject.Find("Main Menu/button-group/button-new").GetComponent<RectTransform>();
-
-            multiplayerButton = Object.Instantiate(buttonTemplate, buttonGroup, false);
+            multiplayerButton = Object.Instantiate(buttonTemplate, mainMenuButtonGroup, false);
             multiplayerButton.name = "button-multiplayer";
             multiplayerButton.anchoredPosition = new Vector2(multiplayerButton.anchoredPosition.x, multiplayerButton.anchoredPosition.y + multiplayerButton.sizeDelta.y + 10);
-            multiplayerButton.GetComponentInChildren<Text>().text = "Multiplayer";
-
-            multiplayerButton.GetComponent<Button>().onClick.RemoveAllListeners();
-            multiplayerButton.GetComponent<Button>().onClick.AddListener(new UnityAction(OnMultiplayerButtonClick));
+            OverrideButton(multiplayerButton, "Multiplayer", OnMultiplayerButtonClick);
         }
 
+        private static void OnMultiplayerButtonClick()
+        {
+            MainMenuManager.IsInMultiplayerMenu = true;
+            mainMenuButtonGroup.gameObject.SetActive(false);
+            multiplayerSubMenu.gameObject.SetActive(true);
+        }
+
+        // Multiplayer Sub Menu
+        private static void AddMultiplayerSubMenu()
+        {
+            multiplayerSubMenu = Object.Instantiate(mainMenuButtonGroup, mainMenuButtonGroup.parent, true);
+            multiplayerSubMenu.name = "multiplayer-menu";
+
+            OverrideButton(multiplayerSubMenu.Find("button-multiplayer").GetComponent<RectTransform>(), "New Game (Host)", OnMultiplayerNewGameButtonClick);
+            OverrideButton(multiplayerSubMenu.Find("button-new").GetComponent<RectTransform>(), "Load Game (Host)", OnMultiplayerLoadGameButtonClick);
+            OverrideButton(multiplayerSubMenu.Find("button-continue").GetComponent<RectTransform>(), "Join Game", OnMultiplayerJoinGameButtonClick);
+            OverrideButton(multiplayerSubMenu.Find("button-load").GetComponent<RectTransform>(), "Back", OnMultiplayerBackButtonClick);
+
+            multiplayerSubMenu.Find("button-options").gameObject.SetActive(false);
+            multiplayerSubMenu.Find("button-credits").gameObject.SetActive(false);
+            multiplayerSubMenu.Find("button-exit").gameObject.SetActive(false);
+
+            multiplayerSubMenu.gameObject.SetActive(false);
+        }
+
+        private static void OnMultiplayerNewGameButtonClick()
+        {
+            UIRoot.instance.galaxySelect._Open();
+            UIRoot.instance.uiMainMenu._Close();
+        }
+
+        private static void OnMultiplayerLoadGameButtonClick()
+        {
+            UIRoot.instance.OpenLoadGameWindow();
+        }
+
+        private static void OnMultiplayerJoinGameButtonClick()
+        {
+            UIRoot.instance.CloseMainMenuUI();
+            multiplayerMenu.gameObject.SetActive(true);
+            hostIPAdressInput.characterLimit = 30;
+        }
+
+        private static void OnMultiplayerBackButtonClick()
+        {
+            MainMenuManager.IsInMultiplayerMenu = false;
+            multiplayerSubMenu.gameObject.SetActive(false);
+            mainMenuButtonGroup.gameObject.SetActive(true);
+        }
+
+        private static void OverrideButton(RectTransform button, string newText, System.Action newClickCallback)
+        {
+            if (newText != null)
+            {
+                // Remove the Localizer since we don't support translation for now and it will always revert the text otherwise
+                Object.Destroy(button.GetComponentInChildren<Localizer>());
+                button.GetComponentInChildren<Text>().text = newText;
+            }
+
+            button.GetComponent<Button>().onClick.RemoveAllListeners();
+            button.GetComponent<Button>().onClick.AddListener(new UnityAction(newClickCallback));
+        }
+
+        // Multiplayer Join Menu
         private static void AddMultiplayerJoinMenu()
         {
             GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
@@ -92,59 +158,11 @@ namespace NebulaPatcher.Patches.Dynamic
             hostIPAdressInput.characterLimit = 30;
             hostIPAdressInput.text = "127.0.0.1";
 
-            var connectButton = multiplayerMenu.Find("start-button").GetComponent<Button>();
-            connectButton.GetComponentInChildren<Localizer>().enabled = false;
-            connectButton.GetComponentInChildren<Text>().text = "Join Game";
-            connectButton.onClick.RemoveAllListeners();
-            connectButton.onClick.AddListener(new UnityAction(OnJoinGameButtonClick));
-
-            var backButton = multiplayerMenu.Find("cancel-button").GetComponent<Button>();
-            backButton.onClick.RemoveAllListeners();
-            backButton.onClick.AddListener(new UnityAction(OnBackButtonClick));
-
-            // TODO: Temporary way of hosting a game
-            var hostButton = multiplayerMenu.Find("random-button").GetComponent<Button>();
-            hostButton.GetComponentInChildren<Localizer>().enabled = false;
-            hostButton.GetComponentInChildren<Text>().text = "Host Game";
-            hostButton.onClick.RemoveAllListeners();
-            hostButton.onClick.AddListener(new UnityAction(OnHostGameButtonClick));
+            OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
+            OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null, OnJoinGameBackButtonClick);
+            multiplayerMenu.Find("random-button").gameObject.SetActive(false);
 
             multiplayerMenu.gameObject.SetActive(false);
-        }
-
-        private static void OnMultiplayerButtonClick()
-        {
-            UIRoot.instance.CloseMainMenuUI();
-            multiplayerMenu.gameObject.SetActive(true);
-            hostIPAdressInput.characterLimit = 30;
-        }
-
-        // TODO: Remove all this once we change the way we deal with hosting a game.
-        // We could it should probably be done from the in game Esc Menu.
-        private static void OnHostGameButtonClick()
-        {
-            string[] parts = hostIPAdressInput.text.Split(':');
-            int port;
-
-            if (parts.Length == 1)
-            {
-                port = Config.DefaultPort;
-            }
-            else if (!int.TryParse(parts[1], out port))
-            {
-                Log.Info($"Port must be a valid number above 1024");
-                return;
-            }
-
-            multiplayerMenu.gameObject.SetActive(false);
-
-            Log.Info($"Listening server on port {port}");
-            var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
-            session.StartServer(port);
-
-            GameDesc gameDesc = new GameDesc();
-            gameDesc.SetForNewGame(UniverseGen.algoVersion, 1, 64, 1, 1f);
-            DSPGame.StartGameSkipPrologue(gameDesc);
         }
 
         private static void OnJoinGameButtonClick()
@@ -172,7 +190,7 @@ namespace NebulaPatcher.Patches.Dynamic
             session.Connect(ip, port);
         }
 
-        private static void OnBackButtonClick()
+        private static void OnJoinGameBackButtonClick()
         {
             multiplayerMenu.gameObject.SetActive(false);
             UIRoot.instance.OpenMainMenuUI();

@@ -79,6 +79,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                 FactoryManager.IgnoreBasicBuildConditionChecks = true;
                 bool canBuild = pab.CheckBuildConditions();
+                canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 FactoryManager.IgnoreBasicBuildConditionChecks = false;
 
                 if (canBuild)
@@ -104,9 +105,52 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 FactoryManager.EventFactory = null;
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
-                pab.previewPose.position = tmpPos;
+                pab.previewPose.position = tmpPos; 
                 pab.previewPose.rotation = tmpRot;
             }
+        }
+
+        public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
+        {
+            //Check if some entity that is suppose to be connected to this building is missing
+            for(int i = 0; i < buildPreviews.Count; i++)
+            {
+                var buildPreview = buildPreviews[i];
+                int inputObjId = buildPreview.inputObjId;
+                if (inputObjId > 0)
+                {
+                    if (inputObjId >= entityPool.Length || entityPool[inputObjId].id == 0)
+                    {
+                        return false;
+                    }
+                }
+                else if (inputObjId < 0)
+                {
+                    inputObjId = -inputObjId;
+                    if (inputObjId >= prebuildPool.Length || prebuildPool[inputObjId].id == 0)
+                    {
+                        return false;
+                    }
+                }
+
+                int outputObjId = buildPreview.outputObjId;
+                if (outputObjId > 0)
+                {
+                    if (outputObjId >= entityPool.Length || entityPool[outputObjId].id == 0)
+                    {
+                        return false;
+                    }
+                }
+                else if (outputObjId < 0)
+                {
+                    outputObjId = -outputObjId;
+                    if (outputObjId >= prebuildPool.Length || prebuildPool[outputObjId].id == 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }

@@ -13,11 +13,16 @@ namespace NebulaHost
         public static void SendToOtherPlayersOnTheSamePlanet<T>(NebulaConnection originator, T packet, int planetId) where T : class, new()
         {
             //Send to players on the same planet
-            foreach (KeyValuePair<NebulaConnection, Player> player in MultiplayerHostSession.Instance.PlayerManager.ConnectedPlayers)
+            using (MultiplayerHostSession.Instance.PlayerManager.GetConnectedPlayers(out var connectedPlayers))
             {
-                if (player.Value.Data.LocalPlanetId == planetId && player.Key != originator)
+                foreach (var kvp in connectedPlayers)
                 {
-                    player.Key.SendPacket(packet);
+                    NebulaConnection connection = kvp.Key;
+                    Player player = kvp.Value;
+                    if (player.Data.LocalPlanetId == planetId && connection != originator)
+                    {
+                        connection.SendPacket(packet);
+                    }
                 }
             }
         }

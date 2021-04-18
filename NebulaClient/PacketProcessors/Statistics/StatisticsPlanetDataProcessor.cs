@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using HarmonyLib;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Statistics;
@@ -11,13 +12,12 @@ namespace NebulaClient.PacketProcessors.Statistics
     {
         public void ProcessPacket(StatisticsPlanetDataPacket packet, NebulaConnection conn)
         {
+            var property = AccessTools.DeclaredProperty(typeof(PlanetFactory), "planet");
             for (int i = 0; i < packet.PlanetsIds.Length; i++)
             {
                 if (GameMain.data.factories[i] == null)
                 {
                     GameMain.data.factories[i] = new PlanetFactory();
-                    var property = typeof(PlanetFactory).GetProperty("planet", BindingFlags.Public | BindingFlags.Instance);
-                    property = property.DeclaringType.GetProperty(property.Name);
                     PlanetData pd = GameMain.galaxy.PlanetById(packet.PlanetsIds[i]);
                     pd.factoryIndex = i;
                     property.SetValue(GameMain.data.factories[i], pd, null);
