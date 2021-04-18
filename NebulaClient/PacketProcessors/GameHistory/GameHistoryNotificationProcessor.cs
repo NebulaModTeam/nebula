@@ -12,19 +12,20 @@ namespace NebulaClient.PacketProcessors.GameHistory
     {
         public void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
         {
-            GameDataHistoryManager.IsIncommingRequest = true;
-            switch (packet.Event)
+            using (GameDataHistoryManager.IsIncomingRequest.On())
             {
-                case GameHistoryEvent.ResumeQueue:
-                    Log.Info($"Pausing tech queue");
-                    GameMain.history.ResumeTechQueue();
-                    break;
-                case GameHistoryEvent.PauseQueue:
-                    Log.Info($"Resuming tech queue");
-                    GameMain.history.PauseTechQueue();
-                    break;
+                switch (packet.Event)
+                {
+                    case GameHistoryEvent.ResumeQueue:
+                        Log.Info($"Pausing tech queue");
+                        GameMain.history.ResumeTechQueue();
+                        break;
+                    case GameHistoryEvent.PauseQueue:
+                        Log.Info($"Resuming tech queue");
+                        GameMain.history.PauseTechQueue();
+                        break;
+                }
             }
-            GameDataHistoryManager.IsIncommingRequest = false;
         }
     }
 }

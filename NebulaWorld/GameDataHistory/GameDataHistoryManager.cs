@@ -1,7 +1,9 @@
-﻿namespace NebulaWorld.GameDataHistory
+﻿using NebulaModel.DataStructures;
+
+namespace NebulaWorld.GameDataHistory
 {
     public static class GameDataHistoryManager
     {
-        public static bool IsIncommingRequest = false;
+        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
     }
 }
