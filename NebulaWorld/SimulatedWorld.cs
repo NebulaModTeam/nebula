@@ -264,7 +264,7 @@ namespace NebulaWorld
                 if (remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
                 {
                     localPlanetId = pModel.Movement.localPlanetId;
-                } 
+                }
                 else
                 {
                     Debug.LogWarning("FAILED TO SYNC VEGE DATA");
@@ -355,7 +355,7 @@ namespace NebulaWorld
                     return myId;
                 }
             }
-            
+
             return 0;
         }
 
@@ -400,7 +400,8 @@ namespace NebulaWorld
             }
 
             //Update player's Mecha tech bonuses
-            if (!LocalPlayer.IsMasterClient) {
+            if (!LocalPlayer.IsMasterClient)
+            {
                 LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
             }
 
