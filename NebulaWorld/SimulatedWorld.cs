@@ -516,6 +516,10 @@ namespace NebulaWorld
                 {
                     playerNameText.gameObject.SetActive(false);
                 }
+                else if (!playerNameText.gameObject.activeSelf)
+                {
+                    playerNameText.gameObject.SetActive(true);
+                }
 
                 // Make sure the text is pointing at the camera
                 playerNameText.transform.rotation = GameCamera.main.transform.rotation;                
