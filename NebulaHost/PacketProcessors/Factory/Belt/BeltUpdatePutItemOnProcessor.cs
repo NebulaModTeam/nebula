@@ -11,9 +11,10 @@ namespace NebulaHost.PacketProcessors.Factory.Belt
     {
         public void ProcessPacket(BeltUpdatePutItemOnPacket packet, NebulaConnection conn)
         {
-            FactoryManager.EventFromClient = true;
-            GameMain.data.factories[packet.FactoryIndex].cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId);
-            FactoryManager.EventFromClient = true;
+            using (FactoryManager.EventFromClient.On())
+            {
+                GameMain.data.factories[packet.FactoryIndex].cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId);
+            }
         }
     }
 }

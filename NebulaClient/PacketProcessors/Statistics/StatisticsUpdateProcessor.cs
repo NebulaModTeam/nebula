@@ -13,55 +13,56 @@ namespace NebulaClient.PacketProcessors.Statistics
         public void ProcessPacket(StatisticUpdateDataPacket packet, NebulaConnection conn)
         {
             StatisticalSnapShot snapshot;
-            StatisticsManager.IsIncommingRequest = true;
-            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.StatisticsBinaryData))
+            using (StatisticsManager.IsIncomingRequest.On())
             {
-                ref FactoryProductionStat[] productionStats = ref GameMain.statistics.production.factoryStatPool;
-                int numOfSnapshots = reader.BinaryReader.ReadInt32();
-                for (int i = 0; i < numOfSnapshots; i++)
+                using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.StatisticsBinaryData))
                 {
-                    //Clear all current statistical data
-                    for (int a = 0; a < GameMain.statistics.production.factoryStatPool.Length; a++)
+                    ref FactoryProductionStat[] productionStats = ref GameMain.statistics.production.factoryStatPool;
+                    int numOfSnapshots = reader.BinaryReader.ReadInt32();
+                    for (int i = 0; i < numOfSnapshots; i++)
                     {
-                        GameMain.statistics.production.factoryStatPool[a]?.ClearRegisters();
-                    }
-
-                    //Load new snapshot
-                    snapshot = new StatisticalSnapShot(reader.BinaryReader);
-                    for (int factoryId = 0; factoryId < snapshot.ProductionChangesPerFactory.Length; factoryId++)
-                    {
-                        if (productionStats[factoryId] == null)
+                        //Clear all current statistical data
+                        for (int a = 0; a < GameMain.statistics.production.factoryStatPool.Length; a++)
                         {
-                            productionStats[factoryId] = new FactoryProductionStat();
-                            productionStats[factoryId].Init();
+                            GameMain.statistics.production.factoryStatPool[a]?.ClearRegisters();
                         }
-                        for (int changeId = 0; changeId < snapshot.ProductionChangesPerFactory[factoryId].Count; changeId++)
+
+                        //Load new snapshot
+                        snapshot = new StatisticalSnapShot(reader.BinaryReader);
+                        for (int factoryId = 0; factoryId < snapshot.ProductionChangesPerFactory.Length; factoryId++)
                         {
-                            if (snapshot.ProductionChangesPerFactory[factoryId][changeId].IsProduction)
+                            if (productionStats[factoryId] == null)
                             {
-                                productionStats[factoryId].productRegister[snapshot.ProductionChangesPerFactory[factoryId][changeId].ProductId] += snapshot.ProductionChangesPerFactory[factoryId][changeId].Amount;
+                                productionStats[factoryId] = new FactoryProductionStat();
+                                productionStats[factoryId].Init();
                             }
-                            else
+                            for (int changeId = 0; changeId < snapshot.ProductionChangesPerFactory[factoryId].Count; changeId++)
                             {
-                                productionStats[factoryId].consumeRegister[snapshot.ProductionChangesPerFactory[factoryId][changeId].ProductId] += snapshot.ProductionChangesPerFactory[factoryId][changeId].Amount;
+                                if (snapshot.ProductionChangesPerFactory[factoryId][changeId].IsProduction)
+                                {
+                                    productionStats[factoryId].productRegister[snapshot.ProductionChangesPerFactory[factoryId][changeId].ProductId] += snapshot.ProductionChangesPerFactory[factoryId][changeId].Amount;
+                                }
+                                else
+                                {
+                                    productionStats[factoryId].consumeRegister[snapshot.ProductionChangesPerFactory[factoryId][changeId].ProductId] += snapshot.ProductionChangesPerFactory[factoryId][changeId].Amount;
+                                }
                             }
+                            //Import power system statistics
+                            productionStats[factoryId].powerGenRegister = snapshot.PowerGenerationRegister[factoryId];
+                            productionStats[factoryId].powerConRegister = snapshot.PowerConsumptionRegister[factoryId];
+                            productionStats[factoryId].powerChaRegister = snapshot.PowerChargingRegister[factoryId];
+                            productionStats[factoryId].powerDisRegister = snapshot.PowerDischargingRegister[factoryId];
+
+                            //Import fake energy stored values
+                            StatisticsManager.PowerEnergyStoredData = snapshot.EnergyStored;
+
+                            //Import Research statistics
+                            productionStats[factoryId].hashRegister = snapshot.HashRegister[factoryId];
                         }
-                        //Import power system statistics
-                        productionStats[factoryId].powerGenRegister = snapshot.PowerGenerationRegister[factoryId];
-                        productionStats[factoryId].powerConRegister = snapshot.PowerConsumptionRegister[factoryId];
-                        productionStats[factoryId].powerChaRegister = snapshot.PowerChargingRegister[factoryId];
-                        productionStats[factoryId].powerDisRegister = snapshot.PowerDischargingRegister[factoryId];
-
-                        //Import fake energy stored values
-                        StatisticsManager.PowerEnergyStoredData = snapshot.EnergyStored;
-
-                        //Import Research statistics
-                        productionStats[factoryId].hashRegister = snapshot.HashRegister[factoryId];
+                        GameMain.statistics.production.GameTick(snapshot.CapturedGameTick);
                     }
-                    GameMain.statistics.production.GameTick(snapshot.CapturedGameTick);
                 }
             }
-            StatisticsManager.IsIncommingRequest = false;
         }
     }
 }

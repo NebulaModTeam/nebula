@@ -12,14 +12,16 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
         public void ProcessPacket(DestructEntityRequest packet, NebulaConnection conn)
         {
             int protoId = 0;
-            FactoryManager.EventFromClient = true;
-            PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-            FactoryManager.DoNotAddItemsFromBuildingOnDestruct = true;
-            FactoryManager.PacketAuthor = packet.AuthorId;
-            planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
-            FactoryManager.PacketAuthor = -1;
-            FactoryManager.DoNotAddItemsFromBuildingOnDestruct = false;
-            FactoryManager.EventFromClient = false;
+            using (FactoryManager.EventFromClient.On())
+            {
+                PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                using (FactoryManager.DoNotAddItemsFromBuildingOnDestruct.On())
+                {
+                    FactoryManager.PacketAuthor = packet.AuthorId;
+                    planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+                    FactoryManager.PacketAuthor = -1;
+                }
+            }
         }
     }
 }

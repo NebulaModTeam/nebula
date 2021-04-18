@@ -348,11 +348,12 @@ namespace NebulaWorld
                         trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
                     }
 
-                    TrashManager.NewTrashFromOtherPlayers = true;
-                    int myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
-                    TrashManager.NewTrashFromOtherPlayers = false;
+                    using (TrashManager.NewTrashFromOtherPlayers.On())
+                    {
+                        int myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
 
-                    return myId;
+                        return myId;
+                    }
                 }
             }
 

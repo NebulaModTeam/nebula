@@ -13,7 +13,7 @@ namespace NebulaWorld.Statistics
         {
             internal readonly Dictionary<ushort, NebulaConnection> Requestors = new Dictionary<ushort, NebulaConnection>();
         }
-        public static bool IsIncommingRequest = false;
+        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
         public static bool IsStatisticsNeeded = false;
         public static long[] PowerEnergyStoredData;
 

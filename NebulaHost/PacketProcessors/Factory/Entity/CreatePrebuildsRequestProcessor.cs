@@ -49,61 +49,64 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 //Create Prebuilds from incomming packet and prepare new position
                 pab.buildPreviews = packet.GetBuildPreviews();
                 pab.waitConfirm = true;
-                FactoryManager.EventFromServer = true;
-                FactoryManager.EventFactory = planet.factory;
-                pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
-                pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
-
-                //Check if some mandatory variables are missing
-                if (planet.physics == null || planet.physics.colChunks == null)
+                using (FactoryManager.EventFromServer.On())
                 {
-                    planet.physics = new PlanetPhysics(planet);
-                    planet.physics.Init();
+                    FactoryManager.EventFactory = planet.factory;
+                    pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
+                    pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
+
+                    //Check if some mandatory variables are missing
+                    if (planet.physics == null || planet.physics.colChunks == null)
+                    {
+                        planet.physics = new PlanetPhysics(planet);
+                        planet.physics.Init();
+                    }
+                    if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                    {
+                        planet.factory.cargoTraffic.CreateRenderingBatches();
+                    }
+                    if (planet.aux == null)
+                    {
+                        planet.aux = new PlanetAuxData(planet);
+                    }
+
+                    //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
+                    AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
+                    AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
+                    AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics.nearColliderLogic);
+                    AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
+
+                    //Check if prebuilds can be build (collision check, height check, etc)
+                    GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
+                    bool canBuild;
+                    using (FactoryManager.IgnoreBasicBuildConditionChecks.On())
+                    {
+                        canBuild = pab.CheckBuildConditions();
+                        canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
+                    }
+
+                    if (canBuild)
+                    {
+                        FactoryManager.PacketAuthor = packet.AuthorId;
+                        pab.CreatePrebuilds();
+                        FactoryManager.PacketAuthor = -1;
+                    }
+
+                    //Revert changes back to the original planet
+                    if (loadExternalPlanetData)
+                    {
+                        planet.physics.Free();
+                        planet.physics = null;
+                        AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
+                        AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
+                        AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
+                        AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpNearcdLogic);
+                    }
+
+                    GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
+                    FactoryManager.EventFactory = null;
                 }
-                if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
-                {
-                    planet.factory.cargoTraffic.CreateRenderingBatches();
-                }
-                if (planet.aux == null)
-                {
-                    planet.aux = new PlanetAuxData(planet);
-                }
-
-                //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
-                AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
-                AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
-                AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics.nearColliderLogic);
-                AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
-
-                //Check if prebuilds can be build (collision check, height check, etc)
-                GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
-                FactoryManager.IgnoreBasicBuildConditionChecks = true;
-                bool canBuild = pab.CheckBuildConditions();
-                canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
-                FactoryManager.IgnoreBasicBuildConditionChecks = false;
-
-                if (canBuild)
-                {
-                    FactoryManager.PacketAuthor = packet.AuthorId;
-                    pab.CreatePrebuilds();
-                    FactoryManager.PacketAuthor = -1;
-                }
-
-                //Revert changes back to the original planet
-                if (loadExternalPlanetData)
-                {
-                    planet.physics.Free();
-                    planet.physics = null;
-                    AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
-                    AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
-                    AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
-                    AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpNearcdLogic);
-                }
-
-                GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
-
-                FactoryManager.EventFromServer = false;
-                FactoryManager.EventFactory = null;
+                
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos; 

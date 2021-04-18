@@ -19,40 +19,40 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 return;
             }
 
-            FactoryManager.EventFromClient = true;
-            PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-            FactoryManager.EventFactory = planet.factory;
-
-            // Physics could be null, if the host is not on the requested planet
-            // Make sure to init all the planet data required to perform the BuildFinally of the distant planet
-            if (packet.PlanetId != GameMain.localPlanet?.id)
+            using (FactoryManager.EventFromClient.On())
             {
-                planet.physics = new PlanetPhysics(planet);
-                planet.physics.Init();
+                PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                FactoryManager.EventFactory = planet.factory;
 
-                planet.audio = new PlanetAudio(planet);
-                planet.audio.Init();
-
-                if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                // Physics could be null, if the host is not on the requested planet
+                // Make sure to init all the planet data required to perform the BuildFinally of the distant planet
+                if (packet.PlanetId != GameMain.localPlanet?.id)
                 {
-                    planet.factory.cargoTraffic.CreateRenderingBatches();
+                    planet.physics = new PlanetPhysics(planet);
+                    planet.physics.Init();
+
+                    planet.audio = new PlanetAudio(planet);
+                    planet.audio.Init();
+
+                    if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                    {
+                        planet.factory.cargoTraffic.CreateRenderingBatches();
+                    }
                 }
+
+                planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
+
+                // Make sure to free all temp data if we were not on this planet once the BuildFinally is done
+                if (packet.PlanetId != GameMain.localPlanet?.id)
+                {
+                    planet.physics.Free();
+                    planet.physics = null;
+
+                    planet.audio.Free();
+                    planet.audio = null;
+                }
+                FactoryManager.EventFactory = null;
             }
-
-            planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
-
-            // Make sure to free all temp data if we were not on this planet once the BuildFinally is done
-            if (packet.PlanetId != GameMain.localPlanet?.id)
-            {
-                planet.physics.Free();
-                planet.physics = null;
-
-                planet.audio.Free();
-                planet.audio = null;
-            }
-
-            FactoryManager.EventFromClient = false;
-            FactoryManager.EventFactory = null;
         }
     }
 }

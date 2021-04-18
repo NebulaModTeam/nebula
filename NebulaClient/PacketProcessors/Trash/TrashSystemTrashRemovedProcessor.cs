@@ -11,9 +11,10 @@ namespace NebulaClient.PacketProcessors.Trash
     {
         public void ProcessPacket(TrashSystemTrashRemovedPacket packet, NebulaConnection conn)
         {
-            TrashManager.RemoveTrashFromOtherPlayers = true;
-            GameMain.data.trashSystem.container.RemoveTrash(packet.TrashId);
-            TrashManager.RemoveTrashFromOtherPlayers = false;
+            using (TrashManager.RemoveTrashFromOtherPlayers.On())
+            {
+                GameMain.data.trashSystem.container.RemoveTrash(packet.TrashId);
+            }
         }
     }
 }

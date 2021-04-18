@@ -11,13 +11,13 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
     {
         public void ProcessPacket(UpgradeEntityRequest packet, NebulaConnection conn)
         {
-            FactoryManager.EventFromClient = true;
-            PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+            using (FactoryManager.EventFromClient.On())
+            {
+                PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
 
-            ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
-            planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
-
-            FactoryManager.EventFromClient = false;
+                ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
+                planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
+            }
         }
     }
 }
