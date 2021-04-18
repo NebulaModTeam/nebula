@@ -61,7 +61,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("Sort")]
         public static void Sort_Postfix(StorageComponent __instance)
         {
-            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient)
+            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncSortPacket(__instance.id, GameMain.data.localPlanet.factoryIndex));
             }
