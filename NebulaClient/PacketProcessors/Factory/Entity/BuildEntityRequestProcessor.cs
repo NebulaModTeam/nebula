@@ -38,7 +38,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
                 if (!DroneManager.RemoveBuildRequest(-packet.PrebuildId))
                 {
-                    Log.Warn($"Build Request was not succesful removed.");
+                    Log.Warn($"Build Request was not succesfully removed.");
                 }
                     planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
 

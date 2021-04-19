@@ -22,7 +22,7 @@ namespace NebulaModel.Packets.Players
             PlayerId = playerId;
             Stage = stage;
             Priority = priority;
-            EntityPos = new Float3(entityPos);
+            EntityPos = entityPos.ToFloat3();
         }
     }
 }
