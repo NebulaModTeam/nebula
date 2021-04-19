@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 {
                     codes.InsertRange(i + 1, new CodeInstruction[] {
                         new CodeInstruction(OpCodes.Ldloc_S, 6),
-                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), "IsPendingBuildRequest", new System.Type[] { typeof(int) })),
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), nameof(DroneManager.IsPendingBuildRequest), new System.Type[] { typeof(int) })),
                         new CodeInstruction(OpCodes.Brtrue_S, codes[i].operand),
                         });
                     break;
