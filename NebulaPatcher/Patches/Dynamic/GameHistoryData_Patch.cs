@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void Postfix2(int techId)
         {
             //Do not run if this was triggered by incomming request
-            if (GameDataHistoryManager.IsIncommingRequest)
+            if (GameDataHistoryManager.IsIncomingRequest)
             {
                 return;
             }
@@ -42,7 +42,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void Postfix3(int index)
         {
             //Do not run if this was triggered by incomming request
-            if (GameDataHistoryManager.IsIncommingRequest)
+            if (GameDataHistoryManager.IsIncomingRequest)
             {
                 return;
             }
@@ -56,7 +56,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void Postfix4()
         {
             //Do not run if this was triggered by incomming request
-            if (GameDataHistoryManager.IsIncommingRequest)
+            if (GameDataHistoryManager.IsIncomingRequest)
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void Postfix5()
         {
             //Do not run if this was triggered by incomming request
-            if (GameDataHistoryManager.IsIncommingRequest)
+            if (GameDataHistoryManager.IsIncomingRequest)
             {
                 return;
             }
@@ -84,7 +84,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix1()
         {
             //Wait for the authoritative packet for unlocking recipes in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncommingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -92,7 +92,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix2()
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncommingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -100,7 +100,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix3()
         {
             //Wait for the authoritative packet for gaining tech awards in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncommingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -123,7 +123,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix5()
         {
             ///Wait for the authoritative packet for dequeing tech in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncommingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
     }
 }

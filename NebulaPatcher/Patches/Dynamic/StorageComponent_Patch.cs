@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && StorageManager.IsHumanInput)
+            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItem2, itemId, count, startIndex, length));
             }
@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddItemStacked_Prefix(StorageComponent __instance, int itemId, int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && StorageManager.IsHumanInput)
+            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItemStacked, itemId, count));
             }
@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool TakeItemFromGrid_Prefix(StorageComponent __instance, int gridIndex, ref int itemId, ref int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && StorageManager.IsHumanInput)
+            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.TakeItemFromGrid, gridIndex, itemId, count));
             }
@@ -61,7 +61,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("Sort")]
         public static void Sort_Postfix(StorageComponent __instance)
         {
-            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient)
+            if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncSortPacket(__instance.id, GameMain.data.localPlanet.factoryIndex));
             }

@@ -36,44 +36,45 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 //Create Prebuilds from incomming packet
                 pab.buildPreviews = packet.GetBuildPreviews();
                 pab.waitConfirm = true;
-                FactoryManager.EventFromServer = true;
-                FactoryManager.EventFactory = planet.factory;
-                pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
-                pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
-                AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
-                
-                //Create temporary physics for spawning building's colliders
-                if (planet.physics == null || planet.physics.colChunks == null)
+                using (FactoryManager.EventFromServer.On())
                 {
-                    planet.physics = new PlanetPhysics(planet);
-                    planet.physics.Init();
-                }
-                if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
-                {
-                    planet.factory.cargoTraffic.CreateRenderingBatches();
-                }
+                    FactoryManager.EventFactory = planet.factory;
+                    pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
+                    pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
+                    AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
 
-                //Take item from the inventory if player is author of the build
-                if (packet.AuthorId == LocalPlayer.PlayerId)
-                {
-                    foreach (BuildPreview buildPreview in pab.buildPreviews)
+                    //Create temporary physics for spawning building's colliders
+                    if (planet.physics == null || planet.physics.colChunks == null)
                     {
-                        if (GameMain.mainPlayer.inhandItemId == buildPreview.item.ID && GameMain.mainPlayer.inhandItemCount > 0)
+                        planet.physics = new PlanetPhysics(planet);
+                        planet.physics.Init();
+                    }
+                    if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                    {
+                        planet.factory.cargoTraffic.CreateRenderingBatches();
+                    }
+
+                    //Take item from the inventory if player is author of the build
+                    if (packet.AuthorId == LocalPlayer.PlayerId)
+                    {
+                        foreach (BuildPreview buildPreview in pab.buildPreviews)
                         {
-                            GameMain.mainPlayer.UseHandItems(1);
-                        }
-                        else
-                        {
-                            int num = 1;
-                            GameMain.mainPlayer.package.TakeTailItems(ref buildPreview.item.ID, ref num, false);
+                            if (GameMain.mainPlayer.inhandItemId == buildPreview.item.ID && GameMain.mainPlayer.inhandItemCount > 0)
+                            {
+                                GameMain.mainPlayer.UseHandItems(1);
+                            }
+                            else
+                            {
+                                int num = 1;
+                                GameMain.mainPlayer.package.TakeTailItems(ref buildPreview.item.ID, ref num, false);
+                            }
                         }
                     }
-                }
 
-                AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
-                pab.CreatePrebuilds();
-                FactoryManager.EventFromServer = false;
-                FactoryManager.EventFactory = null;
+                    AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
+                    pab.CreatePrebuilds();
+                    FactoryManager.EventFactory = null;
+                }
 
                 //Author has to call this for the continuous belt building
                 if (packet.AuthorId == LocalPlayer.PlayerId)

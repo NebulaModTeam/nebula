@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaWorld;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
@@ -33,7 +34,8 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 5].labels.Add(targetLabel);
 
                     codes.InsertRange(i + 1, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_DoNotAddItemsFromBuildingOnDestruct")),
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "DoNotAddItemsFromBuildingOnDestruct")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
                                     });
                     break;

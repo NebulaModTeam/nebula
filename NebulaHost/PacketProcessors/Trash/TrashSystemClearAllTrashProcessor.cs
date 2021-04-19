@@ -20,9 +20,10 @@ namespace NebulaHost.PacketProcessors.Trash
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {
-                TrashManager.ClearAllTrashFromOtherPlayers = true;
-                GameMain.data.trashSystem.ClearAllTrash();
-                TrashManager.ClearAllTrashFromOtherPlayers = false;
+                using (TrashManager.ClearAllTrashFromOtherPlayers.On())
+                {
+                    GameMain.data.trashSystem.ClearAllTrash();
+                }
                 playerManager.SendPacketToOtherPlayers(packet, player);
             }
         }

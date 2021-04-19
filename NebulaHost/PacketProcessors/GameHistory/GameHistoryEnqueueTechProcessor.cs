@@ -20,9 +20,10 @@ namespace NebulaHost.PacketProcessors.GameHistory
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {
-                GameDataHistoryManager.IsIncommingRequest = true;
-                GameMain.history.EnqueueTech(packet.TechId);
-                GameDataHistoryManager.IsIncommingRequest = false;
+                using (GameDataHistoryManager.IsIncomingRequest.On())
+                {
+                    GameMain.history.EnqueueTech(packet.TechId);
+                }
                 playerManager.SendPacketToOtherPlayers(packet, player);
             }
         }

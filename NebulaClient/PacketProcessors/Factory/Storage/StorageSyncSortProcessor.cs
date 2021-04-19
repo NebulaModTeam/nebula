@@ -20,9 +20,10 @@ namespace NebulaClient.PacketProcessors.Factory.Storage
 
             if (storage != null)
             {
-                StorageManager.EventFromClient = true;
-                storage.Sort();
-                StorageManager.EventFromClient = false;
+                using (StorageManager.EventFromClient.On())
+                {
+                    storage.Sort();
+                }
             }
         }
     }

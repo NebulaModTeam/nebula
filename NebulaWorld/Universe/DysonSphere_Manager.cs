@@ -1,12 +1,13 @@
-﻿using NebulaModel.Packets.Universe;
+﻿using NebulaModel.DataStructures;
+using NebulaModel.Packets.Universe;
 using System.Collections.Generic;
 
 namespace NebulaWorld.Universe
 {
     public static class DysonSphere_Manager
     {
-        public static bool IncomingDysonSpherePacket = false;
-        public static bool IncomingDysonSwarmPacket = false;
+        public static readonly ToggleSwitch IncomingDysonSpherePacket = new ToggleSwitch();
+        public static readonly ToggleSwitch IncomingDysonSwarmPacket = new ToggleSwitch();
 
         public static List<DysonSphereAddFramePacket> QueuedAddFramePackets = new List<DysonSphereAddFramePacket>();
 
