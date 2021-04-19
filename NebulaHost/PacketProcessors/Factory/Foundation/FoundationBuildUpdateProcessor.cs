@@ -4,6 +4,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
+using System;
 using UnityEngine;
 
 namespace NebulaHost.PacketProcessors.Factory.Foundation
@@ -11,12 +12,14 @@ namespace NebulaHost.PacketProcessors.Factory.Foundation
     [RegisterPacketProcessor]
     class FoundationBuildUpdateProcessor : IPacketProcessor<FoundationBuildUpdatePacket>
     {
+        Vector3[] reformPoints = new Vector3[100];
+
         public void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
-            Vector3[] reformPoints = new Vector3[100];
             Vector3 reformCenterPoint = new Vector3();
+            Array.Clear(reformPoints,0,reformPoints.Length);
 
             //Check if some mandatory variables are missing
             if (factory.platformSystem.reformData == null)

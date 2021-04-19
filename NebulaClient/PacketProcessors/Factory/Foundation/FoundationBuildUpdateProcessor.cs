@@ -11,6 +11,8 @@ namespace NebulaClient.PacketProcessors.Factory.Foundation
     [RegisterPacketProcessor]
     class FoundationBuildUpdateProcessor : IPacketProcessor<FoundationBuildUpdatePacket>
     {
+        Vector3[] reformPoints = new Vector3[100];
+
         public void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
             //Check if client has loaded planet
@@ -18,8 +20,11 @@ namespace NebulaClient.PacketProcessors.Factory.Foundation
             PlanetFactory factory = planet?.factory;
             if (factory != null)
             {
-                Vector3[] reformPoints = new Vector3[100];
                 Vector3 reformCenterPoint = new Vector3();
+                for (int i = 0; i < reformPoints.Length; i++)
+                {
+                    reformPoints[i] = Vector3.zero;
+                }
                 if (factory.platformSystem.reformData == null)
                 {
                     factory.platformSystem.InitReformData();

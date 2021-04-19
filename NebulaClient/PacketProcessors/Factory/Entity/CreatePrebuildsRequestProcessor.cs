@@ -49,7 +49,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                         planet.physics = new PlanetPhysics(planet);
                         planet.physics.Init();
                     }
-                    if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+                    if (BeltManager.GetCargoTraffic(planet.factory.cargoTraffic) == null)
                     {
                         planet.factory.cargoTraffic.CreateRenderingBatches();
                     }
