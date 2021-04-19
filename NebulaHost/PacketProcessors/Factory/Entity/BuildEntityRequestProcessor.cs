@@ -23,6 +23,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
                 FactoryManager.EventFactory = planet.factory;
+                FactoryManager.PacketAuthor = packet.AuthorId;
 
                 // Physics could be null, if the host is not on the requested planet
                 // Make sure to init all the planet data required to perform the BuildFinally of the distant planet
@@ -52,6 +53,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     planet.audio = null;
                 }
                 FactoryManager.EventFactory = null;
+                FactoryManager.PacketAuthor = -1;
             }
         }
     }
