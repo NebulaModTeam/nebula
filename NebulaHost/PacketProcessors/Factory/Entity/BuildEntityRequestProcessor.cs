@@ -41,6 +41,8 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     }
                 }
 
+                //Remove building from drone queue
+                GameMain.mainPlayer.mecha.droneLogic.serving.Remove(-packet.PrebuildId);
                 planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
 
                 // Make sure to free all temp data if we were not on this planet once the BuildFinally is done

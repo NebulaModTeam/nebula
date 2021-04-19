@@ -37,8 +37,8 @@ Here is a short list of what is currently implemented
 - [ ] Belts syncing
 - [x] Dropped items syncing
 - [ ] Interstellar Station syncing
-- [ ] Drones position syncing
-- [ ] Foundation syncing (terrain deformation)
+- [x] Drones position syncing
+- [x] Foundation syncing (terrain deformation)
 - [x] Server state persistence
 
 ## How can I contribute
