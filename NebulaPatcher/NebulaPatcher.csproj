@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logger\BepInExLogger.cs" />
+    <Compile Include="MainMenuManager.cs" />
     <Compile Include="MonoBehaviours\NebulaBootstrapper.cs" />
     <Compile Include="NebulaPlugin.cs" />
     <Compile Include="Patches\Dynamic\CargoTraffic_Patch.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetPhysics_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlayerAction_Build_Patch.cs" />
+    <Compile Include="Patches\Dynamic\Player_Patch.cs" />
     <Compile Include="Patches\Dynamic\ProductionStatistics_Patch.cs" />
     <Compile Include="Patches\Dynamic\SplitterComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\TrashContainer_Patch.cs" />
@@ -71,8 +73,10 @@
     <Compile Include="Patches\Dynamic\UIAssemblerWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIAutoSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEjectorWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIGalaxySelect_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIInserterWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UILabWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UILoadGameWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMinerWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerExchangerWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGeneratorWindow_Patch.cs" />

@@ -9,18 +9,24 @@ namespace NebulaWorld.Statistics
 {
     public class StatisticsManager
     {
-        public static bool IsIncommingRequest = false;
+        sealed class ThreadSafe
+        {
+            internal readonly Dictionary<ushort, NebulaConnection> Requestors = new Dictionary<ushort, NebulaConnection>();
+        }
+        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
         public static bool IsStatisticsNeeded = false;
         public static long[] PowerEnergyStoredData;
 
         public static StatisticsManager instance;
-        public ThreadSafeDictionary<ushort, NebulaConnection> Requestors;
+
+        readonly ThreadSafe threadSafe = new ThreadSafe();
+        public Locker GetRequestors(out Dictionary<ushort, NebulaConnection> requestors) =>
+            threadSafe.Requestors.GetLocked(out requestors);
 
         private List<StatisticalSnapShot> StatisticalSnapShots;
 
         public StatisticsManager()
         {
-            Requestors = new ThreadSafeDictionary<ushort, NebulaConnection>();
             StatisticalSnapShots = new List<StatisticalSnapShot>();
             IsStatisticsNeeded = false;
             instance = this;
@@ -99,21 +105,24 @@ namespace NebulaWorld.Statistics
             {
                 return;
             }
-            if (instance.Requestors.Count > 0)
+            using (instance.GetRequestors(out var requestors))
             {
-                //Export and prepare update packet
-                StatisticUpdateDataPacket updatePacket;
-                using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                if (requestors.Count > 0)
                 {
-                    ExportCurrentTickData(writer.BinaryWriter);
-                    updatePacket = new StatisticUpdateDataPacket(writer.CloseAndGetBytes());
+                    //Export and prepare update packet
+                    StatisticUpdateDataPacket updatePacket;
+                    using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                    {
+                        ExportCurrentTickData(writer.BinaryWriter);
+                        updatePacket = new StatisticUpdateDataPacket(writer.CloseAndGetBytes());
+                    }
+                    //Broadcast the update packet to the people with opened statistic window
+                    foreach (var player in requestors)
+                    {
+                        player.Value.SendPacket(updatePacket);
+                    }
+                    ClearCapturedData();
                 }
-                //Broadcast the update packet to the people with opened statistic window
-                foreach (var player in Requestors)
-                {
-                    player.Value.SendPacket(updatePacket);
-                }
-                ClearCapturedData();
             }
         }
 
@@ -128,7 +137,11 @@ namespace NebulaWorld.Statistics
 
         public void RegisterPlayer(NebulaConnection nebulaConnection, ushort playerId)
         {
-            Requestors.Add(playerId, nebulaConnection);
+            using (instance.GetRequestors(out var requestors))
+            {
+                requestors.Add(playerId, nebulaConnection);
+            }
+
             if (!IsStatisticsNeeded)
             {
                 ClearCapturedData();
@@ -138,10 +151,9 @@ namespace NebulaWorld.Statistics
 
         public void UnRegisterPlayer(ushort playerId)
         {
-            if (Requestors.ContainsKey(playerId))
+            using (instance.GetRequestors(out var requestors))
             {
-                Requestors.Remove(playerId);
-                if (Requestors.Count == 0)
+                if (requestors.Remove(playerId) && requestors.Count == 0)
                 {
                     IsStatisticsNeeded = false;
                 }

@@ -15,10 +15,11 @@ namespace NebulaClient.PacketProcessors.Universe
 
         public void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)
         {
-            //Log.Info($"Processing DysonSphere Add Layer notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
-            DysonSphere_Manager.IncomingDysonSpherePacket = true;
-            GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToQuaternion(packet.OrbitRotation), packet.OrbitAngularSpeed);
-            DysonSphere_Manager.IncomingDysonSpherePacket = false;
+            Log.Info($"Processing DysonSphere Add Layer notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
+            using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
+            {
+                GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToQuaternion(packet.OrbitRotation), packet.OrbitAngularSpeed);
+            }
         }
     }
 }

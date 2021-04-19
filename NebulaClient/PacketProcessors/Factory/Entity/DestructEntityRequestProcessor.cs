@@ -18,25 +18,36 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             if (planet.factory != null)
             {
                 int protoId = 0;
-                FactoryManager.EventFromServer = true;
-                FactoryManager.DoNotAddItemsFromBuildingOnDestruct = packet.AuthorId != LocalPlayer.PlayerId;
-                if (packet.AuthorId == LocalPlayer.PlayerId)
+                using (FactoryManager.EventFromServer.On())
+                using (FactoryManager.DoNotAddItemsFromBuildingOnDestruct.On(packet.AuthorId != LocalPlayer.PlayerId))
                 {
-                    //I am author so I will take item as a building
-                    PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-                    if (pab != null) {
-                        int itemId = (packet.ObjId > 0 ? LDB.items.Select((int)planet.factory.entityPool[packet.ObjId].protoId) : LDB.items.Select((int)planet.factory.prebuildPool[-packet.ObjId].protoId))?.ID ?? -1;
-                        //Todo: Check for the full accumulator building
-                        if (itemId != -1)
+                    if (packet.AuthorId == LocalPlayer.PlayerId)
+                    {
+                        //I am author so I will take item as a building
+                        PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
+                        if (pab != null)
                         {
-                            GameMain.mainPlayer.TryAddItemToPackage(itemId, 1, true, packet.ObjId);
-                            UIItemup.Up(itemId, 1);
+                            int itemId = (packet.ObjId > 0 ? LDB.items.Select((int)planet.factory.entityPool[packet.ObjId].protoId) : LDB.items.Select((int)planet.factory.prebuildPool[-packet.ObjId].protoId))?.ID ?? -1;
+                            //Todo: Check for the full accumulator building
+                            if (itemId != -1)
+                            {
+                                GameMain.mainPlayer.TryAddItemToPackage(itemId, 1, true, packet.ObjId);
+                                UIItemup.Up(itemId, 1);
+                            }
                         }
                     }
+                    if (packet.PlanetId != GameMain.mainPlayer.planetId)
+                    {
+                        //Creating rendering batches is required to properly handle DestructFinally for the belts, since model needs to be changed.
+                        //ToDo: Optimize it somehow, since creating and destroying rendering batches is not optimal.
+                        planet.factory.cargoTraffic.CreateRenderingBatches();
+                    }
+                    planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+                    if (packet.PlanetId != GameMain.mainPlayer.planetId)
+                    {
+                        planet.factory.cargoTraffic.DestroyRenderingBatches();
+                    }
                 }
-                planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
-                FactoryManager.DoNotAddItemsFromBuildingOnDestruct = false;
-                FactoryManager.EventFromServer = false;
             }
         }
     }

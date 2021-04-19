@@ -13,9 +13,10 @@ namespace NebulaClient.PacketProcessors.GameHistory
         public void ProcessPacket(GameHistoryEnqueueTechPacket packet, NebulaConnection conn)
         {
             Log.Info($"Enquing new tech ID: {packet.TechId}");
-            GameDataHistoryManager.IsIncommingRequest = true;
-            GameMain.history.EnqueueTech(packet.TechId);
-            GameDataHistoryManager.IsIncommingRequest = false;
+            using (GameDataHistoryManager.IsIncomingRequest.On())
+            {
+                GameMain.history.EnqueueTech(packet.TechId);
+            }
         }
     }
 }

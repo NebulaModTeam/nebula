@@ -25,9 +25,10 @@ namespace NebulaHost.PacketProcessors.Universe
             if (player != null)
             {
                 playerManager.SendPacketToOtherPlayers(packet, player);
-                DysonSphere_Manager.IncomingDysonSwarmPacket = true;
-                GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.NewOrbit(packet.Radius, DataStructureExtensions.ToQuaternion(packet.Rotation));
-                DysonSphere_Manager.IncomingDysonSwarmPacket = false;
+                using (DysonSphere_Manager.IncomingDysonSwarmPacket.On())
+                {
+                    GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.NewOrbit(packet.Radius, DataStructureExtensions.ToQuaternion(packet.Rotation));
+                }
             }
         }
     }

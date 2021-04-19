@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaWorld.Factory;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,8 @@ namespace NebulaPatcher.Patches.Transpiler
                 {
                     Label targetLabel = (Label)codes[i + 4].operand;
                     codes.InsertRange(i - 1, new CodeInstruction[] {
-                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_EventFromServer")),
+                        new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), nameof(FactoryManager.EventFromServer))),
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "get_Value")),
                         new CodeInstruction(OpCodes.Brtrue_S, targetLabel)
                         });
                     break;
@@ -65,7 +67,8 @@ namespace NebulaPatcher.Patches.Transpiler
                     Label targetLabel = (Label)codes[i + 1].operand;
                     codes.InsertRange(i - 3, new CodeInstruction[] {
                                     new CodeInstruction(OpCodes.Pop),
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
                                     new CodeInstruction(OpCodes.Ldloc_3)
                                     });
@@ -87,7 +90,8 @@ namespace NebulaPatcher.Patches.Transpiler
                 {
                     Label targetLabel = (Label)codes[i].operand;
                     codes.InsertRange(i+1, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
                                     });
                     break;
@@ -108,7 +112,8 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i].opcode == OpCodes.Br)
                 {
                     codes.InsertRange(i - 7, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, codes[i].operand)
                                     });
 
@@ -149,7 +154,8 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i].opcode == OpCodes.Brfalse)
                 {
                     codes.InsertRange(i + 1, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, codes[i].operand)
                                     });
                     break;
@@ -170,7 +176,8 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[a].opcode == OpCodes.Brfalse)
                 {
                     codes.InsertRange(a + 1, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, codes[a].operand)
                                     });
                 }

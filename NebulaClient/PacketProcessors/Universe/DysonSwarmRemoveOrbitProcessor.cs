@@ -12,10 +12,11 @@ namespace NebulaClient.PacketProcessors.Universe
     {
         public void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
         {
-            //Log.Info($"Processing DysonSwarm Remove Orbit notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
-            DysonSphere_Manager.IncomingDysonSwarmPacket = true;
-            GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.RemoveOrbit(packet.OrbitId);
-            DysonSphere_Manager.IncomingDysonSwarmPacket = false;
+            Log.Info($"Processing DysonSwarm Remove Orbit notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
+            using (DysonSphere_Manager.IncomingDysonSwarmPacket.On())
+            {
+                GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.RemoveOrbit(packet.OrbitId);
+            }
         }
     }
 }

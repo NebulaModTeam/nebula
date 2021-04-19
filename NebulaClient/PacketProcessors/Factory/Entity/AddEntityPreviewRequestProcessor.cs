@@ -17,18 +17,19 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             // Else it will get it once it goes to the planet for the first time. 
             if (planet.factory != null)
             {
-                FactoryManager.EventFromServer = true;
-                PrebuildData prebuild = packet.GetPrebuildData();
-                int localPlanetId = GameMain.localPlanet?.id ?? -1;
-                if (packet.PlanetId == localPlanetId)
+                using (FactoryManager.EventFromServer.On())
                 {
-                    planet.factory.AddPrebuildDataWithComponents(prebuild);
+                    PrebuildData prebuild = packet.GetPrebuildData();
+                    int localPlanetId = GameMain.localPlanet?.id ?? -1;
+                    if (packet.PlanetId == localPlanetId)
+                    {
+                        planet.factory.AddPrebuildDataWithComponents(prebuild);
+                    }
+                    else
+                    {
+                        planet.factory.AddPrebuildData(prebuild);
+                    }
                 }
-                else
-                {
-                    planet.factory.AddPrebuildData(prebuild);
-                }
-                FactoryManager.EventFromServer = false;
             }
         }
     }

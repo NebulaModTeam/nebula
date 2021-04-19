@@ -6,6 +6,7 @@ using NebulaWorld;
 using NebulaWorld.Factory;
 using UnityEngine;
 using NebulaWorld.Planet;
+using NebulaWorld.Player;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -52,7 +53,12 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId));
+                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+            }
+
+            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
+            {
+                DroneManager.AddBuildRequestSent(-prebuildId);
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;

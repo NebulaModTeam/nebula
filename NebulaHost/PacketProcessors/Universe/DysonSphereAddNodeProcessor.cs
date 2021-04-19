@@ -25,21 +25,23 @@ namespace NebulaHost.PacketProcessors.Universe
             if (player != null)
             {
                 playerManager.SendPacketToOtherPlayers(packet, player);
-                DysonSphere_Manager.IncomingDysonSpherePacket = true;
-                GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonNode(packet.NodeProtoId, DataStructureExtensions.ToVector3(packet.Position));
-                DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-                //Try to add queued Dyson Frames that failed due to the missing nodes
-                DysonSphereAddFramePacket queuedPacked;
-                for (int i = DysonSphere_Manager.QueuedAddFramePackets.Count - 1; i >= 0; i--)
+
+                using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
                 {
-                    queuedPacked = DysonSphere_Manager.QueuedAddFramePackets[i];
-                    if (dsl?.nodePool[queuedPacked.NodeAId]?.id != 0 && dsl?.nodePool[queuedPacked.NodeBId]?.id != 0)
+                    GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonNode(packet.NodeProtoId, DataStructureExtensions.ToVector3(packet.Position));
+                    DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+                    //Try to add queued Dyson Frames that failed due to the missing nodes
+                    DysonSphereAddFramePacket queuedPacked;
+                    for (int i = DysonSphere_Manager.QueuedAddFramePackets.Count - 1; i >= 0; i--)
                     {
-                        dsl.NewDysonFrame(queuedPacked.ProtoId, queuedPacked.NodeAId, queuedPacked.NodeBId, queuedPacked.Euler);
-                        DysonSphere_Manager.QueuedAddFramePackets.RemoveAt(i);
+                        queuedPacked = DysonSphere_Manager.QueuedAddFramePackets[i];
+                        if (dsl?.nodePool[queuedPacked.NodeAId]?.id != 0 && dsl?.nodePool[queuedPacked.NodeBId]?.id != 0)
+                        {
+                            dsl.NewDysonFrame(queuedPacked.ProtoId, queuedPacked.NodeAId, queuedPacked.NodeBId, queuedPacked.Euler);
+                            DysonSphere_Manager.QueuedAddFramePackets.RemoveAt(i);
+                        }
                     }
                 }
-                DysonSphere_Manager.IncomingDysonSpherePacket = false;
             }
         }
     }
