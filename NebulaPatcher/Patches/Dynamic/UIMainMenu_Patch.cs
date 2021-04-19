@@ -172,7 +172,7 @@ namespace NebulaPatcher.Patches.Dynamic
             int port;
 
             //remove copy and paste mistakes and update the textbox to prevent user confusion in case of invalid ip address
-            ip = SanitizeIpAddressString(ip);
+            ip = ip.Trim('\r', '\n', '\t', ' ');
             hostIPAdressInput.text = parts.Length == 1 ? ip : ip + ":" + parts[1];
 
             if (!System.Net.IPAddress.TryParse(ip, out _))
@@ -193,7 +193,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-
             // TODO: Should display a loader during the connection and only open the game once the player is connected to the server.
             multiplayerMenu.gameObject.SetActive(false);
 
@@ -207,19 +206,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             multiplayerMenu.gameObject.SetActive(false);
             UIRoot.instance.OpenMainMenuUI();
-        }
-
-        private static string SanitizeIpAddressString(string ipAddr)
-        {
-            //remove simple copy&paste errors
-            string cleanedIpAddr = new System.Text.StringBuilder(ipAddr)
-                .Replace("\r", string.Empty)
-                .Replace("\n", string.Empty)
-                .Replace(" ", string.Empty)
-                .Replace("\t", string.Empty)
-                .ToString();
-
-            return cleanedIpAddr;
         }
     }
 }
