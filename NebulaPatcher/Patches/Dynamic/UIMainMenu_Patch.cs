@@ -171,6 +171,18 @@ namespace NebulaPatcher.Patches.Dynamic
             string ip = parts[0];
             int port;
 
+            //remove copy and paste mistakes and update the textbox to prevent user confusion in case of invalid ip address
+            ip = SanitizeIpAddressString(ip);
+            hostIPAdressInput.text = parts.Length == 1 ? ip : ip + ":" + parts[1];
+
+            if (!System.Net.IPAddress.TryParse(ip, out _))
+            {
+                //log, notify user and early return to prevent crash on invalid strings
+                InGamePopup.ShowWarning("Invalid connection string", "Note: This mod currently only accepts IPv4 Addresses.", "OK");
+                Log.Info($"IP String {ip} is not a valid IPv4 String");
+                return;
+            }
+
             if (parts.Length == 1)
             {
                 port = Config.DefaultPort;
@@ -180,6 +192,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 Log.Info($"Port must be a valid number above 1024");
                 return;
             }
+
 
             // TODO: Should display a loader during the connection and only open the game once the player is connected to the server.
             multiplayerMenu.gameObject.SetActive(false);
@@ -194,6 +207,18 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             multiplayerMenu.gameObject.SetActive(false);
             UIRoot.instance.OpenMainMenuUI();
+        }
+
+        private static string SanitizeIpAddressString(string ipAddr)
+        {
+            //remove simple copy&paste errors
+            string cleanedIpAddr = new System.Text.StringBuilder(ipAddr)
+                .Replace("\n", string.Empty)
+                .Replace(" ", string.Empty)
+                .Replace("\t", string.Empty)
+                .ToString();
+
+            return cleanedIpAddr;
         }
     }
 }
