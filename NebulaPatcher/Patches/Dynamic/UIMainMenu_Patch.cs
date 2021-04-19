@@ -168,12 +168,11 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnJoinGameButtonClick()
         {
             string[] parts = hostIPAdressInput.text.Split(':');
-            string ip = parts[0];
+            string ip = parts[0].Trim();
             int port;
 
             //remove copy and paste mistakes and update the textbox to prevent user confusion in case of invalid ip address
-            ip = ip.Trim('\r', '\n', '\t', ' ');
-            hostIPAdressInput.text = parts.Length == 1 ? ip : ip + ":" + parts[1];
+            hostIPAdressInput.text = parts.Length == 1 ? ip : ip + ":" + parts[1].Trim();
 
             if (!System.Net.IPAddress.TryParse(ip, out _))
             {
