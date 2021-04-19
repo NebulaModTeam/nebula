@@ -213,6 +213,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //remove simple copy&paste errors
             string cleanedIpAddr = new System.Text.StringBuilder(ipAddr)
+                .Replace("\r", string.Empty)
                 .Replace("\n", string.Empty)
                 .Replace(" ", string.Empty)
                 .Replace("\t", string.Empty)
