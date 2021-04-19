@@ -1,4 +1,5 @@
-﻿using NebulaModel.Packets.Belt;
+﻿using HarmonyLib;
+using NebulaModel.Packets.Belt;
 using System.Collections.Generic;
 
 namespace NebulaWorld.Factory
@@ -6,6 +7,10 @@ namespace NebulaWorld.Factory
     public static class BeltManager
     {
         public static List<BeltUpdate> BeltUpdates = new List<BeltUpdate>();
+
+        public static readonly AccessTools.FieldRef<object, CargoTraffic> GetCargoTraffic =
+            AccessTools.FieldRefAccess<CargoTraffic>(typeof(CargoTraffic), "beltRenderingBatch");
+
         public static void BeltPickupStarted()
         {
             BeltUpdates.Clear();

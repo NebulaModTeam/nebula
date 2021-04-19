@@ -11,12 +11,17 @@ namespace NebulaHost.PacketProcessors.Factory.Foundation
     [RegisterPacketProcessor]
     class FoundationBuildUpdateProcessor : IPacketProcessor<FoundationBuildUpdatePacket>
     {
+        Vector3[] reformPoints = new Vector3[100];
+
         public void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
-            Vector3[] reformPoints = new Vector3[100];
             Vector3 reformCenterPoint = new Vector3();
+            for(int i = 0; i < reformPoints.Length; i++)
+            {
+                reformPoints[i] = Vector3.zero;
+            }
 
             //Check if some mandatory variables are missing
             if (factory.platformSystem.reformData == null)
