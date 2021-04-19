@@ -13,35 +13,36 @@ namespace NebulaClient.PacketProcessors.Universe
         public void ProcessPacket(DysonSphereRemoveNodePacket packet, NebulaConnection conn)
         {
             Log.Info($"Processing DysonSphere Remove Node notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
-            DysonSphere_Manager.IncomingDysonSpherePacket = true;
-            DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-            if (dsl != null)
+            using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
             {
-                int num = 0;
-                DysonNode dysonNode = dsl.nodePool[packet.NodeId];
-                //Remove all frames that are part of the node
-                while (dysonNode.frames.Count > 0)
+                DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+                if (dsl != null)
                 {
-                    dsl.RemoveDysonFrame(dysonNode.frames[0].id);
-                    if (num++ > 4096)
+                    int num = 0;
+                    DysonNode dysonNode = dsl.nodePool[packet.NodeId];
+                    //Remove all frames that are part of the node
+                    while (dysonNode.frames.Count > 0)
                     {
-                        Assert.CannotBeReached();
-                        break;
+                        dsl.RemoveDysonFrame(dysonNode.frames[0].id);
+                        if (num++ > 4096)
+                        {
+                            Assert.CannotBeReached();
+                            break;
+                        }
                     }
-                }
-                //Remove all shells that are part of the node
-                while (dysonNode.shells.Count > 0)
-                {
-                    dsl.RemoveDysonShell(dysonNode.shells[0].id);
-                    if (num++ > 4096)
+                    //Remove all shells that are part of the node
+                    while (dysonNode.shells.Count > 0)
                     {
-                        Assert.CannotBeReached();
-                        break;
+                        dsl.RemoveDysonShell(dysonNode.shells[0].id);
+                        if (num++ > 4096)
+                        {
+                            Assert.CannotBeReached();
+                            break;
+                        }
                     }
+                    dsl.RemoveDysonNode(packet.NodeId);
                 }
-                dsl.RemoveDysonNode(packet.NodeId);
             }
-            DysonSphere_Manager.IncomingDysonSpherePacket = false;
         }
     }
 }

@@ -52,6 +52,7 @@
     <Compile Include="DataStructures\PlayerData.cs" />
     <Compile Include="DataStructures\ProductionChangeStruct.cs" />
     <Compile Include="DataStructures\StatisticalSnapshot.cs" />
+    <Compile Include="DataStructures\ToggleSwitch.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Config.cs" />

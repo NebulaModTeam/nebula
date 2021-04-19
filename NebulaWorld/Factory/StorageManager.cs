@@ -1,4 +1,5 @@
-﻿using UnityEngine.UI;
+﻿using NebulaModel.DataStructures;
+using UnityEngine.UI;
 
 namespace NebulaWorld.Factory
 {
@@ -11,8 +12,8 @@ namespace NebulaWorld.Factory
         public static Text ActiveBansValueText;
 
         public static bool WindowOpened = false;
-        public static bool EventFromServer = false;
-        public static bool EventFromClient = false;
+        public static readonly ToggleSwitch EventFromServer = new ToggleSwitch();
+        public static readonly ToggleSwitch EventFromClient = new ToggleSwitch();
         public static bool IsHumanInput = false;
     }
 }

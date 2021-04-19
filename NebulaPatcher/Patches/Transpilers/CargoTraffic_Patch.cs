@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -79,7 +80,8 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 7].opcode == OpCodes.Ldfld)
                 {
                     codes.InsertRange(i, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "get_DoNotAddItemsFromBuildingOnDestruct")),
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "DoNotAddItemsFromBuildingOnDestruct")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, codes[i-1].operand),
                                     });
                     break;

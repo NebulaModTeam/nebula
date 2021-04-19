@@ -20,22 +20,23 @@ namespace NebulaClient.PacketProcessors.Factory.Storage
 
             if (storageComponent != null)
             {
-                StorageManager.EventFromServer = true;
-                int itemId = packet.ItemId;
-                int count = packet.Count;
-                if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItem2)
+                using (StorageManager.EventFromServer.On())
                 {
-                    storageComponent.AddItem(packet.ItemId, packet.Count, packet.StartIndex, packet.Length);
+                    int itemId = packet.ItemId;
+                    int count = packet.Count;
+                    if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItem2)
+                    {
+                        storageComponent.AddItem(packet.ItemId, packet.Count, packet.StartIndex, packet.Length);
+                    }
+                    else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItemStacked)
+                    {
+                        storageComponent.AddItemStacked(packet.ItemId, packet.Count);
+                    }
+                    else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.TakeItemFromGrid)
+                    {
+                        storageComponent.TakeItemFromGrid(packet.Length, ref itemId, ref count);
+                    }
                 }
-                else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItemStacked)
-                {
-                    storageComponent.AddItemStacked(packet.ItemId, packet.Count);
-                }
-                else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.TakeItemFromGrid)
-                {
-                    storageComponent.TakeItemFromGrid(packet.Length, ref itemId, ref count);
-                }
-                StorageManager.EventFromServer = false;
             }
         }
     }

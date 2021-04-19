@@ -20,17 +20,18 @@ namespace NebulaHost.PacketProcessors.GameHistory
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {
-                GameDataHistoryManager.IsIncommingRequest = true;
-                switch (packet.Event)
+                using (GameDataHistoryManager.IsIncomingRequest.On())
                 {
-                    case GameHistoryEvent.ResumeQueue:
-                        GameMain.history.ResumeTechQueue();
-                        break;
-                    case GameHistoryEvent.PauseQueue:
-                        GameMain.history.PauseTechQueue();
-                        break;
+                    switch (packet.Event)
+                    {
+                        case GameHistoryEvent.ResumeQueue:
+                            GameMain.history.ResumeTechQueue();
+                            break;
+                        case GameHistoryEvent.PauseQueue:
+                            GameMain.history.PauseTechQueue();
+                            break;
+                    }
                 }
-                GameDataHistoryManager.IsIncommingRequest = false;
                 playerManager.SendPacketToOtherPlayers(packet, player);
             }
         }
