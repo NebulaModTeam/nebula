@@ -104,6 +104,8 @@
     <Compile Include="Packets\GameHistory\GameHistoryUnlockTechPacket.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
+    <Compile Include="Packets\Logistics\ILSAddStationComponentRequest.cs" />
+    <Compile Include="Packets\Logistics\ILSAddStationComponentResponse.cs" />
     <Compile Include="Packets\Logistics\ILSgStationPoolSync.cs" />
     <Compile Include="Packets\Logistics\ILSRequestgStationPoolSync.cs" />
     <Compile Include="Packets\Logistics\ILSRemoteOrderData.cs" />

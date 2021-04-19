@@ -78,6 +78,7 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryNotificationProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryRemoveTechProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSAddStationComponentRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSgStationPoolSyncRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSRemoteOrderBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockProcessor.cs" />

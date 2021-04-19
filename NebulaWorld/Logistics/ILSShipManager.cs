@@ -2,11 +2,13 @@
 using NebulaModel.Logger;
 using HarmonyLib;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace NebulaWorld.Logistics
 {
     public static class ILSShipManager
     {
+        public static Dictionary<int,List<StationComponent>> AddStationComponentQueue = new Dictionary<int,List<StationComponent>>();
         public static void IdleShipGetToWork(ILSShipData packet)
         {
             PlanetData planetA = GameMain.galaxy.PlanetById(packet.planetA);
@@ -40,17 +42,18 @@ namespace NebulaWorld.Logistics
                 }
 
                 StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.planetAStationGID];
-                stationComponent.workShipDatas[packet.origShipIndex].stage = -2;
-                stationComponent.workShipDatas[packet.origShipIndex].planetA = packet.planetA;
-                stationComponent.workShipDatas[packet.origShipIndex].planetB = packet.planetB;
-                stationComponent.workShipDatas[packet.origShipIndex].otherGId = packet.planetBStationGID;
-                stationComponent.workShipDatas[packet.origShipIndex].direction = 1;
-                stationComponent.workShipDatas[packet.origShipIndex].t = 0f;
-                stationComponent.workShipDatas[packet.origShipIndex].itemId = packet.itemId;
-                stationComponent.workShipDatas[packet.origShipIndex].itemCount = packet.itemCount;
-                stationComponent.workShipDatas[packet.origShipIndex].gene = 0; // WHAT IS THIS?
-                stationComponent.workShipDatas[packet.origShipIndex].shipIndex = packet.origShipIndex;
-                stationComponent.workShipDatas[packet.origShipIndex].warperCnt = packet.warperCnt;
+                stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
+                stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.planetA;
+                stationComponent.workShipDatas[stationComponent.workShipCount].planetB = packet.planetB;
+                stationComponent.workShipDatas[stationComponent.workShipCount].otherGId = packet.planetBStationGID;
+                stationComponent.workShipDatas[stationComponent.workShipCount].direction = 1;
+                stationComponent.workShipDatas[stationComponent.workShipCount].t = 0f;
+                stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.itemId;
+                stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.itemCount;
+                stationComponent.workShipDatas[stationComponent.workShipCount].gene = 0; // WHAT IS THIS?
+                stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.origShipIndex;
+                stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.warperCnt;
+                stationComponent.warperCount = packet.stationWarperCnt;
 
                 stationComponent.workShipCount++;
                 stationComponent.idleShipCount--;
@@ -65,6 +68,10 @@ namespace NebulaWorld.Logistics
                 stationComponent.IdleShipGetToWork(packet.origShipIndex);
                 Log.Info($"Received ship message (departing): {planetA.displayName} -> {planetB.displayName} transporting {packet.itemCount} of {packet.itemId} and index is {packet.origShipIndex}");
                 //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
+            }
+            else
+            {
+                Debug.Log(((planetA == null) ? "null" : "not null") + ((planetB == null) ? "null" : "not null") + packet.planetA + " " + packet.planetB);
             }
         }
 
@@ -89,7 +96,7 @@ namespace NebulaWorld.Logistics
             }
 
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.planetAStationGID];
-            stationComponent.workShipDatas[packet.origShipIndex] = new ShipData();
+            stationComponent.workShipDatas[stationComponent.workShipCount] = new ShipData();
             stationComponent.workShipCount--;
             stationComponent.idleShipCount++;
             if (stationComponent.idleShipCount < 0)

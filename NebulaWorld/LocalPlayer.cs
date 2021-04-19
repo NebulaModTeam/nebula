@@ -44,11 +44,6 @@ namespace NebulaWorld
 
         public static void SetReady()
         {
-            PatchLocks.Clear();
-            PatchLocks.Add("PlanetTransport", false);
-            PatchLocks.Add("UIStationWindow", false);
-            PatchLocks.Add("UIStationStorage", false);
-
 
             if (!IsMasterClient)
             {
@@ -65,12 +60,19 @@ namespace NebulaWorld
             {
                 //Subscribe for the local star events
                 LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+                PatchLocks["GalacticTransport"] = false; // after inital sync we need to set this back to false
             }
         }
 
         public static void SetPlayerData(PlayerData data)
         {
             Data = data;
+            PatchLocks.Clear();
+            PatchLocks.Add("PlanetTransport", false);
+            PatchLocks.Add("UIStationWindow", false);
+            PatchLocks.Add("UIStationStorage", false);
+            PatchLocks.Add("StationComponent", false);
+            PatchLocks.Add("GalacticTransport", true); // true so we dont request gid data twice on game load
         }
 
         public static void LeaveGame()

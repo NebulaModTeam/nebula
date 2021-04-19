@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld.Logistics;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -22,10 +24,17 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("AddStationComponent")]
         public static bool AddStationComponent_Prefix(GalacticTransport __instance, int planetId, StationComponent station)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || LocalPlayer.PatchLocks["GalacticTransport"])
             {
                 return true;
             }
+            if (!ILSShipManager.AddStationComponentQueue.ContainsKey(planetId))
+            {
+                ILSShipManager.AddStationComponentQueue.Add(planetId, new List<StationComponent>());
+            }
+            ILSShipManager.AddStationComponentQueue[planetId].Add(station);
+            LocalPlayer.SendPacket(new ILSAddStationComponentRequest(planetId, station.shipDockPos));
+            /*
             // if we are a client and have a fake station already saved, update it with the full data given now
             // this should happen when this client arrives at a planet for the first time whichs interplanetar logistic
             // he was already syncing
@@ -51,6 +60,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 debug = __instance.stationCursor;
             }
             Debug.Log("adding station id " + station.id + " on " + GameMain.galaxy.PlanetById(planetId).displayName + " to gid " + debug);
+            */
             /*
             for (int i = 0; i < GameMain.data.galacticTransport.stationPool.Length; i++)
             {

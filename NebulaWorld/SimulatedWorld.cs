@@ -225,6 +225,7 @@ namespace NebulaWorld
 
         public static void OnILSShipUpdate(ILSShipData packet)
         {
+            Debug.Log("SimulatedWOrld");
             if (packet.IdleToWork)
             {
                 ILSShipManager.IdleShipGetToWork(packet);

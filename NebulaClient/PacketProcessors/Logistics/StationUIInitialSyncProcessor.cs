@@ -69,12 +69,9 @@ namespace NebulaClient.PacketProcessors.Logistics
                         stationWindow._Init(stationComponent);
                         AccessTools.Field(typeof(UIStationWindow), "_stationId").SetValue(stationWindow, stationComponent.id);
                         stationWindow._Open();
-                        Debug.Log("just before update()");
                         stationWindow._Update();
-                        Debug.Log("update()");
                     }
                     StationUIManager.UIStationId = stationComponent.id;
-                    Debug.Log("done");
                 }
             }
         }

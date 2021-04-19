@@ -546,7 +546,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InstructionEnumeration();
             // END: transpilers to catch StationStore::remoteOrder changes
 
-            // START: transpilers to catch ShipData.warperCnt++
+            // START: transpilers to catch ShipData.warperCnt++ and stationComponent3.warperCount--;
             // c# 807 IL 4011
             instructions = new CodeMatcher(instructions)
                 .MatchForward(false,
@@ -566,6 +566,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldloca_S, 35))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
+                    LocalPlayer.SendPacket(new StationUI(stationComponent.gid, stationComponent.planetId, 10, stationComponent.warperCount));
                     LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
                     return 0;
                 }))

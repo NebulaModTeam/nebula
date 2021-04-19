@@ -18,6 +18,7 @@ namespace NebulaWorld.Logistics
         public static GameObject lastSelectedGameObj;
         public static int UIIsSyncedStage; // 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
         public static int UIStationId;
+        public static bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
 
         public static void Initialize()
         {
@@ -25,6 +26,7 @@ namespace NebulaWorld.Logistics
             UpdateCooldown = 0;
             UIIsSyncedStage = 0;
             UIStationId = 0;
+            UIRequestedShipDronWarpChange = false;
         }
         public static void AddSubscriber(int stationGId, NebulaConnection player)
         {
@@ -102,36 +104,49 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        private static void UpdateSettingsUIBackground(StationUI packet, PlanetData pData, int stationId)
+        private static void UpdateSettingsUIBackground(StationUI packet, PlanetData pData, int stationGId)
         {
+            StationComponent[] stationPool = GameMain.data.galacticTransport.stationPool;
+            int stationId = stationGId;
+            // if we have the planet factory loaded take the local transport array, if not take the global galactic array
+            if (pData?.factory != null && pData?.factory?.transport != null)
+            {
+                stationPool = pData.factory.transport.stationPool;
+                for (int i = 0; i < stationPool.Length; i++)
+                {
+                    if (stationPool[i] != null && stationPool[i].gid == stationGId)
+                    {
+                        stationId = stationPool[i].id;
+                        break;
+                    }
+                }
+            }
             // update drones, ships and warpers for everyone
             if ((packet.settingIndex >= 8 && packet.settingIndex <= 10) || packet.settingIndex == 0)
             {
-                if (pData?.factory != null && pData?.factory?.transport != null)
+                if (stationPool.Length > stationId)
                 {
-                    StationComponent[] stationPool = pData.factory.transport.stationPool;
-                    if (stationPool.Length > stationId)
+                    if (packet.settingIndex == 0 && pData.factory.powerSystem != null)
                     {
-                        if(packet.settingIndex == 0 && pData.factory.powerSystem != null)
+                        PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
+                        if (consumerPool.Length > stationPool[stationId].pcId)
                         {
-                            PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
-                            if (consumerPool.Length > stationPool[stationId].pcId)
-                            {
-                                consumerPool[stationPool[stationId].pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.settingValue + 0.5);
-                            }
+                            consumerPool[stationPool[stationId].pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.settingValue + 0.5);
                         }
-                        if (packet.settingIndex == 8)
-                        {
-                            stationPool[stationId].idleDroneCount = (int)packet.settingValue;
-                        }
-                        if (packet.settingIndex == 9)
-                        {
-                            stationPool[stationId].idleShipCount = (int)packet.settingValue;
-                        }
-                        if (packet.settingIndex == 10)
-                        {
-                            stationPool[stationId].warperCount = (int)packet.settingValue;
-                        }
+                    }
+                    if (packet.settingIndex == 8)
+                    {
+                        stationPool[stationId].idleDroneCount = (int)packet.settingValue;
+                    }
+                    if (packet.settingIndex == 9)
+                    {
+                        stationPool[stationId].idleShipCount = (int)packet.settingValue;
+                        Debug.Log("ADDED SHIPS!!");
+                    }
+                    if (packet.settingIndex == 10)
+                    {
+                        stationPool[stationId].warperCount = (int)packet.settingValue;
+                        Debug.Log("ADDED WARPER!!");
                     }
                 }
             }
@@ -143,7 +158,6 @@ namespace NebulaWorld.Logistics
             if(packet.settingIndex == 0)
             {
                 PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (consumerPool.Length > stationPool[stationId].pcId)
                 {
                     consumerPool[stationPool[stationId].pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.settingValue + 0.5);
@@ -151,7 +165,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 1)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId)
                 {
                     stationPool[stationId].tripRangeDrones = Math.Cos((double)packet.settingValue / 180.0 * 3.141592653589793);
@@ -159,7 +172,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 2)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId)
                 {
                     double value = packet.settingValue;
@@ -176,7 +188,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 3)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId)
                 {
                     int value = (int)(packet.settingValue * 10f + 0.5f);
@@ -189,7 +200,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 4)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId)
                 {
                     int value = (int)(packet.settingValue * 10f + 0.5f);
@@ -202,7 +212,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 5)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId)
                 {
                     double value = packet.settingValue;
@@ -231,7 +240,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 6)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId)
                 {
                     stationPool[stationId].warperNecessary = !stationPool[stationId].warperNecessary;
@@ -239,7 +247,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 7)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId)
                 {
                     stationPool[stationId].includeOrbitCollector = !stationPool[stationId].includeOrbitCollector;
@@ -247,7 +254,6 @@ namespace NebulaWorld.Logistics
             }
             if(packet.settingIndex == 11)
             {
-                StationComponent[] stationPool = pData.factory.transport.stationPool;
                 if (stationPool.Length > stationId && stationPool[stationId].storage != null)
                 {
                     for (int i = 0; i < stationPool[stationId].storage.Length; i++)
@@ -272,14 +278,19 @@ namespace NebulaWorld.Logistics
                 {
                     return;
                 }
+                else if(GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
+                {
+                    // client never was on this planet before or has it unloaded, but has a fake structure created, so update it
+                    UpdateSettingsUIBackground(packet, pData, packet.stationGId);
+                }
                 for (int i = 0; i < pData.factory.transport.stationPool.Length; i++)
                 {
                     if(pData.factory.transport.stationPool[i] != null && pData.factory.transport.stationPool[i].gid == packet.stationGId)
                     {
                         if(pData.factory.transport.stationPool[i].id != _stationId)
                         {
-                            // receiving side has the UI closed. still update drones, ships, warpers and power consumption for clients and update all for host
-                            UpdateSettingsUIBackground(packet, pData, pData.factory.transport.stationPool[i].id);
+                            // receiving side has the UI closed or another stations UI opened. still update drones, ships, warpers and power consumption for clients and update all for host
+                            UpdateSettingsUIBackground(packet, pData, pData.factory.transport.stationPool[i].gid);
                             return;
                         }
                         else
@@ -332,14 +343,41 @@ namespace NebulaWorld.Logistics
                     StationComponent[] stationPool = pData.factory.transport.stationPool;
                     if (packet.settingIndex == 8)
                     {
+                        Type[] args = new Type[1];
+                        object[] values = new object[1];
+                        args[0] = typeof(int);
+                        values[0] = 0;
+                        if (UIRequestedShipDronWarpChange)
+                        {
+                            AccessTools.Method(typeof(UIStationWindow), "OnDroneIconClick", args).Invoke(stationWindow, values);
+                            UIRequestedShipDronWarpChange = false;
+                        }
                         stationPool[_stationId].idleDroneCount = (int)packet.settingValue;
                     }
                     if (packet.settingIndex == 9)
                     {
+                        Type[] args = new Type[1];
+                        object[] values = new object[1];
+                        args[0] = typeof(int);
+                        values[0] = 0;
+                        if (UIRequestedShipDronWarpChange)
+                        {
+                            AccessTools.Method(typeof(UIStationWindow), "OnShipIconClick", args).Invoke(stationWindow, values);
+                            UIRequestedShipDronWarpChange = false;
+                        }
                         stationPool[_stationId].idleShipCount = (int)packet.settingValue;
                     }
                     if (packet.settingIndex == 10)
                     {
+                        Type[] args = new Type[1];
+                        object[] values = new object[1];
+                        args[0] = typeof(int);
+                        values[0] = 0;
+                        if (UIRequestedShipDronWarpChange)
+                        {
+                            AccessTools.Method(typeof(UIStationWindow), "OnWarperIconClick", args).Invoke(stationWindow, values);
+                            UIRequestedShipDronWarpChange = false;
+                        }
                         stationPool[_stationId].warperCount = (int)packet.settingValue;
                     }
                 }

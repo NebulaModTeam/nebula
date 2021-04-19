@@ -65,7 +65,8 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
-                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[index].planetA, __instance.workShipDatas[index].planetB, __instance.workShipDatas[index].itemId, __instance.workShipDatas[index].itemCount, __instance.gid, __instance.workShipDatas[index].otherGId, index, __instance.workShipDatas[index].warperCnt);
+                Debug.Log("Sending that thing");
+                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[__instance.workShipCount-1].planetA, __instance.workShipDatas[__instance.workShipCount - 1].planetB, __instance.workShipDatas[__instance.workShipCount - 1].itemId, __instance.workShipDatas[__instance.workShipCount - 1].itemCount, __instance.gid, __instance.workShipDatas[__instance.workShipCount - 1].otherGId, index, __instance.workShipDatas[__instance.workShipCount - 1].warperCnt, __instance.warperCount);
                 LocalPlayer.SendPacket(packet);
             }
         }
@@ -79,6 +80,22 @@ namespace NebulaPatcher.Patches.Dynamic
                 ILSShipData packet = new ILSShipData(false, __instance.gid, index);
                 LocalPlayer.SendPacket(packet);
             }
+        }
+
+        // as we unload PlanetFactory objects when leaving the star system we need to prevent the call on ILS entries in the gStationPool array
+        [HarmonyPrefix]
+        [HarmonyPatch("Free")]
+        public static bool Free_Prefix(StationComponent __instance)
+        {
+            if(!SimulatedWorld.Initialized || !LocalPlayer.PatchLocks["StationComponent"])
+            {
+                return true;
+            }
+            if (__instance.isStellar)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }
