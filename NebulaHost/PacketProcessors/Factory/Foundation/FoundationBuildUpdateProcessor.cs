@@ -4,6 +4,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
+using System;
 using UnityEngine;
 
 namespace NebulaHost.PacketProcessors.Factory.Foundation
@@ -18,7 +19,7 @@ namespace NebulaHost.PacketProcessors.Factory.Foundation
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
             Vector3 reformCenterPoint = new Vector3();
-            Array.Clear(reformPoints);
+            Array.Clear(reformPoints,0,reformPoints.Length);
 
             //Check if some mandatory variables are missing
             if (factory.platformSystem.reformData == null)
