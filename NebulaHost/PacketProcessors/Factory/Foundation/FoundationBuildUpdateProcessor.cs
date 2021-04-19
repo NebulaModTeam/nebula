@@ -18,7 +18,7 @@ namespace NebulaHost.PacketProcessors.Factory.Foundation
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
             Vector3 reformCenterPoint = new Vector3();
-			Array.Clear(reformPoints);
+            Array.Clear(reformPoints);
 
             //Check if some mandatory variables are missing
             if (factory.platformSystem.reformData == null)
