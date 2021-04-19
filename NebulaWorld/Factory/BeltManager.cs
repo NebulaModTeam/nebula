@@ -8,8 +8,8 @@ namespace NebulaWorld.Factory
     {
         public static List<BeltUpdate> BeltUpdates = new List<BeltUpdate>();
 
-        public static readonly AccessTools.FieldRef<object, CargoTraffic> GetCargoTraffic =
-            AccessTools.FieldRefAccess<CargoTraffic>(typeof(CargoTraffic), "beltRenderingBatch");
+        public static readonly AccessTools.FieldRef<object, BeltRenderingBatch[]> GetCargoTraffic =
+            AccessTools.FieldRefAccess<BeltRenderingBatch[]>(typeof(CargoTraffic), "beltRenderingBatch");
 
         public static void BeltPickupStarted()
         {
