@@ -200,33 +200,17 @@ namespace NebulaWorld
                             ref MechaDrone myDrone = ref myMecha.drones[droneId];
                             //for size comparison sqrMagnitude is fine, since sqrMagnitude, magnitude and the actual distance along the curve are all strictly monotonically increasing
                             float diff = (myDrone.position - myDrone.target).sqrMagnitude - (drone.position - drone.target).sqrMagnitude;
-                            if (diff > 0)
+                            if (diff > 0 || (diff == 0 && packet.Priority > priority))
                             {
                                 //my drone is further away (myMagnitude > otherMagnitude = difference positive) and has to return
                                 myDrone.stage = 3;
                                 myDrone.targetObject = 0;
                             }
-                            else if (diff < 0)
+                            else
                             {
                                 //their drone is further away (otherMagnitude > myMagnitude = difference negative) and has to return
                                 drone.stage = 3;
                                 drone.targetObject = 0;
-                            }
-                            else
-                            {
-                                //equal distances... -> compare, who's drone has higher random priority
-                                if (packet.Priority > priority)
-                                {
-                                    //their drone won, my drone has to return
-                                    myDrone.stage = 3;
-                                    myDrone.targetObject = 0;
-                                }
-                                else
-                                {
-                                    //my drone won, their has to return
-                                    drone.stage = 3;
-                                    drone.targetObject = 0;
-                                }
                             }
                         }
                     }
