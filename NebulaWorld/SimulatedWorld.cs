@@ -395,6 +395,7 @@ namespace NebulaWorld
                 GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
                 GameMain.mainPlayer.mecha.reactorStorage = LocalPlayer.Data.Mecha.ReactorStorage;
                 GameMain.mainPlayer.mecha.warpStorage = LocalPlayer.Data.Mecha.WarpStorage;
+                GameMain.mainPlayer.SetSandCount(LocalPlayer.Data.Mecha.SandCount);
 
                 //Fix references that brokes during import
                 AccessTools.Property(typeof(MechaForge), "mecha").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer.mecha, null);

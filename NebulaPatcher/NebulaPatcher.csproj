@@ -63,6 +63,7 @@
     <Compile Include="Patches\Dynamic\PlanetModelingManager_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetPhysics_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlayerAction_Build_Patch.cs" />
+    <Compile Include="Patches\Dynamic\Player_Patch.cs" />
     <Compile Include="Patches\Dynamic\ProductionStatistics_Patch.cs" />
     <Compile Include="Patches\Dynamic\SplitterComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\TrashContainer_Patch.cs" />
