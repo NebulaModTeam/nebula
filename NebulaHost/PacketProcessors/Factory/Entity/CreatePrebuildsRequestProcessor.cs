@@ -61,10 +61,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         planet.physics = new PlanetPhysics(planet);
                         planet.physics.Init();
                     }
-                    if (BeltManager.GetCargoTraffic(planet.factory.cargoTraffic) == null)
-                    {
-                        planet.factory.cargoTraffic.CreateRenderingBatches();
-                    }
+                    planet.factory.cargoTraffic.GetOrCreateBeltRenderingBatches();
                     if (planet.aux == null)
                     {
                         planet.aux = new PlanetAuxData(planet);
