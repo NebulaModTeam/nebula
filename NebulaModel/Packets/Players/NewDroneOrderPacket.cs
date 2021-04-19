@@ -1,4 +1,7 @@
-﻿namespace NebulaModel.Packets.Players
+﻿using NebulaModel.DataStructures;
+using UnityEngine;
+
+namespace NebulaModel.Packets.Players
 {
     public class NewDroneOrderPacket
     {
@@ -8,9 +11,10 @@
         public ushort PlayerId { get; set; }
         public int Stage { get; set; }
         public int Priority { get; set; }
+        public Float3 EntityPos { get; set; }
         
         public NewDroneOrderPacket() { }
-        public NewDroneOrderPacket(int planetId, int droneId, int entityId, ushort playerId, int stage, int priority)
+        public NewDroneOrderPacket(int planetId, int droneId, int entityId, ushort playerId, int stage, int priority, Vector3 entityPos)
         {
             PlanetId = planetId;
             DroneId = droneId;
@@ -18,6 +22,7 @@
             PlayerId = playerId;
             Stage = stage;
             Priority = priority;
+            EntityPos = entityPos.ToFloat3();
         }
     }
 }

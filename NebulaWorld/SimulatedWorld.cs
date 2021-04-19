@@ -176,6 +176,19 @@ namespace NebulaWorld
 
                     if (drone.stage == 1 || drone.stage == 2)
                     {
+                        //Check if target entity exists as Prebuild
+                        if (GameMain.data.localPlanet.factory.prebuildPool.Length <= -packet.EntityId || GameMain.data.localPlanet.factory.prebuildPool[-packet.EntityId].id == 0)
+                        {
+                            return;
+                        }
+
+                        //Check target prebuild if it is same prebuild that I have. Sometimes it is same ID, but different prebuild
+                        ref PrebuildData prebuildData = ref GameMain.data.localPlanet.factory.prebuildPool[-packet.EntityId];
+                        if (prebuildData.pos.x != packet.EntityPos.x || prebuildData.pos.y != packet.EntityPos.y || prebuildData.pos.z != packet.EntityPos.z)
+                        {
+                            return;
+                        }
+
                         //Check if my drone is already going there
                         if (!myMecha.droneLogic.serving.Contains(packet.EntityId))
                         {
@@ -451,7 +464,13 @@ namespace NebulaWorld
                         //Update only moving drones of players on the same planet
                         if (drones[i].stage != 0 && GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
                         {
-                            drones[i].Update(prebuildPool, remotePosition, dt, ref tmp, ref tmp2, 0);
+                            if (drones[i].Update(prebuildPool, remotePosition, dt, ref tmp, ref tmp2, 0) != 0)
+                            {
+                                //Reset drone and release lock
+                                drones[i].stage = 3;
+                                GameMain.mainPlayer.mecha.droneLogic.serving.Remove(drones[i].targetObject);
+                                drones[i].targetObject = 0;
+                            }
                         }
                     }
                     remoteMecha.droneRenderer.Update();
