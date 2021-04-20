@@ -49,10 +49,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                         planet.physics = new PlanetPhysics(planet);
                         planet.physics.Init();
                     }
-                    if (BeltManager.GetCargoTraffic(planet.factory.cargoTraffic) == null)
-                    {
-                        planet.factory.cargoTraffic.CreateRenderingBatches();
-                    }
+                    planet.factory.cargoTraffic.GetOrCreateBeltRenderingBatches();
 
                     //Take item from the inventory if player is author of the build
                     if (packet.AuthorId == LocalPlayer.PlayerId)
