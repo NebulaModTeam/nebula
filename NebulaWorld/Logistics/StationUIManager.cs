@@ -2,7 +2,6 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +10,7 @@ namespace NebulaWorld.Logistics
 {
     public static class StationUIManager
     {
-        private static ThreadSafeDictionary<int, List<NebulaConnection>> StationUISubscribers;
+        private static Dictionary<int, List<NebulaConnection>> StationUISubscribers;
         public static int UpdateCooldown;
         public static BaseEventData lastMouseEvent;
         public static bool lastMouseEventWasDown;
@@ -22,7 +21,7 @@ namespace NebulaWorld.Logistics
 
         public static void Initialize()
         {
-            StationUISubscribers = new ThreadSafeDictionary<int, List<NebulaConnection>>();
+            StationUISubscribers = new Dictionary<int, List<NebulaConnection>>();
             UpdateCooldown = 0;
             UIIsSyncedStage = 0;
             UIStationId = 0;
@@ -276,12 +275,12 @@ namespace NebulaWorld.Logistics
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
                 if(pData?.factory == null || pData?.factory?.transport == null)
                 {
+                    if(GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
+                    {
+                        // client never was on this planet before or has it unloaded, but has a fake structure created, so update it
+                        UpdateSettingsUIBackground(packet, pData, packet.stationGId);
+                    }
                     return;
-                }
-                else if(GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
-                {
-                    // client never was on this planet before or has it unloaded, but has a fake structure created, so update it
-                    UpdateSettingsUIBackground(packet, pData, packet.stationGId);
                 }
                 for (int i = 0; i < pData.factory.transport.stationPool.Length; i++)
                 {

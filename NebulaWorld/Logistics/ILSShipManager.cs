@@ -3,6 +3,7 @@ using NebulaModel.Logger;
 using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace NebulaWorld.Logistics
 {
@@ -96,7 +97,8 @@ namespace NebulaWorld.Logistics
             }
 
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.planetAStationGID];
-            stationComponent.workShipDatas[stationComponent.workShipCount] = new ShipData();
+            //stationComponent.workShipDatas[stationComponent.workShipCount] = new ShipData();
+            Array.Copy(stationComponent.workShipDatas, packet.origShipIndex + 1, stationComponent.workShipDatas, packet.origShipIndex, stationComponent.workShipDatas.Length - packet.origShipIndex - 1);
             stationComponent.workShipCount--;
             stationComponent.idleShipCount++;
             if (stationComponent.idleShipCount < 0)

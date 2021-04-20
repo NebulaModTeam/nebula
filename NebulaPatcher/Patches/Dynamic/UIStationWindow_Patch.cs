@@ -226,7 +226,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     StationUIManager.UIRequestedShipDronWarpChange = true;
                 }
-
                 StationUI packet = new StationUI(stationComponent.gid, __instance.factory.planet.id, 9, stationComponent.idleShipCount + toAdd);
                 LocalPlayer.SendPacket(packet);
 
