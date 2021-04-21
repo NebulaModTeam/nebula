@@ -7,13 +7,13 @@ namespace NebulaModel.Networking
 {
     public class NebulaConnection
     {
-        private readonly IPEndPoint peerEndpoint;
+        private readonly EndPoint peerEndpoint;
         private readonly WebSocket peerSocket;
         private readonly NetPacketProcessor packetProcessor;
 
         public bool IsAlive => peerSocket?.IsAlive ?? false;
 
-        public NebulaConnection(WebSocket peerSocket, IPEndPoint peerEndpoint, NetPacketProcessor packetProcessor)
+        public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NetPacketProcessor packetProcessor)
         {
             this.peerEndpoint = peerEndpoint;
             this.peerSocket = peerSocket;
