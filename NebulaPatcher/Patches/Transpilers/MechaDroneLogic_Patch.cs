@@ -2,6 +2,7 @@
 using NebulaWorld.Player;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Transpiler
 {
@@ -39,7 +40,7 @@ namespace NebulaPatcher.Patches.Transpiler
                  if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2 && !this.serving.Contains(num4))
              * 
              * To:
-                 if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4))
+                 if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4) && DroneManager.AmIClosestPlayer(sqrMagnitude, ref a))
              */
             for (int i = 0; i < codes.Count; i++)
             {
@@ -53,6 +54,9 @@ namespace NebulaPatcher.Patches.Transpiler
                         new CodeInstruction(OpCodes.Ldloc_S, 6),
                         new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), nameof(DroneManager.IsPendingBuildRequest), new System.Type[] { typeof(int) })),
                         new CodeInstruction(OpCodes.Brtrue_S, codes[i].operand),
+                        new CodeInstruction(OpCodes.Ldloca_S, 7),
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), nameof(DroneManager.AmIClosestPlayer), new System.Type[] { typeof(Vector3).MakeByRefType() })),
+                        new CodeInstruction(OpCodes.Brfalse_S, codes[i].operand),
                         });
                     break;
                 }
