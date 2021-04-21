@@ -82,6 +82,7 @@
     <Compile Include="Patches\Dynamic\UIPowerGeneratorWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIProductionStatWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIRealtimeTip_Patch.cs" />
     <Compile Include="Patches\Dynamic\UISiloWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UISplitterWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIStorageWindow_Patch.cs" />
