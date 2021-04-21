@@ -93,5 +93,32 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.dysonNodeLatitude = 90f;
         }
     }
+
+    [HarmonyPatch(typeof(UIAdvisorTip), "PlayAdvisorTip")]
+    class patch8
+    {
+        public static bool Prefix()
+        {
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(UIAdvisorTip), "RunAdvisorTip")]
+    class patch9
+    {
+        public static bool Prefix()
+        {
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(UITutorialTip), "PopupTutorialTip")]
+    class patch10
+    {
+        public static bool Prefix()
+        {
+            return false;
+        }
+    }
 #endif
 }
