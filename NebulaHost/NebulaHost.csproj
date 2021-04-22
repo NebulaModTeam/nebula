@@ -67,7 +67,6 @@
     <Compile Include="PacketProcessors\Factory\Storage\StorageSyncRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Storage\StorageSyncSetBansProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Storage\StorageSyncSortProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Entity\AddEntityPreviewRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Entity\BuildEntityRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Entity\DestructEntityRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Tank\TankInputOutputSwitchProcessor.cs" />
