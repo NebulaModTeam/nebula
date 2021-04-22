@@ -12,8 +12,11 @@ namespace NebulaModel.Packets.Logistics
         public double warpEnableDist { get; set; }
         public bool warperNecessary { get; set; }
         public bool includeOrbitCollector { get; set; }
+        public long energy { get; set; }
+        public long energyPerTick { get; set; }
         public int[] itemId { get; set; }
         public int[] itemCountMax { get; set; }
+        public int[] itemCount { get; set; }
         public int[] localLogic { get; set; }
         public int[] remoteLogic { get; set; }
         public StationUIInitialSync() { }
@@ -25,13 +28,17 @@ namespace NebulaModel.Packets.Logistics
                                     double warpEnableDist,
                                     bool warperNecessary,
                                     bool includeOrbitCollector,
+                                    long energy,
+                                    long energyPerTick,
                                     int[] itemId,
                                     int[] itemCountMax,
+                                    int[] itemCount,
                                     int[] localLogic,
                                     int[] remoteLogic)
         {
             this.itemId = new int[itemId.Length];
             this.itemCountMax = new int[itemCountMax.Length];
+            this.itemCount = new int[itemCount.Length];
             this.localLogic = new int[localLogic.Length];
             this.remoteLogic = new int[remoteLogic.Length];
 
@@ -43,9 +50,12 @@ namespace NebulaModel.Packets.Logistics
             this.warpEnableDist = warpEnableDist;
             this.warperNecessary = warperNecessary;
             this.includeOrbitCollector = includeOrbitCollector;
+            this.energy = energy;
+            this.energyPerTick = energyPerTick;
 
             Array.Copy(itemId, this.itemId, itemId.Length);
             Array.Copy(itemCountMax, this.itemCountMax, itemCountMax.Length);
+            Array.Copy(itemCount, this.itemCount, itemCount.Length);
             Array.Copy(localLogic, this.localLogic, localLogic.Length);
             Array.Copy(remoteLogic, this.remoteLogic, remoteLogic.Length);
         }

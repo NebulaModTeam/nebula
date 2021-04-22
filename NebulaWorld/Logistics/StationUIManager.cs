@@ -120,7 +120,7 @@ namespace NebulaWorld.Logistics
                     }
                 }
             }
-            // update drones, ships and warpers for everyone
+            // update drones, ships, warpers and energy consumption for everyone
             if ((packet.settingIndex >= 8 && packet.settingIndex <= 10) || packet.settingIndex == 0)
             {
                 if (stationPool.Length > stationId)
@@ -151,14 +151,6 @@ namespace NebulaWorld.Logistics
             if (!LocalPlayer.IsMasterClient)
             {
                 return;
-            }
-            if(packet.settingIndex == 0)
-            {
-                PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
-                if (consumerPool.Length > stationPool[stationId].pcId)
-                {
-                    consumerPool[stationPool[stationId].pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.settingValue + 0.5);
-                }
             }
             if(packet.settingIndex == 1)
             {
@@ -249,18 +241,11 @@ namespace NebulaWorld.Logistics
                     stationPool[stationId].includeOrbitCollector = !stationPool[stationId].includeOrbitCollector;
                 }
             }
-            if(packet.settingIndex == 11)
+            if (packet.settingIndex == 12)
             {
-                if (stationPool.Length > stationId && stationPool[stationId].storage != null)
+                if (stationPool[stationId].storage != null)
                 {
-                    for (int i = 0; i < stationPool[stationId].storage.Length; i++)
-                    {
-                        if (stationPool[stationId].storage[i].itemId == packet.itemId)
-                        {
-                            stationPool[stationId].storage[i].count = (int)packet.settingValue;
-                            break;
-                        }
-                    }
+                    stationPool[stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
                 }
             }
         }
@@ -414,7 +399,6 @@ namespace NebulaWorld.Logistics
                 }
                 if(packet.settingIndex == 12)
                 {
-                    Debug.Log("should set it");
                     StationComponent[] stationPool = pData.factory.transport.stationPool;
                     if(stationPool[_stationId].storage != null)
                     {
@@ -429,7 +413,6 @@ namespace NebulaWorld.Logistics
         private static void UpdateStorageUI(StationUI packet)
         {
             PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
-
             if (pData == null)
             {
                 // this should never happen

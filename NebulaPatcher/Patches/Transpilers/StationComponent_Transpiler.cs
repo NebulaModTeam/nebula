@@ -20,6 +20,7 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate int RemOrderFunc3(StationComponent stationComponent, StationComponent[] gStationPool, int n);
         delegate int CheckgStationPool(ref ShipData shipData);
         delegate int TakeItem(StationComponent stationComponent, int storageIndex, int amount);
+        delegate int EnergyCost(StationComponent stationComponent, long cost);
 
         private static int RemOrderCounter = 0;
         private static int RemOrderCounter2 = 0;
@@ -219,7 +220,7 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch("InternalTickRemote")]
         public static IEnumerable<CodeInstruction> InternalTickRemote_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            // BEGIN: transpilers to catch AddItem() and TakeItem()
+            // BEGIN: transpilers to catch AddItem() and TakeItem() and energy decrease by ship departure
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloca_S),
@@ -324,7 +325,18 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 return 0;
             }))
-            .Insert(new CodeInstruction(OpCodes.Pop))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+            .Insert(new CodeInstruction(OpCodes.Ldarg_0), // grab energy cost for ship departure # 151
+                        new CodeInstruction(OpCodes.Ldloc_S, 10),
+                        HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                        {
+                            if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }),
+                        new CodeInstruction(OpCodes.Pop))
             // c# 235
             .MatchForward(true,
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "IdleShipGetToWork"),
@@ -351,57 +363,41 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 return 0;
             }))
-            .Insert(new CodeInstruction(OpCodes.Pop))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+            .Insert(new CodeInstruction(OpCodes.Ldarg_0), // grab energy cost for ship departure # 236
+                        new CodeInstruction(OpCodes.Ldloc_S, 19),
+                        HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }),
+                        new CodeInstruction(OpCodes.Pop))
+            // find line c# 301 and grab energy cost
+            .MatchForward(true,
+                new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "IdleShipGetToWork"),
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(OpCodes.Dup),
+                new CodeMatch(OpCodes.Ldfld),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Sub),
+                new CodeMatch(OpCodes.Stfld))
+            .Advance(1)
+            .Insert(new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Ldloc_S, 19),
+                        HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }),
+                        new CodeInstruction(OpCodes.Pop))
             .InstructionEnumeration();
-            /*
-        .Repeat(matcher123 =>
-        {
-            // c# 150
-            if(TakeItemCounter == 0)
-            {
-                matcher123
-                    .Advance(1)
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                        new CodeInstruction(OpCodes.Ldloca_S, 4),
-                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
-                                        new CodeInstruction(OpCodes.Ldloc_S, 11))
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
-                    {
-                        if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                        {
-                            ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
-                            LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                        }
-                        return 0;
-                    }))
-                    .Insert(new CodeInstruction(OpCodes.Pop));
-                TakeItemCounter++;
-            }
-            // c# 235
-            else if(TakeItemCounter == 1)
-            {
-                matcher123
-                    .Advance(1)
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                        new CodeInstruction(OpCodes.Ldloca_S, 23),
-                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
-                                        new CodeInstruction(OpCodes.Ldloc_S, 24))
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
-                    {
-                        if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                        {
-                            ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
-                            LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                        }
-                        return 0;
-                    }))
-                    .Insert(new CodeInstruction(OpCodes.Pop));
-                TakeItemCounter++;
-            }
-        }).InstructionEnumeration();
-            */
-
-            // END: transpilers to catch AddItem() and TakeItem()
+            // END: transpilers to catch AddItem() and TakeItem() and energy decrease by ship departure
 
             // BEGIN: transpilers to catch StationStore::remoteOrder changes
             // TODO: IL 1522 there is one with the this pointer and one with SUB (c# 300)

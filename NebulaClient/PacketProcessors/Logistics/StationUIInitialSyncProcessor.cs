@@ -32,10 +32,13 @@ namespace NebulaClient.PacketProcessors.Logistics
                     stationComponent.warpEnableDist = packet.warpEnableDist;
                     stationComponent.warperNecessary = packet.warperNecessary;
                     stationComponent.includeOrbitCollector = packet.includeOrbitCollector;
+                    stationComponent.energy = packet.energy;
+                    stationComponent.energyPerTick = packet.energyPerTick;
                     for(int i = 0; i < packet.itemId.Length; i++)
                     {
                         stationComponent.storage[i].itemId = packet.itemId[i];
                         stationComponent.storage[i].max = packet.itemCountMax[i];
+                        stationComponent.storage[i].count = packet.itemCount[i];
                         switch (packet.localLogic[i])
                         {
                             case 0:

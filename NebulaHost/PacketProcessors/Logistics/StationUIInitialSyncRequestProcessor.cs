@@ -20,12 +20,14 @@ namespace NebulaHost.PacketProcessors.Logistics
                 {
                     List<int> itemId = new List<int>();
                     List<int> itemCountMax = new List<int>();
+                    List<int> itemCount = new List<int>();
                     List<int> localLogic = new List<int>();
                     List<int> remoteLogic = new List<int>();
                     for(int i = 0; i < stationComponent.storage.Length; i++)
                     {
                         itemId.Add(stationComponent.storage[i].itemId);
                         itemCountMax.Add(stationComponent.storage[i].max);
+                        itemCount.Add(stationComponent.storage[i].count);
                         switch (stationComponent.storage[i].localLogic)
                         {
                             case (ELogisticStorage.None):
@@ -59,8 +61,11 @@ namespace NebulaHost.PacketProcessors.Logistics
                                                                             stationComponent.warpEnableDist,
                                                                             stationComponent.warperNecessary,
                                                                             stationComponent.includeOrbitCollector,
+                                                                            stationComponent.energy,
+                                                                            stationComponent.energyPerTick,
                                                                             itemId.ToArray(),
                                                                             itemCountMax.ToArray(),
+                                                                            itemCount.ToArray(),
                                                                             localLogic.ToArray(),
                                                                             remoteLogic.ToArray());
                     conn.SendPacket(packet2);
