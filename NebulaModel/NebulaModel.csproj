@@ -65,7 +65,6 @@
     <Compile Include="Packets\Factory\Assembler\AssemblerUpdateProducesPacket.cs" />
     <Compile Include="Packets\Factory\Assembler\AssemblerUpdateStoragePacket.cs" />
     <Compile Include="Networking\DisconnectionReason.cs" />
-    <Compile Include="Packets\Factory\AddEntityPreviewRequest.cs" />
     <Compile Include="Packets\Factory\BuildEntityRequest.cs" />
     <Compile Include="Packets\Factory\CreatePrebuildsRequest.cs" />
     <Compile Include="Packets\Factory\DestructEntityRequest.cs" />
