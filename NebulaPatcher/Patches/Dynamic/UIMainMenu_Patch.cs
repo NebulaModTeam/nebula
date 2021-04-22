@@ -176,14 +176,6 @@ namespace NebulaPatcher.Patches.Dynamic
             //remove copy and paste mistakes and update the textbox to prevent user confusion in case of invalid ip address
             hostIPAdressInput.text = parts.Length == 1 ? ip : ip + ":" + parts[1].Trim();
 
-            if (!System.Net.IPAddress.TryParse(ip, out _))
-            {
-                //log, notify user and early return to prevent crash on invalid strings
-                InGamePopup.ShowWarning("Invalid connection string", "Note: This mod currently only accepts IPv4 Addresses.", "OK");
-                Log.Info($"IP String {ip} is not a valid IPv4 String");
-                return;
-            }
-
             if (parts.Length == 1)
             {
                 port = Config.DefaultPort;
