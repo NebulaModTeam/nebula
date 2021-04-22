@@ -125,7 +125,7 @@ namespace NebulaWorld.Logistics
             {
                 if (stationPool.Length > stationId)
                 {
-                    if (packet.settingIndex == 0 && pData.factory.powerSystem != null)
+                    if (packet.settingIndex == 0 && pData.factory?.powerSystem != null)
                     {
                         PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
                         if (consumerPool.Length > stationPool[stationId].pcId)
@@ -140,12 +140,10 @@ namespace NebulaWorld.Logistics
                     if (packet.settingIndex == 9)
                     {
                         stationPool[stationId].idleShipCount = (int)packet.settingValue;
-                        Debug.Log("ADDED SHIPS!!");
                     }
                     if (packet.settingIndex == 10)
                     {
                         stationPool[stationId].warperCount = (int)packet.settingValue;
-                        Debug.Log("ADDED WARPER!!");
                     }
                 }
             }

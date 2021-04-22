@@ -92,6 +92,12 @@ namespace NebulaClient
             //Not needed at the moment, used only on the host side
             throw new NotImplementedException();
         }
+        public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+        {
+            //Should send packet to particular planet
+            //Not needed at the moment, used only on the host side
+            throw new NotImplementedException();
+        }
 
         public void Reconnect()
         {

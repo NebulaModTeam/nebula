@@ -192,41 +192,30 @@ namespace NebulaWorld.Logistics
             }
         }
 
+        // TODO: remove shipIndex from packet as its not used
         public static void AddTakeItem(ILSShipItems packet)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
             {
                 return;
             }
 
-            foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+            Log.Info($"Got packet for planet {GameMain.galaxy.PlanetById(GameMain.data.galacticTransport.stationPool[packet.stationGID].planetId).displayName}");
+
+            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGID];
+            if (stationComponent != null && stationComponent.gid == packet.stationGID && stationComponent.storage != null)
             {
-                if(stationComponent != null && stationComponent.gid == packet.stationGID)
+                if (packet.AddItem)
                 {
-                    PlanetData pData = GameMain.galaxy.PlanetById(stationComponent.planetId);
-                    if(pData?.factory?.transport != null)
-                    {
-                        foreach(StationComponent stationComponentPlanet in pData.factory.transport.stationPool)
-                        {
-                            if(stationComponentPlanet != null && stationComponentPlanet.gid == stationComponent.gid)
-                            {
-                                if (packet.AddItem)
-                                {
-                                    //Log.Info($"Calling AddItem() with item {packet.itemId} and amount {packet.itemCount}");
-                                    stationComponentPlanet.AddItem(packet.itemId, packet.itemCount);
-                                }
-                                else
-                                {
-                                    //Log.Info($"Calling TakeItem() with item {packet.itemId} and amount {packet.itemCount}");
-                                    int itemId = packet.itemId;
-                                    int itemCount = packet.itemCount;
-                                    stationComponentPlanet.TakeItem(ref itemId, ref itemCount);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    break;
+                    Log.Info($"Calling AddItem() with item {packet.itemId} and amount {packet.itemCount}");
+                    stationComponent.AddItem(packet.itemId, packet.itemCount);
+                }
+                else
+                {
+                    Log.Info($"Calling TakeItem() with item {packet.itemId} and amount {packet.itemCount}");
+                    int itemId = packet.itemId;
+                    int itemCount = packet.itemCount;
+                    stationComponent.TakeItem(ref itemId, ref itemCount);
                 }
             }
         }
