@@ -91,6 +91,7 @@
     <Compile Include="PacketProcessors\Players\PlayerUpdateLocalStarIdProcessor.cs" />
     <Compile Include="PacketProcessors\Routers\StarBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Session\PingPacketProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
     <Compile Include="PacketProcessors\Statistics\StatisticsRequestEventProcessor.cs" />
     <Compile Include="PacketProcessors\Trash\TrashSystemClearAllTrashProcessor.cs" />
