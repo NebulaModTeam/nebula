@@ -83,7 +83,7 @@ namespace NebulaClient
         {
             if (pingIndicator == null)
             {
-                GameObject targetObject = GameObject.Find("fps-ups-text");
+                GameObject targetObject = GameObject.Find("label");
                 pingIndicator = GameObject.Instantiate(targetObject, targetObject.transform.parent.parent).GetComponent<Text>();
                 pingIndicator.gameObject.name = "Ping Indicator";
                 pingIndicator.alignment = TextAnchor.UpperLeft;
@@ -92,6 +92,7 @@ namespace NebulaClient
                 rect.anchorMin = new Vector2(0f, 1f);
                 rect.offsetMin = new Vector2(10f, -100f);
                 pingIndicator.text = "";
+                pingIndicator.fontSize = 14;
             }
         }
 
