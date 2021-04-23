@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPostfix]
         [HarmonyPatch("AddPrebuildData")]
-        public static void AddPrebuildData_Prefix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
+        public static void AddPrebuildData_Postfix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
         {
             if (!SimulatedWorld.Initialized)
                 return;
