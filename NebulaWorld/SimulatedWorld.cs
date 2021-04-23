@@ -11,6 +11,7 @@ using NebulaWorld.Trash;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using NebulaWorld.Player;
 
 namespace NebulaWorld
 {
@@ -37,6 +38,7 @@ namespace NebulaWorld
 
         public static void Initialize()
         {
+            DroneManager.Initialize();
             FactoryManager.Initialize();
             PlanetManager.Initialize();
             Initialized = true;

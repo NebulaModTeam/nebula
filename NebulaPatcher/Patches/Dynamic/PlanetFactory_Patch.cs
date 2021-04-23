@@ -13,21 +13,19 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(PlanetFactory))]
     class BuildFinally_patch
     {
-        [HarmonyPrefix]
-        [HarmonyPatch("AddPrebuildDataWithComponents")]
-        public static bool AddPrebuildDataWithComponents_Prefix(PlanetFactory __instance, PrebuildData prebuild)
+        [HarmonyPostfix]
+        [HarmonyPatch("AddPrebuildData")]
+        public static void AddPrebuildData_Postfix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
         {
             if (!SimulatedWorld.Initialized)
-                return true;
+                return;
 
             // If the host game called the method, we need to compute the PrebuildId ourself
             if (LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
             {
-                int nextPrebuildId = FactoryManager.GetNextPrebuildId(__instance);
-                FactoryManager.SetPrebuildRequest(__instance.planetId, nextPrebuildId, LocalPlayer.PlayerId);
+               
+                FactoryManager.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.PlayerId);
             }
-
-            return true;
         }
 
         [HarmonyPrefix]
@@ -56,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
+            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer && !DroneManager.IsPendingBuildRequest(-prebuildId))
             {
                 DroneManager.AddBuildRequestSent(-prebuildId);
             }
