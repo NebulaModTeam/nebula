@@ -27,6 +27,7 @@ namespace NebulaClient
         private float pingTimer = 0f;
         private float pingTimestamp = 0f;
         private Text pingIndicator;
+        private int previousDelay = 0;
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
@@ -81,7 +82,8 @@ namespace NebulaClient
 
         public void DisplayPingIndicator()
         {
-            if (pingIndicator == null)
+            GameObject previousObject = GameObject.Find("Ping Indicator");
+            if (previousObject == null)
             {
                 GameObject targetObject = GameObject.Find("label");
                 pingIndicator = GameObject.Instantiate(targetObject, targetObject.transform.parent.parent).GetComponent<Text>();
@@ -94,6 +96,11 @@ namespace NebulaClient
                 pingIndicator.text = "";
                 pingIndicator.fontSize = 14;
             }
+            else
+            {
+                pingIndicator = previousObject.GetComponent<Text>();
+                pingIndicator.enabled = true;
+            }
         }
 
         void Disconnect()
@@ -105,7 +112,7 @@ namespace NebulaClient
         public void DestroySession()
         {
             Disconnect();
-            Destroy(pingIndicator.gameObject);
+            pingIndicator.enabled = false;
             Destroy(gameObject);
         }
 
@@ -137,8 +144,11 @@ namespace NebulaClient
 
         public void UpdatePingIndicator()
         {
-            float delay = (Time.time - pingTimestamp);
-            pingIndicator.text = $"Ping: {(int)(delay*1000)}ms";
+            int newDelay = (int)((Time.time - pingTimestamp)*1000);
+            if (newDelay != previousDelay) {
+                pingIndicator.text = $"Ping: {newDelay}ms";
+                previousDelay = newDelay;
+            }
         }
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
