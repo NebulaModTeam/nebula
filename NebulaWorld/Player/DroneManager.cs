@@ -13,6 +13,14 @@ namespace NebulaWorld.Player
         public static List<int> PendingBuildRequests = new List<int>();
         public static Dictionary<ushort, Vector3> CachedPositions = new Dictionary<ushort, Vector3>();
 
+        public static void Initialize()
+        {
+            DronePriorities = new int[255];
+            PlayerDroneBuildingPlans = new Dictionary<ushort, List<int>>();
+            PendingBuildRequests = new List<int>();
+            CachedPositions = new Dictionary<ushort, Vector3>();
+        }
+
         public static void BroadcastDroneOrder(int droneId, int entityId, int stage)
         {
             if (!SimulatedWorld.Initialized)
