@@ -37,21 +37,27 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnOutputSwitchClick")]
         public static void OnOutputSwitchClick_Postfix(UITankWindow __instance)
         {
-            LocalPlayer.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, false, __instance.storage.tankPool[__instance.tankId].outputSwitch, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                LocalPlayer.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, false, __instance.storage.tankPool[__instance.tankId].outputSwitch, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("OnInputSwitchClick")]
         public static void OnInputSwitchClick_Postfix(UITankWindow __instance)
         {
-            LocalPlayer.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, true, __instance.storage.tankPool[__instance.tankId].inputSwitch, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                LocalPlayer.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, true, __instance.storage.tankPool[__instance.tankId].inputSwitch, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("_OnUpdate")]
         public static void _OnUpdate_Postfix(UITankWindow __instance)
         {
-            if (pointerPress)
+            if (pointerPress && SimulatedWorld.Initialized)
             {
                 //Send update for inserting or withdrawing
                 TankComponent thisTank = __instance.storage.tankPool[__instance.tankId];

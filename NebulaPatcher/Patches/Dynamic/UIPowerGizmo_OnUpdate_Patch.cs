@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaWorld;
 
 /*
  * This Patch is part of the remote factory loading process.
@@ -17,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
             [HarmonyPatch("_OnUpdate")]
             public static bool _OnUpdate_Prefix()
             {
-                return GameMain.localPlanet?.factory != null;
+                return !SimulatedWorld.Initialized || GameMain.localPlanet?.factory != null;
             }
         }
     }
