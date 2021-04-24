@@ -35,10 +35,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     planet.audio = new PlanetAudio(planet);
                     planet.audio.Init();
 
-                    if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
-                    {
-                        planet.factory.cargoTraffic.CreateRenderingBatches();
-                    }
+                    planet.factory.cargoTraffic.GetOrCreateBeltRenderingBatches();
                 }
 
                 //Remove building from drone queue

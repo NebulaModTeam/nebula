@@ -16,6 +16,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("get_activePlanet")]
         public static bool get_activePlanet_Prefix(GPUInstancingManager __instance, ref PlanetData __result)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+
             __result = (__instance.specifyPlanet != null) ? __instance.specifyPlanet : GameMain.localPlanet;
             if (__result == null && GameMain.localStar != null)
             {

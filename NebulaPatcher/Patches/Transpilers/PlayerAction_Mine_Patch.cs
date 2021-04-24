@@ -102,6 +102,10 @@ namespace NebulaPatcher.Patches.Transpiler
 
         private static void OnVegetationMined(int id, bool isVege)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             var packet = new VegeMined(id, isVege);
             packet.PlayerId = LocalPlayer.PlayerId;
             LocalPlayer.SendPacket(packet);

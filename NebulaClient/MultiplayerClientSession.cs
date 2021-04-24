@@ -18,7 +18,7 @@ namespace NebulaClient
         public static MultiplayerClientSession Instance { get; protected set; }
 
         private WebSocket clientSocket;
-        private IPEndPoint serverEndpoint;
+        private EndPoint serverEndpoint;
         private NebulaConnection serverConnection;
         private float mechaSynchonizationTimer = 0f;
 
@@ -26,22 +26,33 @@ namespace NebulaClient
         public bool IsConnected { get; protected set; }
 
         private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
-
-        private string serverIp;
-        private int serverPort;
+        private string socketAddress;
 
         private void Awake()
         {
             Instance = this;
         }
 
-        public void Connect(string ip, int port)
+        public void ConnectToIp(IPAddress ip, int port)
         {
-            serverIp = ip;
-            serverPort = port;
-            serverEndpoint = new IPEndPoint(IPAddress.Parse(serverIp), port);
+            serverEndpoint = new IPEndPoint(ip, port);
+            socketAddress = $"ws://{ip}:{port}/socket";
+            Log.Info($"Connect to IP: {socketAddress}");
+            ConnectInternal();
+        }
 
-            clientSocket = new WebSocket($"ws://{ip}:{port}/socket");
+        public void ConnectToUrl(string url, int port)
+        {
+            IPHostEntry host = Dns.GetHostEntry(url);
+            serverEndpoint = new IPEndPoint(host.AddressList[0], port);
+            socketAddress = $"ws://{url}:{port}/socket";
+            Log.Info($"Connect to URL: {socketAddress}");
+            ConnectInternal();
+        }
+
+        private void ConnectInternal()
+        {
+            clientSocket = new WebSocket(socketAddress);
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
@@ -103,7 +114,7 @@ namespace NebulaClient
         {
             SimulatedWorld.Clear();
             Disconnect();
-            Connect(serverIp, serverPort);
+            ConnectInternal();
         }
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
@@ -155,7 +166,7 @@ namespace NebulaClient
                 {
                     InGamePopup.ShowWarning(
                         "Connection Lost",
-                        $"You have been disconnect of the server.\n{e.Reason}",
+                        $"You have been disconnected from the server.\n{e.Reason}",
                         "Quit", "Reconnect",
                         () => { LocalPlayer.LeaveGame(); },
                         () => { Reconnect(); });

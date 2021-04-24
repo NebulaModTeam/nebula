@@ -155,7 +155,9 @@ namespace NebulaPatcher.Patches.Dynamic
             hostIPAdressInput = hostIpField.GetComponentInChildren<InputField>();
             hostIPAdressInput.onEndEdit.RemoveAllListeners();
             hostIPAdressInput.onValueChanged.RemoveAllListeners();
-            hostIPAdressInput.characterLimit = 30;
+            //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
+            //256 will trigger an argument out of range exception
+            hostIPAdressInput.characterLimit = 255;    
             hostIPAdressInput.text = "127.0.0.1";
 
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
@@ -168,8 +170,11 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnJoinGameButtonClick()
         {
             string[] parts = hostIPAdressInput.text.Split(':');
-            string ip = parts[0];
+            string ip = parts[0].Trim();
             int port;
+
+            //remove copy and paste mistakes and update the textbox to prevent user confusion in case of invalid ip address
+            hostIPAdressInput.text = parts.Length == 1 ? ip : ip + ":" + parts[1].Trim();
 
             if (parts.Length == 1)
             {
@@ -185,15 +190,49 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerMenu.gameObject.SetActive(false);
 
             Log.Info($"Connecting to server... {ip}:{port}");
-
-            var session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
-            session.Connect(ip, port);
+            if(!ConnectToServer(ip, port))
+            {
+                //re-enabling the menu again after failed connect attempt
+                Log.Warn($"Was not able to connect to {hostIPAdressInput.text}");
+                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to {hostIPAdressInput.text}", "OK");
+                multiplayerMenu.gameObject.SetActive(true);
+            }
         }
 
         private static void OnJoinGameBackButtonClick()
         {
             multiplayerMenu.gameObject.SetActive(false);
             UIRoot.instance.OpenMainMenuUI();
+        }
+
+        private static bool ConnectToServer(string connectionString, int serverPort)
+        {
+            NebulaClient.MultiplayerClientSession session; 
+
+            //trying as ipAddress first
+            bool isValidIp = System.Net.IPAddress.TryParse(connectionString, out var serverIp);
+            if (isValidIp)
+            {
+                switch (serverIp.AddressFamily)
+                {
+                    case System.Net.Sockets.AddressFamily.InterNetwork:
+                    case System.Net.Sockets.AddressFamily.InterNetworkV6:
+                        session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
+                        session.ConnectToIp(serverIp, serverPort);
+                        return true;
+                    default:
+                        break;
+                }
+            }
+
+            //trying to resolve as uri
+            if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out var serverUri))
+            {
+                session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
+                session.ConnectToUrl(connectionString, serverPort);
+                return true;
+            }
+            return false;
         }
     }
 }

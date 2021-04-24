@@ -27,6 +27,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("EnqueueTech")]
         public static void Postfix2(int techId)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             //Do not run if this was triggered by incomming request
             if (GameDataHistoryManager.IsIncomingRequest)
             {
@@ -41,6 +45,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("RemoveTechInQueue")]
         public static void Postfix3(int index)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             //Do not run if this was triggered by incomming request
             if (GameDataHistoryManager.IsIncomingRequest)
             {
@@ -55,6 +63,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("PauseTechQueue")]
         public static void Postfix4()
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             //Do not run if this was triggered by incomming request
             if (GameDataHistoryManager.IsIncomingRequest)
             {
@@ -69,6 +81,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("ResumeTechQueue")]
         public static void Postfix5()
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             //Do not run if this was triggered by incomming request
             if (GameDataHistoryManager.IsIncomingRequest)
             {
