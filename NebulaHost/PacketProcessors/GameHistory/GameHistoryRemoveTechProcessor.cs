@@ -22,7 +22,10 @@ namespace NebulaHost.PacketProcessors.GameHistory
             {
                 using (GameDataHistoryManager.IsIncomingRequest.On())
                 {
-                    GameMain.history.RemoveTechInQueue(packet.Index);
+                    int index = System.Array.IndexOf(GameMain.history.techQueue, packet.techId);
+                    //sanity: packet wanted to remove tech, which is not queued on this client
+                    index = (index >= 0) ? index : 0;
+                    GameMain.history.RemoveTechInQueue(index);
                 }
                 playerManager.SendPacketToOtherPlayers(packet, player);
             }

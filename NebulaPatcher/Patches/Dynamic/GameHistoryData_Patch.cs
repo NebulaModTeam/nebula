@@ -33,13 +33,26 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
             //Synchronize enqueueing techs by players
-            Log.Info($"Sending Enqueque Tech notification");
+            Log.Info($"Sending Enqueue Tech notification");
             LocalPlayer.SendPacket(new GameHistoryEnqueueTechPacket(techId));
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("RemoveTechInQueue")]
+        public static void Prefix7(int index, out int __state)
+        {
+            Log.Info($"RemoveTechInQueue: This techqueue is at length {GameMain.history.techQueueLength} now");
+            for (int i = 0; i < GameMain.history.techQueueLength; i++)
+            {
+                Log.Info($"RemoveTechInQueue: this Techqueue at {i} has techid {GameMain.history.techQueue[i]}");
+            }
+            __state = GameMain.history.techQueue[index];
+            Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("RemoveTechInQueue")]
-        public static void Postfix3(int index)
+        public static void Postfix3(int index, int __state)
         {
             //Do not run if this was triggered by incomming request
             if (GameDataHistoryManager.IsIncomingRequest)
@@ -47,8 +60,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
             //Synchronize dequeueing techs by players
-            Log.Info($"Sending Enqueque Tech notification");
-            LocalPlayer.SendPacket(new GameHistoryRemoveTechPacket(index));
+            Log.Info($"Sending Dequeue Tech notification: remove techID{__state}");
+            LocalPlayer.SendPacket(new GameHistoryRemoveTechPacket(__state));
         }
 
         [HarmonyPostfix]
@@ -123,6 +136,14 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Prefix5()
         {
             ///Wait for the authoritative packet for dequeing tech in multiplayer for clients
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("UnlockTech")]
+        public static bool Prefix6()
+        {
+            //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
     }

@@ -2,13 +2,13 @@
 {
     public class GameHistoryRemoveTechPacket
     {
-        public int Index { get; set; }
+        public int techId { get; set; }
 
         public GameHistoryRemoveTechPacket() { }
 
-        public GameHistoryRemoveTechPacket(int index)
+        public GameHistoryRemoveTechPacket(int techId)
         {
-            this.Index = index;
+            this.techId = techId;
         }
     }
 }

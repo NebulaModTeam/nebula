@@ -18,6 +18,7 @@ namespace NebulaClient.PacketProcessors.GameHistory
             }
             TechState state = data.techStates[data.currentTech];
             state.hashUploaded = packet.HashUploaded;
+            state.hashNeeded = packet.HashNeeded;
             data.techStates[data.currentTech] = state;
         }
     }
