@@ -86,7 +86,7 @@ namespace NebulaClient
             if (previousObject == null)
             {
                 GameObject targetObject = GameObject.Find("label");
-                pingIndicator = GameObject.Instantiate(targetObject, targetObject.transform.parent.parent).GetComponent<Text>();
+                pingIndicator = GameObject.Instantiate(targetObject, UIRoot.instance.uiGame.gameObject.transform).GetComponent<Text>();
                 pingIndicator.gameObject.name = "Ping Indicator";
                 pingIndicator.alignment = TextAnchor.UpperLeft;
                 pingIndicator.enabled = true;
