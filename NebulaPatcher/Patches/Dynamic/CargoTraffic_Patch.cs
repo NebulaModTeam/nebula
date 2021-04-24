@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("PickupBeltItems")]
         public static void PickupBeltItems_Postfix()
         {
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Initialized && GameMain.data.localPlanet != null)
             {
                 BeltManager.BeltPickupEnded();
             }
