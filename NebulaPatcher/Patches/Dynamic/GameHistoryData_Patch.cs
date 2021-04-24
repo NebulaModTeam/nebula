@@ -41,19 +41,6 @@ namespace NebulaPatcher.Patches.Dynamic
             LocalPlayer.SendPacket(new GameHistoryEnqueueTechPacket(techId));
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch("RemoveTechInQueue")]
-        public static void Prefix7(int index, out int __state)
-        {
-            Log.Info($"RemoveTechInQueue: This techqueue is at length {GameMain.history.techQueueLength} now");
-            for (int i = 0; i < GameMain.history.techQueueLength; i++)
-            {
-                Log.Info($"RemoveTechInQueue: this Techqueue at {i} has techid {GameMain.history.techQueue[i]}");
-            }
-            __state = GameMain.history.techQueue[index];
-            Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch("RemoveTechInQueue")]
         public static void Postfix3(int index, int __state)
@@ -161,6 +148,14 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("RemoveTechInQueue")]
+        public static void Prefix7(int index, out int __state)
+        {
+            __state = GameMain.history.techQueue[index];
+            Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }
     }
 }
