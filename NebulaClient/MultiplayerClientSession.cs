@@ -1,4 +1,5 @@
-﻿using NebulaModel.Logger;
+﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Players;
@@ -8,6 +9,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
@@ -130,9 +132,7 @@ namespace NebulaClient
 
         static void DisableNagleAlgorithm(WebSocket socket)
         {
-            var tcpClient = (System.Net.Sockets.TcpClient)typeof(WebSocket)
-                .GetField("_tcpClient", BindingFlags.NonPublic | BindingFlags.Instance)
-                .GetValue(socket);
+            var tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);
             tcpClient.NoDelay = true;
         }
 
