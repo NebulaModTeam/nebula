@@ -23,11 +23,13 @@ namespace NebulaHost.PacketProcessors.Logistics
                     List<int> itemCount = new List<int>();
                     List<int> localLogic = new List<int>();
                     List<int> remoteLogic = new List<int>();
+                    List<int> remoteOrder = new List<int>();
                     for(int i = 0; i < stationComponent.storage.Length; i++)
                     {
                         itemId.Add(stationComponent.storage[i].itemId);
                         itemCountMax.Add(stationComponent.storage[i].max);
                         itemCount.Add(stationComponent.storage[i].count);
+                        remoteOrder.Add(stationComponent.storage[i].remoteOrder);
                         switch (stationComponent.storage[i].localLogic)
                         {
                             case (ELogisticStorage.None):
@@ -67,7 +69,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                                                                             itemCountMax.ToArray(),
                                                                             itemCount.ToArray(),
                                                                             localLogic.ToArray(),
-                                                                            remoteLogic.ToArray());
+                                                                            remoteLogic.ToArray(),
+                                                                            remoteOrder.ToArray());
                     conn.SendPacket(packet2);
                     Debug.Log("send syncing packet " + packet.stationGId);
                 }

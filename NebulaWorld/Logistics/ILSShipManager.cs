@@ -69,6 +69,19 @@ namespace NebulaWorld.Logistics
                 stationComponent.IdleShipGetToWork(packet.origShipIndex);
                 Log.Info($"Received ship message (departing): {planetA.displayName} -> {planetB.displayName} transporting {packet.itemCount} of {packet.itemId} and index is {packet.origShipIndex}");
                 //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
+                StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[packet.planetBStationGID];
+                if(otherStationComponent != null && otherStationComponent.storage != null)
+                {
+                    for(int i = 0; i < otherStationComponent.storage.Length; i++)
+                    {
+                        if(otherStationComponent.storage[i].itemId == packet.itemId)
+                        {
+                            otherStationComponent.storage[i].remoteOrder += packet.itemCount;
+                            RefreshValuesUI(otherStationComponent, i);
+                            break;
+                        }
+                    }
+                }
             }
             else
             {
@@ -170,23 +183,19 @@ namespace NebulaWorld.Logistics
             {
                 return;
             }
-
+            Debug.Log("received remote order packet");
             foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
             {
                 if(stationComponent != null && stationComponent.gid == packet.stationGID)
                 {
-                    PlanetData pData = GameMain.galaxy.PlanetById(stationComponent.planetId);
-                    if(pData?.factory?.transport != null)
+                    Debug.Log("found stationComponent on " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
+                    if(stationComponent.storage == null)
                     {
-                        foreach(StationComponent stationComponentPlanet in pData.factory.transport.stationPool)
-                        {
-                            if(stationComponentPlanet != null && stationComponentPlanet.gid == stationComponent.gid)
-                            {
-                                stationComponentPlanet.storage[packet.storageIndex].remoteOrder = packet.remoteOrder;
-                                break;
-                            }
-                        }
+                        Debug.Log("this is bad");
+                        return;
                     }
+                    stationComponent.storage[packet.storageIndex].remoteOrder = packet.remoteOrder;
+                    RefreshValuesUI(stationComponent, packet.storageIndex);
                     break;
                 }
             }
@@ -209,6 +218,15 @@ namespace NebulaWorld.Logistics
                 {
                     Log.Info($"Calling AddItem() with item {packet.itemId} and amount {packet.itemCount}");
                     stationComponent.AddItem(packet.itemId, packet.itemCount);
+                    for(int i = 0; i < stationComponent.storage.Length; i++)
+                    {
+                        if(stationComponent.storage[i].itemId == packet.itemId)
+                        {
+                            stationComponent.storage[i].remoteOrder -= packet.itemCount;
+                            RefreshValuesUI(stationComponent, i);
+                            break;
+                        }
+                    }
                 }
                 else
                 {
@@ -216,6 +234,48 @@ namespace NebulaWorld.Logistics
                     int itemId = packet.itemId;
                     int itemCount = packet.itemCount;
                     stationComponent.TakeItem(ref itemId, ref itemCount);
+                    if(stationComponent.workShipDatas[packet.origShipIndex].otherGId != 0 && stationComponent.workShipDatas[packet.origShipIndex].otherGId < GameMain.data.galacticTransport.stationPool.Length)
+                    {
+                        StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[stationComponent.workShipDatas[packet.origShipIndex].otherGId];
+                        if (otherStationComponent != null && otherStationComponent.storage != null)
+                        {
+                            for (int i = 0; i < otherStationComponent.storage.Length; i++)
+                            {
+                                if (otherStationComponent.storage[i].itemId == packet.itemId)
+                                {
+                                    otherStationComponent.storage[i].remoteOrder += packet.itemCount;
+                                    RefreshValuesUI(otherStationComponent, i);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    for (int i = 0; i < stationComponent.storage.Length; i++)
+                    {
+                        if (stationComponent.storage[i].itemId == packet.itemId)
+                        {
+                            if (stationComponent.workShipDatas[packet.origShipIndex].direction == 0)
+                            {
+                                stationComponent.storage[i].remoteOrder += packet.itemCount;
+                                RefreshValuesUI(stationComponent, i);
+                            }
+                            break;
+                        }
+                    }
+                }
+                Debug.Log(GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ": dir: " + stationComponent.workShipDatas[packet.origShipIndex].direction + " carry " + stationComponent.workShipDatas[packet.origShipIndex].itemId + "(" + stationComponent.workShipDatas[packet.origShipIndex].itemCount + ")");
+            }
+        }
+
+        private static void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
+        {
+            UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
+            if (stationWindow != null && (int)AccessTools.Field(typeof(UIStationWindow), "_stationId")?.GetValue(stationWindow) == stationComponent.id)
+            {
+                UIStationStorage[] stationStorageUI = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
+                if (stationStorageUI != null && stationStorageUI.Length > storageIndex)
+                {
+                    AccessTools.Method(typeof(UIStationStorage), "RefreshValues").Invoke(stationStorageUI[storageIndex], null);
                 }
             }
         }

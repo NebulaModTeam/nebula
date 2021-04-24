@@ -19,6 +19,7 @@ namespace NebulaModel.Packets.Logistics
         public int[] itemCount { get; set; }
         public int[] localLogic { get; set; }
         public int[] remoteLogic { get; set; }
+        public int[] remoteOrder { get; set; }
         public StationUIInitialSync() { }
         public StationUIInitialSync(int stationGId,
                                     double tripRangeDrones,
@@ -34,13 +35,15 @@ namespace NebulaModel.Packets.Logistics
                                     int[] itemCountMax,
                                     int[] itemCount,
                                     int[] localLogic,
-                                    int[] remoteLogic)
+                                    int[] remoteLogic,
+                                    int[] remoteOrder)
         {
             this.itemId = new int[itemId.Length];
             this.itemCountMax = new int[itemCountMax.Length];
             this.itemCount = new int[itemCount.Length];
             this.localLogic = new int[localLogic.Length];
             this.remoteLogic = new int[remoteLogic.Length];
+            this.remoteOrder = new int[remoteOrder.Length];
 
             this.stationGId = stationGId;
             this.tripRangeDrones = tripRangeDrones;
@@ -58,6 +61,7 @@ namespace NebulaModel.Packets.Logistics
             Array.Copy(itemCount, this.itemCount, itemCount.Length);
             Array.Copy(localLogic, this.localLogic, localLogic.Length);
             Array.Copy(remoteLogic, this.remoteLogic, remoteLogic.Length);
+            Array.Copy(remoteOrder, this.remoteOrder, remoteOrder.Length);
         }
     }
 }

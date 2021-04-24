@@ -39,6 +39,7 @@ namespace NebulaClient.PacketProcessors.Logistics
                         stationComponent.storage[i].itemId = packet.itemId[i];
                         stationComponent.storage[i].max = packet.itemCountMax[i];
                         stationComponent.storage[i].count = packet.itemCount[i];
+                        stationComponent.storage[i].remoteOrder = packet.remoteOrder[i];
                         switch (packet.localLogic[i])
                         {
                             case 0:
