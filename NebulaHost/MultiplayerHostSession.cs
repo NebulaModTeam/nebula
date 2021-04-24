@@ -6,6 +6,7 @@ using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
 using NebulaWorld.Statistics;
+using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -56,6 +57,8 @@ namespace NebulaHost
             socketServer = new WebSocketServer(port);
             socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
 
+            DisableNagleAlgorithm(socketServer);
+
             socketServer.Start();
 
             SimulatedWorld.Initialize();
@@ -65,6 +68,15 @@ namespace NebulaHost
 
             // TODO: Load saved player info here
             LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(1.0f, 0.6846404f, 0.243137181f), AccountData.me.userName));
+        }
+
+        static void DisableNagleAlgorithm(WebSocketServer socketServer)
+        {
+            var listener = (System.Net.Sockets.TcpListener)typeof(WebSocketServer)
+                .GetField("_listener", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(socketServer);
+
+            listener.Server.NoDelay = true;
         }
 
         private void StopServer()
