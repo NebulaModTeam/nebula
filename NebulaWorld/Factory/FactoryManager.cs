@@ -74,7 +74,7 @@ namespace NebulaWorld.Factory
 
             int prebuildRecycleCursor = GetPrebuildRecycleCursor(factory);
             int[] prebuildRecycle = GetPrebuildRecycle(factory);
-            return prebuildRecycleCursor <= 0 ? factory.prebuildCursor : prebuildRecycle[prebuildRecycleCursor - 1];
+            return prebuildRecycleCursor <= 0 ? factory.prebuildCursor+1 : prebuildRecycle[prebuildRecycleCursor - 1];
         }
     }
 
