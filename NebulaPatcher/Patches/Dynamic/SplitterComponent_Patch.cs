@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("SetPriority")]
         public static void SetPriority_Postfix(SplitterComponent __instance, int slot, bool isPriority, int filter)
         {
-            if (StorageManager.IsHumanInput)
+            if (SimulatedWorld.Initialized && StorageManager.IsHumanInput)
             {
                 LocalPlayer.SendPacketToLocalStar(new SplitterPriorityChangePacket(__instance.id, slot, isPriority, filter, GameMain.localPlanet?.factoryIndex ?? -1));
             }

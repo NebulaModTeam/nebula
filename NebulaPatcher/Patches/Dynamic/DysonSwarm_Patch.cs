@@ -13,6 +13,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("NewOrbit")]
         public static bool NewOrbit_Prefix(DysonSwarm __instance, int __result, float radius, Quaternion rotation)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that orbit for Dyson Swarm was created
             if (!DysonSphere_Manager.IncomingDysonSwarmPacket)
             {
@@ -25,6 +29,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("RemoveOrbit")]
         public static bool RemoveOrbit_Prefix(DysonSwarm __instance, int orbitId)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that orbit for Dyson Swarm was deleted
             if (!DysonSphere_Manager.IncomingDysonSwarmPacket)
             {
