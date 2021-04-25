@@ -161,9 +161,8 @@ namespace NebulaClient
                     InGamePopup.ShowWarning(
                         "Connection Lost",
                         $"You have been disconnected from the server.\n{e.Reason}",
-                        "Quit", "Reconnect",
-                        () => { LocalPlayer.LeaveGame(); },
-                        () => { Reconnect(); });
+                        "Quit",
+                        () => LocalPlayer.LeaveGame());
                 }
                 else
                 {
