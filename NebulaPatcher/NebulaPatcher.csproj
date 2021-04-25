@@ -92,6 +92,7 @@
     <Compile Include="Patches\Dynamic\UIStarmap_Patch.cs" />
     <Compile Include="Patches\Dynamic\VFInput_Patch.cs" />
     <Compile Include="Patches\Transpilers\CargoTraffic_Patch.cs" />
+    <Compile Include="Patches\Transpilers\GameMain_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Transpilers\MechaDroneLogic_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Build_Patch.cs" />

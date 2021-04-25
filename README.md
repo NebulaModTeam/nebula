@@ -34,7 +34,7 @@ Here is a short list of what is currently implemented
 - [x] Factories statistics syncing
 - [x] Containers inventory syncing
 - [x] Building Interaction syncing
-- [ ] Belts syncing
+- [x] Belts syncing
 - [x] Dropped items syncing
 - [ ] Interstellar Station syncing
 - [x] Drones position syncing
