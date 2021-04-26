@@ -15,7 +15,22 @@ namespace NebulaHost.PacketProcessors.Logistics
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             if(packet.stationGId < gStationPool.Length)
             {
-                StationComponent stationComponent = gStationPool[packet.stationGId];
+                StationComponent stationComponent = null;
+                if(packet.planetId == 0)
+                {
+                    Debug.Log("taking ILS values");
+                    stationComponent = gStationPool[packet.stationGId];
+                }
+                else
+                {
+                    PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
+                    // GId is the id in this case as we look at a PLS
+                    if(pData?.factory?.transport != null && pData.factory.transport.stationPool.Length > packet.stationGId)
+                    {
+                        Debug.Log("taking PLS values");
+                        stationComponent = pData.factory.transport.stationPool[packet.stationGId];
+                    }
+                }
                 if(stationComponent != null)
                 {
                     List<int> itemId = new List<int>();
@@ -56,6 +71,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                         }
                     }
                     StationUIInitialSync packet2 = new StationUIInitialSync(packet.stationGId,
+                                                                            packet.planetId,
                                                                             stationComponent.tripRangeDrones,
                                                                             stationComponent.tripRangeShips,
                                                                             stationComponent.deliveryDrones,

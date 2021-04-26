@@ -254,33 +254,44 @@ namespace NebulaWorld.Logistics
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
             if (stationWindow != null)
             {
+                Debug.Log("1");
                 int _stationId = (int)AccessTools.Field(typeof(UIStationWindow), "_stationId")?.GetValue(stationWindow);
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
                 if(pData?.factory == null || pData?.factory?.transport == null)
                 {
+                    Debug.Log("2");
                     if(GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
                     {
+                        Debug.Log("3");
                         // client never was on this planet before or has it unloaded, but has a fake structure created, so update it
                         UpdateSettingsUIBackground(packet, pData, packet.stationGId);
                     }
                     return;
                 }
+                Debug.Log("3.5");
                 for (int i = 0; i < pData.factory.transport.stationPool.Length; i++)
                 {
-                    if(pData.factory.transport.stationPool[i] != null && pData.factory.transport.stationPool[i].gid == packet.stationGId)
+                    if(pData.factory.transport.stationPool[i] != null)
                     {
-                        if(pData.factory.transport.stationPool[i].id != _stationId)
+                        int id = ((packet.isStellar == true) ? pData.factory.transport.stationPool[i].gid : pData.factory.transport.stationPool[i].id);
+                        if (id == packet.stationGId)
                         {
-                            // receiving side has the UI closed or another stations UI opened. still update drones, ships, warpers and power consumption for clients and update all for host
-                            UpdateSettingsUIBackground(packet, pData, pData.factory.transport.stationPool[i].gid);
-                            return;
-                        }
-                        else
-                        {
-                            break;
+                            if (pData.factory.transport.stationPool[i].id != _stationId)
+                            {
+                                Debug.Log("4");
+                                // receiving side has the UI closed or another stations UI opened. still update drones, ships, warpers and power consumption for clients and update all for host
+                                UpdateSettingsUIBackground(packet, pData, pData.factory.transport.stationPool[i].gid);
+                                return;
+                            }
+                            else
+                            {
+                                Debug.Log("5");
+                                break;
+                            }
                         }
                     }
                 }
+                Debug.Log("6");
 
                 LocalPlayer.PatchLocks["UIStationWindow"] = true;
                 LocalPlayer.PatchLocks["UIStationStorage"] = true;
@@ -379,13 +390,13 @@ namespace NebulaWorld.Logistics
                                 if (lastMouseEventWasDown)
                                 {
                                     storageUIs[packet.storageIdx].OnItemIconMouseDown(mouseEvent);
-                                    StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, 12, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count);
+                                    StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, 12, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
                                     LocalPlayer.SendPacket(packet2);
                                 }
                                 else
                                 {
                                     storageUIs[packet.storageIdx].OnItemIconMouseUp(mouseEvent);
-                                    StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, 12, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count);
+                                    StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, 12, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
                                     LocalPlayer.SendPacket(packet2);
                                 }
                                 lastMouseEvent = null;
@@ -424,26 +435,36 @@ namespace NebulaWorld.Logistics
             }
             else
             {
+                int id = -1;
                 if(pData.factory?.transport == null)
                 {
                     return;
                 }
-                int stationId = -1;
-                for(int i = 0; i < pData.factory.transport.stationPool.Length; i++)
-                {
-                    if(pData.factory.transport.stationPool[i] != null && pData.factory.transport.stationPool[i].gid == packet.stationGId)
-                    {
-                        stationId = pData.factory.transport.stationPool[i].id;
-                        break;
-                    }
-                }
-                if(stationId == -1)
+                if((!packet.isStellar && packet.stationGId >= pData.factory.transport.stationPool.Length) || pData.factory.transport == null)
                 {
                     return;
                 }
+                else if (packet.isStellar)
+                {
+                    foreach(StationComponent stationComponent in pData.factory.transport.stationPool)
+                    {
+                        if(stationComponent != null && stationComponent.gid == packet.stationGId)
+                        {
+                            id = stationComponent.id;
+                        }
+                    }
+                }
+                else
+                {
+                    id = pData.factory.transport.stationPool[packet.stationGId].id;
+                }
 
+                if(id == -1)
+                {
+                    return;
+                }
                 LocalPlayer.PatchLocks["PlanetTransport"] = true;
-                pData.factory.transport.SetStationStorage(stationId, packet.storageIdx, packet.itemId, packet.itemCountMax, packet.localLogic, packet.remoteLogic, null);
+                pData.factory.transport.SetStationStorage(id, packet.storageIdx, packet.itemId, packet.itemCountMax, packet.localLogic, packet.remoteLogic, null);
                 LocalPlayer.PatchLocks["PlanetTransport"] = false;
             }
         }

@@ -166,7 +166,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (player.inhandItemCount > 0)
                 {
                     int droneAmount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
-                    int spaceLeft = 10 - droneAmount;
+                    int spaceLeft = 50 - droneAmount;
                     if (spaceLeft < 0)
                     {
                         spaceLeft = 0;
@@ -301,6 +301,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 __instance.transport = __instance.factory.transport;
             }
+            StationComponent stationComponent = null;
             if(__instance.stationId == 0)
             {
                 UIStationStorage[] stationStorage = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(__instance);
@@ -308,17 +309,22 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     Log.Info($"sending initial sync request id {__instance.transport.stationPool[stationStorage[0].station.id]} size: {__instance.transport.stationPool.Length}");
                     Log.Info($"gid: {__instance.transport.stationPool[stationStorage[0].station.id].gid}");
-                    Debug.Log((int)AccessTools.Field(typeof(UIStationWindow), "_stationId").GetValue(__instance));
-                    LocalPlayer.SendPacket(new StationUIInitialSyncRequest(__instance.transport.stationPool[stationStorage[0].station.id].gid));
-                    StationUIManager.UIIsSyncedStage++;
+                    Debug.Log((int)AccessTools.Field(typeof(UIStationWindow), "_stationId").GetValue(__instance) + " " + __instance.stationId);
+                    stationComponent = __instance.transport.stationPool[stationStorage[0].station.id];
                 }
             }
             else
             {
                 Debug.Log("sending initial sync request " + __instance.transport.stationPool[__instance.stationId].gid);
-                Debug.Log((int)AccessTools.Field(typeof(UIStationWindow), "_stationId").GetValue(__instance));
+                Debug.Log((int)AccessTools.Field(typeof(UIStationWindow), "_stationId").GetValue(__instance) + " " + __instance.stationId);
                 Debug.Log("gStationCursorl: " + GameMain.data.galacticTransport.stationCursor + " Len: " + GameMain.data.galacticTransport.stationPool.Length);
-                LocalPlayer.SendPacket(new StationUIInitialSyncRequest(__instance.transport.stationPool[__instance.stationId].gid));
+                stationComponent = __instance.transport.stationPool[__instance.stationId];
+            }
+            if(stationComponent != null && GameMain.localPlanet != null)
+            {
+                int id = (stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id;
+                // for some reason PLS has planetId set to 0, so we use players localPlanet here (he should be on a planet anyways when opening the UI)
+                LocalPlayer.SendPacket(new StationUIInitialSyncRequest(id, (stationComponent.isStellar == true) ? 0 : GameMain.localPlanet.id));
                 StationUIManager.UIIsSyncedStage++;
             }
             return false;

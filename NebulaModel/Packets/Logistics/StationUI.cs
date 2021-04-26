@@ -18,7 +18,7 @@
         // 12 == addOrRemoveItemFromStorage answer (this should contain the correct data)
         public int settingIndex { get; set; }
         public float settingValue { get; set; }
-        public int stationGId { get; set;}
+        public int stationGId { get; set;} // this can also be the id when handling a PLS
         public int planetId { get; set; }
         public int storageIdx { get; set; }
         public int itemId { get; set; }
@@ -26,9 +26,10 @@
         public ELogisticStorage localLogic { get; set; }
         public ELogisticStorage remoteLogic { get; set; }
         public bool shouldMimick { get; set; }
+        public bool isStellar { get; set; }
 
         public StationUI() { }
-        public StationUI(int stationGId, int planetId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic)
+        public StationUI(int stationGId, int planetId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, bool isStellar)
         {
             this.isStorageUI = true;
             this.stationGId = stationGId;
@@ -39,6 +40,7 @@
             this.localLogic = localLogic;
             this.remoteLogic = remoteLogic;
             this.shouldMimick = false;
+            this.isStellar = isStellar;
         }
         public StationUI(int stationGId, int planetId, int settingIndex, float value)
         {
@@ -47,8 +49,9 @@
             this.isStorageUI = false;
             this.settingIndex = settingIndex;
             this.settingValue = value;
+            this.isStellar = true;
         }
-        public StationUI(int stationGId, int planetId, int storageIdx, int settingIndex, int itemId, int settingValue)
+        public StationUI(int stationGId, int planetId, int storageIdx, int settingIndex, int itemId, int settingValue, bool isStellar)
         {
             this.stationGId = stationGId;
             this.planetId = planetId;
@@ -56,6 +59,7 @@
             this.itemId = itemId;
             this.settingValue = settingValue;
             this.storageIdx = storageIdx;
+            this.isStellar = isStellar;
         }
     }
 }

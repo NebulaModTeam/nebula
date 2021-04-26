@@ -14,6 +14,14 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["PlanetTransport"])
             {
+                StationComponent stationComponent = __instance.stationPool[stationId];
+                if(stationComponent != null)
+                {
+                    int id = ((stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id);
+                    StationUI packet = new StationUI(id, __instance.planet.id, storageIdx, itemId, itemCountMax, localLogic, remoteLogic, stationComponent.isStellar);
+                    LocalPlayer.SendPacket(packet);
+                }
+                /*
                 foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
                     if(stationComponent != null && stationComponent.planetId == GameMain.data.localPlanet.id && stationComponent.id == stationId)
@@ -23,6 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         break;
                     }
                 }
+                */
                 if (LocalPlayer.IsMasterClient)
                 {
                     return true;

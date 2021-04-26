@@ -30,13 +30,15 @@ namespace NebulaPatcher.Patches.Dynamic
                         {
                             amount = 0;
                         }
-                        packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count + amount);
+                        int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
+                        packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count + amount, __instance.station.isStellar);
                         LocalPlayer.SendPacket(packet);
                     }
                 }
                 else
                 {
-                    packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
+                    int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
+                    packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count, __instance.station.isStellar);
                     LocalPlayer.SendPacket(packet);
                 }
                 if (LocalPlayer.IsMasterClient)
@@ -63,13 +65,15 @@ namespace NebulaPatcher.Patches.Dynamic
                     {
                         int splitVal = UIRoot.instance.uiGame.gridSplit.value;
                         int diff = (splitVal >= __instance.station.storage[__instance.index].count) ? __instance.station.storage[__instance.index].count : splitVal;
-                        packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count - diff);
+                        int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
+                        packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count - diff, __instance.station.isStellar);
                         LocalPlayer.SendPacket(packet);
                     }
                 }
                 else
                 {
-                    packet = new StationUI(__instance.station.gid, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
+                    int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
+                    packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count, __instance.station.isStellar);
                     LocalPlayer.SendPacket(packet);
                 }
                 if (LocalPlayer.IsMasterClient)

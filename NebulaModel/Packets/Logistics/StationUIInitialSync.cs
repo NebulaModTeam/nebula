@@ -5,6 +5,7 @@ namespace NebulaModel.Packets.Logistics
     public class StationUIInitialSync
     {
         public int stationGId { get; set; }
+        public int planetId { get; set; }
         public double tripRangeDrones { get; set; }
         public double tripRangeShips { get; set; }
         public int deliveryDrones { get; set; }
@@ -22,6 +23,7 @@ namespace NebulaModel.Packets.Logistics
         public int[] remoteOrder { get; set; }
         public StationUIInitialSync() { }
         public StationUIInitialSync(int stationGId,
+                                    int planetId,
                                     double tripRangeDrones,
                                     double tripRangeShips,
                                     int deliveryDrones,
@@ -46,6 +48,7 @@ namespace NebulaModel.Packets.Logistics
             this.remoteOrder = new int[remoteOrder.Length];
 
             this.stationGId = stationGId;
+            this.planetId = planetId;
             this.tripRangeDrones = tripRangeDrones;
             this.tripRangeShips = tripRangeShips;
             this.deliveryDrones = deliveryDrones;

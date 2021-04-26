@@ -22,8 +22,8 @@ namespace NebulaModel.Networking.Serialization
         private Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
 
         public bool SimulateLatency = false;
-        public int SimulatedMinLatency = 20;
-        public int SimulatedMaxLatency = 50;
+        public int SimulatedMinLatency = 15;
+        public int SimulatedMaxLatency = 20;
 
         public NetPacketProcessor()
         {
