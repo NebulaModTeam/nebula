@@ -11,7 +11,7 @@ namespace NebulaHost.PacketProcessors.Planet
     {
         public void ProcessPacket(RemoveVegetablePacket packet, NebulaConnection conn)
         {
-            if (GameMain.data.factories[packet.FactorytIndex] != null)
+            if (packet.FactorytIndex >= 0 && GameMain.data.factories[packet.FactorytIndex] != null)
             {
                 using (PlanetManager.EventFromClient.On())
                 {

@@ -76,7 +76,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
 
             //Clients needs to send destruction packet here
-            if (!LocalPlayer.IsMasterClient)
+            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
                 LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
             }

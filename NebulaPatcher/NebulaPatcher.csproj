@@ -48,6 +48,9 @@
     <Compile Include="Patches\Dynamic\GameSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameScenarioLogic_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameStatData_Patch.cs" />
+    <Compile Include="Patches\Dynamic\InserterRenderer_Patch.cs" />
+    <Compile Include="Patches\Dynamic\LabRenderer_Patch.cs" />
+    <Compile Include="Patches\Dynamic\ObjectRenderer_Patch.cs" />
     <Compile Include="Patches\Dynamic\MechaDroneLogic_Patch.cs" />
     <Compile Include="Patches\Dynamic\PlanetData_Patch.cs" />
     <Compile Include="Patches\Dynamic\Mecha_Patch.cs" />
