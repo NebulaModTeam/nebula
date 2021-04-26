@@ -271,7 +271,6 @@ namespace NebulaWorld.Logistics
                     }
                     */
                 }
-                Debug.Log(GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ": dir: " + stationComponent.workShipDatas[packet.origShipIndex].direction + " carry " + stationComponent.workShipDatas[packet.origShipIndex].itemId + "(" + stationComponent.workShipDatas[packet.origShipIndex].itemCount + ")");
             }
         }
 
