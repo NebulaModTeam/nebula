@@ -65,7 +65,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
-                Debug.Log("Sending that thing");
                 ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[__instance.workShipCount-1].planetA, __instance.workShipDatas[__instance.workShipCount - 1].planetB, __instance.workShipDatas[__instance.workShipCount - 1].itemId, __instance.workShipDatas[__instance.workShipCount - 1].itemCount, __instance.gid, __instance.workShipDatas[__instance.workShipCount - 1].otherGId, index, __instance.workShipDatas[__instance.workShipCount - 1].warperCnt, __instance.warperCount);
                 LocalPlayer.SendPacket(packet);
             }

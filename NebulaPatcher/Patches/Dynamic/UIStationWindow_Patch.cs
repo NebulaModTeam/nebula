@@ -4,8 +4,6 @@ using NebulaWorld;
 using NebulaWorld.Logistics;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine;
-using NebulaModel.Logger;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -290,7 +288,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
-            Debug.Log("loading...");
             ((Text)AccessTools.Field(typeof(UIStationWindow), "titleText").GetValue(__instance)).text = "Loading...";
             StationUIManager.lastSelectedGameObj = EventSystem.current.currentSelectedGameObject;
             if(__instance.factory == null)
@@ -307,17 +304,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 UIStationStorage[] stationStorage = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(__instance);
                 if(stationStorage != null && stationStorage[0] != null && stationStorage[0].station.id != 0)
                 {
-                    Log.Info($"sending initial sync request id {__instance.transport.stationPool[stationStorage[0].station.id]} size: {__instance.transport.stationPool.Length}");
-                    Log.Info($"gid: {__instance.transport.stationPool[stationStorage[0].station.id].gid}");
-                    Debug.Log((int)AccessTools.Field(typeof(UIStationWindow), "_stationId").GetValue(__instance) + " " + __instance.stationId);
                     stationComponent = __instance.transport.stationPool[stationStorage[0].station.id];
                 }
             }
             else
             {
-                Debug.Log("sending initial sync request " + __instance.transport.stationPool[__instance.stationId].gid);
-                Debug.Log((int)AccessTools.Field(typeof(UIStationWindow), "_stationId").GetValue(__instance) + " " + __instance.stationId);
-                Debug.Log("gStationCursorl: " + GameMain.data.galacticTransport.stationCursor + " Len: " + GameMain.data.galacticTransport.stationPool.Length);
                 stationComponent = __instance.transport.stationPool[__instance.stationId];
             }
             if(stationComponent != null && GameMain.localPlanet != null)
@@ -359,29 +350,12 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             if(__instance.stationId != 0 || StationUIManager.UIStationId != 0)
             {
-                Debug.Log("sending unsubscriber");
                 // it is actually 0 before we manually set it to the right value in StationUIInitialSyncProcessor.cs and thus its a good check to skip sending the packet on the Free() call
                 LocalPlayer.SendPacket(new StationSubscribeUIUpdates(false, __instance.transport.stationPool[StationUIManager.UIStationId].gid));
                 StationUIManager.lastSelectedGameObj = null;
                 StationUIManager.UIIsSyncedStage = 0;
                 StationUIManager.UIStationId = 0;
             }
-            else
-            {
-                Debug.Log("skiping unsubscribe");
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch("_OnOpen")]
-        public static void _OnOpen_Postfix()
-        {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || StationUIManager.UIIsSyncedStage > -1)
-            {
-                return;
-            }
-            //Debug.Log("increase");
-            //StationUIManager.UIIsSyncedStage++;
         }
     }
 }

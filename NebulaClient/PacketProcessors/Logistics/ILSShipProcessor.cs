@@ -3,7 +3,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaWorld;
-using UnityEngine;
 
 namespace NebulaClient.PacketProcessors.Logistics
 {
@@ -12,7 +11,6 @@ namespace NebulaClient.PacketProcessors.Logistics
     {
         public void ProcessPacket(ILSShipData packet, NebulaConnection conn)
         {
-            Debug.Log("got that packet");
             SimulatedWorld.OnILSShipUpdate(packet);
         }
     }

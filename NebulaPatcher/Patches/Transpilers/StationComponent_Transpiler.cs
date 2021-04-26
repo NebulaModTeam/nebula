@@ -153,7 +153,6 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                             {
-                                Debug.Log("accessing index " + index + " on " + stationComponent.gid + " on " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
                                 List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for(int i = 0; i < subscribers.Count; i++)
@@ -200,7 +199,6 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                             {
-                                Debug.Log("accessing index " + index + " on " + stationComponent.gid + " on " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
                                 List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for(int i = 0; i < subscribers.Count; i++)
@@ -606,7 +604,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
-                        Debug.Log("accessing index " + index + " on " + stationComponent.gid + " on " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
                         if(index > 4)
                         {
                             // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
@@ -659,7 +656,6 @@ namespace NebulaPatcher.Patches.Transpilers
                             {
                                 if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                                 {
-                                    Debug.Log("accessing index " + index + " on " + stationComponent.gid + " on " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
                                     if (index > 4)
                                     {
                                         // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
@@ -707,7 +703,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
-                        Debug.Log("accessing index " + index + " on " + stationComponent.gid + " on " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
                         if (index > 4)
                         {
                             // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
@@ -764,7 +759,6 @@ namespace NebulaPatcher.Patches.Transpilers
 
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
-                int AddItemRemCount = 0;
 
                 // find begin of ship movement computation, c# 309 IL 1599
                 int origShipUpdateCodeBeginPos = new CodeMatcher(instructions)

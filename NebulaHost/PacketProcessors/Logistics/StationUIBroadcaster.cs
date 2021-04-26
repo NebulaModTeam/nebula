@@ -5,7 +5,6 @@ using NebulaModel.Packets.Processors;
 using NebulaWorld;
 using NebulaWorld.Logistics;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace NebulaHost.PacketProcessors.Logistics
 {
@@ -36,7 +35,6 @@ namespace NebulaHost.PacketProcessors.Logistics
                         {
                             packet.shouldMimick = true;
                         }
-                        Debug.Log("sending packet to subscriber");
                         subscribers[i].SendPacket(packet);
                     }
                 }

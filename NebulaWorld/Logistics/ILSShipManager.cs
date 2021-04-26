@@ -1,5 +1,4 @@
 ﻿using NebulaModel.Packets.Logistics;
-using NebulaModel.Logger;
 using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
@@ -67,8 +66,6 @@ namespace NebulaWorld.Logistics
                     stationComponent.workShipCount = 10;
                 }
                 stationComponent.IdleShipGetToWork(packet.origShipIndex);
-                Log.Info($"Received ship message (departing): {planetA.displayName} -> {planetB.displayName} transporting {packet.itemCount} of {packet.itemId} and index is {packet.origShipIndex}");
-                //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
                 StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[packet.planetBStationGID];
                 if(otherStationComponent != null && otherStationComponent.storage != null)
                 {
@@ -82,10 +79,6 @@ namespace NebulaWorld.Logistics
                         }
                     }
                 }
-            }
-            else
-            {
-                Debug.Log(((planetA == null) ? "null" : "not null") + ((planetB == null) ? "null" : "not null") + packet.planetA + " " + packet.planetB);
             }
         }
 
@@ -110,7 +103,6 @@ namespace NebulaWorld.Logistics
             }
 
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.planetAStationGID];
-            //stationComponent.workShipDatas[stationComponent.workShipCount] = new ShipData();
             Array.Copy(stationComponent.workShipDatas, packet.origShipIndex + 1, stationComponent.workShipDatas, packet.origShipIndex, stationComponent.workShipDatas.Length - packet.origShipIndex - 1);
             stationComponent.workShipCount--;
             stationComponent.idleShipCount++;
@@ -123,13 +115,10 @@ namespace NebulaWorld.Logistics
                 stationComponent.workShipCount = 10;
             }
             stationComponent.WorkShipBackToIdle(packet.origShipIndex);
-            Log.Info($"Received ship message (landing): transporting {packet.itemCount} of {packet.itemId} and shipindex is {packet.origShipIndex} planet: {GameMain.galaxy.PlanetById(stationComponent.planetId).displayName}");
-            //Log.Info($"Array Length is: {GameMain.data.galacticTransport.stationPool.Length} and there is also: {GameMain.data.galacticTransport.stationCapacity}");
         }
 
         public static void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
         {
-            Debug.Log("Creating fake StationComponent with GId: " + GId + " on " + GameMain.galaxy.PlanetById(planetId).displayName);
             while(GameMain.data.galacticTransport.stationCapacity <= GId)
             {
                 object[] args = new object[1];
@@ -169,7 +158,6 @@ namespace NebulaWorld.Logistics
             }
 
             GameMain.data.galacticTransport.stationCursor++;
-            Debug.Log("cursor: " + GameMain.data.galacticTransport.stationCursor);
         }
 
         private static void RequestgStationDockPos(int GId)
@@ -183,15 +171,12 @@ namespace NebulaWorld.Logistics
             {
                 return;
             }
-            Debug.Log("received remote order packet");
             foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
             {
                 if(stationComponent != null && stationComponent.gid == packet.stationGID)
                 {
-                    Debug.Log("found stationComponent on " + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName);
                     if(stationComponent.storage == null)
                     {
-                        Debug.Log("this is bad");
                         return;
                     }
                     stationComponent.storage[packet.storageIndex].remoteOrder = packet.remoteOrder;
@@ -201,7 +186,6 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        // TODO: remove shipIndex from packet as its not used
         public static void AddTakeItem(ILSShipItems packet)
         {
             if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
@@ -209,14 +193,11 @@ namespace NebulaWorld.Logistics
                 return;
             }
 
-            Log.Info($"Got packet for planet {GameMain.galaxy.PlanetById(GameMain.data.galacticTransport.stationPool[packet.stationGID].planetId).displayName}");
-
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGID];
             if (stationComponent != null && stationComponent.gid == packet.stationGID && stationComponent.storage != null)
             {
                 if (packet.AddItem)
                 {
-                    Log.Info($"Calling AddItem() with item {packet.itemId} and amount {packet.itemCount}");
                     stationComponent.AddItem(packet.itemId, packet.itemCount);
                     for(int i = 0; i < stationComponent.storage.Length; i++)
                     {
@@ -230,10 +211,10 @@ namespace NebulaWorld.Logistics
                 }
                 else
                 {
-                    Log.Info($"Calling TakeItem() with item {packet.itemId} and amount {packet.itemCount}");
                     int itemId = packet.itemId;
                     int itemCount = packet.itemCount;
                     stationComponent.TakeItem(ref itemId, ref itemCount);
+                    /*
                     if(stationComponent.workShipDatas[packet.origShipIndex].otherGId != 0 && stationComponent.workShipDatas[packet.origShipIndex].otherGId < GameMain.data.galacticTransport.stationPool.Length)
                     {
                         StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[stationComponent.workShipDatas[packet.origShipIndex].otherGId];
@@ -262,6 +243,33 @@ namespace NebulaWorld.Logistics
                             break;
                         }
                     }
+                    */
+                    // this is the second attempt, but its also not working
+                    // we need to check if this is the home station of the ship or not.
+                    // if not then increase remoteOrder, if it is dont change remoteOrder
+                    /*
+                    foreach(StationComponent tmpComp in GameMain.data.galacticTransport.stationPool)
+                    {
+                        if(tmpComp != null)
+                        {
+                            foreach(ShipData tmpData in tmpComp.workShipDatas)
+                            {
+                                if(tmpData.itemId == packet.itemId && tmpData.itemCount == packet.itemCount && stationComponent.gid == tmpData.otherGId)
+                                {
+                                    for(int i = 0; i < stationComponent.storage.Length; i++)
+                                    {
+                                        if(stationComponent.storage[i].itemId == packet.itemId)
+                                        {
+                                            stationComponent.storage[i].remoteOrder += packet.itemCount;
+                                            RefreshValuesUI(stationComponent, i);
+                                        }
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    */
                 }
                 Debug.Log(GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ": dir: " + stationComponent.workShipDatas[packet.origShipIndex].direction + " carry " + stationComponent.workShipDatas[packet.origShipIndex].itemId + "(" + stationComponent.workShipDatas[packet.origShipIndex].itemCount + ")");
             }

@@ -18,7 +18,7 @@
         // 12 == addOrRemoveItemFromStorage answer (this should contain the correct data)
         public int settingIndex { get; set; }
         public float settingValue { get; set; }
-        public int stationGId { get; set;} // this can also be the id when handling a PLS
+        public int stationGId { get; set;} // NOTE: this can also be the id when handling a PLS
         public int planetId { get; set; }
         public int storageIdx { get; set; }
         public int itemId { get; set; }
@@ -33,7 +33,7 @@
         {
             this.isStorageUI = true;
             this.stationGId = stationGId;
-            this.planetId = planetId; // we could ommit this and instead search the galaxy when received but that would take some time
+            this.planetId = planetId;
             this.storageIdx = storageIdx;
             this.itemId = itemId;
             this.itemCountMax = itemCountMax;

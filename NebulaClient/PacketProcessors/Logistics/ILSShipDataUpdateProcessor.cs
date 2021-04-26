@@ -2,7 +2,6 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
-using UnityEngine;
 
 namespace NebulaClient.PacketProcessors.Logistics
 {
@@ -21,7 +20,6 @@ namespace NebulaClient.PacketProcessors.Logistics
                     gTransport.stationPool[packet.stationGId].workShipDatas[i].direction = packet.direction[i];
                     gTransport.stationPool[packet.stationGId].workShipDatas[i].itemId = packet.itemId[i];
                 }
-                Debug.Log("UPDATED");
             }
         }
     }

@@ -222,7 +222,6 @@ namespace NebulaWorld
 
         public static void OnILSShipUpdate(ILSShipData packet)
         {
-            Debug.Log("SimulatedWOrld");
             if (packet.IdleToWork)
             {
                 ILSShipManager.IdleShipGetToWork(packet);
@@ -256,10 +255,6 @@ namespace NebulaWorld
                 if (remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
                 {
                     localPlanetId = pModel.Movement.localPlanetId;
-                }
-                else
-                {
-                    Debug.LogWarning("FAILED TO SYNC VEGE DATA");
                 }
             }
 

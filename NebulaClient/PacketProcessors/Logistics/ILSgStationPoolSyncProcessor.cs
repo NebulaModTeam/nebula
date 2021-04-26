@@ -76,7 +76,6 @@ namespace NebulaClient.PacketProcessors.Logistics
             }
 
             gTransport.Arragement();
-            Debug.Log("CURSOR NOW AT: " + GameMain.data.galacticTransport.stationCursor);
         }
     }
 }

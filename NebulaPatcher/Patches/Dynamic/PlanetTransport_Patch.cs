@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -21,17 +20,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     StationUI packet = new StationUI(id, __instance.planet.id, storageIdx, itemId, itemCountMax, localLogic, remoteLogic, stationComponent.isStellar);
                     LocalPlayer.SendPacket(packet);
                 }
-                /*
-                foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
-                {
-                    if(stationComponent != null && stationComponent.planetId == GameMain.data.localPlanet.id && stationComponent.id == stationId)
-                    {
-                        StationUI packet = new StationUI(stationComponent.gid, __instance.planet.id, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
-                        LocalPlayer.SendPacket(packet);
-                        break;
-                    }
-                }
-                */
                 if (LocalPlayer.IsMasterClient)
                 {
                     return true;

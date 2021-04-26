@@ -3,7 +3,6 @@ using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using NebulaWorld.Logistics;
 using UnityEngine.EventSystems;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

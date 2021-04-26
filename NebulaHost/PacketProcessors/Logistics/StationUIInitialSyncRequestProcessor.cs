@@ -3,7 +3,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace NebulaHost.PacketProcessors.Logistics
 {
@@ -18,7 +17,6 @@ namespace NebulaHost.PacketProcessors.Logistics
                 StationComponent stationComponent = null;
                 if(packet.planetId == 0)
                 {
-                    Debug.Log("taking ILS values");
                     stationComponent = gStationPool[packet.stationGId];
                 }
                 else
@@ -27,7 +25,6 @@ namespace NebulaHost.PacketProcessors.Logistics
                     // GId is the id in this case as we look at a PLS
                     if(pData?.factory?.transport != null && pData.factory.transport.stationPool.Length > packet.stationGId)
                     {
-                        Debug.Log("taking PLS values");
                         stationComponent = pData.factory.transport.stationPool[packet.stationGId];
                     }
                 }
@@ -88,7 +85,6 @@ namespace NebulaHost.PacketProcessors.Logistics
                                                                             remoteLogic.ToArray(),
                                                                             remoteOrder.ToArray());
                     conn.SendPacket(packet2);
-                    Debug.Log("send syncing packet " + packet.stationGId);
                 }
             }
         }

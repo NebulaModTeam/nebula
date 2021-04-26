@@ -68,16 +68,15 @@ namespace NebulaWorld.Logistics
 
         public static void DecreaseCooldown()
         {
+            // cooldown is for the storage sliders
             if(UpdateCooldown > 0)
             {
-                Debug.Log(UpdateCooldown);
                 UpdateCooldown--;
             }
         }
 
         public static void UpdateUI(StationUI packet)
         {
-            Debug.Log("handling packet " + packet.settingIndex);
             if((UpdateCooldown == 0 || !packet.isStorageUI) && LocalPlayer.IsMasterClient)
             {
                 UpdateCooldown = 10;
@@ -254,21 +253,17 @@ namespace NebulaWorld.Logistics
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
             if (stationWindow != null)
             {
-                Debug.Log("1");
                 int _stationId = (int)AccessTools.Field(typeof(UIStationWindow), "_stationId")?.GetValue(stationWindow);
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
                 if(pData?.factory == null || pData?.factory?.transport == null)
                 {
-                    Debug.Log("2");
                     if(GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
                     {
-                        Debug.Log("3");
                         // client never was on this planet before or has it unloaded, but has a fake structure created, so update it
                         UpdateSettingsUIBackground(packet, pData, packet.stationGId);
                     }
                     return;
                 }
-                Debug.Log("3.5");
                 for (int i = 0; i < pData.factory.transport.stationPool.Length; i++)
                 {
                     if(pData.factory.transport.stationPool[i] != null)
@@ -278,20 +273,17 @@ namespace NebulaWorld.Logistics
                         {
                             if (pData.factory.transport.stationPool[i].id != _stationId)
                             {
-                                Debug.Log("4");
                                 // receiving side has the UI closed or another stations UI opened. still update drones, ships, warpers and power consumption for clients and update all for host
                                 UpdateSettingsUIBackground(packet, pData, pData.factory.transport.stationPool[i].gid);
                                 return;
                             }
                             else
                             {
-                                Debug.Log("5");
                                 break;
                             }
                         }
                     }
                 }
-                Debug.Log("6");
 
                 LocalPlayer.PatchLocks["UIStationWindow"] = true;
                 LocalPlayer.PatchLocks["UIStationStorage"] = true;
