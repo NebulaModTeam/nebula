@@ -92,6 +92,7 @@ namespace NebulaClient
                 pingIndicator.enabled = true;
                 RectTransform rect = pingIndicator.GetComponent<RectTransform>();
                 rect.anchorMin = new Vector2(0f, 1f);
+                rect.offsetMax = new Vector2(-68f, -40f);
                 rect.offsetMin = new Vector2(10f, -100f);
                 pingIndicator.text = "";
                 pingIndicator.fontSize = 14;
