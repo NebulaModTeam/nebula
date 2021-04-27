@@ -8,20 +8,6 @@ namespace NebulaWorld.Factory
     {
         public static List<BeltUpdate> BeltUpdates = new List<BeltUpdate>();
 
-        static readonly AccessTools.FieldRef<CargoTraffic, BeltRenderingBatch[]> GetBeltRenderingBatches =
-            AccessTools.FieldRefAccess<CargoTraffic, BeltRenderingBatch[]>("beltRenderingBatch");
-
-        public static BeltRenderingBatch[] GetOrCreateBeltRenderingBatches(this CargoTraffic cargoTraffic)
-        {
-            var batches = GetBeltRenderingBatches(cargoTraffic);
-            if (batches == null)
-            {
-                cargoTraffic.CreateRenderingBatches();
-                batches = GetBeltRenderingBatches(cargoTraffic);
-            }
-
-            return batches;
-        }
         public static void BeltPickupStarted()
         {
             BeltUpdates.Clear();
@@ -35,7 +21,10 @@ namespace NebulaWorld.Factory
         }
         public static void BeltPickupEnded()
         {
-            LocalPlayer.SendPacketToLocalStar(new BeltUpdatePickupItemsPacket(BeltUpdates.ToArray(), GameMain.data.localPlanet.factoryIndex));
+            if (GameMain.data.localPlanet != null)
+            {
+                LocalPlayer.SendPacketToLocalStar(new BeltUpdatePickupItemsPacket(BeltUpdates.ToArray(), GameMain.data.localPlanet.factoryIndex));
+            }
             BeltUpdates.Clear();
         }
     }

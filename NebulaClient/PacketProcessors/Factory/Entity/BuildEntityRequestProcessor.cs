@@ -22,6 +22,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 using (FactoryManager.EventFromServer.On())
                 {
                     FactoryManager.EventFactory = planet.factory;
+                    FactoryManager.TargetPlanet = packet.PlanetId;
                     FactoryManager.PacketAuthor = packet.AuthorId;
 
                     // Physics could be null, if the host is not on the requested planet
@@ -50,6 +51,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     }
                     FactoryManager.PacketAuthor = -1;
                     FactoryManager.EventFactory = null;
+                    FactoryManager.TargetPlanet = -2;
                 }
             }
         }
