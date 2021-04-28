@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Utils;
 using NebulaWorld;
@@ -10,9 +11,7 @@ namespace NebulaHost
     public class SaveManager
     {
         private const string FILE_EXTENSION = ".server";
-        private static string lastFileName = "";
 
-        public static bool SaveOnExit = false;
         public static void SaveServerData(string saveName)
         {
             string path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
@@ -32,25 +31,50 @@ namespace NebulaHost
             }
 
             //Add host's data
-            netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash()); 
+            netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash());
             LocalPlayer.Data.Serialize(netDataWriter);
 
             File.WriteAllBytes(path, netDataWriter.Data);
+
+            // If the saveName is the autoSave, we need to rotate the server autosave file.
+            if (saveName == GameSave.AutoSaveTmp)
+            {
+                HandleAutoSave();
+            }
         }
 
-        public static void SetLastSave(string fileName)
+        static void HandleAutoSave()
         {
-            lastFileName = fileName;
+            string str1 = GameConfig.gameSaveFolder + GameSave.AutoSaveTmp + FILE_EXTENSION;
+            string str2 = GameConfig.gameSaveFolder + GameSave.AutoSave0 + FILE_EXTENSION;
+            string str3 = GameConfig.gameSaveFolder + AccessTools.Field(typeof(GameSave), "AutoSave1").GetValue(null) + FILE_EXTENSION;
+            string str4 = GameConfig.gameSaveFolder + AccessTools.Field(typeof(GameSave), "AutoSave2").GetValue(null) + FILE_EXTENSION;
+            string str5 = GameConfig.gameSaveFolder + AccessTools.Field(typeof(GameSave), "AutoSave3").GetValue(null) + FILE_EXTENSION;
+
+            if (File.Exists(str1))
+            {
+                if (File.Exists(str5))
+                    File.Delete(str5);
+                if (File.Exists(str4))
+                    File.Move(str4, str5);
+                if (File.Exists(str3))
+                    File.Move(str3, str4);
+                if (File.Exists(str2))
+                    File.Move(str2, str3);
+                File.Move(str1, str2);
+            }
         }
 
         public static void LoadServerData()
         {
-            string path = GameConfig.gameSaveFolder + lastFileName + FILE_EXTENSION;
+            string path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
+
             PlayerManager playerManager = MultiplayerHostSession.Instance.PlayerManager;
             if (!File.Exists(path) || playerManager == null)
             {
                 return;
             }
+
             byte[] source = File.ReadAllBytes(path);
             NetDataReader netDataReader = new NetDataReader(source);
             int playerNum = netDataReader.GetInt();
