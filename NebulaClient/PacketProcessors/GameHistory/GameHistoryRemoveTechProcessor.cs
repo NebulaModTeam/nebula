@@ -12,13 +12,13 @@ namespace NebulaClient.PacketProcessors.GameHistory
     {
         public void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
         {
-            Log.Info($"Removing tech (ID: {packet.techId}) from queue");
+            Log.Info($"Removing tech (ID: {packet.TechId}) from queue");
             using (GameDataHistoryManager.IsIncomingRequest.On())
             {
                 int index = -1;
                 for (int i = 0; i < GameMain.history.techQueueLength; i++)
                 {
-                    if (GameMain.history.techQueue[i] == packet.techId)
+                    if (GameMain.history.techQueue[i] == packet.TechId)
                     {
                         index = i;
                         break;
@@ -27,13 +27,10 @@ namespace NebulaClient.PacketProcessors.GameHistory
                 if (index < 0)
                 {
                     //sanity: packet wanted to remove tech, which is not queued on this client
-                    Log.Info($"ProcessPacket: TechId: {packet.techId} was not in queue, discarding paket");
+                    Log.Info($"ProcessPacket: TechId: {packet.TechId} was not in queue, discarding paket");
                     return;
                 }
-                //recover spend items from inventory before removing it from queue
-                GameMain.mainPlayer.mecha.lab.ManageTakeback();
                 GameMain.history.RemoveTechInQueue(index);
-                //Wenn nodes noch da sind: UIResearchQueue::UpdateNodes()
                 Log.Info($"ProcessPacket: Techqueue is at length {GameMain.history.techQueueLength} after");
             }
         }

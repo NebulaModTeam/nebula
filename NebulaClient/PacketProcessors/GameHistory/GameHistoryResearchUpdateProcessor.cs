@@ -13,7 +13,7 @@ namespace NebulaClient.PacketProcessors.GameHistory
             GameHistoryData data = GameMain.data.history;
             if (packet.TechId != data.currentTech)
             {
-                //Wait for the authoritative packet to enqueu new tech first
+                //Wait for the authoritative packet to enqueue new tech first
                 return;
             }
             TechState state = data.techStates[data.currentTech];
