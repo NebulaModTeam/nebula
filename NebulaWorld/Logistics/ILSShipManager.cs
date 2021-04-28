@@ -3,12 +3,24 @@ using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Reflection;
 
 namespace NebulaWorld.Logistics
 {
     public static class ILSShipManager
     {
         public static Dictionary<int,List<StationComponent>> AddStationComponentQueue = new Dictionary<int,List<StationComponent>>();
+
+        private static AccessTools.FieldRef<object, int> FR_stationId;
+        private static AccessTools.FieldRef<object, UIStationStorage[]> FR_storageUIs;
+        private static MethodInfo MI_RefreshValues = null;
+
+        public static void Initialize()
+        {
+            FR_stationId = AccessTools.FieldRefAccess<int>(typeof(UIStationWindow), "_stationId");
+            FR_storageUIs = AccessTools.FieldRefAccess<UIStationStorage[]>(typeof(UIStationWindow), "storageUIs");
+            MI_RefreshValues = AccessTools.Method(typeof(UIStationStorage), "RefreshValues");
+        }
         public static void IdleShipGetToWork(ILSShipData packet)
         {
             PlanetData planetA = GameMain.galaxy.PlanetById(packet.planetA);
@@ -196,7 +208,7 @@ namespace NebulaWorld.Logistics
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGID];
             if (stationComponent != null && stationComponent.gid == packet.stationGID && stationComponent.storage != null)
             {
-                if (packet.AddItem)
+                if (packet.addItem)
                 {
                     stationComponent.AddItem(packet.itemId, packet.itemCount);
                     for(int i = 0; i < stationComponent.storage.Length; i++)
@@ -277,12 +289,12 @@ namespace NebulaWorld.Logistics
         private static void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-            if (stationWindow != null && (int)AccessTools.Field(typeof(UIStationWindow), "_stationId")?.GetValue(stationWindow) == stationComponent.id)
+            if (stationWindow != null && FR_stationId(stationWindow) == stationComponent.id)
             {
-                UIStationStorage[] stationStorageUI = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
+                UIStationStorage[] stationStorageUI = FR_storageUIs(stationWindow);
                 if (stationStorageUI != null && stationStorageUI.Length > storageIndex)
                 {
-                    AccessTools.Method(typeof(UIStationStorage), "RefreshValues").Invoke(stationStorageUI[storageIndex], null);
+                    MI_RefreshValues.Invoke(stationStorageUI[storageIndex], null);
                 }
             }
         }

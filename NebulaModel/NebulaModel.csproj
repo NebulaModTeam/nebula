@@ -115,7 +115,6 @@
     <Compile Include="Packets\Logistics\ILSShipDataUpdate.cs" />
     <Compile Include="Packets\Logistics\ILSShipItems.cs" />
     <Compile Include="Packets\Logistics\ILSShipUpdateWarperCnt.cs" />
-    <Compile Include="Packets\Logistics\ILSSystemStorageSync.cs" />
     <Compile Include="Packets\Logistics\StationSubscribeUIUpdates.cs" />
     <Compile Include="Packets\Logistics\StationUI.cs" />
     <Compile Include="Packets\Logistics\StationUIInitialSync.cs" />

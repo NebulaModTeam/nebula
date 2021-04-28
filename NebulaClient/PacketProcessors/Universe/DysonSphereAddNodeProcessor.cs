@@ -1,6 +1,5 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Universe;
@@ -13,7 +12,6 @@ namespace NebulaClient.PacketProcessors.Universe
     {
         public void ProcessPacket(DysonSphereAddNodePacket packet, NebulaConnection conn)
         {
-            Log.Info($"Processing DysonSphere Add Node notification for system {GameMain.data.galaxy.stars[packet.StarIndex].name} (Index: {GameMain.data.galaxy.stars[packet.StarIndex].index})");
             using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
             {
                 int? addedID = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonNode(packet.NodeProtoId, DataStructureExtensions.ToVector3(packet.Position));

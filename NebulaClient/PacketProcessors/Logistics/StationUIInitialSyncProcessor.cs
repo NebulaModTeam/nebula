@@ -55,30 +55,8 @@ namespace NebulaClient.PacketProcessors.Logistics
                         stationComponent.storage[i].max = packet.itemCountMax[i];
                         stationComponent.storage[i].count = packet.itemCount[i];
                         stationComponent.storage[i].remoteOrder = packet.remoteOrder[i];
-                        switch (packet.localLogic[i])
-                        {
-                            case 0:
-                                stationComponent.storage[i].localLogic = ELogisticStorage.None;
-                                break;
-                            case 1:
-                                stationComponent.storage[i].localLogic = ELogisticStorage.Supply;
-                                break;
-                            case 2:
-                                stationComponent.storage[i].localLogic = ELogisticStorage.Demand;
-                                break;
-                        }
-                        switch (packet.remoteLogic[i])
-                        {
-                            case 0:
-                                stationComponent.storage[i].remoteLogic = ELogisticStorage.None;
-                                break;
-                            case 1:
-                                stationComponent.storage[i].remoteLogic = ELogisticStorage.Supply;
-                                break;
-                            case 2:
-                                stationComponent.storage[i].remoteLogic = ELogisticStorage.Demand;
-                                break;
-                        }
+                        stationComponent.storage[i].localLogic = (ELogisticStorage)packet.localLogic[i];
+                        stationComponent.storage[i].remoteLogic = (ELogisticStorage)packet.remoteLogic[i];
                     }
                     if(stationWindow != null && stationWindow.active)
                     {

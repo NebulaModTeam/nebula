@@ -30,42 +30,21 @@ namespace NebulaHost.PacketProcessors.Logistics
                 }
                 if(stationComponent != null)
                 {
-                    List<int> itemId = new List<int>();
-                    List<int> itemCountMax = new List<int>();
-                    List<int> itemCount = new List<int>();
-                    List<int> localLogic = new List<int>();
-                    List<int> remoteLogic = new List<int>();
-                    List<int> remoteOrder = new List<int>();
+                    StationStore[] storage = stationComponent.storage;
+                    int[] itemId = new int[storage.Length];
+                    int[] itemCountMax = new int[storage.Length];
+                    int[] itemCount = new int[storage.Length];
+                    int[] localLogic = new int[storage.Length];
+                    int[] remoteLogic = new int[storage.Length];
+                    int[] remoteOrder = new int[storage.Length];
                     for(int i = 0; i < stationComponent.storage.Length; i++)
                     {
-                        itemId.Add(stationComponent.storage[i].itemId);
-                        itemCountMax.Add(stationComponent.storage[i].max);
-                        itemCount.Add(stationComponent.storage[i].count);
-                        remoteOrder.Add(stationComponent.storage[i].remoteOrder);
-                        switch (stationComponent.storage[i].localLogic)
-                        {
-                            case (ELogisticStorage.None):
-                                localLogic.Add(0);
-                                break;
-                            case (ELogisticStorage.Supply):
-                                localLogic.Add(1);
-                                break;
-                            case (ELogisticStorage.Demand):
-                                localLogic.Add(2);
-                                break;
-                        }
-                        switch (stationComponent.storage[i].remoteLogic)
-                        {
-                            case (ELogisticStorage.None):
-                                remoteLogic.Add(0);
-                                break;
-                            case (ELogisticStorage.Supply):
-                                remoteLogic.Add(1);
-                                break;
-                            case (ELogisticStorage.Demand):
-                                remoteLogic.Add(2);
-                                break;
-                        }
+                        itemId[i] = storage[i].itemId;
+                        itemCountMax[i] = storage[i].max;
+                        itemCount[i] = storage[i].count;
+                        localLogic[i] = (int)storage[i].localLogic;
+                        remoteLogic[i] = (int)storage[i].remoteLogic;
+                        remoteOrder[i] = storage[i].remoteOrder;
                     }
                     StationUIInitialSync packet2 = new StationUIInitialSync(packet.stationGId,
                                                                             packet.planetId,
@@ -78,12 +57,12 @@ namespace NebulaHost.PacketProcessors.Logistics
                                                                             stationComponent.includeOrbitCollector,
                                                                             stationComponent.energy,
                                                                             stationComponent.energyPerTick,
-                                                                            itemId.ToArray(),
-                                                                            itemCountMax.ToArray(),
-                                                                            itemCount.ToArray(),
-                                                                            localLogic.ToArray(),
-                                                                            remoteLogic.ToArray(),
-                                                                            remoteOrder.ToArray());
+                                                                            itemId,
+                                                                            itemCountMax,
+                                                                            itemCount,
+                                                                            localLogic,
+                                                                            remoteLogic,
+                                                                            remoteOrder);
                     conn.SendPacket(packet2);
                 }
             }

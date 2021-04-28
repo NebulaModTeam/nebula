@@ -2,7 +2,7 @@
 {
     public class ILSShipData
     {
-        public bool IdleToWork { get; set; }
+        public bool idleToWork { get; set; }
         public int planetA { get; set; }
         public int planetB { get; set; }
         public int itemId { get; set; }
@@ -16,7 +16,7 @@
         public ILSShipData() { }
         public ILSShipData(bool IdleToWork, int planetA, int planetB, int itemId, int itemCount, int AGID, int BGID, int origShipIndex, int warperCnt, int stationWarperCnt)
         {
-            this.IdleToWork = IdleToWork;
+            this.idleToWork = IdleToWork;
             this.planetA = planetA;
             this.planetB = planetB;
             this.itemId = itemId;
@@ -29,7 +29,7 @@
         }
         public ILSShipData(bool IdleToWork, int AGID, int origShipIndex)
         {
-            this.IdleToWork = IdleToWork;
+            this.idleToWork = IdleToWork;
             this.planetA = 0;
             this.planetB = 0;
             this.itemId = 0;

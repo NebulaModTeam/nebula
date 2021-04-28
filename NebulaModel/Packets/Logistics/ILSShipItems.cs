@@ -2,7 +2,7 @@
 {
     public class ILSShipItems
     {
-        public bool AddItem { get; set; }
+        public bool addItem { get; set; }
         public int itemId { get; set; }
         public int itemCount { get; set; }
         public int origShipIndex { get; set; }
@@ -11,7 +11,7 @@
         public ILSShipItems() { }
         public ILSShipItems(bool AddItem, int itemId, int itemCount, int origShipIndex, int stationGID)
         {
-            this.AddItem = AddItem;
+            this.addItem = AddItem;
             this.itemId = itemId;
             this.itemCount = itemCount;
             this.origShipIndex = origShipIndex;

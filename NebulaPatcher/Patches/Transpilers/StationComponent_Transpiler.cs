@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Transpilers
     [HarmonyPatch(typeof(StationComponent))]
     public class StationComponent_Transpiler
     {
-        // desc of function to inject into InternalTickRemote after an AddItem() call
+        // desc of function to inject into InternalTickRemote after an addItem() call
         delegate int ShipFunc(StationComponent stationComponent, ref ShipData shipData);
         delegate int RemOrderFunc(StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair);
         delegate int RemOrderFunc2(StationComponent stationComponent, int index);
@@ -245,7 +245,7 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch("InternalTickRemote")]
         public static IEnumerable<CodeInstruction> InternalTickRemote_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            // BEGIN: transpilers to catch AddItem() and TakeItem() and energy decrease by ship departure
+            // BEGIN: transpilers to catch addItem() and TakeItem() and energy decrease by ship departure
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloca_S),
@@ -422,7 +422,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         }),
                         new CodeInstruction(OpCodes.Pop))
             .InstructionEnumeration();
-            // END: transpilers to catch AddItem() and TakeItem() and energy decrease by ship departure
+            // END: transpilers to catch addItem() and TakeItem() and energy decrease by ship departure
 
             // BEGIN: transpilers to catch StationStore::remoteOrder changes
             // TODO: IL 1522 there is one with the this pointer and one with SUB (c# 300)
@@ -790,7 +790,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // remove c# 352 - 369 IL 118B - 12DA (which is just after the first AddItem() call)
+                // remove c# 352 - 369 IL 118B - 12DA (which is just after the first addItem() call)
                 int origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
@@ -842,7 +842,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // remove AddItem() calls
+                // remove addItem() calls
                 instructions = new CodeMatcher(instructions)
                     .MatchForward(false,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))

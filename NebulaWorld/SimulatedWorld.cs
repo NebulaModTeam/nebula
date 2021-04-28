@@ -41,6 +41,7 @@ namespace NebulaWorld
         public static void Initialize()
         {
             StationUIManager.Initialize();
+            ILSShipManager.Initialize();
             DroneManager.Initialize();
             FactoryManager.Initialize();
             PlanetManager.Initialize();
@@ -222,7 +223,7 @@ namespace NebulaWorld
 
         public static void OnILSShipUpdate(ILSShipData packet)
         {
-            if (packet.IdleToWork)
+            if (packet.idleToWork)
             {
                 ILSShipManager.IdleShipGetToWork(packet);
             }

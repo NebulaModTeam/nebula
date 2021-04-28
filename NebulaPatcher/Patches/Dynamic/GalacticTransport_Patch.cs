@@ -33,10 +33,14 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             ILSShipManager.AddStationComponentQueue[planetId].Add(station);
             LocalPlayer.SendPacket(new ILSAddStationComponentRequest(planetId, station.shipDockPos));
-            
+
             // if we are a client and have no fake station then just add the new one normally
             // this should happen when a player places an ILS on a FactoryData known to this client
             // or when this client arrives at a planet for the first time which contains ILS
+
+            //TODO: i think this should be false and only added via ILSAddStationComponentResponseProcessor
+            // but when client builds a ILS on a remote planet the shipDockPos is 0 and thus the checks fail.
+            // all in all there is some investigation needed here
             return true;
         }
     }
