@@ -2,6 +2,7 @@
 using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+using NebulaWorld.Logistics;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -86,7 +87,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("Free")]
         public static bool Free_Prefix(StationComponent __instance)
         {
-            if(!SimulatedWorld.Initialized || !LocalPlayer.PatchLocks["StationComponent"])
+            if(!SimulatedWorld.Initialized || !ILSShipManager.PatchLockILS)
             {
                 return true;
             }

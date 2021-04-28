@@ -2,21 +2,24 @@
 {
     public class StationUI
     {
+        public enum UIsettings
+        {
+            MaxChargePower,
+            MaxTripDrones,
+            MaxTripVessel,
+            MinDeliverDrone,
+            MinDeliverVessel,
+            WarpDistance,
+            warperNeeded,
+            includeCollectors,
+            setDroneCount,
+            setShipCount,
+            setWarperCount,
+            addOrRemoveItemFromStorageReq,
+            addOrRemoveItemFromStorageResp
+        }
         public bool isStorageUI { get; set; }
-        // 0 == MaxChargePower
-        // 1 == MaxTripDrones
-        // 2 == MaxTripVessel
-        // 3 == MinDeliverDrone
-        // 4 == MinDeliverVessel
-        // 5 == WarpDistance
-        // 6 == warperNeeded
-        // 7 == includeCollectors
-        // 8 == setDroneCount
-        // 9 == setShipCount
-        // 10 == setWarperCount
-        // 11 == addOrRemoveItemFromStorage request (item count is not correct in this packet)
-        // 12 == addOrRemoveItemFromStorage answer (this should contain the correct data)
-        public int settingIndex { get; set; }
+        public StationUI.UIsettings settingIndex { get; set; }
         public float settingValue { get; set; }
         public int stationGId { get; set;} // NOTE: this can also be the id when handling a PLS
         public int planetId { get; set; }
@@ -42,7 +45,7 @@
             this.shouldMimick = false;
             this.isStellar = isStellar;
         }
-        public StationUI(int stationGId, int planetId, int settingIndex, float value)
+        public StationUI(int stationGId, int planetId, StationUI.UIsettings settingIndex, float value)
         {
             this.stationGId = stationGId;
             this.planetId = planetId;
@@ -51,7 +54,7 @@
             this.settingValue = value;
             this.isStellar = true;
         }
-        public StationUI(int stationGId, int planetId, int storageIdx, int settingIndex, int itemId, int settingValue, bool isStellar)
+        public StationUI(int stationGId, int planetId, int storageIdx, StationUI.UIsettings settingIndex, int itemId, int settingValue, bool isStellar)
         {
             this.stationGId = stationGId;
             this.planetId = planetId;

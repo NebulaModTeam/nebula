@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("AddStationComponent")]
         public static bool AddStationComponent_Prefix(GalacticTransport __instance, int planetId, StationComponent station)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || LocalPlayer.PatchLocks["GalacticTransport"])
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS)
             {
                 return true;
             }

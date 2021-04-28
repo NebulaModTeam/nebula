@@ -741,7 +741,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldloca_S, 35))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    LocalPlayer.SendPacket(new StationUI(stationComponent.gid, stationComponent.planetId, 10, stationComponent.warperCount));
+                    LocalPlayer.SendPacket(new StationUI(stationComponent.gid, stationComponent.planetId, StationUI.UIsettings.setWarperCount, stationComponent.warperCount));
                     LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
                     return 0;
                 }))

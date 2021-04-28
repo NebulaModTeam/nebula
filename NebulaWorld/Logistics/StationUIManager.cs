@@ -120,11 +120,11 @@ namespace NebulaWorld.Logistics
                 }
             }
             // update drones, ships, warpers and energy consumption for everyone
-            if ((packet.settingIndex >= 8 && packet.settingIndex <= 10) || packet.settingIndex == 0)
+            if ((packet.settingIndex >= StationUI.UIsettings.setDroneCount && packet.settingIndex <= StationUI.UIsettings.setWarperCount) || packet.settingIndex == StationUI.UIsettings.MaxChargePower)
             {
                 if (stationPool.Length > stationId)
                 {
-                    if (packet.settingIndex == 0 && pData.factory?.powerSystem != null)
+                    if (packet.settingIndex == (int)StationUI.UIsettings.MaxChargePower && pData.factory?.powerSystem != null)
                     {
                         PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
                         if (consumerPool.Length > stationPool[stationId].pcId)
@@ -132,15 +132,15 @@ namespace NebulaWorld.Logistics
                             consumerPool[stationPool[stationId].pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.settingValue + 0.5);
                         }
                     }
-                    if (packet.settingIndex == 8)
+                    if (packet.settingIndex == StationUI.UIsettings.setDroneCount)
                     {
                         stationPool[stationId].idleDroneCount = (int)packet.settingValue;
                     }
-                    if (packet.settingIndex == 9)
+                    if (packet.settingIndex == StationUI.UIsettings.setShipCount)
                     {
                         stationPool[stationId].idleShipCount = (int)packet.settingValue;
                     }
-                    if (packet.settingIndex == 10)
+                    if (packet.settingIndex == StationUI.UIsettings.setWarperCount)
                     {
                         stationPool[stationId].warperCount = (int)packet.settingValue;
                     }
@@ -151,14 +151,14 @@ namespace NebulaWorld.Logistics
             {
                 return;
             }
-            if(packet.settingIndex == 1)
+            if(packet.settingIndex == StationUI.UIsettings.MaxTripDrones)
             {
                 if (stationPool.Length > stationId)
                 {
                     stationPool[stationId].tripRangeDrones = Math.Cos((double)packet.settingValue / 180.0 * 3.141592653589793);
                 }
             }
-            if(packet.settingIndex == 2)
+            if(packet.settingIndex == StationUI.UIsettings.MaxTripVessel)
             {
                 if (stationPool.Length > stationId)
                 {
@@ -174,7 +174,7 @@ namespace NebulaWorld.Logistics
                     stationPool[stationId].tripRangeShips = 2400000.0 * value;
                 }
             }
-            if(packet.settingIndex == 3)
+            if(packet.settingIndex == StationUI.UIsettings.MinDeliverDrone)
             {
                 if (stationPool.Length > stationId)
                 {
@@ -186,7 +186,7 @@ namespace NebulaWorld.Logistics
                     stationPool[stationId].deliveryDrones = value;
                 }
             }
-            if(packet.settingIndex == 4)
+            if(packet.settingIndex == StationUI.UIsettings.MinDeliverVessel)
             {
                 if (stationPool.Length > stationId)
                 {
@@ -198,7 +198,7 @@ namespace NebulaWorld.Logistics
                     stationPool[stationId].deliveryShips = value;
                 }
             }
-            if(packet.settingIndex == 5)
+            if(packet.settingIndex == StationUI.UIsettings.WarpDistance)
             {
                 if (stationPool.Length > stationId)
                 {
@@ -226,21 +226,21 @@ namespace NebulaWorld.Logistics
                     stationPool[stationId].warpEnableDist = 40000.0 * value;
                 }
             }
-            if(packet.settingIndex == 6)
+            if(packet.settingIndex == StationUI.UIsettings.warperNeeded)
             {
                 if (stationPool.Length > stationId)
                 {
                     stationPool[stationId].warperNecessary = !stationPool[stationId].warperNecessary;
                 }
             }
-            if(packet.settingIndex == 7)
+            if(packet.settingIndex == StationUI.UIsettings.includeCollectors)
             {
                 if (stationPool.Length > stationId)
                 {
                     stationPool[stationId].includeOrbitCollector = !stationPool[stationId].includeOrbitCollector;
                 }
             }
-            if (packet.settingIndex == 12)
+            if (packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageResp)
             {
                 if (stationPool[stationId].storage != null)
                 {
@@ -285,131 +285,130 @@ namespace NebulaWorld.Logistics
                     }
                 }
 
-                LocalPlayer.PatchLocks["UIStationWindow"] = true;
-                LocalPlayer.PatchLocks["UIStationStorage"] = true;
-                if (packet.settingIndex == 0)
+                using (ILSShipManager.PatchLockILS.On())
                 {
-                    stationWindow.OnMaxChargePowerSliderValueChange(packet.settingValue);
-                }
-                if (packet.settingIndex == 1)
-                {
-                    stationWindow.OnMaxTripDroneSliderValueChange(packet.settingValue);
-                }
-                if (packet.settingIndex == 2)
-                {
-                    stationWindow.OnMaxTripVesselSliderValueChange(packet.settingValue);
-                }
-                if (packet.settingIndex == 3)
-                {
-                    stationWindow.OnMinDeliverDroneValueChange(packet.settingValue);
-                }
-                if (packet.settingIndex == 4)
-                {
-                    stationWindow.OnMinDeliverVesselValueChange(packet.settingValue);
-                }
-                if (packet.settingIndex == 5)
-                {
-                    stationWindow.OnWarperDistanceValueChange(packet.settingValue);
-                }
-                if (packet.settingIndex == 6)
-                {
-                    stationWindow.OnWarperNecessaryClick(0);
-                }
-                if (packet.settingIndex == 7)
-                {
-                    Type[] args = new Type[1];
-                    object[] values = new object[1];
-                    args[0] = typeof(int);
-                    values[0] = 0;
-                    AccessTools.Method(typeof(UIStationWindow), "OnIncludeOrbitCollectorClick", args).Invoke(stationWindow, values);
-                }
-                if (packet.settingIndex >= 8 && packet.settingIndex <= 10)
-                {
-                    StationComponent[] stationPool = pData.factory.transport.stationPool;
-                    if (packet.settingIndex == 8)
+                    if (packet.settingIndex == StationUI.UIsettings.MaxChargePower)
+                    {
+                        stationWindow.OnMaxChargePowerSliderValueChange(packet.settingValue);
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.MaxTripDrones)
+                    {
+                        stationWindow.OnMaxTripDroneSliderValueChange(packet.settingValue);
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.MaxTripVessel)
+                    {
+                        stationWindow.OnMaxTripVesselSliderValueChange(packet.settingValue);
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.MinDeliverDrone)
+                    {
+                        stationWindow.OnMinDeliverDroneValueChange(packet.settingValue);
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.MinDeliverVessel)
+                    {
+                        stationWindow.OnMinDeliverVesselValueChange(packet.settingValue);
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.WarpDistance)
+                    {
+                        stationWindow.OnWarperDistanceValueChange(packet.settingValue);
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.warperNeeded)
+                    {
+                        stationWindow.OnWarperNecessaryClick(0);
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.includeCollectors)
                     {
                         Type[] args = new Type[1];
                         object[] values = new object[1];
                         args[0] = typeof(int);
                         values[0] = 0;
-                        if (UIRequestedShipDronWarpChange)
-                        {
-                            AccessTools.Method(typeof(UIStationWindow), "OnDroneIconClick", args).Invoke(stationWindow, values);
-                            UIRequestedShipDronWarpChange = false;
-                        }
-                        stationPool[_stationId].idleDroneCount = (int)packet.settingValue;
+                        AccessTools.Method(typeof(UIStationWindow), "OnIncludeOrbitCollectorClick", args).Invoke(stationWindow, values);
                     }
-                    if (packet.settingIndex == 9)
+                    if (packet.settingIndex >= StationUI.UIsettings.setDroneCount && packet.settingIndex <= StationUI.UIsettings.setWarperCount)
                     {
-                        Type[] args = new Type[1];
-                        object[] values = new object[1];
-                        args[0] = typeof(int);
-                        values[0] = 0;
-                        if (UIRequestedShipDronWarpChange)
+                        StationComponent[] stationPool = pData.factory.transport.stationPool;
+                        if (packet.settingIndex == StationUI.UIsettings.setDroneCount)
                         {
-                            AccessTools.Method(typeof(UIStationWindow), "OnShipIconClick", args).Invoke(stationWindow, values);
-                            UIRequestedShipDronWarpChange = false;
-                        }
-                        stationPool[_stationId].idleShipCount = (int)packet.settingValue;
-                    }
-                    if (packet.settingIndex == 10)
-                    {
-                        Type[] args = new Type[1];
-                        object[] values = new object[1];
-                        args[0] = typeof(int);
-                        values[0] = 0;
-                        if (UIRequestedShipDronWarpChange)
-                        {
-                            AccessTools.Method(typeof(UIStationWindow), "OnWarperIconClick", args).Invoke(stationWindow, values);
-                            UIRequestedShipDronWarpChange = false;
-                        }
-                        stationPool[_stationId].warperCount = (int)packet.settingValue;
-                    }
-                }
-                if (packet.settingIndex == 11)
-                {
-                    StationComponent[] stationPool = pData.factory.transport.stationPool;
-                    if (stationPool[_stationId].storage != null)
-                    {
-                        if (packet.shouldMimick)
-                        {
-                            BaseEventData mouseEvent = lastMouseEvent;
-                            PointerEventData pointEvent = mouseEvent as PointerEventData;
-                            UIStationStorage[] storageUIs = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
-
-                            if(lastMouseEvent != null)
+                            Type[] args = new Type[1];
+                            object[] values = new object[1];
+                            args[0] = typeof(int);
+                            values[0] = 0;
+                            if (UIRequestedShipDronWarpChange)
                             {
-                                if (lastMouseEventWasDown)
+                                AccessTools.Method(typeof(UIStationWindow), "OnDroneIconClick", args).Invoke(stationWindow, values);
+                                UIRequestedShipDronWarpChange = false;
+                            }
+                            stationPool[_stationId].idleDroneCount = (int)packet.settingValue;
+                        }
+                        if (packet.settingIndex == StationUI.UIsettings.setShipCount)
+                        {
+                            Type[] args = new Type[1];
+                            object[] values = new object[1];
+                            args[0] = typeof(int);
+                            values[0] = 0;
+                            if (UIRequestedShipDronWarpChange)
+                            {
+                                AccessTools.Method(typeof(UIStationWindow), "OnShipIconClick", args).Invoke(stationWindow, values);
+                                UIRequestedShipDronWarpChange = false;
+                            }
+                            stationPool[_stationId].idleShipCount = (int)packet.settingValue;
+                        }
+                        if (packet.settingIndex == StationUI.UIsettings.setWarperCount)
+                        {
+                            Type[] args = new Type[1];
+                            object[] values = new object[1];
+                            args[0] = typeof(int);
+                            values[0] = 0;
+                            if (UIRequestedShipDronWarpChange)
+                            {
+                                AccessTools.Method(typeof(UIStationWindow), "OnWarperIconClick", args).Invoke(stationWindow, values);
+                                UIRequestedShipDronWarpChange = false;
+                            }
+                            stationPool[_stationId].warperCount = (int)packet.settingValue;
+                        }
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageReq)
+                    {
+                        StationComponent[] stationPool = pData.factory.transport.stationPool;
+                        if (stationPool[_stationId].storage != null)
+                        {
+                            if (packet.shouldMimick)
+                            {
+                                BaseEventData mouseEvent = lastMouseEvent;
+                                PointerEventData pointEvent = mouseEvent as PointerEventData;
+                                UIStationStorage[] storageUIs = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
+
+                                if (lastMouseEvent != null)
                                 {
-                                    storageUIs[packet.storageIdx].OnItemIconMouseDown(mouseEvent);
-                                    StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, 12, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
-                                    LocalPlayer.SendPacket(packet2);
+                                    if (lastMouseEventWasDown)
+                                    {
+                                        storageUIs[packet.storageIdx].OnItemIconMouseDown(mouseEvent);
+                                        StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, StationUI.UIsettings.addOrRemoveItemFromStorageResp, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
+                                        LocalPlayer.SendPacket(packet2);
+                                    }
+                                    else
+                                    {
+                                        storageUIs[packet.storageIdx].OnItemIconMouseUp(mouseEvent);
+                                        StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, StationUI.UIsettings.addOrRemoveItemFromStorageResp, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
+                                        LocalPlayer.SendPacket(packet2);
+                                    }
+                                    lastMouseEvent = null;
                                 }
-                                else
-                                {
-                                    storageUIs[packet.storageIdx].OnItemIconMouseUp(mouseEvent);
-                                    StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, 12, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
-                                    LocalPlayer.SendPacket(packet2);
-                                }
-                                lastMouseEvent = null;
+                            }
+                            else
+                            {
+                                //stationPool[_stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
                             }
                         }
-                        else
+                    }
+                    if (packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageResp)
+                    {
+                        StationComponent[] stationPool = pData.factory.transport.stationPool;
+                        if (stationPool[_stationId].storage != null)
                         {
-                            //stationPool[_stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
+                            stationPool[_stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
                         }
                     }
                 }
-                if(packet.settingIndex == 12)
-                {
-                    StationComponent[] stationPool = pData.factory.transport.stationPool;
-                    if(stationPool[_stationId].storage != null)
-                    {
-                        stationPool[_stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
-                    }
-                }
-                LocalPlayer.PatchLocks["UIStationWindow"] = false;
-                LocalPlayer.PatchLocks["UIStationStorage"] = false;
             }
         }
 
@@ -455,9 +454,11 @@ namespace NebulaWorld.Logistics
                 {
                     return;
                 }
-                LocalPlayer.PatchLocks["PlanetTransport"] = true;
-                pData.factory.transport.SetStationStorage(id, packet.storageIdx, packet.itemId, packet.itemCountMax, packet.localLogic, packet.remoteLogic, null);
-                LocalPlayer.PatchLocks["PlanetTransport"] = false;
+
+                using (ILSShipManager.PatchLockILS.On())
+                {
+                    pData.factory.transport.SetStationStorage(id, packet.storageIdx, packet.itemId, packet.itemCountMax, packet.localLogic, packet.remoteLogic, null);
+                }
             }
         }
     }

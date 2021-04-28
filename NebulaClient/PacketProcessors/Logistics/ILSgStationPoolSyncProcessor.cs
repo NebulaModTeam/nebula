@@ -35,11 +35,13 @@ namespace NebulaClient.PacketProcessors.Logistics
                 gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[10];
                 gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[10];
 
+                Debug.Log("computing pos/rot 1");
                 for (int j = 0; j < 10; j++)
                 {
                     gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / (float)10 * (float)j, 0f);
                     gStationPool[packet.stationGId[i]].shipDiskPos[j] = gStationPool[packet.stationGId[i]].shipDiskRot[j] * new Vector3(0f, 0f, 11.5f);
                 }
+                Debug.Log("computing pos/rot 2");
                 for (int j = 0; j < 10; j++)
                 {
                     gStationPool[packet.stationGId[i]].shipDiskRot[j] = gStationPool[packet.stationGId[i]].shipDockRot * gStationPool[packet.stationGId[i]].shipDiskRot[j];

@@ -4,7 +4,6 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
 using NebulaWorld.Logistics;
-using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.Logistics
 {
@@ -17,11 +16,12 @@ namespace NebulaClient.PacketProcessors.Logistics
             {
                 if(ILSShipManager.AddStationComponentQueue[packet.planetId][i].shipDockPos == DataStructureExtensions.ToVector3(packet.shipDockPos))
                 {
-                    LocalPlayer.PatchLocks["GalacticTransport"] = true;
-                    ILSShipManager.AddStationComponentQueue[packet.planetId][i].gid = packet.stationGId;
-                    GameMain.data.galacticTransport.AddStationComponent(packet.planetId, ILSShipManager.AddStationComponentQueue[packet.planetId][i]);
-                    ILSShipManager.AddStationComponentQueue[packet.planetId].RemoveAt(i);
-                    LocalPlayer.PatchLocks["GalacticTransport"] = false;
+                    using (ILSShipManager.PatchLockILS.On())
+                    {
+                        ILSShipManager.AddStationComponentQueue[packet.planetId][i].gid = packet.stationGId;
+                        GameMain.data.galacticTransport.AddStationComponent(packet.planetId, ILSShipManager.AddStationComponentQueue[packet.planetId][i]);
+                        ILSShipManager.AddStationComponentQueue[packet.planetId].RemoveAt(i);
+                    }
                     return;
                 }
             }

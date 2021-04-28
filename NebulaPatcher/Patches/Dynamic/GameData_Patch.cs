@@ -220,19 +220,20 @@ namespace NebulaPatcher.Patches.Dynamic
             //Client should unload all factories once they leave the star system
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
             {
-                LocalPlayer.PatchLocks["StationComponent"] = true;
-                for (int i = 0; i < __instance.localStar.planetCount; i++)
+                using (ILSShipManager.PatchLockILS.On())
                 {
-                    if (__instance.localStar.planets != null && __instance.localStar.planets[i] != null)
+                    for (int i = 0; i < __instance.localStar.planetCount; i++)
                     {
-                        if (__instance.localStar.planets[i].factory != null)
+                        if (__instance.localStar.planets != null && __instance.localStar.planets[i] != null)
                         {
-                            __instance.localStar.planets[i].factory.Free();
-                            __instance.localStar.planets[i].factory = null;
+                            if (__instance.localStar.planets[i].factory != null)
+                            {
+                                __instance.localStar.planets[i].factory.Free();
+                                __instance.localStar.planets[i].factory = null;
+                            }
                         }
                     }
                 }
-                LocalPlayer.PatchLocks["StationComponent"] = false;
                 LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(-1));
             }
         }

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Reflection;
+using NebulaModel.DataStructures;
 
 namespace NebulaWorld.Logistics
 {
@@ -15,6 +16,7 @@ namespace NebulaWorld.Logistics
         private static AccessTools.FieldRef<object, UIStationStorage[]> FR_storageUIs;
         private static MethodInfo MI_RefreshValues = null;
 
+        public static readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
         public static void Initialize()
         {
             FR_stationId = AccessTools.FieldRefAccess<int>(typeof(UIStationWindow), "_stationId");

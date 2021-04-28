@@ -3,7 +3,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
-using System.Collections.Generic;
 
 namespace NebulaHost.PacketProcessors.Logistics
 {
@@ -24,103 +23,125 @@ namespace NebulaHost.PacketProcessors.Logistics
             }
             if (player != null)
             {
-                List<int> stationGId = new List<int>();
-                List<int> stationId = new List<int>();
-                List<Float3> DockPos = new List<Float3>();
-                List<Float4> DockRot = new List<Float4>();
-                List<int> planetId = new List<int>();
-                List<int> workShipCount = new List<int>();
-                List<int> idleShipCount = new List<int>();
-                List<ulong> workShipIndices = new List<ulong>();
-                List<ulong> idleShipIndices = new List<ulong>();
-                List<int> shipStationGId = new List<int>();
-                List<int> shipStage = new List<int>();
-                List<int> shipDirection = new List<int>();
-                List<float> shipWarpState = new List<float>();
-                List<int> shipWarperCnt = new List<int>();
-                List<int> shipItemID = new List<int>();
-                List<int> shipItemCount = new List<int>();
-                List<int> shipPlanetA = new List<int>();
-                List<int> shipPlanetB = new List<int>();
-                List<int> shipOtherGId = new List<int>();
-                List<float> shipT = new List<float>();
-                List<int> shipIndex = new List<int>();
-                List<Double3> shipPos = new List<Double3>();
-                List<Float4> shipRot = new List<Float4>();
-                List<Float3> shipVel = new List<Float3>();
-                List<float> shipSpeed = new List<float>();
-                List<Float3> shipAngularVel = new List<Float3>();
-                List<Double3> shipPPosTemp = new List<Double3>();
-                List<Float4> shipPRotTemp = new List<Float4>();
+                int countILS = 0;
+                int iter = 0;
 
                 foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
                     if(stationComponent != null)
                     {
-                        stationGId.Add(stationComponent.gid);
-                        stationId.Add(stationComponent.id);
-                        DockPos.Add(new Float3(stationComponent.shipDockPos));
-                        DockRot.Add(new Float4(stationComponent.shipDockRot));
-                        planetId.Add(stationComponent.planetId);
-                        workShipCount.Add(stationComponent.workShipCount);
-                        idleShipCount.Add(stationComponent.idleShipCount);
-                        workShipIndices.Add(stationComponent.workShipIndices);
-                        idleShipIndices.Add(stationComponent.idleShipIndices);
+                        countILS++;
+                    }
+                }
 
-                        foreach(ShipData shipData in stationComponent.workShipDatas)
+                if(countILS == 0)
+                {
+                    return;
+                }
+
+                int[] stationGId = new int[countILS];
+                int[] stationId = new int[countILS];
+                Float3[] DockPos = new Float3[countILS];
+                Float4[] DockRot = new Float4[countILS];
+                int[] planetId = new int[countILS];
+                int[] workShipCount = new int[countILS];
+                int[] idleShipCount = new int[countILS];
+                ulong[] workShipIndices = new ulong[countILS];
+                ulong[] idleShipIndices = new ulong[countILS];
+
+                int[] shipStationGId = new int[countILS * 10];
+                int[] shipStage = new int[countILS * 10];
+                int[] shipDirection = new int[countILS * 10];
+                float[] shipWarpState = new float[countILS * 10];
+                int[] shipWarperCnt = new int[countILS * 10];
+                int[] shipItemID = new int[countILS * 10];
+                int[] shipItemCount = new int[countILS * 10];
+                int[] shipPlanetA = new int[countILS * 10];
+                int[] shipPlanetB = new int[countILS * 10];
+                int[] shipOtherGId = new int[countILS * 10];
+                float[] shipT = new float[countILS * 10];
+                int[] shipIndex = new int[countILS * 10];
+                Double3[] shipPos = new Double3[countILS * 10];
+                Float4[] shipRot = new Float4[countILS * 10];
+                Float3[] shipVel = new Float3[countILS * 10];
+                float[] shipSpeed = new float[countILS * 10];
+                Float3[] shipAngularVel = new Float3[countILS * 10];
+                Double3[] shipPPosTemp = new Double3[countILS * 10];
+                Float4[] shipPRotTemp = new Float4[countILS * 10];
+
+                foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+                {
+                    if(stationComponent != null)
+                    {
+                        stationGId[iter] = stationComponent.gid;
+                        stationId[iter] = stationComponent.id;
+                        DockPos[iter] = new Float3(stationComponent.shipDockPos);
+                        DockRot[iter] = new Float4(stationComponent.shipDockRot);
+                        planetId[iter] = stationComponent.planetId;
+                        workShipCount[iter] = stationComponent.workShipCount;
+                        idleShipCount[iter] = stationComponent.idleShipCount;
+                        workShipIndices[iter] = stationComponent.workShipIndices;
+                        idleShipIndices[iter] = stationComponent.idleShipIndices;
+
+                        for(int j = 0; j < 10; j++)
                         {
-                            shipStationGId.Add(stationComponent.gid);
-                            shipStage.Add(shipData.stage);
-                            shipDirection.Add(shipData.direction);
-                            shipWarpState.Add(shipData.warpState);
-                            shipWarperCnt.Add(shipData.warperCnt);
-                            shipItemID.Add(shipData.itemId);
-                            shipItemCount.Add(shipData.itemCount);
-                            shipPlanetA.Add(shipData.planetA);
-                            shipPlanetB.Add(shipData.planetB);
-                            shipOtherGId.Add(shipData.otherGId);
-                            shipT.Add(shipData.t);
-                            shipIndex.Add(shipData.shipIndex);
-                            shipPos.Add(new Double3(shipData.uPos.x, shipData.uPos.y, shipData.uPos.z));
-                            shipRot.Add(new Float4(shipData.uRot));
-                            shipVel.Add(new Float3(shipData.uVel));
-                            shipSpeed.Add(shipData.uSpeed);
-                            shipAngularVel.Add(new Float3(shipData.uAngularVel));
-                            shipPPosTemp.Add(new Double3(shipData.pPosTemp.x, shipData.pPosTemp.y, shipData.pPosTemp.z));
-                            shipPRotTemp.Add(new Float4(shipData.pRotTemp));
+                            ShipData shipData = stationComponent.workShipDatas[j];
+                            int index = iter * 10 + j;
+
+                            shipStationGId[index] = stationComponent.gid;
+                            shipStage[index] = shipData.stage;
+                            shipDirection[index] = shipData.direction;
+                            shipWarpState[index] = shipData.warpState;
+                            shipWarperCnt[index] = shipData.warperCnt;
+                            shipItemID[index] = shipData.itemId;
+                            shipItemCount[index] = shipData.itemCount;
+                            shipPlanetA[index] = shipData.planetA;
+                            shipPlanetB[index] = shipData.planetB;
+                            shipOtherGId[index] = shipData.otherGId;
+                            shipT[index] = shipData.t;
+                            shipIndex[index] = shipData.shipIndex;
+                            shipPos[index] = new Double3(shipData.uPos.x, shipData.uPos.y, shipData.uPos.z);
+                            shipRot[index] = new Float4(shipData.uRot);
+                            shipVel[index] = new Float3(shipData.uVel);
+                            shipSpeed[index] = shipData.uSpeed;
+                            shipAngularVel[index] = new Float3(shipData.uAngularVel);
+                            shipPPosTemp[index] = new Double3(shipData.pPosTemp.x, shipData.pPosTemp.y, shipData.pPosTemp.z);
+                            shipPRotTemp[index] = new Float4(shipData.pRotTemp);
                         }
+
+                        iter++;
                     }
                 }
 
                 ILSgStationPoolSync packet2 = new ILSgStationPoolSync(
-                    stationGId.ToArray(),
-                    stationId.ToArray(),
-                    DockPos.ToArray(),
-                    DockRot.ToArray(),
-                    planetId.ToArray(),
-                    workShipCount.ToArray(),
-                    idleShipCount.ToArray(),
-                    workShipIndices.ToArray(),
-                    idleShipIndices.ToArray(),
-                    shipStationGId.ToArray(),
-                    shipStage.ToArray(),
-                    shipDirection.ToArray(),
-                    shipWarpState.ToArray(),
-                    shipWarperCnt.ToArray(),
-                    shipItemID.ToArray(),
-                    shipItemCount.ToArray(),
-                    shipPlanetA.ToArray(),
-                    shipPlanetB.ToArray(),
-                    shipOtherGId.ToArray(),
-                    shipT.ToArray(),
-                    shipIndex.ToArray(),
-                    shipPos.ToArray(),
-                    shipRot.ToArray(),
-                    shipVel.ToArray(),
-                    shipSpeed.ToArray(),
-                    shipAngularVel.ToArray(),
-                    shipPPosTemp.ToArray(),
-                    shipPRotTemp.ToArray());
+                    stationGId,
+                    stationId,
+                    DockPos,
+                    DockRot,
+                    planetId,
+                    workShipCount,
+                    idleShipCount,
+                    workShipIndices,
+                    idleShipIndices,
+                    shipStationGId,
+                    shipStage,
+                    shipDirection,
+                    shipWarpState,
+                    shipWarperCnt,
+                    shipItemID,
+                    shipItemCount,
+                    shipPlanetA,
+                    shipPlanetB,
+                    shipOtherGId,
+                    shipT,
+                    shipIndex,
+                    shipPos,
+                    shipRot,
+                    shipVel,
+                    shipSpeed,
+                    shipAngularVel,
+                    shipPPosTemp,
+                    shipPRotTemp);
                 player.SendPacket(packet2);
             }
         }

@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemIconMouseDown")]
         public static bool OnItemIconMouseDown_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationStorage"])
+            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
             {
                 StationUIManager.lastMouseEvent = evt;
                 StationUIManager.lastMouseEventWasDown = true;
@@ -30,14 +30,14 @@ namespace NebulaPatcher.Patches.Dynamic
                             amount = 0;
                         }
                         int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
-                        packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count + amount, __instance.station.isStellar);
+                        packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, StationUI.UIsettings.addOrRemoveItemFromStorageResp, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count + amount, __instance.station.isStellar);
                         LocalPlayer.SendPacket(packet);
                     }
                 }
                 else
                 {
                     int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
-                    packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count, __instance.station.isStellar);
+                    packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, StationUI.UIsettings.addOrRemoveItemFromStorageReq, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count, __instance.station.isStellar);
                     LocalPlayer.SendPacket(packet);
                 }
                 if (LocalPlayer.IsMasterClient)
@@ -53,7 +53,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemIconMouseUp")]
         public static bool OnItemIconMouseUp_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.PatchLocks["UIStationStorage"])
+            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
             {
                 StationUIManager.lastMouseEvent = evt;
                 StationUIManager.lastMouseEventWasDown = false;
@@ -65,14 +65,14 @@ namespace NebulaPatcher.Patches.Dynamic
                         int splitVal = UIRoot.instance.uiGame.gridSplit.value;
                         int diff = (splitVal >= __instance.station.storage[__instance.index].count) ? __instance.station.storage[__instance.index].count : splitVal;
                         int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
-                        packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 12, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count - diff, __instance.station.isStellar);
+                        packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, StationUI.UIsettings.addOrRemoveItemFromStorageResp, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count - diff, __instance.station.isStellar);
                         LocalPlayer.SendPacket(packet);
                     }
                 }
                 else
                 {
                     int id = ((__instance.station.isStellar == true) ? __instance.station.gid : __instance.station.id);
-                    packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, 11, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count, __instance.station.isStellar);
+                    packet = new StationUI(id, __instance.stationWindow.factory.planet.id, __instance.index, StationUI.UIsettings.addOrRemoveItemFromStorageReq, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count, __instance.station.isStellar);
                     LocalPlayer.SendPacket(packet);
                 }
                 if (LocalPlayer.IsMasterClient)
