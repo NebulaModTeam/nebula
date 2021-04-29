@@ -4,6 +4,7 @@
   <PropertyGroup>
     <BepInExDir>$(DSPGameDir)BepInEx\core\</BepInExDir>
     <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
+    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
   </PropertyGroup>
 
   <ItemGroup Label="BepInEx">

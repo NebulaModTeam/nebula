@@ -123,7 +123,6 @@
     <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockProcessor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(PluginImports)" />
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
