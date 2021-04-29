@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Label="Common Properties">
+  <!-- The condition is because websocket-sharp should not import these. Proper fix is to move Nebula code to src dir -->
+  <PropertyGroup Label="Common Properties" Condition=" '$(MSBuildProjectName)' != 'websocket-sharp' ">
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>$(MSBuildProjectName)</RootNamespace>
 
     <AppDesignerFolder>Properties</AppDesignerFolder>
 
     <OutputType>Library</OutputType>
-    <OutputPath>$(MSBuildProjectDirectory)\bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj</IntermediateOutputPath>
+    <OutputPath>bin</OutputPath>
 
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+
+    <LangVersion>7.3</LangVersion>
+
+    <DefaultCompileItemIncludes>**\*.cs</DefaultCompileItemIncludes>
+    <DefaultItemExcludes>$(OutputPath)\**;$(IntermediateOutputPath)\**;</DefaultItemExcludes>
   </PropertyGroup>
-  
+
   <PropertyGroup Label="NuGet Versions">
     <NuGetVersionNerdbankGitVersioning>3.4.194</NuGetVersionNerdbankGitVersioning>
     <NuGetVersionlz4net>1.0.15.93</NuGetVersionlz4net>

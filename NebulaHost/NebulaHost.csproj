@@ -6,6 +6,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}</ProjectGuid>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
+  <ItemGroup>
+    <Compile Include="$(DefaultCompileItemIncludes)" Exclude="$(DefaultItemExcludes)" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -13,93 +18,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="MultiplayerHostSession.cs" />
-    <Compile Include="PacketProcessors\Factory\Assembler\AssemblerRecipeEventProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateProducesProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Assembler\AssemblerUpdateStorageProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Belt\BeltUpdatePickupItemsProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Belt\BeltUpdatePutItemOnProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Entity\CreatePrebuildsRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Ejector\EjectorOrbitUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Ejector\EjectorStorageUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Foundation\FoundationBuildUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Inserter\InserterFilterUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateCubesProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateStorageProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Miner\MinerStoragePickupProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\PasteEntitySettingUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerChangeModeProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\PowerExchanger\PowerExchangerStorageUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\PowerGenerator\PowerGeneratorFuelUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\RayReceiver\RayReceiverChangeLensProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\RayReceiver\RayReceiverChangeModeProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Silo\SiloStorageUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Splitter\SplitterFilterChangeProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Splitter\SplitterPriorityChangeProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Storage\StorageSyncRealtimeChangeProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Storage\StorageSyncRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Storage\StorageSyncSetBansProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Storage\StorageSyncSortProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Entity\BuildEntityRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Entity\DestructEntityRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Tank\TankInputOutputSwitchProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Tank\TankStorageUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Entity\UpgradeEntityRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\GameHistory\GameHistoryDataRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\GameHistory\GameHistoryEnqueueTechProcessor.cs" />
-    <Compile Include="PacketProcessors\GameHistory\GameHistoryNotificationProcessor.cs" />
-    <Compile Include="PacketProcessors\GameHistory\GameHistoryRemoveTechProcessor.cs" />
-    <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSAddStationComponentRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSArriveStarPlanetRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSgStationPoolSyncRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSRemoteOrderBroadcastProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSShipBroadcastProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSShipItemsBroadcastProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\ILSUpdateSlotDataProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\StationSubscribeUIUpdatesProcessor.cs" />
-    <Compile Include="PacketProcessors\Logistics\StationUIBroadcaster.cs" />
-    <Compile Include="PacketProcessors\Logistics\StationUIInitialSyncRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Planet\FactoryLoadRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Planet\PlanetDataRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Planet\RemoveVegetableProcessor.cs" />
-    <Compile Include="PacketProcessors\Players\NewDroneOrderProcessor.cs" />
-    <Compile Include="PacketProcessors\Players\PlayerAnimationUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Players\PlayerColorChangedProcessor.cs" />
-    <Compile Include="PacketProcessors\Players\PlayerMechaDataProcessor.cs" />
-    <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
-    <Compile Include="PacketProcessors\Planet\VegetationMinedProcessor.cs" />
-    <Compile Include="PacketProcessors\Routers\PlanetBroadcastProcessor.cs" />
-    <Compile Include="PacketProcessors\Players\PlayerUpdateLocalStarIdProcessor.cs" />
-    <Compile Include="PacketProcessors\Routers\StarBroadcastProcessor.cs" />
-    <Compile Include="PacketProcessors\Session\HandshakeRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Session\PingPacketProcessor.cs" />
-    <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />
-    <Compile Include="PacketProcessors\Statistics\StatisticsRequestEventProcessor.cs" />
-    <Compile Include="PacketProcessors\Trash\TrashSystemClearAllTrashProcessor.cs" />
-    <Compile Include="PacketProcessors\Trash\TrashSystemNewTrashCreatedProcessor.cs" />
-    <Compile Include="PacketProcessors\Trash\TrashSystemRequestDataProcessor.cs" />
-    <Compile Include="PacketProcessors\Trash\TrashSystemTrashRemovedProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereAddFrameProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereAddLayerProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereAddNodeProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereAddShellProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveFrameProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveLayerProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveNodeProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereRemoveShellProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSphereRequestProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSwarmAddOrbitProcessor.cs" />
-    <Compile Include="PacketProcessors\Universe\DysonSwarmRemoveOrbitProcessor.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="PlayerManager.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SaveManager.cs" />
-    <Compile Include="StorageSyncManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
