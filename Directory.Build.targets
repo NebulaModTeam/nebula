@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(SolutionDir)SharedConfig.targets"/>
-  <Import Project="$(PluginImports)" Condition=" '$(MSBuildProjectName)' != 'websocket-sharp' " />
+  <Import Project="$(PluginImports)" />
 
   <PropertyGroup Label="Common Properties">
     <IsDebug>$(Configuration.Contains('Debug'))</IsDebug>
