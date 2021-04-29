@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using NebulaModel.DataStructures;
-using System;
 
 namespace NebulaModel.Packets.Logistics
 {
@@ -22,23 +21,16 @@ namespace NebulaModel.Packets.Logistics
         // so we correct that here
         public ILSShipDock(int stationGId, Vector3 shipDockPos, Quaternion shipDockRot, int[] shipOtherGId, int[] shipIndex, Double3[] shipPos, Float4[] shipRot, Double3[] shipPPosTemp, Float4[] shipPRotTemp)
         {
-            this.shipOtherGId = new int[shipOtherGId.Length];
-            this.shipIndex = new int[shipIndex.Length];
-            this.shipPos = new Double3[shipPos.Length];
-            this.shipRot = new Float4[shipRot.Length];
-            this.shipPPosTemp = new Double3[shipPPosTemp.Length];
-            this.shipPRotTemp = new Float4[shipPRotTemp.Length];
-
             this.stationGId = stationGId;
             this.shipDockPos = new Float3(shipDockPos);
             this.shipDockRot = new Float4(shipDockRot);
 
-            Array.Copy(shipOtherGId, this.shipOtherGId, shipOtherGId.Length);
-            Array.Copy(shipIndex, this.shipIndex, shipIndex.Length);
-            Array.Copy(shipPos, this.shipPos, shipPos.Length);
-            Array.Copy(shipRot, this.shipRot, shipRot.Length);
-            Array.Copy(shipPPosTemp, this.shipPPosTemp, shipPPosTemp.Length);
-            Array.Copy(shipPRotTemp, this.shipPRotTemp, shipPRotTemp.Length);
+            this.shipOtherGId = shipOtherGId;
+            this.shipIndex = shipIndex;
+            this.shipPos = shipPos;
+            this.shipRot = shipRot;
+            this.shipPPosTemp = shipPPosTemp;
+            this.shipPRotTemp = shipPRotTemp;
         }
     }
 }

@@ -4,7 +4,6 @@ using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using System;
-using System.IO;
 using UnityEngine;
 
 namespace NebulaPatcher

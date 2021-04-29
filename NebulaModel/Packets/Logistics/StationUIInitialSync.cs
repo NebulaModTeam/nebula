@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NebulaModel.Packets.Logistics
+﻿namespace NebulaModel.Packets.Logistics
 {
     public class StationUIInitialSync
     {
@@ -40,13 +38,6 @@ namespace NebulaModel.Packets.Logistics
                                     int[] remoteLogic,
                                     int[] remoteOrder)
         {
-            this.itemId = new int[itemId.Length];
-            this.itemCountMax = new int[itemCountMax.Length];
-            this.itemCount = new int[itemCount.Length];
-            this.localLogic = new int[localLogic.Length];
-            this.remoteLogic = new int[remoteLogic.Length];
-            this.remoteOrder = new int[remoteOrder.Length];
-
             this.stationGId = stationGId;
             this.planetId = planetId;
             this.tripRangeDrones = tripRangeDrones;
@@ -59,12 +50,12 @@ namespace NebulaModel.Packets.Logistics
             this.energy = energy;
             this.energyPerTick = energyPerTick;
 
-            Array.Copy(itemId, this.itemId, itemId.Length);
-            Array.Copy(itemCountMax, this.itemCountMax, itemCountMax.Length);
-            Array.Copy(itemCount, this.itemCount, itemCount.Length);
-            Array.Copy(localLogic, this.localLogic, localLogic.Length);
-            Array.Copy(remoteLogic, this.remoteLogic, remoteLogic.Length);
-            Array.Copy(remoteOrder, this.remoteOrder, remoteOrder.Length);
+            this.itemId = itemId;
+            this.itemCountMax = itemCountMax;
+            this.itemCount = itemCount;
+            this.localLogic = localLogic;
+            this.remoteLogic = remoteLogic;
+            this.remoteOrder = remoteOrder;
         }
     }
 }

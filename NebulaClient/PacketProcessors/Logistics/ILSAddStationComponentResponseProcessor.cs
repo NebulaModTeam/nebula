@@ -4,6 +4,7 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
 using NebulaWorld.Logistics;
+using UnityEngine;
 
 /*
  * Clients do not directly call AddStationComponent() instead they request the stations GId
@@ -18,9 +19,10 @@ namespace NebulaClient.PacketProcessors.Logistics
     {
         public void ProcessPacket(ILSAddStationComponentResponse packet, NebulaConnection conn)
         {
+            Vector3 shipDockPos = DataStructureExtensions.ToVector3(packet.shipDockPos);
             for(int i = 0; i < ILSShipManager.AddStationComponentQueue[packet.planetId].Count; i++)
             {
-                if(ILSShipManager.AddStationComponentQueue[packet.planetId][i].shipDockPos == DataStructureExtensions.ToVector3(packet.shipDockPos))
+                if(ILSShipManager.AddStationComponentQueue[packet.planetId][i].shipDockPos == shipDockPos)
                 {
                     using (ILSShipManager.PatchLockILS.On())
                     {

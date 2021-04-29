@@ -18,7 +18,7 @@ namespace NebulaWorld.Logistics
 
         public static readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
 
-        private const int ILSMaxShipCount = 10;
+        public const int ILSMaxShipCount = 10;
         public static void Initialize()
         {
             FR_stationId = AccessTools.FieldRefAccess<int>(typeof(UIStationWindow), "_stationId");

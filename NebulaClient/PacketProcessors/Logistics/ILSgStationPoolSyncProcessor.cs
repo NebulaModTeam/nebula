@@ -21,8 +21,6 @@ namespace NebulaClient.PacketProcessors.Logistics
             GalacticTransport gTransport = GameMain.data.galacticTransport;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
 
-            const int ILSMaxShipCount = 10;
-
             for (int i = 0; i < packet.stationGId.Length; i++)
             {
                 ILSShipManager.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i], false); // handles array resizing
@@ -39,16 +37,16 @@ namespace NebulaClient.PacketProcessors.Logistics
                 gStationPool[packet.stationGId[i]].workShipIndices = packet.workShipIndices[i];
                 gStationPool[packet.stationGId[i]].idleShipIndices = packet.idleShipIndices[i];
 
-                gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[ILSMaxShipCount];
-                gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[ILSMaxShipCount];
+                gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[ILSShipManager.ILSMaxShipCount];
+                gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[ILSShipManager.ILSMaxShipCount];
 
                 // theese are the individual landing places for the ships on the station's disk at the top
-                for (int j = 0; j < ILSMaxShipCount; j++)
+                for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
                 {
-                    gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / (float)ILSMaxShipCount * (float)j, 0f);
+                    gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / (float)ILSShipManager.ILSMaxShipCount * (float)j, 0f);
                     gStationPool[packet.stationGId[i]].shipDiskPos[j] = gStationPool[packet.stationGId[i]].shipDiskRot[j] * new Vector3(0f, 0f, 11.5f);
                 }
-                for (int j = 0; j < ILSMaxShipCount; j++)
+                for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
                 {
                     gStationPool[packet.stationGId[i]].shipDiskRot[j] = gStationPool[packet.stationGId[i]].shipDockRot * gStationPool[packet.stationGId[i]].shipDiskRot[j];
                     gStationPool[packet.stationGId[i]].shipDiskPos[j] = gStationPool[packet.stationGId[i]].shipDockPos + gStationPool[packet.stationGId[i]].shipDockRot * gStationPool[packet.stationGId[i]].shipDiskPos[j];
@@ -59,7 +57,7 @@ namespace NebulaClient.PacketProcessors.Logistics
             // nearly lost all my hairs because of it
             for(int i = 0; i < packet.shipStationGId.Length; i++)
             {
-                ShipData shipData = gStationPool[packet.shipStationGId[i]].workShipDatas[i % ILSMaxShipCount];
+                ShipData shipData = gStationPool[packet.shipStationGId[i]].workShipDatas[i % ILSShipManager.ILSMaxShipCount];
                 shipData.stage = packet.shipStage[i];
                 shipData.direction = packet.shipDirection[i];
                 shipData.warpState = packet.shipWarpState[i];
@@ -80,7 +78,7 @@ namespace NebulaClient.PacketProcessors.Logistics
                 shipData.pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
                 shipData.pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
 
-                gStationPool[packet.shipStationGId[i]].workShipDatas[i % ILSMaxShipCount] = shipData;
+                gStationPool[packet.shipStationGId[i]].workShipDatas[i % ILSShipManager.ILSMaxShipCount] = shipData;
             }
 
             gTransport.Arragement();

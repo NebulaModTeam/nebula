@@ -67,34 +67,34 @@ namespace NebulaModel.Packets.Logistics
                                     Double3[] shipPPosTemp,
                                     Float4[] shipPRotTemp)
         {
-            this.stationGId = (int[])stationGId.Clone();
-            this.stationId = (int[])stationId.Clone();
-            this.DockPos = (Float3[])DockPos.Clone();
-            this.DockRot = (Float4[])DockRot.Clone();
-            this.planetId = (int[])planetId.Clone();
-            this.workShipCount = (int[])workShipCount.Clone();
-            this.idleShipCount = (int[])idleShipCount.Clone();
-            this.workShipIndices = (ulong[])workShipIndices.Clone();
-            this.idleShipIndices = (ulong[])idleShipIndices.Clone();
-            this.shipStationGId = (int[])shipStationGId.Clone();
-            this.shipStage = (int[])shipStage.Clone();
-            this.shipDirection = (int[])shipDirection.Clone();
-            this.shipWarpState = (float[])shipWarpState.Clone();
-            this.shipWarperCnt = (int[])shipWarperCnt.Clone();
-            this.shipItemID = (int[])shipItemID.Clone();
-            this.shipItemCount = (int[])shipItemCount.Clone();
-            this.shipPlanetA = (int[])shipPlanetA.Clone();
-            this.shipPlanetB = (int[])shipPlanetB.Clone();
-            this.shipOtherGId = (int[])shipOtherGId.Clone();
-            this.shipT = (float[])shipT.Clone();
-            this.shipIndex = (int[])shipIndex.Clone();
-            this.shipPos = (Double3[])shipPos.Clone();
-            this.shipRot = (Float4[])shipRot.Clone();
-            this.shipVel = (Float3[])shipVel.Clone();
-            this.shipSpeed = (float[])shipSpeed.Clone();
-            this.shipAngularVel = (Float3[])shipAngularVel.Clone();
-            this.shipPPosTemp = (Double3[])shipPPosTemp.Clone();
-            this.shipPRotTemp = (Float4[])shipPRotTemp.Clone();
+            this.stationGId = stationGId;
+            this.stationId = stationId;
+            this.DockPos = DockPos;
+            this.DockRot = DockRot;
+            this.planetId = planetId;
+            this.workShipCount = workShipCount;
+            this.idleShipCount = idleShipCount;
+            this.workShipIndices = workShipIndices;
+            this.idleShipIndices = idleShipIndices;
+            this.shipStationGId = shipStationGId;
+            this.shipStage = shipStage;
+            this.shipDirection = shipDirection;
+            this.shipWarpState = shipWarpState;
+            this.shipWarperCnt = shipWarperCnt;
+            this.shipItemID = shipItemID;
+            this.shipItemCount = shipItemCount;
+            this.shipPlanetA = shipPlanetA;
+            this.shipPlanetB = shipPlanetB;
+            this.shipOtherGId = shipOtherGId;
+            this.shipT = shipT;
+            this.shipIndex = shipIndex;
+            this.shipPos = shipPos;
+            this.shipRot = shipRot;
+            this.shipVel = shipVel;
+            this.shipSpeed = shipSpeed;
+            this.shipAngularVel = shipAngularVel;
+            this.shipPPosTemp = shipPPosTemp;
+            this.shipPRotTemp = shipPRotTemp;
         }
     }
 }
