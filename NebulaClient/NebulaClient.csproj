@@ -34,6 +34,7 @@
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="$(NuGetVersionNerdbankGitVersioning)" PrivateAssets="all" />
     <PackageReference Include="lz4net" Version="$(NuGetVersionlz4net)" />
+    <PackageReference Include="Microsoft.Unity.Analyzers" Version="$(NuGetVersionUnityAnalyzers)" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockProcessor.cs" />
