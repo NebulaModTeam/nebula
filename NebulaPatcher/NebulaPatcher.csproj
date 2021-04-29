@@ -44,6 +44,7 @@
     <Compile Include="Patches\Dynamic\CargoTraffic_Patch.cs" />
     <Compile Include="Patches\Dynamic\FactoryProductionStat_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameHistoryData_Patch.cs" />
+    <Compile Include="Patches\Dynamic\GalacticTransport_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameMain_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameSave_Patch.cs" />
     <Compile Include="Patches\Dynamic\GameScenarioLogic_Patch.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Patches\Dynamic\UIPowerExchangerWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGeneratorWindow_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIProductionStatWindow_Patch.cs" />
+    <Compile Include="Patches\Dynamic\StationComponent_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIPowerGizmo_OnUpdate_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIRealtimeTip_Patch.cs" />
     <Compile Include="Patches\Dynamic\UISiloWindow_Patch.cs" />
@@ -97,6 +99,10 @@
     <Compile Include="Patches\Transpilers\PlanetFactory_Patch.cs" />
     <Compile Include="Patches\Transpilers\MechaDroneLogic_Patch.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Build_Patch.cs" />
+    <Compile Include="Patches\Dynamic\PlanetTransport_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIStationStorage_Patch.cs" />
+    <Compile Include="Patches\Dynamic\UIStationWindow_Patch.cs" />
+    <Compile Include="Patches\Transpilers\StationComponent_Transpiler.cs" />
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
