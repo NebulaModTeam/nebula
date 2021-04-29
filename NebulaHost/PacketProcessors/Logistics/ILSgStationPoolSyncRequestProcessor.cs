@@ -4,12 +4,17 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
 
+/*
+ * Whenever a client connects we sync the current state of all ILS and ships to them
+ * resulting in a quite large packet but its only sent one time upon client connect.
+ */
 namespace NebulaHost.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
     public class ILSgStationPoolSyncRequestProcessor : IPacketProcessor<ILSRequestgStationPoolSync>
     {
         private PlayerManager playerManager;
+        private const int maxShipsPerILS = 10;
         public ILSgStationPoolSyncRequestProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
@@ -49,25 +54,25 @@ namespace NebulaHost.PacketProcessors.Logistics
                 ulong[] workShipIndices = new ulong[countILS];
                 ulong[] idleShipIndices = new ulong[countILS];
 
-                int[] shipStationGId = new int[countILS * 10];
-                int[] shipStage = new int[countILS * 10];
-                int[] shipDirection = new int[countILS * 10];
-                float[] shipWarpState = new float[countILS * 10];
-                int[] shipWarperCnt = new int[countILS * 10];
-                int[] shipItemID = new int[countILS * 10];
-                int[] shipItemCount = new int[countILS * 10];
-                int[] shipPlanetA = new int[countILS * 10];
-                int[] shipPlanetB = new int[countILS * 10];
-                int[] shipOtherGId = new int[countILS * 10];
-                float[] shipT = new float[countILS * 10];
-                int[] shipIndex = new int[countILS * 10];
-                Double3[] shipPos = new Double3[countILS * 10];
-                Float4[] shipRot = new Float4[countILS * 10];
-                Float3[] shipVel = new Float3[countILS * 10];
-                float[] shipSpeed = new float[countILS * 10];
-                Float3[] shipAngularVel = new Float3[countILS * 10];
-                Double3[] shipPPosTemp = new Double3[countILS * 10];
-                Float4[] shipPRotTemp = new Float4[countILS * 10];
+                int[] shipStationGId = new int[countILS * maxShipsPerILS];
+                int[] shipStage = new int[countILS * maxShipsPerILS];
+                int[] shipDirection = new int[countILS * maxShipsPerILS];
+                float[] shipWarpState = new float[countILS * maxShipsPerILS];
+                int[] shipWarperCnt = new int[countILS * maxShipsPerILS];
+                int[] shipItemID = new int[countILS * maxShipsPerILS];
+                int[] shipItemCount = new int[countILS * maxShipsPerILS];
+                int[] shipPlanetA = new int[countILS * maxShipsPerILS];
+                int[] shipPlanetB = new int[countILS * maxShipsPerILS];
+                int[] shipOtherGId = new int[countILS * maxShipsPerILS];
+                float[] shipT = new float[countILS * maxShipsPerILS];
+                int[] shipIndex = new int[countILS * maxShipsPerILS];
+                Double3[] shipPos = new Double3[countILS * maxShipsPerILS];
+                Float4[] shipRot = new Float4[countILS * maxShipsPerILS];
+                Float3[] shipVel = new Float3[countILS * maxShipsPerILS];
+                float[] shipSpeed = new float[countILS * maxShipsPerILS];
+                Float3[] shipAngularVel = new Float3[countILS * maxShipsPerILS];
+                Double3[] shipPPosTemp = new Double3[countILS * maxShipsPerILS];
+                Float4[] shipPRotTemp = new Float4[countILS * maxShipsPerILS];
 
                 foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
@@ -83,10 +88,11 @@ namespace NebulaHost.PacketProcessors.Logistics
                         workShipIndices[iter] = stationComponent.workShipIndices;
                         idleShipIndices[iter] = stationComponent.idleShipIndices;
 
-                        for(int j = 0; j < 10; j++)
+                        // ShipData is never null
+                        for(int j = 0; j < maxShipsPerILS; j++)
                         {
                             ShipData shipData = stationComponent.workShipDatas[j];
-                            int index = iter * 10 + j;
+                            int index = iter * maxShipsPerILS + j;
 
                             shipStationGId[index] = stationComponent.gid;
                             shipStage[index] = shipData.stage;

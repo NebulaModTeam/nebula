@@ -4,6 +4,9 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
 
+/*
+ * if clients build an ILS they request the GId of it, so we need to look it up in the hosts gStationPool
+ */
 namespace NebulaHost.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]

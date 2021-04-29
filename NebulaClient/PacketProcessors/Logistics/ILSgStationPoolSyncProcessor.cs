@@ -6,6 +6,11 @@ using NebulaModel.DataStructures;
 using NebulaWorld.Logistics;
 using UnityEngine;
 
+/*
+ * This packet is only sent one time when a client joins the game
+ * it is used to sync the gStationPool to the clients including all ships.
+ * This is needed to have the current state and position of ships
+ */
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
@@ -35,6 +40,7 @@ namespace NebulaClient.PacketProcessors.Logistics
                 gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[10];
                 gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[10];
 
+                // theese are the individual landing places for the ships on the station's disk at the top
                 for (int j = 0; j < 10; j++)
                 {
                     gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / (float)10 * (float)j, 0f);

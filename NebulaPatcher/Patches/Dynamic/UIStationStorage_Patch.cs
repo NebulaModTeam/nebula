@@ -9,6 +9,10 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIStationStorage))]
     class UIStationStorage_Patch
     {
+        /*
+         * host behaves normally and sends update to clients which then apply the changes
+         * clients send a request to the server and only run the original method once they receive the response
+         */
         [HarmonyPrefix]
         [HarmonyPatch("OnItemIconMouseDown")]
         public static bool OnItemIconMouseDown_Postfix(UIStationStorage __instance, BaseEventData evt)
@@ -49,6 +53,10 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
+        /*
+         * host behaves normally and sends update to clients which then apply the changes
+         * clients send a request to the server and only run the original method once they receive the response
+         */
         [HarmonyPrefix]
         [HarmonyPatch("OnItemIconMouseUp")]
         public static bool OnItemIconMouseUp_Postfix(UIStationStorage __instance, BaseEventData evt)

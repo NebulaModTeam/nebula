@@ -11,7 +11,7 @@ namespace NebulaWorld.Logistics
     public static class StationUIManager
     {
         private static Dictionary<int, List<NebulaConnection>> StationUISubscribers;
-        public static int UpdateCooldown;
+        public static int UpdateCooldown; // cooldown is used to slow down updates on storage slider
         public static BaseEventData lastMouseEvent;
         public static bool lastMouseEventWasDown;
         public static GameObject lastSelectedGameObj;
@@ -27,6 +27,7 @@ namespace NebulaWorld.Logistics
             UIStationId = 0;
             UIRequestedShipDronWarpChange = false;
         }
+        // When a client opens a station's UI he requests a subscription for live updates, so add him to the list
         public static void AddSubscriber(int stationGId, NebulaConnection player)
         {
             List<NebulaConnection> players;
@@ -101,7 +102,10 @@ namespace NebulaWorld.Logistics
                 }
             }
         }
-
+        /*
+         * if the local player does not have the corresponding station window opened we still need to update some (or all for host) settings
+         * so do that here
+         */
         private static void UpdateSettingsUIBackground(StationUI packet, PlanetData pData, int stationGId)
         {
             StationComponent[] stationPool = GameMain.data.galacticTransport.stationPool;
@@ -248,6 +252,10 @@ namespace NebulaWorld.Logistics
                 }
             }
         }
+        /*
+         * update settings and item, drone, ship and warper count
+         * first determine if the local player has the station window opened and hadle that accordingly.
+         */
         private static void UpdateSettingsUI(StationUI packet)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
@@ -285,6 +293,7 @@ namespace NebulaWorld.Logistics
                     }
                 }
 
+                // this locks the patches so we can call vanilla functions without triggering our patches to avoid endless loops
                 using (ILSShipManager.PatchLockILS.On())
                 {
                     if (packet.settingIndex == StationUI.UIsettings.MaxChargePower)
@@ -366,6 +375,10 @@ namespace NebulaWorld.Logistics
                             stationPool[_stationId].warperCount = (int)packet.settingValue;
                         }
                     }
+                    /*
+                     * the idea is that clients request that they want to apply a change and do so once the server responded with an okay.
+                     * the calls to OnItemIconMouseDown() and OnItemIconMouseUp() are blocked for clients and called only from here.
+                     */
                     if (packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageReq)
                     {
                         StationComponent[] stationPool = pData.factory.transport.stationPool;
@@ -374,11 +387,12 @@ namespace NebulaWorld.Logistics
                             if (packet.shouldMimick)
                             {
                                 BaseEventData mouseEvent = lastMouseEvent;
-                                PointerEventData pointEvent = mouseEvent as PointerEventData;
                                 UIStationStorage[] storageUIs = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
 
                                 if (lastMouseEvent != null)
                                 {
+                                    // TODO: change this such that only server sends the response, else clients with a desynced state could change servers storage to a faulty value
+                                    // issue #249
                                     if (lastMouseEventWasDown)
                                     {
                                         storageUIs[packet.storageIdx].OnItemIconMouseDown(mouseEvent);
@@ -393,10 +407,6 @@ namespace NebulaWorld.Logistics
                                     }
                                     lastMouseEvent = null;
                                 }
-                            }
-                            else
-                            {
-                                //stationPool[_stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
                             }
                         }
                     }
@@ -426,6 +436,9 @@ namespace NebulaWorld.Logistics
             }
             else
             {
+                /*
+                 * we need to find the stations id in the PlanetTransport structure to call SetStationStorage
+                 */
                 int id = -1;
                 if(pData.factory?.transport == null)
                 {
@@ -447,6 +460,7 @@ namespace NebulaWorld.Logistics
                 }
                 else
                 {
+                    // if its a PLS server sends the id and not GId
                     id = pData.factory.transport.stationPool[packet.stationGId].id;
                 }
 

@@ -5,6 +5,11 @@ using NebulaModel.Packets.Processors;
 using NebulaWorld.Logistics;
 using HarmonyLib;
 
+/*
+ * When the client opens the UI of a station (ILS/PLS/Collector) the contents gets updated and shown to
+ * the player once this packet is received. He will see a loading text before that.
+ * This will also subscribe to live updates syncing changes made by other players to the station while the UI is opened
+ */
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
@@ -31,10 +36,7 @@ namespace NebulaClient.PacketProcessors.Logistics
                 if(stationComponent != null)
                 {
                     UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-                    if (stationWindow != null && stationWindow.active)
-                    {
-                        // here it was
-                    }
+
                     stationComponent.tripRangeDrones = packet.tripRangeDrones;
                     stationComponent.tripRangeShips = packet.tripRangeShips;
                     stationComponent.deliveryDrones = packet.deliveryDrones;

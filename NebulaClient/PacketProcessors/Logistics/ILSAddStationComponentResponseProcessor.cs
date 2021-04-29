@@ -5,6 +5,12 @@ using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
 using NebulaWorld.Logistics;
 
+/*
+ * Clients do not directly call AddStationComponent() instead they request the stations GId
+ * and then call it. This way we ensure that the GId is synced across all players.
+ * shipDockPos and planetId is only used to identify the right station as there cant be two at the exact same spot
+ * NOTE: there is issue #245
+ */
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]

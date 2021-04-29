@@ -2,8 +2,11 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
-using System.Collections.Generic;
 
+/*
+ * When a client opens a stations UI we sync the complete state of settings and storage.
+ * After that he will receive live updates while the UI is opened.
+ */
 namespace NebulaHost.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]

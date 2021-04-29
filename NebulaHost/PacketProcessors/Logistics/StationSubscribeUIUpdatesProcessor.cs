@@ -14,7 +14,6 @@ namespace NebulaHost.PacketProcessors.Logistics
             if (packet.subscribe)
             {
                 StationUIManager.AddSubscriber(packet.stationGId, conn);
-                // TODO: sync current state to client
             }
             else
             {

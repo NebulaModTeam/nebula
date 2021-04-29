@@ -5,6 +5,12 @@ using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
 using System.Collections.Generic;
 
+/*
+ * clients need to know the ship dock position for correct computation of the ship movement.
+ * as clients dont have every PlanetFactory we use fake entries in gStationPool for ILS on planets that the client did not visit yet.
+ * when they create a fake entry they also request the dock position, but we also need to tell the current ship
+ * position and rotation for associated ships as they might have ben calculated wrong (without knowledge of dock position)
+ */
 namespace NebulaHost.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
@@ -31,8 +37,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                 List<Double3> shipPPosTemp = new List<Double3>();
                 List<Float4> shipPRotTemp = new List<Float4>();
 
-                // this is a very slow way to find ShipData that has otherGId set to packet.stationGId
-                // TODO: find a faster way
+                // find ShipData that has otherGId set to packet.stationGId
                 for(int i = 0; i < GameMain.data.galacticTransport.stationCapacity; i++)
                 {
                     if (GameMain.data.galacticTransport.stationPool[i] != null)

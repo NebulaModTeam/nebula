@@ -17,12 +17,18 @@ namespace NebulaWorld.Logistics
         private static MethodInfo MI_RefreshValues = null;
 
         public static readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
+
+        private const int ILSMaxShipCount = 10;
         public static void Initialize()
         {
             FR_stationId = AccessTools.FieldRefAccess<int>(typeof(UIStationWindow), "_stationId");
             FR_storageUIs = AccessTools.FieldRefAccess<UIStationStorage[]>(typeof(UIStationWindow), "storageUIs");
             MI_RefreshValues = AccessTools.Method(typeof(UIStationStorage), "RefreshValues");
         }
+        /*
+         * When the host notifies the client that a ship started its travel client needs to check if he got both ILS in his gStationPool
+         * if not we create a fake entry (which gets updated to the full one when client arrives that planet) and also request the stations dock position
+         */
         public static void IdleShipGetToWork(ILSShipData packet)
         {
             PlanetData planetA = GameMain.galaxy.PlanetById(packet.planetA);
@@ -75,11 +81,12 @@ namespace NebulaWorld.Logistics
                 {
                     stationComponent.idleShipCount = 0;
                 }
-                if(stationComponent.workShipCount > 10)
+                if(stationComponent.workShipCount > ILSMaxShipCount)
                 {
-                    stationComponent.workShipCount = 10;
+                    stationComponent.workShipCount = ILSMaxShipCount;
                 }
                 stationComponent.IdleShipGetToWork(packet.origShipIndex);
+
                 StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[packet.planetBStationGID];
                 if(otherStationComponent != null && otherStationComponent.storage != null)
                 {
@@ -96,6 +103,9 @@ namespace NebulaWorld.Logistics
             }
         }
 
+        /*
+         * this is also triggered by server and called once a ship lands back to the dock station
+         */
         public static void WorkShipBackToIdle(ILSShipData packet)
         {
             if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
@@ -124,15 +134,21 @@ namespace NebulaWorld.Logistics
             {
                 stationComponent.idleShipCount = 0;
             }
-            if (stationComponent.workShipCount > 10)
+            if (stationComponent.workShipCount > ILSMaxShipCount)
             {
-                stationComponent.workShipCount = 10;
+                stationComponent.workShipCount = ILSMaxShipCount;
             }
             stationComponent.WorkShipBackToIdle(packet.origShipIndex);
         }
 
+        /*
+         * Create an entry in the gStationPool with minimal info for ships to travel and render correctly.
+         * The information is needed in StationComponent.InternalTickRemote(), but we use a reverse patched version of that
+         * which is stripped down to the ship movement and rendering part.
+         */
         public static void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
         {
+            // it may be needed to make additional room for the new ILS
             while(GameMain.data.galacticTransport.stationCapacity <= GId)
             {
                 object[] args = new object[1];
@@ -145,24 +161,24 @@ namespace NebulaWorld.Logistics
             stationComponent.isStellar = true;
             stationComponent.gid = GId;
             stationComponent.planetId = planetId;
-            stationComponent.workShipDatas = new ShipData[10]; // assume ILS have 10
-            stationComponent.shipRenderers = new ShipRenderingData[10];
-            stationComponent.shipUIRenderers = new ShipUIRenderingData[10];
+            stationComponent.workShipDatas = new ShipData[ILSMaxShipCount];
+            stationComponent.shipRenderers = new ShipRenderingData[ILSMaxShipCount];
+            stationComponent.shipUIRenderers = new ShipUIRenderingData[ILSMaxShipCount];
             stationComponent.workShipCount = 0;
             stationComponent.idleShipCount = 0;
             stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
             stationComponent.shipDockRot = Quaternion.identity; // gets updated later by server packet
             if (computeDisk)
             {
-                stationComponent.shipDiskPos = new Vector3[10];
-                stationComponent.shipDiskRot = new Quaternion[10];
+                stationComponent.shipDiskPos = new Vector3[ILSMaxShipCount];
+                stationComponent.shipDiskRot = new Quaternion[ILSMaxShipCount];
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < ILSMaxShipCount; i++)
                 {
-                    stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)10 * (float)i, 0f);
+                    stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)ILSMaxShipCount * (float)i, 0f);
                     stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
                 }
-                for (int j = 0; j < 10; j++)
+                for (int j = 0; j < ILSMaxShipCount; j++)
                 {
                     stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
                     stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
@@ -174,11 +190,17 @@ namespace NebulaWorld.Logistics
             GameMain.data.galacticTransport.stationCursor++;
         }
 
+        /*
+         * As StationComponent.InternalTickRemote() neds to have the dock position to correctly compute ship movement we request it here from server.
+         */
         private static void RequestgStationDockPos(int GId)
         {
             LocalPlayer.SendPacket(new ILSRequestShipDock(GId));
         }
 
+        /*
+         * Update the items that are currently in transfer by ships
+         */
         public static void UpdateRemoteOrder(ILSRemoteOrderData packet)
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
@@ -200,6 +222,10 @@ namespace NebulaWorld.Logistics
             }
         }
 
+        /*
+         * This is triggered by server and either adds or removes items to an ILS caused by a ship transport.
+         * Also update the remoteOrder value to reflect the changes
+         */
         public static void AddTakeItem(ILSShipItems packet)
         {
             if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
@@ -228,66 +254,14 @@ namespace NebulaWorld.Logistics
                     int itemId = packet.itemId;
                     int itemCount = packet.itemCount;
                     stationComponent.TakeItem(ref itemId, ref itemCount);
-                    /*
-                    if(stationComponent.workShipDatas[packet.origShipIndex].otherGId != 0 && stationComponent.workShipDatas[packet.origShipIndex].otherGId < GameMain.data.galacticTransport.stationPool.Length)
-                    {
-                        StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[stationComponent.workShipDatas[packet.origShipIndex].otherGId];
-                        if (otherStationComponent != null && otherStationComponent.storage != null)
-                        {
-                            for (int i = 0; i < otherStationComponent.storage.Length; i++)
-                            {
-                                if (otherStationComponent.storage[i].itemId == packet.itemId)
-                                {
-                                    otherStationComponent.storage[i].remoteOrder += packet.itemCount;
-                                    RefreshValuesUI(otherStationComponent, i);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    for (int i = 0; i < stationComponent.storage.Length; i++)
-                    {
-                        if (stationComponent.storage[i].itemId == packet.itemId)
-                        {
-                            if (stationComponent.workShipDatas[packet.origShipIndex].direction == 0)
-                            {
-                                stationComponent.storage[i].remoteOrder += packet.itemCount;
-                                RefreshValuesUI(stationComponent, i);
-                            }
-                            break;
-                        }
-                    }
-                    */
-                    // this is the second attempt, but its also not working
-                    // we need to check if this is the home station of the ship or not.
-                    // if not then increase remoteOrder, if it is dont change remoteOrder
-                    /*
-                    foreach(StationComponent tmpComp in GameMain.data.galacticTransport.stationPool)
-                    {
-                        if(tmpComp != null)
-                        {
-                            foreach(ShipData tmpData in tmpComp.workShipDatas)
-                            {
-                                if(tmpData.itemId == packet.itemId && tmpData.itemCount == packet.itemCount && stationComponent.gid == tmpData.otherGId)
-                                {
-                                    for(int i = 0; i < stationComponent.storage.Length; i++)
-                                    {
-                                        if(stationComponent.storage[i].itemId == packet.itemId)
-                                        {
-                                            stationComponent.storage[i].remoteOrder += packet.itemCount;
-                                            RefreshValuesUI(stationComponent, i);
-                                        }
-                                    }
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    */
+                    // TODO: Update remote order here (issue #230)
                 }
             }
         }
 
+        /*
+         * call UIStationStorage.RefreshValues() on the current opened stations UI
+         */
         private static void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;

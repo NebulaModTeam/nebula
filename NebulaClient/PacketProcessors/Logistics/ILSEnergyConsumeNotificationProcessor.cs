@@ -3,6 +3,10 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 
+/*
+ * used to decrease the stored energy of an ILS when a ship departs
+ * only sent by server and processed by clients
+ */
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]

@@ -5,6 +5,11 @@ using NebulaModel.Packets.Processors;
 using NebulaModel.DataStructures;
 using UnityEngine;
 
+/*
+ * In order for the StationComponent.InternalTickRemote() method to correctly animate ship movement it needs to know
+ * the position of the stations docking disk.
+ * as we use fake entries in gStationPool for clients that have not visited the planet yet we also need to sync that position.
+ */
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
@@ -29,6 +34,7 @@ namespace NebulaClient.PacketProcessors.Logistics
                 stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
             }
 
+            // sync the current position of the ships as they might have been calculated wrong while we did not have the correct dock position and rotation.
             for(int i = 0; i < packet.shipOtherGId.Length; i++)
             {
                 stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];

@@ -3,6 +3,10 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 
+/*
+ * This packet updates the ships direction and is used when StationComponent.RematchRemotePairs() is called
+ * This is used when a station is added or removed or a supply/demand chain is changed
+ */
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]

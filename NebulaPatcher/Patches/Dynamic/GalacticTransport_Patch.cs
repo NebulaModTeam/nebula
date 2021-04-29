@@ -31,6 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 ILSShipManager.AddStationComponentQueue.Add(planetId, new List<StationComponent>());
             }
+            // use a queue here as we need to wait for the GId sent by server
             ILSShipManager.AddStationComponentQueue[planetId].Add(station);
             LocalPlayer.SendPacket(new ILSAddStationComponentRequest(planetId, station.shipDockPos));
 
