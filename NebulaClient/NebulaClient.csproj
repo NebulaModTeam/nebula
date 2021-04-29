@@ -130,9 +130,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="lz4net">
-      <Version>1.0.15.93</Version>
-    </PackageReference>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="$(NuGetVersionNerdbankGitVersioning)" PrivateAssets="all" />
+    <PackageReference Include="lz4net" Version="$(NuGetVersionlz4net)" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
