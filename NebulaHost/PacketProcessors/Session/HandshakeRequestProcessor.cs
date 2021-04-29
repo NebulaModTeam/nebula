@@ -37,15 +37,15 @@ namespace NebulaHost.PacketProcessors.Session
             }
 
 
-            if (packet.ModVersion != Config.ModVersion.ToString())
+            if (packet.ModVersion != Config.ModVersion)
             {
-                conn.Disconnect(DisconnectionReason.ModVersionMismatch);
+                conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{ packet.ModVersion };{ Config.ModVersion }");
                 return;
             }
 
             if (packet.GameVersionSig != GameConfig.gameVersion.sig)
             {
-                conn.Disconnect(DisconnectionReason.GameVersionMismatch);
+                conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
                 return;
             }
 

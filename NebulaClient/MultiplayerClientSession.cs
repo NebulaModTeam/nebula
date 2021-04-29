@@ -179,9 +179,10 @@ namespace NebulaClient
 
                 if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
                 {
+                    string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
                         "Mod Version Mismatch",
-                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nMake sure to use the same version.",
+                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nYou:{versions[0]} - Remote:{versions[1]}",
                         "OK",
                         OnDisconnectPopupCloseBeforeGameLoad);
                     return;
@@ -189,9 +190,10 @@ namespace NebulaClient
 
                 if (e.Code == (ushort)DisconnectionReason.GameVersionMismatch)
                 {
+                    string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
                         "Game Version Mismatch",
-                        $"Your version of the game is not the same as the one used by the Host.\nMake sure to use the same version.",
+                        $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
                         "OK",
                         OnDisconnectPopupCloseBeforeGameLoad);
                     return;
