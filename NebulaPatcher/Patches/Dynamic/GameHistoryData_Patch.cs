@@ -54,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return;
             }
-            //Synchronize dequeueing techs by players
+            //Synchronize dequeueing techs by players and trigger refunds for all clients
             Log.Info($"Sending Dequeue Tech notification: remove techID{__state}");
             LocalPlayer.SendPacket(new GameHistoryRemoveTechPacket(__state));
         }
@@ -155,6 +155,11 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void Prefix7(int index, out int __state)
         {
             __state = GameMain.history.techQueue[index];
+            if (LocalPlayer.IsMasterClient)
+            {
+                //we need to know which itemtypes are currently needed for refunds, so trigger refund before cancelling own research
+                NebulaHost.MultiplayerHostSession.Instance.PlayerManager.SendTechRefundPackagesToClients(__state);
+            }
             Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }
     }

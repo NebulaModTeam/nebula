@@ -12,24 +12,25 @@ namespace NebulaClient.PacketProcessors.GameHistory
     {
         public void ProcessPacket(GameHistoryTechRefundPacket packet, NebulaConnection conn)
         {
-            Log.Info($"ProcessPacket: got GameHistoryTechRefundPacket");
             //only refund if we have contributed
             if(packet.TechHashedContributed > 0)
             {
                 Log.Info($"ProcessPacket: contributed {packet.TechHashedContributed} hashes");
+                TechProto techProto = LDB.techs.Select(packet.TechIdContributed);
+                int[] items = techProto.Items;
+                int[] array = techProto.ItemPoints;
+
                 //client should have the same research queued, seek currently needed itemIds and re-add points that were contributed
-                foreach (int itemid in packet.ItemIds)
+                for (int i=0; i < array.Length; i++)
                 {
-                    GameMain.data.mainPlayer.mecha.lab.itemPoints.Alter(itemid, (int)packet.TechHashedContributed * 3600);
-                    Log.Info($"ProcessPacket: added {(int)packet.TechHashedContributed * 3600} points of {itemid} to queues");
+                    int itemId = items[i];
+                    int contributedItems = (int)packet.TechHashedContributed * array[i];
+                    Log.Info($"ProcessPacket: refunding {itemId}: {packet.TechHashedContributed} * {array[i]} = {contributedItems} ");
+                    GameMain.data.mainPlayer.mecha.lab.itemPoints.Alter(itemId, contributedItems);
                 }
                 //let the default method give back the items
                 GameMain.mainPlayer.mecha.lab.ManageTakeback();
                 Log.Info($"ProcessPacket: finished takeback");
-            }
-            else
-            {
-                Log.Info($"ProcessPacket: No refunds");
             }
         }
     }

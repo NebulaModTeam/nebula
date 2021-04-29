@@ -2,6 +2,7 @@
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
 using NebulaWorld.Player;
@@ -263,6 +264,25 @@ namespace NebulaHost
                 {
                     //Find correct player for data to update
                     player.Data.Mecha = mechaData;
+                }
+            }
+        }
+
+        public void SendTechRefundPackagesToClients(int techId)
+        {
+            //send players their contributions back
+            using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                foreach (var kvp in connectedPlayers)
+                {
+                    Player curPlayer = kvp.Value;
+                    long techProgress = curPlayer.ReleaseResearchProgress();
+                    if (techProgress > 0)
+                    {
+                        Log.Info($"Sending Recoverrequest for player {curPlayer.Id}: refunding for techId {techId} - raw progress: {curPlayer.TechProgressContributed}");
+                        GameHistoryTechRefundPacket refundPacket = new GameHistoryTechRefundPacket(techId, techProgress);
+                        curPlayer.SendPacket(refundPacket);
+                    }
                 }
             }
         }

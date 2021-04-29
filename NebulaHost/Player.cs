@@ -37,8 +37,8 @@ namespace NebulaHost
 
         public void UpdateResearchProgress(int techId, long techprogress)
         {
-            //no research active, inital state
-            if (CurrentResearchId == 0)
+            //no research active or tech has changed, this is the inital packet
+            if (CurrentResearchId == 0 || CurrentResearchId != techId)
             {
                 CurrentResearchId = techId;
                 TechProgressContributed = techprogress;
