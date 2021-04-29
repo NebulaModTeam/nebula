@@ -88,6 +88,7 @@
     <Compile Include="PacketProcessors\Players\PlayerMovementProcessor.cs" />
     <Compile Include="PacketProcessors\Players\RemoveDroneOrdersProcessor.cs" />
     <Compile Include="PacketProcessors\Session\HandshakeResponseProcessor.cs" />
+    <Compile Include="PacketProcessors\Session\PingPacketProcessor.cs" />
     <Compile Include="PacketProcessors\Session\PlayerDisconnectedProcessor.cs" />
     <Compile Include="PacketProcessors\Session\PlayerJoiningProcessor.cs" />
     <Compile Include="PacketProcessors\Session\SyncCompleteProcessor.cs" />

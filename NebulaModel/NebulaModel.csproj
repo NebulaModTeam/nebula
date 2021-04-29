@@ -122,6 +122,7 @@
     <Compile Include="Packets\Session\HandshakeRequest.cs" />
     <Compile Include="Packets\Session\HandshakeResponse.cs" />
     <Compile Include="Packets\Session\InitialState.cs" />
+    <Compile Include="Packets\Session\PingPacket.cs" />
     <Compile Include="Packets\Session\PlayerDisconnected.cs" />
     <Compile Include="Packets\Session\PlayerJoining.cs" />
     <Compile Include="Packets\Planet\VegeMined.cs" />
