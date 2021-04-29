@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
+using NebulaModel.Logger;
 using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.Planet

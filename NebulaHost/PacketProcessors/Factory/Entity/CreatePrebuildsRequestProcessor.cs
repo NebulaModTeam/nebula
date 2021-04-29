@@ -24,6 +24,8 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
             if (pab != null)
             {
+                FactoryManager.TargetPlanet = packet.PlanetId;
+
                 //Make backup of values that are overwritten
                 List<BuildPreview> tmpList = pab.buildPreviews;
                 bool tmpConfirm = pab.waitConfirm;
@@ -61,7 +63,6 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         planet.physics = new PlanetPhysics(planet);
                         planet.physics.Init();
                     }
-                    planet.factory.cargoTraffic.GetOrCreateBeltRenderingBatches();
                     if (planet.aux == null)
                     {
                         planet.aux = new PlanetAuxData(planet);
@@ -81,6 +82,8 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         canBuild = pab.CheckBuildConditions();
                         canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                     }
+
+                    UnityEngine.Debug.Log(pab.buildPreviews[0].condition);
 
                     if (canBuild)
                     {
@@ -108,6 +111,8 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos; 
                 pab.previewPose.rotation = tmpRot;
+
+                FactoryManager.TargetPlanet = -2;
             }
         }
 

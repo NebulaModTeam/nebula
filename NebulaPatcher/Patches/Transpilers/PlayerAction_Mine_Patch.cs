@@ -30,7 +30,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "GetVegeData"))
-                .Insert(Transpilers.EmitDelegate<Func<int, int>>(miningId =>
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(miningId =>
                 {
                     if (PlayerAction_Mine_Transpiler.miningId == -1 || PlayerAction_Mine_Transpiler.miningId != miningId)
                     {
@@ -50,7 +50,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "GetVeinData"))
-                .Insert(Transpilers.EmitDelegate<Func<int, int>>(miningId =>
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(miningId =>
                 {
                     if (PlayerAction_Mine_Transpiler.miningId == -1 || PlayerAction_Mine_Transpiler.miningId != miningId)
                     {
@@ -68,7 +68,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     new CodeMatch(OpCodes.Ldloca_S),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "RemoveVegeWithComponents"))
-                .Insert(Transpilers.EmitDelegate<Func<int, int>>(VegeId =>
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(VegeId =>
                 {
                     if (PlayerAction_Mine_Transpiler.miningId != -1)
                     {
@@ -87,7 +87,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     new CodeMatch(OpCodes.Ldc_I4),
                     new CodeMatch(OpCodes.Mul),
                     new CodeMatch(OpCodes.Sub))
-                .Insert(Transpilers.EmitDelegate<Func<int, int>>(miningTick =>
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(miningTick =>
                 {
                     if (PlayerAction_Mine_Transpiler.miningId != -1)
                     {
@@ -102,6 +102,10 @@ namespace NebulaPatcher.Patches.Transpiler
 
         private static void OnVegetationMined(int id, bool isVege)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             var packet = new VegeMined(id, isVege);
             packet.PlayerId = LocalPlayer.PlayerId;
             LocalPlayer.SendPacket(packet);

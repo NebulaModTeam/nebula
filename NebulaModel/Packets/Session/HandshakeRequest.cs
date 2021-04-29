@@ -12,7 +12,7 @@
         public HandshakeRequest(byte[] clientCert, string username)
         {
             this.Username = username;
-            this.ModVersion = Config.ModVersion.ToString();
+            this.ModVersion = Config.ModVersion;
             this.GameVersionSig = GameConfig.gameVersion.sig;
             this.ClientCert = clientCert;
         }

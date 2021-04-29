@@ -3,6 +3,7 @@ using NebulaModel;
 using NebulaModel.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaWorld;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -186,16 +187,27 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            // TODO: Should display a loader during the connection and only open the game once the player is connected to the server.
+            UIRoot.instance.StartCoroutine(TryConnectToServer(ip, port));
+        }
+
+        private static IEnumerator TryConnectToServer(string ip, int port)
+        {
+            InGamePopup.ShowInfo("Connecting", $"Connecting to server {ip}:{port}...", null, null);
             multiplayerMenu.gameObject.SetActive(false);
 
-            Log.Info($"Connecting to server... {ip}:{port}");
-            if(!ConnectToServer(ip, port))
+            // We need to wait here to have time to display the Connecting popup since the game freezes during the connection.
+            yield return new WaitForSeconds(0.5f);
+
+            if (!ConnectToServer(ip, port))
             {
+                InGamePopup.FadeOut();
                 //re-enabling the menu again after failed connect attempt
-                Log.Warn($"Was not able to connect to {hostIPAdressInput.text}");
                 InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to {hostIPAdressInput.text}", "OK");
                 multiplayerMenu.gameObject.SetActive(true);
+            }
+            else
+            {
+                InGamePopup.FadeOut();
             }
         }
 

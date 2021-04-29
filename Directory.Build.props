@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="NuGet Versions">
+    <NuGetVersionNerdbankGitVersioning>3.4.194</NuGetVersionNerdbankGitVersioning>
+    <NuGetVersionlz4net>1.0.15.93</NuGetVersionlz4net>
+  </PropertyGroup>
+</Project>

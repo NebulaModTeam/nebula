@@ -13,7 +13,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnGammaMode1Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "electricity"
-            LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         [HarmonyPostfix]
@@ -21,7 +24,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnGammaMode2Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "produce photons"
-            LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         [HarmonyPostfix]
@@ -29,7 +35,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnCataButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about changing amount of gravitational lens
-            LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         [HarmonyPostfix]
@@ -37,9 +46,11 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnFuelButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about changing amount of fuel in power plant
-            PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-            LocalPlayer.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
+                LocalPlayer.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
-
     }
 }

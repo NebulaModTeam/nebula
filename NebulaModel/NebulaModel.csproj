@@ -103,6 +103,22 @@
     <Compile Include="Packets\GameHistory\GameHistoryUnlockTechPacket.cs" />
     <Compile Include="Packets\GameStates\GameStateUpdate.cs" />
     <Compile Include="Networking\PendingPacket.cs" />
+    <Compile Include="Packets\Logistics\ILSAddStationComponentRequest.cs" />
+    <Compile Include="Packets\Logistics\ILSAddStationComponentResponse.cs" />
+    <Compile Include="Packets\Logistics\ILSEnergyConsumeNotification.cs" />
+    <Compile Include="Packets\Logistics\ILSgStationPoolSync.cs" />
+    <Compile Include="Packets\Logistics\ILSRequestgStationPoolSync.cs" />
+    <Compile Include="Packets\Logistics\ILSRemoteOrderData.cs" />
+    <Compile Include="Packets\Logistics\ILSRequestShipDock.cs" />
+    <Compile Include="Packets\Logistics\ILSShipDock.cs" />
+    <Compile Include="Packets\Logistics\ILSShipData.cs" />
+    <Compile Include="Packets\Logistics\ILSShipDataUpdate.cs" />
+    <Compile Include="Packets\Logistics\ILSShipItems.cs" />
+    <Compile Include="Packets\Logistics\ILSShipUpdateWarperCnt.cs" />
+    <Compile Include="Packets\Logistics\StationSubscribeUIUpdates.cs" />
+    <Compile Include="Packets\Logistics\StationUI.cs" />
+    <Compile Include="Packets\Logistics\StationUIInitialSync.cs" />
+    <Compile Include="Packets\Logistics\StationUIInitialSyncRequest.cs" />
     <Compile Include="Packets\Planet\FactoryData.cs" />
     <Compile Include="Packets\Planet\FactoryLoadRequest.cs" />
     <Compile Include="Packets\Planet\PlanetDataRequest.cs" />
@@ -122,6 +138,7 @@
     <Compile Include="Packets\Session\HandshakeRequest.cs" />
     <Compile Include="Packets\Session\HandshakeResponse.cs" />
     <Compile Include="Packets\Session\InitialState.cs" />
+    <Compile Include="Packets\Session\PingPacket.cs" />
     <Compile Include="Packets\Session\PlayerDisconnected.cs" />
     <Compile Include="Packets\Session\PlayerJoining.cs" />
     <Compile Include="Packets\Planet\VegeMined.cs" />
@@ -174,9 +191,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="lz4net">
-      <Version>1.0.15.93</Version>
-    </PackageReference>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="$(NuGetVersionNerdbankGitVersioning)" PrivateAssets="all" />
+    <PackageReference Include="lz4net" Version="$(NuGetVersionlz4net)" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(PluginImports)" />

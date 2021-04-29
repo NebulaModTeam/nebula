@@ -21,11 +21,14 @@ namespace NebulaWorld.Factory
         public static PlanetFactory EventFactory { get; set; }
         public static readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
         public static readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
+
         public static int PacketAuthor { get; set; }
+        public static int TargetPlanet { get; set; }
 
         public static void Initialize()
         {
             PacketAuthor = -1;
+            TargetPlanet = -2; //-2, because "player.planetId" can return -1
         }
 
         public static void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)
