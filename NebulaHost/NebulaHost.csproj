@@ -36,11 +36,6 @@
       <Name>websocket-sharp</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="$(NuGetVersionNerdbankGitVersioning)" PrivateAssets="all" />
-    <PackageReference Include="lz4net" Version="$(NuGetVersionlz4net)" />
-    <PackageReference Include="Microsoft.Unity.Analyzers" Version="$(NuGetVersionUnityAnalyzers)" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
