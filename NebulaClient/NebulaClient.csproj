@@ -32,8 +32,4 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="AfterBuild">
-    <MakeDir Directories="$(PluginOutputDirectory)" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginOutputDirectory)" SkipUnchangedFiles="true" />
-  </Target>
 </Project>

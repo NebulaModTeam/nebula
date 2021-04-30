@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(SolutionDir)SharedConfig.targets"/>
-  <Import Project="$(PluginImports)" />
+  <Import Project="$(MSBuildThisFileDirectory)SharedConfig.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)PluginImports.targets" />
 
   <PropertyGroup Label="Common Properties">
     <IsDebug>$(Configuration.Contains('Debug'))</IsDebug>
@@ -15,9 +15,5 @@
     
     <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
     <DefineConstants Condition=" '$(IsDebug)' ">DEBUG;$(DefineConstants)</DefineConstants>
-  
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
 </Project>

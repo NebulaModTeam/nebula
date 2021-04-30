@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup>
-    <BepInExDir>$(DSPGameDir)BepInEx\core\</BepInExDir>
-    <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
-    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
-  </PropertyGroup>
-
   <ItemGroup Label="BepInEx">
     <Reference Include="$(BepInExDir)0Harmony.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(BepInExDir)BepInEx.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(BepInExDir)BepInEx.Harmony.dll" Private="false" SpecificVersion="true" />
   </ItemGroup>
-  
+
   <ItemGroup Label="Dyson Sphere Program">
     <Reference Include="$(DSPAssemblyDir)Assembly-CSharp.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.dll" Private="false" SpecificVersion="true" />

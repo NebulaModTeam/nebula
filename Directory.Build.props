@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <DevEnvLoc>$(MSBuildThisFileDirectory)DevEnv.targets</DevEnvLoc>
+  </PropertyGroup>
+
+  <!-- This sets $(DSPGameDir) -->
+  <Import Project="$(DevEnvLoc)" Condition="Exists('$(DevEnvLoc)')" />
+
+  <PropertyGroup Label="Game Install Properties">
+    <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
+    <DSPGameDir>$([MSBuild]::EnsureTrailingSlash('$(DSPGameDir)'))</DSPGameDir>
+    <BepInExDir>$(DSPGameDir)BepInEx\core\</BepInExDir>
+    <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
+    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
+  </PropertyGroup>
+
   <!-- The condition is because websocket-sharp should not import these. Proper fix is to move Nebula code to src dir -->
   <PropertyGroup Label="Common Properties">
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
@@ -9,13 +24,17 @@
 
     <OutputType>Library</OutputType>
     <IntermediateOutputPath>obj</IntermediateOutputPath>
-    <OutputPath>bin</OutputPath>
+    <OutputPath Condition="Exists('$(PluginOutputDirectory)')">$(PluginOutputDirectory)</OutputPath>
 
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
 
     <LangVersion>7.3</LangVersion>
+  
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
 
     <DefaultCompileItemIncludes>**\*.cs</DefaultCompileItemIncludes>
     <DefaultItemExcludes>$(OutputPath)\**;$(IntermediateOutputPath)\**;</DefaultItemExcludes>
@@ -24,6 +43,6 @@
   <ItemGroup Label="NuGets">
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.194" PrivateAssets="all" />
     <PackageReference Include="lz4net" Version="1.0.15.93" />
-    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.10.1" />
+    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.10.1" PrivateAssets="all"/>
   </ItemGroup>
 </Project>
