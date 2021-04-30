@@ -1,41 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5BE9C74B-7832-4EF1-A53D-BF461BBDB0BE}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NebulaClient</RootNamespace>
-    <AssemblyName>NebulaClient</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <Reference Include="System" />
+    <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
+    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
+    <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MultiplayerClientSession.cs" />
@@ -49,8 +17,6 @@
     <Compile Include="PacketProcessors\Factory\Ejector\EjectorStorageUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Foundation\FoundationBuildUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Inserter\InserterFilterUpdateProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Inserter\NewSetInserterInsertTargetProcessor.cs" />
-    <Compile Include="PacketProcessors\Factory\Inserter\NewSetInserterPickTargetProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateCubesProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateStorageProcessor.cs" />
