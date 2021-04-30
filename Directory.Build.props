@@ -17,21 +17,13 @@
 
   <!-- The condition is because websocket-sharp should not import these. Proper fix is to move Nebula code to src dir -->
   <PropertyGroup Label="Common Properties">
-    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
-
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
     <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
-
     <TargetFramework>net35</TargetFramework>
-
     <LangVersion>7.3</LangVersion>
-  
     <WarningLevel>4</WarningLevel>
-    
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
   
