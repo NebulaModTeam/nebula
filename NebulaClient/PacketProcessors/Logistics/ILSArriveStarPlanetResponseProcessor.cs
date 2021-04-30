@@ -38,7 +38,7 @@ namespace NebulaClient.PacketProcessors.Logistics
                 }
 
                 StationComponent stationComponent = gStationPool[packet.stationGId[i]];
-                if (stationComponent.slots == null)
+                if (stationComponent.slots == null && !stationComponent.isCollector)
                 {
                     stationComponent.slots = new SlotData[packet.storageLength[i]];
                 }
@@ -50,7 +50,10 @@ namespace NebulaClient.PacketProcessors.Logistics
                 {
                     int index = offset + j;
 
-                    stationComponent.slots[j].storageIdx = packet.storageIdx[index];
+                    if (!stationComponent.isCollector)
+                    {
+                        stationComponent.slots[j].storageIdx = packet.storageIdx[index];
+                    }
                     stationComponent.storage[j].itemId = packet.itemId[index];
                     stationComponent.storage[j].count = packet.count[index];
                     stationComponent.storage[j].localOrder = packet.localOrder[index];

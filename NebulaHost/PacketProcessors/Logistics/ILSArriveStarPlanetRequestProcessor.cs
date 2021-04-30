@@ -91,7 +91,10 @@ namespace NebulaHost.PacketProcessors.Logistics
                         for(int j = 0; j < storageLength[i]; j++)
                         {
                             planetId[offset + j] = gStationPool[stationGId[i]].planetId;
-                            storageIdx[offset + j] = gStationPool[stationGId[i]].slots[j].storageIdx;
+                            if (gStationPool[stationGId[i]].slots.Length > 0) // collectors dont have a slot for belts
+                            {
+                                storageIdx[offset + j] = gStationPool[stationGId[i]].slots[j].storageIdx;
+                            }
                             itemId[offset + j] = gStationPool[stationGId[i]].storage[j].itemId;
                             count[offset + j] = gStationPool[stationGId[i]].storage[j].count;
                             localOrder[offset + j] = gStationPool[stationGId[i]].storage[j].localOrder;
