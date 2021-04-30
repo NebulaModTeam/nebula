@@ -38,8 +38,11 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\AttributeExtension.cs" />
     <Compile Include="Attributes\RegisterNestedTypeAttribute.cs" />
     <Compile Include="Attributes\RegisterPacketProcessorAttribute.cs" />
+    <Compile Include="Attributes\UIControlAttribute.cs" />
+    <Compile Include="Attributes\UIRangeAttribute.cs" />
     <Compile Include="DataStructures\CollectionExtensions.cs" />
     <Compile Include="DataStructures\DataStructureExtensions.cs" />
     <Compile Include="DataStructures\Double3.cs" />
@@ -56,6 +59,7 @@
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="MultiplayerOptions.cs" />
     <Compile Include="Networking\BinaryUtils.cs" />
     <Compile Include="Networking\DelayedPacket.cs" />
     <Compile Include="Networking\NebulaConnection.cs" />
