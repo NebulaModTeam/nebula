@@ -3,5 +3,4 @@
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

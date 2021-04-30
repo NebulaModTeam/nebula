@@ -22,23 +22,22 @@
 
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdnetiiferToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
-    <OutputType>Library</OutputType>
-    <IntermediateOutputPath>obj</IntermediateOutputPath>
     <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
 
-    <FileAlignment>512</FileAlignment>
     <TargetFramework>net35</TargetFramework>
 
     <LangVersion>7.3</LangVersion>
   
-    <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
     
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
+  
+  <ItemGroup Label="BCL Shims">
+    <Compile Include="$(MSBuildThisFileDirectory)Shims\Shims.cs" />
+  </ItemGroup>
 
   <ItemGroup Label="NuGets">
     <PackageReference Include="jnm2.ReferenceAssemblies.net35" Version="1.0.1" PrivateAssets="All" />  

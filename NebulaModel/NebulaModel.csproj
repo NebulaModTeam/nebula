@@ -5,7 +5,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Networking\Serialization\LICENSE.txt" />
-    <Content Include="Networking\Serialization\README.txt" />
+    <Content Include="Networking\Serialization\LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Networking\Serialization\README.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
