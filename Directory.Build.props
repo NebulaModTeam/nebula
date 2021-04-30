@@ -25,6 +25,7 @@
     <LangVersion>7.3</LangVersion>
     <WarningLevel>4</WarningLevel>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
   </PropertyGroup>
   
   <ItemGroup Label="BCL Shims">
