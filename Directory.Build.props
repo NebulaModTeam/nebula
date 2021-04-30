@@ -25,6 +25,7 @@
     <TargetFramework>net35</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
 
     <!-- Even if created, you need mdb files to have any debug info loaded -->
