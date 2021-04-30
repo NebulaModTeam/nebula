@@ -179,7 +179,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (parts.Length == 1)
             {
-                port = Config.DefaultPort;
+                port = Config.Options.HostPort;
             }
             else if (!int.TryParse(parts[1], out port))
             {

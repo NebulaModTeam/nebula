@@ -33,10 +33,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void _OnCreate_Postfix(UIOptionWindow __instance)
         {
             tempToUICallbacks = new Dictionary<string, System.Action>();
-
-            // TODO: Clone current multiplayer options
             tempMultiplayerOptions = new MultiplayerOptions();
-            tempMultiplayerOptions.Enabled = true;
 
             // Add multiplayer tab button
             UIButton[] tabButtons = AccessTools.Field(__instance.GetType(), "tabButtons").GetValue(__instance) as UIButton[];
@@ -94,20 +91,19 @@ namespace NebulaPatcher.Patches.Dynamic
             AddMultiplayerOptionsProperties(multiplayerContent);
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch("_OnOpen")]
-        public static void _OnOpen_Postfix()
+        public static void _OnOpen_Prefix()
         {
-            // TODO: Clone current multiplayer options
-            tempMultiplayerOptions = new MultiplayerOptions();
+            tempMultiplayerOptions = (MultiplayerOptions)Config.Options.Clone();
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("ApplyOptions")]
         public static void ApplyOptions()
         {
-            // TODO: Override current multiplayer options with temp options
-            Log.Warn($"\nEnabled={tempMultiplayerOptions.Enabled}\nHostPort={tempMultiplayerOptions.HostPort}\nDroneMaxDistance={tempMultiplayerOptions.DroneMaxDistance}\nNickname={tempMultiplayerOptions.Nickname}\nGameMode={tempMultiplayerOptions.GameMode}");
+            Config.Options = tempMultiplayerOptions;
+            Config.SaveOptions();
         }
 
         [HarmonyPrefix]
@@ -116,7 +112,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (idx == multiplayerTabIndex)
             {
-                // TODO: Clone current multiplayer options
                 tempMultiplayerOptions = new MultiplayerOptions();
             }
         }

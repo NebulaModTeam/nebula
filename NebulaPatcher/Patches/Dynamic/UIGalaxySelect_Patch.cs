@@ -14,9 +14,9 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (MainMenuManager.IsInMultiplayerMenu)
             {
-                Log.Info($"Listening server on port {Config.DefaultPort}");
+                Log.Info($"Listening server on port {Config.Options.HostPort}");
                 var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
-                session.StartServer(Config.DefaultPort);
+                session.StartServer(Config.Options.HostPort);
 
                 GameDesc gameDesc = AccessTools.Field(__instance.GetType(), "gameDesc").GetValue(__instance) as GameDesc;
                 DSPGame.StartGameSkipPrologue(gameDesc);

@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Linq;
 using System;
-using NebulaModel.Logger;
 
 namespace NebulaModel.Attributes
 {
