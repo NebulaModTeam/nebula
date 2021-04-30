@@ -144,7 +144,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     {
                         CreateBooleanControl(controlAttr, prop, anchorPosition);
                     }
-                    else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float))
+                    else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) || prop.PropertyType == typeof(ushort))
                     {
                         CreateNumberControl(controlAttr, prop, anchorPosition);
                     }
