@@ -28,7 +28,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
-    <MakeDir Directories="$(DSPGameDir)BepInEx\plugins\Nebula\" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DSPGameDir)BepInEx\plugins\Nebula\" SkipUnchangedFiles="true" />
+    <MakeDir Directories="$(PluginOutputDirectory)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginOutputDirectory)" SkipUnchangedFiles="true" />
   </Target>
 </Project>
