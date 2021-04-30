@@ -35,6 +35,10 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), "selectedIndex")))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
                 {
+                    if (!SimulatedWorld.Initialized)
+                    {
+                        return 0;
+                    }
                     if (ILSShipManager.ItemSlotStationId == stationComponent.id &&
                         ILSShipManager.ItemSlotStationGId == stationComponent.gid &&
                         ILSShipManager.ItemSlotLastSlotId == outputSlotId &&

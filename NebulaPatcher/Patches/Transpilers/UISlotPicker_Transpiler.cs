@@ -34,6 +34,10 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UISlotPicker), "selectedIndex")))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
                 {
+                    if (!SimulatedWorld.Initialized)
+                    {
+                        return 0;
+                    }
                     LocalPlayer.SendPacketToLocalStar(new ILSUpdateSlotData((stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id,
                                                                             (stationComponent.isStellar == true) ? 0 : stationComponent.planetId,
                                                                             outputSlotId,

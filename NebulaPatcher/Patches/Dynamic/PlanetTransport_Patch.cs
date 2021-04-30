@@ -36,6 +36,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("NewStationComponent")]
         public static void NewStationComponent_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             if (!__result.isStellar && __result.planetId == 0)
             {
                 __result.planetId = __instance.planet.id;
@@ -46,6 +50,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("Import")]
         public static void Import_Postfix(PlanetTransport __instance)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
             foreach(StationComponent stationComponent in __instance.stationPool)
             {
                 if(stationComponent != null && stationComponent.planetId == 0 && !stationComponent.isStellar)
