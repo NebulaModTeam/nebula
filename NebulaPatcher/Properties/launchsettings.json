@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "Launch Dyson Sphere Program": {
+      "commandName": "Executable",
+      "executablePath": "$(SteamDir)steam.exe",
+      "commandLineArgs": "-applaunch 1366540",
+      "commandLineArgs_comment": "Running with browser protocol does not work ¯\\_(ツ)_/¯"
+    }
+  }
+}
