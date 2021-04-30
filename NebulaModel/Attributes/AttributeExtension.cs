@@ -6,11 +6,10 @@ namespace NebulaModel.Attributes
 {
     public static class AttributeExtension
     {
-        public static T GetCustomAttribute<T>(this PropertyInfo property) where T : Attribute
+        public static T GetCustomAttribute<T>(this MemberInfo member) where T : Attribute
         {
-            return property.GetCustomAttributes(true)
-                .Select(att => att as T)
-                .Where(att => att != null)
+            return member.GetCustomAttributes(true)
+                .OfType<T>()
                 .FirstOrDefault();
         }
     }

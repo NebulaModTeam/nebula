@@ -8,6 +8,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using NebulaModel;
+using System.ComponentModel;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -91,6 +92,14 @@ namespace NebulaPatcher.Patches.Dynamic
             AddMultiplayerOptionsProperties(multiplayerContent);
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch("_OnDestroy")]
+        public static void _OnDestroy_Postfix()
+        {
+            Log.Warn("_OnDestroy");
+            tempToUICallbacks?.Clear();
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch("_OnOpen")]
         public static void _OnOpen_Prefix()
@@ -120,41 +129,41 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("TempOptionToUI")]
         public static void TempOptionToUI_Postfix()
         {
-            List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(NebulaModel.MultiplayerOptions));
+            List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
             foreach (var prop in properties)
             {
-                if (tempToUICallbacks.ContainsKey(prop.Name))
+                if (tempToUICallbacks.TryGetValue(prop.Name, out var callback))
                 {
-                    tempToUICallbacks[prop.Name]();
+                    callback();
                 }
             }
         }
 
         private static void AddMultiplayerOptionsProperties(RectTransform container)
         {
-            List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(NebulaModel.MultiplayerOptions));
+            List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
             Vector2 anchorPosition = new Vector2(30, -20);
 
             foreach (var prop in properties)
             {
-                UIControlAttribute controlAttr = prop.GetCustomAttribute<UIControlAttribute>();
-                if (controlAttr != null)
+                DisplayNameAttribute displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
+                if (displayAttr != null)
                 {
                     if (prop.PropertyType == typeof(bool))
                     {
-                        CreateBooleanControl(controlAttr, prop, anchorPosition);
+                        CreateBooleanControl(displayAttr, prop, anchorPosition);
                     }
                     else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) || prop.PropertyType == typeof(ushort))
                     {
-                        CreateNumberControl(controlAttr, prop, anchorPosition);
+                        CreateNumberControl(displayAttr, prop, anchorPosition);
                     }
                     else if (prop.PropertyType == typeof(string))
                     {
-                        CreateStringControl(controlAttr, prop, anchorPosition);
+                        CreateStringControl(displayAttr, prop, anchorPosition);
                     }
                     else if (prop.PropertyType.IsEnum)
                     {
-                        CreateEnumControl(controlAttr, prop, anchorPosition);
+                        CreateEnumControl(displayAttr, prop, anchorPosition);
                     }
                     else
                     {
@@ -167,7 +176,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        private static void CreateBooleanControl(UIControlAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateBooleanControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
         {
             RectTransform element = Object.Instantiate(checkboxTemplate, multiplayerContent, false);
             SetupUIElement(element, control, prop, anchorPosition);
@@ -181,20 +190,21 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateNumberControl(UIControlAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateNumberControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
         {
             UIRangeAttribute rangeAttr = prop.GetCustomAttribute<UIRangeAttribute>();
+            bool sliderControl = rangeAttr != null && rangeAttr.Slider;
 
-            RectTransform element = Object.Instantiate(rangeAttr != null ? sliderTemplate : inputTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, multiplayerContent, false);
             SetupUIElement(element, control, prop, anchorPosition);
 
             bool isFloatingPoint = prop.PropertyType == typeof(float) || prop.PropertyType == typeof(double);
 
-            if (rangeAttr != null)
+            if (sliderControl)
             {
                 Slider slider = element.GetComponentInChildren<Slider>();
-                slider.minValue = rangeAttr.min;
-                slider.maxValue = rangeAttr.max;
+                slider.minValue = rangeAttr.Min;
+                slider.maxValue = rangeAttr.Max;
                 slider.wholeNumbers = !isFloatingPoint;
                 Text sliderThumbText = slider.GetComponentInChildren<Text>();
                 slider.onValueChanged.RemoveAllListeners();
@@ -218,8 +228,18 @@ namespace NebulaPatcher.Patches.Dynamic
                 input.onValueChanged.AddListener((str) => {
                     try
                     {
-                        var converter = System.ComponentModel.TypeDescriptor.GetConverter(prop.PropertyType);
-                        var value = converter.ConvertFromString(str);
+                        var converter = TypeDescriptor.GetConverter(prop.PropertyType);
+                        System.IComparable value = (System.IComparable)converter.ConvertFromString(str);
+
+                        if (rangeAttr != null)
+                        {
+                            System.IComparable min = (System.IComparable)System.Convert.ChangeType(rangeAttr.Min, prop.PropertyType);
+                            System.IComparable max = (System.IComparable)System.Convert.ChangeType(rangeAttr.Max, prop.PropertyType);
+                            if (value.CompareTo(min) < 0) value = min;
+                            if (value.CompareTo(max) > 0) value = max;
+                            input.text = value.ToString();
+                        }
+
                         prop.SetValue(tempMultiplayerOptions, value, null);
                     } 
                     catch
@@ -236,7 +256,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        private static void CreateStringControl(UIControlAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateStringControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
         {
             RectTransform element = Object.Instantiate(inputTemplate, multiplayerContent, false);
             SetupUIElement(element, control, prop, anchorPosition);
@@ -251,7 +271,7 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateEnumControl(UIControlAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateEnumControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
         {
             RectTransform element = Object.Instantiate(comboBoxTemplate, multiplayerContent, false);
             SetupUIElement(element, control, prop, anchorPosition);
@@ -267,13 +287,13 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void SetupUIElement(RectTransform element, UIControlAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void SetupUIElement(RectTransform element, DisplayNameAttribute display, PropertyInfo prop, Vector2 anchorPosition)
         {
             element.gameObject.SetActive(true);
             element.name = prop.Name;
             element.anchoredPosition = anchorPosition;
             element.GetComponent<Localizer>().enabled = false;
-            element.GetComponent<Text>().text = control.displayName;
+            element.GetComponent<Text>().text = display.DisplayName;
         }
     }
 }

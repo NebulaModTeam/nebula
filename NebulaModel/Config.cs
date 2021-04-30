@@ -17,7 +17,7 @@ namespace NebulaModel
         {
             Options = new MultiplayerOptions();
 
-            string path = GameConfig.gameDocumentFolder + OPTION_SAVE_FILE;
+            string path = Path.Combine(GameConfig.gameDocumentFolder, OPTION_SAVE_FILE);
             if (File.Exists(path))
             {
                 try
@@ -46,7 +46,7 @@ namespace NebulaModel
                 return false;
             }
 
-            string path = GameConfig.gameDocumentFolder + OPTION_SAVE_FILE;
+            string path = Path.Combine(GameConfig.gameDocumentFolder, OPTION_SAVE_FILE);
             try
             {
                 var formatter = new BinaryFormatter();
