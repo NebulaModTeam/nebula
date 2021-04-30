@@ -49,11 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("RemoveStationComponent")]
         public static bool RemoveStationComponent_Prefix(GalacticTransport __instance, int gid)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS)
-            {
-                return true;
-            }
-            return false;
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS;
         }
     }
 }

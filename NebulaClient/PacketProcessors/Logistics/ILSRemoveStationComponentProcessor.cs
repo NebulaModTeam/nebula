@@ -14,22 +14,22 @@ namespace NebulaClient.PacketProcessors.Logistics
     {
         public void ProcessPacket(ILSRemoveStationComponent packet, NebulaConnection conn)
         {
-            PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
-            if(pData?.factory?.transport != null && packet.stationId < pData.factory.transport.stationPool.Length)
+            PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
+            if(pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
             {
                 using (ILSShipManager.PatchLockILS.On())
                 {
-                    pData.factory.transport.RemoveStationComponent(packet.stationId);
+                    pData.factory.transport.RemoveStationComponent(packet.StationId);
                 }
             }
             else
             {
                 StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
-                if (packet.stationGId < gStationPool.Length)
+                if (packet.StationGId < gStationPool.Length)
                 {
                     using (ILSShipManager.PatchLockILS.On())
                     {
-                        GameMain.data.galacticTransport.RemoveStationComponent(packet.stationGId);
+                        GameMain.data.galacticTransport.RemoveStationComponent(packet.StationGId);
                     }
                 }
             }

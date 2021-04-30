@@ -40,11 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("RemoveStationComponent")]
         public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS)
-            {
-                return true;
-            }
-            return false;
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS;
         }
 
         /*
