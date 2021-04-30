@@ -29,5 +29,17 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             return true;
         }
+
+        // for the PLS slot to sync properly the StationComponent of the PLS needs to have planetId set to the correct value.
+        // as the game does not do that for some reason, we need to do it here
+        [HarmonyPostfix]
+        [HarmonyPatch("NewStationComponent")]
+        public static void NewStationComponent_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
+        {
+            if (!__result.isStellar && __result.planetId == 0)
+            {
+                __result.planetId = __instance.planet.id;
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ using NebulaWorld;
 using NebulaWorld.Logistics;
 using NebulaPatcher.Patches.Transpilers;
 using UnityEngine;
+using NebulaModel.Packets.Logistics;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -119,6 +120,10 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
             }
+            // sync station storages and slot filter for belt i/o
+            // do this once the factory is loaded so the processor has access to PlanetData.factory.transport.stationPool
+            LocalPlayer.SendPacket(new ILSArriveStarPlanetRequest(0, planet.id));
+
             // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor
             // Arragement() updates galacticTransport.stationCursor
             // galacticTransport.shipRenderer.Update() can then update galacticTransport.shipRenderer.shipCount
@@ -246,6 +251,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
             {
                 LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(star.id));
+                LocalPlayer.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));
             }
         }
 

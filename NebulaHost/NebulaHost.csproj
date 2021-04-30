@@ -78,11 +78,13 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryRemoveTechProcessor.cs" />
     <Compile Include="PacketProcessors\GameHistory\GameHistoryResearchContributionProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSAddStationComponentRequestProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSArriveStarPlanetRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSgStationPoolSyncRequestProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSRemoteOrderBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSRequestShipDockProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipBroadcastProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipItemsBroadcastProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSUpdateSlotDataProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\StationSubscribeUIUpdatesProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\StationUIBroadcaster.cs" />
     <Compile Include="PacketProcessors\Logistics\StationUIInitialSyncRequestProcessor.cs" />

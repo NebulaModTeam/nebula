@@ -106,7 +106,9 @@
     <Compile Include="Patches\Transpilers\PlayerAction_Mine_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIEscMenu_Patch.cs" />
     <Compile Include="Patches\Dynamic\UIMainMenu_Patch.cs" />
+    <Compile Include="Patches\Transpilers\UIBeltBuildTip_Transpiler.cs" />
     <Compile Include="Patches\Transpilers\UIProductionStatWindow_Patch.cs" />
+    <Compile Include="Patches\Transpilers\UISlotPicker_Transpiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
