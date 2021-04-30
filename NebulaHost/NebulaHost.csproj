@@ -50,6 +50,8 @@
     <Compile Include="PacketProcessors\Factory\Ejector\EjectorStorageUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Foundation\FoundationBuildUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Inserter\InserterFilterUpdateProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Inserter\NewSetInserterInsertTargetProcessor.cs" />
+    <Compile Include="PacketProcessors\Factory\Inserter\NewSetInserterPickTargetProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateCubesProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateEventProcessor.cs" />
     <Compile Include="PacketProcessors\Factory\Laboratory\LaboratoryUpdateStorageProcessor.cs" />

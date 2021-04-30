@@ -43,5 +43,58 @@ namespace NebulaPatcher.Patches.Transpiler
             }
             return codes;
         }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch("OnBeltBuilt")]
+        static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand.ToString() == "Void SetInserterPickTarget(Int32, Int32, Int32)" &&
+                    codes[i - 1].opcode == OpCodes.Sub &&
+                    codes[i - 2].opcode == OpCodes.Ldloc_S &&
+                    codes[i - 3].opcode == OpCodes.Ldloc_S)
+                {
+                    codes.InsertRange(i + 1, new CodeInstruction[] {
+                                    new CodeInstruction(OpCodes.Ldloc_S, 9),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 21),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 10),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 22),
+                                    new CodeInstruction(OpCodes.Sub),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 4),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
+                                    new CodeInstruction(OpCodes.Ldelem, typeof(UnityEngine.Vector3)),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "OnNewSetInserterPickTarget")),
+                                    });
+                    break;
+                }
+            }
+
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand.ToString() == "Void SetInserterInsertTarget(Int32, Int32, Int32)" &&
+                    codes[i - 1].opcode == OpCodes.Sub &&
+                    codes[i - 2].opcode == OpCodes.Ldloc_S &&
+                    codes[i - 3].opcode == OpCodes.Ldloc_S)
+                {
+                    codes.InsertRange(i + 1, new CodeInstruction[] {
+                                    new CodeInstruction(OpCodes.Ldloc_S, 9),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 30),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 10),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 31),
+                                    new CodeInstruction(OpCodes.Sub),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 4),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
+                                    new CodeInstruction(OpCodes.Ldelem, typeof(UnityEngine.Vector3)),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "OnNewSetInserterInsertTarget")),
+                                    });
+                    break;
+                }
+            }
+            return codes;
+        }
     }
 }

@@ -72,6 +72,8 @@
     <Compile Include="Packets\Factory\Ejector\EjectorStorageUpdatePacket.cs" />
     <Compile Include="Packets\Factory\FoundationBuildUpdatePacket.cs" />
     <Compile Include="Packets\Factory\Inserter\InserterFilterUpdatePacket.cs" />
+    <Compile Include="Packets\Factory\Inserter\NewSetInserterInsertTargetPacket.cs" />
+    <Compile Include="Packets\Factory\Inserter\NewSetInserterPickTargetPacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateCubesPacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateEventPacket.cs" />
     <Compile Include="Packets\Factory\Laboratory\LaboratoryUpdateStoragePacket.cs" />

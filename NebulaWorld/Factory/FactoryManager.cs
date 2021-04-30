@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Factory.Inserter;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace NebulaWorld.Factory
 {
@@ -56,6 +58,24 @@ namespace NebulaWorld.Factory
             }
 
             return GetNextPrebuildId(planet.factory);
+        }
+
+        public static void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
+            {
+                Debug.Log("Sending NewSetInserterPickTargetPacket");
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
+        }
+
+        public static void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
+            {
+                Debug.Log("Sending NewSetInserterInsertTargetPacket");
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         static readonly AccessTools.FieldRef<object, int> GetPrebuildRecycleCursor =
