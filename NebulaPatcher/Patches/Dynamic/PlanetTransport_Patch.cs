@@ -41,5 +41,18 @@ namespace NebulaPatcher.Patches.Dynamic
                 __result.planetId = __instance.planet.id;
             }
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("Import")]
+        public static void Import_Postfix(PlanetTransport __instance)
+        {
+            foreach(StationComponent stationComponent in __instance.stationPool)
+            {
+                if(stationComponent != null && stationComponent.planetId == 0 && !stationComponent.isStellar)
+                {
+                    stationComponent.planetId = __instance.planet.id;
+                }
+            }
+        }
     }
 }
