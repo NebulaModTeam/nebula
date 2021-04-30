@@ -12,15 +12,22 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnItemPickerReturn_Postfix(UISplitterWindow __instance, ItemProto item)
         {
             //Send notification about changing splitter output filter
-            LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch("OnCircleFilterRightClick")]
         public static void OnCircleFilterRightClick_Prefix(UISplitterWindow __instance, int slot)
         {
-            //Send notification about reseting splitter output filter, if user rightclicked on output node with filter
-            SplitterComponent thisComponent = __instance.traffic.splitterPool[__instance.splitterId];
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
+                //Send notification about reseting splitter output filter, if user rightclicked on output node with filter
+                SplitterComponent thisComponent = __instance.traffic.splitterPool[__instance.splitterId];
             bool sendResetOutputFilter = slot == 0 && thisComponent.output0 != 0 ||
                                          slot == 1 && thisComponent.output1 != 0 ||
                                          slot == 2 && thisComponent.output2 != 0 ||

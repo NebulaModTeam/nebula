@@ -140,6 +140,21 @@ namespace NebulaHost
             }
         }
 
+        public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+        {
+            using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                foreach(var kvp in connectedPlayers)
+                {
+                    var player = kvp.Value;
+                    if(player.Data.LocalStarId == starId)
+                    {
+                        player.SendPacket(packet);
+                    }
+                }
+            }
+        }
+
         public void SendRawPacketToStar(byte[] rawPacket, int starId, NebulaConnection sender)
         {
             using (GetConnectedPlayers(out var connectedPlayers))

@@ -15,6 +15,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("NewDysonNode")]
         public static bool NewDysonNode_Prefix(DysonSphereLayer __instance, int __result, int protoId, Vector3 pos)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that user added node to the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
             {
@@ -27,6 +31,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("NewDysonFrame")]
         public static bool NewDysonFrame_Prefix(DysonSphereLayer __instance, int __result, int protoId, int nodeAId, int nodeBId, bool euler)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that user added frame to the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
             {
@@ -39,6 +47,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("RemoveDysonFrame")]
         public static bool RemoveDysonFrame_Prefix(DysonSphereLayer __instance, int frameId)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that user removed frame from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
             {
@@ -51,6 +63,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("RemoveDysonNode")]
         public static bool RemoveDysonNode_Prefix(DysonSphereLayer __instance, int nodeId)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that user removed node from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
             {
@@ -63,6 +79,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("NewDysonShell")]
         public static bool NewDysonShell_Prefix(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that user removed node from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
             {
@@ -75,6 +95,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("RemoveDysonShell")]
         public static bool RemoveDysonShell_Prefix(DysonSphereLayer __instance, int shellId)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
             //Notify others that user removed node from the dyson plan
             if (!DysonSphere_Manager.IncomingDysonSpherePacket)
             {

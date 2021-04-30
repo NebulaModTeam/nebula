@@ -1,5 +1,6 @@
 ﻿using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
+using System;
 using System.Net;
 using WebSocketSharp;
 
@@ -44,9 +45,23 @@ namespace NebulaModel.Networking
             }
         }
 
-        public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal)
+        public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
         {
-            peerSocket.Close((ushort)reason);
+            if(string.IsNullOrEmpty(reasonString))
+            {
+                peerSocket.Close((ushort)reason);
+            }
+            else
+            {
+                if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= 123)
+                {
+                    peerSocket.Close((ushort)reason, reasonString);
+                }
+                else
+                {
+                    throw new ArgumentException("Reason string cannot take up more than 123 bytes");
+                }
+            }
         }
 
         public static bool operator ==(NebulaConnection left, NebulaConnection right)

@@ -11,6 +11,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemButtonClick")]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance, int index)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
+
             LabComponent labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
             if (labComponent.researchMode)
             {
@@ -80,6 +85,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnProductButtonClick")]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance)
         {
+            if (!SimulatedWorld.Initialized)
+            {
+                return;
+            }
+
             LabComponent labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
             if (labComponent.matrixMode)
             {
@@ -99,7 +109,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnBackButtonClick_Prefix(UILabWindow __instance)
         {
             //Notify about recipe reset
-            LocalPlayer.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.factoryIndex ?? -1));
+            if (SimulatedWorld.Initialized)
+            {
+                LocalPlayer.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
     }
 }
