@@ -1,6 +1,6 @@
 ﻿{
   "profiles": {
-    "Launch": {
+    "Launch Dyson Sphere Program": {
       "commandName": "Executable",
       "executablePath": "$(SteamDir)steam.exe",
       "commandLineArgs": "-applaunch 1366540",
