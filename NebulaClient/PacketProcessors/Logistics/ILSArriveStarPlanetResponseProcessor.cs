@@ -12,13 +12,13 @@ namespace NebulaClient.PacketProcessors.Logistics
         public void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
         {
             StationComponent[] gStationPool = null;
-            if (packet.planet == 0) // arrive at solar system
+            if (packet.Planet == 0) // arrive at solar system
             {
                 gStationPool = GameMain.data.galacticTransport.stationPool;
             }
             else // arrive at planet
             {
-                PlanetData pData = GameMain.galaxy.PlanetById(packet.planet);
+                PlanetData pData = GameMain.galaxy.PlanetById(packet.Planet);
                 if(pData?.factory?.transport != null)
                 {
                     gStationPool = pData.factory.transport.stationPool;
@@ -30,39 +30,39 @@ namespace NebulaClient.PacketProcessors.Logistics
             }
 
             int offset = 0;
-            for(int i = 0; i < packet.stationGId.Length; i++)
+            for(int i = 0; i < packet.StationGId.Length; i++)
             {
-                if(packet.stationGId[i] >= gStationPool.Length || gStationPool[packet.stationGId[i]] == null)
+                if(packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
                 {
-                    ILSShipManager.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i]);
+                    ILSShipManager.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i]);
                 }
 
-                StationComponent stationComponent = gStationPool[packet.stationGId[i]];
+                StationComponent stationComponent = gStationPool[packet.StationGId[i]];
                 if (stationComponent.slots == null && !stationComponent.isCollector)
                 {
-                    stationComponent.slots = new SlotData[packet.storageLength[i]];
+                    stationComponent.slots = new SlotData[packet.StorageLength[i]];
                 }
                 if (stationComponent.storage == null)
                 {
-                    stationComponent.storage = new StationStore[packet.storageLength[i]];
+                    stationComponent.storage = new StationStore[packet.StorageLength[i]];
                 }
-                for (int j = 0; j < packet.storageLength[i]; j++)
+                for (int j = 0; j < packet.StorageLength[i]; j++)
                 {
                     int index = offset + j;
 
                     if (!stationComponent.isCollector)
                     {
-                        stationComponent.slots[j].storageIdx = packet.storageIdx[index];
+                        stationComponent.slots[j].storageIdx = packet.StorageIdx[index];
                     }
-                    stationComponent.storage[j].itemId = packet.itemId[index];
-                    stationComponent.storage[j].count = packet.count[index];
-                    stationComponent.storage[j].localOrder = packet.localOrder[index];
-                    stationComponent.storage[j].remoteOrder = packet.remoteOrder[index];
-                    stationComponent.storage[j].max = packet.max[index];
-                    stationComponent.storage[j].localLogic = (ELogisticStorage)packet.localLogic[index];
-                    stationComponent.storage[j].remoteLogic = (ELogisticStorage)packet.remoteLogic[index];
+                    stationComponent.storage[j].itemId = packet.ItemId[index];
+                    stationComponent.storage[j].count = packet.Count[index];
+                    stationComponent.storage[j].localOrder = packet.LocalOrder[index];
+                    stationComponent.storage[j].remoteOrder = packet.RemoteOrder[index];
+                    stationComponent.storage[j].max = packet.Max[index];
+                    stationComponent.storage[j].localLogic = (ELogisticStorage)packet.LocalLogic[index];
+                    stationComponent.storage[j].remoteLogic = (ELogisticStorage)packet.RemoteLogic[index];
                 }
-                offset += packet.storageLength[i];
+                offset += packet.StorageLength[i];
             }
         }
     }

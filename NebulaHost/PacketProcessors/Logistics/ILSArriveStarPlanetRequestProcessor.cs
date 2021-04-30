@@ -31,11 +31,11 @@ namespace NebulaHost.PacketProcessors.Logistics
                 List<int> storageLength = new List<int>();
                 int arraySize = 0;
                 int offset = 0;
-                if(packet.planetId == 0) // arrive at solar system
+                if(packet.PlanetId == 0) // arrive at solar system
                 {
                     foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                     {
-                        if (stationComponent != null && GameMain.galaxy.PlanetById(stationComponent.planetId)?.star.id == packet.starId)
+                        if (stationComponent != null && GameMain.galaxy.PlanetById(stationComponent.planetId)?.star.id == packet.StarId)
                         {
                             stationGId.Add(stationComponent.gid);
                             storageLength.Add(stationComponent.storage.Length);
@@ -44,7 +44,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                 }
                 else // arrive at planet
                 {
-                    PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
+                    PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
                     if(pData?.factory?.transport != null)
                     {
                         foreach(StationComponent stationComponent in pData.factory.transport.stationPool)
@@ -61,13 +61,13 @@ namespace NebulaHost.PacketProcessors.Logistics
                 if(stationGId.Count > 0)
                 {
                     StationComponent[] gStationPool = null;
-                    if(packet.planetId == 0) // arrive at solar system
+                    if(packet.PlanetId == 0) // arrive at solar system
                     {
                         gStationPool = GameMain.data.galacticTransport.stationPool;
                     }
                     else // arrive at planet
                     {
-                        PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
+                        PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
                         gStationPool = pData.factory.transport.stationPool;
                     }
 
@@ -108,7 +108,7 @@ namespace NebulaHost.PacketProcessors.Logistics
 
                     player.SendPacket(new ILSArriveStarPlanetResponse(stationGId.ToArray(),
                                                                 planetId,
-                                                                (packet.planetId == 0) ? 0 : packet.planetId,
+                                                                (packet.PlanetId == 0) ? 0 : packet.PlanetId,
                                                                 storageLength.ToArray(),
                                                                 storageIdx,
                                                                 itemId,

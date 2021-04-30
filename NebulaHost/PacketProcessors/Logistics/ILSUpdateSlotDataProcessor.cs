@@ -18,15 +18,15 @@ namespace NebulaHost.PacketProcessors.Logistics
         {
             PlanetData pData = null;
             // PLS
-            if(packet.planetId != 0)
+            if(packet.PlanetId != 0)
             {
-                pData = GameMain.galaxy.PlanetById(packet.planetId);
+                pData = GameMain.galaxy.PlanetById(packet.PlanetId);
             }
             else // ILS
             {
-                if (packet.stationGId < GameMain.data.galacticTransport.stationPool.Length)
+                if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
                 {
-                    StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];
+                    StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
                     if(stationComponent != null)
                     {
                         pData = GameMain.galaxy.PlanetById(stationComponent.planetId);

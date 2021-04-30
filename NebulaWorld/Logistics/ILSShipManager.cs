@@ -284,26 +284,26 @@ namespace NebulaWorld.Logistics
         public static void UpdateSlotData(ILSUpdateSlotData packet)
         {
             // PLS
-            if (packet.planetId != 0)
+            if (packet.PlanetId != 0)
             {
-                PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
-                if (pData?.factory?.transport != null && packet.stationGId < pData.factory.transport.stationPool.Length)
+                PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
+                if (pData?.factory?.transport != null && packet.StationGId < pData.factory.transport.stationPool.Length)
                 {
-                    StationComponent stationComponent = pData.factory.transport.stationPool[packet.stationGId];
+                    StationComponent stationComponent = pData.factory.transport.stationPool[packet.StationGId];
                     if (stationComponent != null && stationComponent.slots != null)
                     {
-                        stationComponent.slots[packet.index].storageIdx = packet.storageIdx;
+                        stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
                     }
                 }
             }
             else // ILS
             {
-                if (packet.stationGId < GameMain.data.galacticTransport.stationPool.Length)
+                if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
                 {
-                    StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];
+                    StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
                     if (stationComponent != null && stationComponent.slots != null)
                     {
-                        stationComponent.slots[packet.index].storageIdx = packet.storageIdx;
+                        stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
                     }
                 }
             }

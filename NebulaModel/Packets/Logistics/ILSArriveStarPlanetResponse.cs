@@ -5,18 +5,18 @@ namespace NebulaModel.Packets.Logistics
 {
     public class ILSArriveStarPlanetResponse
     {
-        public int[] stationGId { get; set; }
-        public int[] planetId { get; set; }
-        public int planet { get; set; }
-        public int[] storageLength { get; set; }
-        public int[] storageIdx { get; set; }
-        public int[] itemId { get; set; }
-        public int[] count { get; set; }
-        public int[] localOrder { get; set; }
-        public int[] remoteOrder { get; set; }
-        public int[] max { get; set; }
-        public int[] localLogic { get; set; }
-        public int[] remoteLogic { get; set; }
+        public int[] StationGId { get; set; }
+        public int[] PlanetId { get; set; }
+        public int Planet { get; set; }
+        public int[] StorageLength { get; set; }
+        public int[] StorageIdx { get; set; }
+        public int[] ItemId { get; set; }
+        public int[] Count { get; set; }
+        public int[] LocalOrder { get; set; }
+        public int[] RemoteOrder { get; set; }
+        public int[] Max { get; set; }
+        public int[] LocalLogic { get; set; }
+        public int[] RemoteLogic { get; set; }
         public ILSArriveStarPlanetResponse() { }
         public ILSArriveStarPlanetResponse(int[] stationGId,
                                         int[] planetId,
@@ -31,18 +31,18 @@ namespace NebulaModel.Packets.Logistics
                                         int[] localLogic,
                                         int[] remoteLogic)
         {
-            this.stationGId = stationGId;
-            this.planetId = planetId;
-            this.planet = planet;
-            this.storageLength = storageLength;
-            this.storageIdx = storageIdx;
-            this.itemId = itemId;
-            this.count = count;
-            this.localOrder = localOrder;
-            this.remoteOrder = remoteOrder;
-            this.max = max;
-            this.localLogic = localLogic;
-            this.remoteLogic = remoteLogic;
+            this.StationGId = stationGId;
+            this.PlanetId = planetId;
+            this.Planet = planet;
+            this.StorageLength = storageLength;
+            this.StorageIdx = storageIdx;
+            this.ItemId = itemId;
+            this.Count = count;
+            this.LocalOrder = localOrder;
+            this.RemoteOrder = remoteOrder;
+            this.Max = max;
+            this.LocalLogic = localLogic;
+            this.RemoteLogic = remoteLogic;
         }
     }
 }
