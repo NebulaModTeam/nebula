@@ -7,7 +7,7 @@ namespace NebulaModel
     public class MultiplayerOptions : ICloneable
     {
         [UIControl("Host Port")]
-        public int HostPort { get; set; } = 8469;
+        public ushort HostPort { get; set; } = 8469;
 
         public object Clone()
         {
