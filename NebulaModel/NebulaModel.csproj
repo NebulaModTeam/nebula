@@ -109,6 +109,7 @@
     <Compile Include="Packets\Logistics\ILSArriveStarPlanetResponse.cs" />
     <Compile Include="Packets\Logistics\ILSEnergyConsumeNotification.cs" />
     <Compile Include="Packets\Logistics\ILSgStationPoolSync.cs" />
+    <Compile Include="Packets\Logistics\ILSRemoveStationComponent.cs" />
     <Compile Include="Packets\Logistics\ILSRequestgStationPoolSync.cs" />
     <Compile Include="Packets\Logistics\ILSRemoteOrderData.cs" />
     <Compile Include="Packets\Logistics\ILSRequestShipDock.cs" />

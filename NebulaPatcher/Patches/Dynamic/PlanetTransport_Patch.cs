@@ -29,7 +29,6 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             return true;
         }
-
         // for the PLS slot to sync properly the StationComponent of the PLS needs to have planetId set to the correct value.
         // as the game does not do that for some reason, we need to do it here
         [HarmonyPostfix]
@@ -54,13 +53,39 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return;
             }
-            foreach(StationComponent stationComponent in __instance.stationPool)
+            foreach (StationComponent stationComponent in __instance.stationPool)
             {
-                if(stationComponent != null && stationComponent.planetId == 0 && !stationComponent.isStellar)
+                if (stationComponent != null && stationComponent.planetId == 0 && !stationComponent.isStellar)
                 {
                     stationComponent.planetId = __instance.planet.id;
                 }
             }
+        }
+        /*
+         * As clients need to access the StationComponent in gStationPool when RematchRemotePairs() is called (and this also gets called by RemoveStationComponent())
+         * we need to prevent the call for client here to avoid a NRE and instead call it triggered by host after RematchRemotePairs() got called.
+         * basically in a Postfix of RemoveStationComponent()
+         * Clients do not call RematchRemotePairs() (as we block it), but update ships when host calls it via ILSShipDataUpdate packet
+         */
+        [HarmonyPrefix]
+        [HarmonyPatch("RemoveStationComponent")]
+        public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id)
+        {
+            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS;
+        }
+
+        /*
+         * Host has called RematchRemotePairs() now and thus has send the ILSShipDataUpdate packet, so we can savely tell clients to remove the station component now.
+         */
+        [HarmonyPostfix]
+        [HarmonyPatch("RemoveStationComponent")]
+        public static void RemoveStationComponent_Postfix(PlanetTransport __instance, int id)
+        {
+            if (!SimulatedWorld.Initialized || !LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+            LocalPlayer.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, __instance.stationPool[id].gid));
         }
     }
 }
