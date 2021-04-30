@@ -14,9 +14,9 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (MainMenuManager.IsInMultiplayerMenu)
             {
-                Log.Info($"Listening server on port {Config.DefaultPort}");
+                Log.Info($"Listening server on port {Config.Options.HostPort}");
                 var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
-                session.StartServer(Config.DefaultPort, true);
+                session.StartServer(Config.Options.HostPort, true);
             }
         }
     }
