@@ -21,11 +21,16 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
     <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
     <TargetFramework>net35</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <WarningLevel>4</WarningLevel>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
+
+    <!-- Even if created, you need mdb files to have any debug info loaded -->
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   
   <ItemGroup Label="BCL Shims">
