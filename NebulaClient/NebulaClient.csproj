@@ -79,13 +79,16 @@
     <Compile Include="PacketProcessors\GameHistory\GameHistoryUnlockTechProcessor.cs" />
     <Compile Include="PacketProcessors\GameStates\GameStateUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSAddStationComponentResponseProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSArriveStarPlanetResponseProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSEnergyConsumeNotificationProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSgStationPoolSyncProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSRemoteOrderProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSRemoveStationComponentProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipDataUpdateProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipItemsProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\ILSShipUpdateWarperCntProcessor.cs" />
+    <Compile Include="PacketProcessors\Logistics\ILSUpdateSlotDataProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\StationUIInitialSyncProcessor.cs" />
     <Compile Include="PacketProcessors\Logistics\StationUIProcessor.cs" />
     <Compile Include="PacketProcessors\Planet\FactoryDataProcessor.cs" />

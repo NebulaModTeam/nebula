@@ -18,6 +18,12 @@ namespace NebulaWorld.Logistics
 
         public static readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
 
+        // the following 4 are needed to prevent a packet flood when the filter on a belt connected to a PLS/ILS is set.
+        public static int ItemSlotLastSelectedIndex = 0;
+        public static int ItemSlotLastSlotId = 0;
+        public static int ItemSlotStationId = 0;
+        public static int ItemSlotStationGId = 0;
+
         public const int ILSMaxShipCount = 10;
         public static void Initialize()
         {
@@ -271,6 +277,34 @@ namespace NebulaWorld.Logistics
                 if (stationStorageUI != null && stationStorageUI.Length > storageIndex)
                 {
                     MI_RefreshValues.Invoke(stationStorageUI[storageIndex], null);
+                }
+            }
+        }
+
+        public static void UpdateSlotData(ILSUpdateSlotData packet)
+        {
+            // PLS
+            if (packet.PlanetId != 0)
+            {
+                PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
+                if (pData?.factory?.transport != null && packet.StationGId < pData.factory.transport.stationPool.Length)
+                {
+                    StationComponent stationComponent = pData.factory.transport.stationPool[packet.StationGId];
+                    if (stationComponent != null && stationComponent.slots != null)
+                    {
+                        stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
+                    }
+                }
+            }
+            else // ILS
+            {
+                if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
+                {
+                    StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
+                    if (stationComponent != null && stationComponent.slots != null)
+                    {
+                        stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
+                    }
                 }
             }
         }
