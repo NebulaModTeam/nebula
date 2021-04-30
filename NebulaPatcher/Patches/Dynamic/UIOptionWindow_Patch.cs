@@ -96,7 +96,6 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnDestroy")]
         public static void _OnDestroy_Postfix()
         {
-            Log.Warn("_OnDestroy");
             tempToUICallbacks?.Clear();
         }
 
