@@ -112,17 +112,19 @@ namespace NebulaPatcher.Patches.Dynamic
             mainMenuButtonGroup.gameObject.SetActive(true);
         }
 
-        private static void OverrideButton(RectTransform button, string newText, System.Action newClickCallback)
+        private static void OverrideButton(RectTransform buttonObj, string newText, System.Action newClickCallback)
         {
             if (newText != null)
             {
                 // Remove the Localizer since we don't support translation for now and it will always revert the text otherwise
-                Object.Destroy(button.GetComponentInChildren<Localizer>());
-                button.GetComponentInChildren<Text>().text = newText;
+                Object.Destroy(buttonObj.GetComponentInChildren<Localizer>());
+                buttonObj.GetComponentInChildren<Text>().text = newText;
             }
 
-            button.GetComponent<Button>().onClick.RemoveAllListeners();
-            button.GetComponent<Button>().onClick.AddListener(new UnityAction(newClickCallback));
+            Button button = buttonObj.GetComponent<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(new UnityAction(newClickCallback));
+            button.interactable = true;
         }
 
         // Multiplayer Join Menu
