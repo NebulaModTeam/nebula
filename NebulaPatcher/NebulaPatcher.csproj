@@ -1,40 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{28B0716C-3926-4865-AB43-6C4431D022D6}</ProjectGuid>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
+<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <Compile Include="$(DefaultCompileItemIncludes)" Exclude="$(DefaultItemExcludes)" />
+    <ProjectReference Include="..\NebulaClient\NebulaClient.csproj" SpecificVersion="true" />
+    <ProjectReference Include="..\NebulaHost\NebulaHost.csproj" SpecificVersion="true" />
+    <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
+    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NebulaClient\NebulaClient.csproj">
-      <SpecificVersion>true</SpecificVersion>
-      <Project>{5be9c74b-7832-4ef1-a53d-bf461bbdb0be}</Project>
-      <Name>NebulaClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NebulaHost\NebulaHost.csproj">
-      <SpecificVersion>true</SpecificVersion>
-      <Project>{1927F7FF-230B-4B1B-B7ED-34B58730AFBE}</Project>
-      <Name>NebulaHost</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NebulaModel\NebulaModel.csproj">
-      <SpecificVersion>true</SpecificVersion>
-      <Project>{c6237195-f77c-40c0-b06a-4ad51cad314d}</Project>
-      <Name>NebulaModel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj">
-      <SpecificVersion>true</SpecificVersion>
-      <Project>{28aea139-fb22-4672-af51-28b728cf2978}</Project>
-      <Name>NebulaWorld</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
