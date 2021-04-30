@@ -107,8 +107,11 @@
     <Compile Include="Networking\PendingPacket.cs" />
     <Compile Include="Packets\Logistics\ILSAddStationComponentRequest.cs" />
     <Compile Include="Packets\Logistics\ILSAddStationComponentResponse.cs" />
+    <Compile Include="Packets\Logistics\ILSArriveStarPlanetRequest.cs" />
+    <Compile Include="Packets\Logistics\ILSArriveStarPlanetResponse.cs" />
     <Compile Include="Packets\Logistics\ILSEnergyConsumeNotification.cs" />
     <Compile Include="Packets\Logistics\ILSgStationPoolSync.cs" />
+    <Compile Include="Packets\Logistics\ILSRemoveStationComponent.cs" />
     <Compile Include="Packets\Logistics\ILSRequestgStationPoolSync.cs" />
     <Compile Include="Packets\Logistics\ILSRemoteOrderData.cs" />
     <Compile Include="Packets\Logistics\ILSRequestShipDock.cs" />
@@ -117,6 +120,7 @@
     <Compile Include="Packets\Logistics\ILSShipDataUpdate.cs" />
     <Compile Include="Packets\Logistics\ILSShipItems.cs" />
     <Compile Include="Packets\Logistics\ILSShipUpdateWarperCnt.cs" />
+    <Compile Include="Packets\Logistics\ILSUpdateSlotData.cs" />
     <Compile Include="Packets\Logistics\StationSubscribeUIUpdates.cs" />
     <Compile Include="Packets\Logistics\StationUI.cs" />
     <Compile Include="Packets\Logistics\StationUIInitialSync.cs" />
