@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Planet;
+using UnityEngine;
 
 namespace NebulaClient.PacketProcessors.Planet
 {
@@ -11,7 +12,7 @@ namespace NebulaClient.PacketProcessors.Planet
     {
         public void ProcessPacket(RemoveVegetablePacket packet, NebulaConnection conn)
         {
-            if (packet.FactorytIndex >= 0 && GameMain.data.factories[packet.FactorytIndex] != null)
+            if (packet.FactorytIndex >= 0 && GameMain.data.factories[packet.FactorytIndex] != null && GameMain.data.factories[packet.FactorytIndex].vegePool != null)
             {
                 using (PlanetManager.EventFromServer.On())
                 {
