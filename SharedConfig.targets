@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
-         InitialTargets="TestDSPGameFolder;CreatePluginDirectory">
-  <PropertyGroup>
-  </PropertyGroup>
-
-  <PropertyGroup>
-  </PropertyGroup>
+         InitialTargets="TestDSPGameFolder">
 
   <Target Name="MaybeCopyDevEnv"
           Inputs="$(MSBuildAllProjects)"
@@ -29,9 +24,4 @@
   <Target Name="TestDSPGameFolder"
           DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid"
           Condition="!Exists('$(DSPGameDir)')" />
-
-  <Target Name="CreatePluginDirectory"
-          Condition="Exists('$(DSPGameDir)') and !Exists('$(PluginOutputDirectory)')">
-    <MakeDir Directories="$(PluginOutputDirectory)" />
-  </Target>
 </Project>

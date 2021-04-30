@@ -24,7 +24,7 @@
 
     <OutputType>Library</OutputType>
     <IntermediateOutputPath>obj</IntermediateOutputPath>
-    <OutputPath Condition="Exists('$(PluginOutputDirectory)')">$(PluginOutputDirectory)</OutputPath>
+    <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
 
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
