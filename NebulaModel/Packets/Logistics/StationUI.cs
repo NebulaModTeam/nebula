@@ -2,7 +2,7 @@
 {
     public class StationUI
     {
-        public enum UIsettings
+        public enum EUISettings
         {
             MaxChargePower,
             MaxTripDrones,
@@ -10,59 +10,62 @@
             MinDeliverDrone,
             MinDeliverVessel,
             WarpDistance,
-            warperNeeded,
-            includeCollectors,
-            setDroneCount,
-            setShipCount,
-            setWarperCount,
-            addOrRemoveItemFromStorageReq,
-            addOrRemoveItemFromStorageResp
+            WarperNeeded,
+            IncludeCollectors,
+            SetDroneCount,
+            SetShipCount,
+            SetWarperCount,
+            AddOrRemoveItemFromStorageRequest,
+            AddOrRemoveItemFromStorageResponse
         }
-        public bool isStorageUI { get; set; }
-        public StationUI.UIsettings settingIndex { get; set; }
-        public float settingValue { get; set; }
-        public int stationGId { get; set;} // NOTE: this can also be the id when handling a PLS
-        public int planetId { get; set; }
-        public int storageIdx { get; set; }
-        public int itemId { get; set; }
-        public int itemCountMax { get; set; }
-        public ELogisticStorage localLogic { get; set; }
-        public ELogisticStorage remoteLogic { get; set; }
-        public bool shouldMimick { get; set; }
-        public bool isStellar { get; set; }
+
+        public int PlanetId { get; set; }
+        public int StationId { get; set; }
+        public int StationGId { get; set;}
+        public bool IsStorageUI { get; set; }
+        public StationUI.EUISettings SettingIndex { get; set; }
+        public float SettingValue { get; set; }
+        public int StorageIdx { get; set; }
+        public int ItemId { get; set; }
+        public int ItemCountMax { get; set; }
+        public ELogisticStorage LocalLogic { get; set; }
+        public ELogisticStorage RemoteLogic { get; set; }
+        public bool ShouldMimic { get; set; }
 
         public StationUI() { }
-        public StationUI(int stationGId, int planetId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, bool isStellar)
+        public StationUI(int planetId, int stationId, int stationGId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic)
         {
-            this.isStorageUI = true;
-            this.stationGId = stationGId;
-            this.planetId = planetId;
-            this.storageIdx = storageIdx;
-            this.itemId = itemId;
-            this.itemCountMax = itemCountMax;
-            this.localLogic = localLogic;
-            this.remoteLogic = remoteLogic;
-            this.shouldMimick = false;
-            this.isStellar = isStellar;
+            IsStorageUI = true;
+            ShouldMimic = false;
+            
+            PlanetId = planetId;
+            StationId = stationId;
+            StationGId = stationGId;
+            StorageIdx = storageIdx;
+            ItemId = itemId;
+            ItemCountMax = itemCountMax;
+            LocalLogic = localLogic;
+            RemoteLogic = remoteLogic;
         }
-        public StationUI(int stationGId, int planetId, StationUI.UIsettings settingIndex, float value)
+        public StationUI(int planetId, int stationId, int stationGId, StationUI.EUISettings settingIndex, float value)
         {
-            this.stationGId = stationGId;
-            this.planetId = planetId;
-            this.isStorageUI = false;
-            this.settingIndex = settingIndex;
-            this.settingValue = value;
-            this.isStellar = true;
+            IsStorageUI = false;
+
+            PlanetId = planetId;
+            StationId = stationId;
+            StationGId = stationGId;
+            SettingIndex = settingIndex;
+            SettingValue = value;
         }
-        public StationUI(int stationGId, int planetId, int storageIdx, StationUI.UIsettings settingIndex, int itemId, int settingValue, bool isStellar)
+        public StationUI(int planetId, int stationId, int stationGId, int storageIdx, StationUI.EUISettings settingIndex, int itemId, int settingValue)
         {
-            this.stationGId = stationGId;
-            this.planetId = planetId;
-            this.settingIndex = settingIndex;
-            this.itemId = itemId;
-            this.settingValue = settingValue;
-            this.storageIdx = storageIdx;
-            this.isStellar = isStellar;
+            PlanetId = planetId;
+            StationId = stationId;
+            StationGId = stationGId;
+            StorageIdx = storageIdx;
+            SettingIndex = settingIndex;
+            ItemId = itemId;
+            SettingValue = settingValue;
         }
     }
 }

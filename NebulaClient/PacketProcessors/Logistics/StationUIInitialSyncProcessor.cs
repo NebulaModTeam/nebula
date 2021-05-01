@@ -4,6 +4,7 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Logistics;
 using HarmonyLib;
+using NebulaModel.Logger;
 
 /*
  * When the client opens the UI of a station (ILS/PLS/Collector) the contents gets updated and shown to
@@ -17,61 +18,59 @@ namespace NebulaClient.PacketProcessors.Logistics
     {
         public void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
         {
-            StationComponent[] gStationPool = null;
-            if(packet.planetId == 0)
+            StationComponent stationComponent = null;
+            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
+            StationComponent[] stationPool = GameMain.data.galaxy.PlanetById(packet.PlanetId).factory.transport.stationPool;
+            
+            stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
+            
+            if (stationComponent == null)
             {
-                gStationPool = GameMain.data.galacticTransport.stationPool;
+                Log.Error($"StationUIInitialSyncProcessor: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
+                return;
             }
-            else
-            {
-                PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
-                if(pData?.factory?.transport != null)
-                {
-                    gStationPool = pData.factory.transport.stationPool;
-                }
-            }
-            if(gStationPool != null && gStationPool.Length > packet.stationGId && StationUIManager.UIIsSyncedStage == 1)
-            {
-                StationComponent stationComponent = gStationPool[packet.stationGId];
-                if(stationComponent != null)
-                {
-                    UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
 
-                    stationComponent.tripRangeDrones = packet.tripRangeDrones;
-                    stationComponent.tripRangeShips = packet.tripRangeShips;
-                    stationComponent.deliveryDrones = packet.deliveryDrones;
-                    stationComponent.deliveryShips = packet.deliveryShips;
-                    stationComponent.warpEnableDist = packet.warpEnableDist;
-                    stationComponent.warperNecessary = packet.warperNecessary;
-                    stationComponent.includeOrbitCollector = packet.includeOrbitCollector;
-                    stationComponent.energy = packet.energy;
-                    stationComponent.energyPerTick = packet.energyPerTick;
-                    for(int i = 0; i < packet.itemId.Length; i++)
+            if (StationUIManager.UIIsSyncedStage == 1)
+            {
+                UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
+
+                stationComponent.tripRangeDrones = packet.TripRangeDrones;
+                stationComponent.tripRangeShips = packet.TripRangeShips;
+                stationComponent.deliveryDrones = packet.DeliveryDrones;
+                stationComponent.deliveryShips = packet.DeliveryShips;
+                stationComponent.warpEnableDist = packet.WarperEnableDistance;
+                stationComponent.warperNecessary = packet.WarperNecessary;
+                stationComponent.includeOrbitCollector = packet.IncludeOrbitCollector;
+                stationComponent.energy = packet.Energy;
+                stationComponent.energyPerTick = packet.EnergyPerTick;
+
+                for (int i = 0; i < packet.ItemId.Length; i++)
+                {
+                    if (stationComponent.storage == null)
                     {
-                        if(stationComponent.storage == null)
-                        {
-                            // 3 is games default storage places for PLS
-                            stationComponent.storage = new StationStore[packet.itemId.Length];
-                        }
-                        stationComponent.storage[i].itemId = packet.itemId[i];
-                        stationComponent.storage[i].max = packet.itemCountMax[i];
-                        stationComponent.storage[i].count = packet.itemCount[i];
-                        stationComponent.storage[i].remoteOrder = packet.remoteOrder[i];
-                        stationComponent.storage[i].localLogic = (ELogisticStorage)packet.localLogic[i];
-                        stationComponent.storage[i].remoteLogic = (ELogisticStorage)packet.remoteLogic[i];
+                        stationComponent.storage = new StationStore[packet.ItemId.Length];
                     }
-                    if(stationWindow != null && stationWindow.active)
-                    {
-                        conn.SendPacket(new StationSubscribeUIUpdates(true, stationComponent.gid));
-                        StationUIManager.UIIsSyncedStage++;
-                        stationWindow._Free();
-                        stationWindow._Init(stationComponent);
-                        AccessTools.Field(typeof(UIStationWindow), "_stationId").SetValue(stationWindow, stationComponent.id);
-                        stationWindow._Open();
-                        stationWindow._Update();
-                    }
-                    StationUIManager.UIStationId = stationComponent.id;
+
+                    stationComponent.storage[i].itemId = packet.ItemId[i];
+                    stationComponent.storage[i].max = packet.ItemCountMax[i];
+                    stationComponent.storage[i].count = packet.ItemCount[i];
+                    stationComponent.storage[i].remoteOrder = packet.RemoteOrder[i];
+                    stationComponent.storage[i].localLogic = (ELogisticStorage)packet.LocalLogic[i];
+                    stationComponent.storage[i].remoteLogic = (ELogisticStorage)packet.RemoteLogic[i];
                 }
+
+                if (stationWindow != null && stationWindow.active)
+                {
+                    conn.SendPacket(new StationSubscribeUIUpdates(true, stationComponent.planetId, stationComponent.id, stationComponent.gid));
+                    StationUIManager.UIIsSyncedStage++;
+                    stationWindow._Free();
+                    stationWindow._Init(stationComponent);
+                    AccessTools.Field(typeof(UIStationWindow), "_stationId").SetValue(stationWindow, stationComponent.id);
+                    stationWindow._Open();
+                    stationWindow._Update();
+                }
+
+                StationUIManager.UIStationId = stationComponent.id;
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using NebulaModel.Packets.Logistics;
 using HarmonyLib;
+using NebulaModel.Logger;
 using System;
 using System.Collections.Generic;
 using NebulaModel.Networking;
@@ -8,63 +9,82 @@ using UnityEngine.EventSystems;
 
 namespace NebulaWorld.Logistics
 {
+    public class Subscribers
+    {
+        public int PlanetId { get; }
+        public int StationId { get; }
+        public int StationGId { get; }
+        public List<NebulaConnection> Connections { get; set; }
+        public Subscribers(int planetId, int stationId, int stationGId)
+        {
+            PlanetId = planetId;
+            StationId = stationId;
+            StationGId = stationGId;
+            Connections = new List<NebulaConnection>();
+        }
+
+        public override string ToString() => $"{PlanetId}.{StationId}.{StationGId}";
+
+        public static string GetKey(int planetId, int stationId, int statgionGId)
+        {
+            return $"{planetId}.{stationId}.{statgionGId}";
+        }
+    }
+    
     public static class StationUIManager
     {
-        private static Dictionary<int, List<NebulaConnection>> StationUISubscribers;
+        private static Dictionary<string, Subscribers> _stationUISubscribers;
         public static int UpdateCooldown; // cooldown is used to slow down updates on storage slider
-        public static BaseEventData lastMouseEvent;
-        public static bool lastMouseEventWasDown;
-        public static GameObject lastSelectedGameObj;
+        public static BaseEventData LastMouseEvent;
+        public static bool LastMouseEventWasDown;
+        public static GameObject LastSelectedGameObj;
         public static int UIIsSyncedStage; // 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
         public static int UIStationId;
         public static bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
 
         public static void Initialize()
         {
-            StationUISubscribers = new Dictionary<int, List<NebulaConnection>>();
+            _stationUISubscribers = new Dictionary<string, Subscribers>();
             UpdateCooldown = 0;
             UIIsSyncedStage = 0;
             UIStationId = 0;
             UIRequestedShipDronWarpChange = false;
         }
         // When a client opens a station's UI he requests a subscription for live updates, so add him to the list
-        public static void AddSubscriber(int stationGId, NebulaConnection player)
+        public static void AddSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
         {
-            List<NebulaConnection> players;
-            if(!StationUISubscribers.TryGetValue(stationGId, out players))
+            // Attempt to find existing subscribers to a specific station, if we couldn't find an existing one
+            // we must initialize a new Subscribers for this specific station.
+            if(!_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
             {
-                players = new List<NebulaConnection>();
-                StationUISubscribers.Add(stationGId, players);
+                _stationUISubscribers.Add(Subscribers.GetKey(planetId, stationId, stationGId), new Subscribers(planetId, stationId, stationGId));
             }
-            for (int i = 0; i < StationUISubscribers[stationGId].Count; i++)
-            {
-                if(StationUISubscribers[stationGId][i] == player)
-                {
-                    return;
-                }
-            }
-            StationUISubscribers[stationGId].Add(player);
+
+            _stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out subscribers);
+            
+            subscribers?.Connections.Add(connection);
         }
-        public static void RemoveSubscriber(int stationGId, NebulaConnection player)
+        public static void RemoveSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
         {
-            List<NebulaConnection> players;
-            if(StationUISubscribers.TryGetValue(stationGId, out players))
+            if(_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
             {
-                StationUISubscribers[stationGId].Remove(player);
-                if(StationUISubscribers[stationGId].Count == 0)
+                subscribers.Connections.Remove(connection);
+
+                if (subscribers.Connections.Count == 0)
                 {
-                    StationUISubscribers.Remove(stationGId);
+                    _stationUISubscribers.Remove(subscribers.ToString());
                 }
             }
         }
-        public static List<NebulaConnection> GetSubscribers(int stationGId)
+        
+        public static List<NebulaConnection> GetSubscribers(int planetId, int stationId, int stationGId)
         {
-            List<NebulaConnection> players;
-            if(!StationUISubscribers.TryGetValue(stationGId, out players))
+            if(!_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
             {
                 return new List<NebulaConnection>();
             }
-            return players;
+            
+            return subscribers.Connections;
         }
 
         public static void DecreaseCooldown()
@@ -78,10 +98,10 @@ namespace NebulaWorld.Logistics
 
         public static void UpdateUI(StationUI packet)
         {
-            if((UpdateCooldown == 0 || !packet.isStorageUI) && LocalPlayer.IsMasterClient)
+            if((UpdateCooldown == 0 || !packet.IsStorageUI) && LocalPlayer.IsMasterClient)
             {
                 UpdateCooldown = 10;
-                if (packet.isStorageUI)
+                if (packet.IsStorageUI)
                 {
                     UpdateStorageUI(packet);
                 }
@@ -92,7 +112,7 @@ namespace NebulaWorld.Logistics
             }
             else if(!LocalPlayer.IsMasterClient)
             {
-                if (packet.isStorageUI)
+                if (packet.IsStorageUI)
                 {
                     UpdateStorageUI(packet);
                 }
@@ -102,321 +122,289 @@ namespace NebulaWorld.Logistics
                 }
             }
         }
-        /*
-         * if the local player does not have the corresponding station window opened we still need to update some (or all for host) settings
-         * so do that here
+        
+        /**
+         * Updates to a given station that should happen in the background.
          */
-        private static void UpdateSettingsUIBackground(StationUI packet, PlanetData pData, int stationGId)
+        private static void UpdateSettingsUIBackground(StationUI packet, PlanetData planet, StationComponent stationComponent)
         {
-            StationComponent[] stationPool = GameMain.data.galacticTransport.stationPool;
-            int stationId = stationGId;
-            // if we have the planet factory loaded take the local transport array, if not take the global galactic array
-            if (pData?.factory != null && pData?.factory?.transport != null)
-            {
-                stationPool = pData.factory.transport.stationPool;
-                for (int i = 0; i < stationPool.Length; i++)
-                {
-                    if (stationPool[i] != null && stationPool[i].gid == stationGId)
-                    {
-                        stationId = stationPool[i].id;
-                        break;
-                    }
-                }
-            }
+            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
+
             // update drones, ships, warpers and energy consumption for everyone
-            if ((packet.settingIndex >= StationUI.UIsettings.setDroneCount && packet.settingIndex <= StationUI.UIsettings.setWarperCount) || packet.settingIndex == StationUI.UIsettings.MaxChargePower)
+            if ((packet.SettingIndex >= StationUI.EUISettings.SetDroneCount && packet.SettingIndex <= StationUI.EUISettings.SetWarperCount) || packet.SettingIndex == StationUI.EUISettings.MaxChargePower)
             {
-                if (stationPool.Length > stationId)
+                if (packet.SettingIndex == (int)StationUI.EUISettings.MaxChargePower && planet.factory?.powerSystem != null)
                 {
-                    if (packet.settingIndex == (int)StationUI.UIsettings.MaxChargePower && pData.factory?.powerSystem != null)
+                    PowerConsumerComponent[] consumerPool = planet.factory.powerSystem.consumerPool;
+                    if (consumerPool.Length > stationComponent.pcId)
                     {
-                        PowerConsumerComponent[] consumerPool = pData.factory.powerSystem.consumerPool;
-                        if (consumerPool.Length > stationPool[stationId].pcId)
-                        {
-                            consumerPool[stationPool[stationId].pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.settingValue + 0.5);
-                        }
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.setDroneCount)
-                    {
-                        stationPool[stationId].idleDroneCount = (int)packet.settingValue;
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.setShipCount)
-                    {
-                        stationPool[stationId].idleShipCount = (int)packet.settingValue;
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.setWarperCount)
-                    {
-                        stationPool[stationId].warperCount = (int)packet.settingValue;
+                        consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.SettingValue + 0.5);
                     }
                 }
-            }
-            // only host should update everything
-            if (!LocalPlayer.IsMasterClient)
-            {
-                return;
-            }
-            if(packet.settingIndex == StationUI.UIsettings.MaxTripDrones)
-            {
-                if (stationPool.Length > stationId)
+
+                if (packet.SettingIndex == StationUI.EUISettings.SetDroneCount)
                 {
-                    stationPool[stationId].tripRangeDrones = Math.Cos((double)packet.settingValue / 180.0 * 3.141592653589793);
+                    stationComponent.idleDroneCount = (int)packet.SettingValue;
+                }
+
+                if (packet.SettingIndex == StationUI.EUISettings.SetShipCount)
+                {
+                    stationComponent.idleShipCount = (int)packet.SettingValue;
+                }
+
+                if (packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
+                {
+                    stationComponent.warperCount = (int)packet.SettingValue;
                 }
             }
-            if(packet.settingIndex == StationUI.UIsettings.MaxTripVessel)
+
+            if (packet.SettingIndex == StationUI.EUISettings.MaxTripDrones)
             {
-                if (stationPool.Length > stationId)
-                {
-                    double value = packet.settingValue;
-                    if (value > 40.5)
-                    {
-                        value = 10000.0;
-                    }
-                    else if (value > 20.5)
-                    {
-                        value = value * 2f - 20f;
-                    }
-                    stationPool[stationId].tripRangeShips = 2400000.0 * value;
-                }
+                stationComponent.tripRangeDrones = Math.Cos((double)packet.SettingValue / 180.0 * 3.141592653589793);
             }
-            if(packet.settingIndex == StationUI.UIsettings.MinDeliverDrone)
+
+            if (packet.SettingIndex == StationUI.EUISettings.MaxTripVessel)
             {
-                if (stationPool.Length > stationId)
+                double value = packet.SettingValue;
+                if (value > 40.5)
                 {
-                    int value = (int)(packet.settingValue * 10f + 0.5f);
-                    if (value < 1)
-                    {
-                        value = 1;
-                    }
-                    stationPool[stationId].deliveryDrones = value;
+                    value = 10000.0;
                 }
-            }
-            if(packet.settingIndex == StationUI.UIsettings.MinDeliverVessel)
-            {
-                if (stationPool.Length > stationId)
+                else if (value > 20.5)
                 {
-                    int value = (int)(packet.settingValue * 10f + 0.5f);
-                    if (value < 1)
-                    {
-                        value = 1;
-                    }
-                    stationPool[stationId].deliveryShips = value;
+                    value = value * 2f - 20f;
                 }
+
+                stationComponent.tripRangeShips = 2400000.0 * value;
             }
-            if(packet.settingIndex == StationUI.UIsettings.WarpDistance)
+
+            if (packet.SettingIndex == StationUI.EUISettings.MinDeliverDrone)
             {
-                if (stationPool.Length > stationId)
+                int value = (int)(packet.SettingValue * 10f + 0.5f);
+                if (value < 1)
                 {
-                    double value = packet.settingValue;
-                    if (value < 1.5)
-                    {
-                        value = 0.2;
-                    }
-                    else if (value < 7.5)
-                    {
-                        value = value * 0.5 - 0.5;
-                    }
-                    else if (value < 16.5)
-                    {
-                        value -= 4f;
-                    }
-                    else if (value < 20.5)
-                    {
-                        value = value * 2f - 20f;
-                    }
-                    else
-                    {
-                        value = 60;
-                    }
-                    stationPool[stationId].warpEnableDist = 40000.0 * value;
+                    value = 1;
                 }
+
+                stationComponent.deliveryDrones = value;
             }
-            if(packet.settingIndex == StationUI.UIsettings.warperNeeded)
+
+            if (packet.SettingIndex == StationUI.EUISettings.MinDeliverVessel)
             {
-                if (stationPool.Length > stationId)
+                int value = (int)(packet.SettingValue * 10f + 0.5f);
+                if (value < 1)
                 {
-                    stationPool[stationId].warperNecessary = !stationPool[stationId].warperNecessary;
+                    value = 1;
                 }
+
+                stationComponent.deliveryShips = value;
             }
-            if(packet.settingIndex == StationUI.UIsettings.includeCollectors)
+
+            if (packet.SettingIndex == StationUI.EUISettings.WarpDistance)
             {
-                if (stationPool.Length > stationId)
+                double value = packet.SettingValue;
+                if (value < 1.5)
                 {
-                    stationPool[stationId].includeOrbitCollector = !stationPool[stationId].includeOrbitCollector;
+                    value = 0.2;
                 }
-            }
-            if (packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageResp)
-            {
-                if (stationPool[stationId].storage != null)
+                else if (value < 7.5)
                 {
-                    stationPool[stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
+                    value = value * 0.5 - 0.5;
+                }
+                else if (value < 16.5)
+                {
+                    value -= 4f;
+                }
+                else if (value < 20.5)
+                {
+                    value = value * 2f - 20f;
+                }
+                else
+                {
+                    value = 60;
+                }
+
+                stationComponent.warpEnableDist = 40000.0 * value;
+            }
+
+            if (packet.SettingIndex == StationUI.EUISettings.WarperNeeded)
+            {
+                stationComponent.warperNecessary = !stationComponent.warperNecessary;
+            }
+
+            if (packet.SettingIndex == StationUI.EUISettings.IncludeCollectors)
+            {
+                stationComponent.includeOrbitCollector = !stationComponent.includeOrbitCollector;
+            }
+
+            if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
+            {
+                if (stationComponent.storage != null)
+                {
+                    stationComponent.storage[packet.StorageIdx].count = (int)packet.SettingValue;
                 }
             }
         }
+        
         /*
-         * update settings and item, drone, ship and warper count
-         * first determine if the local player has the station window opened and hadle that accordingly.
+         * Update station settings and drone, ship and warper counts.
+         * 
+         * First determine if the local player has the station window opened and handle that accordingly.
          */
         private static void UpdateSettingsUI(StationUI packet)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-            if (stationWindow != null)
+            
+            StationComponent stationComponent = null;
+            PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
+            
+            // If we can't find planet or the factory for said planet, we can just skip this
+            if (planet?.factory?.transport == null) return;
+            
+            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
+            StationComponent[] stationPool = planet?.factory?.transport?.stationPool;
+            
+            // Figure out if we're dealing with a PLS or a ILS station
+            stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
+            
+            if (stationComponent == null)
             {
-                int _stationId = (int)AccessTools.Field(typeof(UIStationWindow), "_stationId")?.GetValue(stationWindow);
-                PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
-                if(pData?.factory == null || pData?.factory?.transport == null)
-                {
-                    if(GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
-                    {
-                        // client never was on this planet before or has it unloaded, but has a fake structure created, so update it
-                        UpdateSettingsUIBackground(packet, pData, packet.stationGId);
-                    }
-                    return;
-                }
-                for (int i = 0; i < pData.factory.transport.stationPool.Length; i++)
-                {
-                    if(pData.factory.transport.stationPool[i] != null)
-                    {
-                        int id = ((packet.isStellar == true) ? pData.factory.transport.stationPool[i].gid : pData.factory.transport.stationPool[i].id);
-                        if (id == packet.stationGId)
-                        {
-                            if (pData.factory.transport.stationPool[i].id != _stationId)
-                            {
-                                // receiving side has the UI closed or another stations UI opened. still update drones, ships, warpers and power consumption for clients and update all for host
-                                UpdateSettingsUIBackground(packet, pData, pData.factory.transport.stationPool[i].gid);
-                                return;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
+                Log.Error($"UpdateStorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
+                return;
+            }
 
-                // this locks the patches so we can call vanilla functions without triggering our patches to avoid endless loops
-                using (ILSShipManager.PatchLockILS.On())
+            if (stationWindow == null) return;
+            
+            int _stationId = (int)AccessTools.Field(typeof(UIStationWindow), "_stationId")?.GetValue(stationWindow);
+
+            // Client has no knowledge of the planet, closed the window or
+            // opened a different station, do all updates in the background.
+            if(planet?.factory?.transport == null || stationComponent.id != _stationId)
+            {
+                UpdateSettingsUIBackground(packet, planet, stationComponent);
+                return;
+            }
+
+            // this locks the patches so we can call vanilla functions without triggering our patches to avoid endless loops
+            using (ILSShipManager.PatchLockILS.On())
+            {
+                if (packet.SettingIndex == StationUI.EUISettings.MaxChargePower)
                 {
-                    if (packet.settingIndex == StationUI.UIsettings.MaxChargePower)
-                    {
-                        stationWindow.OnMaxChargePowerSliderValueChange(packet.settingValue);
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.MaxTripDrones)
-                    {
-                        stationWindow.OnMaxTripDroneSliderValueChange(packet.settingValue);
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.MaxTripVessel)
-                    {
-                        stationWindow.OnMaxTripVesselSliderValueChange(packet.settingValue);
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.MinDeliverDrone)
-                    {
-                        stationWindow.OnMinDeliverDroneValueChange(packet.settingValue);
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.MinDeliverVessel)
-                    {
-                        stationWindow.OnMinDeliverVesselValueChange(packet.settingValue);
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.WarpDistance)
-                    {
-                        stationWindow.OnWarperDistanceValueChange(packet.settingValue);
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.warperNeeded)
-                    {
-                        stationWindow.OnWarperNecessaryClick(0);
-                    }
-                    if (packet.settingIndex == StationUI.UIsettings.includeCollectors)
+                    stationWindow.OnMaxChargePowerSliderValueChange(packet.SettingValue);
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.MaxTripDrones)
+                {
+                    stationWindow.OnMaxTripDroneSliderValueChange(packet.SettingValue);
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.MaxTripVessel)
+                {
+                    stationWindow.OnMaxTripVesselSliderValueChange(packet.SettingValue);
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.MinDeliverDrone)
+                {
+                    stationWindow.OnMinDeliverDroneValueChange(packet.SettingValue);
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.MinDeliverVessel)
+                {
+                    stationWindow.OnMinDeliverVesselValueChange(packet.SettingValue);
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.WarpDistance)
+                {
+                    stationWindow.OnWarperDistanceValueChange(packet.SettingValue);
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.WarperNeeded)
+                {
+                    stationWindow.OnWarperNecessaryClick(0);
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.IncludeCollectors)
+                {
+                    Type[] args = new Type[1];
+                    object[] values = new object[1];
+                    args[0] = typeof(int);
+                    values[0] = 0;
+                    AccessTools.Method(typeof(UIStationWindow), "OnIncludeOrbitCollectorClick", args).Invoke(stationWindow, values);
+                }
+                if (packet.SettingIndex >= StationUI.EUISettings.SetDroneCount && packet.SettingIndex <= StationUI.EUISettings.SetWarperCount)
+                {
+                    if (packet.SettingIndex == StationUI.EUISettings.SetDroneCount)
                     {
                         Type[] args = new Type[1];
                         object[] values = new object[1];
                         args[0] = typeof(int);
                         values[0] = 0;
-                        AccessTools.Method(typeof(UIStationWindow), "OnIncludeOrbitCollectorClick", args).Invoke(stationWindow, values);
+                        if (UIRequestedShipDronWarpChange)
+                        {
+                            AccessTools.Method(typeof(UIStationWindow), "OnDroneIconClick", args).Invoke(stationWindow, values);
+                            UIRequestedShipDronWarpChange = false;
+                        }
+                        stationComponent.idleDroneCount = (int)packet.SettingValue;
                     }
-                    if (packet.settingIndex >= StationUI.UIsettings.setDroneCount && packet.settingIndex <= StationUI.UIsettings.setWarperCount)
+                    if (packet.SettingIndex == StationUI.EUISettings.SetShipCount)
                     {
-                        StationComponent[] stationPool = pData.factory.transport.stationPool;
-                        if (packet.settingIndex == StationUI.UIsettings.setDroneCount)
+                        Type[] args = new Type[1];
+                        object[] values = new object[1];
+                        args[0] = typeof(int);
+                        values[0] = 0;
+                        if (UIRequestedShipDronWarpChange)
                         {
-                            Type[] args = new Type[1];
-                            object[] values = new object[1];
-                            args[0] = typeof(int);
-                            values[0] = 0;
-                            if (UIRequestedShipDronWarpChange)
-                            {
-                                AccessTools.Method(typeof(UIStationWindow), "OnDroneIconClick", args).Invoke(stationWindow, values);
-                                UIRequestedShipDronWarpChange = false;
-                            }
-                            stationPool[_stationId].idleDroneCount = (int)packet.settingValue;
+                            AccessTools.Method(typeof(UIStationWindow), "OnShipIconClick", args).Invoke(stationWindow, values);
+                            UIRequestedShipDronWarpChange = false;
                         }
-                        if (packet.settingIndex == StationUI.UIsettings.setShipCount)
-                        {
-                            Type[] args = new Type[1];
-                            object[] values = new object[1];
-                            args[0] = typeof(int);
-                            values[0] = 0;
-                            if (UIRequestedShipDronWarpChange)
-                            {
-                                AccessTools.Method(typeof(UIStationWindow), "OnShipIconClick", args).Invoke(stationWindow, values);
-                                UIRequestedShipDronWarpChange = false;
-                            }
-                            stationPool[_stationId].idleShipCount = (int)packet.settingValue;
-                        }
-                        if (packet.settingIndex == StationUI.UIsettings.setWarperCount)
-                        {
-                            Type[] args = new Type[1];
-                            object[] values = new object[1];
-                            args[0] = typeof(int);
-                            values[0] = 0;
-                            if (UIRequestedShipDronWarpChange)
-                            {
-                                AccessTools.Method(typeof(UIStationWindow), "OnWarperIconClick", args).Invoke(stationWindow, values);
-                                UIRequestedShipDronWarpChange = false;
-                            }
-                            stationPool[_stationId].warperCount = (int)packet.settingValue;
-                        }
+                        stationComponent.idleShipCount = (int)packet.SettingValue;
                     }
-                    /*
-                     * the idea is that clients request that they want to apply a change and do so once the server responded with an okay.
-                     * the calls to OnItemIconMouseDown() and OnItemIconMouseUp() are blocked for clients and called only from here.
-                     */
-                    if (packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageReq)
+                    if (packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
                     {
-                        StationComponent[] stationPool = pData.factory.transport.stationPool;
-                        if (stationPool[_stationId].storage != null)
+                        Type[] args = new Type[1];
+                        object[] values = new object[1];
+                        args[0] = typeof(int);
+                        values[0] = 0;
+                        if (UIRequestedShipDronWarpChange)
                         {
-                            if (packet.shouldMimick)
-                            {
-                                BaseEventData mouseEvent = lastMouseEvent;
-                                UIStationStorage[] storageUIs = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
+                            AccessTools.Method(typeof(UIStationWindow), "OnWarperIconClick", args).Invoke(stationWindow, values);
+                            UIRequestedShipDronWarpChange = false;
+                        }
+                        stationComponent.warperCount = (int)packet.SettingValue;
+                    }
+                }
+                /*
+                 * the idea is that clients request that they want to apply a change and do so once the server responded with an okay.
+                 * the calls to OnItemIconMouseDown() and OnItemIconMouseUp() are blocked for clients and called only from here.
+                 */
+                if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageRequest)
+                {
+                    if (stationComponent.storage != null)
+                    {
+                        if (packet.ShouldMimic)
+                        {
+                            BaseEventData mouseEvent = LastMouseEvent;
+                            UIStationStorage[] storageUIs = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
 
-                                if (lastMouseEvent != null)
+                            if (LastMouseEvent != null)
+                            {
+                                // TODO: change this such that only server sends the response, else clients with a desynced state could change servers storage to a faulty value
+                                // issue #249
+                                if (LastMouseEventWasDown)
                                 {
-                                    // TODO: change this such that only server sends the response, else clients with a desynced state could change servers storage to a faulty value
-                                    // issue #249
-                                    if (lastMouseEventWasDown)
-                                    {
-                                        storageUIs[packet.storageIdx].OnItemIconMouseDown(mouseEvent);
-                                        StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, StationUI.UIsettings.addOrRemoveItemFromStorageResp, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
-                                        LocalPlayer.SendPacket(packet2);
-                                    }
-                                    else
-                                    {
-                                        storageUIs[packet.storageIdx].OnItemIconMouseUp(mouseEvent);
-                                        StationUI packet2 = new StationUI(packet.stationGId, packet.planetId, packet.storageIdx, StationUI.UIsettings.addOrRemoveItemFromStorageResp, packet.itemId, stationPool[_stationId].storage[packet.storageIdx].count, packet.isStellar);
-                                        LocalPlayer.SendPacket(packet2);
-                                    }
-                                    lastMouseEvent = null;
+                                    storageUIs[packet.StorageIdx].OnItemIconMouseDown(mouseEvent);
+                                    StationUI packet2 = new StationUI(packet.PlanetId, packet.StationId, packet.StationGId, packet.StorageIdx, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, packet.ItemId, stationComponent.storage[packet.StorageIdx].count);
+                                    LocalPlayer.SendPacket(packet2);
                                 }
+                                else
+                                {
+                                    storageUIs[packet.StorageIdx].OnItemIconMouseUp(mouseEvent);
+                                    StationUI packet2 = new StationUI(packet.PlanetId, packet.StationId, packet.StationGId, packet.StorageIdx, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, packet.ItemId, stationComponent.storage[packet.StorageIdx].count);
+                                    LocalPlayer.SendPacket(packet2);
+                                }
+                                LastMouseEvent = null;
                             }
                         }
                     }
-                    if (packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageResp)
+                }
+                if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
+                {
+                    if (stationComponent.storage != null)
                     {
-                        StationComponent[] stationPool = pData.factory.transport.stationPool;
-                        if (stationPool[_stationId].storage != null)
-                        {
-                            stationPool[_stationId].storage[packet.storageIdx].count = (int)packet.settingValue;
-                        }
+                        stationComponent.storage[packet.StorageIdx].count = (int)packet.SettingValue;
                     }
                 }
             }
@@ -424,55 +412,26 @@ namespace NebulaWorld.Logistics
 
         private static void UpdateStorageUI(StationUI packet)
         {
-            PlanetData pData = GameMain.galaxy.PlanetById(packet.planetId);
-            if (pData == null)
+            StationComponent stationComponent = null;
+            PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
+            
+            // If we can't find planet or the factory for said planet, we can just skip this
+            if (planet?.factory?.transport == null) return;
+            
+            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
+            StationComponent[] stationPool = planet?.factory?.transport?.stationPool;
+            
+            stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
+            
+            if (stationComponent == null)
             {
-                // this should never happen
+                Log.Error($"UpdateStorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
                 return;
             }
-            if (pData.factory == null && !LocalPlayer.IsMasterClient)
+            
+            using (ILSShipManager.PatchLockILS.On())
             {
-                // in this case client will receive the settings once he arrives at the planet and receives the PlanetFactory
-            }
-            else
-            {
-                /*
-                 * we need to find the stations id in the PlanetTransport structure to call SetStationStorage
-                 */
-                int id = -1;
-                if(pData.factory?.transport == null)
-                {
-                    return;
-                }
-                if((!packet.isStellar && packet.stationGId >= pData.factory.transport.stationPool.Length) || pData.factory.transport == null)
-                {
-                    return;
-                }
-                else if (packet.isStellar)
-                {
-                    foreach(StationComponent stationComponent in pData.factory.transport.stationPool)
-                    {
-                        if(stationComponent != null && stationComponent.gid == packet.stationGId)
-                        {
-                            id = stationComponent.id;
-                        }
-                    }
-                }
-                else
-                {
-                    // if its a PLS server sends the id and not GId
-                    id = pData.factory.transport.stationPool[packet.stationGId].id;
-                }
-
-                if(id == -1)
-                {
-                    return;
-                }
-
-                using (ILSShipManager.PatchLockILS.On())
-                {
-                    pData.factory.transport.SetStationStorage(id, packet.storageIdx, packet.itemId, packet.itemCountMax, packet.localLogic, packet.remoteLogic, null);
-                }
+                planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, null);
             }
         }
     }
