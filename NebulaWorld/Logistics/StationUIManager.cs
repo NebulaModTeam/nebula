@@ -158,13 +158,6 @@ namespace NebulaWorld.Logistics
                 }
             }
 
-            // Only should should update everything
-            // Todo: Confirm if this is correct since some logic still runs on clients
-            if (!LocalPlayer.IsMasterClient)
-            {
-                return;
-            }
-
             if (packet.SettingIndex == StationUI.EUISettings.MaxTripDrones)
             {
                 stationComponent.tripRangeDrones = Math.Cos((double)packet.SettingValue / 180.0 * 3.141592653589793);
