@@ -38,12 +38,20 @@ namespace NebulaClient.PacketProcessors.Logistics
             // sync the current position of the ships as they might have been calculated wrong while we did not have the correct dock position and rotation.
             for(int i = 0; i < packet.shipOtherGId.Length; i++)
             {
-                stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];
+                /*
+                 * fix for #251
+                 * for some reason shipOtherGId can be 0 in some cases.
+                 * i thought about idle ships not having it set but im not sure. However checking for a 0 here fixes the issue.
+                 */
+                if(packet.shipOtherGId[i] > 0 && packet.shipOtherGId[i] < GameMain.data.galacticTransport.stationPool.Length)
+                {
+                    stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];
 
-                stationComponent.workShipDatas[packet.shipIndex[i]].uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
-                stationComponent.workShipDatas[packet.shipIndex[i]].uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
-                stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
-                stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
+                    stationComponent.workShipDatas[packet.shipIndex[i]].uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
+                    stationComponent.workShipDatas[packet.shipIndex[i]].uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
+                    stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
+                    stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
+                }
             }
         }
     }
