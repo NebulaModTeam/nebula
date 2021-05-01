@@ -24,13 +24,14 @@ namespace NebulaHost.PacketProcessors.Logistics
         {
             Player player = playerManager.GetPlayer(conn);
             // if a user adds/removes a ship, drone or warper or changes max power input broadcast to everyone.
-            if((packet.settingIndex == StationUI.UIsettings.MaxChargePower || packet.settingIndex == StationUI.UIsettings.setDroneCount || packet.settingIndex == StationUI.UIsettings.setShipCount || packet.settingIndex == StationUI.UIsettings.setWarperCount) && player != null && StationUIManager.UpdateCooldown == 0)
+            if((packet.SettingIndex == StationUI.EUISettings.MaxChargePower || packet.SettingIndex == StationUI.EUISettings.SetDroneCount || packet.SettingIndex == StationUI.EUISettings.SetShipCount || packet.SettingIndex == StationUI.EUISettings.SetWarperCount) && player != null && StationUIManager.UpdateCooldown == 0)
             {
                 playerManager.SendPacketToAllPlayers(packet);
             }
-            else if(StationUIManager.UpdateCooldown == 0 || !packet.isStorageUI)
+            else if(StationUIManager.UpdateCooldown == 0 || !packet.IsStorageUI)
             {
-                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(packet.stationGId);
+                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(packet.PlanetId, packet.StationId, packet.StationGId);
+                
                 for (int i = 0; i < subscribers.Count; i++)
                 {
                     if(subscribers[i] != null)
@@ -41,7 +42,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                              * as we block the normal method for the client he must run it once he receives this packet.
                              * but only the one issued the request should do it, we indicate this here
                              */
-                            packet.shouldMimick = true;
+                            packet.ShouldMimic = true;
                         }
                         subscribers[i].SendPacket(packet);
                     }
