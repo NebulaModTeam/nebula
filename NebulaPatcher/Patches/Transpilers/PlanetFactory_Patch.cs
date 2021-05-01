@@ -3,6 +3,7 @@ using NebulaModel.DataStructures;
 using NebulaWorld;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpiler
@@ -51,7 +52,7 @@ namespace NebulaPatcher.Patches.Transpiler
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
-                if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand.ToString() == "Void SetInserterPickTarget(Int32, Int32, Int32)" &&
+                if (codes[i].opcode == OpCodes.Callvirt && ((MethodInfo)codes[i].operand).Name == "SetInserterPickTarget" &&
                     codes[i - 1].opcode == OpCodes.Sub &&
                     codes[i - 2].opcode == OpCodes.Ldloc_S &&
                     codes[i - 3].opcode == OpCodes.Ldloc_S)
@@ -74,7 +75,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
             for (int i = 0; i < codes.Count; i++)
             {
-                if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand.ToString() == "Void SetInserterInsertTarget(Int32, Int32, Int32)" &&
+                if (codes[i].opcode == OpCodes.Callvirt && ((MethodInfo)codes[i].operand).Name == "SetInserterPickTarget" &&
                     codes[i - 1].opcode == OpCodes.Sub &&
                     codes[i - 2].opcode == OpCodes.Ldloc_S &&
                     codes[i - 3].opcode == OpCodes.Ldloc_S)

@@ -67,7 +67,6 @@ namespace NebulaWorld.Factory
         {
             if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
             {
-                Debug.Log("Sending NewSetInserterPickTargetPacket");
                 LocalPlayer.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
             }
         }
@@ -76,7 +75,6 @@ namespace NebulaWorld.Factory
         {
             if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
             {
-                Debug.Log("Sending NewSetInserterInsertTargetPacket");
                 LocalPlayer.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
             }
         }
