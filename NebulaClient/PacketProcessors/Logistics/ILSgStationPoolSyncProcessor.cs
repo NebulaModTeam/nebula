@@ -36,6 +36,8 @@ namespace NebulaClient.PacketProcessors.Logistics
                 gStationPool[packet.stationGId[i]].idleShipCount = packet.idleShipCount[i];
                 gStationPool[packet.stationGId[i]].workShipIndices = packet.workShipIndices[i];
                 gStationPool[packet.stationGId[i]].idleShipIndices = packet.idleShipIndices[i];
+                gStationPool[packet.stationGId[i]].shipRenderers = new ShipRenderingData[ILSShipManager.ILSMaxShipCount];
+                gStationPool[packet.stationGId[i]].shipUIRenderers = new ShipUIRenderingData[ILSShipManager.ILSMaxShipCount];
 
                 gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[ILSShipManager.ILSMaxShipCount];
                 gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[ILSShipManager.ILSMaxShipCount];
