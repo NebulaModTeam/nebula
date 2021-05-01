@@ -24,17 +24,14 @@ namespace NebulaHost.PacketProcessors.Logistics
         {
             Player player = playerManager.GetPlayer(conn);
             // if a user adds/removes a ship, drone or warper or changes max power input broadcast to everyone.
-            if (
-                (
-                    packet.SettingIndex == StationUI.EUISettings.MaxChargePower
-                    || packet.SettingIndex == StationUI.EUISettings.SetDroneCount
-                    || packet.SettingIndex == StationUI.EUISettings.SetShipCount
-                    || packet.SettingIndex == StationUI.EUISettings.SetWarperCount
-                    || packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageRequest
-                    || packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse
+            if (player != null && StationUIManager.UpdateCooldown == 0 &&
+                (packet.SettingIndex == StationUI.EUISettings.MaxChargePower
+                 || packet.SettingIndex == StationUI.EUISettings.SetDroneCount
+                 || packet.SettingIndex == StationUI.EUISettings.SetShipCount
+                 || packet.SettingIndex == StationUI.EUISettings.SetWarperCount
+                 || packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageRequest
+                 || packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
                 )
-                && player != null && StationUIManager.UpdateCooldown == 0
-            )
             {
                 playerManager.SendPacketToAllPlayers(packet);
             }
