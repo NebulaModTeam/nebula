@@ -153,7 +153,8 @@ namespace NebulaWorld.Logistics
             // only host should update everything
             if (!LocalPlayer.IsMasterClient)
             {
-                return;
+                // this is changed in pr #269 anyways to reflect this logic (update for everyone, not just host. after all why should'nt we)
+                //return;
             }
             if(packet.settingIndex == StationUI.UIsettings.MaxTripDrones)
             {
