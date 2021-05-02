@@ -3,7 +3,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Processors;
 using System.Collections.Generic;
-using NebulaModel.Logger;
 
 namespace NebulaHost.PacketProcessors.GameHistory
 {
@@ -16,9 +15,10 @@ namespace NebulaHost.PacketProcessors.GameHistory
             if(packet.TechHashedContributed > 0)
             {
                 //client should have the same research queued, seek currently needed itemIds and re-add points that were contributed
-                foreach (KeyValuePair<int, int> item in GameMain.data.mainPlayer.mecha.lab.itemPoints.items)
+                ItemPack itemPoints = GameMain.data.mainPlayer.mecha.lab.itemPoints;
+                foreach (KeyValuePair<int, int> item in itemPoints)
                 {
-                    GameMain.data.mainPlayer.mecha.lab.itemPoints.Alter(item.Key, (int)packet.TechHashedContributed * 3600);
+                    itemPoints.Alter(item.Key, (int)packet.TechHashedContributed * 3600);
                 }
                 //let the default method give back the items
                 GameMain.mainPlayer.mecha.lab.ManageTakeback();

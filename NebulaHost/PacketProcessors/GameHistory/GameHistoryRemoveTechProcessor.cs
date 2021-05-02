@@ -3,7 +3,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.GameDataHistory;
-using NebulaModel.Logger;
 using System.Collections.Generic;
 
 namespace NebulaHost.PacketProcessors.GameHistory

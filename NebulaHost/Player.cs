@@ -1,6 +1,5 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Logger;
 
 namespace NebulaHost
 {
