@@ -155,7 +155,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void Prefix7(int index, out int __state)
         {
             __state = GameMain.history.techQueue[index];
-            if (LocalPlayer.IsMasterClient)
+            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
             {
                 //we need to know which itemtypes are currently needed for refunds, so trigger refund before cancelling own research
                 NebulaHost.MultiplayerHostSession.Instance.PlayerManager.SendTechRefundPackagesToClients(__state);
