@@ -38,7 +38,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     }
                     FactoryManager.TargetPlanet = packet.PlanetId;
                     planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
-                    FactoryManager.TargetPlanet = -2;
+                    FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                 }
             }
         }

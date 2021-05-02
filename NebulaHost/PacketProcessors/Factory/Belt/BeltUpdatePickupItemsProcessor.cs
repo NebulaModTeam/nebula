@@ -14,6 +14,10 @@ namespace NebulaHost.PacketProcessors.Factory.Belt
             //Iterate though belt updates and remove target items
             for (int i = 0; i < packet.BeltUpdates.Length; i++)
             {
+                if (packet.BeltUpdates[i].BeltId >= traffic.beltPool.Length)
+                {
+                    return;
+                }
                 CargoPath cargoPath = traffic.GetCargoPath(traffic.beltPool[packet.BeltUpdates[i].BeltId].segPathId);
                 //Check if belt exists
                 if (cargoPath != null)
