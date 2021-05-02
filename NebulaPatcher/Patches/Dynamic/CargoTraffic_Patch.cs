@@ -43,7 +43,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == -2 || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == -2 || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -59,7 +59,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterPathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == -2 || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -67,7 +67,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemovePathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == -2 || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -75,7 +75,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RefreshPathUV_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == -2 || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
         }
     }
 }

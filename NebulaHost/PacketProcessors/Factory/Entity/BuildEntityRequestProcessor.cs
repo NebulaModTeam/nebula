@@ -52,7 +52,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 }
                 FactoryManager.EventFactory = null;
                 FactoryManager.PacketAuthor = -1;
-                FactoryManager.TargetPlanet = -2;
+                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
         }
     }

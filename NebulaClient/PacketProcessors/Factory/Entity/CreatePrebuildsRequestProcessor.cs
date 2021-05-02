@@ -88,7 +88,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 pab.previewPose.position = tmpPos;
                 pab.previewPose.rotation = tmpRot;
 
-                FactoryManager.TargetPlanet = -2;
+                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
         }
     }

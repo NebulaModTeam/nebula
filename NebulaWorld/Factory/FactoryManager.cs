@@ -26,11 +26,12 @@ namespace NebulaWorld.Factory
 
         public static int PacketAuthor { get; set; }
         public static int TargetPlanet { get; set; }
+        public const int PLANET_NONE = -2;
 
         public static void Initialize()
         {
             PacketAuthor = -1;
-            TargetPlanet = -2; //-2, because "player.planetId" can return -1
+            TargetPlanet = PLANET_NONE;
         }
 
         public static void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)
