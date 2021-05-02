@@ -78,12 +78,14 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 if (packet.AuthorId == LocalPlayer.PlayerId)
                 {
                     pab.AfterPrebuild();
+                } else
+                {
+                    pab.buildPreviews = tmpList;
                 }
 
                 //Revert changes back
                 AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
                 AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
-                pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos;
                 pab.previewPose.rotation = tmpRot;
