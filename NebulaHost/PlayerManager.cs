@@ -277,6 +277,7 @@ namespace NebulaHost
                 {
                     Player curPlayer = kvp.Value;
                     long techProgress = curPlayer.ReleaseResearchProgress();
+                        
                     if (techProgress > 0)
                     {
                         Log.Info($"Sending Recoverrequest for player {curPlayer.Id}: refunding for techId {techId} - raw progress: {curPlayer.TechProgressContributed}");

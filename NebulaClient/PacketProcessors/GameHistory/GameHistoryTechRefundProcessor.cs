@@ -15,7 +15,7 @@ namespace NebulaClient.PacketProcessors.GameHistory
             //only refund if we have contributed
             if(packet.TechHashedContributed > 0)
             {
-                Log.Info($"ProcessPacket: contributed {packet.TechHashedContributed} hashes");
+                Log.Info($"ProcessPacket: contributed {packet.TechHashedContributed} hashes to itemid {packet.TechIdContributed}");
                 TechProto techProto = LDB.techs.Select(packet.TechIdContributed);
                 int[] items = techProto.Items;
                 int[] array = techProto.ItemPoints;
@@ -25,12 +25,10 @@ namespace NebulaClient.PacketProcessors.GameHistory
                 {
                     int itemId = items[i];
                     int contributedItems = (int)packet.TechHashedContributed * array[i];
-                    Log.Info($"ProcessPacket: refunding {itemId}: {packet.TechHashedContributed} * {array[i]} = {contributedItems} ");
                     GameMain.data.mainPlayer.mecha.lab.itemPoints.Alter(itemId, contributedItems);
                 }
                 //let the default method give back the items
                 GameMain.mainPlayer.mecha.lab.ManageTakeback();
-                Log.Info($"ProcessPacket: finished takeback");
             }
         }
     }

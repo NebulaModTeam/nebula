@@ -42,18 +42,16 @@ namespace NebulaHost
             {
                 CurrentResearchId = techId;
                 TechProgressContributed = techprogress;
-                Log.Info($"UpdateResearchProgress: started ResearchProgress for item {CurrentResearchId} with inital value {TechProgressContributed}");
             }
             else
             {
-                Log.Info($"UpdateResearchProgress: updated progress for player by {techprogress}, now total {TechProgressContributed}");
                 TechProgressContributed += techprogress;
             }
         }
 
+        //resets the current research progress and returns contributed hashes
         public long ReleaseResearchProgress()
         {
-            Log.Info($"ReleaseResearchProgress: releasing {TechProgressContributed} hashes for playerid {this.Id}");
             long holder = TechProgressContributed;
             CurrentResearchId = 0;
             TechProgressContributed = 0;
