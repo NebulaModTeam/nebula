@@ -9,6 +9,11 @@ namespace NebulaModel.DataStructures
             return new Vector3(value.x, value.y, value.z);
         }
 
+        public static VectorLF3 ToVectorLF3(this Double3 value)
+        {
+            return new VectorLF3(value.x, value.y, value.z);
+        }
+
         public static Float3 ToFloat3(this Vector3 value)
         {
             return new Float3(value.x, value.y, value.z);

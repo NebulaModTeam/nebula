@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <DevEnvLoc>$(MSBuildThisFileDirectory)DevEnv.targets</DevEnvLoc>
+  </PropertyGroup>
+
+  <!-- This sets $(DSPGameDir) -->
+  <Import Project="$(DevEnvLoc)" Condition="Exists('$(DevEnvLoc)')" />
+
+  <PropertyGroup Label="Game Install Properties">
+    <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
+    <DSPGameDir>$([MSBuild]::EnsureTrailingSlash('$(DSPGameDir)'))</DSPGameDir>
+    <SteamDir>$([MSBuild]::EnsureTrailingSlash('$(SteamDir)'))</SteamDir>
+    <BepInExDir>$(DSPGameDir)BepInEx\core\</BepInExDir>
+    <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
+    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Common Properties">
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+    <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+    <TargetFramework>net35</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
+
+    <!-- Even if created, you need mdb files to have any debug info loaded -->
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  
+  <!-- Shared Items -->
+  <ItemGroup Label="BCL Shims">
+    <Compile Include="$(MSBuildThisFileDirectory)Shims\Shims.cs" />
+  </ItemGroup>
+
+  <ItemGroup Label="NuGets">
+    <PackageReference Include="jnm2.ReferenceAssemblies.net35" Version="1.0.1" PrivateAssets="All" />
+    <PackageReference Include="lz4net" Version="1.0.15.93" />
+
+    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.10.1" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.194" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Label="BepInEx">
+    <Reference Include="$(BepInExDir)0Harmony.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(BepInExDir)BepInEx.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(BepInExDir)BepInEx.Harmony.dll" Private="false" SpecificVersion="true" />
+  </ItemGroup>
+
+  <ItemGroup Label="Dyson Sphere Program">
+    <Reference Include="$(DSPAssemblyDir)Assembly-CSharp.dll" Private="false" SpecificVersion="true" />
+
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.IMGUIModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.ParticleSystemModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.PhysicsModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.TextRenderingModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.UIElementsModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.UIModule.dll" Private="false" SpecificVersion="true" />
+  </ItemGroup>
+</Project>

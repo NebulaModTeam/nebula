@@ -1,4 +1,5 @@
-﻿using NebulaModel.Logger;
+﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Players;
@@ -9,6 +10,7 @@ using NebulaWorld;
 using System;
 using System.Net;
 using UnityEngine;
+using UnityEngine.UI;
 using WebSocketSharp;
 
 namespace NebulaClient
@@ -22,6 +24,11 @@ namespace NebulaClient
         private NebulaConnection serverConnection;
         private float mechaSynchonizationTimer = 0f;
 
+        private float pingTimer = 0f;
+        private float pingTimestamp = 0f;
+        private Text pingIndicator;
+        private int previousDelay = 0;
+
         public NetPacketProcessor PacketProcessor { get; protected set; }
         public bool IsConnected { get; protected set; }
 
@@ -31,7 +38,7 @@ namespace NebulaClient
         private void Awake()
         {
             Instance = this;
-        }
+        }   
 
         public void ConnectToIp(IPAddress ip, int port)
         {
@@ -73,6 +80,30 @@ namespace NebulaClient
             LocalPlayer.SetNetworkProvider(this);
         }
 
+        public void DisplayPingIndicator()
+        {
+            GameObject previousObject = GameObject.Find("Ping Indicator");
+            if (previousObject == null)
+            {
+                GameObject targetObject = GameObject.Find("label");
+                pingIndicator = GameObject.Instantiate(targetObject, UIRoot.instance.uiGame.gameObject.transform).GetComponent<Text>();
+                pingIndicator.gameObject.name = "Ping Indicator";
+                pingIndicator.alignment = TextAnchor.UpperLeft;
+                pingIndicator.enabled = true;
+                RectTransform rect = pingIndicator.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0f, 1f);
+                rect.offsetMax = new Vector2(-68f, -40f);
+                rect.offsetMin = new Vector2(10f, -100f);
+                pingIndicator.text = "";
+                pingIndicator.fontSize = 14;
+            }
+            else
+            {
+                pingIndicator = previousObject.GetComponent<Text>();
+                pingIndicator.enabled = true;
+            }
+        }
+
         void Disconnect()
         {
             IsConnected = false;
@@ -82,6 +113,7 @@ namespace NebulaClient
         public void DestroySession()
         {
             Disconnect();
+            pingIndicator.enabled = false;
             Destroy(gameObject);
         }
 
@@ -103,12 +135,27 @@ namespace NebulaClient
             //Not needed at the moment, used only on the host side
             throw new NotImplementedException();
         }
+        public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+        {
+            //Should send packet to particular planet
+            //Not needed at the moment, used only on the host side
+            throw new NotImplementedException();
+        }
 
         public void Reconnect()
         {
             SimulatedWorld.Clear();
             Disconnect();
             ConnectInternal();
+        }
+
+        public void UpdatePingIndicator()
+        {
+            int newDelay = (int)((Time.time - pingTimestamp)*1000);
+            if (newDelay != previousDelay) {
+                pingIndicator.text = $"Ping: {newDelay}ms";
+                previousDelay = newDelay;
+            }
         }
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
@@ -138,9 +185,10 @@ namespace NebulaClient
 
                 if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
                 {
+                    string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
                         "Mod Version Mismatch",
-                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nMake sure to use the same version.",
+                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nYou:{versions[0]} - Remote:{versions[1]}",
                         "OK",
                         OnDisconnectPopupCloseBeforeGameLoad);
                     return;
@@ -148,9 +196,10 @@ namespace NebulaClient
 
                 if (e.Code == (ushort)DisconnectionReason.GameVersionMismatch)
                 {
+                    string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
                         "Game Version Mismatch",
-                        $"Your version of the game is not the same as the one used by the Host.\nMake sure to use the same version.",
+                        $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
                         "OK",
                         OnDisconnectPopupCloseBeforeGameLoad);
                     return;
@@ -161,9 +210,8 @@ namespace NebulaClient
                     InGamePopup.ShowWarning(
                         "Connection Lost",
                         $"You have been disconnected from the server.\n{e.Reason}",
-                        "Quit", "Reconnect",
-                        () => { LocalPlayer.LeaveGame(); },
-                        () => { Reconnect(); });
+                        "Quit",
+                        () => LocalPlayer.LeaveGame());
                 }
                 else
                 {
@@ -194,6 +242,14 @@ namespace NebulaClient
                 {
                     SendPacket(new PlayerMechaData(GameMain.mainPlayer));
                     mechaSynchonizationTimer = 0f;
+                }
+
+                pingTimer += Time.deltaTime;
+                if (pingTimer >= 1f)
+                {
+                    SendPacket(new PingPacket());
+                    pingTimestamp = Time.time;
+                    pingTimer = 0f;
                 }
             }
         }

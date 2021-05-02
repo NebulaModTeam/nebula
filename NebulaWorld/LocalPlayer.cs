@@ -13,7 +13,6 @@ namespace NebulaWorld
         public static ushort PlayerId => Data.PlayerId;
         public static PlayerData Data { get; private set; }
         public static Dictionary<int, byte[]> PendingFactories { get; set; } = new Dictionary<int, byte[]>();
-        public static Dictionary<PrebuildData, int> prebuildReceivedList { get; set; } = new Dictionary<PrebuildData, int>();
 
         private static INetworkProvider networkProvider;
 
@@ -42,8 +41,14 @@ namespace NebulaWorld
             networkProvider?.SendPacketToPlanet(packet, planetId);
         }
 
+        public static void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+        {
+            networkProvider?.SendPacketToStar(packet, starId);
+        }
+
         public static void SetReady()
         {
+
             if (!IsMasterClient)
             {
                 // Notify the server that we are done with loading the game

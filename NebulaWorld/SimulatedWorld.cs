@@ -1,10 +1,12 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Trash;
 using NebulaWorld.Factory;
+using NebulaWorld.Logistics;
 using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.Planet;
 using NebulaWorld.Trash;
@@ -38,6 +40,8 @@ namespace NebulaWorld
 
         public static void Initialize()
         {
+            StationUIManager.Initialize();
+            ILSShipManager.Initialize();
             DroneManager.Initialize();
             FactoryManager.Initialize();
             PlanetManager.Initialize();
@@ -217,6 +221,33 @@ namespace NebulaWorld
             }
         }
 
+        public static void OnILSShipUpdate(ILSShipData packet)
+        {
+            if (packet.idleToWork)
+            {
+                ILSShipManager.IdleShipGetToWork(packet);
+            }
+            else
+            {
+                ILSShipManager.WorkShipBackToIdle(packet);
+            }
+        }
+
+        public static void OnILSShipItemsUpdate(ILSShipItems packet)
+        {
+            ILSShipManager.AddTakeItem(packet);
+        }
+
+        public static void OnStationUIChange(StationUI packet)
+        {
+            StationUIManager.UpdateUI(packet);
+        }
+
+        public static void OnILSRemoteOrderUpdate(ILSRemoteOrderData packet)
+        {
+            ILSShipManager.UpdateRemoteOrder(packet);
+        }
+
         public static void MineVegetable(VegeMined packet)
         {
             int localPlanetId = -1;
@@ -225,10 +256,6 @@ namespace NebulaWorld
                 if (remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
                 {
                     localPlanetId = pModel.Movement.localPlanetId;
-                }
-                else
-                {
-                    Debug.LogWarning("FAILED TO SYNC VEGE DATA");
                 }
             }
 

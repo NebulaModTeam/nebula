@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Factory.Inserter;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace NebulaWorld.Factory
 {
@@ -21,11 +23,15 @@ namespace NebulaWorld.Factory
         public static PlanetFactory EventFactory { get; set; }
         public static readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
         public static readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
+
         public static int PacketAuthor { get; set; }
+        public static int TargetPlanet { get; set; }
+        public const int PLANET_NONE = -2;
 
         public static void Initialize()
         {
             PacketAuthor = -1;
+            TargetPlanet = PLANET_NONE;
         }
 
         public static void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)
@@ -56,6 +62,22 @@ namespace NebulaWorld.Factory
             }
 
             return GetNextPrebuildId(planet.factory);
+        }
+
+        public static void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
+            {
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
+        }
+
+        public static void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
+            {
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
+            }
         }
 
         static readonly AccessTools.FieldRef<object, int> GetPrebuildRecycleCursor =

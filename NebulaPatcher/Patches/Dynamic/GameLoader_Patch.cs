@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaClient;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -13,6 +14,10 @@ namespace NebulaPatcher.Patches.Dynamic
             if (___frame >= 11 && SimulatedWorld.Initialized)
             {
                 SimulatedWorld.OnGameLoadCompleted();
+                if (!LocalPlayer.IsMasterClient)
+                {
+                    MultiplayerClientSession.Instance.DisplayPingIndicator();
+                }
             }
         }
     }

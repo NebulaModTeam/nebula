@@ -18,6 +18,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 using (FactoryManager.DoNotAddItemsFromBuildingOnDestruct.On())
                 {
                     FactoryManager.PacketAuthor = packet.AuthorId;
+                    FactoryManager.TargetPlanet = packet.PlanetId;
                     if (packet.PlanetId != GameMain.mainPlayer.planetId)
                     {
                         //Creating rendering batches is required to properly handle DestructFinally for the belts, since model needs to be changed.
@@ -30,6 +31,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         planet.factory.cargoTraffic.DestroyRenderingBatches();
                     }
                     FactoryManager.PacketAuthor = -1;
+                    FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                 }
             }
         }

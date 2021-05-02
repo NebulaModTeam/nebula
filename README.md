@@ -6,7 +6,7 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 ## How can I play this mod?
 
-Please do keep in mind that this mod is still in heavy development. I do not encourage you to try to install this mod yet. I will update this section once I think the mod is in a decent state.
+Please do keep in mind that this mod is still in heavy development, it may still contains bugs. That being said, the mod is in a playable state, you can install a pre-release version of the mod for now by following these instructions [Installing a pre-release version](https://github.com/hubastard/nebula/wiki/Installing-a-pre-release-version).
 
 ## What is the current status ?
 
@@ -34,12 +34,13 @@ Here is a short list of what is currently implemented
 - [x] Factories statistics syncing
 - [x] Containers inventory syncing
 - [x] Building Interaction syncing
-- [ ] Belts syncing
+- [x] Belts syncing
 - [x] Dropped items syncing
 - [ ] Interstellar Station syncing
 - [x] Drones position syncing
 - [x] Foundation syncing (terrain deformation)
 - [x] Server state persistence
+- [ ] Power network syncing
 
 ## How can I contribute
 

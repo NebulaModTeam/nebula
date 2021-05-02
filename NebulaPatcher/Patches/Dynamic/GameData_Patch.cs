@@ -3,7 +3,10 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
+using NebulaWorld.Logistics;
+using NebulaPatcher.Patches.Transpilers;
 using UnityEngine;
+using NebulaModel.Packets.Logistics;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -117,6 +120,15 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
             }
+            // sync station storages and slot filter for belt i/o
+            // do this once the factory is loaded so the processor has access to PlanetData.factory.transport.stationPool
+            LocalPlayer.SendPacket(new ILSArriveStarPlanetRequest(0, planet.id));
+
+            // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor
+            // Arragement() updates galacticTransport.stationCursor
+            // galacticTransport.shipRenderer.Update() can then update galacticTransport.shipRenderer.shipCount
+            // galacticTransport.shipRenderer.Draw() can then render ships
+            GameMain.data.galacticTransport.Arragement();
             return false;
         }
 
@@ -140,6 +152,45 @@ namespace NebulaPatcher.Patches.Dynamic
                     __instance.mainPlayer.uPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
                     GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
                     __instance.ArriveStar(nearestStar);
+                }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("GameTick")]
+        public static void GameTick_Postfix(GameData __instance, long time)
+        {
+            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                if (SimulatedWorld.Initialized)
+                {
+                    StationUIManager.DecreaseCooldown();
+                }
+                return;
+            }
+            // call StationComponent::InternalTickRemote() from here, see StationComponent_Patch.cs for info
+            int timeGene = (int)(time % 60L);
+            if (timeGene < 0)
+            {
+                timeGene += 60;
+            }
+            float dt = 0.016666668f;
+            GameHistoryData history = GameMain.history;
+            float shipSailSpeed = history.logisticShipSailSpeedModified;
+            float shipWarpSpeed = (!history.logisticShipWarpDrive) ? shipSailSpeed : history.logisticShipWarpSpeedModified;
+            int shipCarries = history.logisticShipCarries;
+            StationComponent[] gStationPool = __instance.galacticTransport.stationPool;
+            AstroPose[] astroPoses = __instance.galaxy.astroPoses;
+            VectorLF3 relativePos = __instance.relativePos;
+            Quaternion relativeRot = __instance.relativeRot;
+            bool starmap = UIGame.viewMode == EViewMode.Starmap;
+
+            foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+            {
+                if(stationComponent != null && stationComponent.isStellar)
+                {
+                    //Debug.Log("enter " + stationComponent.gid + " (" + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ")");
+                    StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
                 }
             }
         }
@@ -174,14 +225,17 @@ namespace NebulaPatcher.Patches.Dynamic
             //Client should unload all factories once they leave the star system
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
             {
-                for (int i = 0; i < __instance.localStar.planetCount; i++)
+                using (ILSShipManager.PatchLockILS.On())
                 {
-                    if (__instance.localStar.planets != null && __instance.localStar.planets[i] != null)
+                    for (int i = 0; i < __instance.localStar.planetCount; i++)
                     {
-                        if (__instance.localStar.planets[i].factory != null)
+                        if (__instance.localStar.planets != null && __instance.localStar.planets[i] != null)
                         {
-                            __instance.localStar.planets[i].factory.Free();
-                            __instance.localStar.planets[i].factory = null;
+                            if (__instance.localStar.planets[i].factory != null)
+                            {
+                                __instance.localStar.planets[i].factory.Free();
+                                __instance.localStar.planets[i].factory = null;
+                            }
                         }
                     }
                 }
@@ -197,6 +251,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
             {
                 LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(star.id));
+                LocalPlayer.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));
             }
         }
 

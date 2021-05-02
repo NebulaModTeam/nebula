@@ -25,6 +25,8 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
             if (pab != null)
             {
+                FactoryManager.TargetPlanet = packet.PlanetId;
+
                 //Make backup of values that are overwritten
                 List<BuildPreview> tmpList = pab.buildPreviews;
                 bool tmpConfirm = pab.waitConfirm;
@@ -49,7 +51,6 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                         planet.physics = new PlanetPhysics(planet);
                         planet.physics.Init();
                     }
-                    planet.factory.cargoTraffic.GetOrCreateBeltRenderingBatches();
 
                     //Take item from the inventory if player is author of the build
                     if (packet.AuthorId == LocalPlayer.PlayerId)
@@ -86,6 +87,8 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos;
                 pab.previewPose.rotation = tmpRot;
+
+                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
         }
     }

@@ -8,15 +8,15 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UILoadGameWindow))]
     class UILoadGameWindow_Patch
     {
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("DoLoadSelectedGame")]
-        public static void DoLoadSelectedGame_Prefix()
+        public static void DoLoadSelectedGame_Postfix()
         {
             if (MainMenuManager.IsInMultiplayerMenu)
             {
-                Log.Info($"Listening server on port {Config.DefaultPort}");
+                Log.Info($"Listening server on port {Config.Options.HostPort}");
                 var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
-                session.StartServer(Config.DefaultPort);
+                session.StartServer(Config.Options.HostPort, true);
             }
         }
     }
