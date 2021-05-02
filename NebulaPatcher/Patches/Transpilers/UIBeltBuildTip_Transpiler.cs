@@ -47,10 +47,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         return 0;
                     }
 
-                    LocalPlayer.SendPacketToLocalStar(new ILSUpdateSlotData((stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id,
-                                                                            (stationComponent.isStellar == true) ? 0 : stationComponent.planetId,
-                                                                            outputSlotId,
-                                                                            selectedIndex));
+                    LocalPlayer.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
                     ILSShipManager.ItemSlotStationId = stationComponent.id;
                     ILSShipManager.ItemSlotStationGId = stationComponent.gid;
                     ILSShipManager.ItemSlotLastSlotId = outputSlotId;
