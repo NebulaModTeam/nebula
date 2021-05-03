@@ -10,9 +10,9 @@
         public ILSUpdateSlotData() { }
         public ILSUpdateSlotData(int planetId, int stationId, int stationGId, int index, int storageIdx)
         {
-            StationGId = stationGId;
             PlanetId = planetId;
             StationId = stationId;
+            StationGId = stationGId;
             Index = index;
             StorageIdx = storageIdx;
         }
