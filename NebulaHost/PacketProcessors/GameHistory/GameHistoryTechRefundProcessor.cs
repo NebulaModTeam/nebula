@@ -16,7 +16,7 @@ namespace NebulaHost.PacketProcessors.GameHistory
             {
                 //client should have the same research queued, seek currently needed itemIds and re-add points that were contributed
                 ItemPack itemPoints = GameMain.data.mainPlayer.mecha.lab.itemPoints;
-                foreach (KeyValuePair<int, int> item in itemPoints)
+                foreach (KeyValuePair<int, int> item in itemPoints.items)
                 {
                     itemPoints.Alter(item.Key, (int)packet.TechHashedContributed * 3600);
                 }
