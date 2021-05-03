@@ -27,8 +27,7 @@ namespace NebulaHost.PacketProcessors.Logistics
                 (packet.SettingIndex == StationUI.EUISettings.MaxChargePower
                  || packet.SettingIndex == StationUI.EUISettings.SetDroneCount
                  || packet.SettingIndex == StationUI.EUISettings.SetShipCount
-                 || packet.SettingIndex == StationUI.EUISettings.SetWarperCount
-                 )
+                 || packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
                 )
             {
                 // this is the SendPacketToAllPlayers() logic but we need to set the mimic flag here.
@@ -40,8 +39,13 @@ namespace NebulaHost.PacketProcessors.Logistics
                         if (p.Connection == conn)
                         {
                             packet.ShouldMimic = true;
+                            p.SendPacket(packet);
+                            packet.ShouldMimic = false;
                         }
-                        p.SendPacket(packet);
+                        else
+                        {
+                            p.SendPacket(packet);
+                        }
                     }
                 }
             }
