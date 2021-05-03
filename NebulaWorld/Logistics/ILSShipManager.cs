@@ -1,7 +1,6 @@
 ﻿using NebulaModel.Packets.Logistics;
 using HarmonyLib;
 using UnityEngine;
-using System.Collections.Generic;
 using System;
 using System.Reflection;
 using NebulaModel.DataStructures;
@@ -10,8 +9,6 @@ namespace NebulaWorld.Logistics
 {
     public static class ILSShipManager
     {
-        public static Dictionary<int,List<StationComponent>> AddStationComponentQueue = new Dictionary<int,List<StationComponent>>();
-
         private static AccessTools.FieldRef<object, int> FR_stationId;
         private static AccessTools.FieldRef<object, UIStationStorage[]> FR_storageUIs;
         private static MethodInfo MI_RefreshValues = null;
