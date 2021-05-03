@@ -6,6 +6,7 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace NebulaHost.PacketProcessors.Factory.Entity
 {
@@ -88,6 +89,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     if (canBuild)
                     {
                         FactoryManager.PacketAuthor = packet.AuthorId;
+                        CheckAndFixConnections(pab, planet);
                         pab.CreatePrebuilds();
                         FactoryManager.PacketAuthor = -1;
                     }
@@ -106,20 +108,55 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
                     FactoryManager.EventFactory = null;
                 }
-                
+
                 pab.buildPreviews = tmpList;
                 pab.waitConfirm = tmpConfirm;
-                pab.previewPose.position = tmpPos; 
+                pab.previewPose.position = tmpPos;
                 pab.previewPose.rotation = tmpRot;
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
         }
 
+        public void CheckAndFixConnections(PlayerAction_Build pab, PlanetData planet)
+        {
+            //Check and fix references to prebuilds
+            Vector3 tmpVector = Vector3.zero;
+            foreach (BuildPreview preview in pab.buildPreviews)
+            {
+                //Check only, if buildPreview has some connection to another prebuild
+                if (preview.coverObjId < 0)
+                {
+                    tmpVector = pab.previewPose.position + pab.previewPose.rotation * preview.lpos;
+                    if (planet.factory.prebuildPool[-preview.coverObjId].id != 0)
+                    {
+                        //Prebuild exists, check if it is same prebuild that client wants by comparing prebuild positions
+                        if (tmpVector == planet.factory.prebuildPool[-preview.coverObjId].pos)
+                        {
+                            //Position of prebuilds are same, everything is OK.
+                            continue;
+                        }
+                    }
+                    // Prebuild does not exists, check what is the new ID of the finished building that was constructed from prebuild
+                    // or
+                    // Positions of prebuilds are different, which means this is different prebuild and we need to find ID of contructed building
+                    foreach (EntityData entity in planet.factory.entityPool)
+                    {
+                        // `entity.pos == tmpVector` does not work in every cases (rounding errors?).
+                        if ((entity.pos - tmpVector).sqrMagnitude < 0.1f)
+                        {
+                            preview.coverObjId = entity.id;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
         {
             //Check if some entity that is suppose to be connected to this building is missing
-            for(int i = 0; i < buildPreviews.Count; i++)
+            for (int i = 0; i < buildPreviews.Count; i++)
             {
                 var buildPreview = buildPreviews[i];
                 int inputObjId = buildPreview.inputObjId;
