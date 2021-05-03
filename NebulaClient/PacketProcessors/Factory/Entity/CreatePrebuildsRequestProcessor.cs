@@ -78,9 +78,6 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 if (packet.AuthorId == LocalPlayer.PlayerId)
                 {
                     pab.AfterPrebuild();
-                } else
-                {
-                    pab.buildPreviews = tmpList;
                 }
 
                 //Revert changes back
@@ -89,6 +86,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 pab.waitConfirm = tmpConfirm;
                 pab.previewPose.position = tmpPos;
                 pab.previewPose.rotation = tmpRot;
+                pab.buildPreviews = tmpList;
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
