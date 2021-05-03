@@ -396,10 +396,7 @@ namespace NebulaWorld
             }
 
             //Initialization on the host side after game is loaded
-            if (LocalPlayer.IsMasterClient)
-            {
-                FactoryManager.InitializePrebuildRequests();
-            }
+            FactoryManager.InitializePrebuildRequests();
 
             LocalPlayer.SetReady();
 
