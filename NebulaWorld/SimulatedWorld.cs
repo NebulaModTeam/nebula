@@ -276,7 +276,10 @@ namespace NebulaWorld
                     VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, vData.rot);
                     VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
                 }
-                factory.RemoveVegeWithComponents(vData.id);
+                using (PlanetManager.EventFromServer.On())
+                {
+                    factory.RemoveVegeWithComponents(vData.id);
+                }
             }
             else // veins
             {
@@ -309,8 +312,10 @@ namespace NebulaWorld
                             VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
                             VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
                         }
-
-                        factory.RemoveVeinWithComponents(vData.id);
+                        using (PlanetManager.EventFromServer.On())
+                        {
+                            factory.RemoveVeinWithComponents(vData.id);
+                        }
                     }
                 }
             }
