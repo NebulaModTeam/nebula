@@ -11,13 +11,13 @@ namespace NebulaHost.PacketProcessors.Logistics
     {
         public void ProcessPacket(StationSubscribeUIUpdates packet, NebulaConnection conn)
         {
-            if (packet.subscribe)
+            if (packet.Subscribe)
             {
-                StationUIManager.AddSubscriber(packet.stationGId, conn);
+                StationUIManager.AddSubscriber(packet.PlanetId, packet.StationId, packet.StationGId, conn);
             }
             else
             {
-                StationUIManager.RemoveSubscriber(packet.stationGId, conn);
+                StationUIManager.RemoveSubscriber(packet.PlanetId, packet.StationId, packet.StationGId, conn);
             }
         }
     }

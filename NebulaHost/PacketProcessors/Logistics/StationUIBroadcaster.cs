@@ -23,34 +23,41 @@ namespace NebulaHost.PacketProcessors.Logistics
         public void ProcessPacket(StationUI packet, NebulaConnection conn)
         {
             // if a user adds/removes a ship, drone or warper or changes max power input broadcast to everyone.
-            if((packet.settingIndex == StationUI.UIsettings.MaxChargePower || packet.settingIndex == StationUI.UIsettings.setDroneCount || packet.settingIndex == StationUI.UIsettings.setShipCount || packet.settingIndex == StationUI.UIsettings.setWarperCount) && StationUIManager.UpdateCooldown == 0)
+            if (StationUIManager.UpdateCooldown == 0 &&
+                (packet.SettingIndex == StationUI.EUISettings.MaxChargePower
+                 || packet.SettingIndex == StationUI.EUISettings.SetDroneCount
+                 || packet.SettingIndex == StationUI.EUISettings.SetShipCount
+                 || packet.SettingIndex == StationUI.EUISettings.SetWarperCount
+                 )
+                )
             {
+                // this is the SendPacketToAllPlayers() logic but we need to set the mimic flag here.
                 using (playerManager.GetConnectedPlayers(out var connectedPlayers))
                 {
-                    // this is the SendPacketToAllPlayers() logic but we need to set the mimic flag here.
                     foreach (var kvp in connectedPlayers)
                     {
                         Player p = kvp.Value;
-                        if(p.Connection == conn)
+                        if (p.Connection == conn)
                         {
-                            packet.shouldMimick = true;
+                            packet.ShouldMimic = true;
                         }
                         p.SendPacket(packet);
                     }
                 }
             }
-            else if(packet.settingIndex == StationUI.UIsettings.addOrRemoveItemFromStorageResp)
+            else if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
             {
                 // if someone adds or removes items by hand broadcast to every player on that planet
                 Player player = playerManager.GetPlayer(conn);
-                if(player != null)
+                if (player != null)
                 {
                     playerManager.SendPacketToPlanet(packet, player.Data.LocalPlanetId);
                 }
             }
-            else if(StationUIManager.UpdateCooldown == 0 || !packet.isStorageUI)
+            else if(StationUIManager.UpdateCooldown == 0 || !packet.IsStorageUI)
             {
-                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(packet.stationGId);
+                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(packet.PlanetId, packet.StationId, packet.StationGId);
+                
                 for (int i = 0; i < subscribers.Count; i++)
                 {
                     if(subscribers[i] != null)
@@ -61,14 +68,14 @@ namespace NebulaHost.PacketProcessors.Logistics
                              * as we block the normal method for the client he must run it once he receives this packet.
                              * but only the one issued the request should do it, we indicate this here
                              */
-                            packet.shouldMimick = true;
+                            packet.ShouldMimic = true;
                         }
                         subscribers[i].SendPacket(packet);
                     }
                 }
             }
             // always update values for host, but he does not need to rely on the mimic flag (infact its bad for him)
-            packet.shouldMimick = false;
+            packet.ShouldMimic = false;
             SimulatedWorld.OnStationUIChange(packet);
         }
     }

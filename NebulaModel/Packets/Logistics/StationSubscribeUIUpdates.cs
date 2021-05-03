@@ -2,13 +2,17 @@
 {
     public class StationSubscribeUIUpdates
     {
-        public bool subscribe { get; set; }
-        public int stationGId { get; set; }
+        public int PlanetId { get; set; }
+        public int StationId { get; set; }
+        public int StationGId { get; set; }
+        public bool Subscribe { get; set; }
         public StationSubscribeUIUpdates() { }
-        public StationSubscribeUIUpdates(bool subscribe, int stationGId)
+        public StationSubscribeUIUpdates(bool subscribe, int planetId, int stationId, int stationGId)
         {
-            this.subscribe = subscribe;
-            this.stationGId = stationGId;
+            PlanetId = planetId;
+            StationId = stationId;
+            StationGId = stationGId;
+            Subscribe = subscribe;
         }
     }
 }

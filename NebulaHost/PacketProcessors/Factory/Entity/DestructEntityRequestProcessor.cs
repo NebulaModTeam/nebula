@@ -31,7 +31,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         planet.factory.cargoTraffic.DestroyRenderingBatches();
                     }
                     FactoryManager.PacketAuthor = -1;
-                    FactoryManager.TargetPlanet = -2;
+                    FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                 }
             }
         }

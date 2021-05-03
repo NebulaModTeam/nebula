@@ -30,7 +30,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
                     FactoryManager.TargetPlanet = packet.PlanetId;
                     planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
-                    FactoryManager.TargetPlanet = -2;
+                    FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
 
                     if (packet.PlanetId != GameMain.localPlanet?.id)
                     {
