@@ -36,16 +36,8 @@ namespace NebulaHost.PacketProcessors.Logistics
                     foreach (var kvp in connectedPlayers)
                     {
                         Player p = kvp.Value;
-                        if (p.Connection == conn)
-                        {
-                            packet.ShouldMimic = true;
-                            p.SendPacket(packet);
-                            packet.ShouldMimic = false;
-                        }
-                        else
-                        {
-                            p.SendPacket(packet);
-                        }
+                        packet.ShouldMimic = p.Connection == conn;
+                        p.SendPacket(packet);
                     }
                 }
             }
@@ -66,14 +58,11 @@ namespace NebulaHost.PacketProcessors.Logistics
                 {
                     if(subscribers[i] != null)
                     {
-                        if(subscribers[i] == conn)
-                        {
-                            /*
-                             * as we block the normal method for the client he must run it once he receives this packet.
-                             * but only the one issued the request should do it, we indicate this here
-                             */
-                            packet.ShouldMimic = true;
-                        }
+                       /*
+                        * as we block the normal method for the client he must run it once he receives this packet.
+                        * but only the one issued the request should do it, we indicate this here
+                        */
+                        packet.ShouldMimic = subscribers[i] == conn;
                         subscribers[i].SendPacket(packet);
                     }
                 }
