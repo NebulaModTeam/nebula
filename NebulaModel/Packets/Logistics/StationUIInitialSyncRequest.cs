@@ -2,13 +2,15 @@
 {
     public class StationUIInitialSyncRequest
     {
-        public int stationGId { get; set; }
-        public int planetId { get; set; }
+        public int PlanetId { get; set; }
+        public int StationId { get; set; }
+        public int StationGId { get; set; }
         public StationUIInitialSyncRequest() { }
-        public StationUIInitialSyncRequest(int stationGId, int planetId)
+        public StationUIInitialSyncRequest(int planetId, int stationId, int stationGId)
         {
-            this.stationGId = stationGId;
-            this.planetId = planetId;
+            PlanetId = planetId;
+            StationId = stationId;
+            StationGId = stationGId;
         }
     }
 }

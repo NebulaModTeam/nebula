@@ -19,6 +19,7 @@ namespace NebulaPatcher
             Log.Init(new BepInExLogger(Logger));
             
             NebulaModel.Config.ModInfo = Info;
+            NebulaModel.Config.LoadOptions();
 
             try
             {

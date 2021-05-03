@@ -15,16 +15,18 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
             {
                 StationComponent stationComponent = __instance.stationPool[stationId];
+                
                 if(stationComponent != null)
                 {
-                    int id = ((stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id);
-                    StationUI packet = new StationUI(id, __instance.planet.id, storageIdx, itemId, itemCountMax, localLogic, remoteLogic, stationComponent.isStellar);
+                    StationUI packet = new StationUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
                     LocalPlayer.SendPacket(packet);
                 }
+                
                 if (LocalPlayer.IsMasterClient)
                 {
                     return true;
                 }
+                
                 return false;
             }
             return true;

@@ -284,13 +284,13 @@ namespace NebulaWorld.Logistics
         public static void UpdateSlotData(ILSUpdateSlotData packet)
         {
             // PLS
-            if (packet.PlanetId != 0)
+            if (packet.StationGId == 0)
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                if (pData?.factory?.transport != null && packet.StationGId < pData.factory.transport.stationPool.Length)
+                if (pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
                 {
-                    StationComponent stationComponent = pData.factory.transport.stationPool[packet.StationGId];
-                    if (stationComponent != null && stationComponent.slots != null)
+                    StationComponent stationComponent = pData.factory.transport.stationPool[packet.StationId];
+                    if (stationComponent?.slots != null)
                     {
                         stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
                     }
@@ -301,7 +301,7 @@ namespace NebulaWorld.Logistics
                 if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
                 {
                     StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
-                    if (stationComponent != null && stationComponent.slots != null)
+                    if (stationComponent?.slots != null)
                     {
                         stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
                     }
