@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using NebulaWorld.Logistics;
@@ -35,17 +36,32 @@ namespace NebulaPatcher.Patches.Dynamic
         // as the game does not do that for some reason, we need to do it here
         [HarmonyPostfix]
         [HarmonyPatch("NewStationComponent")]
-        public static void NewStationComponent_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
+        public static void NewStationComponent_AddPlanetId_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
             if (!SimulatedWorld.Initialized)
             {
                 return;
             }
+            
             if (!__result.isStellar && __result.planetId == 0)
             {
                 __result.planetId = __instance.planet.id;
             }
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("NewStationComponent")]
+        public static void NewStationComponent_BroadcastNewILS_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
+        {
+            if (!SimulatedWorld.Initialized || !LocalPlayer.IsMasterClient) return;
+            
+            // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
+            // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
+            // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
+            Log.Info($"Sending packet about new station component to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
+            LocalPlayer.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid));
+        }
+        
 
         [HarmonyPostfix]
         [HarmonyPatch("Import")]
