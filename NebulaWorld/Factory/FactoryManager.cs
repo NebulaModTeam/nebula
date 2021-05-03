@@ -4,6 +4,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.Inserter;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace NebulaWorld.Factory
 {
@@ -41,16 +42,15 @@ namespace NebulaWorld.Factory
             {
                 using (GetPrebuildRequests(out var prebuildRequests))
                 {
-                    for (int i = 0; i < GameMain.data.factoryCount; i++)
-                    {
-                        PlanetFactory factory = GameMain.data.factories[i];
+                    foreach (PlanetFactory factory in GameMain.data.factories)
+                    { 
                         if (factory != null)
                         {
-                            for (int j = 0; j < factory.prebuildPool.Length; j++)
+                            foreach (PrebuildData prebuild in factory.prebuildPool)
                             {
-                                if (factory.prebuildPool[j].id != 0)
+                                if (prebuild.id != 0)
                                 {
-                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[j].id)] = LocalPlayer.PlayerId;
+                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, prebuild.id)] = LocalPlayer.PlayerId;
                                 }
                             }
                         }
