@@ -55,6 +55,9 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (!SimulatedWorld.Initialized || !LocalPlayer.IsMasterClient) return;
             
+            // We don't need to do this for PLS
+            if (__result.gid == 0) return;
+
             // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
             // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
             // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
