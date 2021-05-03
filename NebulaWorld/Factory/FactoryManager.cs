@@ -34,6 +34,31 @@ namespace NebulaWorld.Factory
             TargetPlanet = PLANET_NONE;
         }
 
+        public static void InitializePrebuildRequests()
+        {
+            //Load existing prebuilds to the dictionary so it will be ready to build
+            if (LocalPlayer.IsMasterClient)
+            {
+                using (GetPrebuildRequests(out var prebuildRequests))
+                {
+                    for (int i = 0; i < GameMain.data.factoryCount; i++)
+                    {
+                        PlanetFactory factory = GameMain.data.factories[i];
+                        if (factory != null)
+                        {
+                            for (int j = 0; j < factory.prebuildPool.Length; j++)
+                            {
+                                if (factory.prebuildPool[j].id != 0)
+                                {
+                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[j].id)] = LocalPlayer.PlayerId;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public static void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)
         {
             using (GetPrebuildRequests(out var prebuildRequests))

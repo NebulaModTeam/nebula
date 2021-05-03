@@ -395,6 +395,12 @@ namespace NebulaWorld
                 LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
             }
 
+            //Initialization on the host side after game is loaded
+            if (LocalPlayer.IsMasterClient)
+            {
+                FactoryManager.InitializePrebuildRequests();
+            }
+
             LocalPlayer.SetReady();
 
             IsGameLoaded = true;
