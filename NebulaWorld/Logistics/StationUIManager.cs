@@ -431,7 +431,7 @@ namespace NebulaWorld.Logistics
             
             using (ILSShipManager.PatchLockILS.On())
             {
-                planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, null);
+                planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldMimic == true) ? GameMain.mainPlayer : null);
             }
         }
     }
