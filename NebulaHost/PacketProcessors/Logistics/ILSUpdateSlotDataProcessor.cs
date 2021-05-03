@@ -18,7 +18,7 @@ namespace NebulaHost.PacketProcessors.Logistics
         {
             PlanetData pData = null;
             // PLS
-            if(packet.PlanetId != 0)
+            if(packet.StationGId == 0)
             {
                 pData = GameMain.galaxy.PlanetById(packet.PlanetId);
             }
