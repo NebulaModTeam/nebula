@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.GameDataHistory;
+using System.Collections.Generic;
 
 namespace NebulaHost.PacketProcessors.GameHistory
 {
@@ -22,9 +23,14 @@ namespace NebulaHost.PacketProcessors.GameHistory
             {
                 using (GameDataHistoryManager.IsIncomingRequest.On())
                 {
-                    GameMain.history.RemoveTechInQueue(packet.Index);
+                    int index = System.Array.IndexOf(GameMain.history.techQueue, packet.TechId);
+                    //sanity: packet wanted to remove tech, which is not queued on this client, ignore it
+                    if(index < 0)
+                    {
+                        return;
+                    }
+                    GameMain.history.RemoveTechInQueue(index);
                 }
-                playerManager.SendPacketToOtherPlayers(packet, player);
             }
         }
     }

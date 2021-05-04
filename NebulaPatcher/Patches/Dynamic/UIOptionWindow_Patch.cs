@@ -210,13 +210,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 slider.onValueChanged.AddListener((value) => 
                 {
                     prop.SetValue(tempMultiplayerOptions, value, null);
-                    sliderThumbText.text = value.ToString("0");
+                    sliderThumbText.text = value.ToString(isFloatingPoint ? "0.00" : "0");
                 });
 
                 tempToUICallbacks[prop.Name] = () =>
                 {
                     slider.value = (float)prop.GetValue(tempMultiplayerOptions, null);
-                    sliderThumbText.text = slider.value.ToString("0");
+                    sliderThumbText.text = slider.value.ToString(isFloatingPoint ? "0.00" : "0");
                 };
             }
             else

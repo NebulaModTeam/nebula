@@ -22,18 +22,33 @@ namespace NebulaHost.PacketProcessors.Logistics
         }
         public void ProcessPacket(StationUI packet, NebulaConnection conn)
         {
-            Player player = playerManager.GetPlayer(conn);
             // if a user adds/removes a ship, drone or warper or changes max power input broadcast to everyone.
-            if (player != null && StationUIManager.UpdateCooldown == 0 &&
+            if (StationUIManager.UpdateCooldown == 0 &&
                 (packet.SettingIndex == StationUI.EUISettings.MaxChargePower
                  || packet.SettingIndex == StationUI.EUISettings.SetDroneCount
                  || packet.SettingIndex == StationUI.EUISettings.SetShipCount
-                 || packet.SettingIndex == StationUI.EUISettings.SetWarperCount
-                 || packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageRequest
-                 || packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
+                 || packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
                 )
             {
-                playerManager.SendPacketToAllPlayers(packet);
+                // this is the SendPacketToAllPlayers() logic but we need to set the mimic flag here.
+                using (playerManager.GetConnectedPlayers(out var connectedPlayers))
+                {
+                    foreach (var kvp in connectedPlayers)
+                    {
+                        Player p = kvp.Value;
+                        packet.ShouldMimic = p.Connection == conn;
+                        p.SendPacket(packet);
+                    }
+                }
+            }
+            else if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
+            {
+                // if someone adds or removes items by hand broadcast to every player on that planet
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                {
+                    playerManager.SendPacketToPlanet(packet, player.Data.LocalPlanetId);
+                }
             }
             else if(StationUIManager.UpdateCooldown == 0 || !packet.IsStorageUI)
             {
@@ -43,19 +58,17 @@ namespace NebulaHost.PacketProcessors.Logistics
                 {
                     if(subscribers[i] != null)
                     {
-                        if(subscribers[i] == conn)
-                        {
-                            /*
-                             * as we block the normal method for the client he must run it once he receives this packet.
-                             * but only the one issued the request should do it, we indicate this here
-                             */
-                            packet.ShouldMimic = true;
-                        }
+                       /*
+                        * as we block the normal method for the client he must run it once he receives this packet.
+                        * but only the one issued the request should do it, we indicate this here
+                        */
+                        packet.ShouldMimic = subscribers[i] == conn;
                         subscribers[i].SendPacket(packet);
                     }
                 }
             }
-            // always update values for host
+            // always update values for host, but he does not need to rely on the mimic flag (infact its bad for him)
+            packet.ShouldMimic = false;
             SimulatedWorld.OnStationUIChange(packet);
         }
     }
