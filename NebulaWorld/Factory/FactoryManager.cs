@@ -46,11 +46,11 @@ namespace NebulaWorld.Factory
                     { 
                         if (factory != null)
                         {
-                            foreach (PrebuildData prebuild in factory.prebuildPool)
+                            for(int i = 0; i < factory.prebuildCursor; i++)
                             {
-                                if (prebuild.id != 0)
+                                if (factory.prebuildPool[i].id != 0)
                                 {
-                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, prebuild.id)] = LocalPlayer.PlayerId;
+                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[i].id)] = LocalPlayer.PlayerId;
                                 }
                             }
                         }
