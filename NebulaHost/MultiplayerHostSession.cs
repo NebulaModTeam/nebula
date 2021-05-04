@@ -65,7 +65,7 @@ namespace NebulaHost
             LocalPlayer.IsMasterClient = true;
 
             // TODO: Load saved player info here
-            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(Config.Options.ColorR, Config.Options.ColorG, Config.Options.ColorB), Config.Options.Nickname));
+            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(Config.Options.MechaColorR/255, Config.Options.MechaColorG/255, Config.Options.MechaColorB/255), Config.Options.Nickname));
         }
 
         private void StopServer()

@@ -206,7 +206,7 @@ namespace NebulaHost
         {
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
-            PlayerData playerData = new PlayerData(playerId, -1, new Float3(Config.Options.ColorR, Config.Options.ColorG, Config.Options.ColorB));
+            PlayerData playerData = new PlayerData(playerId, -1, new Float3(Config.Options.MechaColorR/255, Config.Options.MechaColorG/255, Config.Options.MechaColorB/255));
 
             Player newPlayer = new Player(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))

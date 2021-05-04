@@ -10,17 +10,17 @@ namespace NebulaModel
         [DisplayName("Nickname")]
         public string Nickname { get; set; } = "Player";
 
-        [DisplayName("Color Red")]
-        [UIRange(0f, 1f)]
-        public float ColorR { get; set; } = 1f;
+        [DisplayName("Mecha Color Red")]
+        [UIRange(0, 255, true)]
+        public float MechaColorR { get; set; } = 255;
 
-        [DisplayName("Color Green")]
-        [UIRange(0f, 1f)]
-        public float ColorG { get; set; } = 0.6846404f;
+        [DisplayName("Mecha Color Green")]
+        [UIRange(0, 255, true)]
+        public float MechaColorG { get; set; } = 174;
 
-        [DisplayName("Color Blue")]
-        [UIRange(0f, 1f)]
-        public float ColorB { get; set; } = 0.24313718f;
+        [DisplayName("Mecha Color Blue")]
+        [UIRange(0, 255, true)]
+        public float MechaColorB { get; set; } = 61;
 
         [DisplayName("Host Port")]
         [UIRange(1, ushort.MaxValue)]
