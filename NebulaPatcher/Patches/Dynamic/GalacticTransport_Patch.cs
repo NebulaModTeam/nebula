@@ -21,14 +21,6 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AddStationComponent")]
-        public static bool AddStationComponent_Prefix(GalacticTransport __instance, int planetId, StationComponent station)
-        {
-            // Method only allowed to run if we're host or it's while processing a packet from host.
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS;
-        }
-
-        [HarmonyPrefix]
         [HarmonyPatch("RemoveStationComponent")]
         public static bool RemoveStationComponent_Prefix(GalacticTransport __instance, int gid)
         {

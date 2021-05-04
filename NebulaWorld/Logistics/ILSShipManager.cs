@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Reflection;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 
 namespace NebulaWorld.Logistics
 {
@@ -159,6 +160,7 @@ namespace NebulaWorld.Logistics
                 AccessTools.Method(typeof(GalacticTransport), "SetStationCapacity").Invoke(GameMain.data.galacticTransport, args);
             }
 
+           
             GameMain.data.galacticTransport.stationPool[GId] = new StationComponent();
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[GId];
             stationComponent.isStellar = true;
@@ -280,28 +282,18 @@ namespace NebulaWorld.Logistics
 
         public static void UpdateSlotData(ILSUpdateSlotData packet)
         {
-            // PLS
-            if (packet.StationGId == 0)
+            Log.Info($"Updating slot data for planet {packet.PlanetId}, station {packet.StationId} gid {packet.StationGId}. Index {packet.Index}, storageIdx {packet.StorageIdx}");
+            
+            // Clients only care about what happens on their planet, hosts always need to apply this.
+            // Using PlanetFactory to prevent getting the "fakes" that are creates on clients.
+            if (LocalPlayer.IsMasterClient || (!LocalPlayer.IsMasterClient && packet.PlanetId == GameMain.localPlanet?.id))
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                if (pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
+                StationComponent stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];
+                
+                if (stationComponent?.slots != null)
                 {
-                    StationComponent stationComponent = pData.factory.transport.stationPool[packet.StationId];
-                    if (stationComponent?.slots != null)
-                    {
-                        stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
-                    }
-                }
-            }
-            else // ILS
-            {
-                if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
-                {
-                    StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
-                    if (stationComponent?.slots != null)
-                    {
-                        stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
-                    }
+                    stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
                 }
             }
         }

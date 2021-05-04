@@ -18,9 +18,8 @@ namespace NebulaClient.PacketProcessors.Logistics
             {
                 GalacticTransport galacticTransport = GameMain.data.galacticTransport;
 
-                if (packet.PlanetId == GameMain.localPlanet.id)
+                if (packet.PlanetId == GameMain.localPlanet?.id)
                 {
-                    Log.Info("Adding local planet station");
                     // If we're on the same planet as the new station was created on, should be able to find
                     // it in our local PlanetTransport.stationPool
                     StationComponent stationComponent = GameMain.localPlanet.factory.transport.stationPool[packet.StationId];
@@ -28,7 +27,6 @@ namespace NebulaClient.PacketProcessors.Logistics
                 }
                 else
                 {
-                    Log.Info("Adding fake station");
                     // If we're not on the same planet as the new station was create on, we need to create a 
                     // "fake" station that we can put into the GalacticTransport.stationPool instead of a real on
                     ILSShipManager.CreateFakeStationComponent(packet.StationGId, packet.PlanetId, true);
