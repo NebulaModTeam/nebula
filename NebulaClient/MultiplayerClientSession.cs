@@ -175,7 +175,7 @@ namespace NebulaClient
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
             IsConnected = true;
             //TODO: Maybe some challenge-response authentication mechanism?
-            SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()), AccountData.me.userName, LocalPlayer.GS2_GSSettings != null));
+            SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()), NebulaModel.Config.Options.Nickname, LocalPlayer.GS2_GSSettings != null));
         }
 
         static void DisableNagleAlgorithm(WebSocket socket)

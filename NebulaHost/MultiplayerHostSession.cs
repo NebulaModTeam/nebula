@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using Config = NebulaModel.Config;
 
 namespace NebulaHost
 {
@@ -69,7 +70,7 @@ namespace NebulaHost
             LocalPlayer.IsMasterClient = true;
 
             // TODO: Load saved player info here
-            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(1.0f, 0.6846404f, 0.243137181f), AccountData.me.userName));
+            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(Config.Options.ColorR, Config.Options.ColorG, Config.Options.ColorB), Config.Options.Nickname));
         }
 
         static void DisableNagleAlgorithm(WebSocketServer socketServer)

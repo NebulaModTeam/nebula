@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using Config = NebulaModel.Config;
 
 namespace NebulaHost
 {
@@ -205,16 +206,17 @@ namespace NebulaHost
         {
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
-            Float3 randomColor = new Float3(Random.value, Random.value, Random.value);
+
+            Float3 PlayerColor = new Float3(Config.Options.ColorR, Config.Options.ColorG, Config.Options.ColorB);
             PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
             PlayerData playerData;
             if (LocalPlayer.GS2_GSSettings != null)
             {
-                playerData = new PlayerData(playerId, -1, randomColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+                playerData = new PlayerData(playerId, -1, PlayerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
             }
             else
             {
-                playerData = new PlayerData(playerId, -1, randomColor);
+                playerData = new PlayerData(playerId, -1, PlayerColor);
             }
 
             Player newPlayer = new Player(conn, playerData);
