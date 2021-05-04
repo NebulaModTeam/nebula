@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using Config = NebulaModel.Config;
 
 namespace NebulaHost
 {
@@ -205,8 +206,7 @@ namespace NebulaHost
         {
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
-            Float3 randomColor = new Float3(Random.value, Random.value, Random.value);
-            PlayerData playerData = new PlayerData(playerId, -1, randomColor);
+            PlayerData playerData = new PlayerData(playerId, -1, new Float3(Config.Options.ColorR, Config.Options.ColorG, Config.Options.ColorB));
 
             Player newPlayer = new Player(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))
