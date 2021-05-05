@@ -2,11 +2,11 @@
 {
     public class ILSRequestShipDock
     {
-        public int stationGId { get; set; }
+        public int StationGId { get; set; }
         public ILSRequestShipDock() { }
         public ILSRequestShipDock(int stationGId)
         {
-            this.stationGId = stationGId;
+            StationGId = stationGId;
         }
     }
 }
