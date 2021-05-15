@@ -9,6 +9,8 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System;
 using System.Net;
+using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
@@ -165,11 +167,19 @@ namespace NebulaClient
 
         private void ClientSocket_OnOpen(object sender, System.EventArgs e)
         {
+            DisableNagleAlgorithm(clientSocket);
+
             Log.Info($"Server connection established: {clientSocket.Url}");
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
             IsConnected = true;
             //TODO: Maybe some challenge-response authentication mechanism?
             SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()), AccountData.me.userName));
+        }
+
+        static void DisableNagleAlgorithm(WebSocket socket)
+        {
+            var tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);
+            tcpClient.NoDelay = true;
         }
 
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)

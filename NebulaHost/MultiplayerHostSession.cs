@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
@@ -6,6 +7,8 @@ using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
 using NebulaWorld.Statistics;
+using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -54,6 +57,8 @@ namespace NebulaHost
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
             socketServer = new WebSocketServer(port);
+            DisableNagleAlgorithm(socketServer);
+
             socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
 
             socketServer.Start();
@@ -65,6 +70,13 @@ namespace NebulaHost
 
             // TODO: Load saved player info here
             LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(1.0f, 0.6846404f, 0.243137181f), AccountData.me.userName));
+        }
+
+        static void DisableNagleAlgorithm(WebSocketServer socketServer)
+        {
+            var listener = AccessTools.FieldRefAccess<WebSocketServer, TcpListener>("_listener")(socketServer);
+
+            listener.Server.NoDelay = true;
         }
 
         private void StopServer()
