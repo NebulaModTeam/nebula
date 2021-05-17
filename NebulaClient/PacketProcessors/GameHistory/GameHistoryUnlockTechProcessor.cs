@@ -15,9 +15,9 @@ namespace NebulaClient.PacketProcessors.GameHistory
             Log.Info($"Unlocking tech (ID: {packet.TechId})");
             using (GameDataHistoryManager.IsIncomingRequest.On())
             {
-                GameMain.history.UnlockTech(packet.TechId);
                 GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
                 GameMain.history.DequeueTech();
+                GameMain.history.UnlockTech(packet.TechId);
             }
         }
     }
