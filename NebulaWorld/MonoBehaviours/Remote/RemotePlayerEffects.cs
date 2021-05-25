@@ -126,7 +126,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             if (!rootAnimation.Sail.enabled || isWarping)
             {
-                //return;
+                return;
             }
 
             isWarping = true;
@@ -136,7 +136,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             if (!rootAnimation.Sail.enabled || !isWarping)
             {
-                //return;
+                return;
             }
 
             isWarping = false;
