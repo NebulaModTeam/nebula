@@ -33,7 +33,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private float astrosMul;
         private float nebulasMul;
 
-        public float warpState = 0;
+        public float WarpState = 0;
         private bool warpEffectActivated = false;
 
         Vector4[] warpRotations;
@@ -126,7 +126,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             if (!rootAnimation.Sail.enabled || isWarping)
             {
-                return;
+                //return;
             }
 
             isWarping = true;
@@ -136,7 +136,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             if (!rootAnimation.Sail.enabled || !isWarping)
             {
-                return;
+                //return;
             }
 
             isWarping = false;
@@ -146,23 +146,23 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             if (isWarping)
             {
-                warpState += 0.0055655558f;
-                if (warpState > 1f)
+                WarpState += 0.0055655558f;
+                if (WarpState > 1f)
                 {
-                    warpState = 1f;
+                    WarpState = 1f;
                 }
             }
             else
             {
-                warpState -= 0.06667667f;
-                if (warpState < 0f)
+                WarpState -= 0.06667667f;
+                if (WarpState < 0f)
                 {
-                    warpState = 0f;
+                    WarpState = 0f;
                 }
             }
 
             Vector4 playerRot = new Vector4(rootTransform.rotation.x, rootTransform.rotation.y, rootTransform.rotation.z, rootTransform.rotation.w);
-            if (warpState > 0.001f && !warpEffectActivated)
+            if (WarpState > 0.001f && !warpEffectActivated)
             {
                 for (int i = 0; i < warpRotations.Length; i++)
                 {
@@ -171,7 +171,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 VFAudio.Create("warp-begin", base.transform, Vector3.zero, true, 0);
                 toggleEffect(true);
             }
-            else if (warpState == 0 && warpEffectActivated)
+            else if (WarpState == 0 && warpEffectActivated)
             {
                 VFAudio.Create("warp-end", base.transform, Vector3.zero, true, 0);
                 toggleEffect(false);
@@ -197,8 +197,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             distortRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
             nebulasRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
-            float num1 = intensByState.Evaluate(warpState);
-            float num2 = intensByState_astro.Evaluate(warpState);
+            float num1 = intensByState.Evaluate(WarpState);
+            float num2 = intensByState_astro.Evaluate(WarpState);
             tunnelMat.SetFloat("_Multiplier", tunnelMul * num1);
             tunnelMat.SetVectorArray("_WarpRotations", warpRotations);
             distortMat.SetFloat("_DistortionStrength", distortMul * num1);
@@ -211,6 +211,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private RemotePlayerAnimation rootAnimation;
         private Transform rootTransform;
         private Transform rootModelTransform;
+        private RemoteWarpEffect rootWarp;
 
         private ParticleSystem[] WaterEffect;
         private ParticleSystem[][] FootSmokeEffect;
@@ -281,6 +282,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             collider = new Collider[16];
 
             rootTransform.gameObject.AddComponent<RemoteWarpEffect>();
+            rootWarp = rootTransform.gameObject.GetComponent<RemoteWarpEffect>();
 
         }
 
@@ -292,6 +294,16 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 miningAudio.Stop();
                 miningAudio = null;
             }
+        }
+
+        public void startWarp()
+        {
+            rootWarp.startWarp();
+        }
+
+        public void stopWarp()
+        {
+            rootWarp.stopWarp();
         }
 
         private void stopAllFlyAudio()

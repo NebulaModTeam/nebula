@@ -105,8 +105,10 @@ namespace NebulaWorld
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
+                Debug.Log("trying to add " + playerData.PlayerId);
                 if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
                 {
+                    Debug.Log("added");
                     RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
                     remotePlayersModels.Add(playerData.PlayerId, model);
                 }
@@ -146,6 +148,25 @@ namespace NebulaWorld
                 {
                     player.Animator.UpdateState(packet);
                     player.Effects.UpdateState(packet);
+                }
+            }
+        }
+
+        public static void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
+        {
+            using (GetRemotePlayersModels(out var remotePlayersModels))
+            {
+                if(packet.PlayerId == 0) packet.PlayerId = 1; // host sends himself as PlayerId 0 but clients see him as id 1
+                if(remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
+                {
+                    if (packet.WarpCommand)
+                    {
+                        player.Effects.startWarp();
+                    }
+                    else
+                    {
+                        player.Effects.stopWarp();
+                    }
                 }
             }
         }
