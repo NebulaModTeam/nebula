@@ -105,10 +105,8 @@ namespace NebulaWorld
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
-                Debug.Log("trying to add " + playerData.PlayerId);
                 if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
                 {
-                    Debug.Log("added");
                     RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
                     remotePlayersModels.Add(playerData.PlayerId, model);
                 }
