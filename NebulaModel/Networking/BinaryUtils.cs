@@ -21,7 +21,7 @@ namespace NebulaModel.Networking
             public Writer()
             {
                 ms = new MemoryStream();
-                ls = new LZ4Stream(ms, CompressionMode.Compress);
+                ls = new LZ4Stream(ms, LZ4StreamMode.Compress);
                 bs = new BufferedStream(ls, BUFFER_SIZE);
                 bw = new BinaryWriter(bs);
             }
@@ -54,7 +54,7 @@ namespace NebulaModel.Networking
             public Reader(byte[] bytes)
             {
                 ms = new MemoryStream(bytes);
-                ls = new LZ4Stream(ms, CompressionMode.Decompress);
+                ls = new LZ4Stream(ms, LZ4StreamMode.Decompress);
                 bs = new BufferedStream(ls, BUFFER_SIZE);
                 br = new BinaryReader(bs);
             }

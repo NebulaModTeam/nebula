@@ -66,8 +66,8 @@ namespace NebulaModel.Packets.Factory
                 buildPreview.nearestPowerObjId[i] = br.ReadInt32();
             }
             buildPreview.coverObjId = br.ReadInt32();
-            buildPreview.willCover = br.ReadBoolean();
-            buildPreview.ignoreCollider = br.ReadBoolean();
+            buildPreview.willRemoveCover = br.ReadBoolean();
+            buildPreview.ignoreCollisionCheck = br.ReadBoolean();
             buildPreview.outputObjId = br.ReadInt32();
             buildPreview.inputObjId = br.ReadInt32();
             buildPreview.outputToSlot = br.ReadInt32();
@@ -137,11 +137,11 @@ namespace NebulaModel.Packets.Factory
             buildPreview.item.ID = br.ReadInt32();
             buildPreview.item.BuildMode = br.ReadInt32();
 
-            buildPreview.refCount = br.ReadInt32();
-            buildPreview.refArr = new int[buildPreview.refCount];
-            for (int i = 0; i < buildPreview.refCount; i++)
+            buildPreview.paramCount = br.ReadInt32();
+            buildPreview.parameters = new int[buildPreview.paramCount];
+            for (int i = 0; i < buildPreview.paramCount; i++)
             {
-                buildPreview.refArr[i] = br.ReadInt32();
+                buildPreview.parameters[i] = br.ReadInt32();
             }
             buildPreview.lpos = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
             buildPreview.lpos2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
@@ -161,8 +161,8 @@ namespace NebulaModel.Packets.Factory
                 bw.Write(buildPreview.nearestPowerObjId[i]);
             }
             bw.Write(buildPreview.coverObjId);
-            bw.Write(buildPreview.willCover);
-            bw.Write(buildPreview.ignoreCollider);
+            bw.Write(buildPreview.willRemoveCover);
+            bw.Write(buildPreview.ignoreCollisionCheck);
             bw.Write(buildPreview.outputObjId);
             bw.Write(buildPreview.inputObjId);
             bw.Write(buildPreview.outputToSlot);
@@ -239,10 +239,10 @@ namespace NebulaModel.Packets.Factory
 
             bw.Write(buildPreview.item.ID);
             bw.Write(buildPreview.item.BuildMode);
-            bw.Write(buildPreview.refCount);
-            for (int i = 0; i < buildPreview.refCount; i++)
+            bw.Write(buildPreview.paramCount);
+            for (int i = 0; i < buildPreview.paramCount; i++)
             {
-                bw.Write(buildPreview.refArr[i]);
+                bw.Write(buildPreview.parameters[i]);
             }
             bw.Write(buildPreview.lpos.x);
             bw.Write(buildPreview.lpos.y);

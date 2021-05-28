@@ -22,7 +22,7 @@
 
     <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
-    <TargetFramework>net35</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -34,12 +34,8 @@
   </PropertyGroup>
   
   <!-- Shared Items -->
-  <ItemGroup Label="BCL Shims">
-    <Compile Include="$(MSBuildThisFileDirectory)Shims\Shims.cs" />
-  </ItemGroup>
-
   <ItemGroup Label="NuGets">
-    <PackageReference Include="jnm2.ReferenceAssemblies.net35" Version="1.0.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
     <PackageReference Include="lz4net" Version="1.0.15.93" />
 
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.10.1" PrivateAssets="all" />
@@ -47,9 +43,9 @@
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">
-    <Reference Include="$(BepInExDir)0Harmony.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(BepInExDir)BepInEx.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(BepInExDir)BepInEx.Harmony.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(BepInExDir)0Harmony.dll" Private="false" SpecificVersion="false" />
+    <Reference Include="$(BepInExDir)BepInEx.dll" Private="false" SpecificVersion="false" />
+    <Reference Include="$(BepInExDir)BepInEx.Harmony.dll" Private="false" SpecificVersion="false" />
   </ItemGroup>
 
   <ItemGroup Label="Dyson Sphere Program">

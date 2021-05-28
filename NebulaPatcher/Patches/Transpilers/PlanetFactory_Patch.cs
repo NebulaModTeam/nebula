@@ -20,8 +20,8 @@ namespace NebulaPatcher.Patches.Transpiler
 			}
          */
         [HarmonyTranspiler]
-        [HarmonyPatch("DestructFinally")]
-        static IEnumerable<CodeInstruction> DestructFinally_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
+        [HarmonyPatch("DismantleFinally")]
+        static IEnumerable<CodeInstruction> DismantleFinally_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)

@@ -23,26 +23,28 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             }
 
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            if (pab != null)
+            BuildTool_Click btc = GameMain.mainPlayer.controller?.actionBuild.clickTool;
+            if (pab != null && btc != null)
             {
                 FactoryManager.TargetPlanet = packet.PlanetId;
 
                 //Make backup of values that are overwritten
-                List<BuildPreview> tmpList = pab.buildPreviews;
-                bool tmpConfirm = pab.waitConfirm;
-                UnityEngine.Vector3 tmpPos = pab.previewPose.position;
-                UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
+                List<BuildPreview> tmpList = btc.buildPreviews;
+                //bool tmpConfirm = pab.waitConfirm;
+                //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
+                //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
                 PlanetFactory tmpFactory = (PlanetFactory)AccessTools.Field(typeof(PlayerAction_Build), "factory").GetValue(GameMain.mainPlayer.controller.actionBuild);
                 PlanetPhysics tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
 
                 //Create Prebuilds from incomming packet
-                pab.buildPreviews = packet.GetBuildPreviews();
-                pab.waitConfirm = true;
+                btc.buildPreviews.Clear();
+                btc.buildPreviews.AddRange(packet.GetBuildPreviews());
+                //pab.waitConfirm = true;
                 using (FactoryManager.EventFromServer.On())
                 {
                     FactoryManager.EventFactory = planet.factory;
-                    pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
-                    pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
+                    //pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
+                    //pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
                     AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
 
                     //Create temporary physics for spawning building's colliders
@@ -55,7 +57,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     //Take item from the inventory if player is author of the build
                     if (packet.AuthorId == LocalPlayer.PlayerId)
                     {
-                        foreach (BuildPreview buildPreview in pab.buildPreviews)
+                        foreach (BuildPreview buildPreview in btc.buildPreviews)
                         {
                             if (GameMain.mainPlayer.inhandItemId == buildPreview.item.ID && GameMain.mainPlayer.inhandItemCount > 0)
                             {
@@ -70,23 +72,31 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     }
 
                     AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
-                    pab.CreatePrebuilds();
+                    btc.CreatePrebuilds();
                     FactoryManager.EventFactory = null;
                 }
 
+                // TODO: FIX THE BELOW
+
                 //Author has to call this for the continuous belt building
-                if (packet.AuthorId == LocalPlayer.PlayerId)
+/*                if (packet.AuthorId == LocalPlayer.PlayerId)
                 {
                     pab.AfterPrebuild();
-                }
+                }*/
+
+                /* TODO: Oh *boy* is this one going to be a fun one to fix - they've actually refactored the AfterPrebuild method
+                 * to happen at each of the relevant times the cmd.mode condition would have been met in every tool 
+                 *
+                 * Cod's Suggestion: Transpile everything :) */
 
                 //Revert changes back
                 AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
                 AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
-                pab.waitConfirm = tmpConfirm;
-                pab.previewPose.position = tmpPos;
-                pab.previewPose.rotation = tmpRot;
-                pab.buildPreviews = tmpList;
+                //pab.waitConfirm = tmpConfirm;
+                //pab.previewPose.position = tmpPos;
+                //pab.previewPose.rotation = tmpRot;
+                btc.buildPreviews.Clear();
+                btc.buildPreviews.AddRange(tmpList);
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }

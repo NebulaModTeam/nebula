@@ -30,8 +30,8 @@ namespace NebulaPatcher.Patches.Transpiler
             return ReplaceFactoryCondition(instructions);
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch("UpdatePower")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("UpdatePower")]
         static IEnumerable<CodeInstruction> UpdatePower_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             /* This is fix for the power statistics.

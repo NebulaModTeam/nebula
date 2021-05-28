@@ -22,8 +22,8 @@ namespace NebulaPatcher.Patches.Transpiler
     [HarmonyPatch(typeof(CargoTraffic))]
     class CargoTraffic_Patch
     {
-        [HarmonyTranspiler]
-        [HarmonyPatch("PickupBeltItems")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("PickupBeltItems")]
         static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);

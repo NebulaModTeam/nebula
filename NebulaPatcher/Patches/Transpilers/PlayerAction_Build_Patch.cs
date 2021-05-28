@@ -10,8 +10,8 @@ namespace NebulaPatcher.Patches.Transpiler
     [HarmonyPatch(typeof(PlayerAction_Build))]
     class PlayerAction_Build_Patch
     {
-        [HarmonyTranspiler]
-        [HarmonyPatch("CreatePrebuilds")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("CreatePrebuilds")]
         static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
@@ -45,8 +45,8 @@ namespace NebulaPatcher.Patches.Transpiler
          * - for the inventory check and ground condition check
          * - checks for presence of ore or oil, since we do not want to load colliders for remote planets
          */
-        [HarmonyTranspiler]
-        [HarmonyPatch("CheckBuildConditions")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("CheckBuildConditions")]
         static IEnumerable<CodeInstruction> CheckBuildConditions_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);

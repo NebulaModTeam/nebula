@@ -7,19 +7,19 @@ using NebulaWorld.Factory;
 namespace NebulaClient.PacketProcessors.Factory
 {
     [RegisterPacketProcessor]
-    class PasteEntitySettingUpdateProcessor : IPacketProcessor<PasteEntitySettingUpdate>
+    class PasteEntitySettingUpdateProcessor : IPacketProcessor<PasteBuildingSettingUpdate>
     {
-        public void ProcessPacket(PasteEntitySettingUpdate packet, NebulaConnection conn)
+        public void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
         {
             if (GameMain.data.factories[packet.FactoryIndex] != null)
             {
-                EntitySettingDesc backup = EntitySettingDesc.clipboard;
-                EntitySettingDesc.clipboard = packet.GetEntitySettings();
+                BuildingParameters backup = BuildingParameters.clipboard;
+                BuildingParameters.clipboard = packet.GetBuildingSettings();
                 using (FactoryManager.EventFromServer.On())
                 {
-                    GameMain.data.factories[packet.FactoryIndex].PasteEntitySetting(packet.EntityId);
+                    GameMain.data.factories[packet.FactoryIndex].PasteBuildingSetting(packet.ItemId);
                 }
-                EntitySettingDesc.clipboard = backup;
+                BuildingParameters.clipboard = backup;
             }
         }
     }

@@ -64,8 +64,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
 
         [HarmonyPrefix]
-        [HarmonyPatch("DestructFinally")]
-        public static bool DestructFinally_Prefix(PlanetFactory __instance, Player player, int objId, ref int protoId)
+        [HarmonyPatch("DismantleFinally")]
+        public static bool DismantleFinally_Prefix(PlanetFactory __instance, Player player, int objId, ref int protoId)
         {
             if (!SimulatedWorld.Initialized)
                 return true;
@@ -122,13 +122,13 @@ namespace NebulaPatcher.Patches.Dynamic
             StorageManager.IsHumanInput = true;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch("PasteEntitySetting")]
+        //[HarmonyPrefix]
+        //[HarmonyPatch("PasteEntitySetting")]
         public static void PasteEntitySetting_Prefix(PlanetFactory __instance, int entityId)
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
-                LocalPlayer.SendPacketToLocalStar(new PasteEntitySettingUpdate(entityId, EntitySettingDesc.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new PasteBuildingSettingUpdate(entityId, BuildingParameters.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
             }
         }
 

@@ -23,15 +23,16 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
 
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            if (pab != null)
+            BuildTool_Click btc = GameMain.mainPlayer.controller?.actionBuild.clickTool;
+            if (pab != null && btc != null)
             {
                 FactoryManager.TargetPlanet = packet.PlanetId;
 
                 //Make backup of values that are overwritten
-                List<BuildPreview> tmpList = pab.buildPreviews;
-                bool tmpConfirm = pab.waitConfirm;
-                UnityEngine.Vector3 tmpPos = pab.previewPose.position;
-                UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
+                List<BuildPreview> tmpList = btc.buildPreviews;
+                //bool tmpConfirm = pab.waitConfirm;
+                //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
+                //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
 
                 PlanetFactory tmpFactory = null;
                 NearColliderLogic tmpNearcdLogic = null;
@@ -50,13 +51,14 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 }
 
                 //Create Prebuilds from incomming packet and prepare new position
-                pab.buildPreviews = packet.GetBuildPreviews();
-                pab.waitConfirm = true;
+                btc.buildPreviews.Clear();
+                btc.buildPreviews.AddRange(packet.GetBuildPreviews());
+                //pab.waitConfirm = true;
                 using (FactoryManager.EventFromServer.On())
                 {
                     FactoryManager.EventFactory = planet.factory;
-                    pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
-                    pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
+                    //pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
+                    //pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
 
                     //Check if some mandatory variables are missing
                     if (planet.physics == null || planet.physics.colChunks == null)
@@ -80,17 +82,18 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     bool canBuild;
                     using (FactoryManager.IgnoreBasicBuildConditionChecks.On())
                     {
-                        canBuild = pab.CheckBuildConditions();
-                        canBuild &= CheckBuildingConnections(pab.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
+                        canBuild = btc.CheckBuildConditions();
+                        canBuild &= CheckBuildingConnections(btc.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                     }
 
-                    UnityEngine.Debug.Log(pab.buildPreviews[0].condition);
+                    UnityEngine.Debug.Log(btc.buildPreviews[0].condition);
 
                     if (canBuild)
                     {
                         FactoryManager.PacketAuthor = packet.AuthorId;
-                        CheckAndFixConnections(pab, planet);
-                        pab.CreatePrebuilds();
+                        // TODO: Fix this, as previewPose no longer exists
+                        //CheckAndFixConnections(btc, planet);
+                        btc.CreatePrebuilds();
                         FactoryManager.PacketAuthor = -1;
                     }
 
@@ -109,20 +112,21 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     FactoryManager.EventFactory = null;
                 }
 
-                pab.buildPreviews = tmpList;
-                pab.waitConfirm = tmpConfirm;
-                pab.previewPose.position = tmpPos;
-                pab.previewPose.rotation = tmpRot;
+                btc.buildPreviews.Clear();
+                btc.buildPreviews.AddRange(tmpList);
+                //pab.waitConfirm = tmpConfirm;
+                //pab.previewPose.position = tmpPos;
+                //pab.previewPose.rotation = tmpRot;
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
         }
 
-        public void CheckAndFixConnections(PlayerAction_Build pab, PlanetData planet)
+/*        public void CheckAndFixConnections(BuildTool_Click btc, PlanetData planet)
         {
             //Check and fix references to prebuilds
             Vector3 tmpVector = Vector3.zero;
-            foreach (BuildPreview preview in pab.buildPreviews)
+            foreach (BuildPreview preview in btc.buildPreviews)
             {
                 //Check only, if buildPreview has some connection to another prebuild
                 if (preview.coverObjId < 0)
@@ -151,7 +155,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     }
                 }
             }
-        }
+        }*/
 
         public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
         {

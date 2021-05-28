@@ -13,8 +13,8 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         private static int miningId = -1;
 
-        [HarmonyTranspiler]
-        [HarmonyPatch("GameTick")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("GameTick")]
         static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             // insert delegate before GetVegeData() to get miningId

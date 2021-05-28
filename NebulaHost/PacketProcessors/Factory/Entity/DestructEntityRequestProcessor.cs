@@ -25,7 +25,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         //ToDo: Optimize it somehow, since creating and destroying rendering batches is not optimal.
                         planet.factory.cargoTraffic.CreateRenderingBatches();
                     }
-                    planet.factory.DestructFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+                    planet.factory.DismantleFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
                     if (packet.PlanetId != GameMain.mainPlayer.planetId)
                     {
                         planet.factory.cargoTraffic.DestroyRenderingBatches();

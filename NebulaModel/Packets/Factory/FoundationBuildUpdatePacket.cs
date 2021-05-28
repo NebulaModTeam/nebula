@@ -22,12 +22,13 @@ namespace NebulaModel.Packets.Factory
             ReformSize = reformSize;
             VeinBuried = veinBuried;
             Fade0 = fade0;
-            PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            ReformType = pab?.reformType ?? -1;
-            ReformColor = pab?.reformColor ?? -1;
+            //PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
+            BuildTool_Reform btr = GameMain.mainPlayer.controller?.actionBuild.reformTool;
+            ReformType = btr?.brushType ?? -1;
+            ReformColor = btr?.brushColor ?? -1;
             PlanetId = GameMain.mainPlayer.planetId;
-            ReformIndices = pab?.reformIndices;
-            GroundTestPos = new Float3(pab?.groundTestPos ?? Vector3.zero);
+            ReformIndices = btr?.cursorIndices;
+            GroundTestPos = new Float3(btr?.castGroundPos ?? Vector3.zero);
         }
     }
 }

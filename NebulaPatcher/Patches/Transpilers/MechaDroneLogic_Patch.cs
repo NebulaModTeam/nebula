@@ -68,8 +68,8 @@ namespace NebulaPatcher.Patches.Transpiler
         /*
          * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
          */
-        [HarmonyTranspiler]
-        [HarmonyPatch("UpdateDrones")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("UpdateDrones")]
         static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);

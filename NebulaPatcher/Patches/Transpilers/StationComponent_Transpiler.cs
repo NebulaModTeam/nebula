@@ -242,8 +242,8 @@ namespace NebulaPatcher.Patches.Transpilers
             return instructions;
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch("InternalTickRemote")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("InternalTickRemote")]
         public static IEnumerable<CodeInstruction> InternalTickRemote_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             // BEGIN: transpilers to catch addItem() and TakeItem() and energy decrease by ship departure
@@ -753,8 +753,8 @@ namespace NebulaPatcher.Patches.Transpilers
             return instructions;
         }
 
-        [HarmonyReversePatch]
-        [HarmonyPatch("InternalTickRemote")]
+        //[HarmonyReversePatch]
+        //[HarmonyPatch("InternalTickRemote")]
         public static void ILSUpdateShipPos(StationComponent stationComponent, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
 
