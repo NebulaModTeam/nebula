@@ -1,9 +1,7 @@
-﻿using NebulaModel.Attributes;
-using System.IO;
+﻿using System.IO;
 
 namespace NebulaModel.DataStructures
 {
-    [RegisterNestedType]
     public struct ProductionChangeStruct //12 bytes total
     {
         public bool IsProduction; //1-byte
