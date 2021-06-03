@@ -6,6 +6,8 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 ## How can I play this mod?
 
+**WARNING: Since the last big update the mod stop working, if you want to continue playing the game with the mod, please use the game version 0.6.x for now**
+
 Please do keep in mind that this mod is still in heavy development, it may still contains bugs. That being said, the mod is in a playable state, you can install a pre-release version of the mod for now by following these instructions [Installing a pre-release version](https://github.com/hubastard/nebula/wiki/Installing-a-pre-release-version).
 
 ## What is the current status ?
