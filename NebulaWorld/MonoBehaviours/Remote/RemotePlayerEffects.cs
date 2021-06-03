@@ -1,4 +1,5 @@
-﻿using NebulaModel.Packets.Players;
+﻿using HarmonyLib;
+using NebulaModel.Packets.Players;
 using System;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private float astrosMul;
         private float nebulasMul;
 
-        public float warpState = 0;
+        public float WarpState = 0;
         private bool warpEffectActivated = false;
 
         Vector4[] warpRotations;
@@ -48,27 +49,27 @@ namespace NebulaWorld.MonoBehaviours.Remote
             warpEffect = UnityEngine.Object.Instantiate<VFWarpEffect>(Configs.builtin.warpEffectPrefab, GetComponent<Transform>());
             warpEffect.enabled = false;
 
-            tunnelMat = (Material)typeof(VFWarpEffect).GetField("tunnelMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            distortMat = (Material)typeof(VFWarpEffect).GetField("distortMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            astrosMat = (Material)typeof(VFWarpEffect).GetField("astrosMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            nebulasMat = (Material)typeof(VFWarpEffect).GetField("nebulasMat", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            tunnelMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "tunnelMat").GetValue(warpEffect);
+            distortMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "distortMat").GetValue(warpEffect);
+            astrosMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "astrosMat").GetValue(warpEffect);
+            nebulasMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "nebulasMat").GetValue(warpEffect);
 
-            astrosParticles = (ParticleSystem)typeof(VFWarpEffect).GetField("astrosParticles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            nebulasParticles = (ParticleSystem)typeof(VFWarpEffect).GetField("nebulasParticles", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            astrosParticles = warpEffect.astrosParticles;
+            nebulasParticles = warpEffect.nebulasParticles;
 
-            tunnelRenderer = (MeshRenderer)typeof(VFWarpEffect).GetField("tunnelRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            distortRenderer = (MeshRenderer)typeof(VFWarpEffect).GetField("distortRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            tunnelRenderer = warpEffect.tunnelRenderer;
+            distortRenderer = warpEffect.distortRenderer;
 
-            astrosRenderer = (ParticleSystemRenderer)typeof(VFWarpEffect).GetField("astrosRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            nebulasRenderer = (ParticleSystemRenderer)typeof(VFWarpEffect).GetField("nebulasRenderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            astrosRenderer = warpEffect.astrosRenderer;
+            nebulasRenderer = warpEffect.nebulasRenderer;
 
-            tunnelMul = (float)typeof(VFWarpEffect).GetField("tunnelMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            distortMul = (float)typeof(VFWarpEffect).GetField("distortMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            astrosMul = (float)typeof(VFWarpEffect).GetField("astrosMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            nebulasMul = (float)typeof(VFWarpEffect).GetField("nebulasMul", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            tunnelMul = (float)AccessTools.Field(typeof(VFWarpEffect), "tunnelMul").GetValue(warpEffect);
+            distortMul = (float)AccessTools.Field(typeof(VFWarpEffect), "distortMul").GetValue(warpEffect);
+            astrosMul = (float)AccessTools.Field(typeof(VFWarpEffect), "astrosMul").GetValue(warpEffect);
+            nebulasMul = (float)AccessTools.Field(typeof(VFWarpEffect), "nebulasMul").GetValue(warpEffect);
 
-            intensByState_astro = (AnimationCurve)typeof(VFWarpEffect).GetField("intensByState_astro", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
-            intensByState = (AnimationCurve)typeof(VFWarpEffect).GetField("intensByState", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(warpEffect);
+            intensByState_astro = warpEffect.intensByState_astro;
+            intensByState = warpEffect.intensByState;
 
             warpRotations = new Vector4[24];
 
@@ -146,23 +147,23 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             if (isWarping)
             {
-                warpState += 0.0055655558f;
-                if (warpState > 1f)
+                WarpState += 0.0055655558f;
+                if (WarpState > 1f)
                 {
-                    warpState = 1f;
+                    WarpState = 1f;
                 }
             }
             else
             {
-                warpState -= 0.06667667f;
-                if (warpState < 0f)
+                WarpState -= 0.06667667f;
+                if (WarpState < 0f)
                 {
-                    warpState = 0f;
+                    WarpState = 0f;
                 }
             }
 
             Vector4 playerRot = new Vector4(rootTransform.rotation.x, rootTransform.rotation.y, rootTransform.rotation.z, rootTransform.rotation.w);
-            if (warpState > 0.001f && !warpEffectActivated)
+            if (WarpState > 0.001f && !warpEffectActivated)
             {
                 for (int i = 0; i < warpRotations.Length; i++)
                 {
@@ -171,7 +172,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 VFAudio.Create("warp-begin", base.transform, Vector3.zero, true, 0);
                 toggleEffect(true);
             }
-            else if (warpState == 0 && warpEffectActivated)
+            else if (WarpState == 0 && warpEffectActivated)
             {
                 VFAudio.Create("warp-end", base.transform, Vector3.zero, true, 0);
                 toggleEffect(false);
@@ -197,8 +198,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             distortRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
             nebulasRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
-            float num1 = intensByState.Evaluate(warpState);
-            float num2 = intensByState_astro.Evaluate(warpState);
+            float num1 = intensByState.Evaluate(WarpState);
+            float num2 = intensByState_astro.Evaluate(WarpState);
             tunnelMat.SetFloat("_Multiplier", tunnelMul * num1);
             tunnelMat.SetVectorArray("_WarpRotations", warpRotations);
             distortMat.SetFloat("_DistortionStrength", distortMul * num1);

@@ -36,10 +36,10 @@
   <!-- Shared Items -->
   <ItemGroup Label="NuGets">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
-    <PackageReference Include="lz4net" Version="1.0.15.93" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
 
-    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.10.1" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.194" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.11.0" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.205" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">

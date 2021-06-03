@@ -134,7 +134,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 rootWarp.startWarp();
             }
-            else if (deltaPosition < 170 && rootWarp != null && rootWarp.warpState >= 0.9)
+            else if (deltaPosition < 170 && rootWarp != null && rootWarp.WarpState >= 0.9)
             {
                 rootWarp.stopWarp();
             }

@@ -1,7 +1,6 @@
-﻿using LZ4;
+﻿using K4os.Compression.LZ4.Streams;
 using System;
 using System.IO;
-using System.IO.Compression;
 
 namespace NebulaModel.Networking
 {
@@ -12,7 +11,7 @@ namespace NebulaModel.Networking
         public class Writer : IDisposable
         {
             MemoryStream ms;
-            LZ4Stream ls;
+            LZ4EncoderStream ls;
             BufferedStream bs;
             BinaryWriter bw;
 
@@ -21,7 +20,7 @@ namespace NebulaModel.Networking
             public Writer()
             {
                 ms = new MemoryStream();
-                ls = new LZ4Stream(ms, LZ4StreamMode.Compress);
+                ls = LZ4Stream.Encode(ms);
                 bs = new BufferedStream(ls, BUFFER_SIZE);
                 bw = new BinaryWriter(bs);
             }
@@ -44,7 +43,7 @@ namespace NebulaModel.Networking
         public class Reader : IDisposable
         {
             MemoryStream ms;
-            LZ4Stream ls;
+            LZ4DecoderStream ls;
             BufferedStream bs;
             BinaryReader br;
 
@@ -54,7 +53,7 @@ namespace NebulaModel.Networking
             public Reader(byte[] bytes)
             {
                 ms = new MemoryStream(bytes);
-                ls = new LZ4Stream(ms, LZ4StreamMode.Decompress);
+                ls = LZ4Stream.Decode(ms);
                 bs = new BufferedStream(ls, BUFFER_SIZE);
                 br = new BinaryReader(bs);
             }
