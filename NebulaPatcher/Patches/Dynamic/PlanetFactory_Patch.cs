@@ -142,13 +142,23 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("RemoveVegeWithComponents")]
-        public static void RemoveVegeWithComponents_Prefix(PlanetFactory __instance, int id)
+        public static void RemoveVegeWithComponents_Postfix(PlanetFactory __instance, int id)
         {
             if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
             {
-                LocalPlayer.SendPacketToLocalStar(new RemoveVegetablePacket(GameMain.localPlanet?.factoryIndex ?? -1, id));
+                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.factoryIndex ?? -1, id, 0, false));
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("RemoveVeinWithComponents")]
+        public static void RemoveVeinWithComponents_Postfix(PlanetFactory __instance, int id)
+        {
+            if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
+            {
+                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.factoryIndex ?? -1, id, 0, true));
             }
         }
     }

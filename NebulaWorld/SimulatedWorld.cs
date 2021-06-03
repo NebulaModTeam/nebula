@@ -248,76 +248,34 @@ namespace NebulaWorld
             ILSShipManager.UpdateRemoteOrder(packet);
         }
 
-        public static void MineVegetable(VegeMined packet)
+        public static void OnVegetationMined(VegeMinedPacket packet)
         {
-            int localPlanetId = -1;
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            PlanetFactory factory = GameMain.data.factories[packet.FactoryIndex];
+            if (packet.Amount == 0)
             {
-                if (remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
+                if (packet.IsVein)
                 {
-                    localPlanetId = pModel.Movement.localPlanetId;
+                    factory?.RemoveVeinWithComponents(packet.VegeId);
+                }
+                else
+                {
+                    factory?.RemoveVegeWithComponents(packet.VegeId);
                 }
             }
-
-            if (localPlanetId == -1)
-                return;
-
-            PlanetData planet = GameMain.galaxy?.PlanetById(localPlanetId);
-            PlanetFactory factory = planet?.factory;
-            if (planet == null || factory == null)
-                return;
-
-            if (packet.isVegetable) // Trees, rocks, leaves, etc
+            else if(factory != null)
             {
-                VegeData vData = (VegeData)factory.GetVegeData(packet.MiningID);
-                VegeProto vProto = LDB.veges.Select((int)vData.protoId);
-                if (vProto != null && planet.id == GameMain.localPlanet?.id)
-                {
-                    VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, vData.rot);
-                    VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                }
-                using (PlanetManager.EventFromServer.On())
-                {
-                    factory.RemoveVegeWithComponents(vData.id);
-                }
+                VeinData veinData = factory.GetVeinData(packet.VegeId);
+                PlanetData.VeinGroup[] veinGroups = factory.planet.veinGroups;
+                short groupIndex = veinData.groupIndex;
+
+                // must be a vein/oil patch (i think the game treats them same now as oil patches can run out too)
+                factory.veinPool[packet.VegeId].amount = packet.Amount;
+                factory.planet.veinAmounts[(int)veinData.type] -= 1L;
+                veinGroups[(int)groupIndex].amount = veinGroups[(int)groupIndex].amount - 1L;
             }
-            else // veins
+            else
             {
-                VeinData vData = (VeinData)factory.GetVeinData(packet.MiningID);
-                VeinProto vProto = LDB.veins.Select((int)vData.type);
-                if (vProto != null)
-                {
-                    if (factory.veinPool[packet.MiningID].amount > 0)
-                    {
-                        VeinData[] vPool = factory.veinPool;
-                        PlanetData.VeinGroup[] vGroups = factory.planet.veinGroups;
-                        long[] vAmounts = planet.veinAmounts;
-                        vPool[packet.MiningID].amount -= 1;
-                        vGroups[(int)vData.groupIndex].amount -= 1;
-                        vAmounts[(int)vData.type] -= 1;
-
-                        if (planet.id == GameMain.localPlanet?.id)
-                        {
-                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
-                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                        }
-                    }
-                    else
-                    {
-                        PlanetData.VeinGroup[] vGroups = factory.planet.veinGroups;
-                        vGroups[vData.groupIndex].count -= 1;
-
-                        if (planet.id == GameMain.localPlanet?.id)
-                        {
-                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
-                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                        }
-                        using (PlanetManager.EventFromServer.On())
-                        {
-                            factory.RemoveVeinWithComponents(vData.id);
-                        }
-                    }
-                }
+                Debug.Log("Received VegeMinedPacket but could not do as i was told :C");
             }
         }
 
