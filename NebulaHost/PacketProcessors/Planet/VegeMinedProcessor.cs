@@ -16,7 +16,6 @@ namespace NebulaHost.PacketProcessors.Planet
             {
                 using (PlanetManager.EventFromClient.On())
                 {
-                    //GameMain.data.factories[packet.FactorytIndex]?.RemoveVegeWithComponents(packet.VegeId);
                     SimulatedWorld.OnVegetationMined(packet);
                 }
             }
