@@ -150,6 +150,25 @@ namespace NebulaWorld
             }
         }
 
+        public static void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
+        {
+            using (GetRemotePlayersModels(out var remotePlayersModels))
+            {
+                if (packet.PlayerId == 0) packet.PlayerId = 1; // host sends himself as PlayerId 0 but clients see him as id 1
+                if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
+                {
+                    if (packet.WarpCommand)
+                    {
+                        player.Effects.startWarp();
+                    }
+                    else
+                    {
+                        player.Effects.stopWarp();
+                    }
+                }
+            }
+        }
+
         public static void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))

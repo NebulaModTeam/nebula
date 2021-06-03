@@ -212,6 +212,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private RemotePlayerAnimation rootAnimation;
         private Transform rootTransform;
         private Transform rootModelTransform;
+        private RemoteWarpEffect rootWarp;
 
         private ParticleSystem[] WaterEffect;
         private ParticleSystem[][] FootSmokeEffect;
@@ -282,6 +283,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             collider = new Collider[16];
 
             rootTransform.gameObject.AddComponent<RemoteWarpEffect>();
+            rootWarp = rootTransform.gameObject.GetComponent<RemoteWarpEffect>();
 
         }
 
@@ -293,6 +295,16 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 miningAudio.Stop();
                 miningAudio = null;
             }
+        }
+
+        public void startWarp()
+        {
+            rootWarp.startWarp();
+        }
+
+        public void stopWarp()
+        {
+            rootWarp.stopWarp();
         }
 
         private void stopAllFlyAudio()

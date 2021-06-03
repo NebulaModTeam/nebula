@@ -22,7 +22,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private Transform rootTransform;
         private Transform bodyTransform;
-        private RemoteWarpEffect rootWarp;
 
         public int localPlanetId;
         public VectorLF3 absolutePosition;
@@ -40,7 +39,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
-            rootWarp = rootTransform.GetComponent<RemoteWarpEffect>();
 
             localPlanetId = -1;
             absolutePosition = Vector3.zero;
@@ -124,21 +122,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
             Vector3 currentAbsolutePosition = GetAbsolutePosition(current);
             float deltaPosition = Vector3.Distance(previousRelativePosition, currentRelativePosition);
             Vector3 velocity = (previousRelativePosition - currentRelativePosition) / (previous.Timestamp - current.Timestamp);
-
-            /*
-             * 170 is round about where vanilla warping starts, for better testing lower this to something like 30
-             * then you can trigger the warping animation by sailing at around 300
-             * when its at 170 you will probably not be able to see the effect ingame   
-             */
-            if (deltaPosition >= 170 && rootWarp != null)
-            {
-                rootWarp.startWarp();
-            }
-            else if (deltaPosition < 170 && rootWarp != null && rootWarp.WarpState >= 0.9)
-            {
-                rootWarp.stopWarp();
-            }
-            rootWarp.updateVelocity(velocity);
 
             localPlanetId = current.LocalPlanetId;
 
