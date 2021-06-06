@@ -1,18 +1,17 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
 using System.Collections.Generic;
 
-namespace NebulaPatcher.Patches
+namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(BuildTool_Click))]
-    class BuildTool_Click_Patch
+    [HarmonyPatch(typeof(BuildTool_Path))]
+    class BuildTool_Path_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch("CreatePrebuilds")]
-        public static bool CreatePrebuilds_Prefix(BuildTool_Click __instance)
+        public static bool CreatePrebuilds_Prefix(BuildTool_Path __instance)
         {
             if (!SimulatedWorld.Initialized)
                 return true;
@@ -34,7 +33,7 @@ namespace NebulaPatcher.Patches
                 {
                     //This code with flag was taken from original method:
                     bool flag = true;
-                    if (buildPreview.condition == EBuildCondition.Ok && buildPreview.coverObjId == 0)
+                    if (buildPreview.coverObjId == 0 || buildPreview.willRemoveCover)
                     {
                         int id = buildPreview.item.ID;
                         int num = 1;
