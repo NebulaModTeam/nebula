@@ -27,7 +27,6 @@ namespace NebulaPatcher.Patches
             //If client builds, he need to first send request to the host and wait for reply
             if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
             {
-                Log.Info("Inside 2");
                 //Check what client can build from his inventory
                 List<BuildPreview> canBuild = new List<BuildPreview>();
                 //Remove required items from the player's inventory and build only what client can
@@ -60,8 +59,6 @@ namespace NebulaPatcher.Patches
                     }
                 }
 
-                Log.Info("Sending packet");
-                //TODO: UnityEngine.Pose.identity is likely not what wwe want here
                 LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, canBuild, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
                 return false;
             }
