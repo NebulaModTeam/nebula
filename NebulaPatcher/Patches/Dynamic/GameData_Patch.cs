@@ -235,6 +235,7 @@ namespace NebulaPatcher.Patches.Dynamic
                             {
                                 __instance.localStar.planets[i].factory.Free();
                                 __instance.localStar.planets[i].factory = null;
+                                GameMain.data.factoryCount--;
                             }
                         }
                     }
