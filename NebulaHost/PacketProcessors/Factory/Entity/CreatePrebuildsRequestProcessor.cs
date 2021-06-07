@@ -44,7 +44,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 //Load temporary planet data, since host is not there
                 if (loadExternalPlanetData)
                 {
-                    tmpFactory = (PlanetFactory)AccessTools.Field(typeof(PlayerAction_Build), "factory").GetValue(GameMain.mainPlayer.controller.actionBuild);
+                    tmpFactory = btc.factory;
                     tmpNearcdLogic = (NearColliderLogic)AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").GetValue(GameMain.mainPlayer.controller.actionBuild);
                     tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
                     tmpData = GameMain.mainPlayer.planetData;
@@ -72,7 +72,6 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     }
 
                     //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
-                    AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
                     btc.factory = planet.factory;
                     AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
                     AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics.nearColliderLogic);
@@ -103,10 +102,9 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     {
                         planet.physics.Free();
                         planet.physics = null;
+                        btc.factory = tmpFactory;
                         AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
                         AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
-                        AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
-                        btc.factory = tmpFactory;
                         AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpNearcdLogic);
                     }
 

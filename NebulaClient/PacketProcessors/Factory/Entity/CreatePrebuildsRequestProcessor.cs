@@ -33,7 +33,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 //bool tmpConfirm = pab.waitConfirm;
                 //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
                 //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
-                PlanetFactory tmpFactory = (PlanetFactory)AccessTools.Field(typeof(PlayerAction_Build), "factory").GetValue(GameMain.mainPlayer.controller.actionBuild);
+                PlanetFactory tmpFactory = btc.factory;
                 PlanetPhysics tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
 
                 //Create Prebuilds from incomming packet
@@ -45,7 +45,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     FactoryManager.EventFactory = planet.factory;
                     //pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
                     //pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
-                    AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.factory);
+                    btc.factory = planet.factory;
 
                     //Create temporary physics for spawning building's colliders
                     if (planet.physics == null || planet.physics.colChunks == null)
@@ -91,7 +91,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
 
                 //Revert changes back
                 AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
-                AccessTools.Field(typeof(PlayerAction_Build), "factory").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpFactory);
+                btc.factory = tmpFactory;
                 //pab.waitConfirm = tmpConfirm;
                 //pab.previewPose.position = tmpPos;
                 //pab.previewPose.rotation = tmpRot;
