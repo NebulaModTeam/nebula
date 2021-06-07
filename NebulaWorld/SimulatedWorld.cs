@@ -284,13 +284,17 @@ namespace NebulaWorld
                 }
                 else
                 {
+                    Debug.Log("removing " + packet.VegeId);
                     VegeData vegeData = factory.GetVegeData(packet.VegeId);
                     VegeProto vegeProto = LDB.veges.Select((int)vegeData.protoId);
 
                     factory.RemoveVegeWithComponents(packet.VegeId);
 
-                    VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
-                    VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true);
+                    if(vegeProto != null)
+                    {
+                        VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
+                        VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true);
+                    }
                 }
             }
             else if(factory != null)
