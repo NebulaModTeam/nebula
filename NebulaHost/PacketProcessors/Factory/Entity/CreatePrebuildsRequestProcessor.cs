@@ -91,8 +91,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     if (canBuild)
                     {
                         FactoryManager.PacketAuthor = packet.AuthorId;
-                        // TODO: Fix this, as previewPose no longer exists
-                        //CheckAndFixConnections(btc, planet);
+                        CheckAndFixConnections(btc, planet);
                         btc.CreatePrebuilds();
                         FactoryManager.PacketAuthor = -1;
                     }
@@ -122,7 +121,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
         }
 
-/*        public void CheckAndFixConnections(BuildTool_Click btc, PlanetData planet)
+       public void CheckAndFixConnections(BuildTool_Click btc, PlanetData planet)
         {
             //Check and fix references to prebuilds
             Vector3 tmpVector = Vector3.zero;
@@ -131,7 +130,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 //Check only, if buildPreview has some connection to another prebuild
                 if (preview.coverObjId < 0)
                 {
-                    tmpVector = pab.previewPose.position + pab.previewPose.rotation * preview.lpos;
+                    tmpVector = preview.lpos;
                     if (planet.factory.prebuildPool[-preview.coverObjId].id != 0)
                     {
                         //Prebuild exists, check if it is same prebuild that client wants by comparing prebuild positions
@@ -155,7 +154,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     }
                 }
             }
-        }*/
+        }
 
         public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
         {
