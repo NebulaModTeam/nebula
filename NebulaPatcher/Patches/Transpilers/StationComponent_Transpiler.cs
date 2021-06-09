@@ -753,15 +753,15 @@ namespace NebulaPatcher.Patches.Transpilers
             return instructions;
         }
 
-        //[HarmonyReversePatch]
-        //[HarmonyPatch("InternalTickRemote")]
+        [HarmonyReversePatch]
+        [HarmonyPatch("InternalTickRemote")]
         public static void ILSUpdateShipPos(StationComponent stationComponent, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
 
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
 
-                // find begin of ship movement computation, c# 309 IL 1599
+                // find begin of ship movement computation, c# 428 IL 2075
                 int origShipUpdateCodeBeginPos = new CodeMatcher(instructions)
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Ldarg_3),
@@ -791,7 +791,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // remove c# 352 - 369 IL 118B - 12DA (which is just after the first addItem() call)
+                // remove c# 470 - 493 IL 2201 - 2353 (which is just after the first addItem() call)
                 int origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
@@ -806,13 +806,13 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 matcher.Start()
                     .Advance(origTempBlockIndexStart + 1);
-                for(; matcher.Pos < origTempBlockIndexEnd/* - 4*/;) // note the -4 index here to still include j-- (only if we decrease workShipCount here too)
+                for(; matcher.Pos < origTempBlockIndexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher.InstructionEnumeration();
-
-                // remove c# 814 - 862 IL 4039 - 4248 (TODO: and fetch data from server)
+                
+                // remove c# 937 - 1014 IL 4548 - 4921 (TODO: and fetch data from server)
                 origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"),
@@ -821,7 +821,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldc_I4_0),
                         new CodeMatch(OpCodes.Stfld),
                         new CodeMatch(OpCodes.Ldarg_0))
-                    .Pos;
+                    .Pos - 3; // to also remove 'shipData.itemCount = 0;'
                 origTempBlockIndexEnd = new CodeMatcher(instructions)
                     .Advance(origTempBlockIndexStart)
                     .MatchForward(false,
@@ -834,14 +834,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                // now remove the rest of the for loop as it is after the OpCodes.Br for some reason
-                // c# 837 - 842 IL 4250 - 4261
-                matcher.Advance(1);
-                for(int i = 0; i < 12; i++)
-                {
-                    matcher.SetAndAdvance(OpCodes.Nop, null);
-                }
-                instructions = matcher.InstructionEnumeration();
 
                 // remove addItem() calls
                 instructions = new CodeMatcher(instructions)
@@ -854,11 +846,11 @@ namespace NebulaPatcher.Patches.Transpilers
                     .SetAndAdvance(OpCodes.Pop, null)
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                     .InstructionEnumeration();
-
-                // remove c# 865 - 891 IL 4266 - 4377 (TODO: and fetch data from server) (NOTE: this does also remove the TakeItem() call)
+                
+                // remove c# 1019 - 1049 IL 4923 - 5069 (TODO: and fetch data from server) (NOTE: this does also remove the TakeItem() call)
                 origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(false,
-                        new CodeMatch(OpCodes.Ldloca_S),
+                        new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldfld),
                         new CodeMatch(OpCodes.Stloc_S),
                         new CodeMatch(OpCodes.Ldarg_S),
@@ -867,17 +859,18 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldloca_S),
                         new CodeMatch(OpCodes.Ldloca_S),
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
-                    .Pos;
+                    .Pos + 1; // to exclude the Br opcode from vanishing
                 origTempBlockIndexEnd = new CodeMatcher(instructions)
                     .Advance(origTempBlockIndexStart)
                     .MatchForward(true,
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldelema),
+                        new CodeMatch(OpCodes.Ldflda),
                         new CodeMatch(OpCodes.Dup),
-                        new CodeMatch(OpCodes.Ldfld),
+                        new CodeMatch(OpCodes.Ldind_I4),
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Add),
-                        new CodeMatch(OpCodes.Stfld))
+                        new CodeMatch(OpCodes.Stind_I4))
                     .Advance(1)
                     .Pos;
 
@@ -889,6 +882,16 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
+                // remove weird code thats left over after cut out from above
+                matcher.Advance(2);
+                for(int i = 0; i < 4; i++)
+                {
+                    matcher.SetAndAdvance(OpCodes.Nop, null);
+                }
+                instructions = matcher.InstructionEnumeration();
+                
+                /*
+                // 0.7.x This is at line 561 now
                 // insert patch to avoid NRE mentioned in issue 59 (gStationPool[shipData.otherGId] == null results in NRE)
                 // in case we exit out we still need to call ShipRenderersOnTick() as the ships of this StationComponent would be invisible
                 Label jmpLabelDelegate;
@@ -920,48 +923,36 @@ namespace NebulaPatcher.Patches.Transpilers
                 matcher3.Advance(-6); // go back to insert jmp
                 matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabelDelegate)); // if object is NOT null jump to the vanilla code
                 instructions = matcher3.InstructionEnumeration();
-
-                // remmove c# 807 and 808 (adding warper from station to ship) IL 4011-4022
-                matcher3.Start();
-                matcher3.MatchForward(false,
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "warperCnt")),
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Add),
-                    new CodeMatch(OpCodes.Stfld),
+                */
+                
+                // remove c# 928 - 932 (adding warper from station to ship)
+                //matcher3.Start();
+                CodeMatcher matcher3 = new CodeMatcher(instructions, il);
+                int indexStart = matcher3.MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_S),
+                    new CodeMatch(OpCodes.Stloc_S),
+                    new CodeMatch(OpCodes.Ldc_I4_0),
+                    new CodeMatch(OpCodes.Stloc_S),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld));
-                for(int i = 0; i < 12; i++)
+                    new CodeMatch(OpCodes.Ldloca_S))
+                    .Pos;
+                int indexEnd = matcher3.MatchForward(true,
+                    new CodeMatch(OpCodes.Stind_I4),
+                    new CodeMatch(OpCodes.Leave),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Brfalse),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Endfinally))
+                    .Pos;
+                matcher3.Start();
+                matcher3.Advance(indexStart);
+                for(;matcher3.Pos < indexEnd;)
                 {
                     matcher3.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher3.InstructionEnumeration();
-
-                // insert debugging delegate (at the start of the while loop)
-                instructions = new CodeMatcher(instructions)
-                    .MatchForward(true,
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Br),
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldelema),
-                        new CodeMatch(OpCodes.Ldobj))
-                    .Advance(1)
-                    //.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 34)) //load j
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<ShipData, ShipData>>(shipData =>
-                    {
-                        //Debug.Log(shipData.stage + " " + shipData.direction + " " + shipData.t + " " + shipData.uVel + " " + shipData.uPos);
-                        return shipData;
-                    }))
-                    //.InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
-                    .InstructionEnumeration();
-
+                
                 return instructions;
             }
 
