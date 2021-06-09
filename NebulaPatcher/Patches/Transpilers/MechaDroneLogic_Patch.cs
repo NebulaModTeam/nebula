@@ -68,8 +68,8 @@ namespace NebulaPatcher.Patches.Transpiler
         /*
          * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
          */
-        //[HarmonyTranspiler]
-        //[HarmonyPatch("UpdateDrones")]
+        [HarmonyTranspiler]
+        [HarmonyPatch("UpdateDrones")]
         static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
@@ -83,7 +83,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 {
                     codes.InsertRange(i + 1, new CodeInstruction[] {
                         new CodeInstruction(OpCodes.Ldloc_S, 4),
-                        new CodeInstruction(OpCodes.Ldloc_S, 7),
+                        new CodeInstruction(OpCodes.Ldloc_S, 6),
                         new CodeInstruction(OpCodes.Ldc_I4_2),
                         new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), "BroadcastDroneOrder", new System.Type[] { typeof(int), typeof(int), typeof(int) }))
                         });
