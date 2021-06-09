@@ -4,10 +4,10 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
-namespace NebulaHost.PacketProcessors.Factory
+namespace NebulaClient.PacketProcessors.Factory
 {
     [RegisterPacketProcessor]
-    class PasteEntitySettingUpdateProcessor : IPacketProcessor<PasteBuildingSettingUpdate>
+    class PasteBuildingSettingUpdateProcessor : IPacketProcessor<PasteBuildingSettingUpdate>
     {
         public void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
         {
@@ -15,10 +15,9 @@ namespace NebulaHost.PacketProcessors.Factory
             {
                 BuildingParameters backup = BuildingParameters.clipboard;
                 BuildingParameters.clipboard = packet.GetBuildingSettings();
-
                 using (FactoryManager.EventFromServer.On())
                 {
-                    GameMain.data.factories[packet.FactoryIndex].PasteBuildingSetting(packet.ItemId);
+                    GameMain.data.factories[packet.FactoryIndex].PasteBuildingSetting(packet.ObjectId);
                 }
                 BuildingParameters.clipboard = backup;
             }

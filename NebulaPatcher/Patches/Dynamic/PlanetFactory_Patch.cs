@@ -122,13 +122,13 @@ namespace NebulaPatcher.Patches.Dynamic
             StorageManager.IsHumanInput = true;
         }
 
-        //[HarmonyPrefix]
-        //[HarmonyPatch("PasteEntitySetting")]
-        public static void PasteEntitySetting_Prefix(PlanetFactory __instance, int entityId)
+        [HarmonyPrefix]
+        [HarmonyPatch("PasteBuildingSetting")]
+        public static void PasteBuildingSetting_Prefix(PlanetFactory __instance, int objectId)
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
-                LocalPlayer.SendPacketToLocalStar(new PasteBuildingSettingUpdate(entityId, BuildingParameters.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
             }
         }
 

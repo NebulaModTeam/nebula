@@ -2,14 +2,15 @@
 {
     public class PasteBuildingSettingUpdate
     {
-/*        public int EntityId { get; set; }
-        public int RecipeId { get; set; }
-        public bool ResearchMode { get; set; }
-        public int FilterId { get; set; }
-        public int OrbitId { get; set; }
-        public int Mode { get; set; }
-        public ERecipeType RecipeType { get; set; }
-        public BuildingType Type { get; set; }*/
+        /*        public int EntityId { get; set; }
+                public int RecipeId { get; set; }
+                public bool ResearchMode { get; set; }
+                public int FilterId { get; set; }
+                public int OrbitId { get; set; }
+                public int Mode { get; set; }
+                public ERecipeType RecipeType { get; set; }*/
+        public int ObjectId { get; set; }
+        public BuildingType Type { get; set; }
         public int ItemId { get; set; }
         public int ModelIndex { get; set; }
         public float Yaw { get; set; }
@@ -28,8 +29,10 @@
 
         public PasteBuildingSettingUpdate() { }
 
-        public PasteBuildingSettingUpdate(int entityId, BuildingParameters clipboard, int factoryIndex)
+        public PasteBuildingSettingUpdate(int objectId, BuildingParameters clipboard, int factoryIndex)
         {
+            ObjectId = objectId;
+            Type = clipboard.type;
             ItemId = clipboard.itemId;
             ModelIndex = clipboard.modelIndex;
             Yaw = clipboard.yaw;
@@ -50,6 +53,7 @@
         public BuildingParameters GetBuildingSettings()
         {
             BuildingParameters result = new BuildingParameters();
+            result.type = Type;
             result.itemId = ItemId;
             result.modelIndex = ModelIndex;
             result.yaw = Yaw;
