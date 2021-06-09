@@ -22,8 +22,8 @@ namespace NebulaPatcher.Patches.Transpiler
     [HarmonyPatch(typeof(CargoTraffic))]
     class CargoTraffic_Patch
     {
-        //[HarmonyTranspiler]
-        //[HarmonyPatch("PickupBeltItems")]
+        [HarmonyTranspiler]
+        [HarmonyPatch("PickupBeltItems")]
         static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
@@ -37,10 +37,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 5].opcode == OpCodes.Ldfld)
                 {
                     codes.InsertRange(i + 1, new CodeInstruction[] {
-                            new CodeInstruction(OpCodes.Ldloc_S, 4),
-                            new CodeInstruction(OpCodes.Ldloc_S, 5),
-                            new CodeInstruction(OpCodes.Ldarg_2),
                             new CodeInstruction(OpCodes.Ldloc_3),
+                            new CodeInstruction(OpCodes.Ldloc_S, 4),
+                            new CodeInstruction(OpCodes.Ldarg_2),
+                            new CodeInstruction(OpCodes.Ldloc_2),
                             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BeltManager), "RegisterBeltPickupUpdate", new System.Type[] { typeof(int), typeof(int), typeof(int), typeof(int)})),
                     });
                     break;
