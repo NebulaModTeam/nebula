@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch("DoDismantleObject")]
-        public static bool DoDestructObject_Prefix(PlayerAction_Build __instance, int objId)
+        public static bool DoDismantleObject_Prefix(PlayerAction_Build __instance, int objId)
         {
             if (!SimulatedWorld.Initialized)
                 return true;
