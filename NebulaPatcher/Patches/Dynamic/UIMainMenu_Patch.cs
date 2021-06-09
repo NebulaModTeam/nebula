@@ -83,6 +83,7 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerSubMenu.Find("button-options").gameObject.SetActive(false);
             multiplayerSubMenu.Find("button-credits").gameObject.SetActive(false);
             multiplayerSubMenu.Find("button-exit").gameObject.SetActive(false);
+            multiplayerSubMenu.Find("button-galaxy").gameObject.SetActive(false);
 
             multiplayerSubMenu.gameObject.SetActive(false);
         }
