@@ -28,9 +28,8 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
 
-    <!-- Even if created, you need mdb files to have any debug info loaded -->
-    <DebugSymbols>false</DebugSymbols>
-    <DebugType>none</DebugType>
+    <DebugSymbols>portable</DebugSymbols>
+    <DebugType>true</DebugType>
   </PropertyGroup>
   
   <!-- Shared Items -->
