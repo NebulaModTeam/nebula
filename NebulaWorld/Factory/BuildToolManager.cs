@@ -15,7 +15,7 @@ namespace NebulaWorld.Factory
             if (LocalPlayer.IsMasterClient)
             {
                 int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
-                LocalPlayer.SendPacketToLocalStar(new CreatePrebuildsRequest(planetId, __instance.buildPreviews, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacketToStar(new CreatePrebuildsRequest(planetId, __instance.buildPreviews, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor), GameMain.galaxy.PlanetById(planetId).star.id);
             }
 
             //If client builds, he need to first send request to the host and wait for reply
