@@ -11,13 +11,15 @@ namespace NebulaModel.Packets.Factory
         public int PlanetId { get; set; }
         public byte[] BuildPreviewData { get; set; }
         public int AuthorId { get; set; }
+        public string BuildToolType { get; set; }
 
         public CreatePrebuildsRequest() { }
 
-        public CreatePrebuildsRequest(int planetId, List<BuildPreview> buildPreviews, int playerId)
+        public CreatePrebuildsRequest(int planetId, List<BuildPreview> buildPreviews, int playerId, string buildToolType)
         {
             AuthorId = playerId;
             PlanetId = planetId;
+            BuildToolType = buildToolType;
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 writer.BinaryWriter.Write(buildPreviews.Count);

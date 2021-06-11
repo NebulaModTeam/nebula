@@ -23,13 +23,21 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
 
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            BuildTool_Click btc = GameMain.mainPlayer.controller?.actionBuild.clickTool;
-            if (pab != null && btc != null)
+            //BuildTool_Click btc = GameMain.mainPlayer.controller?.actionBuild.clickTool;
+
+            BuildTool[] buildTools = GameMain.mainPlayer.controller?.actionBuild.tools;
+            BuildTool buildTool = null;
+            for (int i = 0; i < buildTools.Length; i++)
+            {
+                if(buildTools[i].GetType().ToString() == packet.BuildToolType)
+                    buildTool = buildTools[i];
+            }
+            if (pab != null && buildTool != null)
             {
                 FactoryManager.TargetPlanet = packet.PlanetId;
 
                 //Make backup of values that are overwritten
-                List<BuildPreview> tmpList = btc.buildPreviews;
+                List<BuildPreview> tmpList = buildTool.buildPreviews;
                 //bool tmpConfirm = pab.waitConfirm;
                 //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
                 //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
@@ -44,15 +52,15 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 //Load temporary planet data, since host is not there
                 if (loadExternalPlanetData)
                 {
-                    tmpFactory = btc.factory;
+                    tmpFactory = buildTool.factory;
                     tmpNearcdLogic = (NearColliderLogic)AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").GetValue(GameMain.mainPlayer.controller.actionBuild);
                     tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
                     tmpData = GameMain.mainPlayer.planetData;
                 }
 
                 //Create Prebuilds from incomming packet and prepare new position
-                btc.buildPreviews.Clear();
-                btc.buildPreviews.AddRange(packet.GetBuildPreviews());
+                buildTool.buildPreviews.Clear();
+                buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 //pab.waitConfirm = true;
                 using (FactoryManager.EventFromServer.On())
                 {
@@ -72,27 +80,51 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     }
 
                     //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
-                    btc.factory = planet.factory;
+                    buildTool.factory = planet.factory;
                     AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
                     AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics.nearColliderLogic);
                     AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
 
                     //Check if prebuilds can be build (collision check, height check, etc)
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
-                    bool canBuild;
+                    bool canBuild = false;
                     using (FactoryManager.IgnoreBasicBuildConditionChecks.On())
                     {
-                        canBuild = btc.CheckBuildConditions();
-                        canBuild &= CheckBuildingConnections(btc.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
+                        if(packet.BuildToolType == typeof(BuildTool_Click).ToString())
+                        {
+                            canBuild = ((BuildTool_Click)buildTool).CheckBuildConditions();
+                        }
+                        else if(packet.BuildToolType == typeof(BuildTool_Path).ToString())
+                        {
+                            canBuild = ((BuildTool_Path)buildTool).CheckBuildConditions();
+                        }
+                        else if(packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
+                        {
+                            canBuild = ((BuildTool_Inserter)buildTool).CheckBuildConditions();
+                        }
+                        canBuild &= CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                     }
 
-                    UnityEngine.Debug.Log(btc.buildPreviews[0].condition);
+                    UnityEngine.Debug.Log(buildTool.buildPreviews[0].condition);
 
                     if (canBuild)
                     {
                         FactoryManager.PacketAuthor = packet.AuthorId;
-                        CheckAndFixConnections(btc, planet);
-                        btc.CreatePrebuilds();
+                        CheckAndFixConnections(buildTool, planet);
+
+                        if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
+                        {
+                            ((BuildTool_Click)buildTool).CreatePrebuilds();
+                        }
+                        else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
+                        {
+                            ((BuildTool_Path)buildTool).CreatePrebuilds();
+                        }
+                        else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
+                        {
+                            ((BuildTool_Inserter)buildTool).CreatePrebuilds();
+                        }
+
                         FactoryManager.PacketAuthor = -1;
                     }
 
@@ -101,7 +133,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     {
                         planet.physics.Free();
                         planet.physics = null;
-                        btc.factory = tmpFactory;
+                        buildTool.factory = tmpFactory;
                         AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
                         AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
                         AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpNearcdLogic);
@@ -111,8 +143,8 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     FactoryManager.EventFactory = null;
                 }
 
-                btc.buildPreviews.Clear();
-                btc.buildPreviews.AddRange(tmpList);
+                buildTool.buildPreviews.Clear();
+                buildTool.buildPreviews.AddRange(tmpList);
                 //pab.waitConfirm = tmpConfirm;
                 //pab.previewPose.position = tmpPos;
                 //pab.previewPose.rotation = tmpRot;
@@ -121,11 +153,11 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
         }
 
-       public void CheckAndFixConnections(BuildTool_Click btc, PlanetData planet)
+       public void CheckAndFixConnections(BuildTool buildTool, PlanetData planet)
         {
             //Check and fix references to prebuilds
             Vector3 tmpVector = Vector3.zero;
-            foreach (BuildPreview preview in btc.buildPreviews)
+            foreach (BuildPreview preview in buildTool.buildPreviews)
             {
                 //Check only, if buildPreview has some connection to another prebuild
                 if (preview.coverObjId < 0)

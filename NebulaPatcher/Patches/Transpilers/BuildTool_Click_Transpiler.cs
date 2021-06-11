@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(BuildTool_Click))]
-    class BuildTool_Click_Patch
+    class BuildTool_Click_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch("CreatePrebuilds")]
