@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Transpiler
                                     new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
                                     new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
-                                    new CodeInstruction(OpCodes.Ldloc_3)
+                                    new CodeInstruction(OpCodes.Ldloc_S, 6)
                                     });
                     break;
                 }
