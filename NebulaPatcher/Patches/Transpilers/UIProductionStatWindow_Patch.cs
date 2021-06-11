@@ -30,8 +30,8 @@ namespace NebulaPatcher.Patches.Transpiler
             return ReplaceFactoryCondition(instructions);
         }
 
-        //[HarmonyTranspiler]
-        //[HarmonyPatch("UpdatePower")]
+        [HarmonyTranspiler]
+        [HarmonyPatch("UpdatePower")]
         static IEnumerable<CodeInstruction> UpdatePower_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             /* This is fix for the power statistics.
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Transpiler
                    
              * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
             bool[] patchActive = { false, false, false, false };
-            int[] patchLength = { 30, 33, 33, 27 };
+            int[] patchLength = { 28, 31, 31, 25 };
             var targetIndex = typeof(UIProductionStatWindow).GetField("targetIndex", BindingFlags.NonPublic | BindingFlags.Instance);
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
@@ -80,14 +80,14 @@ namespace NebulaPatcher.Patches.Transpiler
                     }
                     codes[i] = new CodeInstruction(OpCodes.Ldc_I4_0);
                     codes[i + 1] = new CodeInstruction(OpCodes.Conv_I8);
-                    codes[i + 2] = new CodeInstruction(OpCodes.Stloc_S, 28);
-                    codes[i + 3] = new CodeInstruction(OpCodes.Ldloca_S, 28);
+                    codes[i + 2] = new CodeInstruction(OpCodes.Stloc_S, 24);
+                    codes[i + 3] = new CodeInstruction(OpCodes.Ldloca_S, 24);
                     codes[i + 4] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 5] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
                     codes[i + 6] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
-                    codes[i + 7] = new CodeInstruction(OpCodes.Ldloc_S, 21);
+                    codes[i + 7] = new CodeInstruction(OpCodes.Ldloc_S, 18);
                     codes[i + 8] = new CodeInstruction(OpCodes.Ldfld, typeof(FactoryProductionStat).GetField("energyConsumption", BindingFlags.Public | BindingFlags.Instance));
-                    codes[i + 9] = new CodeInstruction(OpCodes.Stloc_S, 29);
+                    codes[i + 9] = new CodeInstruction(OpCodes.Stloc_S, 25);
                 }
 
                 //Patch fix for the "Picking specific planet" in statistics
@@ -100,14 +100,14 @@ namespace NebulaPatcher.Patches.Transpiler
                     }
                     codes[i] = new CodeInstruction(OpCodes.Ldc_I4_0);
                     codes[i + 1] = new CodeInstruction(OpCodes.Conv_I8);
-                    codes[i + 2] = new CodeInstruction(OpCodes.Stloc_S, 40);
-                    codes[i + 3] = new CodeInstruction(OpCodes.Ldloca_S, 40);
+                    codes[i + 2] = new CodeInstruction(OpCodes.Stloc_S, 35);
+                    codes[i + 3] = new CodeInstruction(OpCodes.Ldloca_S, 35);
                     codes[i + 4] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 5] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
                     codes[i + 6] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
-                    codes[i + 7] = new CodeInstruction(OpCodes.Ldloc_S, 33);
+                    codes[i + 7] = new CodeInstruction(OpCodes.Ldloc_S, 29);
                     codes[i + 8] = new CodeInstruction(OpCodes.Ldfld, typeof(FactoryProductionStat).GetField("energyConsumption", BindingFlags.Public | BindingFlags.Instance));
-                    codes[i + 9] = new CodeInstruction(OpCodes.Stloc_S, 41);
+                    codes[i + 9] = new CodeInstruction(OpCodes.Stloc_S, 36);
                 }
 
                 //Patch fix for the "Picking specific star system" in statistics
@@ -118,7 +118,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     {
                         codes[i - 2 + j].opcode = OpCodes.Nop;
                     }
-                    codes[i] = new CodeInstruction(OpCodes.Ldloca_S, 47); //Loads the address of the local variable at a specific index onto the evaluation stack, short form.
+                    codes[i] = new CodeInstruction(OpCodes.Ldloca_S, 42); //Loads the address of the local variable at a specific index onto the evaluation stack, short form.
                     codes[i + 1] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 2] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
                     codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
