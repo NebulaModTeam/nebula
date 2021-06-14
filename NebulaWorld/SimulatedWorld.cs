@@ -279,12 +279,14 @@ namespace NebulaWorld
 
                     factory.RemoveVeinWithComponents(packet.VegeId);
 
-                    VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
-                    VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true);
+                    if(veinProto != null)
+                    {
+                        VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
+                        VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true);
+                    }
                 }
                 else
                 {
-                    Debug.Log("removing " + packet.VegeId);
                     VegeData vegeData = factory.GetVegeData(packet.VegeId);
                     VegeProto vegeProto = LDB.veges.Select((int)vegeData.protoId);
 
