@@ -155,6 +155,17 @@ namespace NebulaWorld.Logistics
                 if (packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
                 {
                     stationComponent.warperCount = (int)packet.SettingValue;
+                    if (stationComponent.storage != null && packet.WarperShouldTakeFromStorage)
+                    {
+                        for(int i = 0; i < stationComponent.storage.Length; i++)
+                        {
+                            if(stationComponent.storage[i].itemId == 1210 && stationComponent.storage[i].count > 0)
+                            {
+                                stationComponent.storage[i].count--;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -364,6 +375,18 @@ namespace NebulaWorld.Logistics
                             UIRequestedShipDronWarpChange = false;
                         }
                         stationComponent.warperCount = (int)packet.SettingValue;
+
+                        if (stationComponent.storage != null && packet.WarperShouldTakeFromStorage)
+                        {
+                            for (int i = 0; i < stationComponent.storage.Length; i++)
+                            {
+                                if (stationComponent.storage[i].itemId == 1210 && stationComponent.storage[i].count > 0)
+                                {
+                                    stationComponent.storage[i].count--;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
                 /*

@@ -746,6 +746,99 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InstructionEnumeration();
             // end remoteOrder changes
 
+            // shipData.warperCnt changes begin
+            // c# 590
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
+                {
+                    if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 930
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // shipData.warperCnt changes end
+
+            // StationComponent warperCount changes
+            // c# 16
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), "warperCount")))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount, true));
+                    }
+                    return 0;
+                }))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 931
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), "warperCount")))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount));
+                    }
+                    return 0;
+                }))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // StationComponent warperCount changes end
+
             return instructions;
         }
 
