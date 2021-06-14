@@ -22,7 +22,7 @@
 
     <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -35,7 +35,6 @@
   
   <!-- Shared Items -->
   <ItemGroup Label="NuGets">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
 
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.11.0" PrivateAssets="all" />
