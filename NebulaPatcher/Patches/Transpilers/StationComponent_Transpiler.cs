@@ -8,6 +8,7 @@ using NebulaModel.Packets.Logistics;
 using UnityEngine;
 using System;
 using NebulaModel.Networking;
+using NebulaModel.Logger;
 
 // thanks tanu and Therzok for the tipps!
 namespace NebulaPatcher.Patches.Transpilers
@@ -28,6 +29,7 @@ namespace NebulaPatcher.Patches.Transpilers
         private static int RemOrderCounter = 0;
         private static int RemOrderCounter2 = 0;
         private static int RemOrderCounter3 = 0;
+        private static int EnergyCounter = 0;
 
         [HarmonyTranspiler]
         [HarmonyPatch("RematchRemotePairs")]
@@ -360,7 +362,19 @@ namespace NebulaPatcher.Patches.Transpilers
                             }
                             return 0;
                         }))
-                        .Insert(new CodeInstruction(OpCodes.Pop));
+                        .Insert(new CodeInstruction(OpCodes.Pop))
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Pop));
 
                         TakeItemCounter++;
                     }
@@ -381,7 +395,19 @@ namespace NebulaPatcher.Patches.Transpilers
                             }
                             return 0;
                         }))
-                        .Insert(new CodeInstruction(OpCodes.Pop));
+                        .Insert(new CodeInstruction(OpCodes.Pop))
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Pop));
 
                         TakeItemCounter++;
                     }
@@ -549,6 +575,18 @@ namespace NebulaPatcher.Patches.Transpilers
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                    }
+                    return 0;
+                }))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
             // c# 480, c# 948, c# 1033
             instructions = new CodeMatcher(instructions)
@@ -838,6 +876,13 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
             // StationComponent warperCount changes end
+
+            // energy consumption start
+            // c# 221, c# 338, c# 420 (weey)
+            /*
+             * energy consumption transpiler moved up because for whatever reason it did not work as standalone here.
+             */
+            // energy consumption end
 
             return instructions;
         }

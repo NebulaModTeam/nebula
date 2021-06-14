@@ -216,7 +216,7 @@ namespace NebulaWorld.Logistics
             {
                 if(stationComponent != null && stationComponent.gid == packet.stationGID)
                 {
-                    if(stationComponent.storage == null)
+                    if(stationComponent.storage == null || packet.storageIndex >= stationComponent.storage.Length)
                     {
                         return;
                     }
