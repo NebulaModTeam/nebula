@@ -364,7 +364,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                         TakeItemCounter++;
                     }
-                    if (TakeItemCounter == 1)
+                    else if (TakeItemCounter == 1)
                     {
                         matcher
                         .Advance(1)
@@ -417,6 +417,334 @@ namespace NebulaPatcher.Patches.Transpilers
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
+
+            // remoteOrder changes
+            // c# 209, c# 326
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Repeat(matcher =>
+                {
+                    if(RemOrderCounter == 0)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 28))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter++;
+                    }
+                    else if(RemOrderCounter == 1)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 38))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 46))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter++;
+                    }
+                })
+                .InstructionEnumeration();
+            // c# 408
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldarg_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                        for (int i = 0; i < subscribers.Count; i++)
+                        {
+                            subscribers[i].SendPacket(packet);
+                        }
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 415
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldarg_S),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 38))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                        for (int i = 0; i < subscribers.Count; i++)
+                        {
+                            subscribers[i].SendPacket(packet);
+                        }
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 480, c# 948, c# 1033
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Repeat(matcher =>
+                {
+                    if(RemOrderCounter2 == 0)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 50),
+                                            new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                if (index > 4)
+                                {
+                                    // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
+                                    return 0;
+                                }
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter2++;
+                    }
+                    else if(RemOrderCounter2 == 1)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 50),
+                                            new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex")))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                if (index > 4)
+                                {
+                                    // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
+                                    return 0;
+                                }
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter2++;
+                    }
+                    else if(RemOrderCounter2 == 2)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 50),
+                                            new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex")))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                if (index > 4)
+                                {
+                                    // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
+                                    return 0;
+                                }
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter2++;
+                    }
+                })
+                .InstructionEnumeration();
+            // c# 1007
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 142))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                        for (int i = 0; i < subscribers.Count; i++)
+                        {
+                            subscribers[i].SendPacket(packet);
+                        }
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 1046
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 50),
+                                    new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        if (index > 4)
+                        {
+                            // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
+                            return 0;
+                        }
+                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                        for (int i = 0; i < subscribers.Count; i++)
+                        {
+                            subscribers[i].SendPacket(packet);
+                        }
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // end remoteOrder changes
 
             return instructions;
         }
