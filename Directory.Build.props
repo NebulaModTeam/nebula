@@ -28,8 +28,8 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
 
-    <DebugSymbols>portable</DebugSymbols>
-    <DebugType>true</DebugType>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   
   <!-- Shared Items -->
