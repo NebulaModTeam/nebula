@@ -25,11 +25,11 @@
         public int[] InserterItemIds { get; set; }
         public int[] InserterLengths { get; set; }
         public int[] InserterFilters { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public PasteBuildingSettingUpdate() { }
 
-        public PasteBuildingSettingUpdate(int objectId, BuildingParameters clipboard, int factoryIndex)
+        public PasteBuildingSettingUpdate(int objectId, BuildingParameters clipboard, int planetId)
         {
             ObjectId = objectId;
             Type = clipboard.type;
@@ -47,7 +47,7 @@
             InserterItemIds = clipboard.inserterItemIds;
             InserterLengths = clipboard.inserterLengths;
             InserterFilters = clipboard.inserterFilters;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
 
         public BuildingParameters GetBuildingSettings()

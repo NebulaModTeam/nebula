@@ -1,5 +1,4 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
@@ -12,13 +11,13 @@ namespace NebulaClient.PacketProcessors.Factory
     {
         public void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
         {
-            if (GameMain.data.factories[packet.FactoryIndex].planet.factory != null)
+            if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null)
             {
                 BuildingParameters backup = BuildingParameters.clipboard;
                 BuildingParameters.clipboard = packet.GetBuildingSettings();
                 using (FactoryManager.EventFromServer.On())
                 {
-                    GameMain.data.factories[packet.FactoryIndex].planet.factory.PasteBuildingSetting(packet.ObjectId);
+                    GameMain.galaxy.PlanetById(packet.PlanetId).factory.PasteBuildingSetting(packet.ObjectId);
                 }
                 BuildingParameters.clipboard = backup;
             }
