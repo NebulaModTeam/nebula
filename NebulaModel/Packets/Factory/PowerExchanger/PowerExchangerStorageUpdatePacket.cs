@@ -5,16 +5,16 @@
         public int PowerExchangerIndex { get; set; }
         public int EmptyAccumulatorCount { get; set; }
         public int FullAccumulatorCount { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public PowerExchangerStorageUpdatePacket() { }
 
-        public PowerExchangerStorageUpdatePacket(int powerExchangerIndex, int emptyAccumulatorCount, int fullAccumulatorCount, int factoryIndex)
+        public PowerExchangerStorageUpdatePacket(int powerExchangerIndex, int emptyAccumulatorCount, int fullAccumulatorCount, int planetId)
         {
             PowerExchangerIndex = powerExchangerIndex;
             EmptyAccumulatorCount = emptyAccumulatorCount;
             FullAccumulatorCount = fullAccumulatorCount;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

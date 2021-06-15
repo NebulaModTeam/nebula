@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized)
             {
                 StorageComponent storage = (StorageComponent)AccessTools.Field(typeof(UIEjectorWindow), "servingStorage").GetValue(__instance);
-                LocalPlayer.SendPacketToLocalStar(new EjectorStorageUpdatePacket(__instance.ejectorId, storage.grids[0].count, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new EjectorStorageUpdatePacket(__instance.ejectorId, storage.grids[0].count, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about target orbit change
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new EjectorOrbitUpdatePacket(__instance.ejectorId, orbitId, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new EjectorOrbitUpdatePacket(__instance.ejectorId, orbitId, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

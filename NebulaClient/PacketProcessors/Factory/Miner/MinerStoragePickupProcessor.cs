@@ -10,7 +10,7 @@ namespace NebulaClient.PacketProcessors.Factory.Miner
     {
         public void ProcessPacket(MinerStoragePickupPacket packet, NebulaConnection conn)
         {
-            MinerComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.factorySystem?.minerPool;
+            MinerComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.minerPool;
             if (pool != null && packet.MinerIndex != -1 && packet.MinerIndex < pool.Length && pool[packet.MinerIndex].id != -1)
             {
                 pool[packet.MinerIndex].productCount = 0;

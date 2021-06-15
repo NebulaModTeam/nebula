@@ -269,7 +269,7 @@ namespace NebulaWorld
 
         public static void OnVegetationMined(VegeMinedPacket packet)
         {
-            PlanetFactory factory = GameMain.data.factories[packet.FactoryIndex];
+            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             if (packet.Amount == 0 && factory != null)
             {
                 if (packet.IsVein)

@@ -148,7 +148,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
             {
-                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.factoryIndex ?? -1, id, 0, false));
+                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
             }
         }
 
@@ -158,7 +158,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
             {
-                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.factoryIndex ?? -1, id, 0, true));
+                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, true));
             }
         }
     }

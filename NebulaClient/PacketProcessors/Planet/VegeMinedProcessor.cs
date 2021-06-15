@@ -12,7 +12,7 @@ namespace NebulaClient.PacketProcessors.Planet
     {
         public void ProcessPacket(VegeMinedPacket packet, NebulaConnection conn)
         {
-            if (packet.FactoryIndex >= 0 && GameMain.data.factories[packet.FactoryIndex] != null && GameMain.data.factories[packet.FactoryIndex].vegePool != null)
+            if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null && GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.vegePool != null)
             {
                 using (PlanetManager.EventFromServer.On())
                 {

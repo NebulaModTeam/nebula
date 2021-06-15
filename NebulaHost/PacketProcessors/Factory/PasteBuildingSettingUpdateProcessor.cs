@@ -18,7 +18,7 @@ namespace NebulaHost.PacketProcessors.Factory
 
                 using (FactoryManager.EventFromServer.On())
                 {
-                    GameMain.galaxy.PlanetById(packet.PlanetId)?.factory.PasteBuildingSetting(packet.ObjectId);
+                    GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.PasteBuildingSetting(packet.ObjectId);
                 }
                 BuildingParameters.clipboard = backup;
             }

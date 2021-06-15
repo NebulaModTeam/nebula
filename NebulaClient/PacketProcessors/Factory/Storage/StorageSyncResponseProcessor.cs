@@ -12,14 +12,14 @@ namespace NebulaClient.PacketProcessors.Factory.Storage
     {
         public void ProcessPacket(StorageSyncResponsePacket packet, NebulaConnection conn)
         {
-            StorageComponent storageComponent = GameMain.data.factories[packet.FactoryIndex]?.factoryStorage?.storagePool[packet.StorageIndex];
+            StorageComponent storageComponent = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.storagePool[packet.StorageIndex];
             if (storageComponent != null)
             {
                 using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.StorageComponent))
                 {
                     storageComponent.Import(reader.BinaryReader);
                 }
-                ItemProto itemProto = LDB.items.Select((int)GameMain.data.factories[packet.FactoryIndex].entityPool[storageComponent.entityId].protoId);
+                ItemProto itemProto = LDB.items.Select((int)GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.entityPool[storageComponent.entityId].protoId);
 
                 //Imitation of UIStorageWindow.OnStorageIdChange()
                 StorageManager.ActiveWindowTitle.text = itemProto.name;
@@ -32,7 +32,7 @@ namespace NebulaClient.PacketProcessors.Factory.Storage
                 StorageManager.ActiveBansSlider.maxValue = (float)storageComponent.size;
                 StorageManager.ActiveBansSlider.value = (float)(storageComponent.size - storageComponent.bans);
                 StorageManager.ActiveBansValueText.text = StorageManager.ActiveBansSlider.value.ToString();
-                GameMain.data.factories[packet.FactoryIndex].factoryStorage.storagePool[packet.StorageIndex] = storageComponent;
+                GameMain.galaxy.PlanetById(packet.PlanetId).factory.factoryStorage.storagePool[packet.StorageIndex] = storageComponent;
             }
         }
     }

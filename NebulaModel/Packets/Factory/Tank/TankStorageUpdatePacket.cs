@@ -5,16 +5,16 @@
         public int TankIndex { get; set; }
         public int FluidId { get; set; }
         public int FluidCount { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public TankStorageUpdatePacket() { }
 
-        public TankStorageUpdatePacket(int tankIndex, int fluidId, int fluidCount, int factoryIndex)
+        public TankStorageUpdatePacket(int tankIndex, int fluidId, int fluidCount, int planetId)
         {
             TankIndex = tankIndex;
             FluidId = fluidId;
             FluidCount = fluidCount;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

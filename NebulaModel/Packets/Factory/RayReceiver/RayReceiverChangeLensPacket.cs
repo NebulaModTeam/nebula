@@ -4,15 +4,15 @@
     {
         public int GeneratorId { get; set; }
         public int LensCount { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public RayReceiverChangeLensPacket() { }
 
-        public RayReceiverChangeLensPacket(int generatorId, int lensCount, int factoryIndex)
+        public RayReceiverChangeLensPacket(int generatorId, int lensCount, int planetId)
         {
             GeneratorId = generatorId;
             LensCount = lensCount;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

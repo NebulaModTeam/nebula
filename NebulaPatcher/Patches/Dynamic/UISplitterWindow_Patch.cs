@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Send notification about changing splitter output filter
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -35,7 +35,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (sendResetOutputFilter && thisComponent.outFilter != 0)
             {
-                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, 0, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, 0, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

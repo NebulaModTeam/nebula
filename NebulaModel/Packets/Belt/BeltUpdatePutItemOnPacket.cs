@@ -4,13 +4,13 @@
     {
         public int BeltId { get; set; }
         public int ItemId { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
         public BeltUpdatePutItemOnPacket() { }
-        public BeltUpdatePutItemOnPacket(int beltId, int itemId, int factoryIndex)
+        public BeltUpdatePutItemOnPacket(int beltId, int itemId, int planetId)
         {
             BeltId = beltId;
             ItemId = itemId;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

@@ -2,15 +2,15 @@
 {
     public class AssemblerUpdateProducesPacket
     {
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
         public int AssemblerIndex { get; set; }
         public int ProducesIndex { get; set; }
         public int ProducesValue { get; set; }
 
         public AssemblerUpdateProducesPacket() { }
-        public AssemblerUpdateProducesPacket(int producesIndex, int producesValue, int factoryIndex, int assemblerIndex)
+        public AssemblerUpdateProducesPacket(int producesIndex, int producesValue, int planetId, int assemblerIndex)
         {
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
             AssemblerIndex = assemblerIndex;
             ProducesIndex = producesIndex;
             ProducesValue = producesValue;

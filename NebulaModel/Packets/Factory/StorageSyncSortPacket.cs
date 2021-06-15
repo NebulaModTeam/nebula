@@ -3,14 +3,14 @@
     public class StorageSyncSortPacket
     {
         public int StorageIndex { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public StorageSyncSortPacket() { }
 
-        public StorageSyncSortPacket(int storageIndex, int factoryIndex)
+        public StorageSyncSortPacket(int storageIndex, int planetId)
         {
             StorageIndex = storageIndex;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

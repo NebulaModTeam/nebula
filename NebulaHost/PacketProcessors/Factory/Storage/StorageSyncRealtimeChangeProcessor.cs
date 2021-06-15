@@ -15,7 +15,7 @@ namespace NebulaHost.PacketProcessors.Factory.Storage
             int count = packet.Count;
 
             StorageComponent storage = null;
-            StorageComponent[] pool = GameMain.data.factories[packet.FactoryIndex]?.factoryStorage?.storagePool;
+            StorageComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.storagePool;
             if (pool != null && packet.StorageIndex != -1 && packet.StorageIndex < pool.Length)
             {
                 storage = pool[packet.StorageIndex];

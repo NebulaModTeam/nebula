@@ -4,15 +4,15 @@
     {
         public int InserterIndex { get; set; }
         public int ItemId { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public InserterFilterUpdatePacket() { }
 
-        public InserterFilterUpdatePacket(int inserterIndex, int itemId, int factoryIndex)
+        public InserterFilterUpdatePacket(int inserterIndex, int itemId, int planetId)
         {
             InserterIndex = inserterIndex;
             ItemId = itemId;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

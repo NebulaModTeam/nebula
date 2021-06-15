@@ -5,15 +5,15 @@ namespace NebulaModel.Packets.Belt
 {
     public class BeltUpdatePickupItemsPacket
     {
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
         public BeltUpdate[] BeltUpdates { get; set; }
 
         public BeltUpdatePickupItemsPacket() { }
 
-        public BeltUpdatePickupItemsPacket(BeltUpdate[] beltUpdates, int factoryIndex)
+        public BeltUpdatePickupItemsPacket(BeltUpdate[] beltUpdates, int planetId)
         {
             BeltUpdates = beltUpdates;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 

@@ -4,15 +4,15 @@
     {
         public int SplitterIndex { get; set; }
         public int ItemId { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public SplitterFilterChangePacket() { }
 
-        public SplitterFilterChangePacket(int splitterIndex, int itemId, int factoryIndex)
+        public SplitterFilterChangePacket(int splitterIndex, int itemId, int planetId)
         {
             SplitterIndex = splitterIndex;
             ItemId = itemId;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

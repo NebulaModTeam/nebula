@@ -4,14 +4,14 @@
     {
         public int EjectorIndex { get; set; }
         public int NewBulletAmount { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public EjectorStorageUpdatePacket() { }
-        public EjectorStorageUpdatePacket(int ejectorIndex, int newBulletAmount, int factoryIndex)
+        public EjectorStorageUpdatePacket(int ejectorIndex, int newBulletAmount, int planetId)
         {
             EjectorIndex = ejectorIndex;
             NewBulletAmount = newBulletAmount;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }
