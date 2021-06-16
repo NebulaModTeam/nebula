@@ -56,7 +56,7 @@ namespace NebulaHost
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
-            socketServer = new WebSocketServer(port);
+            socketServer = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socketServer);
 
             socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
