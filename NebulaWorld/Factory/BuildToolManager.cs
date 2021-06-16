@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 
 namespace NebulaWorld.Factory
@@ -14,9 +15,8 @@ namespace NebulaWorld.Factory
             // Host will just broadcast event to other players
             if (LocalPlayer.IsMasterClient)
             {
-                if (!FactoryManager.EventFromClient)
+                if (!FactoryManager.IsFromClient)
                 {
-                    // set this so the Transpiler can actually differentiate between own and other requests (as the CreatePrebuilds() method is only run when EventFromServer = true)
                     FactoryManager.IsHumanInput = true;
                 }
                 int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;

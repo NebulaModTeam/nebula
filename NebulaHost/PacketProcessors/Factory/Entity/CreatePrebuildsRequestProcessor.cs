@@ -110,26 +110,24 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
                     if (canBuild)
                     {
-                        using (FactoryManager.EventFromClient.On())
-                        {
-                            FactoryManager.PacketAuthor = packet.AuthorId;
-                            CheckAndFixConnections(buildTool, planet);
+                        FactoryManager.PacketAuthor = packet.AuthorId;
+                        CheckAndFixConnections(buildTool, planet);
 
-                            if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
-                            {
-                                ((BuildTool_Click)buildTool).CreatePrebuilds();
-                            }
-                            else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
-                            {
-                                ((BuildTool_Path)buildTool).CreatePrebuilds();
-                            }
-                            else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
-                            {
-                                ((BuildTool_Inserter)buildTool).CreatePrebuilds();
-                            }
+                        if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
+                        {
+                            ((BuildTool_Click)buildTool).CreatePrebuilds();
+                        }
+                        else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
+                        {
+                            FactoryManager.IsFromClient = true;
+                            ((BuildTool_Path)buildTool).CreatePrebuilds();
+                        }
+                        else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
+                        {
+                            ((BuildTool_Inserter)buildTool).CreatePrebuilds();
                         }
 
-                            FactoryManager.PacketAuthor = -1;
+                        FactoryManager.PacketAuthor = -1;
                     }
 
                     //Revert changes back to the original planet

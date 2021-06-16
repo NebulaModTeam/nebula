@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaWorld;
 using NebulaWorld.Factory;
 
@@ -23,8 +22,9 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 FactoryManager.IsHumanInput = false;
             }
-            else if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient && FactoryManager.IsHumanInput)
+            else if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient && (FactoryManager.IsHumanInput || FactoryManager.IsFromClient))
             {
+                FactoryManager.IsFromClient = false;
                 FactoryManager.IsHumanInput = false;
             }
         }
