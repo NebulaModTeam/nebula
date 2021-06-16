@@ -3,14 +3,12 @@ using NebulaModel;
 using NebulaModel.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaWorld;
-using System;
 using System.Collections;
 using System.Globalization;
 using System.Net;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using Object = UnityEngine.Object;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
