@@ -42,10 +42,10 @@ namespace NebulaClient
             Instance = this;
         }   
 
-        public void ConnectToIp(IPAddress ip, int port)
+        public void ConnectToIp(IPEndPoint ip)
         {
-            serverEndpoint = new IPEndPoint(ip, port);
-            socketAddress = $"ws://{ip}:{port}/socket";
+            serverEndpoint = ip;
+            socketAddress = $"ws://{ip}/socket";
             Log.Info($"Connect to IP: {socketAddress}");
             ConnectInternal();
         }
