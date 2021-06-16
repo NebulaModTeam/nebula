@@ -126,7 +126,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     Label myCode = gen.DefineLabel();
                     codes[i - 10].labels.Add(myCode);
 
-                    //Go back and fix the jump
+                    //Go back and fix the jump and also patch isEjector
                     for (int a = i; a > 0; a--)
                     {
                         if (codes[a].opcode == OpCodes.Brfalse &&
@@ -138,6 +138,11 @@ namespace NebulaPatcher.Patches.Transpiler
                             codes[a - 3].opcode == OpCodes.Ldloc_S)
                         {
                             codes[a] = new CodeInstruction(OpCodes.Brfalse, myCode);
+                            codes.InsertRange(a + 1, new CodeInstruction[] {
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
+                                    new CodeInstruction(OpCodes.Brtrue_S, myCode)
+                                    });
                             break;
                         }
                     }
@@ -186,6 +191,26 @@ namespace NebulaPatcher.Patches.Transpiler
                                     new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, codes[a].operand)
                                     });
+                    break;
+                }
+            }
+
+            //Apply patch for ejector
+            for(i = 0; i < codes.Count - 16; i++)
+            {
+                if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand?.ToString() == "System.Boolean isInserter" &&
+                    codes[i + 3].opcode == OpCodes.Call && codes[i + 3].operand?.ToString() == "Single get_magnitude()" &&
+                    codes[i + 6].opcode == OpCodes.Callvirt && codes[i + 6].operand?.ToString() == "Single get_realRadius()" &&
+                    codes[i + 10].opcode == OpCodes.Ldfld && codes[i + 10].operand?.ToString() == "System.Single cullingHeight" &&
+                    codes[i + 16].opcode == OpCodes.Ldfld && codes[i + 16].operand?.ToString() == "System.Boolean isEjector")
+                {
+                    codes.InsertRange(i + 2, new CodeInstruction[]
+                    {
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
+                                    new CodeInstruction(OpCodes.Brtrue_S, codes[i + 1].operand),
+                    });
+                    break;
                 }
             }
             return codes;
