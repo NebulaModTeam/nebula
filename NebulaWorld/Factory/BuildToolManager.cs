@@ -14,6 +14,11 @@ namespace NebulaWorld.Factory
             // Host will just broadcast event to other players
             if (LocalPlayer.IsMasterClient)
             {
+                if (!FactoryManager.EventFromClient)
+                {
+                    // set this so the Transpiler can actually differentiate between own and other requests (as the CreatePrebuilds() method is only run when EventFromServer = true)
+                    FactoryManager.IsHumanInput = true;
+                }
                 int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
                 LocalPlayer.SendPacketToStar(new CreatePrebuildsRequest(planetId, __instance.buildPreviews, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
             }
@@ -21,6 +26,8 @@ namespace NebulaWorld.Factory
             //If client builds, he need to first send request to the host and wait for reply
             if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
             {
+                // set this so the Transpiler can actually differentiate between own and other requests (as the CreatePrebuilds() method is only run when EventFromServer = true)
+                FactoryManager.IsHumanInput = true;
                 //Check what client can build from his inventory
                 List<BuildPreview> canBuild = new List<BuildPreview>();
                 //Remove required items from the player's inventory and build only what client can

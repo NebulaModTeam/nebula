@@ -37,7 +37,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 FactoryManager.TargetPlanet = packet.PlanetId;
 
                 //Make backup of values that are overwritten
-                List<BuildPreview> tmpList = buildTool.buildPreviews;
+                List<BuildPreview> tmpList = new List<BuildPreview>();
                 //bool tmpConfirm = pab.waitConfirm;
                 //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
                 //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
@@ -59,6 +59,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 }
 
                 //Create Prebuilds from incomming packet and prepare new position
+                tmpList.AddRange(buildTool.buildPreviews);
                 buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 //pab.waitConfirm = true;
@@ -109,23 +110,26 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
                     if (canBuild)
                     {
-                        FactoryManager.PacketAuthor = packet.AuthorId;
-                        CheckAndFixConnections(buildTool, planet);
+                        using (FactoryManager.EventFromClient.On())
+                        {
+                            FactoryManager.PacketAuthor = packet.AuthorId;
+                            CheckAndFixConnections(buildTool, planet);
 
-                        if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
-                        {
-                            ((BuildTool_Click)buildTool).CreatePrebuilds();
-                        }
-                        else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
-                        {
-                            ((BuildTool_Path)buildTool).CreatePrebuilds();
-                        }
-                        else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
-                        {
-                            ((BuildTool_Inserter)buildTool).CreatePrebuilds();
+                            if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
+                            {
+                                ((BuildTool_Click)buildTool).CreatePrebuilds();
+                            }
+                            else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
+                            {
+                                ((BuildTool_Path)buildTool).CreatePrebuilds();
+                            }
+                            else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
+                            {
+                                ((BuildTool_Inserter)buildTool).CreatePrebuilds();
+                            }
                         }
 
-                        FactoryManager.PacketAuthor = -1;
+                            FactoryManager.PacketAuthor = -1;
                     }
 
                     //Revert changes back to the original planet

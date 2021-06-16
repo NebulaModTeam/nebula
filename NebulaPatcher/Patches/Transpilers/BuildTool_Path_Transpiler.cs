@@ -4,6 +4,7 @@ using NebulaModel.Logger;
 using NebulaWorld.Factory;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpiler
@@ -13,7 +14,7 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch("CreatePrebuilds")]
-        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             var codes = new List<CodeInstruction>(instructions);
 
@@ -38,6 +39,23 @@ namespace NebulaPatcher.Patches.Transpiler
                     break;
                 }
             }
+
+            Label jmpLabel;
+            CodeMatcher matcher = new CodeMatcher(codes, il)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_controller"),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(PlayerController), "cmd")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(CommandState), "stage")));
+            matcher
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), nameof(FactoryManager.IsHumanInput))));
+            matcher.CreateLabelAt(matcher.Pos + 19, out jmpLabel);
+            matcher
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse_S, jmpLabel));
+
+            codes = (List<CodeInstruction>)matcher.InstructionEnumeration();
+
             return codes;
         }
 

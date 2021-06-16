@@ -25,6 +25,8 @@ namespace NebulaWorld.Factory
         public static readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
         public static readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
 
+        public static bool IsHumanInput = false;
+
         public static int PacketAuthor { get; set; }
         public static int TargetPlanet { get; set; }
         public const int PLANET_NONE = -2;

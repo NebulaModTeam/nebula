@@ -37,7 +37,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 FactoryManager.TargetPlanet = packet.PlanetId;
 
                 //Make backup of values that are overwritten
-                List<BuildPreview> tmpList = buildTool.buildPreviews;
+                List<BuildPreview> tmpList = new List<BuildPreview>();
                 //bool tmpConfirm = pab.waitConfirm;
                 //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
                 //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
@@ -45,6 +45,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 PlanetPhysics tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
 
                 //Create Prebuilds from incomming packet
+                tmpList.AddRange(buildTool.buildPreviews);
                 buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 //pab.waitConfirm = true;
