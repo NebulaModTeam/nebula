@@ -1,8 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
-using NebulaModel.Logger;
 using NebulaWorld.Factory;
-using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
@@ -91,7 +89,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 5].opcode == OpCodes.Conv_I4)
                 {
                     Label targetLabel = (Label)codes[i].operand;
-                    codes.InsertRange(i+1, new CodeInstruction[] {
+                    codes.InsertRange(i + 1, new CodeInstruction[] {
                                     new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
                                     new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
                                     new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
@@ -111,7 +109,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 7].opcode == OpCodes.Brfalse &&
                     codes[i - 6].opcode == OpCodes.Ldloc_S &&
                     codes[i - 5].opcode == OpCodes.Ldfld && codes[i - 5].operand?.ToString() == "System.Int32 inputObjId" &&
-                    codes[i - 4].opcode == OpCodes.Brtrue && 
+                    codes[i - 4].opcode == OpCodes.Brtrue &&
                     codes[i - 3].opcode == OpCodes.Ldloc_S &&
                     codes[i - 2].opcode == OpCodes.Ldfld &&
                     codes[i - 1].opcode == OpCodes.Ldfld && codes[i - 1].operand?.ToString() == "System.Boolean isInserter" &&
@@ -133,7 +131,7 @@ namespace NebulaPatcher.Patches.Transpiler
                             codes[a + 1].opcode == OpCodes.Ldarg_0 &&
                             codes[a - 1].opcode == OpCodes.Ldfld && codes[a - 1].operand?.ToString() == "System.Boolean isEjector" &&
                             codes[a + 2].opcode == OpCodes.Ldloc_S &&
-                            codes[a - 2].opcode == OpCodes.Ldfld && 
+                            codes[a - 2].opcode == OpCodes.Ldfld &&
                             codes[a + 3].opcode == OpCodes.Ldc_R4 &&
                             codes[a - 3].opcode == OpCodes.Ldloc_S)
                         {
@@ -196,13 +194,29 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             //Apply patch for ejector
-            for(i = 0; i < codes.Count - 16; i++)
+            for (i = 0; i < codes.Count - 16; i++)
             {
                 if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand?.ToString() == "System.Boolean isInserter" &&
                     codes[i + 3].opcode == OpCodes.Call && codes[i + 3].operand?.ToString() == "Single get_magnitude()" &&
                     codes[i + 6].opcode == OpCodes.Callvirt && codes[i + 6].operand?.ToString() == "Single get_realRadius()" &&
                     codes[i + 10].opcode == OpCodes.Ldfld && codes[i + 10].operand?.ToString() == "System.Single cullingHeight" &&
                     codes[i + 16].opcode == OpCodes.Ldfld && codes[i + 16].operand?.ToString() == "System.Boolean isEjector")
+                {
+                    codes.InsertRange(i + 2, new CodeInstruction[]
+                    {
+                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
+                                    new CodeInstruction(OpCodes.Brtrue_S, codes[i + 1].operand),
+                    });
+                    break;
+                }
+            }
+
+            //Apply patch for orbital collectors
+            for (i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand?.ToString() == "System.Boolean isCollectStation" &&
+                    codes[i + 3].opcode == OpCodes.Ldfld && codes[i + 3].operand?.ToString() == "PlanetData planet")
                 {
                     codes.InsertRange(i + 2, new CodeInstruction[]
                     {
