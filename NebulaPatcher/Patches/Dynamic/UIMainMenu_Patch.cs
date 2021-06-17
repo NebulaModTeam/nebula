@@ -210,17 +210,33 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             var isIP = false;
+            var p = 0;
             if(result != null)
             {
                 if(result.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
                 {
                     s = $"[{result.Address}]";
                 }
+                else
+                {
+                    s = $"{result.Address}";
+                }
+                p = result.Port;
                 isIP = true;
             }
-            var p = result != null && result.Port > 0
-                       ? result.Port
-                       : Config.Options.HostPort;
+            else
+            {
+                var tmpP = s.Split(':');
+                if(tmpP.Length == 2)
+                {
+                    if(!System.Int32.TryParse(tmpP[1], out p))
+                        p = 0;
+                    else
+                        s = tmpP[0];
+                }
+            }
+
+            p = p == 0 ? Config.Options.HostPort : p;
 
             UIRoot.instance.StartCoroutine(TryConnectToServer(s, p, isIP));
         }
