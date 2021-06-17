@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(GameMain))]
-    class GameMain_Patch
+    class GameMain_Transpiler
     {
         //Ignore Pausing in the multiplayer:
         //Change:  if (!this._paused)

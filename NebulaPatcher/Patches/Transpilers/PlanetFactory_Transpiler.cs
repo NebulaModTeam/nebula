@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(PlanetFactory))]
-    class PlanetFactory_Patch
+    class PlanetFactory_Transpiler
     {
         /* Change:
              this.TakeBackItemsInEntity(player, objId);

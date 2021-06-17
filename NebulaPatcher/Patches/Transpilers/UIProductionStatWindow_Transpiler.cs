@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(UIProductionStatWindow))]
-    public static class UIProductionStatWindow_Patch
+    public static class UIProductionStatWindow_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch("ComputeDisplayEntries")]

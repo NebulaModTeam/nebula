@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Transpiler
 		        }
     */
     [HarmonyPatch(typeof(CargoTraffic))]
-    class CargoTraffic_Patch
+    class CargoTraffic_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch("PickupBeltItems")]

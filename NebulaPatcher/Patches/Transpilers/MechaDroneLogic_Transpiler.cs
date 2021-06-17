@@ -7,7 +7,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(MechaDroneLogic))]
-    class MechaDroneLogic_Patch
+    class MechaDroneLogic_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch("UpdateTargets")]
