@@ -28,5 +28,17 @@ namespace NebulaPatcher.Patches.Dynamic
                 FactoryManager.IsHumanInput = false;
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("CheckBuildConditions")]
+        public static bool CheckBuildConditions(ref bool __result)
+        {
+            if (FactoryManager.IgnoreBasicBuildConditionChecks)
+            {
+                __result = true;
+                return false;
+            }
+            return true;
+        }
     }
 }

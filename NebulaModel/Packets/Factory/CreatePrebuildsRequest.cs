@@ -65,7 +65,6 @@ namespace NebulaModel.Packets.Factory
             }
             buildPreview.coverObjId = br.ReadInt32();
             buildPreview.willRemoveCover = br.ReadBoolean();
-            buildPreview.ignoreCollisionCheck = br.ReadBoolean();
             buildPreview.outputObjId = br.ReadInt32();
             buildPreview.inputObjId = br.ReadInt32();
             buildPreview.outputToSlot = br.ReadInt32();
@@ -160,7 +159,6 @@ namespace NebulaModel.Packets.Factory
             }
             bw.Write(buildPreview.coverObjId);
             bw.Write(buildPreview.willRemoveCover);
-            bw.Write(buildPreview.ignoreCollisionCheck);
             bw.Write(buildPreview.outputObjId);
             bw.Write(buildPreview.inputObjId);
             bw.Write(buildPreview.outputToSlot);

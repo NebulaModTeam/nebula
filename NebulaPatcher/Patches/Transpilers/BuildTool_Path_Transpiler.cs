@@ -65,37 +65,28 @@ namespace NebulaPatcher.Patches.Transpiler
          * - for the inventory check and ground condition check
          * - checks for presence of ore or oil, since we do not want to load colliders for remote planets
          */
-        [HarmonyTranspiler]
-        [HarmonyPatch("CheckBuildConditions")]
+        //[HarmonyTranspiler]
+        //[HarmonyPatch("CheckBuildConditions")]
         static IEnumerable<CodeInstruction> CheckBuildConditions_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
-            var codes = new List<CodeInstruction>(instructions);
-            int i = 0;
-
-            //Apply Ignoring of inventory check
-            for (i = 5; i < codes.Count - 2; i++)
-            {
-                if (codes[i].opcode == OpCodes.Ldfld && codes[i].operand?.ToString() == "System.Boolean willRemoveCover" &&
-                    codes[i + 1].opcode == OpCodes.Brfalse &&
-                    codes[i - 1].opcode == OpCodes.Ldloc_S &&
-                    codes[i - 2].opcode == OpCodes.Brfalse &&
-                    codes[i - 3].opcode == OpCodes.Ldfld && codes[i - 3].operand?.ToString() == "System.Int32 coverObjId" &&
-                    codes[i - 4].opcode == OpCodes.Ldloc_S &&
-                    codes[i - 5].opcode == OpCodes.Br &&
-                    codes[i + 2].opcode == OpCodes.Ldloc_S)
-                {
-                    Label targetLabel = (Label)codes[i + 1].operand;
-                    codes.InsertRange(i - 3, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Pop),
-                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")),
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
-                                    new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 4)
-                                    });
-                    break;
-                }
-            }
-            return codes;
+            Label jmpLabel;
+            CodeMatcher matcher = new CodeMatcher(instructions, gen)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(BuildPreview), "coverObjId")),
+                    new CodeMatch(OpCodes.Brfalse),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(BuildPreview), "willRemoveCover")),
+                    new CodeMatch(OpCodes.Brfalse))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "IgnoreBasicBuildConditionChecks")))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")));
+            matcher.CreateLabelAt(matcher.Pos + 41, out jmpLabel);
+            matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue_S, jmpLabel));
+            matcher.CreateLabelAt(matcher.Pos - 3, out jmpLabel);
+            matcher
+                .Advance(-8)
+                .Set(OpCodes.Bge_Un_S, jmpLabel);
+            return matcher.InstructionEnumeration();
         }
     }
 }
