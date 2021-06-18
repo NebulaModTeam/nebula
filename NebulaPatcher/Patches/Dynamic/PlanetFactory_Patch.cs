@@ -157,7 +157,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
             {
-                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, true));
+                LocalPlayer.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true), __instance.planet.star.id);
             }
         }
     }
