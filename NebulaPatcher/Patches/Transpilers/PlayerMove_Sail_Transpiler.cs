@@ -15,6 +15,7 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch("GameTick")]
         public static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            var found = false;
             // c# 33 c# 69 c# 79 c# 87 this.player.warpCommand = false;
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
@@ -25,6 +26,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldstr))
                 .Repeat(matcher =>
                 {
+                    found = true;
                     matcher
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_0)) // just to feed the delegate function
@@ -52,6 +54,9 @@ namespace NebulaPatcher.Patches.Transpilers
                         .Insert(new CodeInstruction(OpCodes.Pop));
                 })
                 .InstructionEnumeration();
+
+                if(!found)
+                    NebulaModel.Logger.Log.Error("PlayerMove_Sail_Transpiler GameTick failure");
 
             // c# 42 this.player.warpCommand = true;
             instructions = new CodeMatcher(instructions)

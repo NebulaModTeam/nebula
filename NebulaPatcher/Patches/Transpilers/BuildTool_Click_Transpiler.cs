@@ -13,6 +13,7 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyPatch("CreatePrebuilds")]
         static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            var found = false;
             var codes = new List<CodeInstruction>(instructions);
 
             //Prevent spending items if user is not building
@@ -25,6 +26,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 2].opcode == OpCodes.Ldloc_S &&
                     codes[i + 3].opcode == OpCodes.Bne_Un)
                 {
+                    found = true;
                     Label targetLabel = (Label)codes[i + 16].operand;
                     codes.InsertRange(i - 1, new CodeInstruction[] {
                         new CodeInstruction(OpCodes.Ldc_I4_1),
@@ -36,6 +38,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     break;
                 }
             }
+
+            if (!found)
+                NebulaModel.Logger.Log.Error("BuildTool_Click CreatePrebuilds transpiler failed");
+
             return codes;
         }
 

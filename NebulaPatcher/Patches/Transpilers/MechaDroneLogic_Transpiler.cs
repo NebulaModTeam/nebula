@@ -13,6 +13,7 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyPatch("UpdateTargets")]
         static IEnumerable<CodeInstruction> UpdateTargets_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            var found = false;
             var codes = new List<CodeInstruction>(instructions);
             /*
              * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone gets new order
@@ -24,6 +25,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 1].opcode == OpCodes.Ldarg_0 &&
                     codes[i - 2].opcode == OpCodes.Ldloc_3)
                 {
+                    found = true;
                     codes.InsertRange(i + 1, new CodeInstruction[] {
                         new CodeInstruction(OpCodes.Ldloc_S, 11),
                         new CodeInstruction(OpCodes.Ldloc_3),
@@ -33,6 +35,11 @@ namespace NebulaPatcher.Patches.Transpiler
                     break;
                 }
             }
+
+            if(!found)
+                NebulaModel.Logger.Log.Error("UpdateTargets transpiler 1 failed");
+
+            found = false;
 
             /*
              * Update search for new targets. Do not include those for whose build request was sent and client is waiting for the response from server
@@ -62,6 +69,9 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
 
+            if (!found)
+                NebulaModel.Logger.Log.Error("UpdateTargets transpiler 2 failed");
+
             return codes;
         }
 
@@ -72,6 +82,7 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyPatch("UpdateDrones")]
         static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            var found = false;
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
@@ -81,6 +92,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 1].opcode == OpCodes.Ldloc_0 &&
                     codes[i - 2].opcode == OpCodes.Ldloca_S)
                 {
+                    found = true;
                     codes.InsertRange(i + 1, new CodeInstruction[] {
                         new CodeInstruction(OpCodes.Ldloc_S, 4),
                         new CodeInstruction(OpCodes.Ldloc_S, 6),
@@ -91,6 +103,11 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
 
+            if (!found)
+                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 1 failed");
+            
+            found = false;
+
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Br &&
@@ -100,6 +117,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 2].opcode == OpCodes.Callvirt &&
                     codes[i - 3].opcode == OpCodes.Ldloc_S)
                 {
+                    found = true;
                     codes.InsertRange(i + 5, new CodeInstruction[] {
                         new CodeInstruction(OpCodes.Ldloc_S, 4),
                         new CodeInstruction(OpCodes.Ldloc_0),
@@ -112,6 +130,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     break;
                 }
             }
+
+            if (!found)
+                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 2 failed");
+
             return codes;
         }
     }

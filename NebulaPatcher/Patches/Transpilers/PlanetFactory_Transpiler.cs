@@ -23,6 +23,7 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyPatch("DismantleFinally")]
         static IEnumerable<CodeInstruction> DismantleFinally_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
+            var found = false;
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
@@ -31,6 +32,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 2].opcode == OpCodes.Ldc_I4_0 &&
                     codes[i - 3].opcode == OpCodes.Ldfld)
                 {
+                    found = true;
                     Label targetLabel = gen.DefineLabel();
                     codes[i + 5].labels.Add(targetLabel);
 
@@ -42,6 +44,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     break;
                 }
             }
+
+            if(!found)
+                NebulaModel.Logger.Log.Error("DismantleFinally transpiler failed");
+
             return codes;
         }
 
@@ -49,6 +55,7 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyPatch("OnBeltBuilt")]
         static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
+            var found = false;
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
@@ -57,6 +64,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 2].opcode == OpCodes.Ldloc_S &&
                     codes[i - 3].opcode == OpCodes.Ldloc_S)
                 {
+                    found = true;
                     codes.InsertRange(i + 1, new CodeInstruction[] {
                                     new CodeInstruction(OpCodes.Ldloc_S, 9),
                                     new CodeInstruction(OpCodes.Ldloc_S, 21),
@@ -73,6 +81,11 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
 
+            if(!found)
+                NebulaModel.Logger.Log.Error("OnBeltBuilt transpiler 1 failed");
+
+            found = false;
+
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Callvirt && ((MethodInfo)codes[i].operand).Name == "SetInserterPickTarget" &&
@@ -80,6 +93,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i - 2].opcode == OpCodes.Ldloc_S &&
                     codes[i - 3].opcode == OpCodes.Ldloc_S)
                 {
+                    found = true;
                     codes.InsertRange(i + 1, new CodeInstruction[] {
                                     new CodeInstruction(OpCodes.Ldloc_S, 9),
                                     new CodeInstruction(OpCodes.Ldloc_S, 30),
@@ -95,6 +109,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     break;
                 }
             }
+
+            if(!found)
+                NebulaModel.Logger.Log.Error("OnBeltBuilt transpiler 2 failed");
+
             return codes;
         }
     }

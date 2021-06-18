@@ -124,6 +124,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
                 }
             }
+
+            if(!patchActive[3])
+                NebulaModel.Logger.Log.Error($"UpdatePower patch failed {patchActive[0]} {patchActive[1]} {patchActive[2]} {patchActive[3]}");
+
             return ReplaceFactoryCondition(codes);
         }
 
@@ -131,11 +135,13 @@ namespace NebulaPatcher.Patches.Transpiler
         {
             //change: if (starData.planets[j].factory != null)
             //to    : if (starData.planets[j].factoryIndex != -1)
+            var found = false;
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].operand?.ToString() == "PlanetFactory factory" && (codes[i + 1].opcode == OpCodes.Brtrue || codes[i + 1].opcode == OpCodes.Brfalse))
                 {
+                    found = true;
                     codes[i] = new CodeInstruction(OpCodes.Ldfld, typeof(PlanetData).GetField("factoryIndex", BindingFlags.Public | BindingFlags.Instance));
                     codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_I4_M1));
                     if (codes[i + 2].opcode == OpCodes.Brtrue)
@@ -149,6 +155,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     }
                 }
             }
+
+            if(!found)
+                NebulaModel.Logger.Log.Error("ReplaceFactoryCondition failed");
+
             return codes;
         }
     }
