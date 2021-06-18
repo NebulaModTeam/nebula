@@ -103,7 +103,7 @@ namespace NebulaHost
                 foreach (var kvp in connectedPlayers)
                 {
                     var player = kvp.Value;
-                    if (player.Data.LocalStarId == GameMain.data.localStar.id)
+                    if (player.Data.LocalStarId == GameMain.data.localStar?.id)
                     {
                         player.SendPacket(packet);
                     }
