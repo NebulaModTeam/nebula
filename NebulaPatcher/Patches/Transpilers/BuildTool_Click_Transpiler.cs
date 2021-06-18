@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
 using NebulaWorld.Factory;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpiler
@@ -10,8 +12,8 @@ namespace NebulaPatcher.Patches.Transpiler
     class BuildTool_Click_Transpiler
     {
         [HarmonyTranspiler]
-        [HarmonyPatch("CreatePrebuilds")]
-        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
+        [HarmonyPatch(nameof(BuildTool_Click.CreatePrebuilds))]
+        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
             var found = false;
             var codes = new List<CodeInstruction>(instructions);
@@ -42,7 +44,32 @@ namespace NebulaPatcher.Patches.Transpiler
             if (!found)
                 NebulaModel.Logger.Log.Error("BuildTool_Click CreatePrebuilds transpiler failed");
 
-            return codes;
+            /*
+             * Only do
+             *      base.actionBuild.buildTargetPositionWanted = this.castGroundPosSnapped;
+             * if event is not from server
+            */
+
+            var codeMatcher = new CodeMatcher(codes, iL)
+                .MatchForward(true,
+                    new CodeMatch(i => i.opcode == OpCodes.Ldsfld && ((FieldInfo)i.operand).Name == "buildTargetAutoMove")
+                );
+
+            if(codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("BuildTool_Click.CreatePrebuilds buildTargetAutoMove transpiler failed");
+                return codes;
+            }
+
+            var label = codeMatcher.InstructionAt(1).operand;
+            return codeMatcher
+                .Advance(2)
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
+                {
+                    return FactoryManager.EventFromServer;
+                }))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, label))
+                .InstructionEnumeration();
         }
 
 
@@ -51,9 +78,9 @@ namespace NebulaPatcher.Patches.Transpiler
          * - for the inventory check and ground condition check
          * - checks for presence of ore or oil, since we do not want to load colliders for remote planets
          */
-        //[HarmonyTranspiler]
-        //[HarmonyPatch("CheckBuildConditions")]
-        static IEnumerable<CodeInstruction> CheckBuildConditions_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
+            //[HarmonyTranspiler]
+            //[HarmonyPatch("CheckBuildConditions")]
+            static IEnumerable<CodeInstruction> CheckBuildConditions_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
             int i = 0;
