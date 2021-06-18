@@ -2,6 +2,7 @@
 using NebulaModel.DataStructures;
 using NebulaWorld;
 using NebulaWorld.Factory;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -20,35 +21,25 @@ namespace NebulaPatcher.Patches.Transpiler
 			}
          */
         [HarmonyTranspiler]
-        [HarmonyPatch("DismantleFinally")]
+        [HarmonyPatch(nameof(PlanetFactory.DismantleFinally))]
         static IEnumerable<CodeInstruction> DismantleFinally_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
-            var found = false;
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 0; i < codes.Count; i++)
-            {
-                if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand.ToString() == "Void NotifyObjectDestruct(EObjectType, Int32)" &&
-                    codes[i - 1].opcode == OpCodes.Ldloc_0 &&
-                    codes[i - 2].opcode == OpCodes.Ldc_I4_0 &&
-                    codes[i - 3].opcode == OpCodes.Ldfld)
+            var matcher = new CodeMatcher(instructions, gen)
+                .MatchForward(false,
+                    new CodeMatch(i => i.IsLdarg()),
+                    new CodeMatch(i => i.IsLdarg()),
+                    new CodeMatch(i => i.IsLdloc()),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "TakeBackItemsInEntity"));
+
+                if(matcher.IsInvalid)
+                    NebulaModel.Logger.Log.Error("PlanetFactory.DismantleFinally() Transpiler failed");
+
+            return matcher.CreateLabelAt(matcher.Pos + 4, out Label label)
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                 {
-                    found = true;
-                    Label targetLabel = gen.DefineLabel();
-                    codes[i + 5].labels.Add(targetLabel);
-
-                    codes.InsertRange(i + 1, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), "DoNotAddItemsFromBuildingOnDestruct")),
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ToggleSwitch), "op_Implicit")),
-                                    new CodeInstruction(OpCodes.Brtrue_S, targetLabel),
-                                    });
-                    break;
-                }
-            }
-
-            if(!found)
-                NebulaModel.Logger.Log.Error("DismantleFinally transpiler failed");
-
-            return codes;
+                    return FactoryManager.DoNotAddItemsFromBuildingOnDestruct;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Brtrue, label)).InstructionEnumeration();
         }
 
         [HarmonyTranspiler]
