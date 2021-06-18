@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
 using NebulaModel.DataStructures;
+using NebulaWorld;
 using NebulaWorld.Factory;
+using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
@@ -88,6 +90,32 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
             return codes;
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(CargoTraffic), nameof(CargoTraffic.CreateRenderingBatches))]
+        [HarmonyPatch(typeof(CargoTraffic), nameof(CargoTraffic.AlterBeltConnections))]
+        static IEnumerable<CodeInstruction> IsPlanetPhysicsColliderDirty_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        {
+            return new CodeMatcher(instructions, il)
+                   .MatchForward(false,
+                   new CodeMatch(OpCodes.Ldarg_0),
+                   new CodeMatch(i => i.opcode == OpCodes.Ldfld && i.operand?.ToString() == "PlanetData planet"),
+                   new CodeMatch(i => i.opcode == OpCodes.Ldfld && i.operand?.ToString() == "PlanetPhysics physics"),
+                   new CodeMatch(OpCodes.Ldc_I4_1),
+                   new CodeMatch(i => i.opcode == OpCodes.Stfld && i.operand?.ToString() == "System.Boolean isPlanetPhysicsColliderDirty"))
+               .Repeat(matcher =>
+               {
+                   matcher
+                   .CreateLabelAt(matcher.Pos + 5, out Label end)
+                   .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
+                   {
+                       return FactoryManager.EventFromClient && LocalPlayer.IsMasterClient;
+                   }))
+                   .Insert(new CodeInstruction(OpCodes.Brtrue, end))
+                   .Advance(5);
+               })
+               .InstructionEnumeration();
         }
     }
 }
