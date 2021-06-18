@@ -23,8 +23,6 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
 
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            //BuildTool_Click btc = GameMain.mainPlayer.controller?.actionBuild.clickTool;
-
             BuildTool[] buildTools = GameMain.mainPlayer.controller?.actionBuild.tools;
             BuildTool buildTool = null;
             for (int i = 0; i < buildTools.Length; i++)
@@ -38,9 +36,6 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
                 //Make backup of values that are overwritten
                 List<BuildPreview> tmpList = new List<BuildPreview>();
-                //bool tmpConfirm = pab.waitConfirm;
-                //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
-                //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
 
                 PlanetFactory tmpFactory = null;
                 NearColliderLogic tmpNearcdLogic = null;
@@ -53,21 +48,18 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 if (loadExternalPlanetData)
                 {
                     tmpFactory = buildTool.factory;
-                    tmpNearcdLogic = (NearColliderLogic)AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").GetValue(GameMain.mainPlayer.controller.actionBuild);
-                    tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
+                    tmpNearcdLogic = pab.nearcdLogic;
+                    tmpPlanetPhysics = pab.planetPhysics;
                     tmpData = GameMain.mainPlayer.planetData;
                 }
 
-                //Create Prebuilds from incomming packet and prepare new position
+                //Create Prebuilds from incoming packet and prepare new position
                 tmpList.AddRange(buildTool.buildPreviews);
                 buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
-                //pab.waitConfirm = true;
                 using (FactoryManager.EventFromServer.On())
                 {
                     FactoryManager.EventFactory = planet.factory;
-                    //pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
-                    //pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
 
                     //Check if some mandatory variables are missing
                     if (planet.physics == null || planet.physics.colChunks == null)
@@ -82,8 +74,9 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
                     //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
                     buildTool.factory = planet.factory;
-                    AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
-                    AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics.nearColliderLogic);
+                    pab.factory = planet.factory;
+                    pab.planetPhysics = planet.physics;
+                    pab.nearcdLogic = planet.physics.nearColliderLogic;
                     AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
 
                     //Check if prebuilds can be build (collision check, height check, etc)
@@ -136,9 +129,10 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         planet.physics.Free();
                         planet.physics = null;
                         buildTool.factory = tmpFactory;
+                        pab.factory = tmpFactory;
                         AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
-                        AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
-                        AccessTools.Field(typeof(PlayerAction_Build), "nearcdLogic").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpNearcdLogic);
+                        pab.planetPhysics = tmpPlanetPhysics;
+                        pab.nearcdLogic = tmpNearcdLogic;
                     }
 
                     GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
@@ -147,9 +141,6 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
 
                 buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(tmpList);
-                //pab.waitConfirm = tmpConfirm;
-                //pab.previewPose.position = tmpPos;
-                //pab.previewPose.rotation = tmpRot;
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }

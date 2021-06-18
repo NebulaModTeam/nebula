@@ -23,8 +23,6 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             }
 
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            //BuildTool_Click btc = GameMain.mainPlayer.controller?.actionBuild.clickTool;
-
             BuildTool[] buildTools = GameMain.mainPlayer.controller?.actionBuild.tools;
             BuildTool buildTool = null;
             for (int i = 0; i < buildTools.Length; i++)
@@ -38,23 +36,20 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
 
                 //Make backup of values that are overwritten
                 List<BuildPreview> tmpList = new List<BuildPreview>();
-                //bool tmpConfirm = pab.waitConfirm;
-                //UnityEngine.Vector3 tmpPos = pab.previewPose.position;
-                //UnityEngine.Quaternion tmpRot = pab.previewPose.rotation;
                 PlanetFactory tmpFactory = buildTool.factory;
-                PlanetPhysics tmpPlanetPhysics = (PlanetPhysics)AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").GetValue(pab);
+                PlanetPhysics tmpPlanetPhysics = pab.planetPhysics;
 
-                //Create Prebuilds from incomming packet
+                //Create Prebuilds from incoming packet
                 tmpList.AddRange(buildTool.buildPreviews);
                 buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
-                //pab.waitConfirm = true;
+
                 using (FactoryManager.EventFromServer.On())
                 {
                     FactoryManager.EventFactory = planet.factory;
-                    //pab.previewPose.position = new UnityEngine.Vector3(packet.PosePosition.x, packet.PosePosition.y, packet.PosePosition.z);
-                    //pab.previewPose.rotation = new UnityEngine.Quaternion(packet.PoseRotation.x, packet.PoseRotation.y, packet.PoseRotation.z, packet.PoseRotation.w);
                     buildTool.factory = planet.factory;
+                    pab.factory = planet.factory;
+                    pab.planetPhysics = planet.physics;
 
                     //Create temporary physics for spawning building's colliders
                     if (planet.physics == null || planet.physics.colChunks == null)
@@ -112,11 +107,9 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                  * Cod's Suggestion: Transpile everything :) */
 
                 //Revert changes back
-                AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, tmpPlanetPhysics);
+                pab.planetPhysics = tmpPlanetPhysics;
                 buildTool.factory = tmpFactory;
-                //pab.waitConfirm = tmpConfirm;
-                //pab.previewPose.position = tmpPos;
-                //pab.previewPose.rotation = tmpRot;
+                pab.factory = tmpFactory;
                 buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(tmpList);
 
