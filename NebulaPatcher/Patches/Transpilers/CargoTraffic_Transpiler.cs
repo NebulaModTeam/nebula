@@ -124,7 +124,7 @@ namespace NebulaPatcher.Patches.Transpiler
                    .CreateLabelAt(matcher.Pos + 5, out Label end)
                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                    {
-                       return FactoryManager.EventFromClient && LocalPlayer.IsMasterClient;
+                       return FactoryManager.EventFromClient || FactoryManager.EventFromServer;
                    }))
                    .Insert(new CodeInstruction(OpCodes.Brtrue, end))
                    .Advance(5);
