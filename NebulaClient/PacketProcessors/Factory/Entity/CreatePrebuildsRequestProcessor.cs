@@ -23,7 +23,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             }
 
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            BuildTool[] buildTools = GameMain.mainPlayer.controller?.actionBuild.tools;
+            BuildTool[] buildTools = pab.tools;
             BuildTool buildTool = null;
             for (int i = 0; i < buildTools.Length; i++)
             {
@@ -38,7 +38,9 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 //Make backup of values that are overwritten
                 List<BuildPreview> tmpList = new List<BuildPreview>();
                 PlanetFactory tmpFactory = buildTool.factory;
-                PlanetPhysics tmpPlanetPhysics = pab.planetPhysics;
+                NearColliderLogic tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
+                PlanetPhysics tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
+                PlanetData tmpData = buildTool.planet;
 
                 //Create Prebuilds from incoming packet
                 tmpList.AddRange(buildTool.buildPreviews);
@@ -48,9 +50,13 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 using (FactoryManager.EventFromServer.On())
                 {
                     FactoryManager.EventFactory = planet.factory;
+                    pab.noneTool.planet = planet;
+                    pab.noneTool.factory = planet.factory;
+                    buildTool.planet = planet;
                     buildTool.factory = planet.factory;
                     pab.factory = planet.factory;
-                    pab.noneTool.factory = planet.factory;
+                    pab.planetPhysics = planet.physics;
+                    pab.nearcdLogic = planet.physics.nearColliderLogic;
                     AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
 
                     //Create temporary physics for spawning building's colliders
@@ -92,9 +98,14 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                  * Cod's Suggestion: Transpile everything :) */
 
                 //Revert changes back
+                buildTool.planet = tmpData;
                 buildTool.factory = tmpFactory;
-                pab.factory = tmpFactory;
+                pab.noneTool.planet = tmpData;
                 pab.noneTool.factory = tmpFactory;
+                pab.factory = tmpFactory;
+                pab.planet = tmpData;
+                pab.planetPhysics = tmpPlanetPhysics;
+                pab.nearcdLogic = tmpNearcdLogic;
                 AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;

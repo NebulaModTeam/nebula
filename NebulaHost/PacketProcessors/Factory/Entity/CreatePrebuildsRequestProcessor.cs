@@ -23,7 +23,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             }
 
             PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-            BuildTool[] buildTools = GameMain.mainPlayer.controller?.actionBuild.tools;
+            BuildTool[] buildTools = pab.tools;
             BuildTool buildTool = null;
             for (int i = 0; i < buildTools.Length; i++)
             {
@@ -49,8 +49,8 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 if (loadExternalPlanetData)
                 {
                     tmpFactory = buildTool.factory;
-                    tmpNearcdLogic = pab.nearcdLogic;
-                    tmpPlanetPhysics = pab.planetPhysics;
+                    tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
+                    tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
                     tmpData = GameMain.mainPlayer.planetData;
                 }
 
@@ -74,6 +74,9 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     }
 
                     //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
+                    pab.noneTool.planet = planet;
+                    pab.noneTool.factory = planet.factory;
+                    buildTool.planet = planet;
                     buildTool.factory = planet.factory;
                     pab.factory = planet.factory;
                     pab.noneTool.factory = planet.factory;
@@ -130,11 +133,15 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     {
                         planet.physics.Free();
                         planet.physics = null;
+                        buildTool.planet = tmpData;
                         buildTool.factory = tmpFactory;
-                        pab.factory = tmpFactory;
+                        pab.noneTool.planet = tmpData;
                         pab.noneTool.factory = tmpFactory;
+                        pab.factory = tmpFactory;
+                        pab.planet = tmpData;
                         pab.planetPhysics = tmpPlanetPhysics;
                         pab.nearcdLogic = tmpNearcdLogic;
+                        AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
                     }
 
                     GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
