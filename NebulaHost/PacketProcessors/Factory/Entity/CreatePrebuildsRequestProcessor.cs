@@ -75,6 +75,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                     //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
                     buildTool.factory = planet.factory;
                     pab.factory = planet.factory;
+                    pab.noneTool.factory = planet.factory;
                     pab.planetPhysics = planet.physics;
                     pab.nearcdLogic = planet.physics.nearColliderLogic;
                     AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
@@ -130,7 +131,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                         planet.physics = null;
                         buildTool.factory = tmpFactory;
                         pab.factory = tmpFactory;
-                        AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
+                        pab.noneTool.factory = tmpFactory;
                         pab.planetPhysics = tmpPlanetPhysics;
                         pab.nearcdLogic = tmpNearcdLogic;
                     }

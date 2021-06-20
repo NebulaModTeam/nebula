@@ -49,7 +49,8 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     FactoryManager.EventFactory = planet.factory;
                     buildTool.factory = planet.factory;
                     pab.factory = planet.factory;
-                    pab.planetPhysics = planet.physics;
+                    pab.noneTool.factory = planet.factory;
+                    AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
 
                     //Create temporary physics for spawning building's colliders
                     if (planet.physics == null || planet.physics.colChunks == null)
@@ -107,11 +108,10 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                  * Cod's Suggestion: Transpile everything :) */
 
                 //Revert changes back
-                pab.planetPhysics = tmpPlanetPhysics;
                 buildTool.factory = tmpFactory;
                 pab.factory = tmpFactory;
-                buildTool.buildPreviews.Clear();
-                buildTool.buildPreviews.AddRange(tmpList);
+                pab.noneTool.factory = tmpFactory;
+                AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }

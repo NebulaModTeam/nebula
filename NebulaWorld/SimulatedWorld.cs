@@ -178,7 +178,9 @@ namespace NebulaWorld
                     //Setup drone of remote player based on the drone data
                     ref MechaDrone drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
                     MechaDroneLogic droneLogic = player.PlayerInstance.mecha.droneLogic;
+                    var tmpFactory = droneLogic.factory;
 
+                    droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
                     drone.stage = packet.Stage;
                     drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
                     drone.movement = droneLogic.player.mecha.droneMovement;
@@ -196,6 +198,7 @@ namespace NebulaWorld
                     {
                         GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
                     }
+                    droneLogic.factory = tmpFactory;
                 }
             }
         }
