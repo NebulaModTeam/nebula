@@ -2,7 +2,6 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
-using NebulaWorld;
 using NebulaWorld.Factory;
 
 namespace NebulaClient.PacketProcessors.Factory.Entity
@@ -17,12 +16,23 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             // Else it will get it once it goes to the planet for the first time. 
             if (planet.factory != null)
             {
-                int protoId = 0;
                 using (FactoryManager.EventFromServer.On())
                 {
                     FactoryManager.PacketAuthor = packet.AuthorId;
                     FactoryManager.TargetPlanet = packet.PlanetId;
-                    planet.factory.DismantleFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+
+                    var pab = GameMain.mainPlayer.controller.actionBuild;
+                    if (pab != null)
+                    {
+                        // Backup current factory & set factory to request planet factory
+                        var tmpFactory = pab.planet.factory;
+                        pab.factory = planet.factory;
+
+                        pab.DoDismantleObject(packet.ObjId);
+
+                        // Restore factory
+                        pab.planet.factory = tmpFactory;
+                    }
                     FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                     FactoryManager.PacketAuthor = -1;
                 }

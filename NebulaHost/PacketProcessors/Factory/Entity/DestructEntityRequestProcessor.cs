@@ -11,28 +11,37 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
     {
         public void ProcessPacket(DestructEntityRequest packet, NebulaConnection conn)
         {
-            int protoId = 0;
             using (FactoryManager.EventFromClient.On())
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-                using (FactoryManager.DoNotAddItemsFromBuildingOnDestruct.On())
+                FactoryManager.PacketAuthor = packet.AuthorId;
+                FactoryManager.TargetPlanet = packet.PlanetId;
+                if (packet.PlanetId != GameMain.mainPlayer.planetId)
                 {
-                    FactoryManager.PacketAuthor = packet.AuthorId;
-                    FactoryManager.TargetPlanet = packet.PlanetId;
-                    if (packet.PlanetId != GameMain.mainPlayer.planetId)
-                    {
-                        //Creating rendering batches is required to properly handle DestructFinally for the belts, since model needs to be changed.
-                        //ToDo: Optimize it somehow, since creating and destroying rendering batches is not optimal.
-                        planet.factory.cargoTraffic.CreateRenderingBatches();
-                    }
-                    planet.factory.DismantleFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
-                    if (packet.PlanetId != GameMain.mainPlayer.planetId)
-                    {
-                        planet.factory.cargoTraffic.DestroyRenderingBatches();
-                    }
-                    FactoryManager.PacketAuthor = -1;
-                    FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
+                    //Creating rendering batches is required to properly handle DestructFinally for the belts, since model needs to be changed.
+                    //ToDo: Optimize it somehow, since creating and destroying rendering batches is not optimal.
+                    planet.factory.cargoTraffic.CreateRenderingBatches();
                 }
+
+                var pab = GameMain.mainPlayer.controller.actionBuild;
+                if (pab != null)
+                {
+                    // Backup current factory & set factory to request planet factory
+                    var tmpFactory = pab.planet.factory;
+                    pab.planet.factory = planet.factory;
+
+                    pab.DoDismantleObject(packet.ObjId);
+
+                    // Restore factory
+                    pab.planet.factory = tmpFactory;
+                }
+
+                if (packet.PlanetId != GameMain.mainPlayer.planetId)
+                {
+                    planet.factory.cargoTraffic.DestroyRenderingBatches();
+                }
+                FactoryManager.PacketAuthor = -1;
+                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
         }
     }
