@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             else if ((LocalPlayer.IsMasterClient && FactoryManager.TargetPlanet == GameMain.localPlanet?.id) || !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(FactoryManager.TargetPlanet, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new DestructEntityRequest(FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE ? __instance.planet.id : FactoryManager.TargetPlanet, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
