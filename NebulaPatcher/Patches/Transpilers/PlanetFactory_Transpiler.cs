@@ -12,39 +12,9 @@ namespace NebulaPatcher.Patches.Transpiler
     [HarmonyPatch(typeof(PlanetFactory))]
     class PlanetFactory_Transpiler
     {
-        /* Change:
-             this.TakeBackItemsInEntity(player, objId);
-         * 
-         * To:
-            if (!FactoryManager.DoNotAddItemsFromBuildingOnDestruct) {
-			    this.TakeBackItemsInEntity(player, objId);
-			}
-         */
         [HarmonyTranspiler]
-        [HarmonyPatch(nameof(PlanetFactory.DismantleFinally))]
-        static IEnumerable<CodeInstruction> DismantleFinally_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
-        {
-            var matcher = new CodeMatcher(instructions, gen)
-                .MatchForward(false,
-                    new CodeMatch(i => i.IsLdarg()),
-                    new CodeMatch(i => i.IsLdarg()),
-                    new CodeMatch(i => i.IsLdloc()),
-                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "TakeBackItemsInEntity"));
-
-                if(matcher.IsInvalid)
-                    NebulaModel.Logger.Log.Error("PlanetFactory.DismantleFinally() Transpiler failed");
-
-            return matcher.CreateLabelAt(matcher.Pos + 4, out Label label)
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
-                {
-                    return FactoryManager.DoNotAddItemsFromBuildingOnDestruct;
-                }))
-                .Insert(new CodeInstruction(OpCodes.Brtrue, label)).InstructionEnumeration();
-        }
-
-        [HarmonyTranspiler]
-        [HarmonyPatch("OnBeltBuilt")]
-        static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
+        [HarmonyPatch(nameof(PlanetFactory.OnBeltBuilt))]
+        static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var found = false;
             var codes = new List<CodeInstruction>(instructions);

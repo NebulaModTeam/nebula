@@ -33,6 +33,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
             if (pab != null && buildTool != null)
             {
                 FactoryManager.TargetPlanet = packet.PlanetId;
+                FactoryManager.PacketAuthor = packet.AuthorId;
 
                 //Make backup of values that are overwritten
                 List<BuildPreview> tmpList = new List<BuildPreview>();
@@ -144,6 +145,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 buildTool.buildPreviews.AddRange(tmpList);
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
+                FactoryManager.PacketAuthor = -1;
             }
         }
 

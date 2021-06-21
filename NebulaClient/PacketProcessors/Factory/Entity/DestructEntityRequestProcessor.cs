@@ -19,26 +19,12 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             {
                 int protoId = 0;
                 using (FactoryManager.EventFromServer.On())
-                using (FactoryManager.DoNotAddItemsFromBuildingOnDestruct.On(packet.AuthorId != LocalPlayer.PlayerId))
                 {
-                    if (packet.AuthorId == LocalPlayer.PlayerId)
-                    {
-                        //I am author so I will take item as a building
-                        PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
-                        if (pab != null)
-                        {
-                            int itemId = (packet.ObjId > 0 ? LDB.items.Select((int)planet.factory.entityPool[packet.ObjId].protoId) : LDB.items.Select((int)planet.factory.prebuildPool[-packet.ObjId].protoId))?.ID ?? -1;
-                            //Todo: Check for the full accumulator building
-                            if (itemId != -1)
-                            {
-                                GameMain.mainPlayer.TryAddItemToPackage(itemId, 1, true, packet.ObjId);
-                                UIItemup.Up(itemId, 1);
-                            }
-                        }
-                    }
+                    FactoryManager.PacketAuthor = packet.AuthorId;
                     FactoryManager.TargetPlanet = packet.PlanetId;
                     planet.factory.DismantleFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
                     FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
+                    FactoryManager.PacketAuthor = -1;
                 }
             }
         }

@@ -33,6 +33,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
             if (pab != null && buildTool != null)
             {
                 FactoryManager.TargetPlanet = packet.PlanetId;
+                FactoryManager.PacketAuthor = packet.AuthorId;
 
                 //Make backup of values that are overwritten
                 List<BuildPreview> tmpList = new List<BuildPreview>();
@@ -57,23 +58,6 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     {
                         planet.physics = new PlanetPhysics(planet);
                         planet.physics.Init();
-                    }
-
-                    //Take item from the inventory if player is author of the build
-                    if (packet.AuthorId == LocalPlayer.PlayerId)
-                    {
-                        foreach (BuildPreview buildPreview in buildTool.buildPreviews)
-                        {
-                            if (GameMain.mainPlayer.inhandItemId == buildPreview.item.ID && GameMain.mainPlayer.inhandItemCount > 0)
-                            {
-                                GameMain.mainPlayer.UseHandItems(1);
-                            }
-                            else
-                            {
-                                int num = 1;
-                                GameMain.mainPlayer.package.TakeTailItems(ref buildPreview.item.ID, ref num, false);
-                            }
-                        }
                     }
 
                     AccessTools.Field(typeof(PlayerAction_Build), "planetPhysics").SetValue(GameMain.mainPlayer.controller.actionBuild, planet.physics);
@@ -114,6 +98,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                 AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
+                FactoryManager.PacketAuthor = -1;
             }
         }
     }

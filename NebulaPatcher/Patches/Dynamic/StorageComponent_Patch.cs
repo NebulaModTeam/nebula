@@ -67,6 +67,26 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(StorageComponent), nameof(StorageComponent.TakeTailItems), new Type[] { typeof(int), typeof(int), typeof(bool) }, new ArgumentType[] { ArgumentType.Ref, ArgumentType.Ref, ArgumentType.Normal })]
+        public static bool TakeTailItems_Prefix(StorageComponent __instance, ref int count)
+        {
+            // Run normally if we are not in an MP session or StorageComponent is not player package
+            if(!SimulatedWorld.Initialized || __instance.id != GameMain.mainPlayer.package.id)
+            {
+                return true;
+            }
+
+            // We should only take items to player if player requested
+            if ((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
+            {
+                count = 1;
+                return false;
+            }
+
+            return true;
+        }
+
         public static void HandleUserInteraction<T>(StorageComponent __instance, T packet) where T : class, new()
         {
             //Skip if change was done in player's inventory
