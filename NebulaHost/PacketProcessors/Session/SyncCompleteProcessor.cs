@@ -3,8 +3,8 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
+using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using System.Linq;
 
 namespace NebulaHost.PacketProcessors.Session
 {
@@ -39,6 +39,23 @@ namespace NebulaHost.PacketProcessors.Session
             using (playerManager.GetConnectedPlayers(out var connectedPlayers))
             {
                 connectedPlayers.Add(player.Connection, player);
+            }
+
+            // Load overriden Planet and Star names
+            foreach (StarData s in GameMain.galaxy.stars)
+            {
+                if (!string.IsNullOrEmpty(s.overrideName))
+                {
+                    player.SendPacket(new NameInputPacket(s.overrideName, s.id, LocalPlayer.PlayerId));
+                }
+
+                foreach (PlanetData p in s.planets)
+                {
+                    if (!string.IsNullOrEmpty(p.overrideName))
+                    {
+                        player.SendPacket(new NameInputPacket(p.overrideName, p.id, LocalPlayer.PlayerId));
+                    }
+                }
             }
 
             // Since the player is now connected, we can safely spawn his player model
