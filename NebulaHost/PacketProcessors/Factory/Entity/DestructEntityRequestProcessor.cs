@@ -27,14 +27,14 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 if (pab != null)
                 {
                     // Backup current factory & set factory to request planet factory
-                    var tmpFactory = pab.planet.factory;
-                    pab.planet.factory = planet.factory;
+                    var tmpFactory = pab.factory;
+                    pab.factory = planet.factory;
                     pab.noneTool.factory = planet.factory;
 
                     pab.DoDismantleObject(packet.ObjId);
 
                     // Restore factory
-                    pab.planet.factory = tmpFactory;
+                    pab.factory = tmpFactory;
                     pab.noneTool.factory = tmpFactory;
                 }
 
