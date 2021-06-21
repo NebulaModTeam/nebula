@@ -27,11 +27,13 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                         // Backup current factory & set factory to request planet factory
                         var tmpFactory = pab.planet.factory;
                         pab.factory = planet.factory;
+                        pab.noneTool.factory = planet.factory;
 
                         pab.DoDismantleObject(packet.ObjId);
 
                         // Restore factory
                         pab.planet.factory = tmpFactory;
+                        pab.noneTool.factory = tmpFactory;
                     }
                     FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                     FactoryManager.PacketAuthor = -1;
