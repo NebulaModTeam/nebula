@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
             if(codeMatcher.IsInvalid)
             {
-                NebulaModel.Logger.Log.Error("CargoTraffic.PickupBeltItems_Transpiler failed");
+                NebulaModel.Logger.Log.Error("CargoTraffic.PickupBeltItems_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
 
@@ -66,7 +66,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
             if (codeMatcher.IsInvalid)
             {
-                NebulaModel.Logger.Log.Error("CargoTraffic_IsPlanetPhysicsColliderDirty_Transpiler failed");
+                NebulaModel.Logger.Log.Error("CargoTraffic_IsPlanetPhysicsColliderDirty_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
 

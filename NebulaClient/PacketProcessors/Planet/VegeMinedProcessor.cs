@@ -7,6 +7,7 @@ using NebulaWorld.Planet;
 
 namespace NebulaClient.PacketProcessors.Planet
 {
+    // Processes events for mining vegetation or veins
     [RegisterPacketProcessor]
     class VegeMinedProcessor : IPacketProcessor<VegeMinedPacket>
     {

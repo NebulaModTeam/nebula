@@ -15,18 +15,24 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch("GameTick")]
         public static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var found = false;
             // c# 33 c# 69 c# 79 c# 87 this.player.warpCommand = false;
-            instructions = new CodeMatcher(instructions)
+            var codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldc_I4_0),
                     new CodeMatch(OpCodes.Stfld),
-                    new CodeMatch(OpCodes.Ldstr))
+                    new CodeMatch(OpCodes.Ldstr));
+
+            if(codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("PlayerMoveSail_Transpiler.GameTick failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+
+            codeMatcher
                 .Repeat(matcher =>
                 {
-                    found = true;
                     matcher
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_0)) // just to feed the delegate function
@@ -55,17 +61,22 @@ namespace NebulaPatcher.Patches.Transpilers
                 })
                 .InstructionEnumeration();
 
-                if(!found)
-                    NebulaModel.Logger.Log.Error("PlayerMove_Sail_Transpiler GameTick failure");
-
             // c# 42 this.player.warpCommand = true;
-            instructions = new CodeMatcher(instructions)
+            codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldc_I4_1),
                     new CodeMatch(OpCodes.Stfld),
-                    new CodeMatch(OpCodes.Ldstr))
+                    new CodeMatch(OpCodes.Ldstr));
+
+            if(codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("PlayerMoveSail_Transpiler.GameTick 2 failed. Mod version not compatible with game version.");
+                return codeMatcher.InstructionEnumeration();
+            }
+
+            return codeMatcher
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_1)) // just to feed the delegate function
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(dummy =>
@@ -91,8 +102,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
-
-            return instructions;
         }
 
     }

@@ -46,7 +46,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             if (!found)
-                NebulaModel.Logger.Log.Error("GameMain FixedUpdate transpiler failed");
+                NebulaModel.Logger.Log.Error("GameMain FixedUpdate transpiler failed. Mod version not compatible with game version.");
             return codes;
         }
     }

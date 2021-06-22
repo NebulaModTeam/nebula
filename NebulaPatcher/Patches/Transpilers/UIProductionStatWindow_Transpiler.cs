@@ -126,7 +126,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             if(!patchActive[3])
-                NebulaModel.Logger.Log.Error($"UpdatePower patch failed {patchActive[0]} {patchActive[1]} {patchActive[2]} {patchActive[3]}");
+                NebulaModel.Logger.Log.Error($"UpdatePower patch failed {patchActive[0]} {patchActive[1]} {patchActive[2]} {patchActive[3]}. Mod version not compatible with game version.");
 
             return ReplaceFactoryCondition(codes);
         }
@@ -157,7 +157,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             if(!found)
-                NebulaModel.Logger.Log.Error("ReplaceFactoryCondition failed");
+                NebulaModel.Logger.Log.Error("ReplaceFactoryCondition failed. Mod version not compatible with game version.");
 
             return codes;
         }

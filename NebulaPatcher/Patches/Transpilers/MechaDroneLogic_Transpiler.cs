@@ -71,7 +71,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             if (!found)
-                NebulaModel.Logger.Log.Error("UpdateTargets transpiler 2 failed");
+                NebulaModel.Logger.Log.Error("UpdateTargets transpiler 2 failed. Mod version not compatible with game version.");
 
             return codes;
         }
@@ -105,7 +105,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             if (!found)
-                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 1 failed");
+                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 1 failed. Mod version not compatible with game version.");
             
             found = false;
 
@@ -133,7 +133,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             if (!found)
-                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 2 failed");
+                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 2 failed. Mod version not compatible with game version.");
 
             return codes;
         }

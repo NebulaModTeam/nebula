@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
             if (matcher.IsInvalid)
             {
-                NebulaModel.Logger.Log.Error("BuildTool_Path.CreatePrebuilds_Transpiler failed");
+                NebulaModel.Logger.Log.Error("BuildTool_Path.CreatePrebuilds_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
 

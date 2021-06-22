@@ -93,15 +93,15 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 warpRotations[i] = new Vector4(0f, 0f, 0f, 1f);
             }
 
-            toggleEffect(false);
+            ToggleEffect(false);
         }
 
-        public void updateVelocity(Vector3 vel)
+        public void UpdateVelocity(Vector3 vel)
         {
             velocity = vel;
         }
 
-        private void toggleEffect(bool toggle)
+        private void ToggleEffect(bool toggle)
         {
             if (toggle)
             {
@@ -123,7 +123,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             nebulasRenderer.gameObject.SetActive(toggle);
         }
 
-        public void startWarp()
+        public void StartWarp()
         {
             if (!rootAnimation.Sail.enabled || isWarping)
             {
@@ -133,7 +133,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             isWarping = true;
         }
 
-        public void stopWarp()
+        public void StopWarp()
         {
             if (!rootAnimation.Sail.enabled || !isWarping)
             {
@@ -170,12 +170,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     warpRotations[i] = playerRot;
                 }
                 VFAudio.Create("warp-begin", base.transform, Vector3.zero, true, 0);
-                toggleEffect(true);
+                ToggleEffect(true);
             }
             else if (WarpState == 0 && warpEffectActivated)
             {
                 VFAudio.Create("warp-end", base.transform, Vector3.zero, true, 0);
-                toggleEffect(false);
+                ToggleEffect(false);
             }
 
             Array.Copy(warpRotations, 0, warpRotations, 1, warpRotations.Length - 1);
@@ -289,7 +289,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public void OnDestroy()
         {
-            stopAllFlyAudio();
+            StopAllFlyAudio();
             if (miningAudio != null)
             {
                 miningAudio.Stop();
@@ -297,17 +297,17 @@ namespace NebulaWorld.MonoBehaviours.Remote
             }
         }
 
-        public void startWarp()
+        public void StartWarp()
         {
-            rootWarp.startWarp();
+            rootWarp.StartWarp();
         }
 
-        public void stopWarp()
+        public void StopWarp()
         {
-            rootWarp.stopWarp();
+            rootWarp.StopWarp();
         }
 
-        private void stopAllFlyAudio()
+        private void StopAllFlyAudio()
         {
             if (driftAudio != null)
             {
@@ -326,7 +326,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             }
         }
 
-        private bool isGrounded()
+        private bool IsGrounded()
         {
             Vector3 pos = rootTransform.position + rootTransform.position.normalized * 0.15f;
             if (Physics.CheckSphere(pos, 0.35f, 15873))
@@ -339,7 +339,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             }
         }
 
-        private void playFootsteps()
+        private void PlayFootsteps()
         {
             float moveWeight = Mathf.Max(1f, Mathf.Pow(rootAnimation.RunSlow.weight + rootAnimation.RunFast.weight, 2f));
             bool trigger = (rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled) && moveWeight > 0.15f;
@@ -375,17 +375,17 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
                     if (normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFood || normalizedTime < 2))
                     {
-                        playFootstepSound(moveWeight, biomo, rDist2 < rDist1);
+                        PlayFootstepSound(moveWeight, biomo, rDist2 < rDist1);
                     }
                     if (normalizedTimeDiff < 0.5f && moveWeight > 0.5f && (rDist1 < 3f || rDist2 < 3f))
                     {
-                        playFootstepEffect(timeIsEven, biomo, rDist2 < rDist1);
+                        PlayFootstepEffect(timeIsEven, biomo, rDist2 < rDist1);
                     }
                 }
             }
         }
 
-        private void playFootstepSound(float vol, float biomo, bool water)
+        private void PlayFootstepSound(float vol, float biomo, bool water)
         {
             if (localPlanetId < 0)
             {
@@ -432,7 +432,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             audio.Play();
         }
 
-        private void playFootstepEffect(bool lr, float biomo, bool water)
+        private void PlayFootstepEffect(bool lr, float biomo, bool water)
         {
             if (CheckPlayerInReform() || localPlanetId < 0)
             {
@@ -591,7 +591,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
                 if (rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftR.enabled || rootAnimation.DriftL.enabled)
                 {
-                    bool ground = isGrounded();
+                    bool ground = IsGrounded();
 
                     if (DriftDetermineInWater(pData))
                     {
@@ -600,8 +600,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                             VFAudio audio = VFAudio.Create("landing-water", base.transform, Vector3.zero, false, 0);
                             audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 5f + 0.5f);
                             audio.Play();
-                            playFootstepEffect(true, 0f, true);
-                            playFootstepEffect(false, 0f, true);
+                            PlayFootstepEffect(true, 0f, true);
+                            PlayFootstepEffect(false, 0f, true);
                         }
                         maxAltitude = 0f;
                     }
@@ -656,7 +656,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public void UpdateState(PlayerAnimationUpdate packet)
         {
-            bool anyMovingAnimationActive = rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Fly.enabled || rootAnimation.Sail.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftL.enabled || rootAnimation.DriftR.enabled || !isGrounded();
+            bool anyMovingAnimationActive = rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Fly.enabled || rootAnimation.Sail.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftL.enabled || rootAnimation.DriftR.enabled || !IsGrounded();
             bool anyDriftActive = rootAnimation.Drift.enabled || rootAnimation.DriftR.enabled || rootAnimation.DriftL.enabled || rootAnimation.DriftF.enabled;
             bool fireParticleOkay = psys != null && psysr != null && (psys[0] != null && psys[1] != null && psysr[0] != null && psysr[1] != null);
 
@@ -684,8 +684,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                                 psys[j].Stop();
                             }
                         }
-                        stopAllFlyAudio();
-                        playFootsteps();
+                        StopAllFlyAudio();
+                        PlayFootsteps();
                     }
                     for (int i = 0; i < psysr.Length; i++)
                     {
@@ -769,7 +769,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                             psys[i].Stop();
                         }
                     }
-                    stopAllFlyAudio();
+                    StopAllFlyAudio();
                 }
             }
 

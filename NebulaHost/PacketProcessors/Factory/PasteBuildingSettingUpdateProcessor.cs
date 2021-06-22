@@ -6,6 +6,7 @@ using NebulaWorld.Factory;
 
 namespace NebulaHost.PacketProcessors.Factory
 {
+    // Processes pasting settings (e.g. item to make in an assembler) onto buildings events
     [RegisterPacketProcessor]
     class PasteBuildingSettingUpdateProcessor : IPacketProcessor<PasteBuildingSettingUpdate>
     {

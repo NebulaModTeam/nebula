@@ -159,11 +159,11 @@ namespace NebulaWorld
                 {
                     if (packet.WarpCommand)
                     {
-                        player.Effects.startWarp();
+                        player.Effects.StartWarp();
                     }
                     else
                     {
-                        player.Effects.stopWarp();
+                        player.Effects.StopWarp();
                     }
                 }
             }

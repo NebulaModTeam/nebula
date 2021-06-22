@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
             if (codeMatcher.IsInvalid)
             {
-                NebulaModel.Logger.Log.Error("BuildTool_Click.CreatePrebuilds_Transpiler failed");
+                NebulaModel.Logger.Log.Error("BuildTool_Click.CreatePrebuilds_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
 
