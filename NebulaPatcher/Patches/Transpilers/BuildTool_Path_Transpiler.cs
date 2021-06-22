@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaWorld;
 using NebulaWorld.Factory;
 using System;
 using System.Collections.Generic;
@@ -29,9 +30,12 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             return matcher
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(FactoryManager), nameof(FactoryManager.IsHumanInput))))
+                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
+                    {
+                        return (FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId;
+                    }))
                     .CreateLabelAt(matcher.Pos + 19, out Label jmpLabel)
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse_S, jmpLabel))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabel))
                     .InstructionEnumeration();
         }
     }

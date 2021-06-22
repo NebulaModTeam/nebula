@@ -21,7 +21,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
 
             // If the host game called the method, we need to compute the PrebuildId ourself
-            if (LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
+            if (LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
             {
                 FactoryManager.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.PlayerId);
             }

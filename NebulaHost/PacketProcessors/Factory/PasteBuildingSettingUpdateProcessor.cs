@@ -16,7 +16,7 @@ namespace NebulaHost.PacketProcessors.Factory
                 BuildingParameters backup = BuildingParameters.clipboard;
                 BuildingParameters.clipboard = packet.GetBuildingSettings();
 
-                using (FactoryManager.EventFromServer.On())
+                using (FactoryManager.EventFromClient.On())
                 {
                     GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.PasteBuildingSetting(packet.ObjectId);
                 }
