@@ -11,12 +11,6 @@ namespace NebulaModel
         [UIRange(1, ushort.MaxValue)]
         public ushort HostPort { get; set; } = 8469;
 
-        [DisplayName("Disable Tutorials")]
-        public bool TutorialDisabled { get; set; } = true;
-
-        [DisplayName("Disable Advisors")]
-        public bool AdvisorDisabled { get; set; } = true;
-
         public object Clone()
         {
             return this.MemberwiseClone();
