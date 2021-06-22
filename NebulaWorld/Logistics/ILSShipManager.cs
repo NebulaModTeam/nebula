@@ -23,6 +23,7 @@ namespace NebulaWorld.Logistics
         public static int ItemSlotStationGId = 0;
 
         public const int ILSMaxShipCount = 10;
+
         public static void Initialize()
         {
             FR_stationId = AccessTools.FieldRefAccess<int>(typeof(UIStationWindow), "_stationId");

@@ -49,6 +49,12 @@ namespace NebulaHost.PacketProcessors.Session
                 return;
             }
 
+            if(packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
+            {
+                conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch, "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
+                return;
+            }
+
             SimulatedWorld.OnPlayerJoining();
 
             //TODO: some validation of client cert / generating auth challenge for the client
@@ -89,7 +95,7 @@ namespace NebulaHost.PacketProcessors.Session
             player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
             var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data));
+            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, (LocalPlayer.GS2_GSSettings != null) ? LocalPlayer.GS2GetSettings() : null));
         }
     }
 }

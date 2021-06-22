@@ -8,7 +8,6 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using NebulaWorld.Statistics;
 using System.Net.Sockets;
-using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -28,7 +27,6 @@ namespace NebulaHost
         float gameStateUpdateTimer = 0;
         float gameResearchHashUpdateTimer = 0;
         float productionStatisticsUpdateTimer = 0;
-
 
         const float GAME_STATE_UPDATE_INTERVAL = 1;
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
@@ -60,6 +58,8 @@ namespace NebulaHost
             DisableNagleAlgorithm(socketServer);
 
             socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
+
+            LocalPlayer.TryLoadGalacticScale2();
 
             socketServer.Start();
 

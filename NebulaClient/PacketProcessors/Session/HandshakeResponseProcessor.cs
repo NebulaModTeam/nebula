@@ -11,6 +11,16 @@ namespace NebulaClient.PacketProcessors.Session
     {
         public void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
         {
+            if(LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings != null)
+            {
+                LocalPlayer.GS2ApplySettings(packet.CompressedGS2Settings);
+            }
+            else if(packet.CompressedGS2Settings == null)
+            {
+                InGamePopup.ShowWarning("Galactic Scale - failed to receive settings", "We are sorry, but for some reason the server failed to export the Galactic Scale 2 settings.", "Close");
+                return;
+            }
+
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
             DSPGame.StartGameSkipPrologue(gameDesc);
