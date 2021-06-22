@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.SetToolsFactoryReferences();
 
             //Clients needs to send destruction packet here
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
+            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
             {
                 LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
             }
