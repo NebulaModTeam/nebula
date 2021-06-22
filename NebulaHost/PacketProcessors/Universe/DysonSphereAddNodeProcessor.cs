@@ -28,12 +28,20 @@ namespace NebulaHost.PacketProcessors.Universe
                 {
                     GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId)?.NewDysonNode(packet.NodeProtoId, DataStructureExtensions.ToVector3(packet.Position));
                     DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+
+                    // DysonSphereLayer is missing, we can't do anything now.
+                    if (dsl == null)
+                    {
+                        NebulaModel.Logger.Log.Warn("Could not add Dyson Sphere Node, DysonSphereLayer is null.");
+                        return;
+                    }
+
                     //Try to add queued Dyson Frames that failed due to the missing nodes
                     DysonSphereAddFramePacket queuedPacked;
                     for (int i = DysonSphere_Manager.QueuedAddFramePackets.Count - 1; i >= 0; i--)
                     {
                         queuedPacked = DysonSphere_Manager.QueuedAddFramePackets[i];
-                        if (dsl?.nodePool[queuedPacked.NodeAId]?.id != 0 && dsl?.nodePool[queuedPacked.NodeBId]?.id != 0)
+                        if (dsl.nodePool[queuedPacked.NodeAId].id != 0 && dsl.nodePool[queuedPacked.NodeBId].id != 0)
                         {
                             dsl.NewDysonFrame(queuedPacked.ProtoId, queuedPacked.NodeAId, queuedPacked.NodeBId, queuedPacked.Euler);
                             DysonSphere_Manager.QueuedAddFramePackets.RemoveAt(i);
