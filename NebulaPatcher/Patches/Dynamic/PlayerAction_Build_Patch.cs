@@ -15,12 +15,16 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!SimulatedWorld.Initialized)
                 return true;
 
+            // Make sure these are being set
+            __instance.SetFactoryReferences();
+            __instance.SetToolsFactoryReferences();
+
             //Clients needs to send destruction packet here
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
+            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
             {
                 LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
             }
-            else if(!LocalPlayer.IsMasterClient && FactoryManager.EventFromServer && !FactoryManager.EventFromClient && FactoryManager.TargetPlanet == __instance.planet.id && __instance.pathTool.ObjectIsBelt(objId))
+            else if(!LocalPlayer.IsMasterClient && FactoryManager.EventFromServer && FactoryManager.TargetPlanet == __instance.planet.id && __instance.pathTool.ObjectIsBelt(objId))
             {
                 LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
             }
@@ -36,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlayerAction_Build.SetFactoryReferences))]
         public static bool SetFactoryReferences_Prefix()
         {
-            if(FactoryManager.EventFromServer || FactoryManager.EventFromClient)
+            if((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
             {
                 return false;
             }
