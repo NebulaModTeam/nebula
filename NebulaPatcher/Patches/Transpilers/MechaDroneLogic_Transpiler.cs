@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
 using NebulaWorld.Player;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 
@@ -136,6 +138,44 @@ namespace NebulaPatcher.Patches.Transpiler
                 NebulaModel.Logger.Log.Error("UpdateDrones transpiler 2 failed. Mod version not compatible with game version.");
 
             return codes;
+        }
+
+        /*
+         * Changes
+         *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4))
+         * To
+         *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4))
+         * To avoid client's drones from trying to target pending request (caused by drone having additional tasks unlocked via the Communication control tech)
+        */
+        [HarmonyTranspiler]
+        [HarmonyPatch("FindNext")]
+        static IEnumerable<CodeInstruction> FindNext_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
+        {
+            var codeMatcher = new CodeMatcher(instructions, iL)
+                .MatchForward(false,
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "serving"),
+                    new CodeMatch(i => i.IsLdloc()),
+                    new CodeMatch(OpCodes.Callvirt),
+                    new CodeMatch(OpCodes.Brtrue)
+                );
+
+            if(codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("MechaDroneLogic_Transpiler.FindNext failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+
+            var target = codeMatcher.InstructionAt(1);
+            var jump = codeMatcher.InstructionAt(3).operand;
+            return codeMatcher
+                   .Advance(4)
+                   .InsertAndAdvance(target)
+                   .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>((targetId) =>
+                   {
+                       return DroneManager.IsPendingBuildRequest(targetId);
+                   }))
+                   .Insert(new CodeInstruction(OpCodes.Brtrue, jump))
+                   .InstructionEnumeration();
         }
     }
 }
