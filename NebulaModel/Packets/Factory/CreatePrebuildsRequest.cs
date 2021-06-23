@@ -136,7 +136,8 @@ namespace NebulaModel.Packets.Factory
             buildPreview.item = new ItemProto
             {
                 ID = br.ReadInt32(),
-                BuildMode = br.ReadInt32()
+                BuildMode = br.ReadInt32(),
+                Grade = br.ReadInt32()
             };
 
             buildPreview.paramCount = br.ReadInt32();
@@ -243,6 +244,7 @@ namespace NebulaModel.Packets.Factory
 
             bw.Write(buildPreview.item.ID);
             bw.Write(buildPreview.item.BuildMode);
+            bw.Write(buildPreview.item.Grade);
             bw.Write(buildPreview.paramCount);
             for (int i = 0; i < buildPreview.paramCount; i++)
             {
