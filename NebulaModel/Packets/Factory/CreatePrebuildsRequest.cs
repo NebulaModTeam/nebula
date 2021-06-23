@@ -50,7 +50,7 @@ namespace NebulaModel.Packets.Factory
             return result;
         }
 
-        private void DeserializeBuildPreview(BuildPreview buildPreview, List<BuildPreview> list, BinaryReader br)
+        private static void DeserializeBuildPreview(BuildPreview buildPreview, List<BuildPreview> list, BinaryReader br)
         {
             int outputRef = br.ReadInt32();
             buildPreview.output = outputRef == -1 ? null : list[outputRef];
@@ -65,6 +65,7 @@ namespace NebulaModel.Packets.Factory
             }
             buildPreview.coverObjId = br.ReadInt32();
             buildPreview.willRemoveCover = br.ReadBoolean();
+            buildPreview.genNearColliderArea2 = br.ReadSingle();
             buildPreview.outputObjId = br.ReadInt32();
             buildPreview.inputObjId = br.ReadInt32();
             buildPreview.outputToSlot = br.ReadInt32();
@@ -73,34 +74,36 @@ namespace NebulaModel.Packets.Factory
             buildPreview.inputToSlot = br.ReadInt32();
             buildPreview.outputOffset = br.ReadInt32();
             buildPreview.inputOffset = br.ReadInt32();
+            buildPreview.needModel = br.ReadBoolean();
             buildPreview.recipeId = br.ReadInt32();
             buildPreview.filterId = br.ReadInt32();
             buildPreview.isConnNode = br.ReadBoolean();
-            buildPreview.desc = new PrefabDesc();
-            buildPreview.desc.modelIndex = br.ReadInt32();
-
-            //Import more data about the Prefab to properly validate the build condition on server-side
-            buildPreview.desc.isBelt = br.ReadBoolean();
-            buildPreview.desc.isInserter = br.ReadBoolean();
-            buildPreview.desc.oilMiner = br.ReadBoolean();
-            buildPreview.desc.isTank = br.ReadBoolean();
-            buildPreview.desc.isStorage = br.ReadBoolean();
-            buildPreview.desc.isLab = br.ReadBoolean();
-            buildPreview.desc.isSplitter = br.ReadBoolean();
-            buildPreview.desc.isPowerNode = br.ReadBoolean();
-            buildPreview.desc.isAccumulator = br.ReadBoolean();
-            buildPreview.desc.powerConnectDistance = br.ReadSingle();
-            buildPreview.desc.windForcedPower = br.ReadBoolean();
-            buildPreview.desc.isPowerGen = br.ReadBoolean();
-            buildPreview.desc.isCollectStation = br.ReadBoolean();
-            buildPreview.desc.stationCollectSpeed = br.ReadInt32();
-            buildPreview.desc.workEnergyPerTick = br.ReadInt64();
-            buildPreview.desc.isStation = br.ReadBoolean();
-            buildPreview.desc.isStellarStation = br.ReadBoolean();
-            buildPreview.desc.cullingHeight = br.ReadSingle();
-            buildPreview.desc.isEjector = br.ReadBoolean();
-            buildPreview.desc.multiLevel = br.ReadBoolean();
-            buildPreview.desc.veinMiner = br.ReadBoolean();
+            buildPreview.desc = new PrefabDesc
+            {
+                //Import more data about the Prefab to properly validate the build condition on server-side
+                modelIndex = br.ReadInt32(),
+                isBelt = br.ReadBoolean(),
+                isInserter = br.ReadBoolean(),
+                oilMiner = br.ReadBoolean(),
+                isTank = br.ReadBoolean(),
+                isStorage = br.ReadBoolean(),
+                isLab = br.ReadBoolean(),
+                isSplitter = br.ReadBoolean(),
+                isPowerNode = br.ReadBoolean(),
+                isAccumulator = br.ReadBoolean(),
+                powerConnectDistance = br.ReadSingle(),
+                windForcedPower = br.ReadBoolean(),
+                isPowerGen = br.ReadBoolean(),
+                isCollectStation = br.ReadBoolean(),
+                stationCollectSpeed = br.ReadInt32(),
+                workEnergyPerTick = br.ReadInt64(),
+                isStation = br.ReadBoolean(),
+                isStellarStation = br.ReadBoolean(),
+                cullingHeight = br.ReadSingle(),
+                isEjector = br.ReadBoolean(),
+                multiLevel = br.ReadBoolean(),
+                veinMiner = br.ReadBoolean()
+            };
 
             //Import information about the position of build (land / sea)
             num = br.ReadInt32();
@@ -130,9 +133,11 @@ namespace NebulaModel.Packets.Factory
                 buildPreview.desc.buildColliders[i].link = br.ReadInt32();
             }
 
-            buildPreview.item = new ItemProto();
-            buildPreview.item.ID = br.ReadInt32();
-            buildPreview.item.BuildMode = br.ReadInt32();
+            buildPreview.item = new ItemProto
+            {
+                ID = br.ReadInt32(),
+                BuildMode = br.ReadInt32()
+            };
 
             buildPreview.paramCount = br.ReadInt32();
             buildPreview.parameters = new int[buildPreview.paramCount];
@@ -144,9 +149,10 @@ namespace NebulaModel.Packets.Factory
             buildPreview.lpos2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
             buildPreview.lrot = new Quaternion(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
             buildPreview.lrot2 = new Quaternion(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+            buildPreview.condition = (EBuildCondition)br.ReadInt32();
         }
 
-        private void SerializeBuildPreview(BuildPreview buildPreview, List<BuildPreview> list, BinaryWriter bw)
+        private static void SerializeBuildPreview(BuildPreview buildPreview, List<BuildPreview> list, BinaryWriter bw)
         {
             bw.Write(list.IndexOf(buildPreview.output));
             bw.Write(list.IndexOf(buildPreview.input));
@@ -159,6 +165,7 @@ namespace NebulaModel.Packets.Factory
             }
             bw.Write(buildPreview.coverObjId);
             bw.Write(buildPreview.willRemoveCover);
+            bw.Write(buildPreview.genNearColliderArea2);
             bw.Write(buildPreview.outputObjId);
             bw.Write(buildPreview.inputObjId);
             bw.Write(buildPreview.outputToSlot);
@@ -167,6 +174,7 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.inputToSlot);
             bw.Write(buildPreview.outputOffset);
             bw.Write(buildPreview.inputOffset);
+            bw.Write(buildPreview.needModel);
             bw.Write(buildPreview.recipeId);
             bw.Write(buildPreview.filterId);
             bw.Write(buildPreview.isConnNode);
@@ -254,6 +262,7 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.lrot2.y);
             bw.Write(buildPreview.lrot2.z);
             bw.Write(buildPreview.lrot2.w);
+            bw.Write(((int)buildPreview.condition));
         }
     }
 }
