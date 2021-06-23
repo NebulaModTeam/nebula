@@ -25,9 +25,6 @@ namespace NebulaWorld.Factory
         public static readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
         public static readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
 
-        public static bool IsFromClient = false; // this is just a temp fix, better use the ToggleSwitch (but its breaking stuff atm and i dont want to fix it now)
-        public static bool IsHumanInput = false;
-
         public static int PacketAuthor { get; set; }
         public static int TargetPlanet { get; set; }
         public const int PLANET_NONE = -2;

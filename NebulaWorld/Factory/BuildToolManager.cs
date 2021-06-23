@@ -40,17 +40,13 @@ namespace NebulaWorld.Factory
                 FactoryManager.PacketAuthor = packet.AuthorId;
 
                 //Make backup of values that are overwritten
-                List<BuildPreview> tmpList = new List<BuildPreview>();
-                PlanetFactory tmpFactory = null;
+                List<BuildPreview> tmpList = new List<BuildPreview>(); 
+                PlanetFactory tmpFactory = buildTool.factory;
+                PlanetData tmpData = GameMain.mainPlayer.planetData;
                 NearColliderLogic tmpNearcdLogic = null;
                 PlanetPhysics tmpPlanetPhysics = null;
                 float tmpBuildArea = GameMain.mainPlayer.mecha.buildArea;
-                PlanetData tmpData = null;
                 bool loadExternalPlanetData = GameMain.localPlanet != planet;
-
-                
-                tmpFactory = buildTool.factory;
-                tmpData = GameMain.mainPlayer.planetData;
 
                 if (loadExternalPlanetData)
                 {
@@ -123,7 +119,6 @@ namespace NebulaWorld.Factory
                     }
                     else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
                     {
-                        FactoryManager.IsFromClient = true;
                         ((BuildTool_Path)buildTool).CreatePrebuilds();
                     }
                     else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
