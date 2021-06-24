@@ -16,10 +16,9 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch("GameTick")]
         public static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            // c# 33 c# 69 c# 79 c# 87 this.player.warpCommand = false;
+            // Send PlayerUseWarper(bool) whenever warpCommand is toggled between true or false
             var codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldc_I4_0),
                     new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "warpCommand")
                 );
 
@@ -29,9 +28,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 return instructions;
             }
 
-            instructions = codeMatcher
+            return codeMatcher
                 .Repeat(matcher =>
                 {
+                    var warpCommand = matcher.InstructionAt(-1).opcode == OpCodes.Ldc_I4_1;
                     matcher
                         .Advance(1)
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>
@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                             if (LocalPlayer.IsMasterClient)
                             {
-                                PlayerUseWarper packet = new PlayerUseWarper(false)
+                                PlayerUseWarper packet = new PlayerUseWarper(warpCommand)
                                 {
                                     PlayerId = LocalPlayer.PlayerId
                                 };
@@ -52,52 +52,12 @@ namespace NebulaPatcher.Patches.Transpilers
                             }
                             else
                             {
-                                LocalPlayer.SendPacket(new PlayerUseWarper(false));
+                                LocalPlayer.SendPacket(new PlayerUseWarper(warpCommand));
                             }
 
                             return;
                         }));
                 })
-                .InstructionEnumeration();
-
-            // c# 42 this.player.warpCommand = true;
-            codeMatcher = new CodeMatcher(instructions)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "warpCommand")
-                );
-
-            if (codeMatcher.IsInvalid)
-            {
-                NebulaModel.Logger.Log.Error("PlayerMoveSail_Transpiler.GameTick 2 failed. Mod version not compatible with game version.");
-                return instructions;
-            }
-
-            return codeMatcher
-                .Advance(1)
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>
-                {
-                    // send to host / clients
-                    if (!SimulatedWorld.Initialized)
-                    {
-                        return;
-                    }
-
-                    if (LocalPlayer.IsMasterClient)
-                    {
-                        PlayerUseWarper packet = new PlayerUseWarper(true)
-                        {
-                            PlayerId = LocalPlayer.PlayerId
-                        };
-                        LocalPlayer.SendPacket(packet);
-                    }
-                    else
-                    {
-                        LocalPlayer.SendPacket(new PlayerUseWarper(true));
-                    }
-
-                    return;
-                }))
                 .InstructionEnumeration();
         }
 
