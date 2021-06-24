@@ -33,21 +33,6 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.CreatePrebuilds))]
-        public static void CreatePrebuilds_Postfix()
-        {
-            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient && FactoryManager.EventFromServer && FactoryManager.IsHumanInput)
-            {
-                FactoryManager.IsHumanInput = false;
-            }
-            else if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient && (FactoryManager.IsHumanInput || FactoryManager.IsFromClient))
-            {
-                FactoryManager.IsFromClient = false;
-                FactoryManager.IsHumanInput = false;
-            }
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CheckBuildConditions))]
         [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.CheckBuildConditions))]
