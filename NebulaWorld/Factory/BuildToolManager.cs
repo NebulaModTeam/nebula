@@ -119,6 +119,7 @@ namespace NebulaWorld.Factory
                     }
                     else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
                     {
+                        FactoryManager.IsFromClient = true;
                         ((BuildTool_Path)buildTool).CreatePrebuilds();
                     }
                     else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
