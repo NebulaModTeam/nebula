@@ -21,6 +21,11 @@ namespace NebulaModel.Packets.Session
             ResourceMultiplier = resourceMultiplier;
             LocalPlayerData = localPlayerData;
             CompressedGS2Settings = compressedGS2Settings;
+            if(CompressedGS2Settings == null)
+            {
+                CompressedGS2Settings = new byte[1];
+                CompressedGS2Settings[0] = 0;
+            }
         }
     }
 }

@@ -11,13 +11,13 @@ namespace NebulaClient.PacketProcessors.Session
     {
         public void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
         {
-            if(LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings != null)
+            if(LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings.Length > 1) // if host does not use GS2 we send a null byte
             {
                 LocalPlayer.GS2ApplySettings(packet.CompressedGS2Settings);
             }
-            else if(packet.CompressedGS2Settings == null)
+            else if(LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings.Length == 1)
             {
-                InGamePopup.ShowWarning("Galactic Scale - failed to receive settings", "We are sorry, but for some reason the server failed to export the Galactic Scale 2 settings.", "Close");
+                InGamePopup.ShowWarning("Galactic Scale - Server not supported", "The server does not seem to use Galactic Scale. Make sure it your configuration matches.", "Close");
                 return;
             }
 

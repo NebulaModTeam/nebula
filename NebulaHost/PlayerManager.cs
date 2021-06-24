@@ -206,7 +206,16 @@ namespace NebulaHost
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
             Float3 randomColor = new Float3(Random.value, Random.value, Random.value);
-            PlayerData playerData = new PlayerData(playerId, -1, randomColor);
+            PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
+            PlayerData playerData;
+            if (LocalPlayer.GS2_GSSettings != null)
+            {
+                playerData = new PlayerData(playerId, -1, randomColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+            }
+            else
+            {
+                playerData = new PlayerData(playerId, -1, randomColor);
+            }
 
             Player newPlayer = new Player(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))
