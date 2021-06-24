@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using NebulaModel.Packets.Players;
+using System.Reflection;
 
 namespace NebulaPatcher.Patches.Transpilers
 {
@@ -18,11 +19,9 @@ namespace NebulaPatcher.Patches.Transpilers
             // c# 33 c# 69 c# 79 c# 87 this.player.warpCommand = false;
             var codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldc_I4_0),
-                    new CodeMatch(OpCodes.Stfld),
-                    new CodeMatch(OpCodes.Ldstr));
+                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "warpCommand")
+                );
 
             if(codeMatcher.IsInvalid)
             {
@@ -30,24 +29,25 @@ namespace NebulaPatcher.Patches.Transpilers
                 return instructions;
             }
 
-            codeMatcher
+            instructions = codeMatcher
                 .Repeat(matcher =>
                 {
                     matcher
                         .Advance(1)
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_0)) // just to feed the delegate function
-                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(dummy =>
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>
                         {
                             // send to host / clients
                             if (!SimulatedWorld.Initialized)
                             {
-                                return 0;
+                                return;
                             }
 
                             if (LocalPlayer.IsMasterClient)
                             {
-                                PlayerUseWarper packet = new PlayerUseWarper(false);
-                                packet.PlayerId = LocalPlayer.PlayerId;
+                                PlayerUseWarper packet = new PlayerUseWarper(false)
+                                {
+                                    PlayerId = LocalPlayer.PlayerId
+                                };
                                 LocalPlayer.SendPacket(packet);
                             }
                             else
@@ -55,42 +55,40 @@ namespace NebulaPatcher.Patches.Transpilers
                                 LocalPlayer.SendPacket(new PlayerUseWarper(false));
                             }
 
-                            return 0;
-                        }))
-                        .Insert(new CodeInstruction(OpCodes.Pop));
+                            return;
+                        }));
                 })
                 .InstructionEnumeration();
 
             // c# 42 this.player.warpCommand = true;
             codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Stfld),
-                    new CodeMatch(OpCodes.Ldstr));
+                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "warpCommand")
+                );
 
-            if(codeMatcher.IsInvalid)
+            if (codeMatcher.IsInvalid)
             {
                 NebulaModel.Logger.Log.Error("PlayerMoveSail_Transpiler.GameTick 2 failed. Mod version not compatible with game version.");
-                return codeMatcher.InstructionEnumeration();
+                return instructions;
             }
 
             return codeMatcher
                 .Advance(1)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_1)) // just to feed the delegate function
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(dummy =>
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>
                 {
                     // send to host / clients
                     if (!SimulatedWorld.Initialized)
                     {
-                        return 0;
+                        return;
                     }
 
                     if (LocalPlayer.IsMasterClient)
                     {
-                        PlayerUseWarper packet = new PlayerUseWarper(true);
-                        packet.PlayerId = LocalPlayer.PlayerId;
+                        PlayerUseWarper packet = new PlayerUseWarper(true)
+                        {
+                            PlayerId = LocalPlayer.PlayerId
+                        };
                         LocalPlayer.SendPacket(packet);
                     }
                     else
@@ -98,9 +96,8 @@ namespace NebulaPatcher.Patches.Transpilers
                         LocalPlayer.SendPacket(new PlayerUseWarper(true));
                     }
 
-                    return 0;
+                    return;
                 }))
-                .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
         }
 
