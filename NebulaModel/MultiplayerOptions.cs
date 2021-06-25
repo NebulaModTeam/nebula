@@ -8,7 +8,7 @@ namespace NebulaModel
     public class MultiplayerOptions : ICloneable
     {
         [DisplayName("Nickname")]
-        public string Nickname { get; set; } = "Player";
+        public string Nickname { get; set; } = string.Empty;
 
         [DisplayName("Mecha Color Red")]
         [UIRange(0, 255, true)]

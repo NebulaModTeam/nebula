@@ -22,7 +22,7 @@ namespace NebulaModel.DataStructures
         {
             PlayerId = playerId;
             LocalPlanetId = localPlanetId;
-            Username = username ?? $"Player {playerId}";
+            Username = !string.IsNullOrWhiteSpace(username) ? username : $"Player {playerId}";
             LocalPlanetPosition = localPlanetPosition;
             Color = color;
             UPosition = position;

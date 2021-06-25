@@ -479,7 +479,7 @@ namespace NebulaWorld
                     {
                         // Make an instance of the "Icarus" text to represent the other player name
                         nameText = playerModel.StarmapNameText = GameObject.Instantiate(starmap_playerNameText, starmap_playerNameText.transform.parent);
-                        nameText.text = $"{ playerModel.Username }{ playerModel.PlayerId }";
+                        nameText.text = $"{ playerModel.Username }";
                         nameText.gameObject.SetActive(true);
 
                         // Make another copy of it, but just replace it with a point to represent their location
@@ -575,7 +575,7 @@ namespace NebulaWorld
                         TextMesh textMesh = playerNameText.AddComponent<TextMesh>();
 
                         // Set the text to be their name
-                        textMesh.text = $"{ playerModel.Username }{ playerModel.PlayerId }";
+                        textMesh.text = $"{ playerModel.Username }";
                         // Align it to be centered below them
                         textMesh.anchor = TextAnchor.UpperCenter;
                         // Copy the font over from the sail indicator
