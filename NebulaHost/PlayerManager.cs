@@ -207,7 +207,7 @@ namespace NebulaHost
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
 
-            Float3 PlayerColor = new Float3(Config.Options.ColorR, Config.Options.ColorG, Config.Options.ColorB);
+            Float3 PlayerColor = new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255);
             PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
             PlayerData playerData;
             if (LocalPlayer.GS2_GSSettings != null)
