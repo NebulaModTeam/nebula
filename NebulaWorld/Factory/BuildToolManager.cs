@@ -39,25 +39,22 @@ namespace NebulaWorld.Factory
                 FactoryManager.TargetPlanet = packet.PlanetId;
                 FactoryManager.PacketAuthor = packet.AuthorId;
 
-                //Make backup of values that are overwritten
-                List<BuildPreview> tmpList = new List<BuildPreview>(); 
-                PlanetFactory tmpFactory = buildTool.factory;
-                PlanetData tmpData = GameMain.mainPlayer.planetData;
+                PlanetFactory tmpFactory = null;
                 NearColliderLogic tmpNearcdLogic = null;
                 PlanetPhysics tmpPlanetPhysics = null;
-                float tmpBuildArea = GameMain.mainPlayer.mecha.buildArea;
                 bool loadExternalPlanetData = GameMain.localPlanet != planet;
 
                 if (loadExternalPlanetData)
                 {
-                    //Load temporary planet data, since host is not there
+                    //Make backup of values that are overwritten
+                    tmpFactory = buildTool.factory;
                     tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
                     tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
                 }
 
                 //Create Prebuilds from incoming packet and prepare new position
-                tmpList.AddRange(buildTool.buildPreviews);
-                buildTool.buildPreviews.Clear();
+                List<BuildPreview> tmpList = new List<BuildPreview>();
+                tmpList.AddRange(buildTool.buildPreviews); buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 FactoryManager.EventFactory = planet.factory;
 
@@ -79,7 +76,6 @@ namespace NebulaWorld.Factory
                 buildTool.factory = planet.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
-                AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, planet, null);
                 if (FactoryManager.EventFromClient)
                 {
                     // Only the server needs to set these
@@ -128,12 +124,11 @@ namespace NebulaWorld.Factory
                 }
 
                 //Revert changes back to the original planet
-                if (loadExternalPlanetData || FactoryManager.EventFromServer)
+                if (loadExternalPlanetData)
                 {
                     buildTool.factory = tmpFactory;
                     pab.factory = tmpFactory;
                     pab.noneTool.factory = tmpFactory;
-                    AccessTools.Property(typeof(global::Player), "planetData").SetValue(GameMain.mainPlayer, tmpData, null);
 
                     if (FactoryManager.EventFromClient)
                     {
@@ -141,10 +136,10 @@ namespace NebulaWorld.Factory
                         pab.nearcdLogic = tmpNearcdLogic;
                         planet.physics.Free();
                         planet.physics = null;
-                        GameMain.mainPlayer.mecha.buildArea = tmpBuildArea;
                     }
                 }
 
+                GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
                 FactoryManager.EventFactory = null;
 
                 buildTool.buildPreviews.Clear();
