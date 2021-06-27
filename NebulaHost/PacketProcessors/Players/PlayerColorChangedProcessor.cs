@@ -26,7 +26,7 @@ namespace NebulaHost.PacketProcessors.Players
                 return;
             }
 
-            player.Data.Color = packet.Color;
+            player.Data.MechaColor = packet.Color;
             playerManager.SendPacketToOtherPlayers(packet, player);
 
             SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color);

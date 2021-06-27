@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
@@ -11,7 +12,6 @@ using NebulaWorld;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
@@ -41,7 +41,7 @@ namespace NebulaClient
         private void Awake()
         {
             Instance = this;
-        }   
+        }
 
         public void ConnectToIp(IPEndPoint ip)
         {
@@ -156,8 +156,9 @@ namespace NebulaClient
 
         public void UpdatePingIndicator()
         {
-            int newDelay = (int)((Time.time - pingTimestamp)*1000);
-            if (newDelay != previousDelay) {
+            int newDelay = (int)((Time.time - pingTimestamp) * 1000);
+            if (newDelay != previousDelay)
+            {
                 pingIndicator.text = $"Ping: {newDelay}ms";
                 previousDelay = newDelay;
             }
@@ -176,7 +177,11 @@ namespace NebulaClient
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
             IsConnected = true;
             //TODO: Maybe some challenge-response authentication mechanism?
-            SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()), NebulaModel.Config.Options.Nickname, LocalPlayer.GS2_GSSettings != null));
+            SendPacket(new HandshakeRequest(
+                CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
+                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
+                LocalPlayer.GS2_GSSettings != null));
         }
 
         static void DisableNagleAlgorithm(WebSocket socket)

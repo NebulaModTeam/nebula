@@ -9,11 +9,11 @@ using NebulaWorld.Factory;
 using NebulaWorld.Logistics;
 using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.Planet;
+using NebulaWorld.Player;
 using NebulaWorld.Trash;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using NebulaWorld.Player;
 
 namespace NebulaWorld
 {
@@ -112,7 +112,7 @@ namespace NebulaWorld
                 }
             }
 
-            UpdatePlayerColor(playerData.PlayerId, playerData.Color);
+            UpdatePlayerColor(playerData.PlayerId, playerData.MechaColor);
         }
 
         public static void DestroyRemotePlayerModel(ushort playerId)
@@ -282,7 +282,7 @@ namespace NebulaWorld
 
                     factory.RemoveVeinWithComponents(packet.VegeId);
 
-                    if(veinProto != null)
+                    if (veinProto != null)
                     {
                         VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
                         VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true);
@@ -295,14 +295,14 @@ namespace NebulaWorld
 
                     factory.RemoveVegeWithComponents(packet.VegeId);
 
-                    if(vegeProto != null)
+                    if (vegeProto != null)
                     {
                         VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
                         VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true);
                     }
                 }
             }
-            else if(factory != null)
+            else if (factory != null)
             {
                 VeinData veinData = factory.GetVeinData(packet.VegeId);
                 PlanetData.VeinGroup[] veinGroups = factory.planet.veinGroups;
@@ -359,7 +359,7 @@ namespace NebulaWorld
             Log.Info("Game has finished loading");
 
             // Assign our own color
-            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.Color);
+            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.MechaColor);
 
             // Change player location from spawn to the last known
             VectorLF3 UPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
