@@ -5,6 +5,7 @@ using NebulaPatcher.MonoBehaviours;
 using NebulaWorld;
 using System.Collections;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using UnityEngine;
 using UnityEngine.Events;
@@ -163,7 +164,7 @@ namespace NebulaPatcher.Patches.Dynamic
             hostIPAdressInput.onValueChanged.RemoveAllListeners();
             //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
             //256 will trigger an argument out of range exception
-            hostIPAdressInput.characterLimit = 255;    
+            hostIPAdressInput.characterLimit = 255;
             hostIPAdressInput.text = "127.0.0.1";
 
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
@@ -175,7 +176,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnJoinGameButtonClick()
         {
-            var s = hostIPAdressInput.text;
+            // Remove whitespaces from connection string
+            var s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
 
             // Taken from .net IPEndPoint
             IPEndPoint result = null;
@@ -197,7 +199,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
 
-            
+
             if (IPAddress.TryParse(s.Substring(0, addressLength), out IPAddress address))
             {
                 uint port = 0;
@@ -211,9 +213,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
             var isIP = false;
             var p = 0;
-            if(result != null)
+            if (result != null)
             {
-                if(result.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                if (result.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
                 {
                     s = $"[{result.Address}]";
                 }
@@ -227,9 +229,9 @@ namespace NebulaPatcher.Patches.Dynamic
             else
             {
                 var tmpP = s.Split(':');
-                if(tmpP.Length == 2)
+                if (tmpP.Length == 2)
                 {
-                    if(!System.Int32.TryParse(tmpP[1], out p))
+                    if (!System.Int32.TryParse(tmpP[1], out p))
                         p = 0;
                     else
                         s = tmpP[0];
@@ -270,9 +272,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
         {
-            NebulaClient.MultiplayerClientSession session; 
+            NebulaClient.MultiplayerClientSession session;
 
-            if(isIP)
+            if (isIP)
             {
                 session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
                 session.ConnectToIp(new IPEndPoint(IPAddress.Parse(connectionString), serverPort));
