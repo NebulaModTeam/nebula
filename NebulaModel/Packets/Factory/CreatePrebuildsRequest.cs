@@ -1,5 +1,4 @@
-﻿using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+﻿using NebulaModel.Networking;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -81,28 +80,32 @@ namespace NebulaModel.Packets.Factory
             buildPreview.desc = new PrefabDesc
             {
                 //Import more data about the Prefab to properly validate the build condition on server-side
-                modelIndex = br.ReadInt32(),
-                isBelt = br.ReadBoolean(),
-                isInserter = br.ReadBoolean(),
-                oilMiner = br.ReadBoolean(),
-                isTank = br.ReadBoolean(),
-                isStorage = br.ReadBoolean(),
-                isLab = br.ReadBoolean(),
-                isSplitter = br.ReadBoolean(),
-                isPowerNode = br.ReadBoolean(),
+                assemblerRecipeType = (ERecipeType)br.ReadInt32(),
+                cullingHeight = br.ReadSingle(),
+                gammaRayReceiver = br.ReadBoolean(),
+                inserterSTT = br.ReadInt32(),
                 isAccumulator = br.ReadBoolean(),
-                powerConnectDistance = br.ReadSingle(),
-                windForcedPower = br.ReadBoolean(),
-                isPowerGen = br.ReadBoolean(),
+                isAssembler = br.ReadBoolean(),
+                isBelt = br.ReadBoolean(),
                 isCollectStation = br.ReadBoolean(),
-                stationCollectSpeed = br.ReadInt32(),
-                workEnergyPerTick = br.ReadInt64(),
+                isEjector = br.ReadBoolean(),
+                isFractionate = br.ReadBoolean(),
+                isInserter = br.ReadBoolean(),
+                isLab = br.ReadBoolean(),
+                isPowerExchanger = br.ReadBoolean(),
+                isSplitter = br.ReadBoolean(),
                 isStation = br.ReadBoolean(),
                 isStellarStation = br.ReadBoolean(),
-                cullingHeight = br.ReadSingle(),
-                isEjector = br.ReadBoolean(),
+                isStorage = br.ReadBoolean(),
+                isTank = br.ReadBoolean(),
+                minerType = (EMinerType)br.ReadInt32(),
+                modelIndex = br.ReadInt32(),
                 multiLevel = br.ReadBoolean(),
-                veinMiner = br.ReadBoolean()
+                oilMiner = br.ReadBoolean(),
+                stationCollectSpeed = br.ReadInt32(),
+                veinMiner = br.ReadBoolean(),
+                windForcedPower = br.ReadBoolean(),
+                workEnergyPerTick = br.ReadInt64()
             };
 
             //Import information about the position of build (land / sea)
@@ -179,30 +182,34 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.recipeId);
             bw.Write(buildPreview.filterId);
             bw.Write(buildPreview.isConnNode);
-            bw.Write(buildPreview.desc.modelIndex);
 
             //Export more data about the Prefab to properly validate the build condition on server-side
-            bw.Write(buildPreview.desc.isBelt);
-            bw.Write(buildPreview.desc.isInserter);
-            bw.Write(buildPreview.desc.oilMiner);
-            bw.Write(buildPreview.desc.isTank);
-            bw.Write(buildPreview.desc.isStorage);
-            bw.Write(buildPreview.desc.isLab);
-            bw.Write(buildPreview.desc.isSplitter);
-            bw.Write(buildPreview.desc.isPowerNode);
+            bw.Write((int)buildPreview.desc.assemblerRecipeType);
+            bw.Write(buildPreview.desc.cullingHeight);
+            bw.Write(buildPreview.desc.gammaRayReceiver);
+            bw.Write(buildPreview.desc.inserterSTT);
             bw.Write(buildPreview.desc.isAccumulator);
-            bw.Write(buildPreview.desc.powerConnectDistance);
-            bw.Write(buildPreview.desc.windForcedPower);
-            bw.Write(buildPreview.desc.isPowerGen);
+            bw.Write(buildPreview.desc.isAssembler);
+            bw.Write(buildPreview.desc.isBelt);
             bw.Write(buildPreview.desc.isCollectStation);
-            bw.Write(buildPreview.desc.stationCollectSpeed);
-            bw.Write(buildPreview.desc.workEnergyPerTick);
+            bw.Write(buildPreview.desc.isEjector);
+            bw.Write(buildPreview.desc.isFractionate);
+            bw.Write(buildPreview.desc.isInserter);
+            bw.Write(buildPreview.desc.isLab);
+            bw.Write(buildPreview.desc.isPowerExchanger);
+            bw.Write(buildPreview.desc.isSplitter);
             bw.Write(buildPreview.desc.isStation);
             bw.Write(buildPreview.desc.isStellarStation);
-            bw.Write(buildPreview.desc.cullingHeight);
-            bw.Write(buildPreview.desc.isEjector);
+            bw.Write(buildPreview.desc.isStorage);
+            bw.Write(buildPreview.desc.isTank);
+            bw.Write((int)buildPreview.desc.minerType);
+            bw.Write(buildPreview.desc.modelIndex);
             bw.Write(buildPreview.desc.multiLevel);
+            bw.Write(buildPreview.desc.oilMiner);
+            bw.Write(buildPreview.desc.stationCollectSpeed);
             bw.Write(buildPreview.desc.veinMiner);
+            bw.Write(buildPreview.desc.windForcedPower);
+            bw.Write(buildPreview.desc.workEnergyPerTick);
 
             //Export information about the position of build (land / sea)
             num = buildPreview.desc.landPoints.Length;

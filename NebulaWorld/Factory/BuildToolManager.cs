@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using NebulaModel.Logger;
+﻿using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using System.Collections.Generic;
 using UnityEngine;
@@ -88,22 +87,10 @@ namespace NebulaWorld.Factory
                 if (FactoryManager.EventFromClient)
                 {
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
-                    if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
-                    {
-                        canBuild = ((BuildTool_Click)buildTool).CheckBuildConditions();
-                    }
-                    else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
-                    {
-                        canBuild = ((BuildTool_Path)buildTool).CheckBuildConditions();
-                    }
-                    else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
-                    {
-                        canBuild = ((BuildTool_Inserter)buildTool).CheckBuildConditions();
-                    }
-                    canBuild &= CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
+                    canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                UnityEngine.Debug.Log(buildTool.buildPreviews[0].condition);
+                Debug.Log(buildTool.buildPreviews[0].condition);
 
                 if (canBuild || FactoryManager.EventFromServer)
                 {
