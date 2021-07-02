@@ -181,6 +181,14 @@ namespace NebulaWorld
                     var tmpFactory = droneLogic.factory;
 
                     droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
+
+                    // factory can sometimes be null when transitioning to or from a planet, in this case we do not want to continue
+                    if(droneLogic.factory == null)
+                    {
+                        droneLogic.factory = tmpFactory;
+                        return;
+                    }
+
                     drone.stage = packet.Stage;
                     drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
                     drone.movement = droneLogic.player.mecha.droneMovement;
