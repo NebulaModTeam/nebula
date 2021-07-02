@@ -57,18 +57,15 @@ namespace NebulaWorld.Factory
                 buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 FactoryManager.EventFactory = planet.factory;
 
-                if (FactoryManager.EventFromClient)
+                //Check if some mandatory variables are missing
+                if (planet.physics == null || planet.physics.colChunks == null)
                 {
-                    //Check if some mandatory variables are missing
-                    if (planet.physics == null || planet.physics.colChunks == null)
-                    {
-                        planet.physics = new PlanetPhysics(planet);
-                        planet.physics.Init();
-                    }
-                    if (planet.aux == null)
-                    {
-                        planet.aux = new PlanetAuxData(planet);
-                    }
+                    planet.physics = new PlanetPhysics(planet);
+                    planet.physics.Init();
+                }
+                if (planet.aux == null)
+                {
+                    planet.aux = new PlanetAuxData(planet);
                 }
 
                 //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
