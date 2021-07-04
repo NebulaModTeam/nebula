@@ -26,6 +26,11 @@ namespace NebulaModel
         [UIRange(1, ushort.MaxValue)]
         public ushort HostPort { get; set; } = 8469;
 
+        [DisplayName("Remember Last IP")]
+        public bool RememberLastIP { get; set; } = true;
+
+        public string LastIP { get; set; } = string.Empty;
+
         public object Clone()
         {
             return this.MemberwiseClone();

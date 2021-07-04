@@ -83,6 +83,13 @@ namespace NebulaClient
 
             LocalPlayer.IsMasterClient = false;
             LocalPlayer.SetNetworkProvider(this);
+            
+            if(Config.Options.RememberLastIP)
+            {
+                // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
+                Config.Options.LastIP = socketAddress.Substring(5, socketAddress.Length - 12);
+                Config.SaveOptions();
+            }
         }
 
         public void DisplayPingIndicator()

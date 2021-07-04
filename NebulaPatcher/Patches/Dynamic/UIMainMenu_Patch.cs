@@ -165,7 +165,13 @@ namespace NebulaPatcher.Patches.Dynamic
             //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
             //256 will trigger an argument out of range exception
             hostIPAdressInput.characterLimit = 255;
-            hostIPAdressInput.text = "127.0.0.1";
+
+            string ip = "127.0.0.1";
+            if(Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+            {
+                ip = Config.Options.LastIP;
+            }
+            hostIPAdressInput.text = ip;
 
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
             OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null, OnJoinGameBackButtonClick);
