@@ -2,13 +2,6 @@
 {
     public class PasteBuildingSettingUpdate
     {
-        /*        public int EntityId { get; set; }
-                public int RecipeId { get; set; }
-                public bool ResearchMode { get; set; }
-                public int FilterId { get; set; }
-                public int OrbitId { get; set; }
-                public int Mode { get; set; }
-                public ERecipeType RecipeType { get; set; }*/
         public int ObjectId { get; set; }
         public BuildingType Type { get; set; }
         public int ItemId { get; set; }

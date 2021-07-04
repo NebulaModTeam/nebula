@@ -47,8 +47,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(factoryBytes))
             {
-                int factoryIndex = GameMain.data.factoryCount;
-                GameMain.data.factoryCount++;
+                int factoryIndex = GameMain.data.factoryCount++;
                 // Import the factory from the given bytes, which will have been gotten or created on the host by the original function
                 __instance.factories[factoryIndex] = new PlanetFactory();
 

@@ -17,7 +17,7 @@ namespace NebulaClient.PacketProcessors.Session
             }
             else if(LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings.Length == 1)
             {
-                InGamePopup.ShowWarning("Galactic Scale - Server not supported", "The server does not seem to use Galactic Scale. Make sure it your configuration matches.", "Close");
+                InGamePopup.ShowWarning("Galactic Scale - Server not supported", "The server does not seem to use Galactic Scale. Make sure that your mod configuration matches.", "Close");
                 return;
             }
 

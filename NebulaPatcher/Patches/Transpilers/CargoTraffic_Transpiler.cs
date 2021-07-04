@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaWorld;
 using NebulaWorld.Factory;
 using System;
 using System.Collections.Generic;
@@ -42,12 +43,13 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(count)
                     .InsertAndAdvance(beltId)
                     .InsertAndAdvance(segId)
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, int, int, int, int>>((item, cnt, belt, seg) =>
+                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int>>((item, cnt, belt, seg) =>
                     {
-                        BeltManager.RegisterBeltPickupUpdate(item, cnt, belt, seg);
-                        return 0;
+                        if(SimulatedWorld.Initialized)
+                        {
+                            BeltManager.RegisterBeltPickupUpdate(item, cnt, belt, seg);
+                        }
                     }))
-                    .Insert(new CodeInstruction(OpCodes.Pop))
                     .InstructionEnumeration();
         }
 

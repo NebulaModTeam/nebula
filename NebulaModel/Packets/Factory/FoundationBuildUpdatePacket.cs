@@ -22,7 +22,6 @@ namespace NebulaModel.Packets.Factory
             ReformSize = reformSize;
             VeinBuried = veinBuried;
             Fade0 = fade0;
-            //PlayerAction_Build pab = GameMain.mainPlayer.controller?.actionBuild;
             BuildTool_Reform btr = GameMain.mainPlayer.controller?.actionBuild.reformTool;
             ReformType = btr?.brushType ?? -1;
             ReformColor = btr?.brushColor ?? -1;

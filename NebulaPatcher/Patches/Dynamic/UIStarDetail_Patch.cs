@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnNameInputEndEdit")]
         public static void OnNameInputEndEdit_Postfix(UIStarDetail __instance)
         {
-            if (!FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
+            if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
                 if(__instance.star != null && !string.IsNullOrEmpty(__instance.star.overrideName))
                 {
