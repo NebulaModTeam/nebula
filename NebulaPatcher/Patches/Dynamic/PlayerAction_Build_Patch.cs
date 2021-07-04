@@ -19,18 +19,9 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.SetFactoryReferences();
             __instance.SetToolsFactoryReferences();
 
-            //Clients needs to send destruction packet here
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
+            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
-            }
-            else if(!LocalPlayer.IsMasterClient && FactoryManager.EventFromServer && FactoryManager.TargetPlanet == __instance.factory.planetId && __instance.pathTool.ObjectIsBelt(objId))
-            {
-                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
-            }
-            else if ((LocalPlayer.IsMasterClient && FactoryManager.TargetPlanet == GameMain.localPlanet?.id) || !FactoryManager.EventFromServer)
-            {
-                LocalPlayer.SendPacket(new DestructEntityRequest(FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE ? __instance.planet.id : FactoryManager.TargetPlanet, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.factory.planetId, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
