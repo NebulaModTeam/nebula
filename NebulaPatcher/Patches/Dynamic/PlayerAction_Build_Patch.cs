@@ -24,7 +24,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
             }
-            else if(!LocalPlayer.IsMasterClient && FactoryManager.EventFromServer && FactoryManager.TargetPlanet == __instance.planet.id && __instance.pathTool.ObjectIsBelt(objId))
+            else if(!LocalPlayer.IsMasterClient && FactoryManager.EventFromServer && FactoryManager.TargetPlanet == __instance.factory.planetId && __instance.pathTool.ObjectIsBelt(objId))
             {
                 LocalPlayer.SendPacket(new DestructEntityRequest(__instance.player.planetId, objId, LocalPlayer.PlayerId));
             }
