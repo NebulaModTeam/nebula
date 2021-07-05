@@ -17,7 +17,8 @@ namespace NebulaHost.PacketProcessors.Universe
         {
             using (FactoryManager.EventFromClient.On())
             {
-                if (packet.StellarId >= GameMain.galaxy.stars.Length)
+                // If stellarId > 100 then it must be a planet
+                if (packet.StellarId > 100)
                 {
                     var planet = GameMain.galaxy.PlanetById(packet.StellarId);
                     planet.overrideName = packet.Name;
