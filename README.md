@@ -8,7 +8,7 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 Please do keep in mind that this mod is still in heavy development, it may still contains bugs. That being said, the mod is in a playable state, you can install a pre-release version of the mod for now by following these instructions [Installing a pre-release version](https://github.com/hubastard/nebula/wiki/Installing-a-pre-release-version).
 
-## What is the current status ?
+## What is the current status?
 
 The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.
 
@@ -42,6 +42,10 @@ Here is a short list of what is currently implemented
 - [x] Server state persistence
 - [x] Power network syncing
 
-## How can I contribute
+## How can I contribute?
 
 Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) to ask if someone is already working on the task that you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment).
+
+## How can I donate?
+
+If you like what we do and would like to support us, you can donate through our [Patreon](https://www.patreon.com/nebula_mod_team). Thanks for the support <3
