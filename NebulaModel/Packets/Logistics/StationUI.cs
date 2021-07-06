@@ -31,12 +31,14 @@
         public ELogisticStorage LocalLogic { get; set; }
         public ELogisticStorage RemoteLogic { get; set; }
         public bool ShouldMimic { get; set; }
+        public bool WarperShouldTakeFromStorage { get; set; }
 
         public StationUI() { }
         public StationUI(int planetId, int stationId, int stationGId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic)
         {
             IsStorageUI = true;
             ShouldMimic = false;
+            WarperShouldTakeFromStorage = false;
             
             PlanetId = planetId;
             StationId = stationId;
@@ -47,7 +49,7 @@
             LocalLogic = localLogic;
             RemoteLogic = remoteLogic;
         }
-        public StationUI(int planetId, int stationId, int stationGId, StationUI.EUISettings settingIndex, float value)
+        public StationUI(int planetId, int stationId, int stationGId, StationUI.EUISettings settingIndex, float value, bool warperShouldTakeFromStorage = false)
         {
             IsStorageUI = false;
 
@@ -56,9 +58,12 @@
             StationGId = stationGId;
             SettingIndex = settingIndex;
             SettingValue = value;
+            WarperShouldTakeFromStorage = warperShouldTakeFromStorage;
         }
         public StationUI(int planetId, int stationId, int stationGId, int storageIdx, StationUI.EUISettings settingIndex, int itemId, int settingValue)
         {
+            WarperShouldTakeFromStorage = false;
+
             PlanetId = planetId;
             StationId = stationId;
             StationGId = stationGId;

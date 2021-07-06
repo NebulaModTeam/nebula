@@ -2,15 +2,15 @@
 {
     public class AssemblerRecipeEventPacket
     {
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
         public int AssemblerIndex { get; set; }
         public int RecipeId { get; set; }
 
         public AssemblerRecipeEventPacket() { }
 
-        public AssemblerRecipeEventPacket(int factoryIndex, int assemblerIndex, int recipeId)
+        public AssemblerRecipeEventPacket(int planetId, int assemblerIndex, int recipeId)
         {
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
             AssemblerIndex = assemblerIndex;
             RecipeId = recipeId;
         }

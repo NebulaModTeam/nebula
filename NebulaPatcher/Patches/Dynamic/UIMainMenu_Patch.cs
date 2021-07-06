@@ -4,6 +4,9 @@ using NebulaModel.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaWorld;
 using System.Collections;
+using System.Globalization;
+using System.Linq;
+using System.Net;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -83,6 +86,7 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerSubMenu.Find("button-options").gameObject.SetActive(false);
             multiplayerSubMenu.Find("button-credits").gameObject.SetActive(false);
             multiplayerSubMenu.Find("button-exit").gameObject.SetActive(false);
+            multiplayerSubMenu.Find("button-galaxy").gameObject.SetActive(false);
 
             multiplayerSubMenu.gameObject.SetActive(false);
         }
@@ -102,7 +106,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             UIRoot.instance.CloseMainMenuUI();
             multiplayerMenu.gameObject.SetActive(true);
-            hostIPAdressInput.characterLimit = 30;
+            hostIPAdressInput.characterLimit = 53;
         }
 
         private static void OnMultiplayerBackButtonClick()
@@ -160,8 +164,14 @@ namespace NebulaPatcher.Patches.Dynamic
             hostIPAdressInput.onValueChanged.RemoveAllListeners();
             //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
             //256 will trigger an argument out of range exception
-            hostIPAdressInput.characterLimit = 255;    
-            hostIPAdressInput.text = "127.0.0.1";
+            hostIPAdressInput.characterLimit = 255;
+
+            string ip = "127.0.0.1";
+            if(Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+            {
+                ip = Config.Options.LastIP;
+            }
+            hostIPAdressInput.text = ip;
 
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
             OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null, OnJoinGameBackButtonClick);
@@ -172,27 +182,74 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnJoinGameButtonClick()
         {
-            string[] parts = hostIPAdressInput.text.Split(':');
-            string ip = parts[0].Trim();
-            int port;
+            // Remove whitespaces from connection string
+            var s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
 
-            //remove copy and paste mistakes and update the textbox to prevent user confusion in case of invalid ip address
-            hostIPAdressInput.text = parts.Length == 1 ? ip : ip + ":" + parts[1].Trim();
+            // Taken from .net IPEndPoint
+            IPEndPoint result = null;
+            int addressLength = s.Length;  // If there's no port then send the entire string to the address parser
+            int lastColonPos = s.LastIndexOf(':');
 
-            if (parts.Length == 1)
+            // Look to see if this is an IPv6 address with a port.
+            if (lastColonPos > 0)
             {
-                port = Config.Options.HostPort;
-            }
-            else if (!int.TryParse(parts[1], out port))
-            {
-                Log.Info($"Port must be a valid number above 1024");
-                return;
+                if (s[lastColonPos - 1] == ']')
+                {
+                    addressLength = lastColonPos;
+                }
+                // Look to see if this is IPv4 with a port (IPv6 will have another colon)
+                else if (s.Substring(0, lastColonPos).LastIndexOf(':') == -1)
+                {
+                    addressLength = lastColonPos;
+                }
             }
 
-            UIRoot.instance.StartCoroutine(TryConnectToServer(ip, port));
+
+
+            if (IPAddress.TryParse(s.Substring(0, addressLength), out IPAddress address))
+            {
+                uint port = 0;
+                if (addressLength == s.Length ||
+                    (uint.TryParse(s.Substring(addressLength + 1), NumberStyles.None, CultureInfo.InvariantCulture, out port) && port <= IPEndPoint.MaxPort))
+
+                {
+                    result = new IPEndPoint(address, (int)port);
+                }
+            }
+
+            var isIP = false;
+            var p = 0;
+            if (result != null)
+            {
+                if (result.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                {
+                    s = $"[{result.Address}]";
+                }
+                else
+                {
+                    s = $"{result.Address}";
+                }
+                p = result.Port;
+                isIP = true;
+            }
+            else
+            {
+                var tmpP = s.Split(':');
+                if (tmpP.Length == 2)
+                {
+                    if (!System.Int32.TryParse(tmpP[1], out p))
+                        p = 0;
+                    else
+                        s = tmpP[0];
+                }
+            }
+
+            p = p == 0 ? Config.Options.HostPort : p;
+
+            UIRoot.instance.StartCoroutine(TryConnectToServer(s, p, isIP));
         }
 
-        private static IEnumerator TryConnectToServer(string ip, int port)
+        private static IEnumerator TryConnectToServer(string ip, int port, bool isIP)
         {
             InGamePopup.ShowInfo("Connecting", $"Connecting to server {ip}:{port}...", null, null);
             multiplayerMenu.gameObject.SetActive(false);
@@ -200,7 +257,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // We need to wait here to have time to display the Connecting popup since the game freezes during the connection.
             yield return new WaitForSeconds(0.5f);
 
-            if (!ConnectToServer(ip, port))
+            if (!ConnectToServer(ip, port, isIP))
             {
                 InGamePopup.FadeOut();
                 //re-enabling the menu again after failed connect attempt
@@ -219,24 +276,15 @@ namespace NebulaPatcher.Patches.Dynamic
             UIRoot.instance.OpenMainMenuUI();
         }
 
-        private static bool ConnectToServer(string connectionString, int serverPort)
+        private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
         {
-            NebulaClient.MultiplayerClientSession session; 
+            NebulaClient.MultiplayerClientSession session;
 
-            //trying as ipAddress first
-            bool isValidIp = System.Net.IPAddress.TryParse(connectionString, out var serverIp);
-            if (isValidIp)
+            if (isIP)
             {
-                switch (serverIp.AddressFamily)
-                {
-                    case System.Net.Sockets.AddressFamily.InterNetwork:
-                    case System.Net.Sockets.AddressFamily.InterNetworkV6:
-                        session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
-                        session.ConnectToIp(serverIp, serverPort);
-                        return true;
-                    default:
-                        break;
-                }
+                session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
+                session.ConnectToIp(new IPEndPoint(IPAddress.Parse(connectionString), serverPort));
+                return true;
             }
 
             //trying to resolve as uri

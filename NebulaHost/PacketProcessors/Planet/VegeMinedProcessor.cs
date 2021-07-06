@@ -2,20 +2,22 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Processors;
+using NebulaWorld;
 using NebulaWorld.Planet;
 
 namespace NebulaHost.PacketProcessors.Planet
 {
+    // Processes events for mining vegetation or veins
     [RegisterPacketProcessor]
-    class RemoveVegetableProcessor : IPacketProcessor<RemoveVegetablePacket>
+    class VegeMinedProcessor : IPacketProcessor<VegeMinedPacket>
     {
-        public void ProcessPacket(RemoveVegetablePacket packet, NebulaConnection conn)
+        public void ProcessPacket(VegeMinedPacket packet, NebulaConnection conn)
         {
-            if (packet.FactorytIndex >= 0 && GameMain.data.factories[packet.FactorytIndex] != null)
+            if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null)
             {
                 using (PlanetManager.EventFromClient.On())
                 {
-                    GameMain.data.factories[packet.FactorytIndex].RemoveVegeWithComponents(packet.VegeId);
+                    SimulatedWorld.OnVegetationMined(packet);
                 }
             }
         }

@@ -47,8 +47,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(factoryBytes))
             {
-                GameMain.data.factoryCount = reader.BinaryReader.ReadInt32();
-                int factoryIndex = reader.BinaryReader.ReadInt32();
+                int factoryIndex = GameMain.data.factoryCount++;
                 // Import the factory from the given bytes, which will have been gotten or created on the host by the original function
                 __instance.factories[factoryIndex] = new PlanetFactory();
 
@@ -151,6 +150,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     //Update player's position before searching for closest star
                     __instance.mainPlayer.uPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
                     GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
+
+                    if(nearestStar == null)
+                    {
+                        // We are not in a planetary system and thus do not have a star, return.
+                        return;
+                    }
+
                     __instance.ArriveStar(nearestStar);
                 }
             }
@@ -235,6 +241,7 @@ namespace NebulaPatcher.Patches.Dynamic
                             {
                                 __instance.localStar.planets[i].factory.Free();
                                 __instance.localStar.planets[i].factory = null;
+                                GameMain.data.factoryCount--;
                             }
                         }
                     }
@@ -248,7 +255,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void ArriveStar_Prefix(GameData __instance, StarData star)
         {
             //Client should unload all factories once they leave the star system
-            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient && star != null)
             {
                 LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(star.id));
                 LocalPlayer.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));

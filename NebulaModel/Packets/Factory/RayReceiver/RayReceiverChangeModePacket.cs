@@ -4,15 +4,15 @@
     {
         public int GeneratorId { get; set; }
         public RayReceiverMode Mode { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public RayReceiverChangeModePacket() { }
 
-        public RayReceiverChangeModePacket(int generatorId, RayReceiverMode mode, int factoryIndex)
+        public RayReceiverChangeModePacket(int generatorId, RayReceiverMode mode, int planetId)
         {
             GeneratorId = generatorId;
             Mode = mode;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 

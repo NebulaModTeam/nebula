@@ -8,10 +8,10 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using NebulaWorld.Statistics;
 using System.Net.Sockets;
-using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using Config = NebulaModel.Config;
 
 namespace NebulaHost
 {
@@ -28,7 +28,6 @@ namespace NebulaHost
         float gameStateUpdateTimer = 0;
         float gameResearchHashUpdateTimer = 0;
         float productionStatisticsUpdateTimer = 0;
-
 
         const float GAME_STATE_UPDATE_INTERVAL = 1;
         const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
@@ -56,10 +55,12 @@ namespace NebulaHost
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
 
-            socketServer = new WebSocketServer(port);
+            socketServer = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socketServer);
 
             socketServer.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
+
+            LocalPlayer.TryLoadGalacticScale2();
 
             socketServer.Start();
 
@@ -69,7 +70,11 @@ namespace NebulaHost
             LocalPlayer.IsMasterClient = true;
 
             // TODO: Load saved player info here
-            LocalPlayer.SetPlayerData(new PlayerData(PlayerManager.GetNextAvailablePlayerId(), GameMain.localPlanet?.id ?? -1, new Float3(1.0f, 0.6846404f, 0.243137181f), AccountData.me.userName));
+            LocalPlayer.SetPlayerData(new PlayerData(
+                PlayerManager.GetNextAvailablePlayerId(),
+                GameMain.localPlanet?.id ?? -1,
+                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName));
         }
 
         static void DisableNagleAlgorithm(WebSocketServer socketServer)
@@ -113,6 +118,11 @@ namespace NebulaHost
         public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
         {
             PlayerManager.SendPacketToStar(packet, starId);
+        }
+
+        public void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
         }
 
         private void Update()

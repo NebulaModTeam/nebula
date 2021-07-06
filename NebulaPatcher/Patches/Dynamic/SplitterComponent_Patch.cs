@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && StorageManager.IsHumanInput)
             {
-                LocalPlayer.SendPacketToLocalStar(new SplitterPriorityChangePacket(__instance.id, slot, isPriority, filter, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new SplitterPriorityChangePacket(__instance.id, slot, isPriority, filter, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

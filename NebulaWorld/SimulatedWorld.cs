@@ -9,11 +9,11 @@ using NebulaWorld.Factory;
 using NebulaWorld.Logistics;
 using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.Planet;
+using NebulaWorld.Player;
 using NebulaWorld.Trash;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using NebulaWorld.Player;
 
 namespace NebulaWorld
 {
@@ -112,7 +112,7 @@ namespace NebulaWorld
                 }
             }
 
-            UpdatePlayerColor(playerData.PlayerId, playerData.Color);
+            UpdatePlayerColor(playerData.PlayerId, playerData.MechaColor);
         }
 
         public static void DestroyRemotePlayerModel(ushort playerId)
@@ -150,6 +150,25 @@ namespace NebulaWorld
             }
         }
 
+        public static void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
+        {
+            using (GetRemotePlayersModels(out var remotePlayersModels))
+            {
+                if (packet.PlayerId == 0) packet.PlayerId = 1; // host sends himself as PlayerId 0 but clients see him as id 1
+                if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
+                {
+                    if (packet.WarpCommand)
+                    {
+                        player.Effects.StartWarp();
+                    }
+                    else
+                    {
+                        player.Effects.StopWarp();
+                    }
+                }
+            }
+        }
+
         public static void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
@@ -159,6 +178,16 @@ namespace NebulaWorld
                     //Setup drone of remote player based on the drone data
                     ref MechaDrone drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
                     MechaDroneLogic droneLogic = player.PlayerInstance.mecha.droneLogic;
+                    var tmpFactory = droneLogic.factory;
+
+                    droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
+
+                    // factory can sometimes be null when transitioning to or from a planet, in this case we do not want to continue
+                    if(droneLogic.factory == null)
+                    {
+                        droneLogic.factory = tmpFactory;
+                        return;
+                    }
 
                     drone.stage = packet.Stage;
                     drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
@@ -177,6 +206,7 @@ namespace NebulaWorld
                     {
                         GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
                     }
+                    droneLogic.factory = tmpFactory;
                 }
             }
         }
@@ -248,76 +278,52 @@ namespace NebulaWorld
             ILSShipManager.UpdateRemoteOrder(packet);
         }
 
-        public static void MineVegetable(VegeMined packet)
+        public static void OnVegetationMined(VegeMinedPacket packet)
         {
-            int localPlanetId = -1;
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
+            if (packet.Amount == 0 && factory != null)
             {
-                if (remotePlayersModels.TryGetValue((ushort)packet.PlayerId, out RemotePlayerModel pModel))
+                if (packet.IsVein)
                 {
-                    localPlanetId = pModel.Movement.localPlanetId;
-                }
-            }
+                    VeinData veinData = factory.GetVeinData(packet.VegeId);
+                    VeinProto veinProto = LDB.veins.Select((int)veinData.type);
 
-            if (localPlanetId == -1)
-                return;
+                    factory.RemoveVeinWithComponents(packet.VegeId);
 
-            PlanetData planet = GameMain.galaxy?.PlanetById(localPlanetId);
-            PlanetFactory factory = planet?.factory;
-            if (planet == null || factory == null)
-                return;
-
-            if (packet.isVegetable) // Trees, rocks, leaves, etc
-            {
-                VegeData vData = (VegeData)factory.GetVegeData(packet.MiningID);
-                VegeProto vProto = LDB.veges.Select((int)vData.protoId);
-                if (vProto != null && planet.id == GameMain.localPlanet?.id)
-                {
-                    VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, vData.rot);
-                    VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                }
-                using (PlanetManager.EventFromServer.On())
-                {
-                    factory.RemoveVegeWithComponents(vData.id);
-                }
-            }
-            else // veins
-            {
-                VeinData vData = (VeinData)factory.GetVeinData(packet.MiningID);
-                VeinProto vProto = LDB.veins.Select((int)vData.type);
-                if (vProto != null)
-                {
-                    if (factory.veinPool[packet.MiningID].amount > 0)
+                    if (veinProto != null)
                     {
-                        VeinData[] vPool = factory.veinPool;
-                        PlanetData.VeinGroup[] vGroups = factory.planet.veinGroups;
-                        long[] vAmounts = planet.veinAmounts;
-                        vPool[packet.MiningID].amount -= 1;
-                        vGroups[(int)vData.groupIndex].amount -= 1;
-                        vAmounts[(int)vData.type] -= 1;
-
-                        if (planet.id == GameMain.localPlanet?.id)
-                        {
-                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
-                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                        }
-                    }
-                    else
-                    {
-                        PlanetData.VeinGroup[] vGroups = factory.planet.veinGroups;
-                        vGroups[vData.groupIndex].count -= 1;
-
-                        if (planet.id == GameMain.localPlanet?.id)
-                        {
-                            VFEffectEmitter.Emit(vProto.MiningEffect, vData.pos, Maths.SphericalRotation(vData.pos, 0f));
-                            VFAudio.Create(vProto.MiningAudio, null, vData.pos, true);
-                        }
-                        using (PlanetManager.EventFromServer.On())
-                        {
-                            factory.RemoveVeinWithComponents(vData.id);
-                        }
+                        VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
+                        VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true);
                     }
                 }
+                else
+                {
+                    VegeData vegeData = factory.GetVegeData(packet.VegeId);
+                    VegeProto vegeProto = LDB.veges.Select((int)vegeData.protoId);
+
+                    factory.RemoveVegeWithComponents(packet.VegeId);
+
+                    if (vegeProto != null)
+                    {
+                        VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
+                        VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true);
+                    }
+                }
+            }
+            else if (factory != null)
+            {
+                VeinData veinData = factory.GetVeinData(packet.VegeId);
+                PlanetData.VeinGroup[] veinGroups = factory.planet.veinGroups;
+                short groupIndex = veinData.groupIndex;
+
+                // must be a vein/oil patch (i think the game treats them same now as oil patches can run out too)
+                factory.veinPool[packet.VegeId].amount = packet.Amount;
+                factory.planet.veinAmounts[(int)veinData.type] -= 1L;
+                veinGroups[(int)groupIndex].amount = veinGroups[(int)groupIndex].amount - 1L;
+            }
+            else
+            {
+                Debug.Log("Received VegeMinedPacket but could not do as i was told :C");
             }
         }
 
@@ -361,7 +367,7 @@ namespace NebulaWorld
             Log.Info("Game has finished loading");
 
             // Assign our own color
-            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.Color);
+            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.MechaColor);
 
             // Change player location from spawn to the last known
             VectorLF3 UPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
@@ -481,7 +487,7 @@ namespace NebulaWorld
                     {
                         // Make an instance of the "Icarus" text to represent the other player name
                         nameText = playerModel.StarmapNameText = GameObject.Instantiate(starmap_playerNameText, starmap_playerNameText.transform.parent);
-                        nameText.text = $"{ playerModel.Username }{ playerModel.PlayerId }";
+                        nameText.text = $"{ playerModel.Username }";
                         nameText.gameObject.SetActive(true);
 
                         // Make another copy of it, but just replace it with a point to represent their location
@@ -577,7 +583,7 @@ namespace NebulaWorld
                         TextMesh textMesh = playerNameText.AddComponent<TextMesh>();
 
                         // Set the text to be their name
-                        textMesh.text = $"{ playerModel.Username }{ playerModel.PlayerId }";
+                        textMesh.text = $"{ playerModel.Username }";
                         // Align it to be centered below them
                         textMesh.anchor = TextAnchor.UpperCenter;
                         // Copy the font over from the sail indicator

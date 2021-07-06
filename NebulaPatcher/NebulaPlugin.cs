@@ -9,6 +9,7 @@ using UnityEngine;
 namespace NebulaPatcher
 {
     [BepInPlugin("com.github.hubertgendron.nebula", "Nebula - Multiplayer Mod", "0.0.2.0")]
+    [BepInDependency("dsp.galactic-scale.2", BepInDependency.DependencyFlags.SoftDependency)] // to load after GS2
     [BepInProcess("DSPGAME.exe")]
     public class NebulaPlugin : BaseUnityPlugin
     {

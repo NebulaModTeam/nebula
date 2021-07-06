@@ -4,15 +4,15 @@
     {
         public int LabIndex { get; set; }
         public int ProductId { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public LaboratoryUpdateEventPacket() { }
 
-        public LaboratoryUpdateEventPacket(int productId, int labId, int factoryIndex)
+        public LaboratoryUpdateEventPacket(int productId, int labId, int planetId)
         {
             LabIndex = labId;
             ProductId = productId;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

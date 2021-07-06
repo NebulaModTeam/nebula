@@ -2,13 +2,13 @@
 {
     public class AssemblerUpdateStoragePacket
     {
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
         public int AssemblerIndex { get; set; }
         public int[] Served { get; set; }
         public AssemblerUpdateStoragePacket() { }
-        public AssemblerUpdateStoragePacket(int[] served, int factoryIndex, int assemblerIndex)
+        public AssemblerUpdateStoragePacket(int[] served, int planetId, int assemblerIndex)
         {
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
             AssemblerIndex = assemblerIndex;
             Served = served;
         }

@@ -10,9 +10,9 @@ namespace NebulaClient.PacketProcessors.Factory.Belt
     {
         public void ProcessPacket(BeltUpdatePickupItemsPacket packet, NebulaConnection conn)
         {
-            if (GameMain.data.factories[packet.FactoryIndex]?.cargoTraffic != null)
+            if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic != null)
             {
-                CargoTraffic traffic = GameMain.data.factories[packet.FactoryIndex].cargoTraffic;
+                CargoTraffic traffic = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic;
                 //Iterate though belt updates and remove target items
                 for (int i = 0; i < packet.BeltUpdates.Length; i++)
                 {

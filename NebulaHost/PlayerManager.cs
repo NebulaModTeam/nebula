@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using Config = NebulaModel.Config;
 
 namespace NebulaHost
 {
@@ -103,7 +104,7 @@ namespace NebulaHost
                 foreach (var kvp in connectedPlayers)
                 {
                     var player = kvp.Value;
-                    if (player.Data.LocalStarId == GameMain.data.localStar.id)
+                    if (player.Data.LocalStarId == GameMain.data.localStar?.id)
                     {
                         player.SendPacket(packet);
                     }
@@ -149,6 +150,21 @@ namespace NebulaHost
                 {
                     var player = kvp.Value;
                     if(player.Data.LocalStarId == starId)
+                    {
+                        player.SendPacket(packet);
+                    }
+                }
+            }
+        }
+
+        public void SendPacketToStarExcept<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                foreach(var kvp in connectedPlayers)
+                {
+                    var player = kvp.Value;
+                    if(player.Data.LocalStarId == starId && player != GetPlayer(exclude))
                     {
                         player.SendPacket(packet);
                     }
@@ -205,8 +221,18 @@ namespace NebulaHost
         {
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
-            Float3 randomColor = new Float3(Random.value, Random.value, Random.value);
-            PlayerData playerData = new PlayerData(playerId, -1, randomColor);
+
+            Float3 PlayerColor = new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255);
+            PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
+            PlayerData playerData;
+            if (LocalPlayer.GS2_GSSettings != null)
+            {
+                playerData = new PlayerData(playerId, -1, PlayerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+            }
+            else
+            {
+                playerData = new PlayerData(playerId, -1, PlayerColor);
+            }
 
             Player newPlayer = new Player(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))

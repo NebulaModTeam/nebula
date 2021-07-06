@@ -163,23 +163,5 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }
-
-        [HarmonyPrefix]
-        [HarmonyPatch("TutorialUnlocked")]
-        public static bool TutorialUnlocked_Prefix(GameHistoryData __instance, ref bool __result, int tutorialId)
-        {
-            // do nothing in single player mode
-            if (!SimulatedWorld.Initialized && !SimulatedWorld.ExitingMultiplayerSession)
-                return true;
-
-            if (Config.Options.TutorialDisabled)
-            {
-                __result = true;
-                __instance.UnlockTutorial(tutorialId);
-                return false;
-            }
-
-            return true;
-        }
     }
 }

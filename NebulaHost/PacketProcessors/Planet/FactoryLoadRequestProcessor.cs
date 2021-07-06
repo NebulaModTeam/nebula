@@ -16,8 +16,6 @@ namespace NebulaHost.PacketProcessors.Planet
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
-                writer.BinaryWriter.Write(GameMain.data.factoryCount);
-                writer.BinaryWriter.Write(planet.factoryIndex);
                 factory.Export(writer.BinaryWriter);
                 conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
             }

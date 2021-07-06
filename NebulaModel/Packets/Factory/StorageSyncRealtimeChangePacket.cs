@@ -10,7 +10,6 @@
         public int Length { get; set; }
         public int[] Needs { get; set; }
         public int StorageIndex { get; set; }
-        public int FactoryIndex { get; set; }
         public int PlanetId { get; set; }
 
         public StorageSyncRealtimeChangePacket() { }
@@ -21,7 +20,6 @@
             ItemId = itemId;
             Count = count;
             StorageIndex = storageIndex;
-            FactoryIndex = GameMain.localPlanet?.factoryIndex ?? -1;
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
 
@@ -32,7 +30,6 @@
             Count = count;
             UseBan = useBan;
             StorageIndex = storageIndex;
-            FactoryIndex = GameMain.localPlanet?.factoryIndex ?? -1;
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
 
@@ -44,7 +41,6 @@
             Needs = needs;
             UseBan = useBan;
             StorageIndex = storageIndex;
-            FactoryIndex = GameMain.localPlanet?.factoryIndex ?? -1;
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
 
@@ -55,7 +51,6 @@
             Count = count;
             Length = gridIndex;
             StorageIndex = storageIndex;
-            FactoryIndex = GameMain.localPlanet?.factoryIndex ?? -1;
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
 
@@ -67,7 +62,6 @@
             StartIndex = startIndex;
             Length = length;
             StorageIndex = storageIndex;
-            FactoryIndex = GameMain.localPlanet?.factoryIndex ?? -1;
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
     }

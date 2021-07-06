@@ -4,7 +4,6 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.Inserter;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 namespace NebulaWorld.Factory
 {
@@ -93,7 +92,7 @@ namespace NebulaWorld.Factory
         {
             if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
             {
-                LocalPlayer.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -101,7 +100,7 @@ namespace NebulaWorld.Factory
         {
             if (SimulatedWorld.Initialized && LocalPlayer.PlayerId == PacketAuthor)
             {
-                LocalPlayer.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
         }
 

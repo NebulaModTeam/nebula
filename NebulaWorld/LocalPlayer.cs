@@ -1,9 +1,12 @@
 ﻿using NebulaModel.DataStructures;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace NebulaWorld
 {
@@ -15,6 +18,47 @@ namespace NebulaWorld
         public static Dictionary<int, byte[]> PendingFactories { get; set; } = new Dictionary<int, byte[]>();
 
         private static INetworkProvider networkProvider;
+
+        public static Type GS2_GSSettings = null;
+
+        public static void TryLoadGalacticScale2()
+        {
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly assembly in assemblies)
+            {
+                if (assembly.FullName.StartsWith("GalacticScale"))
+                {
+                    foreach (Type t in assembly.GetTypes())
+                    {
+                        if (t.Name == "GSSettings")
+                        {
+                            GS2_GSSettings = t;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static byte[] GS2GetSettings()
+        {
+            byte[] compressedSettings = null;
+
+            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+            {
+                writer.BinaryWriter.Write((String)GS2_GSSettings.GetMethod("Serialize").Invoke(GS2_GSSettings.GetProperty("Instance"), null));
+                compressedSettings = writer.CloseAndGetBytes();
+            }
+
+            return compressedSettings;
+        }
+
+        public static void GS2ApplySettings(byte[] compressedSettings)
+        {
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(compressedSettings))
+            {
+                GS2_GSSettings.GetMethod("DeSerialize").Invoke(GS2_GSSettings.GetProperty("Instance"), new object[] { reader.BinaryReader.ReadString()});
+            }
+        }
 
         public static void SetNetworkProvider(INetworkProvider provider)
         {
@@ -44,6 +88,11 @@ namespace NebulaWorld
         public static void SendPacketToStar<T>(T packet, int starId) where T : class, new()
         {
             networkProvider?.SendPacketToStar(packet, starId);
+        }
+
+        public static void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            networkProvider?.SendPacketToStarExclude(packet, starId, exclude);
         }
 
         public static void SetReady()

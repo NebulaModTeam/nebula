@@ -6,17 +6,17 @@
         public int Slot { get; set; }
         public bool IsPriority { get; set; }
         public int Filter { get; set; }
-        public int FactoryIndex { get; set; }
+        public int PlanetId { get; set; }
 
         public SplitterPriorityChangePacket() { }
 
-        public SplitterPriorityChangePacket(int splitterIndex, int slot, bool isPriority, int filter, int factoryIndex)
+        public SplitterPriorityChangePacket(int splitterIndex, int slot, bool isPriority, int filter, int planetId)
         {
             SplitterIndex = splitterIndex;
             Slot = slot;
             IsPriority = isPriority;
             Filter = filter;
-            FactoryIndex = factoryIndex;
+            PlanetId = planetId;
         }
     }
 }

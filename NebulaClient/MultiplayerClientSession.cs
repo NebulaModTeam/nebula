@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using NebulaModel;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
@@ -10,7 +12,6 @@ using NebulaWorld;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
@@ -40,12 +41,12 @@ namespace NebulaClient
         private void Awake()
         {
             Instance = this;
-        }   
+        }
 
-        public void ConnectToIp(IPAddress ip, int port)
+        public void ConnectToIp(IPEndPoint ip)
         {
-            serverEndpoint = new IPEndPoint(ip, port);
-            socketAddress = $"ws://{ip}:{port}/socket";
+            serverEndpoint = ip;
+            socketAddress = $"ws://{ip}/socket";
             Log.Info($"Connect to IP: {socketAddress}");
             ConnectInternal();
         }
@@ -61,6 +62,8 @@ namespace NebulaClient
 
         private void ConnectInternal()
         {
+            LocalPlayer.TryLoadGalacticScale2();
+
             clientSocket = new WebSocket(socketAddress);
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
@@ -80,6 +83,13 @@ namespace NebulaClient
 
             LocalPlayer.IsMasterClient = false;
             LocalPlayer.SetNetworkProvider(this);
+            
+            if(Config.Options.RememberLastIP)
+            {
+                // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
+                Config.Options.LastIP = socketAddress.Substring(5, socketAddress.Length - 12);
+                Config.SaveOptions();
+            }
         }
 
         public void DisplayPingIndicator()
@@ -144,6 +154,11 @@ namespace NebulaClient
             throw new NotImplementedException();
         }
 
+        public void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Reconnect()
         {
             SimulatedWorld.Clear();
@@ -153,8 +168,9 @@ namespace NebulaClient
 
         public void UpdatePingIndicator()
         {
-            int newDelay = (int)((Time.time - pingTimestamp)*1000);
-            if (newDelay != previousDelay) {
+            int newDelay = (int)((Time.time - pingTimestamp) * 1000);
+            if (newDelay != previousDelay)
+            {
                 pingIndicator.text = $"Ping: {newDelay}ms";
                 previousDelay = newDelay;
             }
@@ -173,7 +189,11 @@ namespace NebulaClient
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
             IsConnected = true;
             //TODO: Maybe some challenge-response authentication mechanism?
-            SendPacket(new HandshakeRequest(CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()), AccountData.me.userName));
+            SendPacket(new HandshakeRequest(
+                CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
+                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
+                LocalPlayer.GS2_GSSettings != null));
         }
 
         static void DisableNagleAlgorithm(WebSocket socket)

@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using NebulaModel.Logger;
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -17,7 +18,7 @@ namespace NebulaModel
         {
             Options = new MultiplayerOptions();
 
-            string path = Path.Combine(GameConfig.gameDocumentFolder, OPTION_SAVE_FILE);
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), GameConfig.gameName, OPTION_SAVE_FILE);
             if (File.Exists(path))
             {
                 try
@@ -46,7 +47,7 @@ namespace NebulaModel
                 return false;
             }
 
-            string path = Path.Combine(GameConfig.gameDocumentFolder, OPTION_SAVE_FILE);
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), GameConfig.gameName, OPTION_SAVE_FILE);
             try
             {
                 var formatter = new BinaryFormatter();

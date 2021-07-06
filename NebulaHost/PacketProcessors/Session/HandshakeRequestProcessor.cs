@@ -1,6 +1,5 @@
 ﻿using NebulaModel;
 using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
@@ -49,6 +48,12 @@ namespace NebulaHost.PacketProcessors.Session
                 return;
             }
 
+            if (packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
+            {
+                conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch, "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
+                return;
+            }
+
             SimulatedWorld.OnPlayerJoining();
 
             //TODO: some validation of client cert / generating auth challenge for the client
@@ -67,7 +72,10 @@ namespace NebulaHost.PacketProcessors.Session
             }
 
             // Add the username to the player data
-            player.Data.Username = packet.Username;
+            player.Data.Username = !string.IsNullOrWhiteSpace(packet.Username) ? packet.Username : $"Player {player.Id}";
+
+            // Add the Mecha Color to the player data
+            player.Data.MechaColor = packet.MechaColor;
 
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             PlayerJoining pdata = new PlayerJoining(player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
@@ -89,7 +97,7 @@ namespace NebulaHost.PacketProcessors.Session
             player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
             var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data));
+            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, (LocalPlayer.GS2_GSSettings != null) ? LocalPlayer.GS2GetSettings() : null));
         }
     }
 }

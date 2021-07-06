@@ -12,7 +12,7 @@ namespace NebulaClient.PacketProcessors.Factory.Inserter
     {
         public void ProcessPacket(NewSetInserterInsertTargetPacket packet, NebulaConnection conn)
         {
-            PlanetFactory factory = GameMain.data.factories[packet.FactoryIndex];
+            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             if (factory != null)
             {
                 FactoryManager.TargetPlanet = factory.planetId;

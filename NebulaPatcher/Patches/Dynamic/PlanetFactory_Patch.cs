@@ -21,9 +21,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
 
             // If the host game called the method, we need to compute the PrebuildId ourself
-            if (LocalPlayer.IsMasterClient && !FactoryManager.EventFromClient)
+            if (LocalPlayer.IsMasterClient)
             {
-               
                 FactoryManager.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.PlayerId);
             }
         }
@@ -64,8 +63,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
 
         [HarmonyPrefix]
-        [HarmonyPatch("DestructFinally")]
-        public static bool DestructFinally_Prefix(PlanetFactory __instance, Player player, int objId, ref int protoId)
+        [HarmonyPatch("DismantleFinally")]
+        public static bool DismantleFinally_Prefix(PlanetFactory __instance, Player player, int objId, ref int protoId)
         {
             if (!SimulatedWorld.Initialized)
                 return true;
@@ -82,11 +81,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
 
                 FactoryManager.RemovePrebuildRequest(__instance.planetId, -objId);
-            }
-
-            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
-            {
-                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.planetId, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
@@ -123,12 +117,12 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("PasteEntitySetting")]
-        public static void PasteEntitySetting_Prefix(PlanetFactory __instance, int entityId)
+        [HarmonyPatch("PasteBuildingSetting")]
+        public static void PasteBuildingSetting_Prefix(PlanetFactory __instance, int objectId)
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
-                LocalPlayer.SendPacketToLocalStar(new PasteEntitySettingUpdate(entityId, EntitySettingDesc.clipboard, GameMain.localPlanet?.factoryIndex ?? -1));
+                LocalPlayer.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -142,13 +136,30 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("RemoveVegeWithComponents")]
-        public static void RemoveVegeWithComponents_Prefix(PlanetFactory __instance, int id)
+        public static void RemoveVegeWithComponents_Postfix(PlanetFactory __instance, int id)
         {
             if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
             {
-                LocalPlayer.SendPacketToLocalStar(new RemoveVegetablePacket(GameMain.localPlanet?.factoryIndex ?? -1, id));
+                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("RemoveVeinWithComponents")]
+        public static void RemoveVeinWithComponents_Postfix(PlanetFactory __instance, int id)
+        {
+            if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
+            {
+                if(LocalPlayer.IsMasterClient)
+                {
+                    LocalPlayer.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true), __instance.planet.star.id);
+                }
+                else
+                {
+                    LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
+                }
             }
         }
     }

@@ -9,7 +9,7 @@ namespace NebulaModel.DataStructures
         public string Username { get; set; }
         public ushort PlayerId { get; set; }
         public int LocalPlanetId { get; set; }
-        public Float3 Color { get; set; }
+        public Float3 MechaColor { get; set; }
         public Float3 LocalPlanetPosition { get; set; }
         public Double3 UPosition { get; set; }
         public Float3 Rotation { get; set; }
@@ -18,13 +18,13 @@ namespace NebulaModel.DataStructures
         public int LocalStarId { get; set; }
 
         public PlayerData() { }
-        public PlayerData(ushort playerId, int localPlanetId, Float3 color, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
+        public PlayerData(ushort playerId, int localPlanetId, Float3 mechaColor, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
         {
             PlayerId = playerId;
             LocalPlanetId = localPlanetId;
-            Username = username ?? $"Player {playerId}";
+            Username = !string.IsNullOrWhiteSpace(username) ? username : $"Player {playerId}";
             LocalPlanetPosition = localPlanetPosition;
-            Color = color;
+            MechaColor = mechaColor;
             UPosition = position;
             Rotation = rotation;
             BodyRotation = bodyRotation;
@@ -36,7 +36,7 @@ namespace NebulaModel.DataStructures
             writer.Put(Username);
             writer.Put(PlayerId);
             writer.Put(LocalPlanetId);
-            Color.Serialize(writer);
+            MechaColor.Serialize(writer);
             LocalPlanetPosition.Serialize(writer);
             UPosition.Serialize(writer);
             Rotation.Serialize(writer);
@@ -49,7 +49,7 @@ namespace NebulaModel.DataStructures
             Username = reader.GetString();
             PlayerId = reader.GetUShort();
             LocalPlanetId = reader.GetInt();
-            Color = reader.GetFloat3();
+            MechaColor = reader.GetFloat3();
             LocalPlanetPosition = reader.GetFloat3();
             UPosition = reader.GetDouble3();
             Rotation = reader.GetFloat3();
@@ -60,7 +60,7 @@ namespace NebulaModel.DataStructures
 
         public PlayerData CreateCopyWithoutMechaData()
         {
-            return new PlayerData(PlayerId, LocalPlanetId, Color, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
+            return new PlayerData(PlayerId, LocalPlanetId, MechaColor, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
         }
     }
 }

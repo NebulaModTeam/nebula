@@ -11,11 +11,11 @@ namespace NebulaClient.PacketProcessors.Factory.Belt
     {
         public void ProcessPacket(BeltUpdatePutItemOnPacket packet, NebulaConnection conn)
         {
-            if (GameMain.data.factories[packet.FactoryIndex]?.cargoTraffic != null)
+            if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic != null)
             {
                 using (FactoryManager.EventFromServer.On())
                 {
-                    GameMain.data.factories[packet.FactoryIndex].cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId);
+                    GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId);
                 }
             }
         }

@@ -23,15 +23,25 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("OnButton5Click")]
+        public static void OnButton5Click_Prefix()
+        {
+            QuitGame();
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch("OnButton6Click")]
-        public static void OnGameQuit_Prefix()
+        public static void OnButton6Click_Prefix()
+        {
+            QuitGame();
+        }
+
+        private static void QuitGame()
         {
             if (SimulatedWorld.Initialized)
             {
                 LocalPlayer.LeaveGame();
             }
         }
-
         private static void SetButtonEnableState(Button button, bool enable)
         {
             ColorBlock buttonColors = button.colors;

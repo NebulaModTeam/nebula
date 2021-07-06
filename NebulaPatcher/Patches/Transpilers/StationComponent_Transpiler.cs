@@ -24,9 +24,11 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate int TakeItem(StationComponent stationComponent, int storageIndex, int amount);
         delegate int EnergyCost(StationComponent stationComponent, long cost);
 
+        private static int TakeItemCounter = 0;
         private static int RemOrderCounter = 0;
         private static int RemOrderCounter2 = 0;
         private static int RemOrderCounter3 = 0;
+        private static int EnergyCounter = 0;
 
         [HarmonyTranspiler]
         [HarmonyPatch("RematchRemotePairs")]
@@ -246,58 +248,60 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch("InternalTickRemote")]
         public static IEnumerable<CodeInstruction> InternalTickRemote_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            // BEGIN: transpilers to catch addItem() and TakeItem() and energy decrease by ship departure
+            // get all the AddItem calls
+            // c# 470
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloca_S),
                     new CodeMatch(OpCodes.Ldc_R4),
                     new CodeMatch(OpCodes.Stfld),
                     new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
-                    new CodeMatch(OpCodes.Pop)) // inject before this IL line
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0)) // load this ptr (pointing to the current StationComponent we are working on)
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 35)) // load the ShipData ptr of the current ship we are working on
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
-            {
-                if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    new CodeMatch(OpCodes.Pop))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
-                    LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                }
-                return 0;
-            }))
-            .Insert(new CodeInstruction(OpCodes.Pop)) // pop the loaded ShipData away
-            .InstructionEnumeration();
-
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
+                        LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 937
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldc_I4_0),
                     new CodeMatch(OpCodes.Ble),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"),
                     new CodeMatch(OpCodes.Pop))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 130)) // the other StationComponent ('StationComponent stationComponent3 = gStationPool[shipData.otherGId];')
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 35))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
-            {
-                if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
-                    LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                }
-                return 0;
-            }))
-            .Insert(new CodeInstruction(OpCodes.Pop))
-            .InstructionEnumeration();
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
+                        LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // end AddItem calls
 
+            // TakeItem call (c# 1021)
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_S),
@@ -308,235 +312,228 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"),
                     new CodeMatch(OpCodes.Ldloca_S),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Stfld)) // insert after 'shipData.itemCount = num77;' so we can query the itemCount out of the ShipData in the delegate
-            .Advance(1)
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 130))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 35))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
-            {
-                if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                {
-                    ILSShipItems packet = new ILSShipItems(false, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
-                    LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                }
-                return 0;
-            }))
-            .Insert(new CodeInstruction(OpCodes.Pop))
-            .InstructionEnumeration();
-
-            // catch inofficial TakeItem() at c# 150 AND 235
-            instructions = new CodeMatcher(instructions)
-                .MatchForward(true,
-                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "IdleShipGetToWork"),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                new CodeInstruction(OpCodes.Ldloca_S, 4),
-                                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
-                                new CodeInstruction(OpCodes.Ldloc_S, 11))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
-            {
-                if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                {
-                    ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
-                    LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                }
-                return 0;
-            }))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
-            .Insert(new CodeInstruction(OpCodes.Ldarg_0), // grab energy cost for ship departure # 151
-                        new CodeInstruction(OpCodes.Ldloc_S, 10),
-                        HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
-                        {
-                            if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                            {
-                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                            }
-                            return 0;
-                        }),
-                        new CodeInstruction(OpCodes.Pop))
-            // c# 235
-            .MatchForward(true,
-                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "IdleShipGetToWork"),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                new CodeInstruction(OpCodes.Ldloca_S, 23),
-                                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
-                                new CodeInstruction(OpCodes.Ldloc_S, 24))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
-            {
-                if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                {
-                    ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
-                    LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                }
-                return 0;
-            }))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
-            .Insert(new CodeInstruction(OpCodes.Ldarg_0), // grab energy cost for ship departure # 236
-                        new CodeInstruction(OpCodes.Ldloc_S, 19),
-                        HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
-                        {
-                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                            {
-                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                            }
-                            return 0;
-                        }),
-                        new CodeInstruction(OpCodes.Pop))
-            // find line c# 301 and grab energy cost
-            .MatchForward(true,
-                new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "IdleShipGetToWork"),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Dup),
-                new CodeMatch(OpCodes.Ldfld),
-                new CodeMatch(OpCodes.Ldloc_S),
-                new CodeMatch(OpCodes.Sub),
-                new CodeMatch(OpCodes.Stfld))
-            .Advance(1)
-            .Insert(new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Ldloc_S, 19),
-                        HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
-                        {
-                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                            {
-                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                            }
-                            return 0;
-                        }),
-                        new CodeInstruction(OpCodes.Pop))
-            .InstructionEnumeration();
-            // END: transpilers to catch addItem() and TakeItem() and energy decrease by ship departure
-
-            // BEGIN: transpilers to catch StationStore::remoteOrder changes
-            // TODO: IL 1522 there is one with the this pointer and one with SUB (c# 300)
-            instructions = new CodeMatcher(instructions)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Add),
-                    new CodeMatch(OpCodes.Stfld))
-            .Repeat(matcher2 =>
-            {
-                // c# 144 IL 686
-                if(RemOrderCounter == 0)
-                {
-                    matcher2
-                        .Advance(1)
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 5))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 4))
-                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
-                        {
-                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                            {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
-                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
-                                for (int i = 0; i < subscribers.Count; i++)
-                                {
-                                    subscribers[i].SendPacket(packet);
-                                }
-                            }
-                            return 0;
-                        }))
-                        .Insert(new CodeInstruction(OpCodes.Pop));
-                    RemOrderCounter++;
-                }
-                // c# 229 IL 1230
-                else if(RemOrderCounter == 1)
-                {
-                    matcher2
-                        .Advance(1)
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 14))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 23))
-                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
-                        {
-                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                            {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
-                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
-                                for (int i = 0; i < subscribers.Count; i++)
-                                {
-                                    subscribers[i].SendPacket(packet);
-                                }
-                            }
-                            return 0;
-                        }))
-                        .Insert(new CodeInstruction(OpCodes.Pop));
-                    RemOrderCounter++;
-                }
-                // c# 861 IL 4242
-                else if(RemOrderCounter == 2)
-                {
-                    matcher2
-                        .Advance(1)
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 135))
-                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
-                        {
-                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
-                            {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
-                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
-                                for (int i = 0; i < subscribers.Count; i++)
-                                {
-                                    subscribers[i].SendPacket(packet);
-                                }
-                            }
-                            return 0;
-                        }))
-                        .Insert(new CodeInstruction(OpCodes.Pop));
-                    RemOrderCounter++;
-                }
-            }
-            )
-            .InstructionEnumeration();
-
-            // c# 294 IL 1531
-            instructions = new CodeMatcher(instructions)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldarg_S),
-                    new CodeMatch(OpCodes.Add),
                     new CodeMatch(OpCodes.Stfld))
                 .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSShipItems packet = new ILSShipItems(false, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
+                        LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+
+            // inofficial TakeItem calls at c# 219, c# 336
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Repeat(matcher =>
+                {
+                    if (TakeItemCounter == 0)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 27))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 34))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
+                                LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop))
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Pop));
+
+                        TakeItemCounter++;
+                    }
+                    else if (TakeItemCounter == 1)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 46))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 47))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
+                                LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop))
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                            }
+                            return 0;
+                        }))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Pop));
+
+                        TakeItemCounter++;
+                    }
+                })
+                .InstructionEnumeration();
+
+            // inofficial TakeItem calls at c# 995
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "count")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 142))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 143))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
+                        LocalPlayer.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+
+            // remoteOrder changes
+            // c# 209, c# 326
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Repeat(matcher =>
+                {
+                    if(RemOrderCounter == 0)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 28))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter++;
+                    }
+                    else if(RemOrderCounter == 1)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 38))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 46))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter++;
+                    }
+                })
+                .InstructionEnumeration();
+            // c# 408
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldarg_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 4))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
                         List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
-                        for(int i = 0; i < subscribers.Count; i++)
+                        for (int i = 0; i < subscribers.Count; i++)
                         {
                             subscribers[i].SendPacket(packet);
                         }
@@ -545,30 +542,31 @@ namespace NebulaPatcher.Patches.Transpilers
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
-
-            // #c 297 IL 1541
+            // c# 415
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
                     new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldind_I4),
                     new CodeMatch(OpCodes.Ldarg_S),
                     new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld))
+                    new CodeMatch(OpCodes.Stind_I4))
                 .Advance(1)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 14))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 4))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 38))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
                         List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
-                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.supplyIndex, stationComponent.storage[supplyDemandPair.supplyIndex].remoteOrder);
-                        for(int i = 0; i < subscribers.Count; i++)
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                        for (int i = 0; i < subscribers.Count; i++)
                         {
                             subscribers[i].SendPacket(packet);
                         }
@@ -576,108 +574,170 @@ namespace NebulaPatcher.Patches.Transpilers
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
-                .InstructionEnumeration();
-
-            // c# 358 IL 1758
-            instructions = new CodeMatcher(instructions)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld))
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 34))
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
-                        if(index > 4)
-                        {
-                            // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
-                            return 0;
-                        }
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
-                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
-                        for(int i = 0; i < subscribers.Count; i++)
-                        {
-                            subscribers[i].SendPacket(packet);
-                        }
+                        LocalPlayer.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
                 }))
-                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
-
+            // c# 480, c# 948, c# 1033
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
                     new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldind_I4),
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld))
-                .Repeat(matcher3 =>
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Repeat(matcher =>
                 {
-                    // c# 818 IL 4062 AND c# 877 IL 4309
-                    if (RemOrderCounter2 == 0 || RemOrderCounter2 == 1)
+                    if(RemOrderCounter2 == 0)
                     {
-                        matcher3
-                            .Advance(1)
-                            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 130), // get stationComponent3
-                                        new CodeInstruction(OpCodes.Ldarg_0), // get this ptr
-                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")), // get workShipOrders[] from this ptr
-                                        new CodeInstruction(OpCodes.Ldloc_S, 34), // get loop iterator j
-                                        new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)), // get RemoteLogisticOrder from this.workShipOrders[j]
-                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex"))) // get this.workShipOrders[j].otherIndex
-                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 50),
+                                            new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                             {
-                                if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                                if (index > 4)
                                 {
-                                    if (index > 4)
-                                    {
-                                        // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
-                                        return 0;
-                                    }
-                                    List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
-                                    ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
-                                    for (int i = 0; i < subscribers.Count; i++)
-                                    {
-                                        subscribers[i].SendPacket(packet);
-                                    }
+                                    // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
+                                    return 0;
                                 }
-                                return 0;
-                            }))
-                            .Insert(new CodeInstruction(OpCodes.Pop));
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter2++;
+                    }
+                    else if(RemOrderCounter2 == 1)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 50),
+                                            new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex")))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                if (index > 4)
+                                {
+                                    // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
+                                    return 0;
+                                }
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
+                        RemOrderCounter2++;
+                    }
+                    else if(RemOrderCounter2 == 2)
+                    {
+                        matcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldloc_S, 50),
+                                            new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex")))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
+                        {
+                            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                            {
+                                if (index > 4)
+                                {
+                                    // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
+                                    return 0;
+                                }
+                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
+                                for (int i = 0; i < subscribers.Count; i++)
+                                {
+                                    subscribers[i].SendPacket(packet);
+                                }
+                            }
+                            return 0;
+                        }))
+                        .Insert(new CodeInstruction(OpCodes.Pop));
+
                         RemOrderCounter2++;
                     }
                 })
                 .InstructionEnumeration();
-
-            // c# 886 IL 4368
+            // c# 1007
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 142))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
+                        for (int i = 0; i < subscribers.Count; i++)
+                        {
+                            subscribers[i].SendPacket(packet);
+                        }
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 1046
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
@@ -688,21 +748,22 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda),
                     new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldind_I4),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Add),
-                    new CodeMatch(OpCodes.Stfld))
+                    new CodeMatch(OpCodes.Stind_I4))
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 34),
+                                    new CodeInstruction(OpCodes.Ldloc_S, 50),
                                     new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                 {
-                    if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
                         if (index > 4)
                         {
@@ -711,7 +772,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         }
                         List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
-                        for(int i = 0; i < subscribers.Count; i++)
+                        for (int i = 0; i < subscribers.Count; i++)
                         {
                             subscribers[i].SendPacket(packet);
                         }
@@ -720,35 +781,107 @@ namespace NebulaPatcher.Patches.Transpilers
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
-            // END: transpilers to catch StationStore::remoteOrder changes
+            // end remoteOrder changes
 
-            // START: transpilers to catch ShipData.warperCnt++ and stationComponent3.warperCount--;
-            // c# 807 IL 4011
+            // shipData.warperCnt changes begin
+            // c# 590
             instructions = new CodeMatcher(instructions)
-                .MatchForward(false,
+                .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
                     new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
+                {
+                    if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 930
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
                     new CodeMatch(OpCodes.Ldc_I4_1),
                     new CodeMatch(OpCodes.Add),
-                    new CodeMatch(OpCodes.Stfld),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                    }
+                    return 0;
+                }))
+                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // shipData.warperCnt changes end
+
+            // StationComponent warperCount changes
+            // c# 16
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), "warperCount")))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
+                {
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount, true));
+                    }
+                    return 0;
+                }))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+                .InstructionEnumeration();
+            // c# 931
+            instructions = new CodeMatcher(instructions)
+                .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Dup),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
                     new CodeMatch(OpCodes.Ldc_I4_1),
                     new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                    new CodeInstruction(OpCodes.Ldloca_S, 35))
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), "warperCount")))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
                 {
-                    LocalPlayer.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount));
-                    LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    {
+                        LocalPlayer.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount));
+                    }
                     return 0;
                 }))
-                .Insert(new CodeInstruction(OpCodes.Pop))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
-            // END: transpilers to catch ShipData.warperCnt++
+            // StationComponent warperCount changes end
+
+            // energy consumption start
+            // c# 221, c# 338, c# 420 (weey)
+            /*
+             * energy consumption transpiler moved up because for whatever reason it did not work as standalone here.
+             */
+            // energy consumption end
 
             return instructions;
         }
@@ -761,7 +894,7 @@ namespace NebulaPatcher.Patches.Transpilers
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
 
-                // find begin of ship movement computation, c# 309 IL 1599
+                // find begin of ship movement computation, c# 428 IL 2075
                 int origShipUpdateCodeBeginPos = new CodeMatcher(instructions)
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Ldarg_3),
@@ -791,7 +924,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // remove c# 352 - 369 IL 118B - 12DA (which is just after the first addItem() call)
+                // remove c# 470 - 493 IL 2201 - 2353 (which is just after the first addItem() call)
                 int origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
@@ -806,13 +939,13 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 matcher.Start()
                     .Advance(origTempBlockIndexStart + 1);
-                for(; matcher.Pos < origTempBlockIndexEnd/* - 4*/;) // note the -4 index here to still include j-- (only if we decrease workShipCount here too)
+                for(; matcher.Pos < origTempBlockIndexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher.InstructionEnumeration();
-
-                // remove c# 814 - 862 IL 4039 - 4248 (TODO: and fetch data from server)
+                
+                // remove c# 937 - 1014 IL 4548 - 4921 (TODO: and fetch data from server)
                 origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"),
@@ -821,7 +954,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldc_I4_0),
                         new CodeMatch(OpCodes.Stfld),
                         new CodeMatch(OpCodes.Ldarg_0))
-                    .Pos;
+                    .Pos - 3; // to also remove 'shipData.itemCount = 0;'
                 origTempBlockIndexEnd = new CodeMatcher(instructions)
                     .Advance(origTempBlockIndexStart)
                     .MatchForward(false,
@@ -834,14 +967,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                // now remove the rest of the for loop as it is after the OpCodes.Br for some reason
-                // c# 837 - 842 IL 4250 - 4261
-                matcher.Advance(1);
-                for(int i = 0; i < 12; i++)
-                {
-                    matcher.SetAndAdvance(OpCodes.Nop, null);
-                }
-                instructions = matcher.InstructionEnumeration();
 
                 // remove addItem() calls
                 instructions = new CodeMatcher(instructions)
@@ -854,11 +979,11 @@ namespace NebulaPatcher.Patches.Transpilers
                     .SetAndAdvance(OpCodes.Pop, null)
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                     .InstructionEnumeration();
-
-                // remove c# 865 - 891 IL 4266 - 4377 (TODO: and fetch data from server) (NOTE: this does also remove the TakeItem() call)
+                
+                // remove c# 1019 - 1049 IL 4923 - 5069 (TODO: and fetch data from server) (NOTE: this does also remove the TakeItem() call)
                 origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(false,
-                        new CodeMatch(OpCodes.Ldloca_S),
+                        new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldfld),
                         new CodeMatch(OpCodes.Stloc_S),
                         new CodeMatch(OpCodes.Ldarg_S),
@@ -867,17 +992,18 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldloca_S),
                         new CodeMatch(OpCodes.Ldloca_S),
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
-                    .Pos;
+                    .Pos + 1; // to exclude the Br opcode from vanishing
                 origTempBlockIndexEnd = new CodeMatcher(instructions)
                     .Advance(origTempBlockIndexStart)
                     .MatchForward(true,
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldelema),
+                        new CodeMatch(OpCodes.Ldflda),
                         new CodeMatch(OpCodes.Dup),
-                        new CodeMatch(OpCodes.Ldfld),
+                        new CodeMatch(OpCodes.Ldind_I4),
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Add),
-                        new CodeMatch(OpCodes.Stfld))
+                        new CodeMatch(OpCodes.Stind_I4))
                     .Advance(1)
                     .Pos;
 
@@ -889,79 +1015,42 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // insert patch to avoid NRE mentioned in issue 59 (gStationPool[shipData.otherGId] == null results in NRE)
-                // in case we exit out we still need to call ShipRenderersOnTick() as the ships of this StationComponent would be invisible
-                Label jmpLabelDelegate;
-                CodeMatcher matcher3 = new CodeMatcher(instructions, il)
-                    .MatchForward(true,
-                        new CodeMatch(OpCodes.Ldarg_S),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Ldelema),
-                        new CodeMatch(OpCodes.Ldobj),
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Ldc_I4_0),
-                        new CodeMatch(OpCodes.Ble))
-                .Advance(1)
-                // load the StationComponent out of gStationPool[]
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 6), // load gStationPool[]
-                                    new CodeInstruction(OpCodes.Ldloca_S, 35), // load shipData
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")), // load shipData.otherGId
-                                    new CodeInstruction(OpCodes.Ldelem_Ref)); // load gStationPool[shipData.otherGId]
-                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0), // insert call to ShipRenderersOnTick() to not hide any ships :)
-                                            new CodeInstruction(OpCodes.Ldarg_S, 7),
-                                            new CodeInstruction(OpCodes.Ldarg_S, 8),
-                                            new CodeInstruction(OpCodes.Ldarg_S, 9),
-                                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StationComponent), "ShipRenderersOnTick", new Type[] { typeof(AstroPose[]), typeof(VectorLF3), typeof(Quaternion) })),
-                                            new CodeInstruction(OpCodes.Ret)); // exit out of original function
-                matcher3.CreateLabelAt(matcher3.Pos, out jmpLabelDelegate); // create a label pointing behind the injected code
-                matcher3.Advance(-6); // go back to insert jmp
-                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabelDelegate)); // if object is NOT null jump to the vanilla code
-                instructions = matcher3.InstructionEnumeration();
-
-                // remmove c# 807 and 808 (adding warper from station to ship) IL 4011-4022
-                matcher3.Start();
-                matcher3.MatchForward(false,
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "warperCnt")),
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Add),
-                    new CodeMatch(OpCodes.Stfld),
+                // remove weird code thats left over after cut out from above
+                matcher.Advance(2);
+                for(int i = 0; i < 4; i++)
+                {
+                    matcher.SetAndAdvance(OpCodes.Nop, null);
+                }
+                instructions = matcher.InstructionEnumeration();
+                
+                // remove c# 928 - 932 (adding warper from station to ship)
+                //matcher3.Start();
+                CodeMatcher matcher3 = new CodeMatcher(instructions, il);
+                int indexStart = matcher3.MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_S),
+                    new CodeMatch(OpCodes.Stloc_S),
+                    new CodeMatch(OpCodes.Ldc_I4_0),
+                    new CodeMatch(OpCodes.Stloc_S),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld));
-                for(int i = 0; i < 12; i++)
+                    new CodeMatch(OpCodes.Ldloca_S))
+                    .Pos;
+                int indexEnd = matcher3.MatchForward(true,
+                    new CodeMatch(OpCodes.Stind_I4),
+                    new CodeMatch(OpCodes.Leave),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Brfalse),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Endfinally))
+                    .Pos;
+                matcher3.Start();
+                matcher3.Advance(indexStart);
+                for(;matcher3.Pos < indexEnd;)
                 {
                     matcher3.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher3.InstructionEnumeration();
-
-                // insert debugging delegate (at the start of the while loop)
-                instructions = new CodeMatcher(instructions)
-                    .MatchForward(true,
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Br),
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldelema),
-                        new CodeMatch(OpCodes.Ldobj))
-                    .Advance(1)
-                    //.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 34)) //load j
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<ShipData, ShipData>>(shipData =>
-                    {
-                        //Debug.Log(shipData.stage + " " + shipData.direction + " " + shipData.t + " " + shipData.uVel + " " + shipData.uPos);
-                        return shipData;
-                    }))
-                    //.InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
-                    .InstructionEnumeration();
-
+                
                 return instructions;
             }
 

@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.factoryIndex, __instance.assemblerId, 0));
+                LocalPlayer.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id, __instance.assemblerId, 0));
             }
         }
 
@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.factoryIndex, __instance.assemblerId, recipe.ID));
+                LocalPlayer.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id, __instance.assemblerId, recipe.ID));
             }
         }
 
@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new AssemblerUpdateProducesPacket(0, __instance.factorySystem.assemblerPool[__instance.assemblerId].produced[0], GameMain.data.localPlanet.factoryIndex, __instance.assemblerId));
+                LocalPlayer.SendPacketToLocalStar(new AssemblerUpdateProducesPacket(0, __instance.factorySystem.assemblerPool[__instance.assemblerId].produced[0], GameMain.data.localPlanet.id, __instance.assemblerId));
             }
         }
 
@@ -43,7 +43,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new AssemblerUpdateProducesPacket(1, __instance.factorySystem.assemblerPool[__instance.assemblerId].produced[1], GameMain.data.localPlanet.factoryIndex, __instance.assemblerId));
+                LocalPlayer.SendPacketToLocalStar(new AssemblerUpdateProducesPacket(1, __instance.factorySystem.assemblerPool[__instance.assemblerId].produced[1], GameMain.data.localPlanet.id, __instance.assemblerId));
             }
         }
 
@@ -62,7 +62,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 update[i] = assemblerStorage.grids[i].count;
             }
-            LocalPlayer.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(update, GameMain.data.localPlanet.factoryIndex, __instance.assemblerId));
+            LocalPlayer.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(update, GameMain.data.localPlanet.id, __instance.assemblerId));
         }
     }
 }
