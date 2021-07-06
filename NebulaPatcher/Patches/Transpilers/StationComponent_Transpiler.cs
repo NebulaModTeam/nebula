@@ -8,7 +8,6 @@ using NebulaModel.Packets.Logistics;
 using UnityEngine;
 using System;
 using NebulaModel.Networking;
-using NebulaModel.Logger;
 
 // thanks tanu and Therzok for the tipps!
 namespace NebulaPatcher.Patches.Transpilers
@@ -1023,41 +1022,6 @@ namespace NebulaPatcher.Patches.Transpilers
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher.InstructionEnumeration();
-                
-                /*
-                // 0.7.x This is at line 561 now
-                // insert patch to avoid NRE mentioned in issue 59 (gStationPool[shipData.otherGId] == null results in NRE)
-                // in case we exit out we still need to call ShipRenderersOnTick() as the ships of this StationComponent would be invisible
-                Label jmpLabelDelegate;
-                CodeMatcher matcher3 = new CodeMatcher(instructions, il)
-                    .MatchForward(true,
-                        new CodeMatch(OpCodes.Ldarg_S),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Ldelema),
-                        new CodeMatch(OpCodes.Ldobj),
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Ldc_I4_0),
-                        new CodeMatch(OpCodes.Ble))
-                .Advance(1)
-                // load the StationComponent out of gStationPool[]
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 6), // load gStationPool[]
-                                    new CodeInstruction(OpCodes.Ldloca_S, 35), // load shipData
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")), // load shipData.otherGId
-                                    new CodeInstruction(OpCodes.Ldelem_Ref)); // load gStationPool[shipData.otherGId]
-                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0), // insert call to ShipRenderersOnTick() to not hide any ships :)
-                                            new CodeInstruction(OpCodes.Ldarg_S, 7),
-                                            new CodeInstruction(OpCodes.Ldarg_S, 8),
-                                            new CodeInstruction(OpCodes.Ldarg_S, 9),
-                                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StationComponent), "ShipRenderersOnTick", new Type[] { typeof(AstroPose[]), typeof(VectorLF3), typeof(Quaternion) })),
-                                            new CodeInstruction(OpCodes.Ret)); // exit out of original function
-                matcher3.CreateLabelAt(matcher3.Pos, out jmpLabelDelegate); // create a label pointing behind the injected code
-                matcher3.Advance(-6); // go back to insert jmp
-                matcher3.InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabelDelegate)); // if object is NOT null jump to the vanilla code
-                instructions = matcher3.InstructionEnumeration();
-                */
                 
                 // remove c# 928 - 932 (adding warper from station to ship)
                 //matcher3.Start();
