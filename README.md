@@ -40,7 +40,7 @@ Here is a short list of what is currently implemented
 - [x] Drones position syncing
 - [x] Foundation syncing (terrain deformation)
 - [x] Server state persistence
-- [ ] Power network syncing
+- [x] Power network syncing
 
 ## How can I contribute
 
