@@ -157,6 +157,21 @@ namespace NebulaHost
             }
         }
 
+        public void SendPacketToStarExcept<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                foreach(var kvp in connectedPlayers)
+                {
+                    var player = kvp.Value;
+                    if(player.Data.LocalStarId == starId && player != GetPlayer(exclude))
+                    {
+                        player.SendPacket(packet);
+                    }
+                }
+            }
+        }
+
         public void SendRawPacketToStar(byte[] rawPacket, int starId, NebulaConnection sender)
         {
             using (GetConnectedPlayers(out var connectedPlayers))

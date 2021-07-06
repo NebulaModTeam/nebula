@@ -154,6 +154,11 @@ namespace NebulaClient
             throw new NotImplementedException();
         }
 
+        public void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Reconnect()
         {
             SimulatedWorld.Clear();

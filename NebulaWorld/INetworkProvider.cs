@@ -1,4 +1,6 @@
-﻿namespace NebulaWorld
+﻿using NebulaModel.Networking;
+
+namespace NebulaWorld
 {
     public interface INetworkProvider
     {
@@ -10,6 +12,7 @@
 
         void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new();
         void SendPacketToStar<T>(T packet, int starId) where T : class, new();
+        void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new();
 
         void DestroySession();
     }

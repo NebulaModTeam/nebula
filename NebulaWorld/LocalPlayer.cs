@@ -90,6 +90,11 @@ namespace NebulaWorld
             networkProvider?.SendPacketToStar(packet, starId);
         }
 
+        public static void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            networkProvider?.SendPacketToStarExclude(packet, starId, exclude);
+        }
+
         public static void SetReady()
         {
 

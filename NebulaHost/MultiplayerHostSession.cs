@@ -120,6 +120,11 @@ namespace NebulaHost
             PlayerManager.SendPacketToStar(packet, starId);
         }
 
+        public void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        {
+            PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
+        }
+
         private void Update()
         {
             gameStateUpdateTimer += Time.deltaTime;
