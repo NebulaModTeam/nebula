@@ -41,7 +41,7 @@ namespace NebulaWorld.Factory
                 PlanetFactory tmpFactory = null;
                 NearColliderLogic tmpNearcdLogic = null;
                 PlanetPhysics tmpPlanetPhysics = null;
-                bool loadExternalPlanetData = GameMain.localPlanet != planet;
+                bool loadExternalPlanetData = GameMain.localPlanet?.id != planet.id;
 
                 if (loadExternalPlanetData)
                 {
@@ -49,6 +49,11 @@ namespace NebulaWorld.Factory
                     tmpFactory = buildTool.factory;
                     tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
                     tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
+                    planet.physics = new PlanetPhysics(planet);
+                    planet.physics.Init();
+                    planet.aux = new PlanetAuxData(planet);
+                    planet.audio = new PlanetAudio(planet);
+                    planet.audio.Init();
                 }
 
                 //Create Prebuilds from incoming packet and prepare new position
@@ -56,17 +61,6 @@ namespace NebulaWorld.Factory
                 tmpList.AddRange(buildTool.buildPreviews); buildTool.buildPreviews.Clear();
                 buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 FactoryManager.EventFactory = planet.factory;
-
-                //Check if some mandatory variables are missing
-                if (planet.physics == null || planet.physics.colChunks == null)
-                {
-                    planet.physics = new PlanetPhysics(planet);
-                    planet.physics.Init();
-                }
-                if (planet.aux == null)
-                {
-                    planet.aux = new PlanetAuxData(planet);
-                }
 
                 //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
                 buildTool.factory = planet.factory;
@@ -113,14 +107,12 @@ namespace NebulaWorld.Factory
                     buildTool.factory = tmpFactory;
                     pab.factory = tmpFactory;
                     pab.noneTool.factory = tmpFactory;
-
-                    if (FactoryManager.EventFromClient)
-                    {
-                        pab.planetPhysics = tmpPlanetPhysics;
-                        pab.nearcdLogic = tmpNearcdLogic;
-                        planet.physics.Free();
-                        planet.physics = null;
-                    }
+                    pab.planetPhysics = tmpPlanetPhysics;
+                    pab.nearcdLogic = tmpNearcdLogic;
+                    planet.physics.Free();
+                    planet.physics = null;
+                    planet.audio.Free();
+                    planet.audio = null;
                 }
 
                 GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
