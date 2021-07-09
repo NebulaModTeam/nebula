@@ -4,7 +4,7 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Processors;
 using NebulaWorld.Factory;
 
-namespace NebulaClient.PacketProcessors.Factory
+namespace NebulaClient.PacketProcessors.Factory.Entity
 {
     // Processes pasting settings (e.g. item to make in an assembler) onto buildings events
     [RegisterPacketProcessor]

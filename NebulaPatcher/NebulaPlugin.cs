@@ -4,17 +4,17 @@ using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using System;
+using System.IO;
+using System.Reflection;
 using UnityEngine;
 
 namespace NebulaPatcher
 {
-    [BepInPlugin("dsp.nebula-multiplayer", "Nebula - Multiplayer Mod", "0.2.0.0")]
+    [BepInPlugin(PluginInfo.PLUGIN_ID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency("dsp.galactic-scale.2", BepInDependency.DependencyFlags.SoftDependency)] // to load after GS2
     [BepInProcess("DSPGAME.exe")]
     public class NebulaPlugin : BaseUnityPlugin
     {
-        Harmony harmony = new Harmony("dsp.nebula-multiplayer");
-
         void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
@@ -44,15 +44,23 @@ namespace NebulaPatcher
 
             try
             {
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                foreach (var assembly in assemblies)
+                Log.Info($"Applying patches from assembly: {Assembly.GetExecutingAssembly().FullName}");
+#if DEBUG
+                if (Directory.Exists("./mmdump"))
                 {
-                    if (assembly.FullName.StartsWith("NebulaPatcher"))
+                    foreach (FileInfo file in new DirectoryInfo("./mmdump").GetFiles())
                     {
-                        Log.Info($"Applying patches from assembly: {assembly.FullName}");
-                        harmony.PatchAll(assembly);
+                        file.Delete();
                     }
+
+                    Environment.SetEnvironmentVariable("MONOMOD_DMD_TYPE", "cecil");
+                    Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "./mmdump");
                 }
+#endif
+                Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginInfo.PLUGIN_ID);
+#if DEBUG
+                Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "");
+#endif
 
                 Log.Info("Patching completed successfully");
             }
