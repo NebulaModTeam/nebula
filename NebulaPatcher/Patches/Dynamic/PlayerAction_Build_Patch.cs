@@ -12,10 +12,16 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlayerAction_Build.SetFactoryReferences))]
         public static bool SetFactoryReferences_Prefix()
         {
+            if(!SimulatedWorld.Initialized)
+            {
+                return true;
+            }
+
             if((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
             {
                 return false;
             }
+
             return true;
         }
     }
