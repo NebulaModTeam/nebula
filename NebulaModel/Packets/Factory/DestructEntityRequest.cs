@@ -4,14 +4,16 @@
     {
         public int PlanetId { get; set; }
         public int ObjId { get; set; }
+        public int ProtoId { get; set; }
         public int AuthorId { get; set; }
 
         public DestructEntityRequest() { }
-        public DestructEntityRequest(int planetId, int objId, int authorId)
+        public DestructEntityRequest(int planetId, int objId, int protoId, int authorId)
         {
             AuthorId = authorId;
             PlanetId = planetId;
             ObjId = objId;
+            ProtoId = protoId;
         }
     }
 }

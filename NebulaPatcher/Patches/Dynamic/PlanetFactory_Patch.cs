@@ -83,6 +83,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 FactoryManager.RemovePrebuildRequest(__instance.planetId, -objId);
             }
 
+            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            {
+                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.planetId, objId, protoId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+            }
+
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
