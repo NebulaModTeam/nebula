@@ -1,67 +1,78 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
+using HarmonyLib;
 using NebulaModel.Logger;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
+using System.Reflection;
 
 namespace NebulaModel
 {
     public static class Config
     {
         private const string OPTION_SAVE_FILE = "nebula.cfg";
+        private const string SECTION_NAME = "Nebula - Settings";
 
         public static PluginInfo ModInfo { get; set; }
         public static string ModVersion => ThisAssembly.AssemblyInformationalVersion;
         public static MultiplayerOptions Options { get; set; }
 
+        private static ConfigFile configFile;
+
         public static bool LoadOptions()
         {
             Options = new MultiplayerOptions();
 
-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), GameConfig.gameName, OPTION_SAVE_FILE);
-            if (File.Exists(path))
+            try
             {
-                try
+                configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, OPTION_SAVE_FILE), true);
+
+                List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
+                foreach (PropertyInfo prop in properties)
                 {
-                    var formatter = new BinaryFormatter();
-                    using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
-                    {
-                        Options = (MultiplayerOptions)formatter.Deserialize(stream);
-                    }
-                }
-                catch(System.Exception e)
-                {
-                    Log.Error($"Could not load {OPTION_SAVE_FILE}", e);
-                    return false;
+                    MethodInfo configBindMethod = typeof(ConfigFile)
+                        .GetMethods()
+                        .Where(m => m.Name == nameof(ConfigFile.Bind))
+                        .First(m => m.IsGenericMethod && m.GetParameters().Length == 4)
+                        .MakeGenericMethod(prop.PropertyType);
+
+                    object entry = configBindMethod.Invoke(configFile,
+                        new object[] { SECTION_NAME, prop.Name, prop.GetValue(Options), null });
+
+                    Type entryType = typeof(ConfigEntry<>).MakeGenericType(prop.PropertyType);
+                    prop.SetValue(Options, AccessTools.Property(entryType, "Value").GetValue(entry));
                 }
             }
-            
+            catch (Exception e)
+            {
+                Log.Error($"Could not load {OPTION_SAVE_FILE}", e);
+                return false;
+            }
+
             return true;
         }
 
         public static bool SaveOptions()
         {
-            if (Options == null)
-            {
-                Log.Error($"Cannot save {OPTION_SAVE_FILE}, is null");
-                return false;
-            }
-
-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), GameConfig.gameName, OPTION_SAVE_FILE);
             try
             {
-                var formatter = new BinaryFormatter();
-                using (Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+                List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
+                foreach (PropertyInfo prop in properties)
                 {
-                    formatter.Serialize(stream, Options);
+                    ConfigDefinition key = new ConfigDefinition(SECTION_NAME, prop.Name);
+                    configFile[key].BoxedValue = prop.GetValue(Options);
                 }
-                return true;
+                configFile.Save();
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Log.Error($"Could not load {OPTION_SAVE_FILE}", e);
                 return false;
             }
+
+            return true;
         }
     }
 }
