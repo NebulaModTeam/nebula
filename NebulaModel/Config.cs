@@ -30,15 +30,14 @@ namespace NebulaModel
                 configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, OPTION_SAVE_FILE), true);
 
                 List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
+                MethodInfo configBindMethod = typeof(ConfigFile)
+                    .GetMethods()
+                    .Where(m => m.Name == nameof(ConfigFile.Bind))
+                    .First(m => m.IsGenericMethod && m.GetParameters().Length == 4);
+
                 foreach (PropertyInfo prop in properties)
                 {
-                    MethodInfo configBindMethod = typeof(ConfigFile)
-                        .GetMethods()
-                        .Where(m => m.Name == nameof(ConfigFile.Bind))
-                        .First(m => m.IsGenericMethod && m.GetParameters().Length == 4)
-                        .MakeGenericMethod(prop.PropertyType);
-
-                    object entry = configBindMethod.Invoke(configFile,
+                    object entry = configBindMethod.MakeGenericMethod(prop.PropertyType).Invoke(configFile,
                         new object[] { SECTION_NAME, prop.Name, prop.GetValue(Options), null });
 
                     Type entryType = typeof(ConfigEntry<>).MakeGenericType(prop.PropertyType);
