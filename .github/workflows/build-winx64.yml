@@ -19,6 +19,7 @@ jobs:
 
     env:
       Solution_Name: Nebula.sln
+      Nebula_Path: C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula\
 
     steps:
     - name: Checkout
@@ -29,22 +30,39 @@ jobs:
         
     - name: Clear output directory in DSP files
       # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
-      run: rm -R -ErrorAction SilentlyContinue "C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula"
+      run: rm -R -ErrorAction SilentlyContinue "${{ env.Nebula_Path }}"
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
+
+    # Calculate SHA7
+    - id: SHA7
+      uses: benjlevesque/short-sha@v1.2
+      with:
+        length: 7
 
     # Build it
     - name: Build the application
       run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
+      
+    # Move Nebula in one subfolder so that the root of the uploaded zip is "Nebula/"
+    - name: Move Nebula directory
+      run: |
+        mv "${{ env.Nebula_Path }}\*" "${{ env.Nebula_Path }}\Nebula\"
 
     # Upload it to the run results
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
+      uses: actions/upload-artifact@v2.2.4
       with:
         # Artifact name
-        name: build-artifacts-${{ matrix.configuration }}
-        path: C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula
+        name: build-artifacts-${{ steps.SHA7.outputs.sha }}-${{ matrix.configuration }}
+        path: "${{ env.Nebula_Path }}"
+
+    # Move Nebula directory back
+    - name: Undo Move Nebula directory
+      run: |
+        mv "${{ env.Nebula_Path }}\Nebula\*" "${{ env.Nebula_Path }}\"
+        rm "${{ env.Nebula_Path }}\Nebula"
