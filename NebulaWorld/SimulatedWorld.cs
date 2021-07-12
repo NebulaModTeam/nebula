@@ -469,6 +469,7 @@ namespace NebulaWorld
         {
             // Make a copy of the "Icarus" text from the starmap
             Text starmap_playerNameText = (Text)AccessTools.Field(typeof(UIStarmap), "playerNameText").GetValue(starmap);
+            Transform starmap_playerTrack = (Transform)AccessTools.Field(typeof(UIStarmap), "playerTrack").GetValue(starmap);
 
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -477,11 +478,11 @@ namespace NebulaWorld
                     RemotePlayerModel playerModel = player.Value;
 
                     Text nameText;
-                    Text starmapMarker;
-                    if (playerModel.StarmapNameText != null && playerModel.StarmapMarker != null)
+                    Transform starmapTracker;
+                    if (playerModel.StarmapNameText != null && playerModel.StarmapTracker != null)
                     {
                         nameText = playerModel.StarmapNameText;
-                        starmapMarker = playerModel.StarmapMarker;
+                        starmapTracker = playerModel.StarmapTracker;
                     }
                     else
                     {
@@ -490,11 +491,9 @@ namespace NebulaWorld
                         nameText.text = $"{ playerModel.Username }";
                         nameText.gameObject.SetActive(true);
 
-                        // Make another copy of it, but just replace it with a point to represent their location
-                        starmapMarker = playerModel.StarmapMarker = GameObject.Instantiate(starmap_playerNameText, starmap_playerNameText.transform.parent);
-                        starmapMarker.text = "•";
-                        starmapMarker.fontSize = nameText.fontSize * 4;
-                        starmapMarker.gameObject.SetActive(true);
+                        // Make an instance the player tracker object
+                        starmapTracker = playerModel.StarmapTracker = GameObject.Instantiate(starmap_playerTrack, starmap_playerTrack.parent);
+                        starmapTracker.gameObject.SetActive(true);
                     }
 
                     VectorLF3 adjustedVector;
@@ -524,12 +523,27 @@ namespace NebulaWorld
                     }
 
                     // Put the marker directly on the location of the player
-                    starmapMarker.rectTransform.anchoredPosition = rectPoint;
-                    starmapMarker.transform.localScale = Vector3.one;
+                    starmapTracker.position = adjustedVector;
+
+                    if (playerModel.Movement.localPlanetId > 0)
+                    {
+                        PlanetData planet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
+                        var rotation = planet.runtimeRotation * 
+                            Quaternion.LookRotation(playerModel.PlayerModelTransform.forward, playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToVector3());
+                        starmapTracker.rotation = rotation;
+                    }
+                    else
+                    {
+                        var rotation = Quaternion.LookRotation(playerModel.PlayerModelTransform.forward, playerModel.PlayerTransform.localPosition);
+                        starmapTracker.rotation = rotation;
+                    }
+
+                    starmapTracker.localScale = UIStarmap.isChangingToMilkyWay ? Vector3.zero : 
+                        Vector3.one * (starmap.screenCamera.transform.position - starmapTracker.position).magnitude;
 
                     // Put their name above or below it
-                    nameText.rectTransform.anchoredPosition = new Vector2(rectPoint.x, rectPoint.y + (rectPoint.y >= -350.0 ? -19f : 19f));
-                    nameText.transform.localScale = Vector3.one;
+                    nameText.rectTransform.anchoredPosition = new Vector2(rectPoint.x + (rectPoint.x > 600f ? -35 : 35), rectPoint.y + (rectPoint.y > -350.0 ? -19f : 19f));
+                    nameText.gameObject.SetActive(!UIStarmap.isChangingToMilkyWay);
                 }
             }
         }
@@ -542,11 +556,11 @@ namespace NebulaWorld
                 {
                     // Destroy the marker and name so they don't linger and cause problems
                     GameObject.Destroy(player.Value.StarmapNameText.gameObject);
-                    GameObject.Destroy(player.Value.StarmapMarker);
+                    GameObject.Destroy(player.Value.StarmapTracker.gameObject);
 
                     // Null them out so they can be recreated next time the map is opened
                     player.Value.StarmapNameText = null;
-                    player.Value.StarmapMarker = null;
+                    player.Value.StarmapTracker = null;
                 }
             }
         }
@@ -589,8 +603,6 @@ namespace NebulaWorld
                         // Copy the font over from the sail indicator
                         textMesh.font = uiSailIndicator_targetText.font;
                         meshRenderer.sharedMaterial = uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
-                        // Scale it down a little bit otherwise it looks too big when next to the player
-                        playerNameText.transform.localScale *= 0.6f;
 
                         playerNameText.SetActive(true);
                     }
@@ -607,6 +619,26 @@ namespace NebulaWorld
 
                     // Make sure the text is pointing at the camera
                     playerNameText.transform.rotation = GameCamera.main.transform.rotation;
+
+                    // Resizes the text based on distance from camera for better visual quality
+                    var distanceFromCamera = Vector3.Distance(playerNameText.transform.position, GameCamera.main.transform.position);
+                    var nameTextMesh = playerNameText.GetComponent<TextMesh>();
+
+                    if (distanceFromCamera > 100f)
+                    {
+                        nameTextMesh.characterSize = 0.2f;
+                        nameTextMesh.fontSize = 60;
+                    }
+                    else if (distanceFromCamera > 50f)
+                    {
+                        nameTextMesh.characterSize = 0.15f;
+                        nameTextMesh.fontSize = 48;
+                    }
+                    else
+                    {
+                        nameTextMesh.characterSize = 0.1f;
+                        nameTextMesh.fontSize = 36;
+                    }
                 }
             }
         }
