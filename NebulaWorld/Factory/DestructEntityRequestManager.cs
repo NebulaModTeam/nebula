@@ -18,11 +18,6 @@ namespace NebulaWorld.Factory
             // Physics could be null, if the host is not on the requested planet
             if (packet.PlanetId != GameMain.localPlanet?.id)
             {
-                planet.physics = new PlanetPhysics(planet);
-                planet.physics.Init();
-                planet.audio = new PlanetAudio(planet);
-                planet.audio.Init();
-
                 //Creating rendering batches is required to properly handle DestructFinally for the belts, since model needs to be changed.
                 //ToDo: Optimize it somehow, since creating and destroying rendering batches is not optimal.
                 planet.factory.cargoTraffic.CreateRenderingBatches();
@@ -37,10 +32,6 @@ namespace NebulaWorld.Factory
 
             if (packet.PlanetId != GameMain.localPlanet?.id)
             {
-                planet.physics.Free();
-                planet.physics = null;
-                planet.audio.Free();
-                planet.audio = null;
                 planet.factory.cargoTraffic.DestroyRenderingBatches();
             }
         }
