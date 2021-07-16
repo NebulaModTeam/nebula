@@ -232,6 +232,9 @@ namespace NebulaPatcher.Patches.Dynamic
                             __instance.chunks[i * 3 + 1] = r.ReadInt32();
                             __instance.chunks[i * 3 + 2] = r.ReadInt32();
                         }
+
+                        Quaternion lastFirstPreviousSurfaceRelativeRotation = new Quaternion();
+                        bool isThereALastFirstPreviousSurfaceRelativeRotation = false;
                         for (int j = 0; j < ___bufferLength; j++)
                         {
                             __instance.pointPos[j].x = r.ReadSingle();
@@ -239,17 +242,25 @@ namespace NebulaPatcher.Patches.Dynamic
                             __instance.pointPos[j].z = r.ReadSingle();
                             
                             var sameRelativeRotationAsPrevious = r.ReadBoolean();
+                            
                             if (sameRelativeRotationAsPrevious)
                             {
                                 Debug.Log($"Part {j} has same relative rotation as part {j - 1}");
 
+                                //  This ensures that the relative rotation is calculated using the first rotation of the chain (this prevents compounding presision loss)
+                                if (!isThereALastFirstPreviousSurfaceRelativeRotation)
+                                {
+                                    var previousPosition = __instance.pointPos[j - 1];
+                                    var previousRotation = __instance.pointRot[j - 1];
+
+                                    
+                                    lastFirstPreviousSurfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(previousPosition, Vector3.up)) * previousRotation;
+                                    isThereALastFirstPreviousSurfaceRelativeRotation = true;
+                                }
+
+
                                 var originalPosition = __instance.pointPos[j];
 
-                                var previousPosition = __instance.pointPos[j-1];
-                                var previousRotation = __instance.pointRot[j-1];
-
-                                // TODO: This needs to be based on the first previos rotation in the chain to prevent compounding presision loss
-                                var previousSurfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(previousPosition, Vector3.up)) * previousRotation;
 
                                 //var calculatedRotation = Quaternion.Inverse(previousSurfaceRelativeRotation) * Quaternion.LookRotation(originalPosition, Vector3.up);
                                 //var calculatedRotation = Quaternion.LookRotation(originalPosition, Vector3.up) * Quaternion.Inverse(previousSurfaceRelativeRotation);
@@ -258,7 +269,7 @@ namespace NebulaPatcher.Patches.Dynamic
                                 //var calculatedRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * Quaternion.Inverse(previousSurfaceRelativeRotation);
                                 //var calculatedRotation =  Quaternion.Inverse(previousSurfaceRelativeRotation) * Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up));
                                 //var calculatedRotation = previousSurfaceRelativeRotation * Quaternion.LookRotation(originalPosition, Vector3.up);
-                                var calculatedRotation =  Quaternion.LookRotation(originalPosition, Vector3.up) * previousSurfaceRelativeRotation;
+                                var calculatedRotation =  Quaternion.LookRotation(originalPosition, Vector3.up) * lastFirstPreviousSurfaceRelativeRotation;
 
                                 Debug.Log($"Calculated rotation: x {calculatedRotation.x} y {calculatedRotation.y} z {calculatedRotation.z} w {calculatedRotation.w}");
 
@@ -286,6 +297,8 @@ namespace NebulaPatcher.Patches.Dynamic
                                 __instance.pointRot[j].y = r.ReadSingle();
                                 __instance.pointRot[j].z = r.ReadSingle();
                                 __instance.pointRot[j].w = r.ReadSingle();
+
+                                isThereALastFirstPreviousSurfaceRelativeRotation = false;
                             }
 
                         }
