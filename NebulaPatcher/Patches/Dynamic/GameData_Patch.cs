@@ -7,6 +7,7 @@ using NebulaWorld.Logistics;
 using NebulaPatcher.Patches.Transpilers;
 using UnityEngine;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -271,6 +272,14 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("Destroy")]
+        public static void Destroy_Postfix()
+        {
+            PowerTowerManager.Energy.Clear();
+            PowerTowerManager.RequestsSent.Clear();
         }
     }
 }

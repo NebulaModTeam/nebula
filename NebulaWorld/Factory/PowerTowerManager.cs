@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using NebulaModel.Logger;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace NebulaWorld.Factory
 {
@@ -19,8 +21,8 @@ namespace NebulaWorld.Factory
             public bool Charging = false;
         }
 
-        public static Dictionary<int, List<EnergyMapping>> Energy = new Dictionary<int, List<EnergyMapping>>();
-        public static Dictionary<int, List<Requested>> RequestsSent = new Dictionary<int, List<Requested>>();
+        public static ConcurrentDictionary<int, List<EnergyMapping>> Energy = new ConcurrentDictionary<int, List<EnergyMapping>>();
+        public static ConcurrentDictionary<int, List<Requested>> RequestsSent = new ConcurrentDictionary<int, List<Requested>>();
 
         public static int ChargerCount = 0;
         public static int PlayerChargeAmount = 0;
@@ -99,9 +101,7 @@ namespace NebulaWorld.Factory
             req2.NodeId = NodeId;
 
             list.Add(req2);
-            RequestsSent.Add(PlanetId, list);
-
-            return true;
+            return RequestsSent.TryAdd(PlanetId, list);
         }
 
         public static bool DidRequest(int PlanetId, int NetId, int NodeId)
@@ -163,6 +163,7 @@ namespace NebulaWorld.Factory
                                 }
 
                                 mapping[i].Activated[j] = false;
+                                AddRequested(PlanetId, NetId, NodeId, false);
                             }
                         }
 
@@ -225,7 +226,11 @@ namespace NebulaWorld.Factory
                 map.ExtraPower = PowerAmount;
 
                 mapping2.Add(map);
-                Energy.Add(PlanetId, mapping2);
+                if (!Energy.TryAdd(PlanetId, mapping2))
+                {
+                    // if we failed to add then most likely because another thread was faster, so call this again to run the above part of the method.
+                    AddExtraDemand(PlanetId, NetId, NodeId, PowerAmount);
+                }
             }
         }
 
