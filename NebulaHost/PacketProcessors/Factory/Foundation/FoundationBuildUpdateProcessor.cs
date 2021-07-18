@@ -27,15 +27,7 @@ namespace NebulaHost.PacketProcessors.Factory.Foundation
                 factory.platformSystem.InitReformData();
             }
             
-            if (planet.physics == null || planet.physics.colChunks == null)
-            {
-                planet.physics = new PlanetPhysics(planet);
-                planet.physics.Init();
-            }
-            if (planet.aux == null)
-            {
-                planet.aux = new PlanetAuxData(planet);
-            }
+            FactoryManager.AddPlanetTimer(packet.PlanetId);
 
             //Perform terrain operation
             int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out reformCenterPoint);
