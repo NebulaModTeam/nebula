@@ -23,7 +23,7 @@ namespace NebulaClient.PacketProcessors.Factory.PowerTower
                     {
                         int baseDemand = factory.powerSystem.nodePool[packet.NodeId].workEnergyPerTick - factory.powerSystem.nodePool[packet.NodeId].idleEnergyPerTick;
                         float mult = factory.powerSystem.networkServes[packet.NetId];
-                        PowerTowerManager.PlayerChargeAmount = (int)(mult * (float)baseDemand);
+                        PowerTowerManager.PlayerChargeAmount += (int)(mult * (float)baseDemand);
                     }
                 }
                 else

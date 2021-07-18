@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Factory.PowerTower;
 using NebulaWorld;
 using NebulaWorld.Factory;
 
@@ -21,6 +22,21 @@ namespace NebulaPatcher.Patches.Dynamic
                 PowerTowerManager.GivePlayerPower();
                 PowerTowerManager.UpdateAllAnimations(__instance.planet.id);
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("RemoveNodeComponent")]
+        public static bool RemoveNodeComponent(PowerSystem __instance, int id)
+        {
+            if (SimulatedWorld.Initialized)
+            {
+                // as the destruct is synced accross players this event is too
+                // and as such we can safely remove power demand for every player
+                PowerNodeComponent pComp = __instance.nodePool[id];
+                PowerTowerManager.RemExtraDemand(__instance.planet.id, pComp.networkId, id);
+            }
+
+            return true;
         }
     }
 }

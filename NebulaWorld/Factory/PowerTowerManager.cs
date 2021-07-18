@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using NebulaModel.Logger;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace NebulaWorld.Factory
@@ -162,6 +163,7 @@ namespace NebulaWorld.Factory
                                 }
 
                                 mapping[i].Activated[j] = false;
+                                AddRequested(PlanetId, NetId, NodeId, false);
                             }
                         }
 
