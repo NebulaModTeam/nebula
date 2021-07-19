@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //    w.Write(__instance.inputPaths[l]);
             //}
 
-            var surfaceRelativeRotations = new Quaternion[___bufferLength];
+            
 
             //w.Write(0);
             // Set a special int that we will use to indentify wheter whe should process this normally or use custom optimized method
@@ -98,56 +98,24 @@ namespace NebulaPatcher.Patches.Dynamic
                 w.Write(__instance.chunks[i * 3 + 1]);
                 w.Write(__instance.chunks[i * 3 + 2]);
             }
+
+            // Write the positions
             for (int j = 0; j < ___bufferLength; j++)
             {
                 w.Write(__instance.pointPos[j].x);
                 w.Write(__instance.pointPos[j].y);
                 w.Write(__instance.pointPos[j].z);
-                //w.Write(__instance.pointRot[j].x);
-                //w.Write(__instance.pointRot[j].y);
-                //w.Write(__instance.pointRot[j].z);
-                //w.Write(__instance.pointRot[j].w);
+            }
+
+            // Write the rotations
+            var surfaceRelativeRotations = new Quaternion[___bufferLength];
+            for (int j = 0; j < ___bufferLength; j++)
+            {
 
                 var originalPosition = __instance.pointPos[j];
                 var originalRotation = __instance.pointRot[j];
-                //var surfaceRelativeRotation = originalRotation;
-                //surfaceRelativeRotation.SetLookRotation(Vector3.up, originalPosition);
                 var surfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * originalRotation;
                 surfaceRelativeRotations[j] = surfaceRelativeRotation;
-
-                //Debug.Log("bufferLength: " + ___bufferLength);
-                //Debug.Log(string.Concat(new object[]
-                //{
-                //"Exported position: x ",
-                //originalPosition.x,
-                //" y ",
-                //originalPosition.y,
-                //" z ",
-                //originalPosition.z
-                //}));
-                //Debug.Log(string.Concat(new object[]
-                //{
-                //"Exported rotation: x ",
-                //originalRotation.x,
-                //" y ",
-                //originalRotation.y,
-                //" z ",
-                //originalRotation.z,
-                //" w ",
-                //originalRotation.w
-                //}));
-
-                //Debug.Log(string.Concat(new object[]
-                //{
-                //"Relative to surface: ",
-                //originalRotation.x,
-                //originalRotation.y,
-                //originalRotation.z,
-                //originalRotation.w
-                //}));
-
-                //Debug.Log($"Original rotation: x {originalRotation.x} y {originalRotation.y} z {originalRotation.z} w {originalRotation.w}");
-                //Debug.Log($"Rotation relative to surface: x {surfaceRelativeRotation.x} y {surfaceRelativeRotation.y} z {surfaceRelativeRotation.z} w {surfaceRelativeRotation.w}");
 
                 // Code that adds the simmilairity flag
                 var hasRelativelySimmilairRotation = false;
@@ -171,10 +139,8 @@ namespace NebulaPatcher.Patches.Dynamic
                     w.Write(__instance.pointRot[j].w);
                 }
 
-                //Gizmos.color = Color.red;
-                //Gizmos.DrawSphere(originalPosition, 1000);
-
             }
+
             for (int k = 0; k < __instance.belts.Count; k++)
             {
                 w.Write(__instance.belts[k]);
@@ -233,13 +199,19 @@ namespace NebulaPatcher.Patches.Dynamic
                             __instance.chunks[i * 3 + 2] = r.ReadInt32();
                         }
 
-                        Quaternion lastFirstPreviousSurfaceRelativeRotation = new Quaternion();
-                        bool isThereALastFirstPreviousSurfaceRelativeRotation = false;
+                        // Code that reads/calculates the positions
                         for (int j = 0; j < ___bufferLength; j++)
                         {
                             __instance.pointPos[j].x = r.ReadSingle();
                             __instance.pointPos[j].y = r.ReadSingle();
                             __instance.pointPos[j].z = r.ReadSingle();
+                        }
+
+                        // Code that reads/calculates the rotations
+                        Quaternion firstSurfaceRelativeRotationInChain = new Quaternion();
+                        bool isThereAfirstSurfaceRelativeRotationInChain = false;
+                        for (int j = 0; j < ___bufferLength; j++)
+                        {
                             
                             var sameRelativeRotationAsPrevious = r.ReadBoolean();
                             
@@ -248,43 +220,24 @@ namespace NebulaPatcher.Patches.Dynamic
                                 Debug.Log($"Part {j} has same relative rotation as part {j - 1}");
 
                                 //  This ensures that the relative rotation is calculated using the first rotation of the chain (this prevents compounding presision loss)
-                                if (!isThereALastFirstPreviousSurfaceRelativeRotation)
+                                if (!isThereAfirstSurfaceRelativeRotationInChain)
                                 {
                                     var previousPosition = __instance.pointPos[j - 1];
                                     var previousRotation = __instance.pointRot[j - 1];
 
                                     
-                                    lastFirstPreviousSurfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(previousPosition, Vector3.up)) * previousRotation;
-                                    isThereALastFirstPreviousSurfaceRelativeRotation = true;
+                                    firstSurfaceRelativeRotationInChain = Quaternion.Inverse(Quaternion.LookRotation(previousPosition, Vector3.up)) * previousRotation;
+                                    isThereAfirstSurfaceRelativeRotationInChain = true;
                                 }
 
 
                                 var originalPosition = __instance.pointPos[j];
 
-
-                                //var calculatedRotation = Quaternion.Inverse(previousSurfaceRelativeRotation) * Quaternion.LookRotation(originalPosition, Vector3.up);
-                                //var calculatedRotation = Quaternion.LookRotation(originalPosition, Vector3.up) * Quaternion.Inverse(previousSurfaceRelativeRotation);
-                                //var calculatedRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * previousSurfaceRelativeRotation;
-                                //var calculatedRotation = previousSurfaceRelativeRotation * Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up));
-                                //var calculatedRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * Quaternion.Inverse(previousSurfaceRelativeRotation);
-                                //var calculatedRotation =  Quaternion.Inverse(previousSurfaceRelativeRotation) * Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up));
-                                //var calculatedRotation = previousSurfaceRelativeRotation * Quaternion.LookRotation(originalPosition, Vector3.up);
-                                var calculatedRotation =  Quaternion.LookRotation(originalPosition, Vector3.up) * lastFirstPreviousSurfaceRelativeRotation;
+                                var calculatedRotation =  Quaternion.LookRotation(originalPosition, Vector3.up) * firstSurfaceRelativeRotationInChain;
 
                                 Debug.Log($"Calculated rotation: x {calculatedRotation.x} y {calculatedRotation.y} z {calculatedRotation.z} w {calculatedRotation.w}");
 
-                                //__instance.pointRot[j].x = r.ReadSingle();
-                                //__instance.pointRot[j].y = r.ReadSingle();
-                                //__instance.pointRot[j].z = r.ReadSingle();
-                                //__instance.pointRot[j].w = r.ReadSingle();
-
                                 __instance.pointRot[j] = calculatedRotation;
-
-                                //// Temporary to get keep the reader moving
-                                //r.ReadSingle();
-                                //r.ReadSingle();
-                                //r.ReadSingle();
-                                //r.ReadSingle();
 
                                 Debug.Log($"Original rotation: x {__instance.pointRot[j].x} y {__instance.pointRot[j].y} z {__instance.pointRot[j].z} w {__instance.pointRot[j].w}");
 
@@ -298,10 +251,11 @@ namespace NebulaPatcher.Patches.Dynamic
                                 __instance.pointRot[j].z = r.ReadSingle();
                                 __instance.pointRot[j].w = r.ReadSingle();
 
-                                isThereALastFirstPreviousSurfaceRelativeRotation = false;
+                                isThereAfirstSurfaceRelativeRotationInChain = false;
                             }
 
                         }
+
                         __instance.belts = new List<int>();
                         for (int k = 0; k < beltsCount; k++)
                         {
