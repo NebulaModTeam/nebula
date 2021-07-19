@@ -61,51 +61,6 @@ namespace NebulaPatcher.Patches.Dynamic
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
-
-        [HarmonyPrefix]
-        [HarmonyPatch("DismantleFinally")]
-        public static bool DismantleFinally_Prefix(PlanetFactory __instance, Player player, int objId, ref int protoId)
-        {
-            if (!SimulatedWorld.Initialized)
-                return true;
-
-            // TODO: handle if 2 clients or if host and client trigger a destruct of the same object at the same time
-
-            // If the object is a prebuild, remove it from the prebuild request list
-            if (LocalPlayer.IsMasterClient && objId < 0)
-            {
-                if (!FactoryManager.ContainsPrebuildRequest(__instance.planetId, -objId))
-                {
-                    Log.Warn($"DestructFinally was called without having a corresponding PrebuildRequest for the prebuild {-objId} on the planet {__instance.planetId}");
-                    return false;
-                }
-
-                FactoryManager.RemovePrebuildRequest(__instance.planetId, -objId);
-            }
-
-            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
-            {
-                LocalPlayer.SendPacket(new DestructEntityRequest(__instance.planetId, objId, protoId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
-            }
-
-            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch("UpgradeFinally")]
-        public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
-        {
-            if (!SimulatedWorld.Initialized)
-                return true;
-
-            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
-            {
-                LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID));
-            }
-
-            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch("GameTick")]
         public static bool InternalUpdate_Prefix()

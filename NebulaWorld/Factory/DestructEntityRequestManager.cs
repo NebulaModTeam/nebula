@@ -7,10 +7,11 @@ namespace NebulaWorld.Factory
         public static void DestructEntityRequest(DestructEntityRequest packet)
         {
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+            PlayerAction_Build pab = GameMain.mainPlayer.controller != null ? GameMain.mainPlayer.controller.actionBuild : null;
 
             // We only execute the code if the client has loaded the factory at least once.
-            // Else it will get it once it goes to the planet for the first time. 
-            if (planet.factory == null)
+            // Else they will get it once they go to the planet for the first time. 
+            if (planet?.factory == null || pab == null)
             {
                 return;
             }
@@ -25,8 +26,14 @@ namespace NebulaWorld.Factory
 
             FactoryManager.TargetPlanet = packet.PlanetId;
             FactoryManager.PacketAuthor = packet.AuthorId;
-            int protoId = packet.ProtoId;
-            planet.factory.DismantleFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+            PlanetFactory tmpFactory = pab.factory;
+            pab.factory = planet.factory;
+            pab.noneTool.factory = planet.factory;
+
+            pab.DoDismantleObject(packet.ObjId);
+
+            pab.factory = tmpFactory;
+            pab.noneTool.factory = tmpFactory;
             FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             FactoryManager.PacketAuthor = -1;
 
