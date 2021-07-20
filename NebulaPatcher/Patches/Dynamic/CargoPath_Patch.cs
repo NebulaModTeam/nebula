@@ -111,6 +111,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             //Debug.Log($"___bufferLength {___bufferLength}");
 
+            // Build the prerequisite mappings
             var surfaceRelativeRotations = new Quaternion[___bufferLength];
             var simmilarityMap = new bool[___bufferLength - 1];
             //// TODO: We might be able to do without the differentialSimmilarityMap and just use the indexes
@@ -146,6 +147,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
+            // Write data in a compressed format
             var startIndex = 0;
             int endIndex;
             for (int j = 0; j < differentialIndexes.Count; j++)
@@ -181,7 +183,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 startIndex = endIndex + 1;
             }
-            // TODO: need a special one for the end
+
+            // The end needs to be handled seperately (since it does not have a differentialIndex)
             endIndex = ___bufferLength - 1;
             //var surfaceRelativeSequenceForEnd = simmilarityMap[simmilarityMap.Length - 1];
             var surfaceRelativeSequenceForEnd = simmilarityMap[___bufferLength - 2];
