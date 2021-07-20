@@ -107,11 +107,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 w.Write(__instance.pointPos[j].z);
             }
 
-            Debug.Log($"___bufferLength {___bufferLength}");
-            // Write the rotations
             var surfaceRelativeRotations = new Quaternion[___bufferLength];
-            var isSameAsNextRotations = new bool[___bufferLength - 1];
-            //var endIndexOfSequence = 0;
+            var simmilarityMap = new bool[___bufferLength - 1];
+            // TODO: We might be able to do without the differentialSimmilarityMap and just use the indexes
+            var differentialSimmilarityMap = new bool[___bufferLength - 2];
+            var differentialIndexes = new List<int>();
             for (int j = 0; j < ___bufferLength; j++)
             {
 
@@ -120,38 +120,184 @@ namespace NebulaPatcher.Patches.Dynamic
                 var surfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * originalRotation;
                 surfaceRelativeRotations[j] = surfaceRelativeRotation;
 
-                // Code that adds the simmilairity flag
-                //var hasRelativelySimmilairRotation = false;
+                // Construct the simmilairy map
                 if (j > 0)
                 {
-                    var angularDiff = Quaternion.Angle(surfaceRelativeRotations[j], surfaceRelativeRotations[j - 1]);
-                    Debug.Log($"Angular difference between {j - 1} and {j}: {angularDiff}");
-                    //if (angularDiff == 0)
-                    //{
-                    //    //Debug.Log($"This is really 0!");
-                    //    //hasRelativelySimmilairRotation = true;
-                        
-                    //}
-                    isSameAsNextRotations[j-1] = angularDiff == 0;
-
-                    
+                    // TODO: Might need to changes the rotations around
+                    var angularDiff = Quaternion.Angle(surfaceRelativeRotations[j - 1], surfaceRelativeRotations[j]);
+                    simmilarityMap[j - 1] = angularDiff == 0;
                 }
-                //w.Write(hasRelativelySimmilairRotation);
 
-                //if (!hasRelativelySimmilairRotation)
-                //{
-                //    //w.Write(__instance.pointRot[j].x);
-                //    //w.Write(__instance.pointRot[j].y);
-                //    //w.Write(__instance.pointRot[j].z);
-                //    //w.Write(__instance.pointRot[j].w);
-                    
-                //    // Instead of storing the original rotation, its much more efficent to store the surface relative rotation here
-                //    w.Write(surfaceRelativeRotation.x);
-                //    w.Write(surfaceRelativeRotation.y);
-                //    w.Write(surfaceRelativeRotation.z);
-                //    w.Write(surfaceRelativeRotation.w);
-                //}
+                // Construct the differential simmilarity map
+                if (j > 1)
+                {
+                    var differentialSimmilarity = simmilarityMap[j - 2] == simmilarityMap[j - 1];
+                    differentialSimmilarityMap[j - 2] = differentialSimmilarity;
+                    if (!differentialSimmilarity)
+                    {
+                        differentialIndexes.Add(j - 2);
+                    }
+                }
             }
+
+            var startIndex = 0;
+            int endIndex;
+            for (int j = 0; j < differentialIndexes.Count; j++)
+            {
+                var differentialIndex = differentialIndexes[j];
+                var surfaceRelativeSequence = simmilarityMap[differentialIndex];
+
+                endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
+                var repCount = endIndex - startIndex + 1;
+
+                w.Write(surfaceRelativeSequence);
+                w.Write(repCount);
+                if (surfaceRelativeSequence)
+                {
+                    w.Write(surfaceRelativeRotations[startIndex].x);
+                    w.Write(surfaceRelativeRotations[startIndex].y);
+                    w.Write(surfaceRelativeRotations[startIndex].z);
+                    w.Write(surfaceRelativeRotations[startIndex].w);
+                } else
+                {
+                    for (int i = 0; i < repCount; i++)
+                    {
+                        w.Write(__instance.pointRot[startIndex + i].x);
+                        w.Write(__instance.pointRot[startIndex + i].y);
+                        w.Write(__instance.pointRot[startIndex + i].z);
+                        w.Write(__instance.pointRot[startIndex + i].w);
+                    }
+                }
+
+                startIndex = endIndex + 1;
+            }
+            // TODO: need a special one for the end
+            endIndex = ___bufferLength - 1;
+            var surfaceRelativeSequenceForEnd = simmilarityMap[simmilarityMap.Length - 1];
+            var repCountForEnd = endIndex - startIndex + 1;
+            w.Write(surfaceRelativeSequenceForEnd);
+            w.Write(repCountForEnd);
+            if (surfaceRelativeSequenceForEnd)
+            {
+                w.Write(surfaceRelativeRotations[startIndex].x);
+                w.Write(surfaceRelativeRotations[startIndex].y);
+                w.Write(surfaceRelativeRotations[startIndex].z);
+                w.Write(surfaceRelativeRotations[startIndex].w);
+            }
+            else
+            {
+                for (int i = 0; i < repCountForEnd; i++)
+                {
+                    w.Write(__instance.pointRot[startIndex + i].x);
+                    w.Write(__instance.pointRot[startIndex + i].y);
+                    w.Write(__instance.pointRot[startIndex + i].z);
+                    w.Write(__instance.pointRot[startIndex + i].w);
+                }
+            }
+
+            //Debug.Log($"___bufferLength {___bufferLength}");
+            //// Write the rotations
+            //var surfaceRelativeRotations = new Quaternion[___bufferLength];
+            //var isSameAsNextRotations = new bool[___bufferLength - 1];
+            ////var endIndexOfSequence = 0;
+
+            //var isSameAsPreviousRotationOld = false;
+            //var isSameAsPreviousRotation = false;
+            //var repCount = 1;
+            //var buffer = new List<Quaternion>();
+            //for (int j = 0; j < ___bufferLength; j++)
+            //{
+
+            //    var originalPosition = __instance.pointPos[j];
+            //    var originalRotation = __instance.pointRot[j];
+            //    var surfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * originalRotation;
+            //    surfaceRelativeRotations[j] = surfaceRelativeRotation;
+
+            //    // Code that adds the simmilairity flag
+            //    //var hasRelativelySimmilairRotation = false;
+            //    if (j > 0)
+            //    {
+            //        var angularDiff = Quaternion.Angle(surfaceRelativeRotations[j], surfaceRelativeRotations[j - 1]);
+            //        Debug.Log($"Angular difference between {j - 1} and {j}: {angularDiff}");
+            //        //if (angularDiff == 0)
+            //        //{
+            //        //    //Debug.Log($"This is really 0!");
+            //        //    //hasRelativelySimmilairRotation = true;
+
+            //        //}
+            //        isSameAsNextRotations[j-1] = angularDiff == 0;
+
+
+
+            //        isSameAsPreviousRotation = angularDiff == 0;
+
+
+            //        if (isSameAsPreviousRotation != isSameAsPreviousRotationOld)
+            //        {
+
+            //            w.Write(isSameAsPreviousRotationOld);
+            //            w.Write(repCount);
+
+            //            for (int i = 0; i < buffer.Count; i++)
+            //            {
+            //                w.Write(buffer[i].x);
+            //                w.Write(buffer[i].y);
+            //                w.Write(buffer[i].z);
+            //                w.Write(buffer[i].w);
+            //            }
+
+
+            //            buffer.Clear();
+            //            repCount = 1;
+            //        }
+            //        else
+            //        {
+            //            if (!isSameAsPreviousRotation)
+            //            {
+            //                buffer.Add(__instance.pointRot[j-1]);
+            //            }
+            //            else
+            //            {
+            //                if (buffer.Count == 0)
+            //                {
+            //                    buffer.Add(surfaceRelativeRotations[j-1]);
+            //                }
+            //            }
+
+            //            repCount++;
+            //        }
+
+            //        isSameAsPreviousRotationOld = isSameAsPreviousRotation;
+
+
+            //    }
+
+
+
+
+
+
+
+
+
+            //    //w.Write(hasRelativelySimmilairRotation);
+
+            //    //if (!hasRelativelySimmilairRotation)
+            //    //{
+            //    //    //w.Write(__instance.pointRot[j].x);
+            //    //    //w.Write(__instance.pointRot[j].y);
+            //    //    //w.Write(__instance.pointRot[j].z);
+            //    //    //w.Write(__instance.pointRot[j].w);
+
+            //    //    // Instead of storing the original rotation, its much more efficent to store the surface relative rotation here
+            //    //    w.Write(surfaceRelativeRotation.x);
+            //    //    w.Write(surfaceRelativeRotation.y);
+            //    //    w.Write(surfaceRelativeRotation.z);
+            //    //    w.Write(surfaceRelativeRotation.w);
+            //    //}
+            //}
+
+
             //var repCounter = 0;
             //var skipNext = false;
             //Debug.Log($"Are we getting here?");
@@ -171,60 +317,60 @@ namespace NebulaPatcher.Patches.Dynamic
 
             //}
 
-            Debug.Log($"Are we getting here?");
-            var switchIndexes = new List<int>();
-            for (int j = 0; j < ___bufferLength - 2; j++)
-            {
+            //Debug.Log($"Are we getting here?");
+            //var switchIndexes = new List<int>();
+            //for (int j = 0; j < ___bufferLength - 2; j++)
+            //{
 
 
-                if (isSameAsNextRotations[j] != isSameAsNextRotations[j + 1])
-                {
-                    switchIndexes.Add(j);
-                }
+            //    if (isSameAsNextRotations[j] != isSameAsNextRotations[j + 1])
+            //    {
+            //        switchIndexes.Add(j);
+            //    }
 
-            }
-            switchIndexes.Add(___bufferLength - 2);
+            //}
+            //switchIndexes.Add(___bufferLength - 2);
 
 
-            Debug.Log($"Are we getting here 2?");
-            var startJ = 0;
-            for (int i = 0; i < switchIndexes.Count; i++)
-            {
-                //var startJ = (i != 0 ? switchIndexes[i - 1] + 1 : -1);
-                //var startJ = (i != 0 ? switchIndexes[i - 1] + 1 : -1);
-                var endJ = switchIndexes[i] + 2;
-                //var endJ = switchIndexes[i] + 1;
-                var repCount = endJ - startJ;
+            //Debug.Log($"Are we getting here 2?");
+            //var startJ = 0;
+            //for (int i = 0; i < switchIndexes.Count; i++)
+            //{
+            //    //var startJ = (i != 0 ? switchIndexes[i - 1] + 1 : -1);
+            //    //var startJ = (i != 0 ? switchIndexes[i - 1] + 1 : -1);
+            //    var endJ = switchIndexes[i] + 2;
+            //    //var endJ = switchIndexes[i] + 1;
+            //    var repCount = endJ - startJ;
 
-                Debug.Log($"Repcount {repCount}");
+            //    Debug.Log($"Repcount {repCount}");
 
-                //Debug.Log($"Is this failing? OPEN");
-                w.Write(isSameAsNextRotations[startJ]);
-                //Debug.Log($"Is this failing? CLOSE");
-                w.Write(repCount);
+            //    //Debug.Log($"Is this failing? OPEN");
+            //    w.Write(isSameAsNextRotations[startJ]);
+            //    //Debug.Log($"Is this failing? CLOSE");
+            //    w.Write(repCount);
 
-                if (isSameAsNextRotations[startJ])
-                {
-                    Debug.Log($"Writing to relative rotation for index {startJ}");
-                    w.Write(surfaceRelativeRotations[startJ].x);
-                    w.Write(surfaceRelativeRotations[startJ].y);
-                    w.Write(surfaceRelativeRotations[startJ].z);
-                    w.Write(surfaceRelativeRotations[startJ].w);
-                }
-                else
-                {
-                    for (int n = 0; n < repCount; n++)
-                    {
-                        Debug.Log($"Writing to pointRot for index {startJ + n}");
-                        w.Write(__instance.pointRot[startJ + n].x);
-                        w.Write(__instance.pointRot[startJ + n].y);
-                        w.Write(__instance.pointRot[startJ + n].z);
-                        w.Write(__instance.pointRot[startJ + n].w);
-                    }
-                }
+            //    if (isSameAsNextRotations[startJ])
+            //    {
+            //        Debug.Log($"Writing to relative rotation for index {startJ}");
+            //        w.Write(surfaceRelativeRotations[startJ].x);
+            //        w.Write(surfaceRelativeRotations[startJ].y);
+            //        w.Write(surfaceRelativeRotations[startJ].z);
+            //        w.Write(surfaceRelativeRotations[startJ].w);
+            //    }
+            //    else
+            //    {
+            //        for (int n = 0; n < repCount; n++)
+            //        {
+            //            Debug.Log($"Writing to pointRot for index {startJ + n}");
+            //            w.Write(__instance.pointRot[startJ + n].x);
+            //            w.Write(__instance.pointRot[startJ + n].y);
+            //            w.Write(__instance.pointRot[startJ + n].z);
+            //            w.Write(__instance.pointRot[startJ + n].w);
+            //        }
+            //    }
 
-                startJ = endJ;
-            }
+            //    startJ = endJ;
+            //}
 
 
 
