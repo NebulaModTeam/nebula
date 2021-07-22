@@ -25,8 +25,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 return instructions;
             }
 
-            NebulaModel.Logger.Log.Info($"{codeMatcher.Instruction.opcode} {codeMatcher.Instruction.operand?.ToString()}");
-
             return codeMatcher
                 .Advance(1)
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<string, string>>((text) =>
