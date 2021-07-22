@@ -14,7 +14,7 @@
         /// Human-readable name of the plugin. In general, it should be short and concise.
         /// This is the name that is shown to the users who run BepInEx and to modders that inspect BepInEx logs. 
         /// </summary>
-        public const string PLUGIN_NAME = "Nebula - Multiplayer Mod";
+        public const string PLUGIN_NAME = "Nebula_Multiplayer_Mod";
 
         /// <summary>
         /// Unique ID of the plugin.
@@ -29,6 +29,6 @@
         /// Version of the plugin. Must be in form <major>.<minor>.<build>.<revision>.
         /// Major and minor versions are mandatory, but build and revision can be left unspecified.
         /// </summary>
-        public const string PLUGIN_VERSION = "0.2.0.0";
+        public const string PLUGIN_VERSION = "0.2.1.0";
     }
 }
