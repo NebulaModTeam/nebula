@@ -15,25 +15,15 @@ namespace NebulaWorld.Factory
                 return;
             }
 
-            // Physics could be null, if the host is not on the requested planet
-            if (packet.PlanetId != GameMain.localPlanet?.id)
-            {
-                //Creating rendering batches is required to properly handle DestructFinally for the belts, since model needs to be changed.
-                //ToDo: Optimize it somehow, since creating and destroying rendering batches is not optimal.
-                planet.factory.cargoTraffic.CreateRenderingBatches();
-            }
-
             FactoryManager.TargetPlanet = packet.PlanetId;
             FactoryManager.PacketAuthor = packet.AuthorId;
+
+            FactoryManager.AddPlanetTimer(packet.PlanetId);
             int protoId = packet.ProtoId;
             planet.factory.DismantleFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+
             FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             FactoryManager.PacketAuthor = -1;
-
-            if (packet.PlanetId != GameMain.localPlanet?.id)
-            {
-                planet.factory.cargoTraffic.DestroyRenderingBatches();
-            }
         }
     }
 }
