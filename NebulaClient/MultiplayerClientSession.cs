@@ -47,7 +47,7 @@ namespace NebulaClient
         {
             serverEndpoint = ip;
             socketAddress = $"ws://{ip}/socket";
-            Log.Info($"Connect to IP: {socketAddress}");
+            Log.Info($"Connecting to IP...");
             ConnectInternal();
         }
 
@@ -56,7 +56,7 @@ namespace NebulaClient
             IPHostEntry host = Dns.GetHostEntry(url);
             serverEndpoint = new IPEndPoint(host.AddressList[0], port);
             socketAddress = $"ws://{url}:{port}/socket";
-            Log.Info($"Connect to URL: {socketAddress}");
+            Log.Info($"Connecting to URL...");
             ConnectInternal();
         }
 

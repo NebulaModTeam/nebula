@@ -1,4 +1,8 @@
-﻿namespace NebulaPatcher
+﻿using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+
+namespace NebulaPatcher
 {
     /// <summary>
     /// The main metadata of the plugin.
@@ -16,6 +20,8 @@
         /// </summary>
         public const string PLUGIN_NAME = "NebulaMultiplayerMod";
 
+        public const string PLUGIN_SHORT_NAME = "Nebula";
+
         /// <summary>
         /// Unique ID of the plugin.
         /// This must be a unique string that contains only characters a-z, 0-9 underscores (_) and dots (.)
@@ -30,5 +36,9 @@
         /// Major and minor versions are mandatory, but build and revision can be left unspecified.
         /// </summary>
         public const string PLUGIN_VERSION = "0.2.1";
+
+        public static string PLUGIN_SHORT_SHA = new string(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion.Split('+')[1].Take(7).ToArray());
+
+        public static string PLUGIN_VERSION_WITH_SHORT_SHA = $"v{PLUGIN_VERSION}-{PLUGIN_SHORT_SHA}";
     }
 }
