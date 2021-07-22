@@ -1,4 +1,4 @@
-# Nebula
+# Nebula Multiplayer Mod
 
 An open-source, multiplayer mod for the game [Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/).
 
@@ -13,6 +13,7 @@ Please do keep in mind that this mod is still in heavy development, it may still
 The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.
 
 Here is a short list of what is currently implemented
+
 - [x] Server / Client communication
 - [x] Custom Multiplayer menu in-game
 - [x] Player Movement syncing on Planet
@@ -46,6 +47,6 @@ Here is a short list of what is currently implemented
 
 Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) to ask if someone is already working on the task that you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment).
 
-## How can I donate?
+## How can I support the team?
 
 If you like what we do and would like to support us, you can donate through our [Patreon](https://www.patreon.com/nebula_mod_team). Thanks for the support <3
