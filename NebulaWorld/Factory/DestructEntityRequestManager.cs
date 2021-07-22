@@ -15,12 +15,13 @@ namespace NebulaWorld.Factory
                 return;
             }
 
-            FactoryManager.AddPlanetTimer(packet.PlanetId);
-
             FactoryManager.TargetPlanet = packet.PlanetId;
             FactoryManager.PacketAuthor = packet.AuthorId;
+
+            FactoryManager.AddPlanetTimer(packet.PlanetId);
             int protoId = packet.ProtoId;
             planet.factory.DismantleFinally(GameMain.mainPlayer, packet.ObjId, ref protoId);
+
             FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             FactoryManager.PacketAuthor = -1;
         }

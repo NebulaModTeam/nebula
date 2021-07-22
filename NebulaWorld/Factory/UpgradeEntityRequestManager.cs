@@ -15,11 +15,12 @@ namespace NebulaWorld.Factory
                 return;
             }
 
-            FactoryManager.AddPlanetTimer(packet.PlanetId);
-
-            ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
             FactoryManager.TargetPlanet = packet.PlanetId;
+
+            FactoryManager.AddPlanetTimer(packet.PlanetId);
+            ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
             planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
+
             FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
         }
     }
