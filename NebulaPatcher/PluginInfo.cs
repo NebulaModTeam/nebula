@@ -14,7 +14,7 @@
         /// Human-readable name of the plugin. In general, it should be short and concise.
         /// This is the name that is shown to the users who run BepInEx and to modders that inspect BepInEx logs. 
         /// </summary>
-        public const string PLUGIN_NAME = "Nebula Multiplayer Mod";
+        public const string PLUGIN_NAME = "NebulaMultiplayerMod";
 
         /// <summary>
         /// Unique ID of the plugin.
