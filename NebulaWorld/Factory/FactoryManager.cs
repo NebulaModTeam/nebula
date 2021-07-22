@@ -62,6 +62,7 @@ namespace NebulaWorld.Factory
 
                     var planetTimer = planetTimers[planetId];
                     planetTimer.Elapsed += (sender, e) => PlanetTimer_Elapsed(planetId);
+                    planetTimer.AutoReset = false;
                     planetTimer.Start();
                 }
                 // If a timer for the planet already exists, reset it.
@@ -75,10 +76,11 @@ namespace NebulaWorld.Factory
 
         private static void PlanetTimer_Elapsed(int planetId)
         {
+            RemovePlanetTimer(planetId);
+
             // Timer has finished without another event resetting it so we can unload the planet's data
             // We must use ThreadingHelper in order to ensure this runs on the main thread, otherwise this will trigger a crash
             ThreadingHelper.Instance.StartSyncInvoke(() => UnloadPlanetData(planetId));
-            RemovePlanetTimer(planetId);
         }
 
         private static bool RemovePlanetTimer(int planetId)
@@ -86,6 +88,7 @@ namespace NebulaWorld.Factory
             using (GetPlanetTimers(out var planetTimers))
             {
                 planetTimers[planetId].Stop();
+                planetTimers[planetId].Dispose();
                 planetTimers[planetId] = null;
                 return planetTimers.Remove(planetId);
             }
