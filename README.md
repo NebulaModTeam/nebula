@@ -4,6 +4,10 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 
 # FAQ
 
+## Where can I get mod support?
+
+Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) and ask your question in the `General` channel. We have a really nice community that will be able to answer your questions.
+
 ## How can I play this mod?
 
 Please do keep in mind that this mod is still in heavy development, it may still contains bugs. That being said, the mod is in a playable state, you can install a pre-release version of the mod for now by following these instructions [Installing a pre-release version](https://github.com/hubastard/nebula/wiki/Installing-a-pre-release-version).
