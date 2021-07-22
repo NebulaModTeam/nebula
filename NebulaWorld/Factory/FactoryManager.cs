@@ -127,6 +127,9 @@ namespace NebulaWorld.Factory
                 return;
             }
 
+            int tmpTargetPlanet = FactoryManager.TargetPlanet;
+            FactoryManager.TargetPlanet = planetId;
+
             PlanetData planet = GameMain.galaxy.PlanetById(planetId);
 
             if (planet.physics != null)
@@ -142,6 +145,8 @@ namespace NebulaWorld.Factory
             }
 
             planet.factory.cargoTraffic.DestroyRenderingBatches();
+
+            FactoryManager.TargetPlanet = tmpTargetPlanet;
         }
 
         public static void InitializePrebuildRequests()
