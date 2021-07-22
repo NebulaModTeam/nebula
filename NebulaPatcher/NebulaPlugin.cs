@@ -4,7 +4,8 @@ using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using System;
-using System.IO;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ namespace NebulaPatcher
         void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
-            
+
             NebulaModel.Config.ModInfo = Info;
             NebulaModel.Config.LoadOptions();
 
@@ -44,7 +45,9 @@ namespace NebulaPatcher
 
             try
             {
-                Log.Info($"Applying patches from assembly: {Assembly.GetExecutingAssembly().FullName}");
+                Log.Info($"Applying patches from {Assembly.GetExecutingAssembly().GetName().Name} " +
+                    $"version {PluginInfo.PLUGIN_VERSION} " +
+                    $"commit {new string(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion.Split('+')[1].Take(7).ToArray())}");
 #if DEBUG
                 if (Directory.Exists("./mmdump"))
                 {
