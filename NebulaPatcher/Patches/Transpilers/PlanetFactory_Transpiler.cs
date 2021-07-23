@@ -1,8 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaModel.DataStructures;
-using NebulaWorld;
 using NebulaWorld.Factory;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -42,7 +39,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
 
-            if(!found)
+            if (!found)
                 NebulaModel.Logger.Log.Error("OnBeltBuilt transpiler 1 failed. Mod version not compatible with game version.");
 
             found = false;
@@ -71,7 +68,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
 
-            if(!found)
+            if (!found)
                 NebulaModel.Logger.Log.Error("OnBeltBuilt transpiler 2 failed. Mod version not compatible with game version.");
 
             return codes;

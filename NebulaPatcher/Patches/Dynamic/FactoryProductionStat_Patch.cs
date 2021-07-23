@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class FactoryProductionStat_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(FactoryProductionStat.GameTick))]
         public static bool GameTick_Prefix(FactoryProductionStat __instance)
         {
             //Do not run in single player for host

@@ -4,17 +4,17 @@ using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaWorld.Factory;
-using UnityEngine;
 using NebulaWorld.Planet;
 using NebulaWorld.Player;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetFactory))]
-    class BuildFinally_patch
+    class PlanetFactory_patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("AddPrebuildData")]
+        [HarmonyPatch(nameof(PlanetFactory.AddPrebuildData))]
         public static void AddPrebuildData_Postfix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
         {
             if (!SimulatedWorld.Initialized)
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("BuildFinally")]
+        [HarmonyPatch(nameof(PlanetFactory.BuildFinally))]
         public static bool BuildFinally_Prefix(PlanetFactory __instance, Player player, int prebuildId)
         {
             if (!SimulatedWorld.Initialized)
@@ -62,7 +62,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PlanetFactory.GameTick))]
         public static bool InternalUpdate_Prefix()
         {
             StorageManager.IsHumanInput = false;
@@ -70,14 +70,14 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PlanetFactory.GameTick))]
         public static void InternalUpdate_Postfix()
         {
             StorageManager.IsHumanInput = true;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("PasteBuildingSetting")]
+        [HarmonyPatch(nameof(PlanetFactory.PasteBuildingSetting))]
         public static void PasteBuildingSetting_Prefix(PlanetFactory __instance, int objectId)
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
@@ -87,7 +87,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("FlattenTerrainReform")]
+        [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
         public static void FlattenTerrainReform_Prefix(PlanetFactory __instance, Vector3 center, float radius, int reformSize, bool veinBuried, float fade0)
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromClient && !FactoryManager.EventFromServer)
@@ -97,7 +97,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("RemoveVegeWithComponents")]
+        [HarmonyPatch(nameof(PlanetFactory.RemoveVegeWithComponents))]
         public static void RemoveVegeWithComponents_Postfix(PlanetFactory __instance, int id)
         {
             if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
@@ -107,12 +107,12 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("RemoveVeinWithComponents")]
+        [HarmonyPatch(nameof(PlanetFactory.RemoveVeinWithComponents))]
         public static void RemoveVeinWithComponents_Postfix(PlanetFactory __instance, int id)
         {
             if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
             {
-                if(LocalPlayer.IsMasterClient)
+                if (LocalPlayer.IsMasterClient)
                 {
                     LocalPlayer.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true), __instance.planet.star.id);
                 }

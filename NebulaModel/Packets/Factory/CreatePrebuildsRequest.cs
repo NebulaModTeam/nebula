@@ -74,6 +74,9 @@ namespace NebulaModel.Packets.Factory
             buildPreview.outputOffset = br.ReadInt32();
             buildPreview.inputOffset = br.ReadInt32();
             buildPreview.needModel = br.ReadBoolean();
+            buildPreview.previewIndex = br.ReadInt32();
+            buildPreview.bpgpuiModelId = br.ReadInt32();
+            buildPreview.bpgpuiModelInstIndex = br.ReadInt32();
             buildPreview.recipeId = br.ReadInt32();
             buildPreview.filterId = br.ReadInt32();
             buildPreview.isConnNode = br.ReadBoolean();
@@ -179,6 +182,9 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.outputOffset);
             bw.Write(buildPreview.inputOffset);
             bw.Write(buildPreview.needModel);
+            bw.Write(buildPreview.previewIndex);
+            bw.Write(buildPreview.bpgpuiModelId);
+            bw.Write(buildPreview.bpgpuiModelInstIndex);
             bw.Write(buildPreview.recipeId);
             bw.Write(buildPreview.filterId);
             bw.Write(buildPreview.isConnNode);

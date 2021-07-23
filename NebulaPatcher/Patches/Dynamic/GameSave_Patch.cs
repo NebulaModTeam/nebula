@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameSave_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("SaveCurrentGame")]
+        [HarmonyPatch(nameof(GameSave.SaveCurrentGame))]
         public static bool SaveCurrentGame_Prefix(string saveName)
         {
             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
@@ -21,7 +21,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AutoSave")]
+        [HarmonyPatch(nameof(GameSave.AutoSave))]
         public static bool AutoSave_Prefix()
         {
             // Only save if in single player or if you are the host
@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("SaveAsLastExit")]
+        [HarmonyPatch(nameof(GameSave.SaveAsLastExit))]
         public static bool SaveAsLastExit_Prefix()
         {
             // Only save if in single player, since multiplayer requires to load from the Load Save Window

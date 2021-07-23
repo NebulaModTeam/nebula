@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIGalaxySelect_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("EnterGame")]
+        [HarmonyPatch(nameof(UIGalaxySelect.EnterGame))]
         public static bool EnterGame_Prefix(UIGalaxySelect __instance)
         {
             if (MainMenuManager.IsInMultiplayerMenu)

@@ -3,11 +3,11 @@ using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(FactoryProductionStat))]
+    [HarmonyPatch(typeof(FactoryStorage))]
     class FactoryStorage_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static bool GameTick_Prefix()
         {
             StorageManager.IsHumanInput = false;
@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static void GameTick_Postfix()
         {
             StorageManager.IsHumanInput = true;

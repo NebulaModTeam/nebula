@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaModel.Packets.Factory.PowerTower;
 using NebulaWorld;
 using NebulaWorld.Factory;
 
@@ -9,12 +8,12 @@ namespace NebulaPatcher.Patches.Dynamic
     class PowerSystem_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PowerSystem.GameTick))]
         public static void PowerSystem_GameTick_Postfix(PowerSystem __instance, long time, bool isActive, bool isMultithreadMode)
         {
             if (SimulatedWorld.Initialized)
             {
-                for(int i = 1; i < __instance.netCursor; i++)
+                for (int i = 1; i < __instance.netCursor; i++)
                 {
                     PowerNetwork pNet = __instance.netPool[i];
                     pNet.energyRequired += PowerTowerManager.GetExtraDemand(__instance.planet.id, i);
@@ -25,7 +24,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveNodeComponent")]
+        [HarmonyPatch(nameof(PowerSystem.RemoveNodeComponent))]
         public static bool RemoveNodeComponent(PowerSystem __instance, int id)
         {
             if (SimulatedWorld.Initialized)

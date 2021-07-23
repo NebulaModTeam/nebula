@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id,__instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxTripDrones, value);
+                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxTripDrones, value);
                 LocalPlayer.SendPacket(packet);
                 if (LocalPlayer.IsMasterClient)
                 {
@@ -198,7 +198,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
             {
                 Player player = GameMain.mainPlayer;
-                if(player.inhandItemCount > 0 && player.inhandItemId != 5002)
+                if (player.inhandItemCount > 0 && player.inhandItemId != 5002)
                 {
                     ItemProto itemProto = LDB.items.Select(5002);
                     UIRealtimeTip.Popup("只能放入".Translate() + itemProto.name, true, 0);
@@ -206,7 +206,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
                 int toAdd;
-                if(player.inhandItemCount > 0)
+                if (player.inhandItemCount > 0)
                 {
                     int shipAmount = stationComponent.idleShipCount + stationComponent.workShipCount;
                     int spaceLeft = 10 - shipAmount;
@@ -290,19 +290,19 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             ((Text)AccessTools.Field(typeof(UIStationWindow), "titleText").GetValue(__instance)).text = "Loading...";
             StationUIManager.LastSelectedGameObj = EventSystem.current.currentSelectedGameObject;
-            if(__instance.factory == null)
+            if (__instance.factory == null)
             {
                 __instance.factory = GameMain.localPlanet.factory;
             }
-            if(__instance.transport == null)
+            if (__instance.transport == null)
             {
                 __instance.transport = __instance.factory.transport;
             }
             StationComponent stationComponent = null;
-            if(__instance.stationId == 0)
+            if (__instance.stationId == 0)
             {
                 UIStationStorage[] stationStorage = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(__instance);
-                if(stationStorage != null && stationStorage[0] != null && stationStorage[0].station.id != 0)
+                if (stationStorage != null && stationStorage[0] != null && stationStorage[0].station.id != 0)
                 {
                     stationComponent = __instance.transport.stationPool[stationStorage[0].station.id];
                 }
@@ -311,7 +311,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 stationComponent = __instance.transport.stationPool[__instance.stationId];
             }
-            if(stationComponent != null && GameMain.localPlanet != null)
+            if (stationComponent != null && GameMain.localPlanet != null)
             {
                 int id = (stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id;
                 // for some reason PLS has planetId set to 0, so we use players localPlanet here (he should be on a planet anyways when opening the UI)
@@ -336,7 +336,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnClose")]
         public static void _OnClose_Postfix(UIStationWindow __instance)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 return;
             }
@@ -348,7 +348,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 __instance.transport = __instance.factory.transport;
             }
-            if(__instance.stationId != 0 || StationUIManager.UIStationId != 0)
+            if (__instance.stationId != 0 || StationUIManager.UIStationId != 0)
             {
                 // it is actually 0 before we manually set it to the right value in StationUIInitialSyncProcessor.cs and thus its a good check to skip sending the packet on the Free() call
                 LocalPlayer.SendPacket(new StationSubscribeUIUpdates(false, __instance.transport.planet.id, __instance.transport.stationPool[StationUIManager.UIStationId].id, __instance.transport.stationPool[StationUIManager.UIStationId].gid));

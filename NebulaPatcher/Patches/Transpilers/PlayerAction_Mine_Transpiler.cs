@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Sub),
                     new CodeMatch(OpCodes.Stind_I4));
 
-            if(codeMatcher.IsInvalid)
+            if (codeMatcher.IsInvalid)
             {
                 NebulaModel.Logger.Log.Error("PlayerActionMine_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
