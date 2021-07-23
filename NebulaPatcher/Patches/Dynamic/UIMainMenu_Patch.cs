@@ -204,8 +204,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
-
-
             if (IPAddress.TryParse(s.Substring(0, addressLength), out IPAddress address))
             {
                 uint port = 0;
@@ -278,11 +276,10 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
         {
-            NebulaClient.MultiplayerClientSession session;
+            NebulaClient.MultiplayerClientSession session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
 
             if (isIP)
             {
-                session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
                 session.ConnectToIp(new IPEndPoint(IPAddress.Parse(connectionString), serverPort));
                 return true;
             }
@@ -290,10 +287,11 @@ namespace NebulaPatcher.Patches.Dynamic
             //trying to resolve as uri
             if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out var serverUri))
             {
-                session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
                 session.ConnectToUrl(connectionString, serverPort);
                 return true;
             }
+
+            session.DestroySession();
             return false;
         }
     }
