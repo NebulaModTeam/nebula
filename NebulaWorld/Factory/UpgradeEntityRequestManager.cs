@@ -16,34 +16,18 @@ namespace NebulaWorld.Factory
                 return;
             }
 
-            // Physics could be null, if the host is not on the requested planet
-            if (packet.PlanetId != GameMain.localPlanet?.id)
-            {
-                planet.physics = new PlanetPhysics(planet);
-                planet.physics.Init();
-                planet.audio = new PlanetAudio(planet);
-                planet.audio.Init();
-            }
-
             FactoryManager.TargetPlanet = packet.PlanetId;
             FactoryManager.PacketAuthor = packet.AuthorId;
             PlanetFactory tmpFactory = pab.factory;
             pab.factory = planet.factory;
             pab.noneTool.factory = planet.factory;
 
+            FactoryManager.AddPlanetTimer(packet.PlanetId);
             pab.DoUpgradeObject(packet.ObjId, packet.Grade, packet.UpgradeProtoId, out int _);
 
             pab.factory = tmpFactory;
             pab.noneTool.factory = tmpFactory;
             FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-
-            if (packet.PlanetId != GameMain.localPlanet?.id)
-            {
-                planet.physics.Free();
-                planet.physics = null;
-                planet.audio.Free();
-                planet.audio = null;
-            }
         }
     }
 }

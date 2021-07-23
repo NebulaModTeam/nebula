@@ -49,11 +49,7 @@ namespace NebulaWorld.Factory
                     tmpFactory = buildTool.factory;
                     tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
                     tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
-                    planet.physics = new PlanetPhysics(planet);
-                    planet.physics.Init();
-                    planet.aux = new PlanetAuxData(planet);
-                    planet.audio = new PlanetAudio(planet);
-                    planet.audio.Init();
+                    FactoryManager.AddPlanetTimer(packet.PlanetId);
                 }
 
                 //Create Prebuilds from incoming packet and prepare new position
@@ -109,10 +105,6 @@ namespace NebulaWorld.Factory
                     pab.noneTool.factory = tmpFactory;
                     pab.planetPhysics = tmpPlanetPhysics;
                     pab.nearcdLogic = tmpNearcdLogic;
-                    planet.physics.Free();
-                    planet.physics = null;
-                    planet.audio.Free();
-                    planet.audio = null;
                 }
 
                 GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;

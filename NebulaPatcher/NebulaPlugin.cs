@@ -18,7 +18,7 @@ namespace NebulaPatcher
         void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
-            
+
             NebulaModel.Config.ModInfo = Info;
             NebulaModel.Config.LoadOptions();
 
@@ -44,7 +44,7 @@ namespace NebulaPatcher
 
             try
             {
-                Log.Info($"Applying patches from assembly: {Assembly.GetExecutingAssembly().FullName}");
+                Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_VERSION_WITH_SHORT_SHA}");
 #if DEBUG
                 if (Directory.Exists("./mmdump"))
                 {

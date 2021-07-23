@@ -1,4 +1,8 @@
-﻿namespace NebulaPatcher
+﻿using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+
+namespace NebulaPatcher
 {
     /// <summary>
     /// The main metadata of the plugin.
@@ -14,7 +18,9 @@
         /// Human-readable name of the plugin. In general, it should be short and concise.
         /// This is the name that is shown to the users who run BepInEx and to modders that inspect BepInEx logs. 
         /// </summary>
-        public const string PLUGIN_NAME = "Nebula - Multiplayer Mod";
+        public const string PLUGIN_NAME = "NebulaMultiplayerMod";
+
+        public const string PLUGIN_SHORT_NAME = "Nebula";
 
         /// <summary>
         /// Unique ID of the plugin.
@@ -29,6 +35,10 @@
         /// Version of the plugin. Must be in form <major>.<minor>.<build>.<revision>.
         /// Major and minor versions are mandatory, but build and revision can be left unspecified.
         /// </summary>
-        public const string PLUGIN_VERSION = "0.2.0.0";
+        public const string PLUGIN_VERSION = "0.2.1";
+
+        public static string PLUGIN_SHORT_SHA = new string(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion.Split('+')[1].Take(7).ToArray());
+
+        public static string PLUGIN_VERSION_WITH_SHORT_SHA = $"v{PLUGIN_VERSION}-{PLUGIN_SHORT_SHA}";
     }
 }

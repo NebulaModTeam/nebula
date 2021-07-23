@@ -10,7 +10,7 @@ namespace NebulaWorld.Factory
         {
             public int NetId = 0;
             public List<int> NodeId = new List<int>();
-            public List<bool> Activated = new List<bool>();
+            public List<int> Activated = new List<int>();
             public int ExtraPower = 0;
         }
 
@@ -47,7 +47,7 @@ namespace NebulaWorld.Factory
         }
 
         // return true if added or changed state, false if already known
-        public static bool AddRequested(int PlanetId, int NetId, int NodeId, bool Charging, int PowerAmount = 0)
+        public static bool AddRequested(int PlanetId, int NetId, int NodeId, bool Charging, bool eventFromOtherPlayer)
         {
             if (RequestsSent.TryGetValue(PlanetId, out var requests))
             {
@@ -79,7 +79,10 @@ namespace NebulaWorld.Factory
                                     }
                                 }
                             }
-                            requests[i].Charging = Charging;
+                            if (!eventFromOtherPlayer)
+                            {
+                                requests[i].Charging = Charging;
+                            }
                             return true;
                         }
                         return false;
@@ -162,8 +165,10 @@ namespace NebulaWorld.Factory
                                     mapping[i].ExtraPower -= mapping[i].ExtraPower / mapping[i].NodeId.Count;
                                 }
 
-                                mapping[i].Activated[j] = false;
-                                AddRequested(PlanetId, NetId, NodeId, false);
+                                mapping[i].Activated[j]--;
+                                AddRequested(PlanetId, NetId, NodeId, false, true);
+
+                                break;
                             }
                         }
 
@@ -190,7 +195,7 @@ namespace NebulaWorld.Factory
                             if(mapping[i].NodeId[j] == NodeId)
                             {
                                 foundNodeId = true;
-                                mapping[i].Activated[j] = true;
+                                mapping[i].Activated[j]++;
                                 mapping[i].ExtraPower += PowerAmount;
                                 break;
                             }
@@ -199,7 +204,7 @@ namespace NebulaWorld.Factory
                         if (!foundNodeId)
                         {
                             mapping[i].NodeId.Add(NodeId);
-                            mapping[i].Activated.Add(true);
+                            mapping[i].Activated.Add(1);
                             mapping[i].ExtraPower += PowerAmount;
                         }
 
@@ -210,7 +215,7 @@ namespace NebulaWorld.Factory
                 EnergyMapping map = new PowerTowerManager.EnergyMapping();
                 map.NetId = NetId;
                 map.NodeId.Add(NodeId);
-                map.Activated.Add(true);
+                map.Activated.Add(1);
                 map.ExtraPower = PowerAmount;
 
                 mapping.Add(map);
@@ -222,7 +227,7 @@ namespace NebulaWorld.Factory
                 EnergyMapping map = new PowerTowerManager.EnergyMapping();
                 map.NetId = NetId;
                 map.NodeId.Add(NodeId);
-                map.Activated.Add(true);
+                map.Activated.Add(1);
                 map.ExtraPower = PowerAmount;
 
                 mapping2.Add(map);
@@ -242,7 +247,7 @@ namespace NebulaWorld.Factory
                 {
                     for(int j = 0; j < mapping[i].Activated.Count; j++)
                     {
-                        UpdateAnimation(PlanetId, mapping[i].NetId, mapping[i].NodeId[j], mapping[i].Activated[j] ? 1 : 0);
+                        UpdateAnimation(PlanetId, mapping[i].NetId, mapping[i].NodeId[j], mapping[i].Activated[j] > 0 ? 1 : 0);
                     }
                 }
             }
