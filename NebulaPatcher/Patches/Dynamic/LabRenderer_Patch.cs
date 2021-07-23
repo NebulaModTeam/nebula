@@ -10,8 +10,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class LabRenderer_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(LabRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
-        [HarmonyPatch(nameof(LabRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(uint), typeof(bool) })]
+        [HarmonyPatch(typeof(LabRenderer), nameof(LabRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
+        [HarmonyPatch(typeof(LabRenderer), nameof(LabRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(uint), typeof(bool) })]
         public static bool AddInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request

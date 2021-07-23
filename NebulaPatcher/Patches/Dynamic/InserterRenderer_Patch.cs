@@ -10,8 +10,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class InserterRenderer_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(InserterRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
-        [HarmonyPatch(nameof(InserterRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(Vector3), typeof(Quaternion), typeof(int), typeof(int), typeof(bool) })]
+        [HarmonyPatch(typeof(InserterRenderer), nameof(InserterRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
+        [HarmonyPatch(typeof(InserterRenderer), nameof(InserterRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(Vector3), typeof(Quaternion), typeof(int), typeof(int), typeof(bool) })]
         public static bool AddInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
