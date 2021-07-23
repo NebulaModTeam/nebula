@@ -18,7 +18,7 @@ namespace NebulaWorld
         public RemotePlayerEffects Effects { get; set; }
         public GameObject InGameNameText { get; set; }
         public Text StarmapNameText { get; set; }
-        public Text StarmapMarker { get; set; }
+        public Transform StarmapTracker { get; set; }
 
         public global::Player PlayerInstance { get; set; }
         public Mecha MechaInstance { get; set; }
@@ -72,11 +72,12 @@ namespace NebulaWorld
             Effects = null;
             PlayerInstance.Free();
             PlayerInstance = null;
-            if (StarmapMarker != null) Object.Destroy(StarmapMarker);
+            if (StarmapTracker != null) Object.Destroy(StarmapTracker);
             if (StarmapNameText != null) Object.Destroy(StarmapNameText);
             if (InGameNameText != null) Object.Destroy(InGameNameText);
 
-            StarmapMarker = StarmapNameText = null;
+            StarmapTracker = null;
+            StarmapNameText = null;
             InGameNameText = null;
         }
     }
