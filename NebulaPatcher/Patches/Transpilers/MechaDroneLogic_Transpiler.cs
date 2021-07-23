@@ -56,7 +56,7 @@ namespace NebulaPatcher.Patches.Transpiler
              *  if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
              * To:
              *  if (DroneManager.AmIClosestPlayer(ref a) && a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
-            *
+            */
             codeMatcher = codeMatcher
                             .MatchForward(false,
                                 new CodeMatch(i => i.IsLdloc()),
@@ -72,11 +72,11 @@ namespace NebulaPatcher.Patches.Transpiler
                 return codeMatcher.InstructionEnumeration();
             }
 
-            var aInstruction = codeMatcher.Instruction;
+            var aOperand = codeMatcher.Instruction.operand;
             var jumpOperand = codeMatcher.InstructionAt(4).operand;
 
             codeMatcher = codeMatcher
-                            .InsertAndAdvance(aInstruction)
+                            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, aOperand))
                             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<Vector3, bool>>((aVar) =>
                             {
                                 return DroneManager.AmIClosestPlayer(ref aVar);
