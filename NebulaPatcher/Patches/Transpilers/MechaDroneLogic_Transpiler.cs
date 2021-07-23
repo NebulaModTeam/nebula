@@ -56,7 +56,7 @@ namespace NebulaPatcher.Patches.Transpiler
              *  if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
              * To:
              *  if (DroneManager.AmIClosestPlayer(ref a) && a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
-            */
+            *
             codeMatcher = codeMatcher
                             .MatchForward(false,
                                 new CodeMatch(i => i.IsLdloc()),
