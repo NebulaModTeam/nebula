@@ -2,6 +2,7 @@
 using NebulaWorld;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpilers
@@ -24,7 +25,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
             if (matcher.IsInvalid)
             {
-                NebulaModel.Logger.Log.Error("Get_nearestFactory_Transpiler failed. Mod version not compatible with game version.");
+                NebulaModel.Logger.Log.Error("Player.Get_nearestFactory_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
 
@@ -37,6 +38,32 @@ namespace NebulaPatcher.Patches.Transpilers
                     return LocalPlayer.IsMasterClient || !SimulatedWorld.Initialized;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Brfalse, op))
+                .InstructionEnumeration();
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(Player.Free))]
+        public static IEnumerable<CodeInstruction> Free_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_controller"),
+                    new CodeMatch(OpCodes.Ldnull),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "op_Inequality"),
+                    new CodeMatch(OpCodes.Brfalse)
+                );
+
+            if (matcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("Player.Free_Transpiler failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+
+            var jumpOperand = matcher.InstructionAt(4).operand;
+
+            return matcher
+                .SetOperandAndAdvance(jumpOperand)
                 .InstructionEnumeration();
         }
     }
