@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Belt;
 using NebulaWorld;
 using NebulaWorld.Factory;
@@ -10,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class CargoTraffic_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("PickupBeltItems")]
+        [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
         public static void PickupBeltItems_Prefix()
         {
             if (SimulatedWorld.Initialized)
@@ -20,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("PickupBeltItems")]
+        [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
         public static void PickupBeltItems_Postfix()
         {
             if (SimulatedWorld.Initialized && GameMain.data.localPlanet != null)
@@ -30,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("PutItemOnBelt")]
+        [HarmonyPatch(nameof(CargoTraffic.PutItemOnBelt))]
         public static void PutItemOnBelt_Prefix(int beltId, int itemId)
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
@@ -40,7 +39,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AlterBeltRenderer")]
+        [HarmonyPatch(nameof(CargoTraffic.AlterBeltRenderer))]
         public static bool AlterBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
@@ -48,7 +47,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveBeltRenderer")]
+        [HarmonyPatch(nameof(CargoTraffic.RemoveBeltRenderer))]
         public static bool RemoveBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
@@ -56,7 +55,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AlterPathRenderer")]
+        [HarmonyPatch(nameof(CargoTraffic.AlterPathRenderer))]
         public static bool AlterPathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
@@ -64,7 +63,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemovePathRenderer")]
+        [HarmonyPatch(nameof(CargoTraffic.RemovePathRenderer))]
         public static bool RemovePathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
@@ -72,7 +71,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RefreshPathUV")]
+        [HarmonyPatch(nameof(CargoTraffic.RefreshPathUV))]
         public static bool RefreshPathUV_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request

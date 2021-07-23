@@ -7,7 +7,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class PARTNER_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("UploadClusterGenerationToGalaxyServer")]
+        [HarmonyPatch(nameof(PARTNER.UploadClusterGenerationToGalaxyServer))]
         public static bool UploadClusterGenerationToGalaxyServer_Prefix()
         {
             // We don't want to upload Milky Way data if we are playing MP

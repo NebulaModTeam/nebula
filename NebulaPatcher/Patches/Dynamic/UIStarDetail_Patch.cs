@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
             {
-                if(__instance.star != null && !string.IsNullOrEmpty(__instance.star.overrideName))
+                if (__instance.star != null && !string.IsNullOrEmpty(__instance.star.overrideName))
                 {
                     // Send packet with new star name
                     LocalPlayer.SendPacket(new NameInputPacket(__instance.star.overrideName, __instance.star.id, LocalPlayer.PlayerId));

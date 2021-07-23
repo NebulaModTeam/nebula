@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 }
             }
 
-            if(!found)
+            if (!found)
                 NebulaModel.Logger.Log.Error("UpdateTargets transpiler 1 failed");
 
             found = false;
@@ -108,7 +108,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
             if (!found)
                 NebulaModel.Logger.Log.Error("UpdateDrones transpiler 1 failed. Mod version not compatible with game version.");
-            
+
             found = false;
 
             for (int i = 0; i < codes.Count; i++)
@@ -159,7 +159,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     new CodeMatch(OpCodes.Brtrue)
                 );
 
-            if(codeMatcher.IsInvalid)
+            if (codeMatcher.IsInvalid)
             {
                 NebulaModel.Logger.Log.Error("MechaDroneLogic_Transpiler.FindNext failed. Mod version not compatible with game version.");
                 return instructions;

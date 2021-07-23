@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerAction_Build.DoUpgradeObject))]
-        public static bool DoUpgradeObject_Prefix(PlayerAction_Build __instance, int objId, int grade, int  upgrade)
+        public static bool DoUpgradeObject_Prefix(PlayerAction_Build __instance, int objId, int grade, int upgrade)
         {
             if (!SimulatedWorld.Initialized)
             {
@@ -63,12 +63,12 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlayerAction_Build.SetFactoryReferences))]
         public static bool SetFactoryReferences_Prefix()
         {
-            if(!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Initialized)
             {
                 return true;
             }
 
-            if((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
+            if ((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
             {
                 return false;
             }

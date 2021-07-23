@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class DysonSphereLayer_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("NewDysonNode")]
+        [HarmonyPatch(nameof(DysonSphereLayer.NewDysonNode))]
         public static bool NewDysonNode_Prefix(DysonSphereLayer __instance, int __result, int protoId, Vector3 pos)
         {
             if (!SimulatedWorld.Initialized)
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("NewDysonFrame")]
+        [HarmonyPatch(nameof(DysonSphereLayer.NewDysonFrame))]
         public static bool NewDysonFrame_Prefix(DysonSphereLayer __instance, int __result, int protoId, int nodeAId, int nodeBId, bool euler)
         {
             if (!SimulatedWorld.Initialized)
@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveDysonFrame")]
+        [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonFrame))]
         public static bool RemoveDysonFrame_Prefix(DysonSphereLayer __instance, int frameId)
         {
             if (!SimulatedWorld.Initialized)
@@ -60,7 +60,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveDysonNode")]
+        [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonNode))]
         public static bool RemoveDysonNode_Prefix(DysonSphereLayer __instance, int nodeId)
         {
             if (!SimulatedWorld.Initialized)
@@ -76,7 +76,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("NewDysonShell")]
+        [HarmonyPatch(nameof(DysonSphereLayer.NewDysonShell))]
         public static bool NewDysonShell_Prefix(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
         {
             if (!SimulatedWorld.Initialized)
@@ -92,7 +92,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveDysonShell")]
+        [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonShell))]
         public static bool RemoveDysonShell_Prefix(DysonSphereLayer __instance, int shellId)
         {
             if (!SimulatedWorld.Initialized)

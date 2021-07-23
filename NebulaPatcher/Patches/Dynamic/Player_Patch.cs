@@ -1,9 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using NebulaWorld.Universe;
-using System;
-using UnityEngine;
 using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -23,13 +19,13 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(Player.TryAddItemToPackage))]
         public static bool TryAddItemToPackage_Prefix(ref int __result)
         {
-            if(!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Initialized)
             {
                 return true;
             }
 
             // We should only add items to player if player requested
-            if((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
+            if ((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
             {
                 __result = 0;
                 return false;

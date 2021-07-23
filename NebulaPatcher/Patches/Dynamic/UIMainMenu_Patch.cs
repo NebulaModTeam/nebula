@@ -167,7 +167,7 @@ namespace NebulaPatcher.Patches.Dynamic
             hostIPAdressInput.characterLimit = 255;
 
             string ip = "127.0.0.1";
-            if(Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+            if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
             {
                 ip = Config.Options.LastIP;
             }

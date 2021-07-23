@@ -4,7 +4,9 @@ using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using System;
+#if DEBUG
 using System.IO;
+#endif
 using System.Reflection;
 using UnityEngine;
 

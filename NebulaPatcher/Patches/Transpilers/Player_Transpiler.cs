@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Brfalse));
 
-            if(matcher.IsInvalid)
+            if (matcher.IsInvalid)
             {
                 NebulaModel.Logger.Log.Error("Get_nearestFactory_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;

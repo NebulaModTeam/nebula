@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (LocalPlayer.IsMasterClient)
                 {
                     PointerEventData pointEventData = evt as PointerEventData;
-                    if(GameMain.mainPlayer.inhandItemId == __instance.station.storage[__instance.index].itemId && pointEventData.button == PointerEventData.InputButton.Left)
+                    if (GameMain.mainPlayer.inhandItemId == __instance.station.storage[__instance.index].itemId && pointEventData.button == PointerEventData.InputButton.Left)
                     {
                         int diff = __instance.station.storage[__instance.index].max - __instance.station.storage[__instance.index].count;
                         int amount = (diff >= GameMain.mainPlayer.inhandItemCount) ? GameMain.mainPlayer.inhandItemCount : diff;

@@ -1,14 +1,14 @@
 ﻿using HarmonyLib;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NGPT;
 using System.Collections.Generic;
-using System.Reflection;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
-using NebulaModel;
-using System.ComponentModel;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -207,7 +207,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 slider.wholeNumbers = !isFloatingPoint;
                 Text sliderThumbText = slider.GetComponentInChildren<Text>();
                 slider.onValueChanged.RemoveAllListeners();
-                slider.onValueChanged.AddListener((value) => 
+                slider.onValueChanged.AddListener((value) =>
                 {
                     prop.SetValue(tempMultiplayerOptions, value, null);
                     sliderThumbText.text = value.ToString(isFloatingPoint ? "0.00" : "0");
@@ -222,9 +222,10 @@ namespace NebulaPatcher.Patches.Dynamic
             else
             {
                 InputField input = element.GetComponentInChildren<InputField>();
-                
+
                 input.onValueChanged.RemoveAllListeners();
-                input.onValueChanged.AddListener((str) => {
+                input.onValueChanged.AddListener((str) =>
+                {
                     try
                     {
                         var converter = TypeDescriptor.GetConverter(prop.PropertyType);
@@ -240,7 +241,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         }
 
                         prop.SetValue(tempMultiplayerOptions, value, null);
-                    } 
+                    }
                     catch
                     {
                         // If the char is not a number, rollback to previous value
