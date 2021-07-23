@@ -103,12 +103,21 @@ namespace NebulaWorld.Factory
                     }
                     else if (incomingBlueprintEvent)
                     {
-                        // TODO: Do we need to cache and revert bpCursor and bpTool to what it was after we've done this ?
-                        List<BuildPreview> incomingPreviews = packet.GetBuildPreviews();
                         BuildTool_BlueprintPaste bpTool = buildTool as BuildTool_BlueprintPaste;
+
+                        // Cache the current data before performing the requested CreatePrebuilds();
+                        int previousCursor = bpTool.bpCursor;
+                        BuildPreview[] previousPool = bpTool.bpPool;
+
+                        // Perform the requested CreatePrebuilds();
+                        List<BuildPreview> incomingPreviews = packet.GetBuildPreviews();
                         bpTool.bpCursor = incomingPreviews.Count;
                         bpTool.bpPool = incomingPreviews.ToArray();
                         bpTool.CreatePrebuilds();
+
+                        // Revert to previous data
+                        bpTool.bpCursor = previousCursor;
+                        bpTool.bpPool = previousPool;
                     }
                 }
 
