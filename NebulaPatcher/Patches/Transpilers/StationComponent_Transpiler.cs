@@ -28,7 +28,6 @@ namespace NebulaPatcher.Patches.Transpilers
         private static int RemOrderCounter = 0;
         private static int RemOrderCounter2 = 0;
         private static int RemOrderCounter3 = 0;
-        private static int EnergyCounter = 0;
 
         [HarmonyTranspiler]
         [HarmonyPatch("RematchRemotePairs")]

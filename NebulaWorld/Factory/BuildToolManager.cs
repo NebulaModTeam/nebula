@@ -33,6 +33,7 @@ namespace NebulaWorld.Factory
                     break;
                 }
             }
+
             if (pab != null && buildTool != null)
             {
                 FactoryManager.TargetPlanet = packet.PlanetId;
@@ -52,10 +53,17 @@ namespace NebulaWorld.Factory
                     FactoryManager.AddPlanetTimer(packet.PlanetId);
                 }
 
+                bool incomingBlueprintEvent = packet.BuildToolType == typeof(BuildTool_BlueprintPaste).ToString();
+
                 //Create Prebuilds from incoming packet and prepare new position
                 List<BuildPreview> tmpList = new List<BuildPreview>();
-                tmpList.AddRange(buildTool.buildPreviews); buildTool.buildPreviews.Clear();
-                buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
+                if (!incomingBlueprintEvent)
+                {
+                    tmpList.AddRange(buildTool.buildPreviews);
+                    buildTool.buildPreviews.Clear();
+                    buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
+                }
+
                 FactoryManager.EventFactory = planet.factory;
 
                 //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
@@ -77,8 +85,6 @@ namespace NebulaWorld.Factory
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                Debug.Log(buildTool.buildPreviews[0].condition);
-
                 if (canBuild || FactoryManager.EventFromServer)
                 {
                     if (FactoryManager.EventFromClient) CheckAndFixConnections(buildTool, planet);
@@ -95,6 +101,15 @@ namespace NebulaWorld.Factory
                     {
                         ((BuildTool_Inserter)buildTool).CreatePrebuilds();
                     }
+                    else if (incomingBlueprintEvent)
+                    {
+                        // TODO: Do we need to cache and revert bpCursor and bpTool to what it was after we've done this ?
+                        List<BuildPreview> incomingPreviews = packet.GetBuildPreviews();
+                        BuildTool_BlueprintPaste bpTool = buildTool as BuildTool_BlueprintPaste;
+                        bpTool.bpCursor = incomingPreviews.Count;
+                        bpTool.bpPool = incomingPreviews.ToArray();
+                        bpTool.CreatePrebuilds();
+                    }
                 }
 
                 //Revert changes back to the original planet
@@ -110,8 +125,11 @@ namespace NebulaWorld.Factory
                 GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
                 FactoryManager.EventFactory = null;
 
-                buildTool.buildPreviews.Clear();
-                buildTool.buildPreviews.AddRange(tmpList);
+                if (!incomingBlueprintEvent)
+                {
+                    buildTool.buildPreviews.Clear();
+                    buildTool.buildPreviews.AddRange(tmpList);
+                }
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                 FactoryManager.PacketAuthor = -1;
