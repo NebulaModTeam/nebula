@@ -18,6 +18,8 @@ namespace NebulaNetwork.PacketProcessors.Statistics
 
         public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
         {
+            if (IsClient) return;
+
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {
