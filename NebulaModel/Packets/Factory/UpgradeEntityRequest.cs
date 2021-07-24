@@ -4,7 +4,6 @@
     {
         public int PlanetId { get; set; }
         public int ObjId { get; set; }
-        public int Grade { get; set; }
         public int UpgradeProtoId { get; set; }
         public int AuthorId { get; set; }
 
