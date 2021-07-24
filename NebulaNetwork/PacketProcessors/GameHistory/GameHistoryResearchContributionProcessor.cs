@@ -18,7 +18,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             {
                 Log.Info($"ProcessPacket researchContribution: got package for same tech");
                 GameMain.history.AddTechHash(packet.Hashes);
-                PlayerManager playerManager = MultiplayerHostSession.Instance.PlayerManager;
+                PlayerManager playerManager = MultiplayerHostSession.Instance?.PlayerManager;
                 playerManager.GetPlayer(conn).UpdateResearchProgress(packet.TechId, packet.Hashes);
                 Log.Debug($"ProcessPacket researchContribution: playerid by: {playerManager.GetPlayer(conn).Id} - hashes {packet.Hashes}");
             }
