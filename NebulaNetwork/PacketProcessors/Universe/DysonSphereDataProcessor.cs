@@ -10,6 +10,8 @@ namespace NebulaNetwork.PacketProcessors.Universe
     {
         public override void ProcessPacket(DysonSphereData packet, NebulaConnection conn)
         {
+            if (IsHost) return;
+
             //Failsafe, if client does not have instantiated sphere for the star, it will create dummy one that will be replaced during import
             if (GameMain.data.dysonSpheres[packet.StarIndex] == null)
             {

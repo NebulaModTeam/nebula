@@ -9,36 +9,56 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     class DysonSphereRemoveNodeProcessor : PacketProcessor<DysonSphereRemoveNodePacket>
     {
+        private PlayerManager playerManager;
+
+        public DysonSphereRemoveNodeProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
+
         public override void ProcessPacket(DysonSphereRemoveNodePacket packet, NebulaConnection conn)
         {
-            using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
+            bool valid = true;
+            if (IsHost)
             {
-                DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-                if (dsl != null)
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                    playerManager.SendPacketToOtherPlayers(packet, player);
+                else
+                    valid = false;
+            }
+
+            if (valid)
+            {
+                using (DysonSphereManager.IsIncomingRequest.On())
                 {
-                    int num = 0;
-                    DysonNode dysonNode = dsl.nodePool[packet.NodeId];
-                    //Remove all frames that are part of the node
-                    while (dysonNode.frames.Count > 0)
+                    DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+                    if (dsl != null)
                     {
-                        dsl.RemoveDysonFrame(dysonNode.frames[0].id);
-                        if (num++ > 4096)
+                        int num = 0;
+                        DysonNode dysonNode = dsl.nodePool[packet.NodeId];
+                        //Remove all frames that are part of the node
+                        while (dysonNode.frames.Count > 0)
                         {
-                            Assert.CannotBeReached();
-                            break;
+                            dsl.RemoveDysonFrame(dysonNode.frames[0].id);
+                            if (num++ > 4096)
+                            {
+                                Assert.CannotBeReached();
+                                break;
+                            }
                         }
-                    }
-                    //Remove all shells that are part of the node
-                    while (dysonNode.shells.Count > 0)
-                    {
-                        dsl.RemoveDysonShell(dysonNode.shells[0].id);
-                        if (num++ > 4096)
+                        //Remove all shells that are part of the node
+                        while (dysonNode.shells.Count > 0)
                         {
-                            Assert.CannotBeReached();
-                            break;
+                            dsl.RemoveDysonShell(dysonNode.shells[0].id);
+                            if (num++ > 4096)
+                            {
+                                Assert.CannotBeReached();
+                                break;
+                            }
                         }
+                        dsl.RemoveDysonNode(packet.NodeId);
                     }
-                    dsl.RemoveDysonNode(packet.NodeId);
                 }
             }
         }

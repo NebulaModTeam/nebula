@@ -10,6 +10,8 @@ namespace NebulaNetwork.PacketProcessors.Universe
     {
         public override void ProcessPacket(DysonSphereLoadRequest packet, NebulaConnection conn)
         {
+            if (IsClient) return;
+
             DysonSphere dysonSphere = GameMain.data.CreateDysonSphere(packet.StarIndex);
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())

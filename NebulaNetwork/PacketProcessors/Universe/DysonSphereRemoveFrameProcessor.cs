@@ -9,14 +9,34 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     class DysonSphereRemoveFrameProcessor : PacketProcessor<DysonSphereRemoveFramePacket>
     {
+        private PlayerManager playerManager;
+
+        public DysonSphereRemoveFrameProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
+
         public override void ProcessPacket(DysonSphereRemoveFramePacket packet, NebulaConnection conn)
         {
-            using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
+            bool valid = true;
+            if (IsHost)
             {
-                DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-                if (DysonSphere_Manager.CanRemoveFrame(packet.FrameId, dsl))
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                    playerManager.SendPacketToOtherPlayers(packet, player);
+                else
+                    valid = false;
+            }
+
+            if (valid)
+            {
+                using (DysonSphereManager.IsIncomingRequest.On())
                 {
-                    dsl.RemoveDysonFrame(packet.FrameId);
+                    DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+                    if (DysonSphereManager.CanRemoveFrame(packet.FrameId, dsl))
+                    {
+                        dsl.RemoveDysonFrame(packet.FrameId);
+                    }
                 }
             }
         }

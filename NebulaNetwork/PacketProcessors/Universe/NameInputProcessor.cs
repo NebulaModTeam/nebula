@@ -13,29 +13,44 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     class NameInputProcessor : PacketProcessor<NameInputPacket>
     {
+        private PlayerManager playerManager;
+
+        public NameInputProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
+
         public override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
         {
-            // We don't want to process events that we sent
-            if (packet.AuthorId == LocalPlayer.PlayerId)
+            bool valid = true;
+            if (IsHost)
             {
-                return;
-            }
-            using (FactoryManager.IsIncomingRequest.On())
-            {
-                // If stellarId > 100 then it must be a planet
-                if (packet.StellarId > 100)
-                {
-                    var planet = GameMain.galaxy.PlanetById(packet.StellarId);
-                    planet.overrideName = packet.Name;
-                    planet.NotifyOnDisplayNameChange();
-                }
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                    playerManager.SendPacketToOtherPlayers(packet, player);
                 else
+                    valid = false;
+            }
+
+            if (valid)
+            {
+                using (FactoryManager.IsIncomingRequest.On())
                 {
-                    var star = GameMain.galaxy.StarById(packet.StellarId);
-                    star.overrideName = packet.Name;
-                    star.NotifyOnDisplayNameChange();
+                    // If stellarId > 100 then it must be a planet
+                    if (packet.StellarId > 100)
+                    {
+                        var planet = GameMain.galaxy.PlanetById(packet.StellarId);
+                        planet.overrideName = packet.Name;
+                        planet.NotifyOnDisplayNameChange();
+                    }
+                    else
+                    {
+                        var star = GameMain.galaxy.StarById(packet.StellarId);
+                        star.overrideName = packet.Name;
+                        star.NotifyOnDisplayNameChange();
+                    }
+                    GameMain.galaxy.NotifyAstroNameChange();
                 }
-                GameMain.galaxy.NotifyAstroNameChange();
             }
         }
     }

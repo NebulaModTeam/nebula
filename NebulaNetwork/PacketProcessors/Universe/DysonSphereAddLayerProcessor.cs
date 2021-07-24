@@ -10,13 +10,31 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     public class DysonSphereAddLayerProcessor : PacketProcessor<DysonSphereAddLayerPacket>
     {
-        public static bool IncomingPacket = false;
+        private PlayerManager playerManager;
+
+        public DysonSphereAddLayerProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
 
         public override void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)
         {
-            using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
+            bool valid = true;
+            if (IsHost)
             {
-                GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToQuaternion(packet.OrbitRotation), packet.OrbitAngularSpeed);
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                    playerManager.SendPacketToOtherPlayers(packet, player);
+                else
+                    valid = false;
+            }
+
+            if (valid)
+            {
+                using (DysonSphereManager.IsIncomingRequest.On())
+                {
+                    GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToQuaternion(packet.OrbitRotation), packet.OrbitAngularSpeed);
+                }
             }
         }
     }

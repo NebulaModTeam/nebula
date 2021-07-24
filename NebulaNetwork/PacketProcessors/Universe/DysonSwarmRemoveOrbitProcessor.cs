@@ -9,11 +9,31 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     class DysonSwarmRemoveOrbitProcessor : PacketProcessor<DysonSwarmRemoveOrbitPacket>
     {
+        private PlayerManager playerManager;
+
+        public DysonSwarmRemoveOrbitProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
+
         public override void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
         {
-            using (DysonSphere_Manager.IncomingDysonSwarmPacket.On())
+            bool valid = true;
+            if (IsHost)
             {
-                GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.RemoveOrbit(packet.OrbitId);
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                    playerManager.SendPacketToOtherPlayers(packet, player);
+                else
+                    valid = false;
+            }
+
+            if (valid)
+            {
+                using (DysonSphereManager.IncomingDysonSwarmPacket.On())
+                {
+                    GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.RemoveOrbit(packet.OrbitId);
+                }
             }
         }
     }

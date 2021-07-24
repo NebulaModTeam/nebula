@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace NebulaWorld.Universe
 {
-    public static class DysonSphere_Manager
+    public static class DysonSphereManager
     {
-        public static readonly ToggleSwitch IncomingDysonSpherePacket = new ToggleSwitch();
+        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
         public static readonly ToggleSwitch IncomingDysonSwarmPacket = new ToggleSwitch();
 
         public static List<DysonSphereAddFramePacket> QueuedAddFramePackets = new List<DysonSphereAddFramePacket>();
