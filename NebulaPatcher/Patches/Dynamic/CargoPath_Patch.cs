@@ -33,25 +33,32 @@ namespace NebulaPatcher.Patches.Dynamic
         //    return Matrix4x4.TRS(triangle[0], rotation, Vector3.one);
         //}
 
-        private static Matrix4x4 Get3DPoint3DPlaneAs2DPointProjectionMatrix2(Vector3 point0, Vector3 point1, Vector3 point2, out Vector3 z)
+        private static Matrix4x4 Get3DPoint3DPlaneAs2DPointProjectionMatrix2(Vector3 point0, Vector3 point1, Vector3 point2)
         {
             // Adapted from https://stackoverflow.com/a/52163563/13620003
 
-            var x = point1 - point0;
-            x.Normalize();
-            var y = point2 - point0;
-            z = Vector3.Cross(x, y);
-            z.Normalize();
-            y = Vector3.Cross(z, x);
-            y.Normalize();
-            var o = point0;
+            //var x = point1 - point0;
+            //x.Normalize();
+            //var y = point2 - point0;
+            //z = Vector3.Cross(x, y);
+            //z.Normalize();
+            //y = Vector3.Cross(z, x);
+            //y.Normalize();
+            //var o = point0;
 
+            var x = point1 - point0;
+            var y = point2 - point0;
+            var z = Vector3.Cross(x, y);
+            y = Vector3.Cross(z, x);
+            x.Normalize();
+            z.Normalize();
+            y.Normalize();
 
             return new Matrix4x4(
                 new Vector4(x.x, x.y, x.z, 0),
                 new Vector4(y.x, y.y, y.z, 0),
                 new Vector4(z.x, z.y, z.z, 0),
-                new Vector4(o.x, o.y, o.z, 1)
+                new Vector4(point0.x, point0.y, point0.z, 1)
             );
 
         }
@@ -521,10 +528,10 @@ namespace NebulaPatcher.Patches.Dynamic
                         Debug.Log($"pointB is {pointB.x}, {pointB.y}, {pointB.z}");
                         var pointC = __instance.pointPos[endIndex];
                         Debug.Log($"pointC is {pointC.x}, {pointC.y}, {pointC.z}");
-                        Vector3 vectoruN;
+                        //Vector3 vectoruN;
                         //var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrixTroughOrigin(__instance.pointPos[startIndexP], __instance.pointPos[endIndexP], out vectoruN); // We should not use this ^, because we risk that the points are linear
                         //var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrixTroughOrigin(__instance.pointPos[startIndex], __instance.pointPos[startIndex + 1], out vectoruN);
-                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex], out vectoruN);
+                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
                         //w.Write(vectoruN.x);
                         //w.Write(vectoruN.y);
                         //w.Write(vectoruN.z);
@@ -534,12 +541,12 @@ namespace NebulaPatcher.Patches.Dynamic
 
                         //Debug.Log($"Matrix M is {matrixM}");
 
-                        var projection = Vector3.Project(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], vectoruN);
-                        Debug.Log($"vectoruN is {vectoruN.x}, {vectoruN.y}, {vectoruN.z}");
-                        var offset = Vector3.Dot(projection, vectoruN);
-                        Debug.Log($"Distance offset along the normal is {offset}");
-                        var vectorN = vectoruN * offset;
-                        Debug.Log($"vectorN is {vectorN.x}, {vectorN.y}, {vectorN.z}");
+                        //var projection = Vector3.Project(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], vectoruN);
+                        //Debug.Log($"vectoruN is {vectoruN.x}, {vectoruN.y}, {vectoruN.z}");
+                        //var offset = Vector3.Dot(projection, vectoruN);
+                        //Debug.Log($"Distance offset along the normal is {offset}");
+                        //var vectorN = vectoruN * offset;
+                        //Debug.Log($"vectorN is {vectorN.x}, {vectorN.y}, {vectorN.z}");
 
                         //matrixM = new Matrix4x4(
                         //    new Vector4(1, 0, 0, 0),
@@ -548,24 +555,24 @@ namespace NebulaPatcher.Patches.Dynamic
                         //    new Vector4(vectorN.x, vectorN.y, vectorN.z, 1)
                         //) * matrixM;
 
-                        var negativeTranslationMatrix = new Matrix4x4(
-                            new Vector4(1, 0, 0, 0),
-                            new Vector4(0, 1, 0, 0),
-                            new Vector4(0, 0, 1, 0),
-                            new Vector4(projection.x, projection.y, projection.z, 1)
-                        );
+                        //var negativeTranslationMatrix = new Matrix4x4(
+                        //    new Vector4(1, 0, 0, 0),
+                        //    new Vector4(0, 1, 0, 0),
+                        //    new Vector4(0, 0, 1, 0),
+                        //    new Vector4(projection.x, projection.y, projection.z, 1)
+                        //);
 
-                        var planarPolarAngle = Vector3.Angle(vectoruN, Vector3.up);
+                        //var planarPolarAngle = Vector3.Angle(vectoruN, Vector3.up);
                         //Debug.Log($"planarPolarAngle for sequence {j} is {planarPolarAngle} is 90 is {Mathf.Approximately(planarPolarAngle, 90)}");
 
                         for (int i = 0; i < repCount; i++)
                         {
                             // Write 2D coordinates on plane
 
-                            var test1 = __instance.pointPos[startIndex + i] - projection;
-                            var test2 = negativeTranslationMatrix * __instance.pointPos[startIndex + i];
-                            Debug.Log($"test1 is ({test1.x}, {test1.y}, {test1.z})");
-                            Debug.Log($"test2 is ({test2.x}, {test2.y}, {test2.z})");
+                            //var test1 = __instance.pointPos[startIndex + i] - projection;
+                            //var test2 = negativeTranslationMatrix * __instance.pointPos[startIndex + i];
+                            //Debug.Log($"test1 is ({test1.x}, {test1.y}, {test1.z})");
+                            //Debug.Log($"test2 is ({test2.x}, {test2.y}, {test2.z})");
 
                             // TODO: For the first one we can probably just take the already written point
                             //var projectedPoint = matrixM * (__instance.pointPos[startIndex + i] - projection); // Works
@@ -618,10 +625,10 @@ namespace NebulaPatcher.Patches.Dynamic
                     Debug.Log($"pointB is {pointB.x}, {pointB.y}, {pointB.z}");
                     var pointC = __instance.pointPos[endIndex];
                     Debug.Log($"pointC is {pointC.x}, {pointC.y}, {pointC.z}");
-                    Vector3 vectoruN;
+                    //Vector3 vectoruN;
                     //var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrixTroughOrigin(__instance.pointPos[startIndexP], __instance.pointPos[endIndexP], out vectoruN); // We should not use this, because we risk that the points are linear
                     //var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrixTroughOrigin(__instance.pointPos[startIndex], __instance.pointPos[startIndex + 1], out vectoruN);
-                    var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEndP/2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex], out vectoruN);
+                    var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEndP/2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
                     //w.Write(vectoruN.x);
                     //w.Write(vectoruN.y);
                     //w.Write(vectoruN.z);
@@ -633,12 +640,12 @@ namespace NebulaPatcher.Patches.Dynamic
 
                     
 
-                    var projection = Vector3.Project(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEndP / 2)], vectoruN);
-                    Debug.Log($"vectoruN is {vectoruN.x}, {vectoruN.y}, {vectoruN.z}");
-                    var offset = Vector3.Dot(projection, vectoruN);
-                    Debug.Log($"Distance offset along the normal is {offset}");
-                    var vectorN = vectoruN * offset;
-                    Debug.Log($"vectorN is {vectorN.x}, {vectorN.y}, {vectorN.z}");
+                    //var projection = Vector3.Project(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEndP / 2)], vectoruN);
+                    //Debug.Log($"vectoruN is {vectoruN.x}, {vectoruN.y}, {vectoruN.z}");
+                    //var offset = Vector3.Dot(projection, vectoruN);
+                    //Debug.Log($"Distance offset along the normal is {offset}");
+                    //var vectorN = vectoruN * offset;
+                    //Debug.Log($"vectorN is {vectorN.x}, {vectorN.y}, {vectorN.z}");
 
                     //matrixM = new Matrix4x4(
                     //    new Vector4(1, 0, 0, 0),
@@ -647,14 +654,14 @@ namespace NebulaPatcher.Patches.Dynamic
                     //    new Vector4(vectorN.x, vectorN.y, vectorN.z, 1)
                     //) * matrixM;
 
-                    var negativeTranslationMatrix = new Matrix4x4(
-                        new Vector4(1, 0, 0, 0),
-                        new Vector4(0, 1, 0, 0),
-                        new Vector4(0, 0, 1, 0),
-                        new Vector4(projection.x, projection.y, projection.z, 1)
-                    );
+                    //var negativeTranslationMatrix = new Matrix4x4(
+                    //    new Vector4(1, 0, 0, 0),
+                    //    new Vector4(0, 1, 0, 0),
+                    //    new Vector4(0, 0, 1, 0),
+                    //    new Vector4(projection.x, projection.y, projection.z, 1)
+                    //);
 
-                    var planarPolarAngle = Vector3.Angle(vectoruN, Vector3.up);
+                    //var planarPolarAngle = Vector3.Angle(vectoruN, Vector3.up);
                     //Debug.Log($"planarPolarAngle for sequence {planarSimilarityDifferentialIndexes.Count} is {planarPolarAngle} is 90 is {Mathf.Approximately(planarPolarAngle, 90)}");
 
                     for (int i = 0; i < repCountForEndP; i++)
