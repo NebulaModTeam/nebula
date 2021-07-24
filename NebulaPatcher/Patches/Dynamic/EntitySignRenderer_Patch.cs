@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel;
-using NebulaModel.Logger;
-using System.Collections.Generic;
+using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -12,6 +11,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("Init")]
         public static void Init_Postfix()
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showIcon") = Config.Options.BuildingIconEnabled;
             AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showSign") = Config.Options.BuildingWarningEnabled;
         }

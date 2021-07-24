@@ -15,6 +15,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfGuideButtonClick")]
         public static void OnDfGuideButtonClick_Postfix(UIGameMenu __instance)
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             Config.Options.SpaceNavigationEnabled = __instance.uiGame.dfSpaceGuideOn;
             Config.SaveOptions();
         }
@@ -23,6 +28,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfIconButtonClick")]
         public static void OnDfIconButtonClick_Postfix(UIGameMenu __instance)
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             Config.Options.BuildingIconEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showIcon");
             Config.SaveOptions();
         }
@@ -31,6 +41,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfLightButtonClick")]
         public static void OnDfLightButtonClick_Postfix(UIGameMenu __instance)
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             Config.Options.GuidingLightEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PowerSystemRenderer), "powerGraphOn");
             Config.SaveOptions();
         }
@@ -39,6 +54,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfPowerButtonClick")]
         public static void OnDfPowerButtonClick_Postfix(UIGameMenu __instance)
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             Config.Options.PowerGridEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight");
             Config.SaveOptions();
         }
@@ -47,6 +67,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfSignButtonClick")]
         public static void OnDfSignButtonClick_Postfix(UIGameMenu __instance)
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             Config.Options.BuildingWarningEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showSign");
             Config.SaveOptions();
         }
@@ -55,6 +80,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfVeinButtonClick")]
         public static void OnDfVeinButtonClick_Postfix(UIGameMenu __instance)
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             Config.Options.VeinDistributionEnabled = __instance.uiGame.dfVeinOn;
             Config.SaveOptions();
         }

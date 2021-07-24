@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel;
-using NebulaModel.Logger;
-using System.Collections.Generic;
+using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -12,6 +11,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("Start")]
         public static void Start_Postfix(UIGameMenu __instance)
         {
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            {
+                return;
+            }
+
             AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight") = Config.Options.GuidingLightEnabled;
         }
     }
