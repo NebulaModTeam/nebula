@@ -10,9 +10,34 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     class PlayerUseWarperProcessor : PacketProcessor<PlayerUseWarper>
     {
+        private PlayerManager playerManager;
+
+        public PlayerUseWarperProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
+
         public override void ProcessPacket(PlayerUseWarper packet, NebulaConnection conn)
         {
-            SimulatedWorld.UpdateRemotePlayerWarpState(packet);
+            bool valid = true;
+            if (IsHost)
+            {
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                {
+                    packet.PlayerId = player.Id;
+                    playerManager.SendPacketToOtherPlayers(packet, player);
+                }
+                else
+                {
+                    valid = false;
+                }
+            }
+
+            if (valid)
+            {
+                SimulatedWorld.UpdateRemotePlayerWarpState(packet);
+            }
         }
     }
 }

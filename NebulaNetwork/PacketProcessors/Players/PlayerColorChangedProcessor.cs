@@ -7,16 +7,16 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    public class PlayerAnimationUpdateProcessor : PacketProcessor<PlayerAnimationUpdate>
+    public class PlayerColorChangedProcessor : PacketProcessor<PlayerColorChanged>
     {
         private PlayerManager playerManager;
 
-        public PlayerAnimationUpdateProcessor()
+        public PlayerColorChangedProcessor()
         {
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
 
-        public override void ProcessPacket(PlayerAnimationUpdate packet, NebulaConnection conn)
+        public override void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
         {
             bool valid = true;
 
@@ -25,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 Player player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
-                    packet.PlayerId = player.Id;
+                    player.Data.MechaColor = packet.Color;
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 }
                 else
@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                SimulatedWorld.UpdateRemotePlayerAnimation(packet);
+                SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color);
             }
         }
     }
