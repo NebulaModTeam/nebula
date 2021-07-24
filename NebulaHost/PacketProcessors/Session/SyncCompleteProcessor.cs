@@ -46,14 +46,14 @@ namespace NebulaHost.PacketProcessors.Session
             {
                 if (!string.IsNullOrEmpty(s.overrideName))
                 {
-                    player.SendPacket(new NameInputPacket(s.overrideName, s.id, LocalPlayer.PlayerId));
+                    player.SendPacket(new NameInputPacket(s.overrideName, s.id, -1, LocalPlayer.PlayerId));
                 }
 
                 foreach (PlanetData p in s.planets)
                 {
                     if (!string.IsNullOrEmpty(p.overrideName))
                     {
-                        player.SendPacket(new NameInputPacket(p.overrideName, p.id, LocalPlayer.PlayerId));
+                        player.SendPacket(new NameInputPacket(p.overrideName, -1, p.id, LocalPlayer.PlayerId));
                     }
                 }
             }
