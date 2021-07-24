@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIGameMenu))]
-    class UIDetailsView_Patch
+    class UIGameMenu_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch("OnDfGuideButtonClick")]
