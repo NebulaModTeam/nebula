@@ -15,6 +15,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     {
         public override void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
         {
+            if (IsClient) return;
+
             StationComponent stationComponent = null;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             StationComponent[] stationPool = GameMain.data.galaxy?.PlanetById(packet.PlanetId)?.factory?.transport?.stationPool;

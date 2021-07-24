@@ -3,55 +3,88 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets;
 using NebulaModel.DataStructures;
-using NebulaWorld.Logistics;
-using UnityEngine;
-
+using NebulaModel.Logger;
+using System.Collections.Generic;
 /*
- * In order for the StationComponent.InternalTickRemote() method to correctly animate ship movement it needs to know
- * the position of the stations docking disk.
- * as we use fake entries in gStationPool for clients that have not visited the planet yet we also need to sync that position.
+ * clients need to know the ship dock position for correct computation of the ship movement.
+ * as clients dont have every PlanetFactory we use fake entries in gStationPool for ILS on planets that the client did not visit yet.
+ * when they create a fake entry they also request the dock position, but we also need to tell the current ship
+ * position and rotation for associated ships as they might have ben calculated wrong (without knowledge of dock position)
  */
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRequestShipDockProcessor: PacketProcessor<ILSShipDock>
+    public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
     {
-        public override void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
+        private PlayerManager playerManager;
+        public ILSRequestShipDockProcessor()
         {
-            // a fake entry should already have been created
-            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];
-            
-            stationComponent.shipDockPos = DataStructureExtensions.ToVector3(packet.shipDockPos);
-            stationComponent.shipDockRot = DataStructureExtensions.ToQuaternion(packet.shipDockRot);
+            playerManager = MultiplayerHostSession.Instance.PlayerManager;
+        }
+        public override void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)
+        {
+            if (IsClient) return;
 
-            for (int i = 0; i < ILSShipManager.ILSMaxShipCount; i++)
-            {
-                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)ILSShipManager.ILSMaxShipCount * (float)i, 0f);
-                stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
-            }
-            for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
-            {
-                stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
-                stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
-            }
+            Player player = playerManager.GetPlayer(conn);
 
-            // sync the current position of the ships as they might have been calculated wrong while we did not have the correct dock position and rotation.
-            for(int i = 0; i < packet.shipOtherGId.Length; i++)
+            if (player == null)
             {
-                /*
-                 * fix for #251
-                 * for some reason shipOtherGId can be 0 in some cases.
-                 * i thought about idle ships not having it set but im not sure. However checking for a 0 here fixes the issue.
-                 */
-                if(packet.shipOtherGId[i] > 0 && packet.shipOtherGId[i] < GameMain.data.galacticTransport.stationPool.Length)
+                player = playerManager.GetSyncingPlayer(conn);
+            }
+            if (player != null && GameMain.data.galacticTransport.stationCapacity > packet.StationGId)
+            {
+                List<int> shipOtherGId = new List<int>();
+                List<int> shipIndex = new List<int>();
+                List<Double3> shipPos = new List<Double3>();
+                List<Float4> shipRot = new List<Float4>();
+                List<Double3> shipPPosTemp = new List<Double3>();
+                List<Float4> shipPRotTemp = new List<Float4>();
+
+                // find ShipData that has otherGId set to packet.stationGId
+                for (int i = 0; i < GameMain.data.galacticTransport.stationCapacity; i++)
                 {
-                    stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];
+                    if (GameMain.data.galacticTransport.stationPool[i] != null)
+                    {
+                        ShipData[] shipData = GameMain.data.galacticTransport.stationPool[i].workShipDatas;
 
-                    stationComponent.workShipDatas[packet.shipIndex[i]].uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
-                    stationComponent.workShipDatas[packet.shipIndex[i]].uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
-                    stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
-                    stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
+                        for (int j = 0; j < shipData.Length; j++)
+                        {
+                            if (shipData[j].otherGId == packet.StationGId)
+                            {
+                                shipOtherGId.Add(shipData[i].otherGId);
+                                shipIndex.Add(j);
+                                shipPos.Add(new Double3(shipData[j].uPos.x, shipData[j].uPos.y, shipData[j].uPos.z));
+                                shipRot.Add(new Float4(shipData[j].uRot));
+                                shipPPosTemp.Add(new Double3(shipData[j].pPosTemp.x, shipData[j].pPosTemp.y, shipData[j].pPosTemp.z));
+                                shipPRotTemp.Add(new Float4(shipData[j].pRotTemp));
+                            }
+                        }
+                    }
                 }
+                // also add add ships of current station as they use the dock pos too in the pos calculation
+                // NOTE: we need to set this stations gid as otherStationGId so that the client accesses the array in the right way
+                ShipData[] shipData2 = GameMain.data.galacticTransport.stationPool[packet.StationGId].workShipDatas;
+
+                for (int i = 0; i < shipData2.Length; i++)
+                {
+                    shipOtherGId.Add(packet.StationGId);
+                    shipIndex.Add(i);
+                    shipPos.Add(new Double3(shipData2[i].uPos.x, shipData2[i].uPos.y, shipData2[i].uPos.z));
+                    shipRot.Add(new Float4(shipData2[i].uRot));
+                    shipPPosTemp.Add(new Double3(shipData2[i].pPosTemp.x, shipData2[i].pPosTemp.y, shipData2[i].pPosTemp.z));
+                    shipPRotTemp.Add(new Float4(shipData2[i].pRotTemp));
+                }
+
+                ILSShipDock packet2 = new ILSShipDock(packet.StationGId,
+                                                                    GameMain.data.galacticTransport.stationPool[packet.StationGId].shipDockPos,
+                                                                    GameMain.data.galacticTransport.stationPool[packet.StationGId].shipDockRot,
+                                                                    shipOtherGId.ToArray(),
+                                                                    shipIndex.ToArray(),
+                                                                    shipPos.ToArray(),
+                                                                    shipRot.ToArray(),
+                                                                    shipPPosTemp.ToArray(),
+                                                                    shipPRotTemp.ToArray());
+                player.SendPacket(packet2);
             }
         }
     }

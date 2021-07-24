@@ -17,10 +17,12 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private PlayerManager playerManager;
         public ILSgStationPoolSyncRequestProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
         public override void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
         {
+            if (IsClient) return;
+
             Player player = playerManager.GetPlayer(conn);
             if(player == null)
             {

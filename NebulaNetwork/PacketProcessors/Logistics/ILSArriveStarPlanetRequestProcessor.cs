@@ -14,12 +14,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     class ILSArriveStarPlanetRequestProcessor: PacketProcessor<ILSArriveStarPlanetRequest>
     {
         private PlayerManager playerManager;
+
         public ILSArriveStarPlanetRequestProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
+
         public override void ProcessPacket(ILSArriveStarPlanetRequest packet, NebulaConnection conn)
         {
+            if (IsClient) return;
+
             Player player = playerManager.GetPlayer(conn);
             if (player == null)
             {

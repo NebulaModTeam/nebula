@@ -11,6 +11,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     {
         public override void ProcessPacket(StationSubscribeUIUpdates packet, NebulaConnection conn)
         {
+            if (IsClient) return;
+
             if (packet.Subscribe)
             {
                 StationUIManager.AddSubscriber(packet.PlanetId, packet.StationId, packet.StationGId, conn);

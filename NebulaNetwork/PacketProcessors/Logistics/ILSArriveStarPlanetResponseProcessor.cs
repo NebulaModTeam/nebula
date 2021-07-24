@@ -11,6 +11,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     {
         public override void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
         {
+            if (IsHost) return;
+
             StationComponent[] gStationPool = null;
             if (packet.Planet == 0) // arrive at solar system
             {

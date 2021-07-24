@@ -10,11 +10,30 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class ILSShipProcessor: PacketProcessor<ILSShipData>
     {
+        private PlayerManager playerManager;
+        public ILSShipProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
+
         public override void ProcessPacket(ILSShipData packet, NebulaConnection conn)
         {
-            using(FactoryManager.IsIncomingRequest.On())
+            if (IsHost)
             {
-                SimulatedWorld.OnILSShipUpdate(packet);
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                {
+                    playerManager.SendPacketToOtherPlayers(packet, player);
+                }
+            }
+
+            // TODO: Shouldn't we call this also on host ??
+            if (IsClient)
+            {
+                using (FactoryManager.IsIncomingRequest.On())
+                {
+                    SimulatedWorld.OnILSShipUpdate(packet);
+                }
             }
         }
     }
