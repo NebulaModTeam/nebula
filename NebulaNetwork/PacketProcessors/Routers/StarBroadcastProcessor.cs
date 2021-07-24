@@ -6,21 +6,22 @@ using NebulaModel.Packets.Routers;
 namespace NebulaNetwork.PacketProcessors.Routers
 {
     [RegisterPacketProcessor]
-    class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
+    class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
     {
         private PlayerManager playerManager;
-        public PlanetBroadcastProcessor()
+        public StarBroadcastProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(StarBroadcastPacket packet, NebulaConnection conn)
         {
+            if (IsClient) return;
+
             Player player = playerManager.GetPlayer(conn);
             if (player != null)
             {
                 //Forward packet to other users
-                playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
-                //Forward packet to the host
+                playerManager.SendRawPacketToStar(packet.PacketObject, packet.StarId, conn);
                 MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
             }
         }
