@@ -10,6 +10,8 @@ namespace NebulaNetwork.PacketProcessors.Trash
     {
         public override void ProcessPacket(TrashSystemResponseDataPacket packet, NebulaConnection conn)
         {
+            if (IsHost) return;
+
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.TrashSystemData))
             {
                 GameMain.data.trashSystem.Import(reader.BinaryReader);

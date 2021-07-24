@@ -9,11 +9,35 @@ namespace NebulaNetwork.PacketProcessors.Trash
     [RegisterPacketProcessor]
     class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemClearAllTrashPacket>
     {
+        private PlayerManager playerManager;
+
+        public TrashSystemClearAllTrashProcessor()
+        {
+            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+        }
+
         public override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
         {
-            using (TrashManager.ClearAllTrashFromOtherPlayers.On())
+            bool valid = true;
+            if (IsHost)
             {
-                GameMain.data.trashSystem.ClearAllTrash();
+                Player player = playerManager.GetPlayer(conn);
+                if (player != null)
+                {
+                    playerManager.SendPacketToOtherPlayers(packet, player);
+                }
+                else
+                {
+                    valid = false;
+                }
+            }
+
+            if (valid)
+            {
+                using (TrashManager.ClearAllTrashFromOtherPlayers.On())
+                {
+                    GameMain.data.trashSystem.ClearAllTrash();
+                }
             }
         }
     }
