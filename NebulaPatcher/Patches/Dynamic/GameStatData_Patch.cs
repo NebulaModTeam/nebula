@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameStatData_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("AfterTick")]
+        [HarmonyPatch(nameof(GameStatData.AfterTick))]
         public static void AfterTick_Postfix()
         {
             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)

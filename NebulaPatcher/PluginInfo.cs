@@ -35,7 +35,7 @@ namespace NebulaPatcher
         /// Version of the plugin. Must be in form <major>.<minor>.<build>.<revision>.
         /// Major and minor versions are mandatory, but build and revision can be left unspecified.
         /// </summary>
-        public const string PLUGIN_VERSION = "0.2.1";
+        public const string PLUGIN_VERSION = "0.3.0";
 
         public static string PLUGIN_SHORT_SHA = new string(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion.Split('+')[1].Take(7).ToArray());
 

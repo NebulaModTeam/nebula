@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
-using NebulaWorld;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld;
+using NebulaWorld.Logistics;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using NebulaWorld.Logistics;
 
 namespace NebulaPatcher.Patches.Transpilers
 {

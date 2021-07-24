@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class SplitterComponent_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("SetPriority")]
+        [HarmonyPatch(nameof(SplitterComponent.SetPriority))]
         public static void SetPriority_Postfix(SplitterComponent __instance, int slot, bool isPriority, int filter)
         {
             if (SimulatedWorld.Initialized && StorageManager.IsHumanInput)

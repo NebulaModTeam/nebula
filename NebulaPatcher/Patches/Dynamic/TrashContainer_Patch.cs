@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     public class TrashContainer_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("RemoveTrash")]
+        [HarmonyPatch(nameof(TrashContainer.RemoveTrash))]
         public static void RemoveTrash_Postfix(int index)
         {
             //Notify other that trash was removed
@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("NewTrash")]
+        [HarmonyPatch(nameof(TrashContainer.NewTrash))]
         public static void NewTrash_Postfix(int __result, TrashObject trashObj, TrashData trashData)
         {
             //Notify other that trash was created 

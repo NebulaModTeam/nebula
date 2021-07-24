@@ -7,7 +7,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class ProductionStatistics_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("PrepareTick")]
+        [HarmonyPatch(nameof(ProductionStatistics.PrepareTick))]
         public static bool PrepareTick_Prefix(ProductionStatistics __instance)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AfterTick")]
+        [HarmonyPatch(nameof(ProductionStatistics.AfterTick))]
         public static bool AfterTick_Prefix(ProductionStatistics __instance)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(ProductionStatistics.GameTick))]
         public static bool GameTick_Prefix(ProductionStatistics __instance)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)

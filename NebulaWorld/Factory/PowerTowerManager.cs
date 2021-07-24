@@ -1,6 +1,7 @@
 ﻿using NebulaModel.Logger;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NebulaWorld.Factory
 {
@@ -129,12 +130,26 @@ namespace NebulaWorld.Factory
 
             if(Energy.TryGetValue(PlanetId, out var mapping))
             {
-                for(int i = 0; i < mapping.Count; i++)
+                if(Monitor.TryEnter(mapping, 100))
                 {
-                    if(mapping[i].NetId == NetId)
+                    try
                     {
-                        return mapping[i].ExtraPower;
+                        for (int i = 0; i < mapping.Count; i++)
+                        {
+                            if (mapping[i].NetId == NetId)
+                            {
+                                return mapping[i].ExtraPower;
+                            }
+                        }
                     }
+                    finally
+                    {
+                        Monitor.Exit(mapping);
+                    }
+                }
+                else
+                {
+                    Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
                 }
             }
 
@@ -152,24 +167,38 @@ namespace NebulaWorld.Factory
                         PlanetFactory factory = GameMain.galaxy.PlanetById(PlanetId).factory;
                         PowerSystem pSystem = factory?.powerSystem;
 
-                        for(int j = 0; j < mapping[i].NodeId.Count; j++)
+                        if(Monitor.TryEnter(mapping, 100))
                         {
-                            if(mapping[i].NodeId[j] == NodeId)
+                            try
                             {
-                                if (factory != null && pSystem != null)
+                                for (int j = 0; j < mapping[i].NodeId.Count; j++)
                                 {
-                                    mapping[i].ExtraPower -= pSystem.nodePool[NodeId].workEnergyPerTick;
-                                }
-                                else
-                                {
-                                    mapping[i].ExtraPower -= mapping[i].ExtraPower / mapping[i].NodeId.Count;
-                                }
+                                    if (mapping[i].NodeId[j] == NodeId)
+                                    {
+                                        if (factory != null && pSystem != null)
+                                        {
+                                            mapping[i].ExtraPower -= pSystem.nodePool[NodeId].workEnergyPerTick;
+                                        }
+                                        else
+                                        {
+                                            mapping[i].ExtraPower -= mapping[i].ExtraPower / mapping[i].NodeId.Count;
+                                        }
 
-                                mapping[i].Activated[j]--;
-                                AddRequested(PlanetId, NetId, NodeId, false, true);
+                                        mapping[i].Activated[j]--;
+                                        AddRequested(PlanetId, NetId, NodeId, false, true);
 
-                                break;
+                                        break;
+                                    }
+                                }
                             }
+                            finally
+                            {
+                                Monitor.Exit(mapping);
+                            }
+                        }
+                        else
+                        {
+                            Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
                         }
 
                         if (mapping[i].ExtraPower < 0)
@@ -187,38 +216,66 @@ namespace NebulaWorld.Factory
             {
                 for(int i = 0; i < mapping.Count; i++)
                 {
-                    if(mapping[i].NetId == NetId)
+                    if(Monitor.TryEnter(mapping, 100))
                     {
-                        bool foundNodeId = false;
-                        for(int j = 0; j < mapping[i].NodeId.Count; j++)
+                        try
                         {
-                            if(mapping[i].NodeId[j] == NodeId)
+                            if (mapping[i].NetId == NetId)
                             {
-                                foundNodeId = true;
-                                mapping[i].Activated[j]++;
-                                mapping[i].ExtraPower += PowerAmount;
-                                break;
+                                bool foundNodeId = false;
+                                for (int j = 0; j < mapping[i].NodeId.Count; j++)
+                                {
+                                    if (mapping[i].NodeId[j] == NodeId)
+                                    {
+                                        foundNodeId = true;
+                                        mapping[i].Activated[j]++;
+                                        mapping[i].ExtraPower += PowerAmount;
+                                        break;
+                                    }
+                                }
+
+                                if (!foundNodeId)
+                                {
+                                    mapping[i].NodeId.Add(NodeId);
+                                    mapping[i].Activated.Add(1);
+                                    mapping[i].ExtraPower += PowerAmount;
+                                }
+
+                                return;
                             }
                         }
-
-                        if (!foundNodeId)
+                        finally
                         {
-                            mapping[i].NodeId.Add(NodeId);
-                            mapping[i].Activated.Add(1);
-                            mapping[i].ExtraPower += PowerAmount;
+                            Monitor.Exit(mapping);
                         }
-
-                        return;
+                    }
+                    else
+                    {
+                        Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
                     }
                 }
 
-                EnergyMapping map = new PowerTowerManager.EnergyMapping();
-                map.NetId = NetId;
-                map.NodeId.Add(NodeId);
-                map.Activated.Add(1);
-                map.ExtraPower = PowerAmount;
+                if(Monitor.TryEnter(mapping, 100))
+                {
+                    try
+                    {
+                        EnergyMapping map = new PowerTowerManager.EnergyMapping();
+                        map.NetId = NetId;
+                        map.NodeId.Add(NodeId);
+                        map.Activated.Add(1);
+                        map.ExtraPower = PowerAmount;
 
-                mapping.Add(map);
+                        mapping.Add(map);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(mapping);
+                    }
+                }
+                else
+                {
+                    Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
+                }
             }
             else
             {
@@ -243,12 +300,26 @@ namespace NebulaWorld.Factory
         {
             if(Energy.TryGetValue(PlanetId, out var mapping))
             {
-                for(int i = 0; i < mapping.Count; i++)
+                if(Monitor.TryEnter(mapping, 100))
                 {
-                    for(int j = 0; j < mapping[i].Activated.Count; j++)
+                    try
                     {
-                        UpdateAnimation(PlanetId, mapping[i].NetId, mapping[i].NodeId[j], mapping[i].Activated[j] > 0 ? 1 : 0);
+                        for (int i = 0; i < mapping.Count; i++)
+                        {
+                            for (int j = 0; j < mapping[i].Activated.Count; j++)
+                            {
+                                UpdateAnimation(PlanetId, mapping[i].NetId, mapping[i].NodeId[j], mapping[i].Activated[j] > 0 ? 1 : 0);
+                            }
+                        }
                     }
+                    finally
+                    {
+                        Monitor.Exit(mapping);
+                    }
+                }
+                else
+                {
+                    Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
                 }
             }
         }

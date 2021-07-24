@@ -7,7 +7,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class ArrivePlanet_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("ArrivePlanet")]
+        [HarmonyPatch(nameof(GameData.ArrivePlanet))]
         public static bool ArrivePlanet_Prefix(GameData __instance, PlanetData planet)
         {
             // we need to supply our own ArrivePlanet() logic as we load the PlanetFactory from the server (if we are a client at least).
@@ -61,21 +61,22 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RefreshMissingMeshes = false;
 
         [HarmonyPostfix]
-        [HarmonyPatch("ArrivePlanet")]
+        [HarmonyPatch(nameof(GameData.ArrivePlanet))]
         public static void ArrivePlanet_Postfix(GameData __instance, PlanetData planet)
         {
             RefreshMissingMeshes = true;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance)
         {
             if (SimulatedWorld.Initialized && RefreshMissingMeshes && __instance.localPlanet != null)
             {
                 PlanetData planetData = __instance.localPlanet;
-                
-                if (planetData.meshColliders != null) {
+
+                if (planetData.meshColliders != null)
+                {
                     for (int i = 0; i < planetData.meshColliders.Length; i++)
                     {
                         if (planetData.meshColliders[i] != null && planetData.meshColliders[i].sharedMesh == null)

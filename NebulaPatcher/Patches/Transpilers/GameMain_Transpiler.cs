@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Transpiler
         //Change:  if (!this._paused)
         //To:      if (!this._paused || SimulatedWorld.Initialized)
 
-        [HarmonyTranspiler] 
+        [HarmonyTranspiler]
         [HarmonyPatch("FixedUpdate")]
         static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {

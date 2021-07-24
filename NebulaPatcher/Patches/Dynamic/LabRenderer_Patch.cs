@@ -10,7 +10,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class LabRenderer_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("AddInst")]
+        [HarmonyPatch(typeof(LabRenderer), nameof(LabRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
+        [HarmonyPatch(typeof(LabRenderer), nameof(LabRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(uint), typeof(bool) })]
         public static bool AddInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
@@ -18,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AlterInst", new Type[] { typeof(int), typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
+        [HarmonyPatch(nameof(LabRenderer.AlterInst), new Type[] { typeof(int), typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
         public static bool AlterInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
@@ -26,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveInst")]
+        [HarmonyPatch(nameof(LabRenderer.RemoveInst))]
         public static bool RemoveInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request

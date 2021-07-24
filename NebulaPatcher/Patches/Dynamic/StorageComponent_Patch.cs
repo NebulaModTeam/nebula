@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class StorageComponent_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("AddItem", new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) })]
+        [HarmonyPatch(nameof(StorageComponent.AddItem), new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) })]
         public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AddItemStacked")]
+        [HarmonyPatch(nameof(StorageComponent.AddItemStacked))]
         public static bool AddItemStacked_Prefix(StorageComponent __instance, int itemId, int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("TakeItemFromGrid")]
+        [HarmonyPatch(nameof(StorageComponent.TakeItemFromGrid))]
         public static bool TakeItemFromGrid_Prefix(StorageComponent __instance, int gridIndex, ref int itemId, ref int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
@@ -48,7 +48,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("SetBans")]
+        [HarmonyPatch(nameof(StorageComponent.SetBans))]
         public static void SetBans_Postfix(StorageComponent __instance, int _bans)
         {
             if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient)
@@ -58,7 +58,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("Sort")]
+        [HarmonyPatch(nameof(StorageComponent.Sort))]
         public static void Sort_Postfix(StorageComponent __instance)
         {
             if (SimulatedWorld.Initialized && !StorageManager.EventFromServer && !StorageManager.EventFromClient && GameMain.data.localPlanet != null)
@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool TakeTailItems_Prefix(StorageComponent __instance, ref int count)
         {
             // Run normally if we are not in an MP session or StorageComponent is not player package
-            if(!SimulatedWorld.Initialized || __instance.id != GameMain.mainPlayer.package.id)
+            if (!SimulatedWorld.Initialized || __instance.id != GameMain.mainPlayer.package.id)
             {
                 return true;
             }

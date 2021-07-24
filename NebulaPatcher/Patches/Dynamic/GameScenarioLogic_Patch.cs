@@ -9,8 +9,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameScenarioLogic_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("NotifyOnUnlockTech")]
-        public static void Postfix1(int techId)
+        [HarmonyPatch(nameof(GameScenarioLogic.NotifyOnUnlockTech))]
+        public static void NotifyOnUnlockTech_Postfix(int techId)
         {
             //Synchronize unlocking techs
             // Do not run if it is not multiplayer and if the player is not a client
