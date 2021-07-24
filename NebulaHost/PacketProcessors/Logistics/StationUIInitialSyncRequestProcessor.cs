@@ -2,18 +2,18 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 /*
  * When a client opens a stations UI we sync the complete state of settings and storage.
  * After that he will receive live updates while the UI is opened.
  */
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class StationUIInitialSyncRequestProcessor: IPacketProcessor<StationUIInitialSyncRequest>
+    public class StationUIInitialSyncRequestProcessor: PacketProcessor<StationUIInitialSyncRequest>
     {
-        public void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
         {
             StationComponent stationComponent = null;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;

@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 
 namespace NebulaClient.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSphereDataProcessor : IPacketProcessor<DysonSphereData>
+    class DysonSphereDataProcessor : PacketProcessor<DysonSphereData>
     {
-        public void ProcessPacket(DysonSphereData packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereData packet, NebulaConnection conn)
         {
             //Failsafe, if client does not have instantiated sphere for the star, it will create dummy one that will be replaced during import
             if (GameMain.data.dysonSpheres[packet.StarIndex] == null)

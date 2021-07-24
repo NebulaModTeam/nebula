@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld;
 
-namespace NebulaHost.PacketProcessors.Players
+namespace NebulaNetwork.PacketProcessors.Players
 {
     // Processes packet sent when player starts or stops warping in order to start or stop the warping effect on said player
     [RegisterPacketProcessor]
-    class PlayerUseWarperProcessor : IPacketProcessor<PlayerUseWarper>
+    class PlayerUseWarperProcessor : PacketProcessor<PlayerUseWarper>
     {
         private PlayerManager playerManager;
 
@@ -16,7 +16,7 @@ namespace NebulaHost.PacketProcessors.Players
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(PlayerUseWarper packet, NebulaConnection conn)
+        public override void ProcessPacket(PlayerUseWarper packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

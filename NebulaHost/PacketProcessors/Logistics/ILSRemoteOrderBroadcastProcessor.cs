@@ -1,19 +1,19 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSRemoteOrderBroadcastProcessor : IPacketProcessor<ILSRemoteOrderData>
+    public class ILSRemoteOrderBroadcastProcessor : PacketProcessor<ILSRemoteOrderData>
     {
         private PlayerManager playerManager;
         public ILSRemoteOrderBroadcastProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(ILSRemoteOrderData packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSRemoteOrderData packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

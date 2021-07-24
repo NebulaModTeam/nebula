@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
 
-namespace NebulaHost.PacketProcessors.Trash
+namespace NebulaNetwork.PacketProcessors.Trash
 {
     [RegisterPacketProcessor]
-    class TrashSystemRequestDataProcessor : IPacketProcessor<TrashSystemRequestDataPacket>
+    class TrashSystemRequestDataProcessor : PacketProcessor<TrashSystemRequestDataPacket>
     {
-        public void ProcessPacket(TrashSystemRequestDataPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(TrashSystemRequestDataPacket packet, NebulaConnection conn)
         {
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {

@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory.PowerGenerator;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 namespace NebulaClient.PacketProcessors.Factory.PowerGenerator
 {
     [RegisterPacketProcessor]
-    class PowerGeneratorFuelUpdateProcessor : IPacketProcessor<PowerGeneratorFuelUpdatePacket>
+    class PowerGeneratorFuelUpdateProcessor : PacketProcessor<PowerGeneratorFuelUpdatePacket>
     {
-        public void ProcessPacket(PowerGeneratorFuelUpdatePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(PowerGeneratorFuelUpdatePacket packet, NebulaConnection conn)
         {
             PowerGeneratorComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.powerSystem?.genPool;
             if (pool != null && packet.PowerGeneratorIndex != -1 && packet.PowerGeneratorIndex < pool.Length && pool[packet.PowerGeneratorIndex].id != -1)

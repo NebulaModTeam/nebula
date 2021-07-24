@@ -1,18 +1,18 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
 
 namespace NebulaClient.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    public class DysonSphereAddLayerProcessor : IPacketProcessor<DysonSphereAddLayerPacket>
+    public class DysonSphereAddLayerProcessor : PacketProcessor<DysonSphereAddLayerPacket>
     {
         public static bool IncomingPacket = false;
 
-        public void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)
         {
             using (DysonSphere_Manager.IncomingDysonSpherePacket.On())
             {

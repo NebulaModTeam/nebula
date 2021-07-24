@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Logistics;
 
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class StationSubscribeUIUpdatesProcessor: IPacketProcessor<StationSubscribeUIUpdates>
+    class StationSubscribeUIUpdatesProcessor: PacketProcessor<StationSubscribeUIUpdates>
     {
-        public void ProcessPacket(StationSubscribeUIUpdates packet, NebulaConnection conn)
+        public override void ProcessPacket(StationSubscribeUIUpdates packet, NebulaConnection conn)
         {
             if (packet.Subscribe)
             {

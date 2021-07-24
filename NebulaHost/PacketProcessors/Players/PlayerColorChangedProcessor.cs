@@ -2,13 +2,13 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld;
 
-namespace NebulaHost.PacketProcessors.Players
+namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    public class PlayerColorChangedProcessor : IPacketProcessor<PlayerColorChanged>
+    public class PlayerColorChangedProcessor : PacketProcessor<PlayerColorChanged>
     {
         private PlayerManager playerManager;
 
@@ -17,7 +17,7 @@ namespace NebulaHost.PacketProcessors.Players
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
 
-        public void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
+        public override void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player == null)

@@ -75,7 +75,7 @@ namespace NebulaClient
 #endif
 
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
-            PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor);
+            PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
 
             clientSocket.Connect();
 

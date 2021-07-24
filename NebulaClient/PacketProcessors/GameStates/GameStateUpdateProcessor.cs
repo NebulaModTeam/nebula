@@ -2,16 +2,16 @@
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameStates;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Utils;
 using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.GameStates
 {
     [RegisterPacketProcessor]
-    public class GameStateUpdateProcessor : IPacketProcessor<GameStateUpdate>
+    public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
     {
-        public void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
+        public override void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
         {
             GameState state = packet.State;
 

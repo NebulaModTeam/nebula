@@ -1,12 +1,12 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
-namespace NebulaHost.PacketProcessors.Players
+namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    class PlayerMechaDataProcessor : IPacketProcessor<PlayerMechaData>
+    class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
     {
         private PlayerManager playerManager;
 
@@ -15,7 +15,7 @@ namespace NebulaHost.PacketProcessors.Players
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
 
-        public void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)
+        public override void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)
         {
             playerManager.UpdateMechaData(packet.Data, conn);
         }

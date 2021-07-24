@@ -2,15 +2,15 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Planet;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using System.Linq;
 
 namespace NebulaClient.PacketProcessors.Planet
 {
     [RegisterPacketProcessor]
-    public class PlanetDataResponseProcessor : IPacketProcessor<PlanetDataResponse>
+    public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
     {
-        public void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
         {
             // We have to track the offset we are currently at in the flattened jagged array as we decode
             int currentOffset = 0;

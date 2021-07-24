@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Belt;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Factory;
 
 namespace NebulaClient.PacketProcessors.Factory.Belt
 {
     [RegisterPacketProcessor]
-    class BeltUpdatePutItemOnProcessor : IPacketProcessor<BeltUpdatePutItemOnPacket>
+    class BeltUpdatePutItemOnProcessor : PacketProcessor<BeltUpdatePutItemOnPacket>
     {
-        public void ProcessPacket(BeltUpdatePutItemOnPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(BeltUpdatePutItemOnPacket packet, NebulaConnection conn)
         {
             if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic != null)
             {

@@ -2,14 +2,14 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 namespace NebulaClient.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryDataResponseProcessor : IPacketProcessor<GameHistoryDataResponse>
+    class GameHistoryDataResponseProcessor : PacketProcessor<GameHistoryDataResponse>
     {
-        public void ProcessPacket(GameHistoryDataResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryDataResponse packet, NebulaConnection conn)
         {
             //Reset all current values
             GameMain.data.history.Init(GameMain.data);

@@ -2,15 +2,15 @@
 using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Factory;
 
 namespace NebulaClient.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
-    class StorageSyncResponseProcessor : IPacketProcessor<StorageSyncResponsePacket>
+    class StorageSyncResponseProcessor : PacketProcessor<StorageSyncResponsePacket>
     {
-        public void ProcessPacket(StorageSyncResponsePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(StorageSyncResponsePacket packet, NebulaConnection conn)
         {
             StorageComponent storageComponent = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.storagePool[packet.StorageIndex];
             if (storageComponent != null)

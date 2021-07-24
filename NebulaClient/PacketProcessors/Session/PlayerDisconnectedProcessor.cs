@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
-    public class PlayerDisconnectedProcessor : IPacketProcessor<PlayerDisconnected>
+    public class PlayerDisconnectedProcessor : PacketProcessor<PlayerDisconnected>
     {
-        public void ProcessPacket(PlayerDisconnected packet, NebulaConnection conn)
+        public override void ProcessPacket(PlayerDisconnected packet, NebulaConnection conn)
         {
             SimulatedWorld.DestroyRemotePlayerModel(packet.PlayerId);
         }

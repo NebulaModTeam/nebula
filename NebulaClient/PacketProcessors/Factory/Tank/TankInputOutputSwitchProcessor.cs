@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory.Tank;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 namespace NebulaClient.PacketProcessors.Factory.Tank
 {
     [RegisterPacketProcessor]
-    class TankInputOutputSwitchProcessor : IPacketProcessor<TankInputOutputSwitchPacket>
+    class TankInputOutputSwitchProcessor : PacketProcessor<TankInputOutputSwitchPacket>
     {
-        public void ProcessPacket(TankInputOutputSwitchPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(TankInputOutputSwitchPacket packet, NebulaConnection conn)
         {
             TankComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.tankPool;
             if (pool != null && packet.TankIndex != -1 && packet.TankIndex < pool.Length && pool[packet.TankIndex].id != -1)

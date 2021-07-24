@@ -2,15 +2,15 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.GameDataHistory;
 
 namespace NebulaClient.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryNotificationProcessor : IPacketProcessor<GameHistoryNotificationPacket>
+    class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNotificationPacket>
     {
-        public void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
         {
             using (GameDataHistoryManager.IsIncomingRequest.On())
             {

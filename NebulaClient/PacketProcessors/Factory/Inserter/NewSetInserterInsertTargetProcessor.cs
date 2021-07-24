@@ -2,15 +2,15 @@
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory.Inserter;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Factory;
 
 namespace NebulaClient.PacketProcessors.Factory.Inserter
 {
     [RegisterPacketProcessor]
-    class NewSetInserterInsertTargetProcessor : IPacketProcessor<NewSetInserterInsertTargetPacket>
+    class NewSetInserterInsertTargetProcessor : PacketProcessor<NewSetInserterInsertTargetPacket>
     {
-        public void ProcessPacket(NewSetInserterInsertTargetPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(NewSetInserterInsertTargetPacket packet, NebulaConnection conn)
         {
             PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             if (factory != null)

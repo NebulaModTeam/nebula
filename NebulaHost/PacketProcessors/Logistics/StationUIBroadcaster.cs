@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld;
 using NebulaWorld.Logistics;
 using System.Collections.Generic;
@@ -10,17 +10,17 @@ using System.Collections.Generic;
  * This packet covers updates to the UIStationWindow and UIStationStorage
  * some gets sent to everyone (see below), some only to the ones having the same UI window opened
  */
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class StationUIBroadcaster: IPacketProcessor<StationUI>
+    class StationUIBroadcaster: PacketProcessor<StationUI>
     {
         private PlayerManager playerManager;
         public StationUIBroadcaster()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(StationUI packet, NebulaConnection conn)
+        public override void ProcessPacket(StationUI packet, NebulaConnection conn)
         {
             // if a user adds/removes a ship, drone or warper or changes max power input broadcast to everyone.
             if (StationUIManager.UpdateCooldown == 0 &&

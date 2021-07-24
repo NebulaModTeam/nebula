@@ -1,19 +1,19 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSShipItemsBroadcastProcessor: IPacketProcessor<ILSShipItems>
+    class ILSShipItemsBroadcastProcessor: PacketProcessor<ILSShipItems>
     {
         private PlayerManager playerManager;
         public ILSShipItemsBroadcastProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(ILSShipItems packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipItems packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

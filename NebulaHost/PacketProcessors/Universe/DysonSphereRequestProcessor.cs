@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 
-namespace NebulaHost.PacketProcessors.Universe
+namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    public class DysonSphereRequestProcessor : IPacketProcessor<DysonSphereLoadRequest>
+    public class DysonSphereRequestProcessor : PacketProcessor<DysonSphereLoadRequest>
     {
-        public void ProcessPacket(DysonSphereLoadRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereLoadRequest packet, NebulaConnection conn)
         {
             DysonSphere dysonSphere = GameMain.data.CreateDysonSphere(packet.StarIndex);
 

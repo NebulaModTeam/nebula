@@ -1,16 +1,16 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using System.Collections.Generic;
 using NebulaModel.Logger;
 
 namespace NebulaClient.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryTechRefundProcessor : IPacketProcessor<GameHistoryTechRefundPacket>
+    class GameHistoryTechRefundProcessor : PacketProcessor<GameHistoryTechRefundPacket>
     {
-        public void ProcessPacket(GameHistoryTechRefundPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryTechRefundPacket packet, NebulaConnection conn)
         {
             //only refund if we have contributed
             if(packet.TechHashedContributed > 0)

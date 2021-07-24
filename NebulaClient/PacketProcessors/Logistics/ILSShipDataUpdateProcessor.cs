@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 /*
  * This packet updates the ships direction and is used when StationComponent.RematchRemotePairs() is called
@@ -10,9 +10,9 @@ using NebulaModel.Packets.Processors;
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSShipDataUpdateProcessor : IPacketProcessor<ILSShipDataUpdate>
+    class ILSShipDataUpdateProcessor : PacketProcessor<ILSShipDataUpdate>
     {
-        public void ProcessPacket(ILSShipDataUpdate packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipDataUpdate packet, NebulaConnection conn)
         {
             GalacticTransport gTransport = GameMain.data.galacticTransport;
             if(packet.stationGId < gTransport.stationCursor)

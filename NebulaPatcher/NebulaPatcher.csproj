@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="..\NebulaClient\NebulaClient.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\NebulaHost\NebulaHost.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
+    <ProjectReference Include="..\NebulaNetwork\NebulaNetwork.csproj" />
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
   </ItemGroup>
 </Project>

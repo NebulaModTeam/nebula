@@ -1,13 +1,13 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
 
-namespace NebulaHost.PacketProcessors.Universe
+namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSphereRemoveShellProcessor : IPacketProcessor<DysonSphereRemoveShellPacket>
+    class DysonSphereRemoveShellProcessor : PacketProcessor<DysonSphereRemoveShellPacket>
     {
         private PlayerManager playerManager;
 
@@ -16,7 +16,7 @@ namespace NebulaHost.PacketProcessors.Universe
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
 
-        public void ProcessPacket(DysonSphereRemoveShellPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereRemoveShellPacket packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

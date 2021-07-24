@@ -32,7 +32,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(CargoTraffic.PutItemOnBelt))]
         public static void PutItemOnBelt_Prefix(int beltId, int itemId)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.EventFromServer && !FactoryManager.EventFromClient)
+            if (SimulatedWorld.Initialized && !FactoryManager.IsIncomingRequest && !FactoryManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, GameMain.data.localPlanet.id));
             }

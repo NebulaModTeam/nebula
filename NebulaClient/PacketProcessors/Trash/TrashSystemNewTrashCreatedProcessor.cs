@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
 using NebulaWorld;
 using NebulaWorld.Trash;
@@ -8,9 +8,9 @@ using NebulaWorld.Trash;
 namespace NebulaClient.PacketProcessors.Trash
 {
     [RegisterPacketProcessor]
-    class TrashSystemNewTrashCreatedProcessor : IPacketProcessor<TrashSystemNewTrashCreatedPacket>
+    class TrashSystemNewTrashCreatedProcessor : PacketProcessor<TrashSystemNewTrashCreatedPacket>
     {
-        public void ProcessPacket(TrashSystemNewTrashCreatedPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(TrashSystemNewTrashCreatedPacket packet, NebulaConnection conn)
         {
             int myId = SimulatedWorld.GenerateTrashOnPlayer(packet);
 

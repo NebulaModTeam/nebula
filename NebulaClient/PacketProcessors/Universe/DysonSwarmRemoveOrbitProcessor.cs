@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
 
 namespace NebulaClient.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSwarmRemoveOrbitProcessor : IPacketProcessor<DysonSwarmRemoveOrbitPacket>
+    class DysonSwarmRemoveOrbitProcessor : PacketProcessor<DysonSwarmRemoveOrbitPacket>
     {
-        public void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
         {
             using (DysonSphere_Manager.IncomingDysonSwarmPacket.On())
             {

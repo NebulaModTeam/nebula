@@ -1,19 +1,19 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Routers;
 
-namespace NebulaHost.PacketProcessors.Routers
+namespace NebulaNetwork.PacketProcessors.Routers
 {
     [RegisterPacketProcessor]
-    class PlanetBroadcastProcessor : IPacketProcessor<PlanetBroadcastPacket>
+    class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
     {
         private PlayerManager playerManager;
         public PlanetBroadcastProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

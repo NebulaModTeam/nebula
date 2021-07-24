@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Belt;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 namespace NebulaClient.PacketProcessors.Factory.Belt
 {
     [RegisterPacketProcessor]
-    class BeltUpdatePickupItemsProcessor : IPacketProcessor<BeltUpdatePickupItemsPacket>
+    class BeltUpdatePickupItemsProcessor : PacketProcessor<BeltUpdatePickupItemsPacket>
     {
-        public void ProcessPacket(BeltUpdatePickupItemsPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(BeltUpdatePickupItemsPacket packet, NebulaConnection conn)
         {
             if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic != null)
             {

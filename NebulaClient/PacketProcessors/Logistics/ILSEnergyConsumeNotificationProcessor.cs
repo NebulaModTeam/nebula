@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 /*
  * used to decrease the stored energy of an ILS when a ship departs
@@ -10,9 +10,9 @@ using NebulaModel.Packets.Processors;
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSEnergyConsumeNotificationProcessor: IPacketProcessor<ILSEnergyConsumeNotification>
+    public class ILSEnergyConsumeNotificationProcessor: PacketProcessor<ILSEnergyConsumeNotification>
     {
-        public void ProcessPacket(ILSEnergyConsumeNotification packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSEnergyConsumeNotification packet, NebulaConnection conn)
         {
             if(GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
             {

@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory.Inserter;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 namespace NebulaClient.PacketProcessors.Factory.Inserter
 {
     [RegisterPacketProcessor]
-    class InserterFilterUpdateProcessor : IPacketProcessor<InserterFilterUpdatePacket>
+    class InserterFilterUpdateProcessor : PacketProcessor<InserterFilterUpdatePacket>
     {
-        public void ProcessPacket(InserterFilterUpdatePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(InserterFilterUpdatePacket packet, NebulaConnection conn)
         {
             InserterComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.inserterPool;
             if (pool != null && packet.InserterIndex != -1 && packet.InserterIndex < pool.Length && pool[packet.InserterIndex].id != -1)

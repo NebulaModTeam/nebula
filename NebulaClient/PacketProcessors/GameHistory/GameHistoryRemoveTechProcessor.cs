@@ -2,15 +2,15 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.GameDataHistory;
 
 namespace NebulaClient.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryRemoveTechProcessor : IPacketProcessor<GameHistoryRemoveTechPacket>
+    class GameHistoryRemoveTechProcessor : PacketProcessor<GameHistoryRemoveTechPacket>
     {
-        public void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
         {
             Log.Info($"Removing tech (ID: {packet.TechId}) from queue");
             using (GameDataHistoryManager.IsIncomingRequest.On())

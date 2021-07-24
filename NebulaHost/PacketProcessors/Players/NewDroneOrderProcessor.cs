@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld;
 using NebulaWorld.Player;
 
-namespace NebulaHost.PacketProcessors.Players
+namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    class NewDroneOrderProcessor : IPacketProcessor<NewDroneOrderPacket>
+    class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
     {
         private PlayerManager playerManager;
 
@@ -17,7 +17,7 @@ namespace NebulaHost.PacketProcessors.Players
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
 
-        public void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
         {
             //Host does not need to know about flying drones of other players if he is not on the same planet
             if (GameMain.mainPlayer.planetId != packet.PlanetId)

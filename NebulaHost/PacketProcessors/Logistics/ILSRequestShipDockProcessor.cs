@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using System.Collections.Generic;
@@ -12,17 +12,17 @@ using System.Collections.Generic;
  * when they create a fake entry they also request the dock position, but we also need to tell the current ship
  * position and rotation for associated ships as they might have ben calculated wrong (without knowledge of dock position)
  */
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSRequestShipDockProcessor: IPacketProcessor<ILSRequestShipDock>
+    public class ILSRequestShipDockProcessor: PacketProcessor<ILSRequestShipDock>
     {
         private PlayerManager playerManager;
         public ILSRequestShipDockProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)
         {
             Log.Info($"Parsing ILSRequestShipDock for gId {packet.StationGId}");
             

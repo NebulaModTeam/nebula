@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    public class PlayerAnimationUpdateProcessor : IPacketProcessor<PlayerAnimationUpdate>
+    public class PlayerAnimationUpdateProcessor : PacketProcessor<PlayerAnimationUpdate>
     {
-        public void ProcessPacket(PlayerAnimationUpdate packet, NebulaConnection conn)
+        public override void ProcessPacket(PlayerAnimationUpdate packet, NebulaConnection conn)
         {
             SimulatedWorld.UpdateRemotePlayerAnimation(packet);
         }

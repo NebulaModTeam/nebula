@@ -2,18 +2,18 @@
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Factory;
 using UnityEngine;
 
 namespace NebulaClient.PacketProcessors.Factory.Foundation
 {
     [RegisterPacketProcessor]
-    class FoundationBuildUpdateProcessor : IPacketProcessor<FoundationBuildUpdatePacket>
+    class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
     {
         Vector3[] reformPoints = new Vector3[100];
 
-        public void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
             //Check if client has loaded planet
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);

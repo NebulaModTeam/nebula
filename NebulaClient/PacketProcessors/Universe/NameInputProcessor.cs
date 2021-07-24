@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
 using NebulaWorld.Factory;
@@ -11,9 +11,9 @@ namespace NebulaClient.PacketProcessors.Universe
      * Receives change event for name of planet or star and applies the change
     */
     [RegisterPacketProcessor]
-    class NameInputProcessor : IPacketProcessor<NameInputPacket>
+    class NameInputProcessor : PacketProcessor<NameInputPacket>
     {
-        public void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
         {
             // We don't want to process events that we sent
             if (packet.AuthorId == LocalPlayer.PlayerId)

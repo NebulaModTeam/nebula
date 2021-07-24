@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Logistics;
 using HarmonyLib;
 using NebulaModel.Logger;
@@ -14,9 +14,9 @@ using NebulaModel.Logger;
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class StationUIInitialSyncProcessor: IPacketProcessor<StationUIInitialSync>
+    public class StationUIInitialSyncProcessor: PacketProcessor<StationUIInitialSync>
     {
-        public void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
+        public override void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
         {
             StationComponent stationComponent = null;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;

@@ -1,20 +1,20 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Logistics;
 
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSUpdateSlotDataProcessor : IPacketProcessor<ILSUpdateSlotData>
+    class ILSUpdateSlotDataProcessor : PacketProcessor<ILSUpdateSlotData>
     {
         private PlayerManager playerManager;
         public ILSUpdateSlotDataProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(ILSUpdateSlotData packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSUpdateSlotData packet, NebulaConnection conn)
         {
             PlanetData pData = null;
             // PLS

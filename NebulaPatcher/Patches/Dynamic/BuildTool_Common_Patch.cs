@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             //If client builds, he need to first send request to the host and wait for reply
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
+            if (!LocalPlayer.IsMasterClient && !FactoryManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()));
                 return false;
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
         public static bool CheckBuildConditions(ref bool __result)
         {
-            if (FactoryManager.EventFromClient)
+            if (FactoryManager.IsIncomingRequest)
             {
                 __result = true;
                 return false;

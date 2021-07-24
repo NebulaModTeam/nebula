@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld;
 
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSShipItemsProcessor : IPacketProcessor<ILSShipItems>
+    class ILSShipItemsProcessor : PacketProcessor<ILSShipItems>
     {
-        public void ProcessPacket(ILSShipItems packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipItems packet, NebulaConnection conn)
         {
             SimulatedWorld.OnILSShipItemsUpdate(packet);
         }

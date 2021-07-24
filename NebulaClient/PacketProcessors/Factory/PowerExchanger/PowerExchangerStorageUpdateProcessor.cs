@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory.PowerExchanger;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 namespace NebulaClient.PacketProcessors.Factory.PowerExchanger
 {
     [RegisterPacketProcessor]
-    class PowerExchangerStorageUpdateProcessor : IPacketProcessor<PowerExchangerStorageUpdatePacket>
+    class PowerExchangerStorageUpdateProcessor : PacketProcessor<PowerExchangerStorageUpdatePacket>
     {
-        public void ProcessPacket(PowerExchangerStorageUpdatePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(PowerExchangerStorageUpdatePacket packet, NebulaConnection conn)
         {
             PowerExchangerComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.powerSystem?.excPool;
             if (pool != null && packet.PowerExchangerIndex != -1 && packet.PowerExchangerIndex < pool.Length && pool[packet.PowerExchangerIndex].id != -1)

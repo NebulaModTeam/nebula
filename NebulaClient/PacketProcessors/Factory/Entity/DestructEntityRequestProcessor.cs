@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Factory;
 
 namespace NebulaClient.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
-    public class DestructEntityRequestProcessor : IPacketProcessor<DestructEntityRequest>
+    public class DestructEntityRequestProcessor : PacketProcessor<DestructEntityRequest>
     {
-        public void ProcessPacket(DestructEntityRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(DestructEntityRequest packet, NebulaConnection conn)
         {
             using(FactoryManager.EventFromServer.On())
             {

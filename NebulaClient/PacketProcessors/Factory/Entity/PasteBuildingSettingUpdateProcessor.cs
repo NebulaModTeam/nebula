@@ -1,16 +1,16 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Factory;
 
 namespace NebulaClient.PacketProcessors.Factory.Entity
 {
     // Processes pasting settings (e.g. item to make in an assembler) onto buildings events
     [RegisterPacketProcessor]
-    class PasteBuildingSettingUpdateProcessor : IPacketProcessor<PasteBuildingSettingUpdate>
+    class PasteBuildingSettingUpdateProcessor : PacketProcessor<PasteBuildingSettingUpdate>
     {
-        public void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
+        public override void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
         {
             if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null)
             {

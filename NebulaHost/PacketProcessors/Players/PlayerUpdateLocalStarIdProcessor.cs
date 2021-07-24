@@ -1,12 +1,12 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
-namespace NebulaHost.PacketProcessors.Players
+namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    class PlayerUpdateLocalStarIdProcessor : IPacketProcessor<PlayerUpdateLocalStarId>
+    class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLocalStarId>
     {
         private PlayerManager playerManager;
 
@@ -15,7 +15,7 @@ namespace NebulaHost.PacketProcessors.Players
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
 
-        public void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
+        public override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 
 namespace NebulaClient.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryResearchUpdateProcessor : IPacketProcessor<GameHistoryResearchUpdatePacket>
+    class GameHistoryResearchUpdateProcessor : PacketProcessor<GameHistoryResearchUpdatePacket>
     {
-        public void ProcessPacket(GameHistoryResearchUpdatePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryResearchUpdatePacket packet, NebulaConnection conn)
         {
             GameHistoryData data = GameMain.data.history;
             if (packet.TechId != data.currentTech)

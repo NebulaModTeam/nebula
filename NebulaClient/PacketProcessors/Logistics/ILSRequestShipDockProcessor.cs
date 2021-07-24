@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.DataStructures;
 using NebulaWorld.Logistics;
 using UnityEngine;
@@ -14,9 +14,9 @@ using UnityEngine;
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRequestShipDockProcessor: IPacketProcessor<ILSShipDock>
+    class ILSRequestShipDockProcessor: PacketProcessor<ILSShipDock>
     {
-        public void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
         {
             // a fake entry should already have been created
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];

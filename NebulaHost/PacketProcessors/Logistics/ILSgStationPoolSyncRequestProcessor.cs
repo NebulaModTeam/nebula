@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.DataStructures;
 using NebulaWorld.Logistics;
 
@@ -9,17 +9,17 @@ using NebulaWorld.Logistics;
  * Whenever a client connects we sync the current state of all ILS and ships to them
  * resulting in a quite large packet but its only sent one time upon client connect.
  */
-namespace NebulaHost.PacketProcessors.Logistics
+namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSgStationPoolSyncRequestProcessor : IPacketProcessor<ILSRequestgStationPoolSync>
+    public class ILSgStationPoolSyncRequestProcessor : PacketProcessor<ILSRequestgStationPoolSync>
     {
         private PlayerManager playerManager;
         public ILSgStationPoolSyncRequestProcessor()
         {
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
-        public void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if(player == null)

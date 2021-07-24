@@ -1,13 +1,13 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
 using NebulaWorld.Statistics;
 
-namespace NebulaHost.PacketProcessors.Statistics
+namespace NebulaNetwork.PacketProcessors.Statistics
 {
     [RegisterPacketProcessor]
-    class StatisticsRequestEventProcessor : IPacketProcessor<StatisticsRequestEvent>
+    class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
     {
         private PlayerManager playerManager;
 
@@ -16,7 +16,7 @@ namespace NebulaHost.PacketProcessors.Statistics
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
 
-        public void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
+        public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

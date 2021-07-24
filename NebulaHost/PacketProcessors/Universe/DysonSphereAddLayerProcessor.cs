@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
 
-namespace NebulaHost.PacketProcessors.Universe
+namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    public class DysonSphereAddLayerProcessor : IPacketProcessor<DysonSphereAddLayerPacket>
+    public class DysonSphereAddLayerProcessor : PacketProcessor<DysonSphereAddLayerPacket>
     {
         private PlayerManager playerManager;
 
@@ -17,7 +17,7 @@ namespace NebulaHost.PacketProcessors.Universe
             playerManager = MultiplayerHostSession.Instance.PlayerManager;
         }
 
-        public void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)
         {
             Player player = playerManager.GetPlayer(conn);
             if (player != null)

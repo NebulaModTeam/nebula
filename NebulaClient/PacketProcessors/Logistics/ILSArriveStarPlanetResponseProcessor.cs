@@ -1,15 +1,15 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Logistics;
 
 namespace NebulaClient.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSArriveStarPlanetResponseProcessor: IPacketProcessor<ILSArriveStarPlanetResponse>
+    class ILSArriveStarPlanetResponseProcessor: PacketProcessor<ILSArriveStarPlanetResponse>
     {
-        public void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
         {
             StationComponent[] gStationPool = null;
             if (packet.Planet == 0) // arrive at solar system

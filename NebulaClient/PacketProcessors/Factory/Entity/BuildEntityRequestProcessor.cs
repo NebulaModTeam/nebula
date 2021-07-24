@@ -2,16 +2,16 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaWorld.Factory;
 using NebulaWorld.Player;
 
 namespace NebulaClient.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
-    public class BuildEntityRequestProcessor : IPacketProcessor<BuildEntityRequest>
+    public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
     {
-        public void ProcessPacket(BuildEntityRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(BuildEntityRequest packet, NebulaConnection conn)
         {
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
 
