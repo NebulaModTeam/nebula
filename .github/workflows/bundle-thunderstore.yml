@@ -21,6 +21,12 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
+          cache: 'npm'
+      - run: npm install @terascope/fetch-github-release
+      - run: npm install json2toml
+      - run: npm install jszip
+      - run: npm install xml-reader
+      - run: npm install xml-query
 
       - name: Clear output directory in DSP files
         # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
@@ -36,10 +42,12 @@ jobs:
 
       # Bundle
       - name: Bundle build for thunderstore
+        env:
+          TSTORE_TOKEN: ${{ secrets.TSTORE_TOKEN }}
         run: node .github\scripts\thunderstore_bundle.js
 
       # Upload it to the run results
-      - uses: actions/upload-artifact@v2.2.3
+      - uses: actions/upload-artifact@v2.2.4
         with:
           name: nebula-thunderstore
           path: dist\thunderstore\nebula

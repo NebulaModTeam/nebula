@@ -370,3 +370,5 @@ FodyWeavers.xsd
 
 # Jetbrains IDE working folder
 .idea/
+package-lock.json
+package.json
