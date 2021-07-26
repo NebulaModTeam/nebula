@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
@@ -53,7 +53,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new UpgradeEntityRequest(FactoryManager.TargetPlanet != FactoryManager.PLANET_NONE ? FactoryManager.TargetPlanet : __instance.planet?.id ?? -1, objId, grade, upgrade, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new UpgradeEntityRequest(FactoryManager.TargetPlanet != FactoryManager.PLANET_NONE ? FactoryManager.TargetPlanet : __instance.planet?.id ?? -1, objId, grade, upgrade, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;

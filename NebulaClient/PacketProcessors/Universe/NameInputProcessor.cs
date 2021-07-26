@@ -22,7 +22,7 @@ namespace NebulaClient.PacketProcessors.Universe
             }
             using (FactoryManager.EventFromServer.On())
             {
-                if (packet.StarId != -1)
+                if (packet.StarId != FactoryManager.STAR_NONE)
                 {
                     var star = GameMain.galaxy.StarById(packet.StarId);
                     star.overrideName = packet.Name;

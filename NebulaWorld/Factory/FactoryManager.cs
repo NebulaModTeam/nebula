@@ -34,10 +34,12 @@ namespace NebulaWorld.Factory
         public static int PacketAuthor { get; set; }
         public static int TargetPlanet { get; set; }
         public const int PLANET_NONE = -2;
+        public const int AUTHOR_NONE = -1;
+        public const int STAR_NONE = -1;
 
         public static void Initialize()
         {
-            PacketAuthor = -1;
+            PacketAuthor = AUTHOR_NONE;
             TargetPlanet = PLANET_NONE;
         }
 
