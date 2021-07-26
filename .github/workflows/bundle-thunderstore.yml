@@ -24,9 +24,9 @@ jobs:
           cache: 'npm'
       - run: npm install @terascope/fetch-github-release
       - run: npm install json2toml
-      - run: npm install jszip
       - run: npm install xml-reader
       - run: npm install xml-query
+      - run: npm install zip-a-folder
 
       - name: Clear output directory in DSP files
         # We use SilentlyContinue here because it errors out if the folder does not exist otherwise

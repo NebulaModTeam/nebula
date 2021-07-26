@@ -15,10 +15,10 @@ import { join } from "path";
 import pkg from "@terascope/fetch-github-release";
 const downloadRelease = pkg;
 import json2toml from "json2toml";
-import JSZip from "jszip";
 import child_process from "child_process";
 import XmlReader from "xml-reader";
 import xmlQuery from "xml-query";
+import { zip } from 'zip-a-folder';
 
 const DIST_FOLDER = "dist";
 const DIST_TSTORE_FOLDER = join(DIST_FOLDER, "thunderstore");
@@ -36,7 +36,7 @@ const README_PATH = "README.md";
 const CHANGELOG_PATH = "CHANGELOG.md";
 const NEBULA_BINARIES_FOLDER = getNebulaFolder();
 
-function main() {
+async function main() {
   if (!existsSync(DIST_NEBULA_FOLDER)) {
     mkdirSync(DIST_NEBULA_FOLDER, { recursive: true });
   }
@@ -49,10 +49,10 @@ function main() {
   copyIcon();
   copyReadme();
   appendChangelog();
-  copyFolderContent(NEBULA_BINARIES_FOLDER, DIST_NEBULA_FOLDER, [".pdb"]);
+  copyFolderContent(NEBULA_BINARIES_FOLDER, DIST_NEBULA_FOLDER);
   copyLicenses();
 
-  archiveNebula();
+  await archiveNebula();
 
   downloadTStoreCli();
   generateTStoreConfig();
@@ -72,7 +72,7 @@ function getNebulaFolder() {
   const targetsFile = "DevEnv.targets";
 
   var nebulaPath =
-    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Dyson Sphere Program\\BepInEx\\plugins\\Nebula";
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Dyson Sphere Program";
 
   if (existsSync(targetsFile)) {
     const xml = XmlReader.parseSync(readFileSync(targetsFile, "utf-8"));
@@ -82,7 +82,7 @@ function getNebulaFolder() {
     }
   }
 
-  return nebulaPath;
+  return join(nebulaPath, "BepInEx\\plugins\\Nebula");
 }
 
 function generateManifest() {
@@ -187,15 +187,8 @@ function generateTStoreConfig() {
   writeFileSync(DIST_TSTORE_CLI_CONFIG_PATH, json2toml(config));
 }
 
-function archiveNebula() {
-  var zip = new JSZip();
-  zip.folder(DIST_NEBULA_FOLDER);
-  zip
-    .generateNodeStream({ type: "nodebuffer", streamFiles: true })
-    .pipe(createWriteStream(ARCHIVE_PATH))
-    .on("finish", function () {
-      console.log("Created nebula archive");
-    });
+async function archiveNebula() {
+  await zip(DIST_NEBULA_FOLDER, ARCHIVE_PATH);
 }
 
 function uploadToTStore() {
