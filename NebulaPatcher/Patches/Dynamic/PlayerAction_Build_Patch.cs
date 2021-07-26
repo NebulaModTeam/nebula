@@ -42,24 +42,6 @@ namespace NebulaPatcher.Patches.Dynamic
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(PlayerAction_Build.DoUpgradeObject))]
-        public static bool DoUpgradeObject_Prefix(PlayerAction_Build __instance, int objId, int grade, int upgrade)
-        {
-            if (!SimulatedWorld.Initialized)
-            {
-                return true;
-            }
-
-            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
-            {
-                LocalPlayer.SendPacket(new UpgradeEntityRequest(FactoryManager.TargetPlanet != FactoryManager.PLANET_NONE ? FactoryManager.TargetPlanet : __instance.planet?.id ?? -1, objId, grade, upgrade, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
-            }
-
-            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
-        }
-
-        [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerAction_Build.SetFactoryReferences))]
         public static bool SetFactoryReferences_Prefix()
         {

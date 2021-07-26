@@ -62,6 +62,21 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch("UpgradeFinally")]
+        public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
+        {
+            if (!SimulatedWorld.Initialized)
+                return true;
+
+            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            {
+                LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+            }
+
+            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetFactory.GameTick))]
         public static bool InternalUpdate_Prefix()
         {
