@@ -42,6 +42,7 @@ namespace NebulaPatcher.Patches.Dynamic
             return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
         }
 
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerAction_Build.SetFactoryReferences))]
         public static bool SetFactoryReferences_Prefix()
         {
