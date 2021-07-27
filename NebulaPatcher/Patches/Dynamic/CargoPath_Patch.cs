@@ -344,9 +344,7 @@ namespace NebulaPatcher.Patches.Dynamic
                             __instance.chunks[i * 3 + 2] = r.ReadInt32();
                         }
 
-                        Debug.Log($"___bufferLength {___bufferLength}");
-
-                        // Code that reads/calculates the rotations
+                        // Code that reads/calculates the rotations and positions
                         for (int j = 0; j < ___bufferLength;)
                         {
 
