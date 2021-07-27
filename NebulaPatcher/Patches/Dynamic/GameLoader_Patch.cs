@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaClient;
+using NebulaNetwork;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic

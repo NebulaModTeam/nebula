@@ -12,8 +12,7 @@ namespace NebulaWorld.Factory
         public static Text ActiveBansValueText;
 
         public static bool WindowOpened = false;
-        public static readonly ToggleSwitch EventFromServer = new ToggleSwitch();
-        public static readonly ToggleSwitch EventFromClient = new ToggleSwitch();
+        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
         public static bool IsHumanInput = false;
     }
 }

@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
-    <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
-    <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj" />
-  </ItemGroup>
-</Project>

@@ -28,7 +28,7 @@ namespace NebulaWorld.Factory
             pab.factory = tmpFactory;
             pab.noneTool.factory = tmpFactory;
             FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-            FactoryManager.PacketAuthor = -1;
+            FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
         }
     }
 }
