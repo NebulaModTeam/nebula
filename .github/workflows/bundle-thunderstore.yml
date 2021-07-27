@@ -59,8 +59,9 @@ jobs:
         run: node .github\scripts\thunderstore_bundle.js
 
       # Create release
-      - uses: actions/release-action@v1
+      - uses: ncipollo/release-action@v1.8.6
         with:
           artifacts: dist\release\Nebula_${{ fromJson(env.PREPARE_RELEASE_OUTPUT).NewBranch.Version }}.zip
           tag: ${{ fromJson(env.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
           commit: ${{ fromJson(env.PREPARE_RELEASE_OUTPUT).NewBranch.Commit }}
+          token: ${{ secrets.GITHUB_TOKEN }}
