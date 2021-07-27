@@ -978,7 +978,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 case "nb00":
                     {
-                        Debug.Log($"!!!!!!!!!Importing CargoPath data with nb00 format!!!!!!!!!!");
+                        //Debug.Log($"!!!!!!!!!Importing CargoPath data with nb00 format!!!!!!!!!!");
 
                         __instance.id = r.ReadInt32();
                         __instance.SetCapacity(r.ReadInt32());
@@ -1020,10 +1020,10 @@ namespace NebulaPatcher.Patches.Dynamic
                             var isThereAPreviosRelativeRotation = false;
                             var planarMatrix = new Matrix4x4();
                             var isThereAPlanarMatrix = false;
-                            Debug.Log($"repCount {repCount}");
+                            //Debug.Log($"repCount {repCount}");
                             for (int i = 0; i < repCount; i++)
                             {
-                                Debug.Log($"Processing rotation {j}");
+                                //Debug.Log($"Processing rotation {j}");
                                 if (sameRelativeRotationAsPrevious)
                                 {
 
