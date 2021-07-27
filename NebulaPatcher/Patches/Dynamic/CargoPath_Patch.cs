@@ -433,255 +433,255 @@ namespace NebulaPatcher.Patches.Dynamic
                 var sphericalCoordinatesAccelerationsSimmilartyIndexes = new List<int>();
                 for (int j = 0; j < ___bufferLength; j++)
                 {
-                    w.Write(__instance.pointPos[j].x);
-                    w.Write(__instance.pointPos[j].y);
-                    w.Write(__instance.pointPos[j].z);
+                    //w.Write(__instance.pointPos[j].x);
+                    //w.Write(__instance.pointPos[j].y);
+                    //w.Write(__instance.pointPos[j].z);
 
-                    //Debug.Log($"Position of {j} is ({__instance.pointPos[j].x}, {__instance.pointPos[j].y}, {__instance.pointPos[j].z})");
+                    ////Debug.Log($"Position of {j} is ({__instance.pointPos[j].x}, {__instance.pointPos[j].y}, {__instance.pointPos[j].z})");
 
-                    var lookRotation = Quaternion.LookRotation(__instance.pointPos[j], Vector3.up);
-                    //Debug.Log($"Position As rotation of {j} is ({lookRotation.x}, {lookRotation.y}, {lookRotation.z}, {lookRotation.w})");
-                    lookRotations[j] = lookRotation;
+                    //var lookRotation = Quaternion.LookRotation(__instance.pointPos[j], Vector3.up);
+                    ////Debug.Log($"Position As rotation of {j} is ({lookRotation.x}, {lookRotation.y}, {lookRotation.z}, {lookRotation.w})");
+                    //lookRotations[j] = lookRotation;
 
-                    var origin = new VectorLF3(0, 0, 0);
-                    var distanceToOrigin = origin.Distance(__instance.pointPos[j]);
-                    //Debug.Log($"Distance between origin (0,0,0) and {j} is {distanceToOrigin} rounded too 2 decimals {Math.Round(distanceToOrigin, 2)}");
-                    distanceToOrigins[j] = distanceToOrigin;
+                    //var origin = new VectorLF3(0, 0, 0);
+                    //var distanceToOrigin = origin.Distance(__instance.pointPos[j]);
+                    ////Debug.Log($"Distance between origin (0,0,0) and {j} is {distanceToOrigin} rounded too 2 decimals {Math.Round(distanceToOrigin, 2)}");
+                    //distanceToOrigins[j] = distanceToOrigin;
 
-                    var pointPos = __instance.pointPos[j];
-                    sphericalCoordinates[j].x = pointPos.magnitude; // This is radius r
-                    sphericalCoordinates[j].y = Mathf.Atan(new Vector2(pointPos.x, pointPos.y).magnitude / pointPos.z); // This is inclination θ
-                    sphericalCoordinates[j].z = Mathf.Atan2(pointPos.y, pointPos.z); // This is azimuth φ
+                    //var pointPos = __instance.pointPos[j];
+                    //sphericalCoordinates[j].x = pointPos.magnitude; // This is radius r
+                    //sphericalCoordinates[j].y = Mathf.Atan(new Vector2(pointPos.x, pointPos.y).magnitude / pointPos.z); // This is inclination θ
+                    //sphericalCoordinates[j].z = Mathf.Atan2(pointPos.y, pointPos.z); // This is azimuth φ
 
-                    if (j > 0)
-                    {
-                        var distance = new VectorLF3(__instance.pointPos[j - 1]).Distance(__instance.pointPos[j]);
-                        //Debug.Log($"Distance between {j-1} and {j} is {distance}");
-                        distances[j - 1] = distance;
+                    //if (j > 0)
+                    //{
+                    //    var distance = new VectorLF3(__instance.pointPos[j - 1]).Distance(__instance.pointPos[j]);
+                    //    //Debug.Log($"Distance between {j-1} and {j} is {distance}");
+                    //    distances[j - 1] = distance;
 
-                        var sphericalDistance = calcSphericalDistance(__instance.pointPos[j - 1], __instance.pointPos[j]);
-                        //Debug.Log($"Spherical Distance between {j - 1} and {j} is {sphericalDistance}");
-                        sphericalDistances[j - 1] = sphericalDistance;
+                    //    var sphericalDistance = calcSphericalDistance(__instance.pointPos[j - 1], __instance.pointPos[j]);
+                    //    //Debug.Log($"Spherical Distance between {j - 1} and {j} is {sphericalDistance}");
+                    //    sphericalDistances[j - 1] = sphericalDistance;
 
-                        var lookRotationDelta = lookRotations[j - 1] * Quaternion.Inverse(lookRotations[j]);
-                        //Debug.Log($"lookRotationDelta between {j - 1} and {j} is ({lookRotationDelta.x}, {lookRotationDelta.y}, {lookRotationDelta.z}, {lookRotationDelta.w})");
+                    //    var lookRotationDelta = lookRotations[j - 1] * Quaternion.Inverse(lookRotations[j]);
+                    //    //Debug.Log($"lookRotationDelta between {j - 1} and {j} is ({lookRotationDelta.x}, {lookRotationDelta.y}, {lookRotationDelta.z}, {lookRotationDelta.w})");
 
-                        var lookRotationDeltaAsAngle = Quaternion.Angle(lookRotations[j - 1], lookRotations[j]);
-                        //Debug.Log($"lookRotationDeltaAsAngle between {j - 1} and {j} is {lookRotationDeltaAsAngle}");
+                    //    var lookRotationDeltaAsAngle = Quaternion.Angle(lookRotations[j - 1], lookRotations[j]);
+                    //    //Debug.Log($"lookRotationDeltaAsAngle between {j - 1} and {j} is {lookRotationDeltaAsAngle}");
 
-                        planeNormals[j - 1] = Vector3.Cross(__instance.pointPos[j - 1], __instance.pointPos[j]);
+                    //    planeNormals[j - 1] = Vector3.Cross(__instance.pointPos[j - 1], __instance.pointPos[j]);
 
-                        var deltaDistanceToOrgin = distanceToOrigins[j - 1] - distanceToOrigins[j];
-                        //Debug.Log($"deltaDistanceToOrgin between {j - 1} and {j} is {deltaDistanceToOrgin}");
-                        deltaDistanceToOrigins[j - 1] = deltaDistanceToOrgin;
+                    //    var deltaDistanceToOrgin = distanceToOrigins[j - 1] - distanceToOrigins[j];
+                    //    //Debug.Log($"deltaDistanceToOrgin between {j - 1} and {j} is {deltaDistanceToOrgin}");
+                    //    deltaDistanceToOrigins[j - 1] = deltaDistanceToOrgin;
 
-                        sphericalCoordinatesVelocities[j - 1] = sphericalCoordinates[j] - sphericalCoordinates[j - 1];
-                        Debug.Log($"sphericalCoordinatesVelocities between {j - 1} and {j} is (r {sphericalCoordinatesVelocities[j - 1].x}, θ {sphericalCoordinatesVelocities[j - 1].y}, φ {sphericalCoordinatesVelocities[j - 1].z})");
-                        //Debug.Log($"sphericalCoordinatesVelocities magnitude between {j - 1} and {j} is {sphericalCoordinatesVelocities[j - 1].magnitude}");
-                    }
+                    //    sphericalCoordinatesVelocities[j - 1] = sphericalCoordinates[j] - sphericalCoordinates[j - 1];
+                    //    Debug.Log($"sphericalCoordinatesVelocities between {j - 1} and {j} is (r {sphericalCoordinatesVelocities[j - 1].x}, θ {sphericalCoordinatesVelocities[j - 1].y}, φ {sphericalCoordinatesVelocities[j - 1].z})");
+                    //    //Debug.Log($"sphericalCoordinatesVelocities magnitude between {j - 1} and {j} is {sphericalCoordinatesVelocities[j - 1].magnitude}");
+                    //}
 
-                    if (j > 1)
-                    {
-                        //distanceSimmilarity[j - 2] = Mathf.Approximately(distances[j - 2], distances[j - 1]);
-                        distanceSimmilarity[j - 2] = Mathf.Approximately((float)distances[j - 2], (float)distances[j - 1]);
-                        //Debug.Log($"distanceSimmilarity between {j - 2}, {j - 1} and {j} is {distanceSimmilarity[j - 2]}");
+                    //if (j > 1)
+                    //{
+                    //    //distanceSimmilarity[j - 2] = Mathf.Approximately(distances[j - 2], distances[j - 1]);
+                    //    distanceSimmilarity[j - 2] = Mathf.Approximately((float)distances[j - 2], (float)distances[j - 1]);
+                    //    //Debug.Log($"distanceSimmilarity between {j - 2}, {j - 1} and {j} is {distanceSimmilarity[j - 2]}");
 
-                        //var planeNormal = Vector3.Cross(__instance.pointPos[j - 2], __instance.pointPos[j - 1]);
-                        var planeNormal = planeNormals[j - 2];
-                        var projectionOnPlane = Vector3.ProjectOnPlane(__instance.pointPos[j], planeNormal);
-                        var distanceFromPlane = Vector3.Distance(__instance.pointPos[j], projectionOnPlane);
+                    //    //var planeNormal = Vector3.Cross(__instance.pointPos[j - 2], __instance.pointPos[j - 1]);
+                    //    var planeNormal = planeNormals[j - 2];
+                    //    var projectionOnPlane = Vector3.ProjectOnPlane(__instance.pointPos[j], planeNormal);
+                    //    var distanceFromPlane = Vector3.Distance(__instance.pointPos[j], projectionOnPlane);
 
-                        //var planeNormal = VectorLF3.Cross(__instance.pointPos[j - 2], __instance.pointPos[j - 1]);
-                        //var projectionOnPlane = VectorLF3ProjectOnPlane(__instance.pointPos[j], planeNormal);                    
-                        //var distanceFromPlane = projectionOnPlane.Distance(__instance.pointPos[j]);
-                        //Debug.Log($"Distance of {j} to plane formed by {j - 2} and {j - 1} is {distanceFromPlane} and regarded as 0 {distanceFromPlane < 1E-04f}");
+                    //    //var planeNormal = VectorLF3.Cross(__instance.pointPos[j - 2], __instance.pointPos[j - 1]);
+                    //    //var projectionOnPlane = VectorLF3ProjectOnPlane(__instance.pointPos[j], planeNormal);                    
+                    //    //var distanceFromPlane = projectionOnPlane.Distance(__instance.pointPos[j]);
+                    //    //Debug.Log($"Distance of {j} to plane formed by {j - 2} and {j - 1} is {distanceFromPlane} and regarded as 0 {distanceFromPlane < 1E-04f}");
 
-                        // THIS is the best way to detect wheter they are in the same plane
-                        var angularDiff = Quaternion.Angle(Quaternion.LookRotation(planeNormals[j - 2]), Quaternion.LookRotation(planeNormals[j - 1]));
-                        //Debug.Log($"Angle between normals of {j - 2}, {j - 1}  and {j - 1}, {j} is {angularDiff} is {angularDiff == 0}");
+                    //    // THIS is the best way to detect wheter they are in the same plane
+                    //    var angularDiff = Quaternion.Angle(Quaternion.LookRotation(planeNormals[j - 2]), Quaternion.LookRotation(planeNormals[j - 1]));
+                    //    //Debug.Log($"Angle between normals of {j - 2}, {j - 1}  and {j - 1}, {j} is {angularDiff} is {angularDiff == 0}");
 
-                        // TODO: Add check here that also checks that the points are in the same elevation
+                    //    // TODO: Add check here that also checks that the points are in the same elevation
 
-                        planarSimilarity[j - 2] = angularDiff == 0;
+                    //    planarSimilarity[j - 2] = angularDiff == 0;
 
 
 
-                        var tripointPlaneNormal = VectorLF3.Cross(new VectorLF3(__instance.pointPos[j - 1]) - new VectorLF3(__instance.pointPos[j - 2]), new VectorLF3(__instance.pointPos[j]) - new VectorLF3(__instance.pointPos[j - 2]));
-                        //Debug.Log($"tripointPlaneNormal of points {j - 2}, {j - 1} and {j} is {tripointPlaneNormal.x}, {tripointPlaneNormal.y}, {tripointPlaneNormal.z},");
+                    //    var tripointPlaneNormal = VectorLF3.Cross(new VectorLF3(__instance.pointPos[j - 1]) - new VectorLF3(__instance.pointPos[j - 2]), new VectorLF3(__instance.pointPos[j]) - new VectorLF3(__instance.pointPos[j - 2]));
+                    //    //Debug.Log($"tripointPlaneNormal of points {j - 2}, {j - 1} and {j} is {tripointPlaneNormal.x}, {tripointPlaneNormal.y}, {tripointPlaneNormal.z},");
 
-                        sphericalCoordinatesAccelerations[j - 2] = sphericalCoordinatesVelocities[j - 1] - sphericalCoordinatesVelocities[j - 2];
-                        Debug.Log($"sphericalCoordinatesAccelerations between {j - 2}, {j - 1} and {j} is (r {sphericalCoordinatesAccelerations[j - 2].x}, θ {sphericalCoordinatesAccelerations[j - 2].y}, φ {sphericalCoordinatesAccelerations[j - 2].z})");
-                        Debug.Log($"sphericalCoordinatesAccelerations magnitude between {j - 2}, {j - 1} and {j} is {sphericalCoordinatesAccelerations[j - 2].magnitude}");
+                    //    sphericalCoordinatesAccelerations[j - 2] = sphericalCoordinatesVelocities[j - 1] - sphericalCoordinatesVelocities[j - 2];
+                    //    Debug.Log($"sphericalCoordinatesAccelerations between {j - 2}, {j - 1} and {j} is (r {sphericalCoordinatesAccelerations[j - 2].x}, θ {sphericalCoordinatesAccelerations[j - 2].y}, φ {sphericalCoordinatesAccelerations[j - 2].z})");
+                    //    Debug.Log($"sphericalCoordinatesAccelerations magnitude between {j - 2}, {j - 1} and {j} is {sphericalCoordinatesAccelerations[j - 2].magnitude}");
 
-                        sphericalCoordinatesAccelerationsSimmilarities[j - 2] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude) <= 1E-4f;
-                    }
+                    //    sphericalCoordinatesAccelerationsSimmilarities[j - 2] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude) <= 1E-4f;
+                    //}
 
-                    if (j > 2)
-                    {
-                        var planarSimilarityDifferentialSimilarity = planarSimilarity[j - 3] == planarSimilarity[j - 2];
+                    //if (j > 2)
+                    //{
+                    //    var planarSimilarityDifferentialSimilarity = planarSimilarity[j - 3] == planarSimilarity[j - 2];
 
-                        if (!planarSimilarityDifferentialSimilarity)
-                        {
-                            planarSimilarityDifferentialIndexes.Add(j - 3);
-                        }
+                    //    if (!planarSimilarityDifferentialSimilarity)
+                    //    {
+                    //        planarSimilarityDifferentialIndexes.Add(j - 3);
+                    //    }
 
-                        //sphericalCoordinatesAccelerationsSimmilarities[j - 3] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude - sphericalCoordinatesAccelerations[j - 3].magnitude) <= 1E-4f;
-                        //sphericalCoordinatesAccelerationsSimmilarities[j - 3] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude - sphericalCoordinatesAccelerations[j - 3].magnitude) <= 1E-3f;
+                    //    //sphericalCoordinatesAccelerationsSimmilarities[j - 3] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude - sphericalCoordinatesAccelerations[j - 3].magnitude) <= 1E-4f;
+                    //    //sphericalCoordinatesAccelerationsSimmilarities[j - 3] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude - sphericalCoordinatesAccelerations[j - 3].magnitude) <= 1E-3f;
 
-                        var sphericalCoordinatesAccelerationsDifferentialSimilarity = sphericalCoordinatesAccelerationsSimmilarities[j - 3] == sphericalCoordinatesAccelerationsSimmilarities[j - 2];
-                        if (!sphericalCoordinatesAccelerationsDifferentialSimilarity)
-                        {
-                            sphericalCoordinatesAccelerationsSimmilartyIndexes.Add(j - 3);
-                        }
-                    }
+                    //    var sphericalCoordinatesAccelerationsDifferentialSimilarity = sphericalCoordinatesAccelerationsSimmilarities[j - 3] == sphericalCoordinatesAccelerationsSimmilarities[j - 2];
+                    //    if (!sphericalCoordinatesAccelerationsDifferentialSimilarity)
+                    //    {
+                    //        sphericalCoordinatesAccelerationsSimmilartyIndexes.Add(j - 3);
+                    //    }
+                    //}
 
                 }
 
-                // TODO: try for sphericalCoordinatesAccelerationsSimmilartyIndexes
+                //// TODO: try for sphericalCoordinatesAccelerationsSimmilartyIndexes
 
-                // Write positinal data in a compressed format
-                var startIndex = 0;
-                int endIndex;
-                //for (int j = 0; j < planarSimilarityDifferentialIndexes.Count; j++)
-                for (int j = 0; j < sphericalCoordinatesAccelerationsSimmilartyIndexes.Count; j++)
-                {
-                    //var differentialIndex = planarSimilarityDifferentialIndexes[j];
-                    var differentialIndex = sphericalCoordinatesAccelerationsSimmilartyIndexes[j];
-                    //var planarSequence = planarSimilarity[differentialIndex];
-                    var planarSequence = sphericalCoordinatesAccelerationsSimmilarities[differentialIndex];
+                //// Write positinal data in a compressed format
+                //var startIndex = 0;
+                //int endIndex;
+                ////for (int j = 0; j < planarSimilarityDifferentialIndexes.Count; j++)
+                //for (int j = 0; j < sphericalCoordinatesAccelerationsSimmilartyIndexes.Count; j++)
+                //{
+                //    //var differentialIndex = planarSimilarityDifferentialIndexes[j];
+                //    var differentialIndex = sphericalCoordinatesAccelerationsSimmilartyIndexes[j];
+                //    //var planarSequence = planarSimilarity[differentialIndex];
+                //    var planarSequence = sphericalCoordinatesAccelerationsSimmilarities[differentialIndex];
 
-                    //endIndex = differentialIndex + (planarSequence ? 2 : 0);
-                    endIndex = differentialIndex + (planarSequence ? 2 : 0);
-                    var repCount = endIndex - startIndex + 1;
+                //    //endIndex = differentialIndex + (planarSequence ? 2 : 0);
+                //    endIndex = differentialIndex + (planarSequence ? 2 : 0);
+                //    var repCount = endIndex - startIndex + 1;
 
-                    //w.Write(planarSequence);
-                    //w.Write(repCount);
-                    if (planarSequence)
-                    {
-                        // TODO: Fall back to non plane logic if the repcount is 1 (or even 2 or 3 maybe)
+                //    //w.Write(planarSequence);
+                //    //w.Write(repCount);
+                //    if (planarSequence)
+                //    {
+                //        // TODO: Fall back to non plane logic if the repcount is 1 (or even 2 or 3 maybe)
 
-                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
-                        //w.Write(matrixM[0, 0]);
-                        //w.Write(matrixM[1, 0]);
-                        //w.Write(matrixM[2, 0]);
-                        ////w.Write(matrixM[3, 0]); // This is always 0
-                        //w.Write(matrixM[0, 1]);
-                        //w.Write(matrixM[1, 1]);
-                        //w.Write(matrixM[2, 1]);
-                        ////w.Write(matrixM[3, 1]); // This is always 0
-                        //w.Write(matrixM[0, 2]);
-                        //w.Write(matrixM[1, 2]);
-                        //w.Write(matrixM[2, 2]);
-                        ////w.Write(matrixM[3, 2]); // This is always 0
-                        //w.Write(matrixM[0, 3]);
-                        //w.Write(matrixM[1, 3]);
-                        //w.Write(matrixM[2, 3]);
-                        ////w.Write(matrixM[3, 3]); // This is always 1
+                //        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+                //        //w.Write(matrixM[0, 0]);
+                //        //w.Write(matrixM[1, 0]);
+                //        //w.Write(matrixM[2, 0]);
+                //        ////w.Write(matrixM[3, 0]); // This is always 0
+                //        //w.Write(matrixM[0, 1]);
+                //        //w.Write(matrixM[1, 1]);
+                //        //w.Write(matrixM[2, 1]);
+                //        ////w.Write(matrixM[3, 1]); // This is always 0
+                //        //w.Write(matrixM[0, 2]);
+                //        //w.Write(matrixM[1, 2]);
+                //        //w.Write(matrixM[2, 2]);
+                //        ////w.Write(matrixM[3, 2]); // This is always 0
+                //        //w.Write(matrixM[0, 3]);
+                //        //w.Write(matrixM[1, 3]);
+                //        //w.Write(matrixM[2, 3]);
+                //        ////w.Write(matrixM[3, 3]); // This is always 1
 
-                        var matrixMInv = matrixM.inverse;
+                //        var matrixMInv = matrixM.inverse;
 
-                        var averageVelocity = new Vector3(0, 0, 0);
-                        for (int i = 0; i < repCount - 1; i++)
-                        {
-                            averageVelocity += sphericalCoordinatesVelocities[startIndex + i];
-                        }
-                        averageVelocity = averageVelocity / (repCount - 1);
-                        Debug.Log($"averageVelocity for sequence between {startIndex} and {endIndex} is (r {averageVelocity.x}, θ {averageVelocity.y}, φ {averageVelocity.z})");
+                //        var averageVelocity = new Vector3(0, 0, 0);
+                //        for (int i = 0; i < repCount - 1; i++)
+                //        {
+                //            averageVelocity += sphericalCoordinatesVelocities[startIndex + i];
+                //        }
+                //        averageVelocity = averageVelocity / (repCount - 1);
+                //        Debug.Log($"averageVelocity for sequence between {startIndex} and {endIndex} is (r {averageVelocity.x}, θ {averageVelocity.y}, φ {averageVelocity.z})");
 
-                        for (int i = 0; i < repCount; i++)
-                        {
-                            // Write 2D coordinates on plane
-                            // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
+                //        for (int i = 0; i < repCount; i++)
+                //        {
+                //            // Write 2D coordinates on plane
+                //            // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
 
-                            var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
-                            //w.Write(projectedPoint.x);
-                            //w.Write(projectedPoint.y);
+                //            var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
+                //            //w.Write(projectedPoint.x);
+                //            //w.Write(projectedPoint.y);
 
-                            //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+                //            //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
 
-                            ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
-                            //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
-                            //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
-                            //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < repCount; i++)
-                        {
-                            //w.Write(__instance.pointPos[startIndexP + i].x);
-                            //w.Write(__instance.pointPos[startIndexP + i].y);
-                            //w.Write(__instance.pointPos[startIndexP + i].z);
-                        }
-                    }
+                //            ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
+                //            //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
+                //            //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                //            //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                //        }
+                //    }
+                //    else
+                //    {
+                //        for (int i = 0; i < repCount; i++)
+                //        {
+                //            //w.Write(__instance.pointPos[startIndexP + i].x);
+                //            //w.Write(__instance.pointPos[startIndexP + i].y);
+                //            //w.Write(__instance.pointPos[startIndexP + i].z);
+                //        }
+                //    }
 
-                    startIndex = endIndex + 1;
-                }
-                // The end needs to be handled seperately (since it does not have a differentialIndex)
-                endIndex = ___bufferLength - 1;
-                //var planarSequenceForEnd = planarSimilarity[___bufferLength - 3];
-                var planarSequenceForEnd = sphericalCoordinatesAccelerationsSimmilarities[___bufferLength - 3];
-                var repCountForEndP = endIndex - startIndex + 1;
-                //w.Write(planarSequence);
-                //w.Write(repCount);
-                if (planarSequenceForEnd)
-                {
-                    // TODO: Fall back to non plane logic if the repcount is 1 (or even 2 or 3 maybe)
+                //    startIndex = endIndex + 1;
+                //}
+                //// The end needs to be handled seperately (since it does not have a differentialIndex)
+                //endIndex = ___bufferLength - 1;
+                ////var planarSequenceForEnd = planarSimilarity[___bufferLength - 3];
+                //var planarSequenceForEnd = sphericalCoordinatesAccelerationsSimmilarities[___bufferLength - 3];
+                //var repCountForEndP = endIndex - startIndex + 1;
+                ////w.Write(planarSequence);
+                ////w.Write(repCount);
+                //if (planarSequenceForEnd)
+                //{
+                //    // TODO: Fall back to non plane logic if the repcount is 1 (or even 2 or 3 maybe)
 
-                    var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEndP/2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
-                    //w.Write(matrixM[0, 0]);
-                    //w.Write(matrixM[1, 0]);
-                    //w.Write(matrixM[2, 0]);
-                    ////w.Write(matrixM[3, 0]); // This is always 0
-                    //w.Write(matrixM[0, 1]);
-                    //w.Write(matrixM[1, 1]);
-                    //w.Write(matrixM[2, 1]);
-                    ////w.Write(matrixM[3, 1]); // This is always 0
-                    //w.Write(matrixM[0, 2]);
-                    //w.Write(matrixM[1, 2]);
-                    //w.Write(matrixM[2, 2]);
-                    ////w.Write(matrixM[3, 2]); // This is always 0
-                    //w.Write(matrixM[0, 3]);
-                    //w.Write(matrixM[1, 3]);
-                    //w.Write(matrixM[2, 3]);
-                    ////w.Write(matrixM[3, 3]); // This is always 1
+                //    var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEndP/2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+                //    //w.Write(matrixM[0, 0]);
+                //    //w.Write(matrixM[1, 0]);
+                //    //w.Write(matrixM[2, 0]);
+                //    ////w.Write(matrixM[3, 0]); // This is always 0
+                //    //w.Write(matrixM[0, 1]);
+                //    //w.Write(matrixM[1, 1]);
+                //    //w.Write(matrixM[2, 1]);
+                //    ////w.Write(matrixM[3, 1]); // This is always 0
+                //    //w.Write(matrixM[0, 2]);
+                //    //w.Write(matrixM[1, 2]);
+                //    //w.Write(matrixM[2, 2]);
+                //    ////w.Write(matrixM[3, 2]); // This is always 0
+                //    //w.Write(matrixM[0, 3]);
+                //    //w.Write(matrixM[1, 3]);
+                //    //w.Write(matrixM[2, 3]);
+                //    ////w.Write(matrixM[3, 3]); // This is always 1
 
-                    var matrixMInv = matrixM.inverse;
+                //    var matrixMInv = matrixM.inverse;
 
-                    var averageVelocity = new Vector3(0, 0, 0);
-                    for (int i = 0; i < repCountForEndP - 1; i++)
-                    {
-                        averageVelocity += sphericalCoordinatesVelocities[startIndex + i];
-                    }
-                    averageVelocity = averageVelocity / (repCountForEndP - 1);
-                    Debug.Log($"averageVelocity for sequence between {startIndex} and {endIndex} is (r {averageVelocity.x}, θ {averageVelocity.y}, φ {averageVelocity.z})");
+                //    var averageVelocity = new Vector3(0, 0, 0);
+                //    for (int i = 0; i < repCountForEndP - 1; i++)
+                //    {
+                //        averageVelocity += sphericalCoordinatesVelocities[startIndex + i];
+                //    }
+                //    averageVelocity = averageVelocity / (repCountForEndP - 1);
+                //    Debug.Log($"averageVelocity for sequence between {startIndex} and {endIndex} is (r {averageVelocity.x}, θ {averageVelocity.y}, φ {averageVelocity.z})");
 
-                    for (int i = 0; i < repCountForEndP; i++)
-                    {
-                        // Write 2D coordinates on plane
-                        // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCountForEndP/2) th one)
+                //    for (int i = 0; i < repCountForEndP; i++)
+                //    {
+                //        // Write 2D coordinates on plane
+                //        // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCountForEndP/2) th one)
 
-                        var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]);
-                        //w.Write(projectedPoint.x);
-                        //w.Write(projectedPoint.y);
+                //        var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]);
+                //        //w.Write(projectedPoint.x);
+                //        //w.Write(projectedPoint.y);
 
-                        //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+                //        //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
 
-                        ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
-                        //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
-                        //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
-                        //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < repCountForEndP; i++)
-                    {
-                        //w.Write(__instance.pointPos[startIndexP + i].x);
-                        //w.Write(__instance.pointPos[startIndexP + i].y);
-                        //w.Write(__instance.pointPos[startIndexP + i].z);
-                    }
-                }
+                //        ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
+                //        //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
+                //        //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                //        //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                //    }
+                //}
+                //else
+                //{
+                //    for (int i = 0; i < repCountForEndP; i++)
+                //    {
+                //        //w.Write(__instance.pointPos[startIndexP + i].x);
+                //        //w.Write(__instance.pointPos[startIndexP + i].y);
+                //        //w.Write(__instance.pointPos[startIndexP + i].z);
+                //    }
+                //}
             }
 
             // END FAILED ATTEMPT!!!
@@ -733,7 +733,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
 
 
-            // START of rotational compression code
+            // START of rotational and positional compression code
             {             
                 //Debug.Log($"___bufferLength {___bufferLength}");
 
@@ -784,6 +784,8 @@ namespace NebulaPatcher.Patches.Dynamic
                     endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
                     var repCount = endIndex - startIndex + 1;
 
+                    //Debug.Log($"sequence startIndex = {startIndex}, endIndex = {endIndex}, repCount = {repCount}, surfaceRelativeSequence = {surfaceRelativeSequence}");
+
                     //Debug.Log($"surfaceRelativeSequence {surfaceRelativeSequence}");
                     //Debug.Log($"repCount {repCount}");
                     // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
@@ -792,7 +794,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     w.Write(repCount);
                     if (surfaceRelativeSequence)
                     {
-
                         // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
 
                         //Debug.Log($"Writing relative rotation for index {startIndex}");
@@ -800,6 +801,47 @@ namespace NebulaPatcher.Patches.Dynamic
                         w.Write(surfaceRelativeRotations[startIndex].y);
                         w.Write(surfaceRelativeRotations[startIndex].z);
                         w.Write(surfaceRelativeRotations[startIndex].w);
+
+                        // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
+                        // we should compensate for this
+                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+                        w.Write(matrixM[0, 0]);
+                        w.Write(matrixM[1, 0]);
+                        w.Write(matrixM[2, 0]);
+                        //w.Write(matrixM[3, 0]); // This is always 0
+                        w.Write(matrixM[0, 1]);
+                        w.Write(matrixM[1, 1]);
+                        w.Write(matrixM[2, 1]);
+                        //w.Write(matrixM[3, 1]); // This is always 0
+                        w.Write(matrixM[0, 2]);
+                        w.Write(matrixM[1, 2]);
+                        w.Write(matrixM[2, 2]);
+                        //w.Write(matrixM[3, 2]); // This is always 0
+                        w.Write(matrixM[0, 3]);
+                        w.Write(matrixM[1, 3]);
+                        w.Write(matrixM[2, 3]);
+                        //w.Write(matrixM[3, 3]); // This is always 1
+
+                        var matrixMInv = matrixM.inverse;
+                        for (int i = 0; i < repCount; i++)
+                        {
+                            // Write 2D coordinates on plane
+                            // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
+
+                            var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
+                            w.Write(projectedPoint.x);
+                            w.Write(projectedPoint.y);
+
+                            //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+
+                            ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
+                            //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
+                            //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                            //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                        }
+
+
+                        
                     }
                     else
                     {
@@ -810,6 +852,10 @@ namespace NebulaPatcher.Patches.Dynamic
                             w.Write(__instance.pointRot[startIndex + i].y);
                             w.Write(__instance.pointRot[startIndex + i].z);
                             w.Write(__instance.pointRot[startIndex + i].w);
+
+                            w.Write(__instance.pointPos[startIndex + i].x);
+                            w.Write(__instance.pointPos[startIndex + i].y);
+                            w.Write(__instance.pointPos[startIndex + i].z);
                         }
                     }
 
@@ -822,17 +868,60 @@ namespace NebulaPatcher.Patches.Dynamic
                 var surfaceRelativeSequenceForEnd = simmilarityMap[___bufferLength - 2];
                 var repCountForEnd = endIndex - startIndex + 1;
 
+                //Debug.Log($"sequence startIndex = {startIndex}, endIndex = {endIndex}, repCount = {repCountForEnd}, surfaceRelativeSequence = {surfaceRelativeSequenceForEnd}");
+
                 //Debug.Log($"surfaceRelativeSequenceForEnd {surfaceRelativeSequenceForEnd}");
                 //Debug.Log($"repCountForEnd {repCountForEnd}");
                 w.Write(surfaceRelativeSequenceForEnd);
                 w.Write(repCountForEnd);
                 if (surfaceRelativeSequenceForEnd)
                 {
+                    // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
+
                     //Debug.Log($"Writing to relative rotation for index {startIndex}");
                     w.Write(surfaceRelativeRotations[startIndex].x);
                     w.Write(surfaceRelativeRotations[startIndex].y);
                     w.Write(surfaceRelativeRotations[startIndex].z);
                     w.Write(surfaceRelativeRotations[startIndex].w);
+
+                    // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
+                    // we should compensate for this
+                    var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEnd / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+                    w.Write(matrixM[0, 0]);
+                    w.Write(matrixM[1, 0]);
+                    w.Write(matrixM[2, 0]);
+                    //w.Write(matrixM[3, 0]); // This is always 0
+                    w.Write(matrixM[0, 1]);
+                    w.Write(matrixM[1, 1]);
+                    w.Write(matrixM[2, 1]);
+                    //w.Write(matrixM[3, 1]); // This is always 0
+                    w.Write(matrixM[0, 2]);
+                    w.Write(matrixM[1, 2]);
+                    w.Write(matrixM[2, 2]);
+                    //w.Write(matrixM[3, 2]); // This is always 0
+                    w.Write(matrixM[0, 3]);
+                    w.Write(matrixM[1, 3]);
+                    w.Write(matrixM[2, 3]);
+                    //w.Write(matrixM[3, 3]); // This is always 1
+
+                    var matrixMInv = matrixM.inverse;
+                    for (int i = 0; i < repCountForEnd; i++)
+                    {
+                        // Write 2D coordinates on plane
+                        // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
+
+                        var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
+                        w.Write(projectedPoint.x);
+                        w.Write(projectedPoint.y);
+
+                        //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+
+                        ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
+                        //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
+                        //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                        //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                    }
+
                 }
                 else
                 {
@@ -843,10 +932,14 @@ namespace NebulaPatcher.Patches.Dynamic
                         w.Write(__instance.pointRot[startIndex + i].y);
                         w.Write(__instance.pointRot[startIndex + i].z);
                         w.Write(__instance.pointRot[startIndex + i].w);
+
+                        w.Write(__instance.pointPos[startIndex + i].x);
+                        w.Write(__instance.pointPos[startIndex + i].y);
+                        w.Write(__instance.pointPos[startIndex + i].z);
                     }
                 }
             }
-            // END of rotational compression code
+            // END of rotational and positional compression code
 
             for (int k = 0; k < __instance.belts.Count; k++)
             {
@@ -906,13 +999,13 @@ namespace NebulaPatcher.Patches.Dynamic
                             __instance.chunks[i * 3 + 2] = r.ReadInt32();
                         }
 
-                        // Code that reads/calculates the positions
-                        for (int j = 0; j < ___bufferLength; j++)
-                        {
-                            __instance.pointPos[j].x = r.ReadSingle();
-                            __instance.pointPos[j].y = r.ReadSingle();
-                            __instance.pointPos[j].z = r.ReadSingle();
-                        }
+                        //// Code that reads/calculates the positions
+                        //for (int j = 0; j < ___bufferLength; j++)
+                        //{
+                        //    __instance.pointPos[j].x = r.ReadSingle();
+                        //    __instance.pointPos[j].y = r.ReadSingle();
+                        //    __instance.pointPos[j].z = r.ReadSingle();
+                        //}
 
                         Debug.Log($"___bufferLength {___bufferLength}");
 
@@ -925,6 +1018,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
                             var previosRelativeRotation = new Quaternion();
                             var isThereAPreviosRelativeRotation = false;
+                            var planarMatrix = new Matrix4x4();
+                            var isThereAPlanarMatrix = false;
                             Debug.Log($"repCount {repCount}");
                             for (int i = 0; i < repCount; i++)
                             {
@@ -937,6 +1032,20 @@ namespace NebulaPatcher.Patches.Dynamic
                                         previosRelativeRotation = new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
                                         isThereAPreviosRelativeRotation = true;
                                     }
+
+                                    if (!isThereAPlanarMatrix)
+                                    {
+                                        planarMatrix = new Matrix4x4(
+                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
+                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
+                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
+                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 1)
+                                        );
+                                        isThereAPlanarMatrix = true;
+                                    }
+
+                                    var planarPosition = new Vector3(r.ReadSingle(), r.ReadSingle());
+                                    __instance.pointPos[j] = planarMatrix.MultiplyPoint3x4(planarPosition);
 
                                     var originalPosition = __instance.pointPos[j];
                                     var calculatedRotation = Quaternion.LookRotation(originalPosition, Vector3.up) * previosRelativeRotation;
@@ -953,6 +1062,15 @@ namespace NebulaPatcher.Patches.Dynamic
                                     if (isThereAPreviosRelativeRotation)
                                     {
                                         isThereAPreviosRelativeRotation = false;
+                                    }
+
+                                    __instance.pointPos[j].x = r.ReadSingle();
+                                    __instance.pointPos[j].y = r.ReadSingle();
+                                    __instance.pointPos[j].z = r.ReadSingle();
+
+                                    if (!isThereAPlanarMatrix)
+                                    {
+                                        isThereAPlanarMatrix = false;
                                     }
 
                                 }
