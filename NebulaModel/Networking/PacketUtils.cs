@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
-using NebulaModel.Packets.Processors;
+using NebulaModel.Packets;
 using NebulaModel.Utils;
 using System;
 using System.Linq;
@@ -44,7 +44,7 @@ namespace NebulaModel.Networking
             }
         }
 
-        public static void RegisterAllPacketProcessorsInCallingAssembly(NetPacketProcessor packetProcessor)
+        public static void RegisterAllPacketProcessorsInCallingAssembly(NetPacketProcessor packetProcessor, bool isMasterClient)
         {
             var processors = Assembly.GetCallingAssembly().GetTypes()
                 .Where(t => t.GetCustomAttributes(typeof(RegisterPacketProcessorAttribute), true).Length > 0);
@@ -56,26 +56,27 @@ namespace NebulaModel.Networking
 
             foreach (Type type in processors)
             {
-                var packetProcessorInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPacketProcessor<>));
-                if (packetProcessorInterface != null)
+                if (type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(PacketProcessor<>))
                 {
-                    Type packetType = packetProcessorInterface.GetGenericArguments().FirstOrDefault();
+                    Type packetType = type.BaseType.GetGenericArguments().FirstOrDefault();
                     Console.WriteLine($"Registering {type.Name} to process packet of type: {packetType.Name}");
 
                     // Create instance of the processor
                     Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));
                     object processor = Activator.CreateInstance(type);
-                    Delegate callback = Delegate.CreateDelegate(delegateType, processor, type.GetMethod(nameof(IPacketProcessor<object>.ProcessPacket)));
+                    Delegate callback = Delegate.CreateDelegate(delegateType, processor, type.GetMethod(nameof(PacketProcessor<object>.ProcessPacket)));
+
+                    // Initialize processor
+                    type.BaseType.GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(processor, new object[] { isMasterClient });
 
                     // Register our processor callback to the PacketProcessor
                     Type subscribeGenericType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));
-
                     MethodInfo generic = method.MakeGenericMethod(packetType, typeof(NebulaConnection));
                     generic.Invoke(packetProcessor, new object[] { callback });
                 }
                 else
                 {
-                    Log.Warn($"{type.FullName} registered, but doesn't implement {typeof(IPacketProcessor<>).FullName}");
+                    Log.Warn($"{type.FullName} registered, but doesn't implement {typeof(PacketProcessor<>).FullName}");
                 }
             }
         }

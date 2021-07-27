@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that user added node to the dyson plan
-            if (!DysonSphere_Manager.IncomingDysonSpherePacket)
+            if (!DysonSphereManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new DysonSphereAddNodePacket(__instance.starData.index, __instance.id, protoId, new Float3(pos)));
             }
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that user added frame to the dyson plan
-            if (!DysonSphere_Manager.IncomingDysonSpherePacket)
+            if (!DysonSphereManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new DysonSphereAddFramePacket(__instance.starData.index, __instance.id, protoId, nodeAId, nodeBId, euler));
             }
@@ -52,7 +52,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that user removed frame from the dyson plan
-            if (!DysonSphere_Manager.IncomingDysonSpherePacket)
+            if (!DysonSphereManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new DysonSphereRemoveFramePacket(__instance.starData.index, __instance.id, frameId));
             }
@@ -68,7 +68,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that user removed node from the dyson plan
-            if (!DysonSphere_Manager.IncomingDysonSpherePacket)
+            if (!DysonSphereManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new DysonSphereRemoveNodePacket(__instance.starData.index, __instance.id, nodeId));
             }
@@ -84,7 +84,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that user removed node from the dyson plan
-            if (!DysonSphere_Manager.IncomingDysonSpherePacket)
+            if (!DysonSphereManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new DysonSphereAddShellPacket(__instance.starData.index, __instance.id, protoId, nodeIds));
             }
@@ -100,7 +100,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that user removed node from the dyson plan
-            if (!DysonSphere_Manager.IncomingDysonSpherePacket)
+            if (!DysonSphereManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new DysonSphereRemoveShellPacket(__instance.starData.index, __instance.id, shellId));
             }

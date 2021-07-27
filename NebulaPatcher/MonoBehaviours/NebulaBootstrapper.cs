@@ -1,5 +1,4 @@
-﻿using NebulaClient;
-using NebulaHost;
+﻿using NebulaNetwork;
 using NebulaModel.Logger;
 using UnityEngine;
 

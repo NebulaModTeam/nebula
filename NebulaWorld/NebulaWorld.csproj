@@ -3,4 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="PacketProcessors\" />
+  </ItemGroup>
 </Project>
