@@ -156,6 +156,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
                     var repCount = endIndex - startIndex + 1;
 
+                    // TODO: sometimes we have a repcount of 0 we can then just skip this entire sequence
                     // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
                     // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
                     w.Write(surfaceRelativeSequence);
@@ -224,6 +225,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 var surfaceRelativeSequenceForEnd = simmilarityMap[___bufferLength - 2];
                 var repCountForEnd = endIndex - startIndex + 1;
 
+                // TODO: sometimes we have a repcount of 0 we can then just skip this entire sequence
+                // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
+                // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
                 w.Write(surfaceRelativeSequenceForEnd);
                 w.Write(repCountForEnd);
                 if (surfaceRelativeSequenceForEnd)
