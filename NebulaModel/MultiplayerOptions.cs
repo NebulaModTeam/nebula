@@ -31,6 +31,9 @@ namespace NebulaModel
 
         public string LastIP { get; set; } = string.Empty;
 
+        [DisplayName("Enable Savegame Compression")]
+        public bool EnableSavegameCompression { get; set; } = false;
+
         public object Clone()
         {
             return this.MemberwiseClone();
