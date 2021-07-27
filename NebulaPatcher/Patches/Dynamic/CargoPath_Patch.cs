@@ -161,12 +161,86 @@ namespace NebulaPatcher.Patches.Dynamic
                     endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
                     var repCount = endIndex - startIndex + 1;
 
-                    // TODO: sometimes we have a repcount of 0 we can then just skip this entire sequence
+                    // Sometimes we have a repcount of 0 we can then just skip this entire sequence
+                    if (repCount > 0)
+                    {
+                        // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
+                        // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
+                        w.Write(surfaceRelativeSequence);
+                        w.Write(repCount);
+                        if (surfaceRelativeSequence)
+                        {
+                            // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
+
+                            w.Write(surfaceRelativeRotations[startIndex].x);
+                            w.Write(surfaceRelativeRotations[startIndex].y);
+                            w.Write(surfaceRelativeRotations[startIndex].z);
+                            w.Write(surfaceRelativeRotations[startIndex].w);
+
+                            // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
+                            // we should compensate for this
+                            var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+                            w.Write(matrixM[0, 0]);
+                            w.Write(matrixM[1, 0]);
+                            w.Write(matrixM[2, 0]);
+                            //w.Write(matrixM[3, 0]); // This is always 0
+                            w.Write(matrixM[0, 1]);
+                            w.Write(matrixM[1, 1]);
+                            w.Write(matrixM[2, 1]);
+                            //w.Write(matrixM[3, 1]); // This is always 0
+                            w.Write(matrixM[0, 2]);
+                            w.Write(matrixM[1, 2]);
+                            w.Write(matrixM[2, 2]);
+                            //w.Write(matrixM[3, 2]); // This is always 0
+                            w.Write(matrixM[0, 3]);
+                            w.Write(matrixM[1, 3]);
+                            w.Write(matrixM[2, 3]);
+                            //w.Write(matrixM[3, 3]); // This is always 1
+
+                            var matrixMInv = matrixM.inverse;
+                            for (int i = 0; i < repCount; i++)
+                            {
+                                // Write 2D coordinates on plane
+                                // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
+
+                                var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
+                                w.Write(projectedPoint.x);
+                                w.Write(projectedPoint.y);
+                            }
+
+                        }
+                        else
+                        {
+                            for (int i = 0; i < repCount; i++)
+                            {
+                                w.Write(__instance.pointRot[startIndex + i].x);
+                                w.Write(__instance.pointRot[startIndex + i].y);
+                                w.Write(__instance.pointRot[startIndex + i].z);
+                                w.Write(__instance.pointRot[startIndex + i].w);
+
+                                w.Write(__instance.pointPos[startIndex + i].x);
+                                w.Write(__instance.pointPos[startIndex + i].y);
+                                w.Write(__instance.pointPos[startIndex + i].z);
+                            }
+                        }
+                    }                    
+
+                    startIndex = endIndex + 1;
+                }
+
+                // The end needs to be handled seperately (since it does not have a differentialIndex)
+                endIndex = ___bufferLength - 1;
+                var surfaceRelativeSequenceForEnd = simmilarityMap[___bufferLength - 2];
+                var repCountForEnd = endIndex - startIndex + 1;
+
+                // Sometimes we have a repcount of 0 we can then just skip this entire sequence
+                if (repCountForEnd > 0)
+                {
                     // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
                     // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
-                    w.Write(surfaceRelativeSequence);
-                    w.Write(repCount);
-                    if (surfaceRelativeSequence)
+                    w.Write(surfaceRelativeSequenceForEnd);
+                    w.Write(repCountForEnd);
+                    if (surfaceRelativeSequenceForEnd)
                     {
                         // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
 
@@ -177,7 +251,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                         // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
                         // we should compensate for this
-                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEnd / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
                         w.Write(matrixM[0, 0]);
                         w.Write(matrixM[1, 0]);
                         w.Write(matrixM[2, 0]);
@@ -196,7 +270,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         //w.Write(matrixM[3, 3]); // This is always 1
 
                         var matrixMInv = matrixM.inverse;
-                        for (int i = 0; i < repCount; i++)
+                        for (int i = 0; i < repCountForEnd; i++)
                         {
                             // Write 2D coordinates on plane
                             // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
@@ -205,11 +279,11 @@ namespace NebulaPatcher.Patches.Dynamic
                             w.Write(projectedPoint.x);
                             w.Write(projectedPoint.y);
                         }
-                        
+
                     }
                     else
                     {
-                        for (int i = 0; i < repCount; i++)
+                        for (int i = 0; i < repCountForEnd; i++)
                         {
                             w.Write(__instance.pointRot[startIndex + i].x);
                             w.Write(__instance.pointRot[startIndex + i].y);
@@ -220,74 +294,6 @@ namespace NebulaPatcher.Patches.Dynamic
                             w.Write(__instance.pointPos[startIndex + i].y);
                             w.Write(__instance.pointPos[startIndex + i].z);
                         }
-                    }
-
-                    startIndex = endIndex + 1;
-                }
-
-                // The end needs to be handled seperately (since it does not have a differentialIndex)
-                endIndex = ___bufferLength - 1;
-                var surfaceRelativeSequenceForEnd = simmilarityMap[___bufferLength - 2];
-                var repCountForEnd = endIndex - startIndex + 1;
-
-                // TODO: sometimes we have a repcount of 0 we can then just skip this entire sequence
-                // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
-                // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
-                w.Write(surfaceRelativeSequenceForEnd);
-                w.Write(repCountForEnd);
-                if (surfaceRelativeSequenceForEnd)
-                {
-                    // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
-
-                    w.Write(surfaceRelativeRotations[startIndex].x);
-                    w.Write(surfaceRelativeRotations[startIndex].y);
-                    w.Write(surfaceRelativeRotations[startIndex].z);
-                    w.Write(surfaceRelativeRotations[startIndex].w);
-
-                    // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
-                    // we should compensate for this
-                    var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEnd / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
-                    w.Write(matrixM[0, 0]);
-                    w.Write(matrixM[1, 0]);
-                    w.Write(matrixM[2, 0]);
-                    //w.Write(matrixM[3, 0]); // This is always 0
-                    w.Write(matrixM[0, 1]);
-                    w.Write(matrixM[1, 1]);
-                    w.Write(matrixM[2, 1]);
-                    //w.Write(matrixM[3, 1]); // This is always 0
-                    w.Write(matrixM[0, 2]);
-                    w.Write(matrixM[1, 2]);
-                    w.Write(matrixM[2, 2]);
-                    //w.Write(matrixM[3, 2]); // This is always 0
-                    w.Write(matrixM[0, 3]);
-                    w.Write(matrixM[1, 3]);
-                    w.Write(matrixM[2, 3]);
-                    //w.Write(matrixM[3, 3]); // This is always 1
-
-                    var matrixMInv = matrixM.inverse;
-                    for (int i = 0; i < repCountForEnd; i++)
-                    {
-                        // Write 2D coordinates on plane
-                        // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
-
-                        var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
-                        w.Write(projectedPoint.x);
-                        w.Write(projectedPoint.y);
-                    }
-
-                }
-                else
-                {
-                    for (int i = 0; i < repCountForEnd; i++)
-                    {
-                        w.Write(__instance.pointRot[startIndex + i].x);
-                        w.Write(__instance.pointRot[startIndex + i].y);
-                        w.Write(__instance.pointRot[startIndex + i].z);
-                        w.Write(__instance.pointRot[startIndex + i].w);
-
-                        w.Write(__instance.pointPos[startIndex + i].x);
-                        w.Write(__instance.pointPos[startIndex + i].y);
-                        w.Write(__instance.pointPos[startIndex + i].z);
                     }
                 }
             }
