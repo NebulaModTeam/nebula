@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Planet;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaWorld.Planet;
 

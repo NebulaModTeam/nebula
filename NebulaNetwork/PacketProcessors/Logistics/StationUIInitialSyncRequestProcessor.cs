@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 
 /*
  * When a client opens a stations UI we sync the complete state of settings and storage.
@@ -11,7 +11,7 @@ using NebulaModel.Packets;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class StationUIInitialSyncRequestProcessor: PacketProcessor<StationUIInitialSyncRequest>
+    public class StationUIInitialSyncRequestProcessor : PacketProcessor<StationUIInitialSyncRequest>
     {
         public override void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
         {
@@ -22,7 +22,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             StationComponent[] stationPool = GameMain.data.galaxy?.PlanetById(packet.PlanetId)?.factory?.transport?.stationPool;
 
             stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
-            
+
             if (stationComponent == null)
             {
                 Log.Error($"StationUIInitialSyncRequestProcessor: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
@@ -30,15 +30,15 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             }
 
             StationStore[] storage = stationComponent.storage;
-            
+
             int[] itemId = new int[storage.Length];
             int[] itemCountMax = new int[storage.Length];
             int[] itemCount = new int[storage.Length];
             int[] localLogic = new int[storage.Length];
             int[] remoteLogic = new int[storage.Length];
             int[] remoteOrder = new int[storage.Length];
-            
-            for(int i = 0; i < stationComponent.storage.Length; i++)
+
+            for (int i = 0; i < stationComponent.storage.Length; i++)
             {
                 itemId[i] = storage[i].itemId;
                 itemCountMax[i] = storage[i].max;

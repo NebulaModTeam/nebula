@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets;
 using NebulaModel.DataStructures;
+using NebulaModel.Networking;
+using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
 
 /*
@@ -24,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             if (IsClient) return;
 
             Player player = playerManager.GetPlayer(conn);
-            if(player == null)
+            if (player == null)
             {
                 player = playerManager.GetSyncingPlayer(conn);
             }
@@ -33,15 +33,15 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 int countILS = 0;
                 int iter = 0;
 
-                foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+                foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
-                    if(stationComponent != null)
+                    if (stationComponent != null)
                     {
                         countILS++;
                     }
                 }
 
-                if(countILS == 0)
+                if (countILS == 0)
                 {
                     return;
                 }
@@ -76,9 +76,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 Double3[] shipPPosTemp = new Double3[countILS * ILSShipManager.ILSMaxShipCount];
                 Float4[] shipPRotTemp = new Float4[countILS * ILSShipManager.ILSMaxShipCount];
 
-                foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+                foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
-                    if(stationComponent != null)
+                    if (stationComponent != null)
                     {
                         stationGId[iter] = stationComponent.gid;
                         stationId[iter] = stationComponent.id;
@@ -91,7 +91,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         idleShipIndices[iter] = stationComponent.idleShipIndices;
 
                         // ShipData is never null
-                        for(int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
+                        for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
                         {
                             ShipData shipData = stationComponent.workShipDatas[j];
                             int index = iter * ILSShipManager.ILSMaxShipCount + j;

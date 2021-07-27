@@ -3,7 +3,6 @@ using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
-using System.Reflection;
 
 namespace NebulaNetwork.PacketProcessors.Statistics
 {

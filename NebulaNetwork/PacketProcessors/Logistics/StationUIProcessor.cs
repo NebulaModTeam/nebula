@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using NebulaWorld.Logistics;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class StationUIProcessor: PacketProcessor<StationUI>
+    class StationUIProcessor : PacketProcessor<StationUI>
     {
         private PlayerManager playerManager;
         public StationUIProcessor()

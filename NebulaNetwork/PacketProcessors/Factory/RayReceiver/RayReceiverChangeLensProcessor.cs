@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.RayReceiver;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.RayReceiver;
 
 namespace NebulaNetwork.PacketProcessors.Factory.RayReceiver
 {

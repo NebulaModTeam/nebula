@@ -1,10 +1,10 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets;
-using NebulaWorld.Logistics;
-using HarmonyLib;
+﻿using HarmonyLib;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
+using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
+using NebulaWorld.Logistics;
 
 /*
  * When the client opens the UI of a station (ILS/PLS/Collector) the contents gets updated and shown to
@@ -14,16 +14,16 @@ using NebulaModel.Logger;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class StationUIInitialSyncProcessor: PacketProcessor<StationUIInitialSync>
+    public class StationUIInitialSyncProcessor : PacketProcessor<StationUIInitialSync>
     {
         public override void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
         {
             StationComponent stationComponent = null;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             StationComponent[] stationPool = GameMain.data.galaxy.PlanetById(packet.PlanetId).factory.transport.stationPool;
-            
+
             stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
-            
+
             if (stationComponent == null)
             {
                 Log.Error($"StationUIInitialSyncProcessor: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");

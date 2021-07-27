@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets;
 using NebulaModel.DataStructures;
+using NebulaModel.Networking;
+using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
 using UnityEngine;
 
@@ -57,7 +57,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
             // thanks Baldy for the fix :D
             // nearly lost all my hairs because of it
-            for(int i = 0; i < packet.shipStationGId.Length; i++)
+            for (int i = 0; i < packet.shipStationGId.Length; i++)
             {
                 ShipData shipData = gStationPool[packet.shipStationGId[i]].workShipDatas[i % ILSShipManager.ILSMaxShipCount];
                 shipData.stage = packet.shipStage[i];

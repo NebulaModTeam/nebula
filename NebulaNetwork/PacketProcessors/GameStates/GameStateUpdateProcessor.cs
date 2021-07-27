@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
 

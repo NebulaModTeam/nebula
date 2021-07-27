@@ -38,7 +38,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
                     DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
 
                     // DysonSphereLayer is missing, we can't do anything now.
-                    if(dsl == null)
+                    if (dsl == null)
                     {
                         NebulaModel.Logger.Log.Warn("Could not add Dyson Sphere Node, DysonSphereLayer is null.");
                         return;

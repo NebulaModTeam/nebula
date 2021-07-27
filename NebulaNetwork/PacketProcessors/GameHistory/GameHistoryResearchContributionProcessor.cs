@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.GameHistory;
-using NebulaModel.Packets;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
+using NebulaModel.Packets;
+using NebulaModel.Packets.GameHistory;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {

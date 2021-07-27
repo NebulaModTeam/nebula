@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory;
 using NebulaWorld.Factory;
 using NebulaWorld.Player;
 

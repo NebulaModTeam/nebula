@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.Tank;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.Tank;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Tank
 {

@@ -1,11 +1,11 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory;
 using NebulaWorld.Factory;
-using UnityEngine;
 using System;
+using UnityEngine;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 {

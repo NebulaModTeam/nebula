@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using System.Collections.Generic;
 
 /*
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSArriveStarPlanetRequestProcessor: PacketProcessor<ILSArriveStarPlanetRequest>
+    class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveStarPlanetRequest>
     {
         private PlayerManager playerManager;
 
@@ -29,13 +29,13 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 player = playerManager.GetSyncingPlayer(conn);
             }
-            if(player != null)
+            if (player != null)
             {
                 List<int> stationGId = new List<int>();
                 List<int> storageLength = new List<int>();
                 int arraySize = 0;
                 int offset = 0;
-                if(packet.PlanetId == 0) // arrive at solar system
+                if (packet.PlanetId == 0) // arrive at solar system
                 {
                     foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                     {
@@ -49,9 +49,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 else // arrive at planet
                 {
                     PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                    if(pData?.factory?.transport != null)
+                    if (pData?.factory?.transport != null)
                     {
-                        foreach(StationComponent stationComponent in pData.factory.transport.stationPool)
+                        foreach (StationComponent stationComponent in pData.factory.transport.stationPool)
                         {
                             if (stationComponent != null)
                             {
@@ -62,10 +62,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     }
                 }
 
-                if(stationGId.Count > 0)
+                if (stationGId.Count > 0)
                 {
                     StationComponent[] gStationPool = null;
-                    if(packet.PlanetId == 0) // arrive at solar system
+                    if (packet.PlanetId == 0) // arrive at solar system
                     {
                         gStationPool = GameMain.data.galacticTransport.stationPool;
                     }
@@ -75,7 +75,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         gStationPool = pData.factory.transport.stationPool;
                     }
 
-                    for(int i = 0; i < storageLength.Count; i++)
+                    for (int i = 0; i < storageLength.Count; i++)
                     {
                         arraySize += storageLength[i];
                     }
@@ -92,7 +92,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
                     for (int i = 0; i < stationGId.Count; i++)
                     {
-                        for(int j = 0; j < storageLength[i]; j++)
+                        for (int j = 0; j < storageLength[i]; j++)
                         {
                             planetId[offset + j] = gStationPool[stationGId[i]].planetId;
                             if (gStationPool[stationGId[i]].slots.Length > 0) // collectors dont have a slot for belts

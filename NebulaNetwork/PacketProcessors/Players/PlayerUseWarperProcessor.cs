@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Players;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Players

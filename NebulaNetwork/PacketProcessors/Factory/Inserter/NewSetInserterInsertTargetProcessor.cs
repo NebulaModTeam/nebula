@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.Inserter;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.Inserter;
 using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Inserter

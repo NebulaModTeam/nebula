@@ -1,5 +1,4 @@
 ﻿using NebulaModel.Networking;
-using NebulaNetwork.PacketProcessors.Players;
 using NebulaModel.Packets;
 
 namespace NebulaNetwork.PacketProcessors.Players

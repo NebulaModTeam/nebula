@@ -83,8 +83,8 @@ namespace NebulaNetwork
 
             LocalPlayer.IsMasterClient = false;
             LocalPlayer.SetNetworkProvider(this);
-            
-            if(Config.Options.RememberLastIP)
+
+            if (Config.Options.RememberLastIP)
             {
                 // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
                 Config.Options.LastIP = socketAddress.Substring(5, socketAddress.Length - 12);
@@ -235,26 +235,27 @@ namespace NebulaNetwork
                     return;
                 }
 
-            if (SimulatedWorld.IsGameLoaded)
-            {
-                InGamePopup.ShowWarning(
-                    "Connection Lost",
-                    $"You have been disconnected from the server.\n{e.Reason}",
-                    "Quit",
-                    () => LocalPlayer.LeaveGame());
-            }
-            else
-            {
-                InGamePopup.ShowWarning(
-                    "Server Unavailable",
-                    $"Could not reach the server, please try again later.",
-                    "OK",
-                    () => {
-                        LocalPlayer.IsMasterClient = false;
-                        SimulatedWorld.Clear();
-                        DestroySession();
-                        OnDisconnectPopupCloseBeforeGameLoad();
-                    });
+                if (SimulatedWorld.IsGameLoaded)
+                {
+                    InGamePopup.ShowWarning(
+                        "Connection Lost",
+                        $"You have been disconnected from the server.\n{e.Reason}",
+                        "Quit",
+                        () => LocalPlayer.LeaveGame());
+                }
+                else
+                {
+                    InGamePopup.ShowWarning(
+                        "Server Unavailable",
+                        $"Could not reach the server, please try again later.",
+                        "OK",
+                        () =>
+                        {
+                            LocalPlayer.IsMasterClient = false;
+                            SimulatedWorld.Clear();
+                            DestroySession();
+                            OnDisconnectPopupCloseBeforeGameLoad();
+                        });
                 }
             });
         }
