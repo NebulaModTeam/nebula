@@ -46,7 +46,7 @@ namespace NebulaPatcher
 
             try
             {
-                Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_VERSION_WITH_SHORT_SHA}");
+                Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}");
 #if DEBUG
                 if (Directory.Exists("./mmdump"))
                 {
