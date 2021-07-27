@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnLateUpdate")]
         public static void OnLateUpdate_Postfix(UIStarmap __instance)
         {
-            if(SimulatedWorld.Initialized)
+            if (SimulatedWorld.Initialized)
             {
                 SimulatedWorld.RenderPlayerNameTagsOnStarmap(__instance);
             }

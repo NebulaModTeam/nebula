@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AddModel")]
+        [HarmonyPatch(nameof(GPUInstancingManager.AddModel))]
         public static bool AddModel_Prefix(GPUInstancingManager __instance, ref int __result)
         {
             //Do not add model to the GPU queue if player is not on the same planet as building that was build
@@ -50,7 +50,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AddPrebuildModel")]
+        [HarmonyPatch(nameof(GPUInstancingManager.AddPrebuildModel))]
         public static bool AddPrebuildModel_Prefix(GPUInstancingManager __instance, ref int __result)
         {
             //Do not add model to the GPU queue if player is not on the same planet as building that was build

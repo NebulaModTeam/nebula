@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Packets.GameHistory;
 using NebulaWorld;
@@ -11,8 +10,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameHistoryData_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("SetForNewGame")]
-        public static void Postfix()
+        [HarmonyPatch(nameof(GameHistoryData.SetForNewGame))]
+        public static void SetForNewGame_Postfix()
         {
             // Do not run if it is not multiplayer and the player is not a client
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
@@ -25,8 +24,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("EnqueueTech")]
-        public static void Postfix2(int techId)
+        [HarmonyPatch(nameof(GameHistoryData.EnqueueTech))]
+        public static void EnqueueTech_Postfix(int techId)
         {
             if (!SimulatedWorld.Initialized)
             {
@@ -43,8 +42,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("RemoveTechInQueue")]
-        public static void Postfix3(int index, int __state)
+        [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
+        public static void RemoveTechInQueue_Postfix(int index, int __state)
         {
             if (!SimulatedWorld.Initialized)
             {
@@ -61,8 +60,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("PauseTechQueue")]
-        public static void Postfix4()
+        [HarmonyPatch(nameof(GameHistoryData.PauseTechQueue))]
+        public static void PauseTechQueue_Postfix()
         {
             if (!SimulatedWorld.Initialized)
             {
@@ -79,8 +78,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("ResumeTechQueue")]
-        public static void Postfix5()
+        [HarmonyPatch(nameof(GameHistoryData.ResumeTechQueue))]
+        public static void ResumeTechQueue_Postfix()
         {
             if (!SimulatedWorld.Initialized)
             {
@@ -97,32 +96,32 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("UnlockRecipe")]
-        public static bool Prefix1()
+        [HarmonyPatch(nameof(GameHistoryData.UnlockRecipe))]
+        public static bool UnlockRecipe_Prefix()
         {
             //Wait for the authoritative packet for unlocking recipes in multiplayer for clients
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("UnlockTechFunction")]
-        public static bool Prefix2()
+        [HarmonyPatch(nameof(GameHistoryData.UnlockTechFunction))]
+        public static bool UnlockTechFunction_Prefix()
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("GainTechAwards")]
-        public static bool Prefix3()
+        [HarmonyPatch(nameof(GameHistoryData.GainTechAwards))]
+        public static bool GainTechAwards_Prefix()
         {
             //Wait for the authoritative packet for gaining tech awards in multiplayer for clients
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AddTechHash")]
-        public static bool Prefix4(GameHistoryData __instance, long addcnt)
+        [HarmonyPatch(nameof(GameHistoryData.AddTechHash))]
+        public static bool AddTechHash_Prefix(GameHistoryData __instance, long addcnt)
         {
             //Host in multiplayer can do normal research in the mecha
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
@@ -136,24 +135,24 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("DequeueTech")]
-        public static bool Prefix5()
+        [HarmonyPatch(nameof(GameHistoryData.DequeueTech))]
+        public static bool DequeueTech_Prefix()
         {
             ///Wait for the authoritative packet for dequeing tech in multiplayer for clients
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("UnlockTech")]
-        public static bool Prefix6()
+        [HarmonyPatch(nameof(GameHistoryData.UnlockTech))]
+        public static bool UnlockTech_Prefix()
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveTechInQueue")]
-        public static void Prefix7(int index, out int __state)
+        [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
+        public static void RemoveTechInQueue_Prefix(int index, out int __state)
         {
             __state = GameMain.history.techQueue[index];
             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)

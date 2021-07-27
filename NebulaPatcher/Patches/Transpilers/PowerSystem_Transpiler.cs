@@ -1,11 +1,9 @@
 ﻿using HarmonyLib;
-using NebulaWorld;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
 using NebulaModel.Packets.Factory.PowerTower;
-using NebulaModel.Logger;
+using NebulaWorld;
 using NebulaWorld.Factory;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpilers
 {
@@ -41,7 +39,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         if (!LocalPlayer.IsMasterClient)
                         {
                             _this.nodePool[powerNodeId].requiredEnergy = _this.nodePool[powerNodeId].idleEnergyPerTick; // this gets added onto the known required energy by PowerTowerManager and PowerSystem_Patch
-                            if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, true))
+                            if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
                             {
                                 LocalPlayer.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, true));
                             }
@@ -49,7 +47,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         else
                         {
                             PowerNetwork pNet = _this.netPool[powerNetId];
-                            if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, true))
+                            if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
                             {
                                 PowerTowerManager.AddExtraDemand(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick);
                                 LocalPlayer.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
@@ -88,7 +86,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             {
                                 if (!LocalPlayer.IsMasterClient)
                                 {
-                                    if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, _this.nodePool[powerNodeId].workEnergyPerTick))
+                                    if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
                                     {
                                         LocalPlayer.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, false));
                                     }
@@ -96,7 +94,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                 else
                                 {
                                     PowerNetwork pNet = _this.netPool[powerNetId];
-                                    if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, _this.nodePool[powerNodeId].workEnergyPerTick))
+                                    if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
                                     {
                                         PowerTowerManager.RemExtraDemand(_this.planet.id, powerNetId, powerNodeId);
                                         LocalPlayer.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,

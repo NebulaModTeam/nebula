@@ -7,7 +7,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class Mecha_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(Mecha.GameTick))]
         public static void GameTick_Postfix(Mecha __instance, long time, float dt)
         {
             if (SimulatedWorld.Initialized)
@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("GenerateEnergy")]
+        [HarmonyPatch(nameof(Mecha.GenerateEnergy))]
         public static bool Mecha_GenerateEnergy_Prefix(Mecha __instance, double dt)
         {
             // some players managed to break the fuel chamber on clients.
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(Mecha), nameof(Mecha.AddProductionStat))]
         public static bool AddStat_Common_Prefix(ref PlanetFactory factory)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
                 return true;
 
             // TODO: Send packet to host to add stat?

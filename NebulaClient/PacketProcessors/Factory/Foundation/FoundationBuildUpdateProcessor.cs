@@ -29,15 +29,11 @@ namespace NebulaClient.PacketProcessors.Factory.Foundation
                 {
                     factory.platformSystem.InitReformData();
                 }
-                if (planet.physics == null || planet.physics.colChunks == null)
-                {
-                    planet.physics = new PlanetPhysics(planet);
-                    planet.physics.Init();
-                }
-                if (planet.aux == null)
-                {
-                    planet.aux = new PlanetAuxData(planet); 
-                }
+
+                FactoryManager.TargetPlanet = packet.PlanetId;
+                FactoryManager.AddPlanetTimer(packet.PlanetId);
+                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
+
                 int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out reformCenterPoint);
                 factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, 3f, 1f);
                 using (FactoryManager.EventFromServer.On())

@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIRealtimeTip_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("Popup", new Type[] { typeof(string), typeof(bool), typeof(int) })]
+        [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(bool), typeof(int) })]
         public static bool Popup_Prefix()
         {
             //Do not show popups if they are triggered remotely
@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("Popup", new Type[] { typeof(string), typeof(Vector2), typeof(int) })]
+        [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(Vector2), typeof(int) })]
         public static bool Popup_Prefix2()
         {
             //Do not show popups if they are triggered remotely
@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("Popup", new Type[] { typeof(string), typeof(Vector3), typeof(bool), typeof(int) })]
+        [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(Vector3), typeof(bool), typeof(int) })]
         public static bool Popup_Prefix3()
         {
             //Do not show popups if they are triggered remotely

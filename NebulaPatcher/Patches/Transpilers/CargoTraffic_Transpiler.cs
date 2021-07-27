@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Transpiler
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == nameof(CargoPath.TryPickItem))
                     );
 
-            if(codeMatcher.IsInvalid)
+            if (codeMatcher.IsInvalid)
             {
                 NebulaModel.Logger.Log.Error("CargoTraffic.PickupBeltItems_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(segId)
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int>>((item, cnt, belt, seg) =>
                     {
-                        if(SimulatedWorld.Initialized)
+                        if (SimulatedWorld.Initialized)
                         {
                             BeltManager.RegisterBeltPickupUpdate(item, cnt, belt, seg);
                         }

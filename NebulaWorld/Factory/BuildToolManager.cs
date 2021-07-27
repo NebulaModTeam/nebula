@@ -33,6 +33,7 @@ namespace NebulaWorld.Factory
                     break;
                 }
             }
+
             if (pab != null && buildTool != null)
             {
                 FactoryManager.TargetPlanet = packet.PlanetId;
@@ -49,17 +50,20 @@ namespace NebulaWorld.Factory
                     tmpFactory = buildTool.factory;
                     tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
                     tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
-                    planet.physics = new PlanetPhysics(planet);
-                    planet.physics.Init();
-                    planet.aux = new PlanetAuxData(planet);
-                    planet.audio = new PlanetAudio(planet);
-                    planet.audio.Init();
+                    FactoryManager.AddPlanetTimer(packet.PlanetId);
                 }
+
+                bool incomingBlueprintEvent = packet.BuildToolType == typeof(BuildTool_BlueprintPaste).ToString();
 
                 //Create Prebuilds from incoming packet and prepare new position
                 List<BuildPreview> tmpList = new List<BuildPreview>();
-                tmpList.AddRange(buildTool.buildPreviews); buildTool.buildPreviews.Clear();
-                buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
+                if (!incomingBlueprintEvent)
+                {
+                    tmpList.AddRange(buildTool.buildPreviews);
+                    buildTool.buildPreviews.Clear();
+                    buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
+                }
+
                 FactoryManager.EventFactory = planet.factory;
 
                 //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
@@ -81,8 +85,6 @@ namespace NebulaWorld.Factory
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                Debug.Log(buildTool.buildPreviews[0].condition);
-
                 if (canBuild || FactoryManager.EventFromServer)
                 {
                     if (FactoryManager.EventFromClient) CheckAndFixConnections(buildTool, planet);
@@ -99,6 +101,24 @@ namespace NebulaWorld.Factory
                     {
                         ((BuildTool_Inserter)buildTool).CreatePrebuilds();
                     }
+                    else if (incomingBlueprintEvent)
+                    {
+                        BuildTool_BlueprintPaste bpTool = buildTool as BuildTool_BlueprintPaste;
+
+                        // Cache the current data before performing the requested CreatePrebuilds();
+                        int previousCursor = bpTool.bpCursor;
+                        BuildPreview[] previousPool = bpTool.bpPool;
+
+                        // Perform the requested CreatePrebuilds();
+                        List<BuildPreview> incomingPreviews = packet.GetBuildPreviews();
+                        bpTool.bpCursor = incomingPreviews.Count;
+                        bpTool.bpPool = incomingPreviews.ToArray();
+                        bpTool.CreatePrebuilds();
+
+                        // Revert to previous data
+                        bpTool.bpCursor = previousCursor;
+                        bpTool.bpPool = previousPool;
+                    }
                 }
 
                 //Revert changes back to the original planet
@@ -109,17 +129,16 @@ namespace NebulaWorld.Factory
                     pab.noneTool.factory = tmpFactory;
                     pab.planetPhysics = tmpPlanetPhysics;
                     pab.nearcdLogic = tmpNearcdLogic;
-                    planet.physics.Free();
-                    planet.physics = null;
-                    planet.audio.Free();
-                    planet.audio = null;
                 }
 
                 GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
                 FactoryManager.EventFactory = null;
 
-                buildTool.buildPreviews.Clear();
-                buildTool.buildPreviews.AddRange(tmpList);
+                if (!incomingBlueprintEvent)
+                {
+                    buildTool.buildPreviews.Clear();
+                    buildTool.buildPreviews.AddRange(tmpList);
+                }
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                 FactoryManager.PacketAuthor = -1;

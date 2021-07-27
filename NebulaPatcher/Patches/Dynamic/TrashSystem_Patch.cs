@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class TrashSystem_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("SetForNewGame")]
+        [HarmonyPatch(nameof(TrashSystem.SetForNewGame))]
         public static void SetForNewGame_Postfix()
         {
             //Request trash data from the host
@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("ClearAllTrash")]
+        [HarmonyPatch(nameof(TrashSystem.ClearAllTrash))]
         public static void ClearAllTrash_Postfix()
         {
             //Send notification, that somebody clicked on "ClearAllTrash"

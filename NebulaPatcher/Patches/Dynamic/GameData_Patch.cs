@@ -1,12 +1,13 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Players;
-using NebulaWorld;
-using NebulaWorld.Logistics;
-using NebulaPatcher.Patches.Transpilers;
-using UnityEngine;
 using NebulaModel.Packets.Logistics;
+using NebulaModel.Packets.Players;
+using NebulaPatcher.Patches.Transpilers;
+using NebulaWorld;
+using NebulaWorld.Factory;
+using NebulaWorld.Logistics;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -14,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameData_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("Update")]
+        [HarmonyPatch(nameof(GameData.Update))]
         public static void Update_Prefix()
         {
             if (!SimulatedWorld.Initialized || !SimulatedWorld.IsGameLoaded)
@@ -24,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("GetOrCreateFactory")]
+        [HarmonyPatch(nameof(GameData.GetOrCreateFactory))]
         public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
@@ -72,7 +73,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnActivePlanetLoaded")]
+        [HarmonyPatch(nameof(GameData.OnActivePlanetLoaded))]
         public static bool OnActivePlanetLoaded_Prefix(GameData __instance, PlanetData planet)
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
@@ -98,7 +99,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnActivePlanetFactoryLoaded")]
+        [HarmonyPatch(nameof(GameData.OnActivePlanetFactoryLoaded))]
         public static bool OnActivePlanetFactoryLoaded_Prefix(GameData __instance, PlanetData planet)
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
@@ -132,7 +133,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("SetForNewGame")]
+        [HarmonyPatch(nameof(GameData.SetForNewGame))]
         public static void SetForNewGame_Postfix(GameData __instance)
         {
             //Set starting star and planet to request from the server
@@ -151,7 +152,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     __instance.mainPlayer.uPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
                     GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
 
-                    if(nearestStar == null)
+                    if (nearestStar == null)
                     {
                         // We are not in a planetary system and thus do not have a star, return.
                         return;
@@ -163,10 +164,10 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
                 if (SimulatedWorld.Initialized)
                 {
@@ -191,9 +192,9 @@ namespace NebulaPatcher.Patches.Dynamic
             Quaternion relativeRot = __instance.relativeRot;
             bool starmap = UIGame.viewMode == EViewMode.Starmap;
 
-            foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+            foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
             {
-                if(stationComponent != null && stationComponent.isStellar)
+                if (stationComponent != null && stationComponent.isStellar)
                 {
                     //Debug.Log("enter " + stationComponent.gid + " (" + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ")");
                     StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
@@ -215,7 +216,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDraw")]
+        [HarmonyPatch(nameof(GameData.OnDraw))]
         public static void OnDraw_Postfix()
         {
             if (SimulatedWorld.Initialized)
@@ -225,7 +226,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("LeaveStar")]
+        [HarmonyPatch(nameof(GameData.LeaveStar))]
         public static void LeaveStar_Prefix(GameData __instance)
         {
             //Client should unload all factories once they leave the star system
@@ -251,7 +252,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("ArriveStar")]
+        [HarmonyPatch(nameof(GameData.ArriveStar))]
         public static void ArriveStar_Prefix(GameData __instance, StarData star)
         {
             //Client should unload all factories once they leave the star system
@@ -263,7 +264,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("LeavePlanet")]
+        [HarmonyPatch(nameof(GameData.LeavePlanet))]
         public static void LeavePlanet_Prefix(GameData __instance)
         {
             //Players should clear the list of drone orders of other players when they leave the planet
@@ -271,6 +272,14 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameData.Destroy))]
+        public static void Destroy_Postfix()
+        {
+            PowerTowerManager.Energy.Clear();
+            PowerTowerManager.RequestsSent.Clear();
         }
     }
 }

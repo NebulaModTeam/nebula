@@ -7,7 +7,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class PlanetPhysics_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveLinkedColliderData")]
+        [HarmonyPatch(nameof(PlanetPhysics.RemoveLinkedColliderData))]
         public static bool RemoveLinkedColliderData_Prefix(PlanetPhysics __instance)
         {
             //Collider does not need to be removed if player is not on the planet
@@ -19,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveColliderData")]
+        [HarmonyPatch(nameof(PlanetPhysics.RemoveColliderData))]
         public static bool RemoveColliderData_Prefix(PlanetPhysics __instance)
         {
             //Collider does not need to be removed if player is not on the planet

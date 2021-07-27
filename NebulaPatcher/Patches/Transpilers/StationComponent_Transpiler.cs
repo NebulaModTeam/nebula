@@ -1,13 +1,13 @@
 ﻿using HarmonyLib;
+using NebulaModel.Networking;
+using NebulaModel.Packets.Logistics;
+using NebulaWorld;
+using NebulaWorld.Logistics;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using NebulaWorld;
-using NebulaWorld.Logistics;
-using NebulaModel.Packets.Logistics;
 using UnityEngine;
-using System;
-using NebulaModel.Networking;
 
 // thanks tanu and Therzok for the tipps!
 namespace NebulaPatcher.Patches.Transpilers
@@ -28,7 +28,6 @@ namespace NebulaPatcher.Patches.Transpilers
         private static int RemOrderCounter = 0;
         private static int RemOrderCounter2 = 0;
         private static int RemOrderCounter3 = 0;
-        private static int EnergyCounter = 0;
 
         [HarmonyTranspiler]
         [HarmonyPatch("RematchRemotePairs")]
@@ -71,7 +70,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                             ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
-                            for(int i = 0; i < subscribers.Count; i++)
+                            for (int i = 0; i < subscribers.Count; i++)
                             {
                                 subscribers[i].SendPacket(packet);
                             }
@@ -117,10 +116,10 @@ namespace NebulaPatcher.Patches.Transpilers
                             if (storeArray != null)
                             {
                                 List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
-                                
+
                                 int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
-                                for(int i = 0; i < subscribers.Count; i++)
+                                for (int i = 0; i < subscribers.Count; i++)
                                 {
                                     subscribers[i].SendPacket(packet);
                                 }
@@ -146,7 +145,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Stfld))
             .Repeat(matcher =>
             {
-                if(RemOrderCounter3 == 0)
+                if (RemOrderCounter3 == 0)
                 {
                     matcher
                         .Advance(1)
@@ -158,7 +157,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             {
                                 List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
-                                for(int i = 0; i < subscribers.Count; i++)
+                                for (int i = 0; i < subscribers.Count; i++)
                                 {
                                     subscribers[i].SendPacket(packet);
                                 }
@@ -181,7 +180,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
                                     int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                     ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
-                                    for(int i = 0; i < subscribers.Count; i++)
+                                    for (int i = 0; i < subscribers.Count; i++)
                                     {
                                         subscribers[i].SendPacket(packet);
                                     }
@@ -192,7 +191,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         .Insert(new CodeInstruction(OpCodes.Pop));
                     RemOrderCounter3++;
                 }
-                else if(RemOrderCounter3 == 1)
+                else if (RemOrderCounter3 == 1)
                 {
                     matcher
                         .Advance(1)
@@ -204,7 +203,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             {
                                 List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
-                                for(int i = 0; i < subscribers.Count; i++)
+                                for (int i = 0; i < subscribers.Count; i++)
                                 {
                                     subscribers[i].SendPacket(packet);
                                 }
@@ -227,7 +226,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
                                     int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                     ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
-                                    for(int i = 0; i < subscribers.Count; i++)
+                                    for (int i = 0; i < subscribers.Count; i++)
                                     {
                                         subscribers[i].SendPacket(packet);
                                     }
@@ -461,7 +460,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Stind_I4))
                 .Repeat(matcher =>
                 {
-                    if(RemOrderCounter == 0)
+                    if (RemOrderCounter == 0)
                     {
                         matcher
                         .Advance(1)
@@ -484,7 +483,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                         RemOrderCounter++;
                     }
-                    else if(RemOrderCounter == 1)
+                    else if (RemOrderCounter == 1)
                     {
                         matcher
                         .Advance(1)
@@ -606,7 +605,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Stind_I4))
                 .Repeat(matcher =>
                 {
-                    if(RemOrderCounter2 == 0)
+                    if (RemOrderCounter2 == 0)
                     {
                         matcher
                         .Advance(1)
@@ -638,7 +637,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                         RemOrderCounter2++;
                     }
-                    else if(RemOrderCounter2 == 1)
+                    else if (RemOrderCounter2 == 1)
                     {
                         matcher
                         .Advance(1)
@@ -670,7 +669,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                         RemOrderCounter2++;
                     }
-                    else if(RemOrderCounter2 == 2)
+                    else if (RemOrderCounter2 == 2)
                     {
                         matcher
                         .Advance(1)
@@ -799,7 +798,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    if(SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+                    if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
                         LocalPlayer.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
                     }
@@ -911,7 +910,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 // cut out only that part of original function, but keep the first 5 IL lines (they create the 'bool flag' which is needed)
                 CodeMatcher matcher = new CodeMatcher(instructions);
-                for(int i = 0; i < matcher.Length; i++)
+                for (int i = 0; i < matcher.Length; i++)
                 {
                     if (matcher.Pos < origShipUpdateCodeBeginPos && matcher.Pos > 5)
                     {
@@ -939,12 +938,12 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 matcher.Start()
                     .Advance(origTempBlockIndexStart + 1);
-                for(; matcher.Pos < origTempBlockIndexEnd;)
+                for (; matcher.Pos < origTempBlockIndexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher.InstructionEnumeration();
-                
+
                 // remove c# 937 - 1014 IL 4548 - 4921 (TODO: and fetch data from server)
                 origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
@@ -963,7 +962,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 matcher.Start()
                     .Advance(origTempBlockIndexStart);
-                for(; matcher.Pos < origTempBlockIndexEnd;)
+                for (; matcher.Pos < origTempBlockIndexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
@@ -979,7 +978,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     .SetAndAdvance(OpCodes.Pop, null)
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                     .InstructionEnumeration();
-                
+
                 // remove c# 1019 - 1049 IL 4923 - 5069 (TODO: and fetch data from server) (NOTE: this does also remove the TakeItem() call)
                 origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(false,
@@ -1009,7 +1008,7 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 matcher = new CodeMatcher(instructions)
                     .Advance(origTempBlockIndexStart);
-                for(; matcher.Pos < origTempBlockIndexEnd;)
+                for (; matcher.Pos < origTempBlockIndexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
@@ -1017,12 +1016,12 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 // remove weird code thats left over after cut out from above
                 matcher.Advance(2);
-                for(int i = 0; i < 4; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher.InstructionEnumeration();
-                
+
                 // remove c# 928 - 932 (adding warper from station to ship)
                 //matcher3.Start();
                 CodeMatcher matcher3 = new CodeMatcher(instructions, il);
@@ -1045,12 +1044,12 @@ namespace NebulaPatcher.Patches.Transpilers
                     .Pos;
                 matcher3.Start();
                 matcher3.Advance(indexStart);
-                for(;matcher3.Pos < indexEnd;)
+                for (; matcher3.Pos < indexEnd;)
                 {
                     matcher3.SetAndAdvance(OpCodes.Nop, null);
                 }
                 instructions = matcher3.InstructionEnumeration();
-                
+
                 return instructions;
             }
 

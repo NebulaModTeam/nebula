@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class DysonSphere_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("AddLayer")]
+        [HarmonyPatch(nameof(DysonSphere.AddLayer))]
         public static bool AddLayer_Prefix(DysonSphere __instance, DysonSphereLayer __result, float orbitRadius, Quaternion orbitRotation, float orbitAngularSpeed)
         {
             if (!SimulatedWorld.Initialized)
@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveLayer", new Type[] { typeof(int) })]
+        [HarmonyPatch(nameof(DysonSphere.RemoveLayer), new Type[] { typeof(int) })]
         public static bool RemoveLayer_Prefix(DysonSphere __instance, int id)
         {
             if (!SimulatedWorld.Initialized)
@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RemoveLayer", new Type[] { typeof(DysonSphereLayer) })]
+        [HarmonyPatch(nameof(DysonSphere.RemoveLayer), new Type[] { typeof(DysonSphereLayer) })]
         public static bool RemoveLayer_Prefix2(DysonSphere __instance, DysonSphereLayer layer)
         {
             if (!SimulatedWorld.Initialized)

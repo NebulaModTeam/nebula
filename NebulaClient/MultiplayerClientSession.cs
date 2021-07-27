@@ -47,7 +47,7 @@ namespace NebulaClient
         {
             serverEndpoint = ip;
             socketAddress = $"ws://{ip}/socket";
-            Log.Info($"Connect to IP: {socketAddress}");
+            Log.Info($"Connecting to IP...");
             ConnectInternal();
         }
 
@@ -56,7 +56,7 @@ namespace NebulaClient
             IPHostEntry host = Dns.GetHostEntry(url);
             serverEndpoint = new IPEndPoint(host.AddressList[0], port);
             socketAddress = $"ws://{url}:{port}/socket";
-            Log.Info($"Connect to URL: {socketAddress}");
+            Log.Info($"Connecting to URL...");
             ConnectInternal();
         }
 
@@ -119,13 +119,13 @@ namespace NebulaClient
         void Disconnect()
         {
             IsConnected = false;
-            clientSocket.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
+            clientSocket?.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
         }
 
         public void DestroySession()
         {
             Disconnect();
-            pingIndicator.enabled = false;
+            if (pingIndicator != null) pingIndicator.enabled = false;
             Destroy(gameObject);
         }
 
@@ -235,21 +235,26 @@ namespace NebulaClient
                     return;
                 }
 
-                if (SimulatedWorld.IsGameLoaded)
-                {
-                    InGamePopup.ShowWarning(
-                        "Connection Lost",
-                        $"You have been disconnected from the server.\n{e.Reason}",
-                        "Quit",
-                        () => LocalPlayer.LeaveGame());
-                }
-                else
-                {
-                    InGamePopup.ShowWarning(
-                        "Server Unavailable",
-                        $"Could not reach the server, please try again later.",
-                        "OK",
-                        OnDisconnectPopupCloseBeforeGameLoad);
+            if (SimulatedWorld.IsGameLoaded)
+            {
+                InGamePopup.ShowWarning(
+                    "Connection Lost",
+                    $"You have been disconnected from the server.\n{e.Reason}",
+                    "Quit",
+                    () => LocalPlayer.LeaveGame());
+            }
+            else
+            {
+                InGamePopup.ShowWarning(
+                    "Server Unavailable",
+                    $"Could not reach the server, please try again later.",
+                    "OK",
+                    () => {
+                        LocalPlayer.IsMasterClient = false;
+                        SimulatedWorld.Clear();
+                        DestroySession();
+                        OnDisconnectPopupCloseBeforeGameLoad();
+                    });
                 }
             });
         }

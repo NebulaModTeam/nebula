@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
     public class PlanetModelingManager_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("RequestLoadPlanetFactory")]
+        [HarmonyPatch(nameof(PlanetModelingManager.RequestLoadPlanetFactory))]
         public static bool RequestLoadPlanetFactory_Prefix(PlanetData planet)
         {
             // Run the original method if this is the master client or in single player games
@@ -47,7 +47,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RequestLoadPlanet")]
+        [HarmonyPatch(nameof(PlanetModelingManager.RequestLoadPlanet))]
         public static bool RequestLoadPlanet_Prefix(PlanetData planet)
         {
             // NOTE: This does not appear to ever be called in the game code, but just in case, let's override it
@@ -65,7 +65,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RequestLoadStar")]
+        [HarmonyPatch(nameof(PlanetModelingManager.RequestLoadStar))]
         public static bool RequestLoadStar_Prefix(StarData star)
         {
             // Run the original method if this is the master client or in single player games

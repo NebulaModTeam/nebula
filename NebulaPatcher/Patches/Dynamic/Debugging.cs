@@ -1,56 +1,48 @@
-﻿using HarmonyLib;
+﻿#if DEBUG
+using HarmonyLib;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-#if DEBUG
-
-    [HarmonyPatch(typeof(GameHistoryData), "EnqueueTech")]
-    class patch
+    [HarmonyPatch(typeof(GameHistoryData))]
+    class Debug_GameHistoryData_Patch
     {
-        public static void Postfix(GameHistoryData __instance, int techId)
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameHistoryData.EnqueueTech))]
+        public static void EnqueueTech_Postfix(GameHistoryData __instance, int techId)
         {
             __instance.UnlockTech(techId);
             GameMain.mainPlayer.mecha.corePowerGen = 10000000;
         }
-    }
 
-    [HarmonyPatch(typeof(Mecha), "UseWarper")]
-    class patch2
-    {
-        public static void Postfix(ref bool __result)
+        [HarmonyPrefix]
+        [HarmonyPatch("dysonSphereSystemUnlocked", MethodType.Getter)]
+        public static bool DysonSphereSystemUnlocked_Prefix(GameHistoryData __instance, ref bool __result)
         {
             __result = true;
-        }
-    }
-
-    [HarmonyPatch(typeof(MechaForge), "TryAddTask")]
-    class patch3
-    {
-        public static void Postfix(ref bool __result)
-        {
-            __result = true;
-        }
-    }
-
-    [HarmonyPatch(typeof(MechaForge), "AddTaskIterate")]
-    class patch4
-    {
-        public static bool Prefix(MechaForge __instance, ForgeTask __result, int recipeId, int count)
-        {
-            ForgeTask recipe = new ForgeTask(recipeId, count);
-            for (int i = 0; i < recipe.productIds.Length; i++)
-            {
-                GameMain.mainPlayer.package.AddItemStacked(recipe.productIds[i], count);
-            }
-            __result = null;
             return false;
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameHistoryData.SetForNewGame))]
+        public static void SetForNewGame_Postfix(GameHistoryData __instance)
+        {
+            __instance.dysonNodeLatitude = 90f;
+        }
     }
 
-    [HarmonyPatch(typeof(Mecha), "SetForNewGame")]
-    class patch5
+    [HarmonyPatch(typeof(Mecha))]
+    class Debug_Mecha_Patch
     {
-        public static void Postfix(Mecha __instance)
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(Mecha.UseWarper))]
+        public static void UseWarper_Postfix(ref bool __result)
+        {
+            __result = true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(Mecha.SetForNewGame))]
+        public static void SetForNewGame_Postfix(Mecha __instance)
         {
             __instance.coreEnergyCap = 30000000000;
             __instance.coreEnergy = 30000000000;
@@ -75,50 +67,57 @@ namespace NebulaPatcher.Patches.Dynamic
         }
     }
 
-    [HarmonyPatch(typeof(GameHistoryData), "dysonSphereSystemUnlocked", MethodType.Getter)]
-    class patch6
+    [HarmonyPatch(typeof(MechaForge))]
+    class Debug_MechaForge_Patch
     {
-        public static bool Prefix(GameHistoryData __instance, ref bool __result)
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(MechaForge.TryAddTask))]
+        public static void TryAddTask_Postfix(ref bool __result)
         {
             __result = true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("AddTaskIterate")]
+        public static bool AddTaskIterate_Prefix(MechaForge __instance, ForgeTask __result, int recipeId, int count)
+        {
+            ForgeTask recipe = new ForgeTask(recipeId, count);
+            for (int i = 0; i < recipe.productIds.Length; i++)
+            {
+                GameMain.mainPlayer.package.AddItemStacked(recipe.productIds[i], count);
+            }
+            __result = null;
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(GameHistoryData), "SetForNewGame")]
-    class patch7
+    [HarmonyPatch(typeof(UIAdvisorTip))]
+    class Debug_UIAdvisorTip_Patch
     {
-        public static void Postfix(GameHistoryData __instance)
+        [HarmonyPrefix]
+        [HarmonyPatch("PlayAdvisorTip")]
+        public static bool PlayAdvisorTip_Prefix()
         {
-            __instance.dysonNodeLatitude = 90f;
+            return false;
         }
-    }
 
-    [HarmonyPatch(typeof(UIAdvisorTip), "PlayAdvisorTip")]
-    class patch8
-    {
-        public static bool Prefix()
+        [HarmonyPrefix]
+        [HarmonyPatch("RunAdvisorTip")]
+        public static bool RunAdvisorTip_Prefix()
         {
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(UIAdvisorTip), "RunAdvisorTip")]
-    class patch9
+    [HarmonyPatch(typeof(UITutorialTip))]
+    class Debug_UITutorialTip_Patch
     {
-        public static bool Prefix()
+        [HarmonyPrefix]
+        [HarmonyPatch("PopupTutorialTip")]
+        public static bool PlayAdvisorTip_Prefix()
         {
             return false;
         }
     }
-
-    [HarmonyPatch(typeof(UITutorialTip), "PopupTutorialTip")]
-    class patch10
-    {
-        public static bool Prefix()
-        {
-            return false;
-        }
-    }
-#endif
 }
+#endif

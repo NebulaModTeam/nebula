@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
 using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
-using NebulaModel.Packets.Players;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpilers
 {
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "warpCommand")
                 );
 
-            if(codeMatcher.IsInvalid)
+            if (codeMatcher.IsInvalid)
             {
                 NebulaModel.Logger.Log.Error("PlayerMoveSail_Transpiler.GameTick failed. Mod version not compatible with game version.");
                 return instructions;

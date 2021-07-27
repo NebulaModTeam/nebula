@@ -5,15 +5,24 @@ using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpiler
 {
+    [HarmonyPatch]
     class BuildTool_Common_Transpiler
     {
+        /*
+         * Replaces
+         *  int num;
+         *  if (@this.player.inhandItemId == id && @this.player.inhandItemCount > 0)
+         * With
+         *  int num = 1;
+         *  if (@this.player.inhandItemId == id && @this.player.inhandItemCount > 0)
+         * So that it succeeds when processing another player's request
+        */
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CreatePrebuilds))]
         [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.CreatePrebuilds))]
         [HarmonyPatch(typeof(BuildTool_Inserter), nameof(BuildTool_Inserter.CreatePrebuilds))]
         static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            // Set int count = 1 before trying to use hand items or take tail items so that it passes if player did not generate event
             var codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(i => i.IsLdarg()),
@@ -26,8 +35,12 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
+            // num = 1; from within the if statement
+            var numInstruction = codeMatcher.InstructionAt(11);
+
             return codeMatcher
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_1))
+                    .InsertAndAdvance(numInstruction)
                     .InstructionEnumeration();
         }
     }
