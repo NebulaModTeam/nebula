@@ -29,8 +29,10 @@ namespace NebulaClient.PacketProcessors.Factory.Foundation
                 {
                     factory.platformSystem.InitReformData();
                 }
-                
+
+                FactoryManager.TargetPlanet = packet.PlanetId;
                 FactoryManager.AddPlanetTimer(packet.PlanetId);
+                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
 
                 int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out reformCenterPoint);
                 factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, 3f, 1f);
