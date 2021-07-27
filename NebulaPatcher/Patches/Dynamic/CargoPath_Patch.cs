@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Text;
 using System;
 using System.Collections.Generic;
+using NebulaModel;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -33,7 +34,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("Export")]
+        [HarmonyPatch(nameof(CargoPath.Export))]
         public static bool Export_Prefix(
             ref CargoPath __instance, 
             ref int ___capacity, 
@@ -84,7 +85,13 @@ namespace NebulaPatcher.Patches.Dynamic
             //    w.Write(__instance.inputPaths[l]);
             //}
 
-            
+            //Debug.Log($"SavegameCompression is {Config.Options.SavegameCompression}");
+
+            if (!Config.Options.SavegameCompression)
+            {
+                // If savegame compression is not enabled skip through to the original implementation
+                return true;
+            }
 
             //w.Write(0);
             // Set a special int that we will use to indentify wheter whe should process this normally or use custom optimized method
@@ -303,7 +310,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("Import")]
+        [HarmonyPatch(nameof(CargoPath.Import))]
         public static bool Import_Prefix(
             ref CargoPath __instance,
             //ref int ___capacity,
@@ -314,17 +321,24 @@ namespace NebulaPatcher.Patches.Dynamic
             BinaryReader r
         )
         {
-            __instance.Free();
+            var initialBaseStreamPosition = r.BaseStream.Position;
+            //var buffer = new byte[4];
+            //r.BaseStream.Read(buffer, 0, 4);
+            ////r.BaseStream.Position = initialBaseStreamPosition;
+
+            ////__instance.Free();
 
 
-            //r.ReadInt32();
+            ////r.ReadInt32();
+            ////var version = Encoding.ASCII.GetString(r.ReadBytes(4));
+            //var version = Encoding.ASCII.GetString(buffer);
             var version = Encoding.ASCII.GetString(r.ReadBytes(4));
-
             switch (version)
             {
                 case "nb00":
                     {
-
+                        __instance.Free();
+                        //r.ReadInt32(); // Since we don't rewind the BaseStream to its original position, we dont have to read the version here again
                         __instance.id = r.ReadInt32();
                         __instance.SetCapacity(r.ReadInt32());
                         ___bufferLength = r.ReadInt32();
@@ -431,48 +445,56 @@ namespace NebulaPatcher.Patches.Dynamic
                     break;
                 default:
                     {
-                        // The original implementation
-                        __instance.id = r.ReadInt32();
-                        __instance.SetCapacity(r.ReadInt32());
-                        ___bufferLength = r.ReadInt32();
-                        __instance.SetChunkCapacity(r.ReadInt32());
-                        ___chunkCount = r.ReadInt32();
-                        ___updateLen = r.ReadInt32();
-                        __instance.closed = r.ReadBoolean();
-                        __instance.outputPathIdForImport = r.ReadInt32();
-                        __instance.outputIndex = r.ReadInt32();
-                        int num = r.ReadInt32();
-                        int num2 = r.ReadInt32();
-                        r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
-                        for (int i = 0; i < ___chunkCount; i++)
-                        {
-                            __instance.chunks[i * 3] = r.ReadInt32();
-                            __instance.chunks[i * 3 + 1] = r.ReadInt32();
-                            __instance.chunks[i * 3 + 2] = r.ReadInt32();
-                        }
-                        for (int j = 0; j < ___bufferLength; j++)
-                        {
-                            __instance.pointPos[j].x = r.ReadSingle();
-                            __instance.pointPos[j].y = r.ReadSingle();
-                            __instance.pointPos[j].z = r.ReadSingle();
-                            __instance.pointRot[j].x = r.ReadSingle();
-                            __instance.pointRot[j].y = r.ReadSingle();
-                            __instance.pointRot[j].z = r.ReadSingle();
-                            __instance.pointRot[j].w = r.ReadSingle();
-                        }
-                        __instance.belts = new List<int>();
-                        for (int k = 0; k < num; k++)
-                        {
-                            __instance.belts.Add(r.ReadInt32());
-                        }
-                        __instance.inputPaths = new List<int>();
-                        for (int l = 0; l < num2; l++)
-                        {
-                            __instance.inputPaths.Add(r.ReadInt32());
-                        }
+                        // Rewind the BaseStream to its initial position
+                        r.BaseStream.Position = initialBaseStreamPosition;
+
+                        // Run the original method
+                        return true;
+
+                        //// The original implementation
+                        //__instance.Free();
+                        //r.ReadInt32();
+                        //__instance.id = r.ReadInt32();
+                        //__instance.SetCapacity(r.ReadInt32());
+                        //___bufferLength = r.ReadInt32();
+                        //__instance.SetChunkCapacity(r.ReadInt32());
+                        //___chunkCount = r.ReadInt32();
+                        //___updateLen = r.ReadInt32();
+                        //__instance.closed = r.ReadBoolean();
+                        //__instance.outputPathIdForImport = r.ReadInt32();
+                        //__instance.outputIndex = r.ReadInt32();
+                        //int num = r.ReadInt32();
+                        //int num2 = r.ReadInt32();
+                        //r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
+                        //for (int i = 0; i < ___chunkCount; i++)
+                        //{
+                        //    __instance.chunks[i * 3] = r.ReadInt32();
+                        //    __instance.chunks[i * 3 + 1] = r.ReadInt32();
+                        //    __instance.chunks[i * 3 + 2] = r.ReadInt32();
+                        //}
+                        //for (int j = 0; j < ___bufferLength; j++)
+                        //{
+                        //    __instance.pointPos[j].x = r.ReadSingle();
+                        //    __instance.pointPos[j].y = r.ReadSingle();
+                        //    __instance.pointPos[j].z = r.ReadSingle();
+                        //    __instance.pointRot[j].x = r.ReadSingle();
+                        //    __instance.pointRot[j].y = r.ReadSingle();
+                        //    __instance.pointRot[j].z = r.ReadSingle();
+                        //    __instance.pointRot[j].w = r.ReadSingle();
+                        //}
+                        //__instance.belts = new List<int>();
+                        //for (int k = 0; k < num; k++)
+                        //{
+                        //    __instance.belts.Add(r.ReadInt32());
+                        //}
+                        //__instance.inputPaths = new List<int>();
+                        //for (int l = 0; l < num2; l++)
+                        //{
+                        //    __instance.inputPaths.Add(r.ReadInt32());
+                        //}
                     }
 
-                    break;
+                    //break;
             }
             
 
