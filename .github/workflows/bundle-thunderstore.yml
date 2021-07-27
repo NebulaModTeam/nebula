@@ -9,14 +9,25 @@ jobs:
     runs-on: dsp-installed
 
     env:
-      Solution_Name: Nebula.sln
+      SOLUTION_NAME: Nebula.sln
+      PLUGIN_PATH :  C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\
+      NEBULA_FOLDER : Nebula\
 
     steps:
+      - name: Set NEBULA_PATH environmental variable
+        run: >
+          echo "NEBULA_PATH=${{ env.PLUGIN_PATH }}${{ env.NEBULA_FOLDER }}" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: true
           fetch-depth: 0 # can't shallowly clone due to git versioning
+
+      - name: Prepare Release
+        run: >
+          $version = nbgv prepare-release --format json; >
+          echo "PREPARE_RELEASE_OUTPUT=$version" >> $GITHUB_ENV
 
       - uses: actions/setup-node@v2
         with:
@@ -27,10 +38,11 @@ jobs:
       - run: npm install xml-reader
       - run: npm install xml-query
       - run: npm install zip-a-folder
+      - run: npm install fs-extra
 
       - name: Clear output directory in DSP files
         # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
-        run: rm -R -ErrorAction SilentlyContinue "C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\Nebula"
+        run :  rm -R -ErrorAction SilentlyContinue "${{ env.NEBULA_PATH }}" 
 
       # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
       - name: Setup MSBuild.exe
@@ -38,16 +50,17 @@ jobs:
 
       # Build it
       - name: Build the application
-        run: msbuild $env:Solution_Name /p:Configuration=Release
+        run: msbuild $env:SOLUTION_NAME /p:Configuration=Release /p:PublicRelease=true
 
       # Bundle
-      - name: Bundle build for thunderstore
+      - name: Bundle build for thunderstore and github
         env:
           TSTORE_TOKEN: ${{ secrets.TSTORE_TOKEN }}
         run: node .github\scripts\thunderstore_bundle.js
 
-      # Upload it to the run results
-      - uses: actions/upload-artifact@v2.2.4
+      # Create release
+      - uses: actions/release-action@v1
         with:
-          name: nebula-thunderstore
-          path: dist\thunderstore\nebula
+          artifacts: dist\release\Nebula_${{ fromJson(env.PREPARE_RELEASE_OUTPUT).NewBranch.Version }}.zip
+          tag: ${{ fromJson(env.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
+          commit: ${{ fromJson(env.PREPARE_RELEASE_OUTPUT).NewBranch.Commit }}

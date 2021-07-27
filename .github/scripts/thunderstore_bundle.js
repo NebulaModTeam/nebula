@@ -7,30 +7,36 @@ import {
   readFileSync,
   writeFileSync,
   copyFileSync,
-  createWriteStream,
   readdirSync,
   statSync,
 } from "fs";
 import { join } from "path";
-import pkg from "@terascope/fetch-github-release";
-const downloadRelease = pkg;
+import fgrpkg from "@terascope/fetch-github-release";
+const downloadRelease = fgrpkg;
 import json2toml from "json2toml";
 import child_process from "child_process";
 import XmlReader from "xml-reader";
 import xmlQuery from "xml-query";
 import { zip } from 'zip-a-folder';
+import fsepkg from 'fs-extra';
+const move = fsepkg.move;
+const remove = fsepkg.remove;
 
+// Setting it so that it's consistent with installs from thunderstore
+const NEBULA_RELEASE_FOLDER_NAME = "nebula-NebulaMultiplayerMod";
 const DIST_FOLDER = "dist";
-const DIST_TSTORE_FOLDER = join(DIST_FOLDER, "thunderstore");
-const DIST_NEBULA_FOLDER = join(DIST_TSTORE_FOLDER, "nebula");
-const DIST_TSTORE_CLI_FOLDER = join(DIST_TSTORE_FOLDER, "tstore-cli");
+const DIST_RELEASE_FOLDER = join(DIST_FOLDER, "release");
+const DIST_NEBULA_FOLDER = join(DIST_RELEASE_FOLDER, "nebula");
+const DIST_TSTORE_CLI_FOLDER = join(DIST_RELEASE_FOLDER, "tstore-cli");
 const DIST_TSTORE_CLI_EXE_PATH = join(DIST_TSTORE_CLI_FOLDER, "tstore-cli.exe");
 const DIST_TSTORE_CLI_CONFIG_PATH = join(
   DIST_TSTORE_CLI_FOLDER,
   "publish.toml"
 );
-const ARCHIVE_PATH = join(DIST_TSTORE_FOLDER, "nebula.zip");
 const PLUGIN_INFO_PATH = "NebulaPatcher\\PluginInfo.cs";
+const pluginInfo = getPluginInfo();
+const TSTORE_ARCHIVE_PATH = join(DIST_RELEASE_FOLDER, "nebula-thunderstore.zip");
+const GH_ARCHIVE_PATH = join(DIST_RELEASE_FOLDER, "Nebula_" + pluginInfo.version + ".zip");
 const MOD_ICON_PATH = "thunderstore_icon.png";
 const README_PATH = "README.md";
 const CHANGELOG_PATH = "CHANGELOG.md";
@@ -52,7 +58,8 @@ async function main() {
   copyFolderContent(NEBULA_BINARIES_FOLDER, DIST_NEBULA_FOLDER);
   copyLicenses();
 
-  await archiveNebula();
+  await createTStoreArchive();
+  await createGHArchive();
 
   downloadTStoreCli();
   generateTStoreConfig();
@@ -61,10 +68,11 @@ async function main() {
 
 function getPluginInfo() {
   const pluginInfoRaw = readFileSync(PLUGIN_INFO_PATH).toString("utf-8");
+  const versionInfoRaw = readFileSync("version.json").toString("utf-8");
   return {
     name: pluginInfoRaw.match(/PLUGIN_NAME = "(.*)";/)[1],
     id: pluginInfoRaw.match(/PLUGIN_ID = "(.*)";/)[1],
-    version: pluginInfoRaw.match(/PLUGIN_VERSION = "(.*)";/)[1],
+    version: JSON.parse(versionInfoRaw).version,
   };
 }
 
@@ -86,7 +94,6 @@ function getNebulaFolder() {
 }
 
 function generateManifest() {
-  const pluginInfo = getPluginInfo();
   const manifest = {
     name: pluginInfo.name,
     description:
@@ -182,20 +189,31 @@ function generateTStoreConfig() {
     author: "nebula",
     communities: ["dyson-sphere-program"],
     nsfw: false,
-    zip: ARCHIVE_PATH,
+    zip: TSTORE_ARCHIVE_PATH,
   };
   writeFileSync(DIST_TSTORE_CLI_CONFIG_PATH, json2toml(config));
 }
 
-async function archiveNebula() {
-  await zip(DIST_NEBULA_FOLDER, ARCHIVE_PATH);
+async function createTStoreArchive() {
+  await zip(DIST_NEBULA_FOLDER, TSTORE_ARCHIVE_PATH);
+}
+
+async function createGHArchive() {
+  // Ensure contents are within subfolder in zip
+  await move(DIST_NEBULA_FOLDER, join(DIST_FOLDER, "tmp", NEBULA_RELEASE_FOLDER_NAME));
+  await zip(join(DIST_FOLDER, "tmp"), GH_ARCHIVE_PATH);
+  await move(join(DIST_FOLDER, "tmp", NEBULA_RELEASE_FOLDER_NAME), DIST_NEBULA_FOLDER);
+  await remove(join(DIST_FOLDER, "tmp"));
 }
 
 function uploadToTStore() {
   child_process.execSync(
     DIST_TSTORE_CLI_EXE_PATH +
       " publish --config " +
-      DIST_TSTORE_CLI_CONFIG_PATH
+      DIST_TSTORE_CLI_CONFIG_PATH,
+      function(err) {
+        console.error(err);
+      }
   );
 }
 
