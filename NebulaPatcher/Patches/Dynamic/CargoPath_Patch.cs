@@ -85,8 +85,6 @@ namespace NebulaPatcher.Patches.Dynamic
             //    w.Write(__instance.inputPaths[l]);
             //}
 
-            //Debug.Log($"SavegameCompression is {Config.Options.SavegameCompression}");
-
             if (!Config.Options.SavegameCompression)
             {
                 // If savegame compression is not enabled skip through to the original implementation
@@ -322,23 +320,13 @@ namespace NebulaPatcher.Patches.Dynamic
         )
         {
             var initialBaseStreamPosition = r.BaseStream.Position;
-            //var buffer = new byte[4];
-            //r.BaseStream.Read(buffer, 0, 4);
-            ////r.BaseStream.Position = initialBaseStreamPosition;
-
-            ////__instance.Free();
-
-
-            ////r.ReadInt32();
-            ////var version = Encoding.ASCII.GetString(r.ReadBytes(4));
-            //var version = Encoding.ASCII.GetString(buffer);
             var version = Encoding.ASCII.GetString(r.ReadBytes(4));
             switch (version)
             {
                 case "nb00":
                     {
                         __instance.Free();
-                        //r.ReadInt32(); // Since we don't rewind the BaseStream to its original position, we dont have to read the version here again
+                        //r.ReadInt32(); // Since we don't reset the BaseStream to its original position, we dont have to read the version here again
                         __instance.id = r.ReadInt32();
                         __instance.SetCapacity(r.ReadInt32());
                         ___bufferLength = r.ReadInt32();
@@ -445,7 +433,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     break;
                 default:
                     {
-                        // Rewind the BaseStream to its initial position
+                        // Reset the BaseStream to its initial position
                         r.BaseStream.Position = initialBaseStreamPosition;
 
                         // Run the original method
