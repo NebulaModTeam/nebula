@@ -92,7 +92,7 @@ function generateManifest() {
     description:
       "With this mod you will be able to play with your friends in the same game!",
     version_number: pluginInfo.version,
-    dependencies: ["xiaoye97-BepInEx-5.4.11"],
+    dependencies: ["xiaoye97-BepInEx-5.4.11", "PhantomGamers-IlLine-1.0.0"],
     website_url: "https://github.com/hubastard/nebula",
   };
   writeFileSync(
