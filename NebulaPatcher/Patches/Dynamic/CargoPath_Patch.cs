@@ -429,7 +429,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 var sphericalCoordinates = new Vector3[___bufferLength];
                 var sphericalCoordinatesVelocities = new Vector3[___bufferLength - 1];
                 var sphericalCoordinatesAccelerations = new Vector3[___bufferLength - 2];
-                var sphericalCoordinatesAccelerationsSimmilarities = new bool[___bufferLength - 3];
+                var sphericalCoordinatesAccelerationsSimmilarities = new bool[___bufferLength - 2];
                 var sphericalCoordinatesAccelerationsSimmilartyIndexes = new List<int>();
                 for (int j = 0; j < ___bufferLength; j++)
                 {
@@ -512,6 +512,8 @@ namespace NebulaPatcher.Patches.Dynamic
                         sphericalCoordinatesAccelerations[j - 2] = sphericalCoordinatesVelocities[j - 1] - sphericalCoordinatesVelocities[j - 2];
                         Debug.Log($"sphericalCoordinatesAccelerations between {j - 2}, {j - 1} and {j} is (r {sphericalCoordinatesAccelerations[j - 2].x}, θ {sphericalCoordinatesAccelerations[j - 2].y}, φ {sphericalCoordinatesAccelerations[j - 2].z})");
                         Debug.Log($"sphericalCoordinatesAccelerations magnitude between {j - 2}, {j - 1} and {j} is {sphericalCoordinatesAccelerations[j - 2].magnitude}");
+
+                        sphericalCoordinatesAccelerationsSimmilarities[j - 2] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude) <= 1E-4f;
                     }
 
                     if (j > 2)
@@ -523,17 +525,16 @@ namespace NebulaPatcher.Patches.Dynamic
                             planarSimilarityDifferentialIndexes.Add(j - 3);
                         }
 
-                        sphericalCoordinatesAccelerationsSimmilarities[j-3] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude - sphericalCoordinatesAccelerations[j - 3].magnitude) <= 1E-4f;
-                    }
+                        //sphericalCoordinatesAccelerationsSimmilarities[j - 3] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude - sphericalCoordinatesAccelerations[j - 3].magnitude) <= 1E-4f;
+                        //sphericalCoordinatesAccelerationsSimmilarities[j - 3] = Math.Abs(sphericalCoordinatesAccelerations[j - 2].magnitude - sphericalCoordinatesAccelerations[j - 3].magnitude) <= 1E-3f;
 
-                    if (j > 3)
-                    {
-                        var sphericalCoordinatesAccelerationsDifferentialSimilarity = sphericalCoordinatesAccelerationsSimmilarities[j - 4] == sphericalCoordinatesAccelerationsSimmilarities[j - 3];
+                        var sphericalCoordinatesAccelerationsDifferentialSimilarity = sphericalCoordinatesAccelerationsSimmilarities[j - 3] == sphericalCoordinatesAccelerationsSimmilarities[j - 2];
                         if (!sphericalCoordinatesAccelerationsDifferentialSimilarity)
                         {
-                            sphericalCoordinatesAccelerationsSimmilartyIndexes.Add(j - 4);
+                            sphericalCoordinatesAccelerationsSimmilartyIndexes.Add(j - 3);
                         }
                     }
+
                 }
 
                 // TODO: try for sphericalCoordinatesAccelerationsSimmilartyIndexes
@@ -541,13 +542,15 @@ namespace NebulaPatcher.Patches.Dynamic
                 // Write positinal data in a compressed format
                 var startIndex = 0;
                 int endIndex;
-                for (int j = 0; j < planarSimilarityDifferentialIndexes.Count; j++)
-                //for (int j = 0; j < sphericalCoordinatesAccelerationsSimmilartyIndexes.Count; j++)
+                //for (int j = 0; j < planarSimilarityDifferentialIndexes.Count; j++)
+                for (int j = 0; j < sphericalCoordinatesAccelerationsSimmilartyIndexes.Count; j++)
                 {
-                    var differentialIndex = planarSimilarityDifferentialIndexes[j];
-                    //var differentialIndex = sphericalCoordinatesAccelerationsSimmilartyIndexes[j];
-                    var planarSequence = planarSimilarity[differentialIndex];
+                    //var differentialIndex = planarSimilarityDifferentialIndexes[j];
+                    var differentialIndex = sphericalCoordinatesAccelerationsSimmilartyIndexes[j];
+                    //var planarSequence = planarSimilarity[differentialIndex];
+                    var planarSequence = sphericalCoordinatesAccelerationsSimmilarities[differentialIndex];
 
+                    //endIndex = differentialIndex + (planarSequence ? 2 : 0);
                     endIndex = differentialIndex + (planarSequence ? 2 : 0);
                     var repCount = endIndex - startIndex + 1;
 
@@ -585,12 +588,12 @@ namespace NebulaPatcher.Patches.Dynamic
                             //w.Write(projectedPoint.x);
                             //w.Write(projectedPoint.y);
 
-                            //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+                            Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
 
                             //var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
                             var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
-                            //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
-                            //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                            Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                            Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
                         }
                     }
                     else
@@ -607,7 +610,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 // The end needs to be handled seperately (since it does not have a differentialIndex)
                 endIndex = ___bufferLength - 1;
-                var planarSequenceForEnd = planarSimilarity[___bufferLength - 3];
+                //var planarSequenceForEnd = planarSimilarity[___bufferLength - 3];
+                var planarSequenceForEnd = sphericalCoordinatesAccelerationsSimmilarities[___bufferLength - 3];
                 var repCountForEndP = endIndex - startIndex + 1;
                 //w.Write(planarSequence);
                 //w.Write(repCount);
@@ -643,12 +647,12 @@ namespace NebulaPatcher.Patches.Dynamic
                         //w.Write(projectedPoint.x);
                         //w.Write(projectedPoint.y);
 
-                        //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+                        Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
 
                         //var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
                         var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
-                        //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
-                        //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                        Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                        Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
                     }
                 }
                 else
