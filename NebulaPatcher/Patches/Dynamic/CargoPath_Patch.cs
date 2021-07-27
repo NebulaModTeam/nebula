@@ -476,7 +476,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         deltaDistanceToOrigins[j - 1] = deltaDistanceToOrgin;
 
                         sphericalCoordinatesVelocities[j - 1] = sphericalCoordinates[j] - sphericalCoordinates[j - 1];
-                        //Debug.Log($"sphericalCoordinatesVelocities between {j - 1} and {j} is (r {sphericalCoordinatesVelocities[j - 1].x}, θ {sphericalCoordinatesVelocities[j - 1].y}, φ {sphericalCoordinatesVelocities[j - 1].z})");
+                        Debug.Log($"sphericalCoordinatesVelocities between {j - 1} and {j} is (r {sphericalCoordinatesVelocities[j - 1].x}, θ {sphericalCoordinatesVelocities[j - 1].y}, φ {sphericalCoordinatesVelocities[j - 1].z})");
                         //Debug.Log($"sphericalCoordinatesVelocities magnitude between {j - 1} and {j} is {sphericalCoordinatesVelocities[j - 1].magnitude}");
                     }
 
@@ -579,6 +579,15 @@ namespace NebulaPatcher.Patches.Dynamic
                         ////w.Write(matrixM[3, 3]); // This is always 1
 
                         var matrixMInv = matrixM.inverse;
+
+                        var averageVelocity = new Vector3(0, 0, 0);
+                        for (int i = 0; i < repCount - 1; i++)
+                        {
+                            averageVelocity += sphericalCoordinatesVelocities[startIndex + i];
+                        }
+                        averageVelocity = averageVelocity / (repCount - 1);
+                        Debug.Log($"averageVelocity for sequence between {startIndex} and {endIndex} is (r {averageVelocity.x}, θ {averageVelocity.y}, φ {averageVelocity.z})");
+
                         for (int i = 0; i < repCount; i++)
                         {
                             // Write 2D coordinates on plane
@@ -588,12 +597,12 @@ namespace NebulaPatcher.Patches.Dynamic
                             //w.Write(projectedPoint.x);
                             //w.Write(projectedPoint.y);
 
-                            Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+                            //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
 
-                            //var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
-                            var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
-                            Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
-                            Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                            ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
+                            //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
+                            //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                            //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
                         }
                     }
                     else
@@ -638,6 +647,15 @@ namespace NebulaPatcher.Patches.Dynamic
                     ////w.Write(matrixM[3, 3]); // This is always 1
 
                     var matrixMInv = matrixM.inverse;
+
+                    var averageVelocity = new Vector3(0, 0, 0);
+                    for (int i = 0; i < repCountForEndP - 1; i++)
+                    {
+                        averageVelocity += sphericalCoordinatesVelocities[startIndex + i];
+                    }
+                    averageVelocity = averageVelocity / (repCountForEndP - 1);
+                    Debug.Log($"averageVelocity for sequence between {startIndex} and {endIndex} is (r {averageVelocity.x}, θ {averageVelocity.y}, φ {averageVelocity.z})");
+
                     for (int i = 0; i < repCountForEndP; i++)
                     {
                         // Write 2D coordinates on plane
@@ -647,12 +665,12 @@ namespace NebulaPatcher.Patches.Dynamic
                         //w.Write(projectedPoint.x);
                         //w.Write(projectedPoint.y);
 
-                        Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
+                        //Debug.Log($"point {startIndex + i} in planar sequense has projection point ({projectedPoint.x}, {projectedPoint.y}, {projectedPoint.z})");
 
-                        //var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
-                        var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
-                        Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
-                        Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
+                        ////var calculatedPoint = matrixM.MultiplyPoint3x4(projectedPoint); // Fuck yea!!!
+                        //var calculatedPoint = matrixM.MultiplyPoint3x4(new Vector3(projectedPoint.x, projectedPoint.y, 0)); // Fuck yea!!!
+                        //Debug.Log($"point {startIndex + i} is ({__instance.pointPos[startIndex + i].x}, {__instance.pointPos[startIndex + i].y}, {__instance.pointPos[startIndex + i].z})");
+                        //Debug.Log($"calculcated point {startIndex + i} is ({calculatedPoint.x}, {calculatedPoint.y}, {calculatedPoint.z})");
                     }
                 }
                 else
