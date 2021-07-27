@@ -68,12 +68,12 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!SimulatedWorld.Initialized)
                 return true;
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
             {
                 LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
+            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]

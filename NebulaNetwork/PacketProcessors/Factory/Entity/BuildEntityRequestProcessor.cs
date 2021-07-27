@@ -37,7 +37,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     GameMain.mainPlayer.mecha.droneLogic.serving.Remove(-packet.PrebuildId);
                     planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
 
-                    if (!IsHost)
+                    if (IsClient)
                     {
                         DroneManager.RemoveBuildRequest(-packet.PrebuildId);
                     }
