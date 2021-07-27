@@ -22,18 +22,17 @@ namespace NebulaClient.PacketProcessors.Universe
             }
             using (FactoryManager.EventFromServer.On())
             {
-                // If stellarId > 100 then it must be a planet
-                if (packet.StellarId > 100)
+                if (packet.StarId != FactoryManager.STAR_NONE)
                 {
-                    var planet = GameMain.galaxy.PlanetById(packet.StellarId);
-                    planet.overrideName = packet.Name;
-                    planet.NotifyOnDisplayNameChange();
+                    var star = GameMain.galaxy.StarById(packet.StarId);
+                    star.overrideName = packet.Name;
+                    star.NotifyOnDisplayNameChange();
                 }
                 else
                 {
-                    var star = GameMain.galaxy.StarById(packet.StellarId);
-                    star.overrideName = packet.Name;
-                    star.NotifyOnDisplayNameChange();
+                    var planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                    planet.overrideName = packet.Name;
+                    planet.NotifyOnDisplayNameChange();
                 }
                 GameMain.galaxy.NotifyAstroNameChange();
             }

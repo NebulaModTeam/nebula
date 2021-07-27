@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItem2, itemId, count, startIndex, length));
             }
@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddItemStacked_Prefix(StorageComponent __instance, int itemId, int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItemStacked, itemId, count));
             }
@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool TakeItemFromGrid_Prefix(StorageComponent __instance, int gridIndex, ref int itemId, ref int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.TakeItemFromGrid, gridIndex, itemId, count));
             }
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StorageComponent.SetBans))]
         public static void SetBans_Postfix(StorageComponent __instance, int _bans)
         {
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && !StorageManager.IsIncomingRequest)
+            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest)
             {
                 HandleUserInteraction(__instance, new StorageSyncSetBansPacket(__instance.id, GameMain.data.localPlanet.id, _bans));
             }
@@ -61,7 +61,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StorageComponent.Sort))]
         public static void Sort_Postfix(StorageComponent __instance)
         {
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && !StorageManager.IsIncomingRequest && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncSortPacket(__instance.id, GameMain.data.localPlanet.id));
             }
@@ -78,7 +78,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // We should only take items to player if player requested
-            if ((FactoryManager.IsIncomingRequest || FactoryManager.IsIncomingRequest) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
+            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
             {
                 count = 1;
                 return false;

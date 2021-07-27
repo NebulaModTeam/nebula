@@ -42,8 +42,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                         DroneManager.RemoveBuildRequest(-packet.PrebuildId);
                     }
 
-                    FactoryManager.PacketAuthor = -1;
                     FactoryManager.EventFactory = null;
+                    FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
                     FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                 }
             }

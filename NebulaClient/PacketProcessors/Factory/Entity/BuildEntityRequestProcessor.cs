@@ -32,7 +32,7 @@ namespace NebulaClient.PacketProcessors.Factory.Entity
                     planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
                     DroneManager.RemoveBuildRequest(-packet.PrebuildId);
 
-                    FactoryManager.PacketAuthor = -1;
+                    FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
                     FactoryManager.EventFactory = null;
                     FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
                 }

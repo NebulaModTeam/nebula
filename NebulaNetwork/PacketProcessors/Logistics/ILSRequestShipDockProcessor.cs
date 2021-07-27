@@ -52,7 +52,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         {
                             if (shipData[j].otherGId == packet.StationGId)
                             {
-                                shipOtherGId.Add(shipData[i].otherGId);
+                                shipOtherGId.Add(shipData[j].otherGId);
                                 shipIndex.Add(j);
                                 shipPos.Add(new Double3(shipData[j].uPos.x, shipData[j].uPos.y, shipData[j].uPos.z));
                                 shipRot.Add(new Float4(shipData[j].uRot));

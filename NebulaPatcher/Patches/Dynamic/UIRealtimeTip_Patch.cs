@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix()
         {
             //Do not show popups if they are triggered remotely
-            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest && !FactoryManager.IsIncomingRequest);
+            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest);
         }
 
         [HarmonyPrefix]
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix2()
         {
             //Do not show popups if they are triggered remotely
-            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest && !FactoryManager.IsIncomingRequest);
+            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest);
         }
 
         [HarmonyPrefix]
@@ -30,7 +30,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix3()
         {
             //Do not show popups if they are triggered remotely
-            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest && !FactoryManager.IsIncomingRequest);
+            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest);
         }
     }
 }

@@ -36,24 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
-            }
-
-            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(PlayerAction_Build.DoUpgradeObject))]
-        public static bool DoUpgradeObject_Prefix(PlayerAction_Build __instance, int objId, int grade, int upgrade)
-        {
-            if (!SimulatedWorld.Initialized)
-            {
-                return true;
-            }
-
-            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
-            {
-                LocalPlayer.SendPacket(new UpgradeEntityRequest(FactoryManager.TargetPlanet != FactoryManager.PLANET_NONE ? FactoryManager.TargetPlanet : __instance.planet?.id ?? -1, objId, grade, upgrade, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
@@ -68,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            if ((FactoryManager.IsIncomingRequest || FactoryManager.IsIncomingRequest) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
+            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
             {
                 return false;
             }

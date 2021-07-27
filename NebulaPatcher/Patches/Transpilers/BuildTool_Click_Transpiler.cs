@@ -32,7 +32,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     .Advance(2)
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                     {
-                        return SimulatedWorld.Initialized && (FactoryManager.IsIncomingRequest || FactoryManager.IsIncomingRequest) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId;
+                        return SimulatedWorld.Initialized && FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId;
                     }))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, label))
                     .InstructionEnumeration();

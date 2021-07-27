@@ -141,7 +141,7 @@ namespace NebulaWorld.Factory
                 }
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-                FactoryManager.PacketAuthor = -1;
+                FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
             }
         }
 

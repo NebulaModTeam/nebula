@@ -31,6 +31,14 @@ namespace NebulaModel
 
         public string LastIP { get; set; } = string.Empty;
 
+        // Detail function group buttons
+        public bool PowerGridEnabled { get; set; } = false;
+        public bool VeinDistributionEnabled { get; set; } = false;
+        public bool SpaceNavigationEnabled { get; set; } = true;
+        public bool BuildingWarningEnabled { get; set; } = true;
+        public bool BuildingIconEnabled { get; set; } = true;
+        public bool GuidingLightEnabled { get; set; } = true;
+
         public object Clone()
         {
             return this.MemberwiseClone();
