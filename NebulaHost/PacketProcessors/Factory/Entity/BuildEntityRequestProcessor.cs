@@ -33,7 +33,7 @@ namespace NebulaHost.PacketProcessors.Factory.Entity
                 planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
 
                 FactoryManager.EventFactory = null;
-                FactoryManager.PacketAuthor = -1;
+                FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
             }
         }

@@ -50,7 +50,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
             if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer && !DroneManager.IsPendingBuildRequest(-prebuildId))

@@ -32,13 +32,13 @@ namespace NebulaPatcher.Patches.Dynamic
             if (LocalPlayer.IsMasterClient)
             {
                 int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
-                LocalPlayer.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
+                LocalPlayer.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
             }
 
             //If client builds, he need to first send request to the host and wait for reply
             if (!LocalPlayer.IsMasterClient && !FactoryManager.EventFromServer)
             {
-                LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()));
+                LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()));
                 return false;
             }
             return true;

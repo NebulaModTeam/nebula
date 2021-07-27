@@ -5,6 +5,7 @@ using NebulaModel.Packets.Processors;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
+using NebulaWorld.Factory;
 
 namespace NebulaHost.PacketProcessors.Session
 {
@@ -46,14 +47,14 @@ namespace NebulaHost.PacketProcessors.Session
             {
                 if (!string.IsNullOrEmpty(s.overrideName))
                 {
-                    player.SendPacket(new NameInputPacket(s.overrideName, s.id, LocalPlayer.PlayerId));
+                    player.SendPacket(new NameInputPacket(s.overrideName, s.id, FactoryManager.PLANET_NONE, LocalPlayer.PlayerId));
                 }
 
                 foreach (PlanetData p in s.planets)
                 {
                     if (!string.IsNullOrEmpty(p.overrideName))
                     {
-                        player.SendPacket(new NameInputPacket(p.overrideName, p.id, LocalPlayer.PlayerId));
+                        player.SendPacket(new NameInputPacket(p.overrideName, FactoryManager.STAR_NONE, p.id, LocalPlayer.PlayerId));
                     }
                 }
             }
