@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
+using UnityEngine;
 
 namespace NebulaModel.Packets.Logistics
 {

@@ -21,7 +21,7 @@
 
         public int PlanetId { get; set; }
         public int StationId { get; set; }
-        public int StationGId { get; set;}
+        public int StationGId { get; set; }
         public bool IsStorageUI { get; set; }
         public StationUI.EUISettings SettingIndex { get; set; }
         public float SettingValue { get; set; }
@@ -39,7 +39,7 @@
             IsStorageUI = true;
             ShouldMimic = false;
             WarperShouldTakeFromStorage = false;
-            
+
             PlanetId = planetId;
             StationId = stationId;
             StationGId = stationGId;

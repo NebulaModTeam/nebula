@@ -12,7 +12,7 @@ namespace NebulaModel.Packets.Factory.Inserter
         public Float3 PointPos { get; set; }
         public int PlanetId { get; set; }
 
-        public NewSetInserterInsertTargetPacket() {}
+        public NewSetInserterInsertTargetPacket() { }
         public NewSetInserterInsertTargetPacket(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos, int planetId)
         {
             ObjId = objId;

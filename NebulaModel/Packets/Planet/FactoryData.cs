@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NebulaModel.Packets.Planet
+﻿namespace NebulaModel.Packets.Planet
 {
     public class FactoryData
     {

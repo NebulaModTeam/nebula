@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using NebulaModel.DataStructures;
-
-namespace NebulaModel.Packets.Logistics
+﻿namespace NebulaModel.Packets.Logistics
 {
     public class ILSAddStationComponent
     {
