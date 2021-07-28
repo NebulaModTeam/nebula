@@ -21,6 +21,7 @@ import { zip } from 'zip-a-folder';
 import fsepkg from 'fs-extra';
 const move = fsepkg.move;
 const remove = fsepkg.remove;
+import * as core from '@actions/core';
 
 // Setting it so that it's consistent with installs from thunderstore
 const NEBULA_RELEASE_FOLDER_NAME = "nebula-NebulaMultiplayerMod";
@@ -51,6 +52,12 @@ async function main() {
     mkdirSync(DIST_TSTORE_CLI_FOLDER, { recursive: true });
   }
 
+  try {
+    generateReleaseBody();
+  } catch(err) {
+    core.setFailed(err);
+  }
+  
   generateManifest();
   copyIcon();
   copyReadme();
@@ -84,7 +91,7 @@ function getNebulaFolder() {
 
   if (existsSync(targetsFile)) {
     const xml = XmlReader.parseSync(readFileSync(targetsFile, "utf-8"));
-    var tmpPath = xmlQuery(xml).find("DSPGameDir").text();
+    const tmpPath = xmlQuery(xml).find("DSPGameDir").text();
     if (existsSync(tmpPath)) {
       nebulaPath = tmpPath;
     }
@@ -192,6 +199,26 @@ function generateTStoreConfig() {
     zip: TSTORE_ARCHIVE_PATH,
   };
   writeFileSync(DIST_TSTORE_CLI_CONFIG_PATH, json2toml(config));
+}
+
+function generateReleaseBody() {
+  const changelog = readFileSync(CHANGELOG_PATH, "utf-8");
+  const versionRegExp = new RegExp('\\b[0-9]+\\.[0-9]+(?:\\.[0-9]+)?(?:\\.[0-9]+)?(?=:)\\b', 'g');
+
+  const versions = Array.from(changelog.matchAll(versionRegExp));
+
+  const currentVersion = versions[0][0];
+
+    if(pluginInfo.version != currentVersion)
+    {
+      throw `CHANGELOG.md latest version (${currentVersion}) does not match version.json (${pluginInfo.version}) !`;
+    }
+
+  const body = changelog.substr(versions[0].index + versions[0][0].length + 1, versions[1].index -  versions[0].index - versions[0][0].length - versions[1][0].length ).trim();
+
+  writeFileSync(join(DIST_RELEASE_FOLDER, "BODY.md"), "# Alpha Version " + currentVersion + "\n\n### Changes\n" + body);
+
+  console.log(body);
 }
 
 async function createTStoreArchive() {
