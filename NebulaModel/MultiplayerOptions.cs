@@ -32,7 +32,6 @@ namespace NebulaModel
         [DisplayName("Network Savegame Compression")]
         public bool NetworkSavegameCompression { get; set; } = true;
 
-        [DisplayName("Global Savegame Compression")]
         public bool GlobalSavegameCompression { get; set; } = false;
 
         public string LastIP { get; set; } = string.Empty;
