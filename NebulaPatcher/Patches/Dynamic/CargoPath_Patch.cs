@@ -12,6 +12,9 @@ namespace NebulaPatcher.Patches.Dynamic
     class CargoPath_Patch
     {
 
+        // NOTE: This needs to be 4 chars long (no more no less), else it won't encode to a 4 bytes int and thus will cause weird problems
+        private static readonly int encodedVersionNb00 = BitConverter.ToInt32(Encoding.ASCII.GetBytes("nb00"), 0);
+
         private static Matrix4x4 Get3DPoint3DPlaneAs2DPointProjectionMatrix2(Vector3 point0, Vector3 point1, Vector3 point2)
         {
             // Adapted from https://stackoverflow.com/a/52163563/13620003
@@ -92,9 +95,8 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             //w.Write(0);
-            // Set a special int that we will use to indentify wheter whe should process this normally or use custom optimized method
-            // NOTE: This needs to be 4 chars long, else it wont work
-            w.Write(BitConverter.ToInt32(Encoding.ASCII.GetBytes("nb00"), 0));
+            // Set a special 4 byte int that represents the version that we will use to indentify wheter whe should process this normally or use custom optimized method
+            w.Write(encodedVersionNb00);
 
             w.Write(__instance.id);
             w.Write(___capacity);
@@ -326,171 +328,163 @@ namespace NebulaPatcher.Patches.Dynamic
         )
         {
             var initialBaseStreamPosition = r.BaseStream.Position;
-            var version = Encoding.ASCII.GetString(r.ReadBytes(4));
-            switch (version)
+            var encodedVersion = r.ReadInt32();
+            if (encodedVersion == encodedVersionNb00)
             {
-                case "nb00":
+                __instance.Free();
+                //r.ReadInt32(); // Since we don't reset the BaseStream to its original position, we dont have to read the version here again
+                __instance.id = r.ReadInt32();
+                __instance.SetCapacity(r.ReadInt32());
+                ___bufferLength = r.ReadInt32();
+                __instance.SetChunkCapacity(r.ReadInt32());
+                ___chunkCount = r.ReadInt32();
+                ___updateLen = r.ReadInt32();
+                __instance.closed = r.ReadBoolean();
+                __instance.outputPathIdForImport = r.ReadInt32();
+                __instance.outputIndex = r.ReadInt32();
+                int beltsCount = r.ReadInt32();
+                int inputPathsCount = r.ReadInt32();
+                r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
+                for (int i = 0; i < ___chunkCount; i++)
+                {
+                    __instance.chunks[i * 3] = r.ReadInt32();
+                    __instance.chunks[i * 3 + 1] = r.ReadInt32();
+                    __instance.chunks[i * 3 + 2] = r.ReadInt32();
+                }
+
+                // Code that reads/calculates the rotations and positions
+                for (int j = 0; j < ___bufferLength;)
+                {
+
+                    var sameRelativeRotationAsPrevious = r.ReadBoolean();
+                    var repCount = r.ReadInt32();
+
+                    var previosRelativeRotation = new Quaternion();
+                    var isThereAPreviosRelativeRotation = false;
+                    var planarMatrix = new Matrix4x4();
+                    var isThereAPlanarMatrix = false;
+                    for (int i = 0; i < repCount; i++)
                     {
-                        __instance.Free();
-                        //r.ReadInt32(); // Since we don't reset the BaseStream to its original position, we dont have to read the version here again
-                        __instance.id = r.ReadInt32();
-                        __instance.SetCapacity(r.ReadInt32());
-                        ___bufferLength = r.ReadInt32();
-                        __instance.SetChunkCapacity(r.ReadInt32());
-                        ___chunkCount = r.ReadInt32();
-                        ___updateLen = r.ReadInt32();
-                        __instance.closed = r.ReadBoolean();
-                        __instance.outputPathIdForImport = r.ReadInt32();
-                        __instance.outputIndex = r.ReadInt32();
-                        int beltsCount = r.ReadInt32();
-                        int inputPathsCount = r.ReadInt32();
-                        r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
-                        for (int i = 0; i < ___chunkCount; i++)
-                        {
-                            __instance.chunks[i * 3] = r.ReadInt32();
-                            __instance.chunks[i * 3 + 1] = r.ReadInt32();
-                            __instance.chunks[i * 3 + 2] = r.ReadInt32();
-                        }
-
-                        // Code that reads/calculates the rotations and positions
-                        for (int j = 0; j < ___bufferLength;)
+                        if (sameRelativeRotationAsPrevious)
                         {
 
-                            var sameRelativeRotationAsPrevious = r.ReadBoolean();
-                            var repCount = r.ReadInt32();
-
-                            var previosRelativeRotation = new Quaternion();
-                            var isThereAPreviosRelativeRotation = false;
-                            var planarMatrix = new Matrix4x4();
-                            var isThereAPlanarMatrix = false;
-                            for (int i = 0; i < repCount; i++)
+                            if (!isThereAPreviosRelativeRotation)
                             {
-                                if (sameRelativeRotationAsPrevious)
-                                {
+                                previosRelativeRotation = new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                                isThereAPreviosRelativeRotation = true;
+                            }
 
-                                    if (!isThereAPreviosRelativeRotation)
-                                    {
-                                        previosRelativeRotation = new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
-                                        isThereAPreviosRelativeRotation = true;
-                                    }
+                            if (!isThereAPlanarMatrix)
+                            {
+                                planarMatrix = new Matrix4x4(
+                                    new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
+                                    new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
+                                    new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
+                                    new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 1)
+                                );
+                                isThereAPlanarMatrix = true;
+                            }
 
-                                    if (!isThereAPlanarMatrix)
-                                    {
-                                        planarMatrix = new Matrix4x4(
-                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
-                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
-                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
-                                            new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 1)
-                                        );
-                                        isThereAPlanarMatrix = true;
-                                    }
+                            var planarPosition = new Vector3(r.ReadSingle(), r.ReadSingle());
+                            __instance.pointPos[j] = planarMatrix.MultiplyPoint3x4(planarPosition);
 
-                                    var planarPosition = new Vector3(r.ReadSingle(), r.ReadSingle());
-                                    __instance.pointPos[j] = planarMatrix.MultiplyPoint3x4(planarPosition);
+                            var originalPosition = __instance.pointPos[j];
+                            var calculatedRotation = Quaternion.LookRotation(originalPosition, Vector3.up) * previosRelativeRotation;
+                            __instance.pointRot[j] = calculatedRotation;
 
-                                    var originalPosition = __instance.pointPos[j];
-                                    var calculatedRotation = Quaternion.LookRotation(originalPosition, Vector3.up) * previosRelativeRotation;
-                                    __instance.pointRot[j] = calculatedRotation;
+                        }
+                        else
+                        {
 
-                                } else
-                                {
+                            __instance.pointRot[j].x = r.ReadSingle();
+                            __instance.pointRot[j].y = r.ReadSingle();
+                            __instance.pointRot[j].z = r.ReadSingle();
+                            __instance.pointRot[j].w = r.ReadSingle();
 
-                                    __instance.pointRot[j].x = r.ReadSingle();
-                                    __instance.pointRot[j].y = r.ReadSingle();
-                                    __instance.pointRot[j].z = r.ReadSingle();
-                                    __instance.pointRot[j].w = r.ReadSingle();
+                            if (isThereAPreviosRelativeRotation)
+                            {
+                                isThereAPreviosRelativeRotation = false;
+                            }
 
-                                    if (isThereAPreviosRelativeRotation)
-                                    {
-                                        isThereAPreviosRelativeRotation = false;
-                                    }
+                            __instance.pointPos[j].x = r.ReadSingle();
+                            __instance.pointPos[j].y = r.ReadSingle();
+                            __instance.pointPos[j].z = r.ReadSingle();
 
-                                    __instance.pointPos[j].x = r.ReadSingle();
-                                    __instance.pointPos[j].y = r.ReadSingle();
-                                    __instance.pointPos[j].z = r.ReadSingle();
-
-                                    if (!isThereAPlanarMatrix)
-                                    {
-                                        isThereAPlanarMatrix = false;
-                                    }
-
-                                }
-
-                                
-                                j++;
-
+                            if (!isThereAPlanarMatrix)
+                            {
+                                isThereAPlanarMatrix = false;
                             }
 
                         }
 
-                        __instance.belts = new List<int>();
-                        for (int k = 0; k < beltsCount; k++)
-                        {
-                            __instance.belts.Add(r.ReadInt32());
-                        }
-                        __instance.inputPaths = new List<int>();
-                        for (int l = 0; l < inputPathsCount; l++)
-                        {
-                            __instance.inputPaths.Add(r.ReadInt32());
-                        }
+
+                        j++;
 
                     }
 
-                    break;
-                default:
-                    {
-                        // Reset the BaseStream to its initial position
-                        r.BaseStream.Position = initialBaseStreamPosition;
+                }
 
-                        // Run the original method
-                        return true;
+                __instance.belts = new List<int>();
+                for (int k = 0; k < beltsCount; k++)
+                {
+                    __instance.belts.Add(r.ReadInt32());
+                }
+                __instance.inputPaths = new List<int>();
+                for (int l = 0; l < inputPathsCount; l++)
+                {
+                    __instance.inputPaths.Add(r.ReadInt32());
+                }
 
-                        //// The original implementation
-                        //__instance.Free();
-                        //r.ReadInt32();
-                        //__instance.id = r.ReadInt32();
-                        //__instance.SetCapacity(r.ReadInt32());
-                        //___bufferLength = r.ReadInt32();
-                        //__instance.SetChunkCapacity(r.ReadInt32());
-                        //___chunkCount = r.ReadInt32();
-                        //___updateLen = r.ReadInt32();
-                        //__instance.closed = r.ReadBoolean();
-                        //__instance.outputPathIdForImport = r.ReadInt32();
-                        //__instance.outputIndex = r.ReadInt32();
-                        //int num = r.ReadInt32();
-                        //int num2 = r.ReadInt32();
-                        //r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
-                        //for (int i = 0; i < ___chunkCount; i++)
-                        //{
-                        //    __instance.chunks[i * 3] = r.ReadInt32();
-                        //    __instance.chunks[i * 3 + 1] = r.ReadInt32();
-                        //    __instance.chunks[i * 3 + 2] = r.ReadInt32();
-                        //}
-                        //for (int j = 0; j < ___bufferLength; j++)
-                        //{
-                        //    __instance.pointPos[j].x = r.ReadSingle();
-                        //    __instance.pointPos[j].y = r.ReadSingle();
-                        //    __instance.pointPos[j].z = r.ReadSingle();
-                        //    __instance.pointRot[j].x = r.ReadSingle();
-                        //    __instance.pointRot[j].y = r.ReadSingle();
-                        //    __instance.pointRot[j].z = r.ReadSingle();
-                        //    __instance.pointRot[j].w = r.ReadSingle();
-                        //}
-                        //__instance.belts = new List<int>();
-                        //for (int k = 0; k < num; k++)
-                        //{
-                        //    __instance.belts.Add(r.ReadInt32());
-                        //}
-                        //__instance.inputPaths = new List<int>();
-                        //for (int l = 0; l < num2; l++)
-                        //{
-                        //    __instance.inputPaths.Add(r.ReadInt32());
-                        //}
-                    }
+            } else
+            {
+                // Reset the BaseStream to its initial position
+                r.BaseStream.Position = initialBaseStreamPosition;
 
-                    //break;
-            }
-            
+                // Run the original method
+                return true;
+
+                //// The original implementation
+                //__instance.Free();
+                //r.ReadInt32();
+                //__instance.id = r.ReadInt32();
+                //__instance.SetCapacity(r.ReadInt32());
+                //___bufferLength = r.ReadInt32();
+                //__instance.SetChunkCapacity(r.ReadInt32());
+                //___chunkCount = r.ReadInt32();
+                //___updateLen = r.ReadInt32();
+                //__instance.closed = r.ReadBoolean();
+                //__instance.outputPathIdForImport = r.ReadInt32();
+                //__instance.outputIndex = r.ReadInt32();
+                //int num = r.ReadInt32();
+                //int num2 = r.ReadInt32();
+                //r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
+                //for (int i = 0; i < ___chunkCount; i++)
+                //{
+                //    __instance.chunks[i * 3] = r.ReadInt32();
+                //    __instance.chunks[i * 3 + 1] = r.ReadInt32();
+                //    __instance.chunks[i * 3 + 2] = r.ReadInt32();
+                //}
+                //for (int j = 0; j < ___bufferLength; j++)
+                //{
+                //    __instance.pointPos[j].x = r.ReadSingle();
+                //    __instance.pointPos[j].y = r.ReadSingle();
+                //    __instance.pointPos[j].z = r.ReadSingle();
+                //    __instance.pointRot[j].x = r.ReadSingle();
+                //    __instance.pointRot[j].y = r.ReadSingle();
+                //    __instance.pointRot[j].z = r.ReadSingle();
+                //    __instance.pointRot[j].w = r.ReadSingle();
+                //}
+                //__instance.belts = new List<int>();
+                //for (int k = 0; k < num; k++)
+                //{
+                //    __instance.belts.Add(r.ReadInt32());
+                //}
+                //__instance.inputPaths = new List<int>();
+                //for (int l = 0; l < num2; l++)
+                //{
+                //    __instance.inputPaths.Add(r.ReadInt32());
+                //}
+            }            
 
             // Skip the original function
             return false;
