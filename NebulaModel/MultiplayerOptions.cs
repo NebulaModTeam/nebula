@@ -29,8 +29,11 @@ namespace NebulaModel
         [DisplayName("Remember Last IP")]
         public bool RememberLastIP { get; set; } = true;
 
-        [DisplayName("EXPERIMENTAL! Savegame Compression")]
-        public bool SavegameCompression { get; set; } = false;
+        [DisplayName("Network Savegame Compression")]
+        public bool NetworkSavegameCompression { get; set; } = true;
+
+        [DisplayName("Global Savegame Compression")]
+        public bool GlobalSavegameCompression { get; set; } = false;
 
         public string LastIP { get; set; } = string.Empty;
 

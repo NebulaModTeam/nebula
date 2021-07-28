@@ -1,10 +1,9 @@
 ﻿using HarmonyLib;
 using System.IO;
 using UnityEngine;
-using System.Text;
-using System;
 using System.Collections.Generic;
 using NebulaModel;
+using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -12,39 +11,40 @@ namespace NebulaPatcher.Patches.Dynamic
     class CargoPath_Patch
     {
 
-        // NOTE: This needs to be 4 chars long (no more no less), else it won't encode to a 4 bytes int and thus will cause weird problems
-        private static readonly int encodedVersionNb00 = BitConverter.ToInt32(Encoding.ASCII.GetBytes("nb00"), 0);
+        //// NOTE: This needs to be 4 chars long (no more no less), else it won't encode to a 4 bytes int and thus will cause weird problems
+        //private static readonly int encodedVersionNb00 = BitConverter.ToInt32(Encoding.ASCII.GetBytes("nb00"), 0);
 
-        private static Matrix4x4 Get3DPoint3DPlaneAs2DPointProjectionMatrix2(Vector3 point0, Vector3 point1, Vector3 point2)
-        {
-            // Adapted from https://stackoverflow.com/a/52163563/13620003
+        //private static Matrix4x4 Get3DPoint3DPlaneAs2DPointProjectionMatrix2(Vector3 point0, Vector3 point1, Vector3 point2)
+        //{
+        //    // Adapted from https://stackoverflow.com/a/52163563/13620003
 
-            var x = point1 - point0;
-            var y = point2 - point0;
-            var z = Vector3.Cross(x, y);
-            y = Vector3.Cross(z, x);
-            x.Normalize();
-            z.Normalize();
-            y.Normalize();
+        //    var x = point1 - point0;
+        //    var y = point2 - point0;
+        //    var z = Vector3.Cross(x, y);
+        //    y = Vector3.Cross(z, x);
+        //    x.Normalize();
+        //    z.Normalize();
+        //    y.Normalize();
 
-            return new Matrix4x4(
-                new Vector4(x.x, x.y, x.z, 0),
-                new Vector4(y.x, y.y, y.z, 0),
-                new Vector4(z.x, z.y, z.z, 0),
-                new Vector4(point0.x, point0.y, point0.z, 1)
-            );
+        //    return new Matrix4x4(
+        //        new Vector4(x.x, x.y, x.z, 0),
+        //        new Vector4(y.x, y.y, y.z, 0),
+        //        new Vector4(z.x, z.y, z.z, 0),
+        //        new Vector4(point0.x, point0.y, point0.z, 1)
+        //    );
+        //}
 
-        }
+        
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(CargoPath.Export))]
         public static bool Export_Prefix(
             ref CargoPath __instance, 
-            ref int ___capacity, 
-            ref int ___bufferLength, 
-            ref int ___chunkCapacity, 
-            ref int ___chunkCount, 
-            ref int ___updateLen, 
+            //ref int ___capacity, 
+            //ref int ___bufferLength, 
+            //ref int ___chunkCapacity, 
+            //ref int ___chunkCount, 
+            //ref int ___updateLen, 
             BinaryWriter w
         )
         {
@@ -88,227 +88,229 @@ namespace NebulaPatcher.Patches.Dynamic
             //    w.Write(__instance.inputPaths[l]);
             //}
 
-            if (!Config.Options.SavegameCompression)
+            if (!Config.Options.GlobalSavegameCompression)
             {
                 // If savegame compression is not enabled skip through to the original implementation
                 return true;
             }
 
-            //w.Write(0);
-            // Set a special 4 byte int that represents the version that we will use to indentify wheter whe should process this normally or use custom optimized method
-            w.Write(encodedVersionNb00);
+            CustomExporters.CustomCargoPathExport(w, ref __instance);
 
-            w.Write(__instance.id);
-            w.Write(___capacity);
-            w.Write(___bufferLength);
-            w.Write(___chunkCapacity);
-            w.Write(___chunkCount);
-            w.Write(___updateLen);
-            w.Write(__instance.closed);
-            w.Write((__instance.outputPath == null) ? 0 : __instance.outputPath.id);
-            w.Write((__instance.outputPath == null) ? -1 : __instance.outputIndex);
-            w.Write(__instance.belts.Count);
-            w.Write(__instance.inputPaths.Count);
-            w.Write(__instance.buffer, 0, ___bufferLength);
-            for (int i = 0; i < ___chunkCount; i++)
-            {
-                w.Write(__instance.chunks[i * 3]);
-                w.Write(__instance.chunks[i * 3 + 1]);
-                w.Write(__instance.chunks[i * 3 + 2]);
-            }
+            ////w.Write(0);
+            //// Set a special 4 byte int that represents the version that we will use to indentify wheter whe should process this normally or use custom optimized method
+            //w.Write(encodedVersionNb00);
 
-            // START of rotational and positional compression code
-            {             
+            //w.Write(__instance.id);
+            //w.Write(___capacity);
+            //w.Write(___bufferLength);
+            //w.Write(___chunkCapacity);
+            //w.Write(___chunkCount);
+            //w.Write(___updateLen);
+            //w.Write(__instance.closed);
+            //w.Write((__instance.outputPath == null) ? 0 : __instance.outputPath.id);
+            //w.Write((__instance.outputPath == null) ? -1 : __instance.outputIndex);
+            //w.Write(__instance.belts.Count);
+            //w.Write(__instance.inputPaths.Count);
+            //w.Write(__instance.buffer, 0, ___bufferLength);
+            //for (int i = 0; i < ___chunkCount; i++)
+            //{
+            //    w.Write(__instance.chunks[i * 3]);
+            //    w.Write(__instance.chunks[i * 3 + 1]);
+            //    w.Write(__instance.chunks[i * 3 + 2]);
+            //}
 
-                // Build the prerequisite mappings
-                var surfaceRelativeRotations = new Quaternion[___bufferLength];
-                var simmilarityMap = new bool[___bufferLength - 1];
-                var differentialIndexes = new List<int>();
-                for (int j = 0; j < ___bufferLength; j++)
-                {
+            //// START of rotational and positional compression code
+            //{             
 
-                    var originalPosition = __instance.pointPos[j];
-                    var originalRotation = __instance.pointRot[j];
-                    var surfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * originalRotation;
-                    surfaceRelativeRotations[j] = surfaceRelativeRotation;
+            //    // Build the prerequisite mappings
+            //    var surfaceRelativeRotations = new Quaternion[___bufferLength];
+            //    var simmilarityMap = new bool[___bufferLength - 1];
+            //    var differentialIndexes = new List<int>();
+            //    for (int j = 0; j < ___bufferLength; j++)
+            //    {
 
-                    // Construct the simmilairy map
-                    if (j > 0)
-                    {
-                        // TODO: Might need to changes the rotations around
-                        // TODO: Change this to use the pure dot product if possible
-                        var angularDiff = Quaternion.Angle(surfaceRelativeRotations[j - 1], surfaceRelativeRotations[j]);
-                        simmilarityMap[j - 1] = angularDiff == 0;
-                    }
+            //        var originalPosition = __instance.pointPos[j];
+            //        var originalRotation = __instance.pointRot[j];
+            //        var surfaceRelativeRotation = Quaternion.Inverse(Quaternion.LookRotation(originalPosition, Vector3.up)) * originalRotation;
+            //        surfaceRelativeRotations[j] = surfaceRelativeRotation;
 
-                    // Construct the differential simmilarity map (since changed to store indexes only)
-                    if (j > 1)
-                    {
-                        var differentialSimmilarity = simmilarityMap[j - 2] == simmilarityMap[j - 1];
-                        if (!differentialSimmilarity)
-                        {
-                            differentialIndexes.Add(j - 2);
-                        }
-                    }
-                }
+            //        // Construct the simmilairy map
+            //        if (j > 0)
+            //        {
+            //            // TODO: Might need to changes the rotations around
+            //            // TODO: Change this to use the pure dot product if possible
+            //            var angularDiff = Quaternion.Angle(surfaceRelativeRotations[j - 1], surfaceRelativeRotations[j]);
+            //            simmilarityMap[j - 1] = angularDiff == 0;
+            //        }
 
-                // Write data in a compressed format
-                var startIndex = 0;
-                int endIndex;
-                for (int j = 0; j < differentialIndexes.Count; j++)
-                {
-                    var differentialIndex = differentialIndexes[j];
-                    var surfaceRelativeSequence = simmilarityMap[differentialIndex];
+            //        // Construct the differential simmilarity map (since changed to store indexes only)
+            //        if (j > 1)
+            //        {
+            //            var differentialSimmilarity = simmilarityMap[j - 2] == simmilarityMap[j - 1];
+            //            if (!differentialSimmilarity)
+            //            {
+            //                differentialIndexes.Add(j - 2);
+            //            }
+            //        }
+            //    }
 
-                    endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
-                    var repCount = endIndex - startIndex + 1;
+            //    // Write data in a compressed format
+            //    var startIndex = 0;
+            //    int endIndex;
+            //    for (int j = 0; j < differentialIndexes.Count; j++)
+            //    {
+            //        var differentialIndex = differentialIndexes[j];
+            //        var surfaceRelativeSequence = simmilarityMap[differentialIndex];
 
-                    // Sometimes we have a repcount of 0 we can then just skip this entire sequence
-                    if (repCount > 0)
-                    {
-                        // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
-                        // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
-                        w.Write(surfaceRelativeSequence);
-                        w.Write(repCount);
-                        if (surfaceRelativeSequence)
-                        {
-                            // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
+            //        endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
+            //        var repCount = endIndex - startIndex + 1;
 
-                            w.Write(surfaceRelativeRotations[startIndex].x);
-                            w.Write(surfaceRelativeRotations[startIndex].y);
-                            w.Write(surfaceRelativeRotations[startIndex].z);
-                            w.Write(surfaceRelativeRotations[startIndex].w);
+            //        // Sometimes we have a repcount of 0 we can then just skip this entire sequence
+            //        if (repCount > 0)
+            //        {
+            //            // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
+            //            // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
+            //            w.Write(surfaceRelativeSequence);
+            //            w.Write(repCount);
+            //            if (surfaceRelativeSequence)
+            //            {
+            //                // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
 
-                            // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
-                            // we should compensate for this
-                            var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
-                            w.Write(matrixM[0, 0]);
-                            w.Write(matrixM[1, 0]);
-                            w.Write(matrixM[2, 0]);
-                            //w.Write(matrixM[3, 0]); // This is always 0
-                            w.Write(matrixM[0, 1]);
-                            w.Write(matrixM[1, 1]);
-                            w.Write(matrixM[2, 1]);
-                            //w.Write(matrixM[3, 1]); // This is always 0
-                            w.Write(matrixM[0, 2]);
-                            w.Write(matrixM[1, 2]);
-                            w.Write(matrixM[2, 2]);
-                            //w.Write(matrixM[3, 2]); // This is always 0
-                            w.Write(matrixM[0, 3]);
-                            w.Write(matrixM[1, 3]);
-                            w.Write(matrixM[2, 3]);
-                            //w.Write(matrixM[3, 3]); // This is always 1
+            //                w.Write(surfaceRelativeRotations[startIndex].x);
+            //                w.Write(surfaceRelativeRotations[startIndex].y);
+            //                w.Write(surfaceRelativeRotations[startIndex].z);
+            //                w.Write(surfaceRelativeRotations[startIndex].w);
 
-                            var matrixMInv = matrixM.inverse;
-                            for (int i = 0; i < repCount; i++)
-                            {
-                                // Write 2D coordinates on plane
-                                // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
+            //                // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
+            //                // we should compensate for this
+            //                var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+            //                w.Write(matrixM[0, 0]);
+            //                w.Write(matrixM[1, 0]);
+            //                w.Write(matrixM[2, 0]);
+            //                //w.Write(matrixM[3, 0]); // This is always 0
+            //                w.Write(matrixM[0, 1]);
+            //                w.Write(matrixM[1, 1]);
+            //                w.Write(matrixM[2, 1]);
+            //                //w.Write(matrixM[3, 1]); // This is always 0
+            //                w.Write(matrixM[0, 2]);
+            //                w.Write(matrixM[1, 2]);
+            //                w.Write(matrixM[2, 2]);
+            //                //w.Write(matrixM[3, 2]); // This is always 0
+            //                w.Write(matrixM[0, 3]);
+            //                w.Write(matrixM[1, 3]);
+            //                w.Write(matrixM[2, 3]);
+            //                //w.Write(matrixM[3, 3]); // This is always 1
 
-                                var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
-                                w.Write(projectedPoint.x);
-                                w.Write(projectedPoint.y);
-                            }
+            //                var matrixMInv = matrixM.inverse;
+            //                for (int i = 0; i < repCount; i++)
+            //                {
+            //                    // Write 2D coordinates on plane
+            //                    // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
 
-                        }
-                        else
-                        {
-                            for (int i = 0; i < repCount; i++)
-                            {
-                                w.Write(__instance.pointRot[startIndex + i].x);
-                                w.Write(__instance.pointRot[startIndex + i].y);
-                                w.Write(__instance.pointRot[startIndex + i].z);
-                                w.Write(__instance.pointRot[startIndex + i].w);
+            //                    var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
+            //                    w.Write(projectedPoint.x);
+            //                    w.Write(projectedPoint.y);
+            //                }
 
-                                w.Write(__instance.pointPos[startIndex + i].x);
-                                w.Write(__instance.pointPos[startIndex + i].y);
-                                w.Write(__instance.pointPos[startIndex + i].z);
-                            }
-                        }
-                    }                    
+            //            }
+            //            else
+            //            {
+            //                for (int i = 0; i < repCount; i++)
+            //                {
+            //                    w.Write(__instance.pointRot[startIndex + i].x);
+            //                    w.Write(__instance.pointRot[startIndex + i].y);
+            //                    w.Write(__instance.pointRot[startIndex + i].z);
+            //                    w.Write(__instance.pointRot[startIndex + i].w);
 
-                    startIndex = endIndex + 1;
-                }
+            //                    w.Write(__instance.pointPos[startIndex + i].x);
+            //                    w.Write(__instance.pointPos[startIndex + i].y);
+            //                    w.Write(__instance.pointPos[startIndex + i].z);
+            //                }
+            //            }
+            //        }                    
 
-                // The end needs to be handled seperately (since it does not have a differentialIndex)
-                endIndex = ___bufferLength - 1;
-                var surfaceRelativeSequenceForEnd = simmilarityMap[___bufferLength - 2];
-                var repCountForEnd = endIndex - startIndex + 1;
+            //        startIndex = endIndex + 1;
+            //    }
 
-                // Sometimes we have a repcount of 0 we can then just skip this entire sequence
-                if (repCountForEnd > 0)
-                {
-                    // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
-                    // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
-                    w.Write(surfaceRelativeSequenceForEnd);
-                    w.Write(repCountForEnd);
-                    if (surfaceRelativeSequenceForEnd)
-                    {
-                        // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
+            //    // The end needs to be handled seperately (since it does not have a differentialIndex)
+            //    endIndex = ___bufferLength - 1;
+            //    var surfaceRelativeSequenceForEnd = simmilarityMap[___bufferLength - 2];
+            //    var repCountForEnd = endIndex - startIndex + 1;
 
-                        w.Write(surfaceRelativeRotations[startIndex].x);
-                        w.Write(surfaceRelativeRotations[startIndex].y);
-                        w.Write(surfaceRelativeRotations[startIndex].z);
-                        w.Write(surfaceRelativeRotations[startIndex].w);
+            //    // Sometimes we have a repcount of 0 we can then just skip this entire sequence
+            //    if (repCountForEnd > 0)
+            //    {
+            //        // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
+            //        // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
+            //        w.Write(surfaceRelativeSequenceForEnd);
+            //        w.Write(repCountForEnd);
+            //        if (surfaceRelativeSequenceForEnd)
+            //        {
+            //            // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
 
-                        // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
-                        // we should compensate for this
-                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEnd / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
-                        w.Write(matrixM[0, 0]);
-                        w.Write(matrixM[1, 0]);
-                        w.Write(matrixM[2, 0]);
-                        //w.Write(matrixM[3, 0]); // This is always 0
-                        w.Write(matrixM[0, 1]);
-                        w.Write(matrixM[1, 1]);
-                        w.Write(matrixM[2, 1]);
-                        //w.Write(matrixM[3, 1]); // This is always 0
-                        w.Write(matrixM[0, 2]);
-                        w.Write(matrixM[1, 2]);
-                        w.Write(matrixM[2, 2]);
-                        //w.Write(matrixM[3, 2]); // This is always 0
-                        w.Write(matrixM[0, 3]);
-                        w.Write(matrixM[1, 3]);
-                        w.Write(matrixM[2, 3]);
-                        //w.Write(matrixM[3, 3]); // This is always 1
+            //            w.Write(surfaceRelativeRotations[startIndex].x);
+            //            w.Write(surfaceRelativeRotations[startIndex].y);
+            //            w.Write(surfaceRelativeRotations[startIndex].z);
+            //            w.Write(surfaceRelativeRotations[startIndex].w);
 
-                        var matrixMInv = matrixM.inverse;
-                        for (int i = 0; i < repCountForEnd; i++)
-                        {
-                            // Write 2D coordinates on plane
-                            // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
+            //            // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
+            //            // we should compensate for this
+            //            var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix2(__instance.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEnd / 2)], __instance.pointPos[startIndex], __instance.pointPos[endIndex]);
+            //            w.Write(matrixM[0, 0]);
+            //            w.Write(matrixM[1, 0]);
+            //            w.Write(matrixM[2, 0]);
+            //            //w.Write(matrixM[3, 0]); // This is always 0
+            //            w.Write(matrixM[0, 1]);
+            //            w.Write(matrixM[1, 1]);
+            //            w.Write(matrixM[2, 1]);
+            //            //w.Write(matrixM[3, 1]); // This is always 0
+            //            w.Write(matrixM[0, 2]);
+            //            w.Write(matrixM[1, 2]);
+            //            w.Write(matrixM[2, 2]);
+            //            //w.Write(matrixM[3, 2]); // This is always 0
+            //            w.Write(matrixM[0, 3]);
+            //            w.Write(matrixM[1, 3]);
+            //            w.Write(matrixM[2, 3]);
+            //            //w.Write(matrixM[3, 3]); // This is always 1
 
-                            var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
-                            w.Write(projectedPoint.x);
-                            w.Write(projectedPoint.y);
-                        }
+            //            var matrixMInv = matrixM.inverse;
+            //            for (int i = 0; i < repCountForEnd; i++)
+            //            {
+            //                // Write 2D coordinates on plane
+            //                // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
 
-                    }
-                    else
-                    {
-                        for (int i = 0; i < repCountForEnd; i++)
-                        {
-                            w.Write(__instance.pointRot[startIndex + i].x);
-                            w.Write(__instance.pointRot[startIndex + i].y);
-                            w.Write(__instance.pointRot[startIndex + i].z);
-                            w.Write(__instance.pointRot[startIndex + i].w);
+            //                var projectedPoint = matrixMInv.MultiplyPoint3x4(__instance.pointPos[startIndex + i]); // Fuck yea!!!
+            //                w.Write(projectedPoint.x);
+            //                w.Write(projectedPoint.y);
+            //            }
 
-                            w.Write(__instance.pointPos[startIndex + i].x);
-                            w.Write(__instance.pointPos[startIndex + i].y);
-                            w.Write(__instance.pointPos[startIndex + i].z);
-                        }
-                    }
-                }
-            }
-            // END of rotational and positional compression code
+            //        }
+            //        else
+            //        {
+            //            for (int i = 0; i < repCountForEnd; i++)
+            //            {
+            //                w.Write(__instance.pointRot[startIndex + i].x);
+            //                w.Write(__instance.pointRot[startIndex + i].y);
+            //                w.Write(__instance.pointRot[startIndex + i].z);
+            //                w.Write(__instance.pointRot[startIndex + i].w);
 
-            for (int k = 0; k < __instance.belts.Count; k++)
-            {
-                w.Write(__instance.belts[k]);
-            }
-            for (int l = 0; l < __instance.inputPaths.Count; l++)
-            {
-                w.Write(__instance.inputPaths[l]);
-            }
+            //                w.Write(__instance.pointPos[startIndex + i].x);
+            //                w.Write(__instance.pointPos[startIndex + i].y);
+            //                w.Write(__instance.pointPos[startIndex + i].z);
+            //            }
+            //        }
+            //    }
+            //}
+            //// END of rotational and positional compression code
+
+            //for (int k = 0; k < __instance.belts.Count; k++)
+            //{
+            //    w.Write(__instance.belts[k]);
+            //}
+            //for (int l = 0; l < __instance.inputPaths.Count; l++)
+            //{
+            //    w.Write(__instance.inputPaths[l]);
+            //}
 
             // Skip the original function
             return false;
@@ -329,7 +331,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             var initialBaseStreamPosition = r.BaseStream.Position;
             var encodedVersion = r.ReadInt32();
-            if (encodedVersion == encodedVersionNb00)
+            if (encodedVersion == CustomExporters.EncodedVersionNb00)
             {
                 __instance.Free();
                 //r.ReadInt32(); // Since we don't reset the BaseStream to its original position, we dont have to read the version here again
