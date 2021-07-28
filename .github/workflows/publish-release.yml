@@ -1,8 +1,8 @@
-name: Thunderstore Bundle
+name: Publish Release
 
 on:
   workflow_dispatch:
-    branches: [test-automatic-release]
+    branches: [master]
 
 jobs:
   build:
@@ -12,6 +12,7 @@ jobs:
       SOLUTION_NAME: Nebula.sln
       PLUGIN_PATH :  C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\
       NEBULA_FOLDER : Nebula\
+      DIST_RELEASE_FOLDER : dist\\release\\
 
     steps:
       - name: Set NEBULA_PATH environmental variable
@@ -88,12 +89,18 @@ jobs:
           git push -u origin head;
           git checkout ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).CurrentBranch.Name }}
 
+      # Upload the thunderstore artifact (in case automatic upload fails)
+      - uses: actions/upload-artifact@v2.2.4
+        with:
+          name: nebula-thunderstore
+          path: ${{ env.DIST_RELEASE_FOLDER }}nebula
+
       # Create release
       - uses: ncipollo/release-action@v1
         with:
           artifactErrorsFailBuild: true
-          bodyFile: "dist\\release\\BODY.md"
-          artifacts: "dist\\release\\Nebula_${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Version }}.zip"
+          bodyFile: "${{ env.DIST_RELEASE_FOLDER }}BODY.md"
+          artifacts: "${{ env.DIST_RELEASE_FOLDER }}Nebula_${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Version }}.zip"
           tag: ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
           commit: ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
           token: ${{ secrets.GITHUB_TOKEN }}
