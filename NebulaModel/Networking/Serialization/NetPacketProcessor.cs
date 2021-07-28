@@ -129,6 +129,7 @@ namespace NebulaModel.Networking.Serialization
             SubscribeDelegate action;
             if (!_callbacks.TryGetValue(hash, out action))
             {
+                Logger.Log.Warn($"Unknown packet hash: {hash}");
                 throw new Exception("Undefined packet in NetDataReader");
             }
             return action;
