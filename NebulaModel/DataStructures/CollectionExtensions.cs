@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace NebulaModel.DataStructures
@@ -14,7 +11,7 @@ namespace NebulaModel.DataStructures
             return new Locker(collection.SyncRoot);
         }
 
-        public static Locker GetLocked<T>(this T collection, out T result) where T:ICollection
+        public static Locker GetLocked<T>(this T collection, out T result) where T : ICollection
         {
             result = collection;
             return new Locker(collection.SyncRoot);

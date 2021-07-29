@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets;
 using NebulaModel.DataStructures;
+using NebulaModel.Networking;
+using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using System.Collections.Generic;
 /*
  * clients need to know the ship dock position for correct computation of the ship movement.
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
     {
         private PlayerManager playerManager;
-        
+
         public ILSRequestShipDockProcessor()
         {
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;

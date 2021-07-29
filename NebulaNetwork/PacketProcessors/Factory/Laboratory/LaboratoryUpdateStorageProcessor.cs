@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.Laboratory;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.Laboratory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Labratory
 {

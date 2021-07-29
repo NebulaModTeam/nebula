@@ -1,19 +1,19 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
+using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSAddStationComponentProcessor: PacketProcessor<ILSAddStationComponent>
+    public class ILSAddStationComponentProcessor : PacketProcessor<ILSAddStationComponent>
     {
         public override void ProcessPacket(ILSAddStationComponent packet, NebulaConnection conn)
         {
             Log.Info($"ILSAddStationComponentProcessor processing packet for planet {packet.PlanetId}, station {packet.StationId} with gId of {packet.StationGId}");
-            
+
             using (ILSShipManager.PatchLockILS.On())
             {
                 GalacticTransport galacticTransport = GameMain.data.galacticTransport;

@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Belt;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Belt;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Belt
 {

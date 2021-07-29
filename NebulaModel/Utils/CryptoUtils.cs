@@ -6,7 +6,7 @@ namespace NebulaModel.Utils
 {
     public static class CryptoUtils
     {
-        public static string KeyFile = Path.Combine(new string[] {Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), GameConfig.gameName, "player.key"});
+        public static string KeyFile = Path.Combine(new string[] { Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), GameConfig.gameName, "player.key" });
 
         public static RSA GetOrCreateUserCert()
         {

@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.PowerExchanger;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.PowerExchanger;
 
 namespace NebulaNetwork.PacketProcessors.Factory.PowerExchanger
 {

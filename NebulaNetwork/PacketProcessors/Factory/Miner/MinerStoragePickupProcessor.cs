@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.Miner;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.Miner;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Miner
 {

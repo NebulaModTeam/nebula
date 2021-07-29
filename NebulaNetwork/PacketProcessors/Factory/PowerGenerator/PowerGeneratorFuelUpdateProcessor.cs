@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.PowerGenerator;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.PowerGenerator;
 
 namespace NebulaNetwork.PacketProcessors.Factory.PowerGenerator
 {

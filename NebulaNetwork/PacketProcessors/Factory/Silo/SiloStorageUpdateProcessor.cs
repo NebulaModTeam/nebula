@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.Silo;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.Silo;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Silo
 {

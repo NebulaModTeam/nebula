@@ -1,13 +1,13 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSUpdateSlotDataProcessor: PacketProcessor<ILSUpdateSlotData>
+    class ILSUpdateSlotDataProcessor : PacketProcessor<ILSUpdateSlotData>
     {
         private PlayerManager playerManager;
         public ILSUpdateSlotDataProcessor()

@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
 
 /*
@@ -10,12 +10,12 @@ using NebulaWorld.Logistics;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRemoveStationComponentProcessor: PacketProcessor<ILSRemoveStationComponent>
+    class ILSRemoveStationComponentProcessor : PacketProcessor<ILSRemoveStationComponent>
     {
         public override void ProcessPacket(ILSRemoveStationComponent packet, NebulaConnection conn)
         {
             PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-            if(pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
+            if (pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
             {
                 using (ILSShipManager.PatchLockILS.On())
                 {

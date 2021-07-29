@@ -1,13 +1,13 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSArriveStarPlanetResponseProcessor: PacketProcessor<ILSArriveStarPlanetResponse>
+    class ILSArriveStarPlanetResponseProcessor : PacketProcessor<ILSArriveStarPlanetResponse>
     {
         public override void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
         {
@@ -21,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             else // arrive at planet
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.Planet);
-                if(pData?.factory?.transport != null)
+                if (pData?.factory?.transport != null)
                 {
                     gStationPool = pData.factory.transport.stationPool;
                 }
@@ -32,9 +32,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             }
 
             int offset = 0;
-            for(int i = 0; i < packet.StationGId.Length; i++)
+            for (int i = 0; i < packet.StationGId.Length; i++)
             {
-                if(packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
+                if (packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
                 {
                     ILSShipManager.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i]);
                 }

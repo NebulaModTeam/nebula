@@ -1,8 +1,8 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Planet;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Planet;
 using System.Linq;
 
 namespace NebulaNetwork.PacketProcessors.Planet

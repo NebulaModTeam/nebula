@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.Ejector;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.Ejector;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Ejector
 {

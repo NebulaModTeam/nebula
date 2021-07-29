@@ -1,7 +1,7 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.Inserter;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Factory.Inserter;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Inserter
 {

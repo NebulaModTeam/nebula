@@ -1,9 +1,9 @@
-﻿using NebulaNetwork.PacketProcessors.Players;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Session;
+using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
 using NebulaWorld.Player;
 using NebulaWorld.Statistics;
@@ -143,10 +143,10 @@ namespace NebulaNetwork
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
-                foreach(var kvp in connectedPlayers)
+                foreach (var kvp in connectedPlayers)
                 {
                     var player = kvp.Value;
-                    if(player.Data.LocalStarId == starId)
+                    if (player.Data.LocalStarId == starId)
                     {
                         player.SendPacket(packet);
                     }
@@ -158,10 +158,10 @@ namespace NebulaNetwork
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
-                foreach(var kvp in connectedPlayers)
+                foreach (var kvp in connectedPlayers)
                 {
                     var player = kvp.Value;
-                    if(player.Data.LocalStarId == starId && player != GetPlayer(exclude))
+                    if (player.Data.LocalStarId == starId && player != GetPlayer(exclude))
                     {
                         player.SendPacket(packet);
                     }
@@ -315,7 +315,7 @@ namespace NebulaNetwork
                 {
                     Player curPlayer = kvp.Value;
                     long techProgress = curPlayer.ReleaseResearchProgress();
-                        
+
                     if (techProgress > 0)
                     {
                         Log.Info($"Sending Recoverrequest for player {curPlayer.Id}: refunding for techId {techId} - raw progress: {curPlayer.TechProgressContributed}");

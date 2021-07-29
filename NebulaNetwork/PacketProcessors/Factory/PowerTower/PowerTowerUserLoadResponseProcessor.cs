@@ -1,14 +1,14 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Factory.PowerTower;
 using NebulaModel.Packets;
-using NebulaWorld.Factory;
+using NebulaModel.Packets.Factory.PowerTower;
 using NebulaWorld;
+using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
 {
     [RegisterPacketProcessor]
-    class PowerTowerUserLoadResponseProcessor: PacketProcessor<PowerTowerUserLoadingResponse>
+    class PowerTowerUserLoadResponseProcessor : PacketProcessor<PowerTowerUserLoadingResponse>
     {
         public override void ProcessPacket(PowerTowerUserLoadingResponse packet, NebulaConnection conn)
         {
@@ -57,7 +57,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
                     pNet.energyExchanged = packet.EnergyExchanged;
                     pNet.energyServed = packet.EnergyServed;
                 }
-                    
+
             }
         }
     }

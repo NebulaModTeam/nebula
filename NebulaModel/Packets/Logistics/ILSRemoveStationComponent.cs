@@ -2,7 +2,7 @@
 {
     public class ILSRemoveStationComponent
     {
-        public int StationId {get; set;}
+        public int StationId { get; set; }
         public int PlanetId { get; set; }
         public int StationGId { get; set; }
         public ILSRemoveStationComponent() { }

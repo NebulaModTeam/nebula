@@ -1,8 +1,7 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
-using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets;
+using NebulaModel.Packets.GameHistory;
 using NebulaWorld.GameDataHistory;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
@@ -38,7 +37,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
                     GameMain.history.EnqueueTech(packet.TechId);
                 }
             }
-            
+
         }
     }
 }
