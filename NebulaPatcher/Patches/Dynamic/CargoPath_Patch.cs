@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
@@ -170,7 +170,7 @@ namespace NebulaPatcher.Patches.Dynamic
                             __instance.pointPos[j].y = r.ReadSingle();
                             __instance.pointPos[j].z = r.ReadSingle();
 
-                            if (!isThereAPlanarMatrix)
+                            if (isThereAPlanarMatrix)
                             {
                                 isThereAPlanarMatrix = false;
                             }
