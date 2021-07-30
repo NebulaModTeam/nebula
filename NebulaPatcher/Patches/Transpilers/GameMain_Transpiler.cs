@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
                     //Add my condition
                     codes.InsertRange(i + 4, new CodeInstruction[] {
-                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SimulatedWorld), nameof(SimulatedWorld.Initialized))),
+                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SimulatedWorld), "get_" + nameof(SimulatedWorld.Initialized))),
                             new CodeInstruction(OpCodes.Brfalse_S, codes[i+3].operand)
                     });
 
