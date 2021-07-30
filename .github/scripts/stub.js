@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, fstat, mkdirSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { basename, dirname, extname, join, resolve } from "path";
 import child_process from "child_process";
 
@@ -27,15 +27,6 @@ function readReferenceFile() {
   }
 
   return refFile;
-}
-
-function getReferenceNames() {
-  return refFile
-    .replaceAll("$(BepInExDir)", "")
-    .replaceAll("$(DSPAssemblyDir)", "")
-    .replaceAll(".dll", "")
-    .trim()
-    .split("\n");
 }
 
 function getReferencePaths() {
