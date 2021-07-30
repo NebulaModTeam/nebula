@@ -42,6 +42,7 @@ function publicizeReferenceAssemblies(refPaths) {
     "Libs\\AssemblyPublicizer\\AssemblyPublicizer.exe"
   );
   Array.from(refPaths).forEach((line) => {
+    console.log("Publicizing " + line);
     child_process.execSync(
       'cd "' +
         dirname(line) +
@@ -59,6 +60,7 @@ function stubAssemblies(refPaths) {
     '"' + resolve("Libs\\Refasmer.net461\\RefasmerExe.exe") + '"';
   const LIBS_PATH = '"' + resolve("Libs\\") + '"';
   Array.from(refPaths).forEach((line) => {
+    console.log("Stubbing " + line);
     const PUBLICIZED_ASSEMBLIES_PATH =
       '"' + dirname(line) + '\\publicized_assemblies\\"';
     const PUBLICIZED_ASSEMBLY_PATH =
