@@ -36,7 +36,7 @@ namespace NebulaWorld.Factory
         {
             var entityCapacity = (int)AccessTools.Field(typeof(PlanetFactory), "entityCapacity").GetValue(planetFactory);
             var entityRecycleCursor = (int)AccessTools.Field(typeof(PlanetFactory), "entityRecycleCursor").GetValue(planetFactory);
-            var entityRecycle = (int[])AccessTools.Field(typeof(PlanetFactory), "entityRecycleCursor").GetValue(planetFactory);
+            var entityRecycle = (int[])AccessTools.Field(typeof(PlanetFactory), "entityRecycle").GetValue(planetFactory);
             var prebuildCapacity = (int)AccessTools.Field(typeof(PlanetFactory), "prebuildCapacity").GetValue(planetFactory);
             var prebuildRecycleCursor = (int)AccessTools.Field(typeof(PlanetFactory), "prebuildRecycleCursor").GetValue(planetFactory);
             var prebuildRecycle = (int[])AccessTools.Field(typeof(PlanetFactory), "prebuildRecycle").GetValue(planetFactory);
