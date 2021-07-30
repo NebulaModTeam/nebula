@@ -4,8 +4,6 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Nebula-specific files
-Libs/AssemblyPublicizer
-Libs/Refasmer.net461
 DevEnv.targets
 dist
 
