@@ -15,8 +15,7 @@ function main() {
   if (!existsSync("Libs")) {
     mkdirSync("Libs");
   }
-  publicizeReferenceAssemblies(getReferencePaths());
-  stubAssemblies(getReferencePaths());
+  publicizeAndStubAssemblies(getReferencePaths());
 }
 
 function readReferenceFile() {
@@ -37,12 +36,13 @@ function getReferencePaths() {
     .split("\n");
 }
 
-function publicizeReferenceAssemblies(refPaths) {
+function publicizeAndStubAssemblies(refPaths) {
   const ASSEMBLYPUBLICIZER_PATH = resolve(
     "Libs\\AssemblyPublicizer\\AssemblyPublicizer.exe"
   );
+  const LIBS_PATH = resolve("Libs");
   Array.from(refPaths).forEach((line) => {
-    console.log("Publicizing " + line);
+    console.log("Publicizing and stubbing " + line);
     child_process.execSync(
       'cd "' +
         dirname(line) +
@@ -50,40 +50,12 @@ function publicizeReferenceAssemblies(refPaths) {
         ASSEMBLYPUBLICIZER_PATH +
         '" "' +
         line +
+        '" && copy "' +
+        join(dirname(line), "publicized_assemblies", basename(line)) +
+        '" "' +
+        LIBS_PATH +
         '"'
     );
-  });
-}
-
-function stubAssemblies(refPaths) {
-  const REFASMER_PATH =
-    '"' + resolve("Libs\\Refasmer.net461\\RefasmerExe.exe") + '"';
-  const LIBS_PATH = '"' + resolve("Libs\\") + '"';
-  Array.from(refPaths).forEach((line) => {
-    console.log("Stubbing " + line);
-    const PUBLICIZED_ASSEMBLIES_PATH =
-      '"' + dirname(line) + '\\publicized_assemblies\\"';
-    const PUBLICIZED_ASSEMBLY_PATH =
-      '"' +
-      dirname(line) +
-      "\\publicized_assemblies\\" +
-      basename(line);
-      // needed for original version of assembly publicizer
-      //basename(line).slice(0, basename(line).length - extname(line).length) +
-      //"_publicized" +
-      //extname(line);
-    const cmd =
-      "cd " +
-      PUBLICIZED_ASSEMBLIES_PATH +
-      " && " +
-      REFASMER_PATH +
-      " " +
-      PUBLICIZED_ASSEMBLY_PATH +
-      '" && move ' +
-      PUBLICIZED_ASSEMBLY_PATH +
-      '.refasm.dll" ' +
-      LIBS_PATH;
-    child_process.execSync(cmd);
   });
 }
 
