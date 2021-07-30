@@ -14,11 +14,13 @@
     <BepInExDir>$(DSPGameDir)BepInEx\core\</BepInExDir>
     <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
     <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
+    <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
   </PropertyGroup>
 
   <PropertyGroup Label="Common Properties">
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
@@ -41,23 +43,23 @@
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">
-    <Reference Include="$(BepInExDir)0Harmony.dll" Private="false" SpecificVersion="false" />
-    <Reference Include="$(BepInExDir)BepInEx.dll" Private="false" SpecificVersion="false" />
-    <Reference Include="$(BepInExDir)BepInEx.Harmony.dll" Private="false" SpecificVersion="false" />
+    <Reference Include="$(PropsheetPath)\Libs\0Harmony_publicized.dll.refasm.dll" Private="false" SpecificVersion="false" />
+    <Reference Include="$(PropsheetPath)\Libs\BepInEx_publicized.dll.refasm.dll" Private="false" SpecificVersion="false" />
+    <Reference Include="$(PropsheetPath)\Libs\BepInEx.Harmony_publicized.dll.refasm.dll" Private="false" SpecificVersion="false" />
   </ItemGroup>
 
   <ItemGroup Label="Dyson Sphere Program">
-    <Reference Include="$(DSPAssemblyDir)Assembly-CSharp.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\Assembly-CSharp_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
 
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.IMGUIModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.ParticleSystemModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.PhysicsModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.TextRenderingModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.UIElementsModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.UIModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.AnimationModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.CoreModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.IMGUIModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.ParticleSystemModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.PhysicsModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.TextRenderingModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UI_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UIElementsModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UIModule_publicized.dll.refasm.dll" Private="false" SpecificVersion="true" />
   </ItemGroup>
 </Project>

@@ -115,7 +115,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     InitLandingPlace(__instance, planet);
                 }
                 // now set localPlanet and planetId
-                AccessTools.Property(typeof(GameData), "localPlanet").SetValue(GameMain.data, planet, null);
+                GameMain.data.localPlanet = planet;
                 __instance.mainPlayer.planetId = planet.id;
 
                 planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;

@@ -47,9 +47,9 @@ namespace NebulaNetwork
         {
             string str1 = GameConfig.gameSaveFolder + GameSave.AutoSaveTmp + FILE_EXTENSION;
             string str2 = GameConfig.gameSaveFolder + GameSave.AutoSave0 + FILE_EXTENSION;
-            string str3 = GameConfig.gameSaveFolder + AccessTools.Field(typeof(GameSave), "AutoSave1").GetValue(null) + FILE_EXTENSION;
-            string str4 = GameConfig.gameSaveFolder + AccessTools.Field(typeof(GameSave), "AutoSave2").GetValue(null) + FILE_EXTENSION;
-            string str5 = GameConfig.gameSaveFolder + AccessTools.Field(typeof(GameSave), "AutoSave3").GetValue(null) + FILE_EXTENSION;
+            string str3 = GameConfig.gameSaveFolder + GameSave.AutoSave1 + FILE_EXTENSION;
+            string str4 = GameConfig.gameSaveFolder + GameSave.AutoSave2 + FILE_EXTENSION;
+            string str5 = GameConfig.gameSaveFolder + GameSave.AutoSave3 + FILE_EXTENSION;
 
             if (File.Exists(str1))
             {

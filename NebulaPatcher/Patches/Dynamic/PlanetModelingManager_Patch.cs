@@ -33,8 +33,8 @@ namespace NebulaPatcher.Patches.Dynamic
             // we only need to request the full factory if we never received it before
             if (planet.factory != null)
             {
-                AccessTools.Field(typeof(PlanetModelingManager), "currentFactingPlanet").SetValue(null, planet);
-                AccessTools.Field(typeof(PlanetModelingManager), "currentFactingStage").SetValue(null, 0);
+                PlanetModelingManager.currentFactingPlanet = planet;
+                PlanetModelingManager.currentFactingStage = 0;
                 return false;
             }
 

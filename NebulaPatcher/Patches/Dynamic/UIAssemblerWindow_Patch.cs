@@ -57,7 +57,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             int[] update = new int[__instance.factorySystem.assemblerPool[__instance.assemblerId].served.Length];
-            StorageComponent assemblerStorage = (StorageComponent)AccessTools.Field(typeof(UIAssemblerWindow), "servingStorage").GetValue(__instance);
+            StorageComponent assemblerStorage = __instance.servingStorage;
             for (int i = 0; i < update.Length; i++)
             {
                 update[i] = assemblerStorage.grids[i].count;

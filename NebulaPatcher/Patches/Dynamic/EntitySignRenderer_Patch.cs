@@ -16,8 +16,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showIcon") = Config.Options.BuildingIconEnabled;
-            AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showSign") = Config.Options.BuildingWarningEnabled;
+            EntitySignRenderer.showIcon = Config.Options.BuildingIconEnabled;
+            EntitySignRenderer.showSign = Config.Options.BuildingWarningEnabled;
         }
     }
 }

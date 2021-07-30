@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 var session = NebulaBootstrapper.Instance.CreateMultiplayerHostSession();
                 session.StartServer(Config.Options.HostPort);
 
-                GameDesc gameDesc = AccessTools.Field(__instance.GetType(), "gameDesc").GetValue(__instance) as GameDesc;
+                GameDesc gameDesc = __instance.gameDesc;
                 DSPGame.StartGameSkipPrologue(gameDesc);
                 return false;
             }

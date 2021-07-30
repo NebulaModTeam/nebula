@@ -10,28 +10,28 @@ namespace NebulaPatcher.Patches.Transpiler
     public static class UIProductionStatWindow_Transpiler
     {
         [HarmonyTranspiler]
-        [HarmonyPatch("ComputeDisplayEntries")]
+        [HarmonyPatch(nameof(UIProductionStatWindow.ComputeDisplayEntries))]
         static IEnumerable<CodeInstruction> ComputeDisplayEntries_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return ReplaceFactoryCondition(instructions);
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch("UpdateProduct")]
+        [HarmonyPatch(nameof(UIProductionStatWindow.UpdateProduct))]
         static IEnumerable<CodeInstruction> UpdateProduct_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return ReplaceFactoryCondition(instructions);
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch("UpdateResearch")]
+        [HarmonyPatch(nameof(UIProductionStatWindow.UpdateResearch))]
         static IEnumerable<CodeInstruction> UpdateResearch_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return ReplaceFactoryCondition(instructions);
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch("UpdatePower")]
+        [HarmonyPatch(nameof(UIProductionStatWindow.UpdatePower))]
         static IEnumerable<CodeInstruction> UpdatePower_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             /* This is fix for the power statistics.
@@ -52,7 +52,7 @@ namespace NebulaPatcher.Patches.Transpiler
              * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
             bool[] patchActive = { false, false, false, false };
             int[] patchLength = { 28, 31, 31, 25 };
-            var targetIndex = typeof(UIProductionStatWindow).GetField("targetIndex", BindingFlags.NonPublic | BindingFlags.Instance);
+            var targetIndex = typeof(UIProductionStatWindow).GetField(nameof(UIProductionStatWindow.targetIndex), BindingFlags.NonPublic | BindingFlags.Instance);
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
@@ -67,7 +67,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i] = new CodeInstruction(OpCodes.Ldloca_S, 2); //Loads the address of the local variable at a specific index onto the evaluation stack, short form.
                     codes[i + 1] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 2] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
-                    codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
+                    codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), nameof(StatisticsManager.UpdateTotalChargedEnergy)));
                 }
 
                 //Patch fix for the "Local Planet" tab in statistics
@@ -84,9 +84,9 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 3] = new CodeInstruction(OpCodes.Ldloca_S, 24);
                     codes[i + 4] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 5] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
-                    codes[i + 6] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
+                    codes[i + 6] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), nameof(StatisticsManager.UpdateTotalChargedEnergy)));
                     codes[i + 7] = new CodeInstruction(OpCodes.Ldloc_S, 18);
-                    codes[i + 8] = new CodeInstruction(OpCodes.Ldfld, typeof(FactoryProductionStat).GetField("energyConsumption", BindingFlags.Public | BindingFlags.Instance));
+                    codes[i + 8] = new CodeInstruction(OpCodes.Ldfld, typeof(FactoryProductionStat).GetField(nameof(FactoryProductionStat.energyConsumption), BindingFlags.Public | BindingFlags.Instance));
                     codes[i + 9] = new CodeInstruction(OpCodes.Stloc_S, 25);
                 }
 
@@ -104,9 +104,9 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 3] = new CodeInstruction(OpCodes.Ldloca_S, 35);
                     codes[i + 4] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 5] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
-                    codes[i + 6] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
+                    codes[i + 6] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), nameof(StatisticsManager.UpdateTotalChargedEnergy)));
                     codes[i + 7] = new CodeInstruction(OpCodes.Ldloc_S, 29);
-                    codes[i + 8] = new CodeInstruction(OpCodes.Ldfld, typeof(FactoryProductionStat).GetField("energyConsumption", BindingFlags.Public | BindingFlags.Instance));
+                    codes[i + 8] = new CodeInstruction(OpCodes.Ldfld, typeof(FactoryProductionStat).GetField(nameof(FactoryProductionStat.energyConsumption), BindingFlags.Public | BindingFlags.Instance));
                     codes[i + 9] = new CodeInstruction(OpCodes.Stloc_S, 36);
                 }
 
@@ -121,7 +121,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i] = new CodeInstruction(OpCodes.Ldloca_S, 42); //Loads the address of the local variable at a specific index onto the evaluation stack, short form.
                     codes[i + 1] = new CodeInstruction(OpCodes.Ldarg_0);
                     codes[i + 2] = new CodeInstruction(OpCodes.Ldfld, targetIndex);
-                    codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), "UpdateTotalChargedEnergy"));
+                    codes[i + 3] = new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StatisticsManager), nameof(StatisticsManager.UpdateTotalChargedEnergy)));
                 }
             }
 
@@ -142,7 +142,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 if (codes[i].operand?.ToString() == "PlanetFactory factory" && (codes[i + 1].opcode == OpCodes.Brtrue || codes[i + 1].opcode == OpCodes.Brfalse))
                 {
                     found = true;
-                    codes[i] = new CodeInstruction(OpCodes.Ldfld, typeof(PlanetData).GetField("factoryIndex", BindingFlags.Public | BindingFlags.Instance));
+                    codes[i] = new CodeInstruction(OpCodes.Ldfld, typeof(PlanetData).GetField(nameof(PlanetData.factoryIndex), BindingFlags.Public | BindingFlags.Instance));
                     codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_I4_M1));
                     if (codes[i + 2].opcode == OpCodes.Brtrue)
                     {

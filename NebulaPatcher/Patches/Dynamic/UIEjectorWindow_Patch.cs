@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about manual bullet inserting / withdrawing change
             if (SimulatedWorld.Initialized)
             {
-                StorageComponent storage = (StorageComponent)AccessTools.Field(typeof(UIEjectorWindow), "servingStorage").GetValue(__instance);
+                StorageComponent storage = __instance.servingStorage;
                 LocalPlayer.SendPacketToLocalStar(new EjectorStorageUpdatePacket(__instance.ejectorId, storage.grids[0].count, GameMain.localPlanet?.id ?? -1));
             }
         }

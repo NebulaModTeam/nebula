@@ -60,10 +60,10 @@ namespace NebulaPatcher.Patches.Transpilers
                     .Advance(1)
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
                                         new CodeInstruction(OpCodes.Ldarg_0),
-                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.workShipOrders))),
                                         new CodeInstruction(OpCodes.Ldloc_S, 10),
                                         new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
-                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
+                                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.thisIndex))))
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                     {
                         if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
@@ -331,9 +331,9 @@ namespace NebulaPatcher.Patches.Transpilers
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.storage))),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), nameof(SupplyDemandPair.supplyIndex))),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldflda),
                     new CodeMatch(OpCodes.Dup),
@@ -349,7 +349,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 27))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), nameof(SupplyDemandPair.supplyIndex))))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 34))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
                         {
@@ -382,7 +382,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 46))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), nameof(SupplyDemandPair.supplyIndex))))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 47))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
                         {
@@ -417,9 +417,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), nameof(SupplyDemandPair.supplyIndex))),
                     new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "count")),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), nameof(StationStore.count))),
                     new CodeMatch(OpCodes.Dup),
                     new CodeMatch(OpCodes.Ldind_I4),
                     new CodeMatch(OpCodes.Ldloc_S),
@@ -428,7 +428,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 142))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), nameof(SupplyDemandPair.supplyIndex))))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 143))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
                 {
@@ -611,10 +611,10 @@ namespace NebulaPatcher.Patches.Transpilers
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.workShipOrders))),
                                             new CodeInstruction(OpCodes.Ldloc_S, 50),
                                             new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
-                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.thisIndex))))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
@@ -643,10 +643,10 @@ namespace NebulaPatcher.Patches.Transpilers
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.workShipOrders))),
                                             new CodeInstruction(OpCodes.Ldloc_S, 50),
                                             new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
-                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex")))
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.otherIndex))))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
@@ -675,10 +675,10 @@ namespace NebulaPatcher.Patches.Transpilers
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.workShipOrders))),
                                             new CodeInstruction(OpCodes.Ldloc_S, 50),
                                             new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
-                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "otherIndex")))
+                                            new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.otherIndex))))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
@@ -756,10 +756,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0),
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipOrders")),
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.workShipOrders))),
                                     new CodeInstruction(OpCodes.Ldloc_S, 50),
                                     new CodeInstruction(OpCodes.Ldelema, typeof(RemoteLogisticOrder)),
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), "thisIndex")))
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.thisIndex))))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
@@ -787,7 +787,7 @@ namespace NebulaPatcher.Patches.Transpilers
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), nameof(ShipData.warperCnt))),
                     new CodeMatch(OpCodes.Dup),
                     new CodeMatch(OpCodes.Ldind_I4),
                     new CodeMatch(OpCodes.Ldc_I4_1),
@@ -810,7 +810,7 @@ namespace NebulaPatcher.Patches.Transpilers
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), nameof(ShipData.warperCnt))),
                     new CodeMatch(OpCodes.Dup),
                     new CodeMatch(OpCodes.Ldind_I4),
                     new CodeMatch(OpCodes.Ldc_I4_1),
@@ -836,10 +836,10 @@ namespace NebulaPatcher.Patches.Transpilers
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.warperCount))),
                     new CodeMatch(OpCodes.Ldc_I4_1),
                     new CodeMatch(OpCodes.Add),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), "warperCount")))
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.warperCount))))
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
@@ -857,10 +857,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "warperCount")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.warperCount))),
                     new CodeMatch(OpCodes.Ldc_I4_1),
                     new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), "warperCount")))
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(StationComponent), nameof(StationComponent.warperCount))))
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
