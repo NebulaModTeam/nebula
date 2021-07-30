@@ -67,9 +67,11 @@ function stubAssemblies(refPaths) {
       '"' +
       dirname(line) +
       "\\publicized_assemblies\\" +
-      basename(line).slice(0, basename(line).length - extname(line).length) +
-      "_publicized" +
-      extname(line);
+      basename(line);
+      // needed for original version of assembly publicizer
+      //basename(line).slice(0, basename(line).length - extname(line).length) +
+      //"_publicized" +
+      //extname(line);
     const cmd =
       "cd " +
       PUBLICIZED_ASSEMBLIES_PATH +
