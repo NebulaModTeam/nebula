@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
 
-        public override void ProcessPacket(ILSShipData packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipData packet, NetworkConnection conn)
         {
             if (IsHost)
             {

@@ -1,7 +1,7 @@
 ﻿using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
@@ -20,7 +20,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
 
-        public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(HandshakeRequest packet, NetworkConnection conn)
         {
             if (IsClient) return;
 
@@ -29,7 +29,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             {
                 if (!pendingPlayers.TryGetValue(conn, out player))
                 {
-                    conn.Disconnect(DisconnectionReason.InvalidData);
+                    conn.Disconnect();
                     Log.Warn("WARNING: Player tried to handshake without being in the pending list");
                     return;
                 }
@@ -40,19 +40,19 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             if (packet.ModVersion != Config.ModVersion)
             {
-                conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{ packet.ModVersion };{ Config.ModVersion }");
+                conn.Disconnect();
                 return;
             }
 
             if (packet.GameVersionSig != GameConfig.gameVersion.sig)
             {
-                conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
+                conn.Disconnect();
                 return;
             }
 
             if (packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
             {
-                conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch, "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
+                conn.Disconnect();
                 return;
             }
 

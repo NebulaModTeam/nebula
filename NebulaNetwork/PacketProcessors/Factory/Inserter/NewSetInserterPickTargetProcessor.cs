@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Inserter;
 using NebulaWorld.Factory;
@@ -10,7 +10,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Inserter
     [RegisterPacketProcessor]
     class NewSetInserterPickTargetProcessor : PacketProcessor<NewSetInserterPickTargetPacket>
     {
-        public override void ProcessPacket(NewSetInserterPickTargetPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(NewSetInserterPickTargetPacket packet, NetworkConnection conn)
         {
             PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             if (factory != null)

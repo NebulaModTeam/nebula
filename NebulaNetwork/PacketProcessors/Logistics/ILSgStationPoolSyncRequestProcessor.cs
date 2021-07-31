@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
@@ -19,7 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         {
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
-        public override void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSRequestgStationPoolSync packet, NetworkConnection conn)
         {
             if (IsClient) return;
 

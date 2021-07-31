@@ -1,5 +1,5 @@
 ﻿using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaWorld.MonoBehaviours;
@@ -7,6 +7,7 @@ using NebulaWorld.MonoBehaviours.Local;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NebulaModel.Networking;
 
 namespace NebulaWorld
 {
@@ -90,7 +91,7 @@ namespace NebulaWorld
             networkProvider?.SendPacketToStar(packet, starId);
         }
 
-        public static void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        public static void SendPacketToStarExclude<T>(T packet, int starId, NetworkConnection exclude) where T : class, new()
         {
             networkProvider?.SendPacketToStarExclude(packet, starId, exclude);
         }

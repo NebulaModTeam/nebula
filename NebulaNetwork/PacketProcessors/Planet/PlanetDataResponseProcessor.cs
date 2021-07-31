@@ -1,16 +1,17 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
 using System.Linq;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
     [RegisterPacketProcessor]
     public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
     {
-        public override void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(PlanetDataResponse packet, NetworkConnection conn)
         {
             if (IsHost) return;
 

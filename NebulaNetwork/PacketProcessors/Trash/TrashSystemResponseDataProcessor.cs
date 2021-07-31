@@ -1,14 +1,15 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Trash
 {
     [RegisterPacketProcessor]
     class TrashSystemResponseDataProcessor : PacketProcessor<TrashSystemResponseDataPacket>
     {
-        public override void ProcessPacket(TrashSystemResponseDataPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(TrashSystemResponseDataPacket packet, NetworkConnection conn)
         {
             if (IsHost) return;
 

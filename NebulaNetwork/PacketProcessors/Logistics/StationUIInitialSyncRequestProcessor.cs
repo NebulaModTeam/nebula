@@ -1,8 +1,9 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
+using NebulaModel.Networking;
 
 /*
  * When a client opens a stations UI we sync the complete state of settings and storage.
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class StationUIInitialSyncRequestProcessor : PacketProcessor<StationUIInitialSyncRequest>
     {
-        public override void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(StationUIInitialSyncRequest packet, NetworkConnection conn)
         {
             if (IsClient) return;
 

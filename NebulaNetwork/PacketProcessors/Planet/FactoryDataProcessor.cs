@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
     [RegisterPacketProcessor]
     public class FactoryDataProcessor : PacketProcessor<FactoryData>
     {
-        public override void ProcessPacket(FactoryData packet, NebulaConnection conn)
+        public override void ProcessPacket(FactoryData packet, NetworkConnection conn)
         {
             if (IsHost) return;
 

@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
 using NebulaWorld.GameDataHistory;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
 
-        public override void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryNotificationPacket packet, NetworkConnection conn)
         {
             bool valid = true;
 

@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
 
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
     [RegisterPacketProcessor]
     class StatisticsPlanetDataProcessor : PacketProcessor<StatisticsPlanetDataPacket>
     {
-        public override void ProcessPacket(StatisticsPlanetDataPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(StatisticsPlanetDataPacket packet, NetworkConnection conn)
         {
             var property = AccessTools.DeclaredProperty(typeof(PlanetFactory), "planet");
             for (int i = 0; i < packet.PlanetsIds.Length; i++)

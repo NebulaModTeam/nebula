@@ -1,30 +1,34 @@
-﻿using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+﻿using Mirror;
+using NebulaModel.DataStructures;
+using Mirror;
+using NebulaModel.Networking.Serialization;
+using System;
+using static NebulaNetwork.MultiplayerHostSession;
+using static NebulaModel.Networking.NebulaConnection;
 
 namespace NebulaNetwork
 {
     public class Player
     {
-        public NebulaConnection Connection { get; private set; }
+        public NetworkConnection Connection { get; private set; }
         public PlayerData Data { get; private set; }
         public ushort Id => Data.PlayerId;
         public int CurrentResearchId { get; private set; }
         public long TechProgressContributed { get; private set; }
 
-        public Player(NebulaConnection connection, PlayerData data)
+
+        public NetPacketProcessor PacketProcessor { get; private set; }
+
+        public Player(NetworkConnection connection, PlayerData data, NetPacketProcessor netPacketProcessor)
         {
             Connection = connection;
             Data = data;
+            PacketProcessor = netPacketProcessor;
         }
 
         public void SendPacket<T>(T packet) where T : class, new()
         {
             Connection.SendPacket(packet);
-        }
-
-        public void SendRawPacket(byte[] packet)
-        {
-            Connection.SendRawPacket(packet);
         }
 
         public void LoadUserData(PlayerData data)

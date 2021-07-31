@@ -1,14 +1,15 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
     class PingPacketProcessor : PacketProcessor<PingPacket>
     {
-        public override void ProcessPacket(PingPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(PingPacket packet, NetworkConnection conn)
         {
             if (IsHost)
             {

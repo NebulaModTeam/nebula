@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.PowerTower;
 using NebulaWorld;
@@ -10,7 +10,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
     [RegisterPacketProcessor]
     public class PowerTowerUserLoadingRequestProcessor : PacketProcessor<PowerTowerUserLoadingRequest>
     {
-        public override void ProcessPacket(PowerTowerUserLoadingRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(PowerTowerUserLoadingRequest packet, NetworkConnection conn)
         {
             if (IsClient) return;
 

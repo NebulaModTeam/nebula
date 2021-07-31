@@ -1,16 +1,17 @@
 ﻿using HarmonyLib;
 using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld.Factory;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
     class StorageSyncResponseProcessor : PacketProcessor<StorageSyncResponsePacket>
     {
-        public override void ProcessPacket(StorageSyncResponsePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(StorageSyncResponsePacket packet, NetworkConnection conn)
         {
             if (IsHost) return;
 

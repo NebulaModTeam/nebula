@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <None Remove="MultiplayerClientSession.cs.bak" />
+    <None Remove="MultiplayerHostSession.cs.bak" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj" />
+    <ProjectReference Include="..\Mirror\Mirror.csproj" />
   </ItemGroup>
 </Project>

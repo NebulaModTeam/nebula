@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
 using NebulaWorld.Trash;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
 
-        public override void ProcessPacket(TrashSystemTrashRemovedPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(TrashSystemTrashRemovedPacket packet, NetworkConnection conn)
         {
             bool valid = true;
 

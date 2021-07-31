@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.PowerTower;
 using NebulaWorld;
@@ -10,7 +10,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
     [RegisterPacketProcessor]
     class PowerTowerUserLoadResponseProcessor : PacketProcessor<PowerTowerUserLoadingResponse>
     {
-        public override void ProcessPacket(PowerTowerUserLoadingResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(PowerTowerUserLoadingResponse packet, NetworkConnection conn)
         {
             PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             if (factory != null && factory.powerSystem != null)

@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates
     [RegisterPacketProcessor]
     public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
     {
-        public override void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
+        public override void ProcessPacket(GameStateUpdate packet, NetworkConnection conn)
         {
             GameState state = packet.State;
 

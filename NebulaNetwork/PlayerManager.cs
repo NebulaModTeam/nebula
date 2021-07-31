@@ -1,6 +1,8 @@
-﻿using NebulaModel.DataStructures;
+﻿using Mirror;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Session;
 using NebulaNetwork.PacketProcessors.Players;
@@ -17,9 +19,9 @@ namespace NebulaNetwork
     {
         sealed class ThreadSafe
         {
-            internal readonly Dictionary<NebulaConnection, Player> pendingPlayers = new Dictionary<NebulaConnection, Player>();
-            internal readonly Dictionary<NebulaConnection, Player> syncingPlayers = new Dictionary<NebulaConnection, Player>();
-            internal readonly Dictionary<NebulaConnection, Player> connectedPlayers = new Dictionary<NebulaConnection, Player>();
+            internal readonly Dictionary<NetworkConnection, Player> pendingPlayers = new Dictionary<NetworkConnection, Player>();
+            internal readonly Dictionary<NetworkConnection, Player> syncingPlayers = new Dictionary<NetworkConnection, Player>();
+            internal readonly Dictionary<NetworkConnection, Player> connectedPlayers = new Dictionary<NetworkConnection, Player>();
             internal readonly Dictionary<string, PlayerData> savedPlayerData = new Dictionary<string, PlayerData>();
             internal readonly Queue<ushort> availablePlayerIds = new Queue<ushort>();
         }
@@ -27,13 +29,15 @@ namespace NebulaNetwork
         private readonly ThreadSafe threadSafe = new ThreadSafe();
         private int highestPlayerID = 0;
 
-        public Locker GetPendingPlayers(out Dictionary<NebulaConnection, Player> pendingPlayers) =>
+        public NetPacketProcessor PacketProcessor { get; set; }
+
+        public Locker GetPendingPlayers(out Dictionary<NetworkConnection, Player> pendingPlayers) =>
             threadSafe.pendingPlayers.GetLocked(out pendingPlayers);
 
-        public Locker GetSyncingPlayers(out Dictionary<NebulaConnection, Player> syncingPlayers) =>
+        public Locker GetSyncingPlayers(out Dictionary<NetworkConnection, Player> syncingPlayers) =>
             threadSafe.syncingPlayers.GetLocked(out syncingPlayers);
 
-        public Locker GetConnectedPlayers(out Dictionary<NebulaConnection, Player> connectedPlayers) =>
+        public Locker GetConnectedPlayers(out Dictionary<NetworkConnection, Player> connectedPlayers) =>
             threadSafe.connectedPlayers.GetLocked(out connectedPlayers);
 
         public Locker GetSavedPlayerData(out Dictionary<string, PlayerData> savedPlayerData) =>
@@ -55,7 +59,7 @@ namespace NebulaNetwork
             }
         }
 
-        public Player GetPlayer(NebulaConnection conn)
+        public Player GetPlayer(NetworkConnection conn)
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
@@ -68,7 +72,7 @@ namespace NebulaNetwork
             return null;
         }
 
-        public Player GetSyncingPlayer(NebulaConnection conn)
+        public Player GetSyncingPlayer(NetworkConnection conn)
         {
             using (GetSyncingPlayers(out var syncingPlayers))
             {
@@ -154,7 +158,7 @@ namespace NebulaNetwork
             }
         }
 
-        public void SendPacketToStarExcept<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        public void SendPacketToStarExcept<T>(T packet, int starId, NetworkConnection exclude) where T : class, new()
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
@@ -164,36 +168,6 @@ namespace NebulaNetwork
                     if (player.Data.LocalStarId == starId && player != GetPlayer(exclude))
                     {
                         player.SendPacket(packet);
-                    }
-                }
-            }
-        }
-
-        public void SendRawPacketToStar(byte[] rawPacket, int starId, NebulaConnection sender)
-        {
-            using (GetConnectedPlayers(out var connectedPlayers))
-            {
-                foreach (var kvp in connectedPlayers)
-                {
-                    var player = kvp.Value;
-                    if (player.Data.LocalStarId == starId && player.Connection != sender)
-                    {
-                        player.SendRawPacket(rawPacket);
-                    }
-                }
-            }
-        }
-
-        public void SendRawPacketToPlanet(byte[] rawPacket, int planetId, NebulaConnection sender)
-        {
-            using (GetConnectedPlayers(out var connectedPlayers))
-            {
-                foreach (var kvp in connectedPlayers)
-                {
-                    var player = kvp.Value;
-                    if (player.Data.LocalPlanetId == planetId && player.Connection != sender)
-                    {
-                        player.SendRawPacket(rawPacket);
                     }
                 }
             }
@@ -214,7 +188,7 @@ namespace NebulaNetwork
             }
         }
 
-        public Player PlayerConnected(NebulaConnection conn)
+        public Player PlayerConnected(NetworkConnection conn)
         {
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
@@ -231,7 +205,7 @@ namespace NebulaNetwork
                 playerData = new PlayerData(playerId, -1, PlayerColor);
             }
 
-            Player newPlayer = new Player(conn, playerData);
+            Player newPlayer = new Player(conn, playerData, PacketProcessor);
             using (GetPendingPlayers(out var pendingPlayers))
             {
                 pendingPlayers.Add(conn, newPlayer);
@@ -240,7 +214,7 @@ namespace NebulaNetwork
             return newPlayer;
         }
 
-        public void PlayerDisconnected(NebulaConnection conn)
+        public void PlayerDisconnected(NetworkConnection conn)
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
@@ -290,7 +264,7 @@ namespace NebulaNetwork
             return (ushort)Interlocked.Increment(ref highestPlayerID); // this is truncated to ushort.MaxValue
         }
 
-        public void UpdateMechaData(MechaData mechaData, NebulaConnection conn)
+        public void UpdateMechaData(MechaData mechaData, NetworkConnection conn)
         {
             if (mechaData == null)
             {

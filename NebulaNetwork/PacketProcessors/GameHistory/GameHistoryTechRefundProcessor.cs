@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
     [RegisterPacketProcessor]
     class GameHistoryTechRefundProcessor : PacketProcessor<GameHistoryTechRefundPacket>
     {
-        public override void ProcessPacket(GameHistoryTechRefundPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryTechRefundPacket packet, NetworkConnection conn)
         {
             // TODO: TRY TO MERGE THESE BETTER
 

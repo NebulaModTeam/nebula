@@ -278,6 +278,9 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             NebulaNetwork.MultiplayerClientSession session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
 
+            session.Connect(connectionString, serverPort);
+            return true;
+            /*
             if (isIP)
             {
                 session.ConnectToIp(new IPEndPoint(IPAddress.Parse(connectionString), serverPort));
@@ -293,6 +296,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             session.DestroySession();
             return false;
+            */
         }
     }
 }

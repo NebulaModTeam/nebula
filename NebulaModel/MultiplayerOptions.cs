@@ -29,6 +29,9 @@ namespace NebulaModel
         [DisplayName("Remember Last IP")]
         public bool RememberLastIP { get; set; } = true;
 
+        [DisplayName("Transport Layer")]
+        public string TransportLayer {  get; set; } = "telepathy";
+
         public string LastIP { get; set; } = string.Empty;
 
         // Detail function group buttons

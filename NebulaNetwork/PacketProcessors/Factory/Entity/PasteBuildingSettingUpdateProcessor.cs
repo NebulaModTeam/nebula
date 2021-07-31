@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld.Factory;
@@ -10,7 +10,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     [RegisterPacketProcessor]
     class PasteBuildingSettingUpdateProcessor : PacketProcessor<PasteBuildingSettingUpdate>
     {
-        public override void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
+        public override void ProcessPacket(PasteBuildingSettingUpdate packet, NetworkConnection conn)
         {
             if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null)
             {

@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class ILSResponseShipDockProcessor : PacketProcessor<ILSShipDock>
     {
-        public override void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipDock packet, NetworkConnection conn)
         {
             if (IsHost) return;
 

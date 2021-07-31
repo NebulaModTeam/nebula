@@ -53,6 +53,7 @@
     <Reference Include="$(DSPAssemblyDir)UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.IMGUIModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.JSONSerializeModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.ParticleSystemModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.PhysicsModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.TextRenderingModule.dll" Private="false" SpecificVersion="true" />

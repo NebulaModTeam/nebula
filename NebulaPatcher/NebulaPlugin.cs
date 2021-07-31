@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
+using Mirror;
 using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
@@ -79,6 +80,20 @@ namespace NebulaPatcher
             GameObject nebulaRoot = new GameObject();
             nebulaRoot.name = "Nebula Multiplayer Mod";
             nebulaRoot.AddComponent<NebulaBootstrapper>();
+
+            //GameObject mirrorRoot = new GameObject();
+            //mirrorRoot.name = "Mirror Networking";
+            //var networkmanager = (NetworkManager)mirrorRoot.AddComponent(typeof(NetworkManager));
+            //var transport = (kcp2k.KcpTransport)mirrorRoot.AddComponent(typeof(kcp2k.KcpTransport));
+            //mirrorRoot.AddComponent(typeof(NetworkManagerHUD));
+            //networkmanager.OnValidate();
+            //Transport.activeTransport = networkmanager.transport;
+
+            var NetworkManager = (NetworkManager)nebulaRoot.AddComponent(typeof(NetworkManager));
+            NetworkManager.transport = (TelepathyTransport)nebulaRoot.AddComponent(typeof(TelepathyTransport));
+            nebulaRoot.AddComponent(typeof(NetworkManagerHUD));
+            NetworkManager.OnValidate();
+            Transport.activeTransport = NetworkManager.transport;
 
             Log.Info("Behaviours applied.");
         }

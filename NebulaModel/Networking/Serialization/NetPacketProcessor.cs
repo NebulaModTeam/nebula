@@ -17,10 +17,12 @@ namespace NebulaModel.Networking.Serialization
         private readonly Dictionary<ulong, SubscribeDelegate> _callbacks = new Dictionary<ulong, SubscribeDelegate>();
         private readonly NetDataWriter _netDataWriter = new NetDataWriter();
 
-        private readonly Random simulationRandom = new Random();
-        private List<DelayedPacket> delayedPackets = new List<DelayedPacket>();
-        private Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
+        private readonly List<DelayedPacket> delayedPackets = new List<DelayedPacket>();
+        private readonly Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
 
+#if DEBUG
+        private readonly Random simulationRandom = new Random();
+#endif
         public bool SimulateLatency = false;
         public int SimulatedMinLatency = 20;
         public int SimulatedMaxLatency = 50;

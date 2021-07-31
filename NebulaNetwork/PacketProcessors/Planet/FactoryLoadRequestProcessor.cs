@@ -1,15 +1,16 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
 using NebulaWorld.Statistics;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
     [RegisterPacketProcessor]
     public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
     {
-        public override void ProcessPacket(FactoryLoadRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(FactoryLoadRequest packet, NetworkConnection conn)
         {
             if (IsClient) return;
 

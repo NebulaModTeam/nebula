@@ -1,15 +1,16 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
     class GameHistoryDataResponseProcessor : PacketProcessor<GameHistoryDataResponse>
     {
-        public override void ProcessPacket(GameHistoryDataResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(GameHistoryDataResponse packet, NetworkConnection conn)
         {
             if (IsHost) return;
 

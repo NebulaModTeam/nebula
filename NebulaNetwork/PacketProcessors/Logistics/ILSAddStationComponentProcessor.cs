@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
@@ -10,7 +10,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class ILSAddStationComponentProcessor : PacketProcessor<ILSAddStationComponent>
     {
-        public override void ProcessPacket(ILSAddStationComponent packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSAddStationComponent packet, NetworkConnection conn)
         {
             Log.Info($"ILSAddStationComponentProcessor processing packet for planet {packet.PlanetId}, station {packet.StationId} with gId of {packet.StationGId}");
 

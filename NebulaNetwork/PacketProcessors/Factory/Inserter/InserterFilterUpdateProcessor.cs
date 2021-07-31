@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Inserter;
 
@@ -8,7 +8,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Inserter
     [RegisterPacketProcessor]
     class InserterFilterUpdateProcessor : PacketProcessor<InserterFilterUpdatePacket>
     {
-        public override void ProcessPacket(InserterFilterUpdatePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(InserterFilterUpdatePacket packet, NetworkConnection conn)
         {
             InserterComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.inserterPool;
             if (pool != null && packet.InserterIndex != -1 && packet.InserterIndex < pool.Length && pool[packet.InserterIndex].id != -1)

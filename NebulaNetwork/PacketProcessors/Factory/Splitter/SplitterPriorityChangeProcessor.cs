@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Splitter;
 using NebulaWorld.Factory;
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Splitter
     [RegisterPacketProcessor]
     class SplitterPriorityChangeProcessor : PacketProcessor<SplitterPriorityChangePacket>
     {
-        public override void ProcessPacket(SplitterPriorityChangePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(SplitterPriorityChangePacket packet, NetworkConnection conn)
         {
             SplitterComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic?.splitterPool;
             if (pool != null && packet.SplitterIndex != -1 && packet.SplitterIndex < pool.Length && pool[packet.SplitterIndex].id != -1)

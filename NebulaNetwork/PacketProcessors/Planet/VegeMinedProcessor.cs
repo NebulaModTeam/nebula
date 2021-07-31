@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
     [RegisterPacketProcessor]
     class VegeMinedProcessor : PacketProcessor<VegeMinedPacket>
     {
-        public override void ProcessPacket(VegeMinedPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(VegeMinedPacket packet, NetworkConnection conn)
         {
             if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null && GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.vegePool != null)
             {

@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
 using NebulaPatcher.Patches.Transpilers;
@@ -8,6 +8,7 @@ using NebulaWorld;
 using NebulaWorld.Factory;
 using NebulaWorld.Logistics;
 using UnityEngine;
+using NebulaModel.Networking;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

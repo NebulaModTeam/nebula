@@ -1,4 +1,5 @@
-﻿using NebulaModel.Networking;
+﻿using Mirror;
+using NebulaModel.Networking;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;

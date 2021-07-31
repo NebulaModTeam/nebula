@@ -1,16 +1,17 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
 using NebulaWorld.Statistics;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Statistics
 {
     [RegisterPacketProcessor]
     class StatisticsUpdateProcessor : PacketProcessor<StatisticUpdateDataPacket>
     {
-        public override void ProcessPacket(StatisticUpdateDataPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(StatisticUpdateDataPacket packet, NetworkConnection conn)
         {
             StatisticalSnapShot snapshot;
             using (StatisticsManager.IsIncomingRequest.On())

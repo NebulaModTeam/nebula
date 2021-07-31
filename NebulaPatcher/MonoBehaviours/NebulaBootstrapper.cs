@@ -1,6 +1,7 @@
 ﻿using NebulaNetwork;
 using NebulaModel.Logger;
 using UnityEngine;
+using Mirror;
 
 namespace NebulaPatcher.MonoBehaviours
 {

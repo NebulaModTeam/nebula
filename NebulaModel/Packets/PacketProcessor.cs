@@ -1,4 +1,5 @@
-﻿using NebulaModel.Networking;
+﻿using Mirror;
+using Mirror;
 
 namespace NebulaModel.Packets
 {
@@ -12,6 +13,6 @@ namespace NebulaModel.Packets
             IsHost = isHost;
         }
 
-        public abstract void ProcessPacket(T packet, NebulaConnection conn);
+        public abstract void ProcessPacket(T packet, NetworkConnection conn);
     }
 }

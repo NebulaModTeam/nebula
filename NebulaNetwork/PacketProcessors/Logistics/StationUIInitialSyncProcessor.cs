@@ -1,10 +1,11 @@
 ﻿using HarmonyLib;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
+using NebulaModel.Networking;
 
 /*
  * When the client opens the UI of a station (ILS/PLS/Collector) the contents gets updated and shown to
@@ -16,7 +17,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class StationUIInitialSyncProcessor : PacketProcessor<StationUIInitialSync>
     {
-        public override void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
+        public override void ProcessPacket(StationUIInitialSync packet, NetworkConnection conn)
         {
             StationComponent stationComponent = null;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;

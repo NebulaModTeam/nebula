@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class ILSArriveStarPlanetResponseProcessor : PacketProcessor<ILSArriveStarPlanetResponse>
     {
-        public override void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSArriveStarPlanetResponse packet, NetworkConnection conn)
         {
             if (IsHost) return;
 

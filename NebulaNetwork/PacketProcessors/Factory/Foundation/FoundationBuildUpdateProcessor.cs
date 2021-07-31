@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld.Factory;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
     {
         Vector3[] reformPoints = new Vector3[100];
 
-        public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(FoundationBuildUpdatePacket packet, NetworkConnection conn)
         {
             // TODO: MISSING CLIENT -> HOST -> CLIENT CODE 
 

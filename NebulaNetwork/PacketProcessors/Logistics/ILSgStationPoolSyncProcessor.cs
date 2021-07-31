@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld.Logistics;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSync>
     {
-        public override void ProcessPacket(ILSgStationPoolSync packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSgStationPoolSync packet, NetworkConnection conn)
         {
             GalacticTransport gTransport = GameMain.data.galacticTransport;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;

@@ -3,7 +3,7 @@ using HarmonyLib;
 using NebulaModel.Logger;
 using System;
 using System.Collections.Generic;
-using NebulaModel.Networking;
+using Mirror;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -14,13 +14,13 @@ namespace NebulaWorld.Logistics
         public int PlanetId { get; }
         public int StationId { get; }
         public int StationGId { get; }
-        public List<NebulaConnection> Connections { get; set; }
+        public List<NetworkConnection> Connections { get; set; }
         public Subscribers(int planetId, int stationId, int stationGId)
         {
             PlanetId = planetId;
             StationId = stationId;
             StationGId = stationGId;
-            Connections = new List<NebulaConnection>();
+            Connections = new List<NetworkConnection>();
         }
 
         public override string ToString() => $"{PlanetId}.{StationId}.{StationGId}";
@@ -51,7 +51,7 @@ namespace NebulaWorld.Logistics
             UIRequestedShipDronWarpChange = false;
         }
         // When a client opens a station's UI he requests a subscription for live updates, so add him to the list
-        public static void AddSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
+        public static void AddSubscriber(int planetId, int stationId, int stationGId, NetworkConnection connection)
         {
             // Attempt to find existing subscribers to a specific station, if we couldn't find an existing one
             // we must initialize a new Subscribers for this specific station.
@@ -64,7 +64,7 @@ namespace NebulaWorld.Logistics
             
             subscribers?.Connections.Add(connection);
         }
-        public static void RemoveSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
+        public static void RemoveSubscriber(int planetId, int stationId, int stationGId, NetworkConnection connection)
         {
             if(_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
             {
@@ -77,11 +77,11 @@ namespace NebulaWorld.Logistics
             }
         }
         
-        public static List<NebulaConnection> GetSubscribers(int planetId, int stationId, int stationGId)
+        public static List<NetworkConnection> GetSubscribers(int planetId, int stationId, int stationGId)
         {
             if(!_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
             {
-                return new List<NebulaConnection>();
+                return new List<NetworkConnection>();
             }
             
             return subscribers.Connections;

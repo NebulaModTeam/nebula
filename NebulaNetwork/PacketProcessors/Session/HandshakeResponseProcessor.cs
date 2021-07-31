@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Session
     [RegisterPacketProcessor]
     public class HandshakeResponseProcessor : PacketProcessor<HandshakeResponse>
     {
-        public override void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(HandshakeResponse packet, NetworkConnection conn)
         {
             if (LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings.Length > 1) // if host does not use GS2 we send a null byte
             {

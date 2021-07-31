@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld.Universe;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
 
-        public override void ProcessPacket(DysonSphereRemoveNodePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereRemoveNodePacket packet, NetworkConnection conn)
         {
             bool valid = true;
             if (IsHost)

@@ -1,14 +1,15 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
     public class DysonSphereRequestProcessor : PacketProcessor<DysonSphereLoadRequest>
     {
-        public override void ProcessPacket(DysonSphereLoadRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereLoadRequest packet, NetworkConnection conn)
         {
             if (IsClient) return;
 

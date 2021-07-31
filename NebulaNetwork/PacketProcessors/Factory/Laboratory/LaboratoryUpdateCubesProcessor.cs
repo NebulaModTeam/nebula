@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Laboratory;
 
@@ -8,7 +8,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Labratory
     [RegisterPacketProcessor]
     class LaboratoryUpdateCubesProcessor : PacketProcessor<LaboratoryUpdateCubesPacket>
     {
-        public override void ProcessPacket(LaboratoryUpdateCubesPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(LaboratoryUpdateCubesPacket packet, NetworkConnection conn)
         {
             LabComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.labPool;
             if (pool != null && packet.LabIndex != -1 && packet.LabIndex < pool.Length && pool[packet.LabIndex].id != -1)

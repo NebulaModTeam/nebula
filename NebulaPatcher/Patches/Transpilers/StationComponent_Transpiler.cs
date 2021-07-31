@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Mirror;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
@@ -68,7 +69,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     {
                         if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                         {
-                            List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                            List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                             ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                             for (int i = 0; i < subscribers.Count; i++)
                             {
@@ -115,7 +116,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             StationStore[] storeArray = gStationComponent[gIndex]?.storage;
                             if (storeArray != null)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
 
                                 int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
@@ -155,7 +156,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -177,7 +178,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                 StationStore[] storeArray = gStationComponent[gIndex]?.storage;
                                 if (storeArray != null)
                                 {
-                                    List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
+                                    List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
                                     int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                     ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
                                     for (int i = 0; i < subscribers.Count; i++)
@@ -201,7 +202,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -223,7 +224,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                 StationStore[] storeArray = gStationComponent[gIndex]?.storage;
                                 if (storeArray != null)
                                 {
-                                    List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
+                                    List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
                                     int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                     ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
                                     for (int i = 0; i < subscribers.Count; i++)
@@ -470,7 +471,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -493,7 +494,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -530,7 +531,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {
@@ -563,7 +564,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {
@@ -624,7 +625,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                                     return 0;
                                 }
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -656,7 +657,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                                     return 0;
                                 }
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -688,7 +689,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                                     return 0;
                                 }
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -725,7 +726,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
                     {
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {
@@ -769,7 +770,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                             return 0;
                         }
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NetworkConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {

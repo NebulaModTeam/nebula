@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Routers;
 
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
         {
             playerManager = MultiplayerHostSession.Instance?.PlayerManager;
         }
-        public override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(PlanetBroadcastPacket packet, NetworkConnection conn)
         {
             if (IsClient) return;
 
@@ -21,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
             if (player != null)
             {
                 //Forward packet to other users
-                playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
+                //playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
                 //Forward packet to the host
                 MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
             }

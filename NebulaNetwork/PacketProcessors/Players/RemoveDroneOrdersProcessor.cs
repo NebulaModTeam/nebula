@@ -1,11 +1,11 @@
-﻿using NebulaModel.Networking;
+﻿using Mirror;
 using NebulaModel.Packets;
 
 namespace NebulaNetwork.PacketProcessors.Players
 {
     class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPacket>
     {
-        public override void ProcessPacket(RemoveDroneOrdersPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(RemoveDroneOrdersPacket packet, NetworkConnection conn)
         {
             if (packet.QueuedEntityIds != null)
             {

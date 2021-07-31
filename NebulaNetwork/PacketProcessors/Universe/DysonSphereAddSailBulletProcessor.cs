@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     class DysonSphereAddSailBulletProcessor : PacketProcessor<DysonSphereBulletCorrectionPacket>
     {
-        public override void ProcessPacket(DysonSphereBulletCorrectionPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereBulletCorrectionPacket packet, NetworkConnection conn)
         {
             //Check if the bullet that needs to be corrected exists
             if (GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.bulletPool[packet.BulletId] != null)

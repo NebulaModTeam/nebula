@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
 using NebulaWorld.Trash;
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
     [RegisterPacketProcessor]
     class TrashSystemCorrectionIdProcessor : PacketProcessor<TrashSystemCorrectionIdPacket>
     {
-        public override void ProcessPacket(TrashSystemCorrectionIdPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(TrashSystemCorrectionIdPacket packet, NetworkConnection conn)
         {
             if (packet.OriginalId != packet.NewId)
             {

@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld.Factory;
@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     [RegisterPacketProcessor]
     public class UpgradeEntityRequestProcessor : PacketProcessor<UpgradeEntityRequest>
     {
-        public override void ProcessPacket(UpgradeEntityRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(UpgradeEntityRequest packet, NetworkConnection conn)
         {
             using (FactoryManager.IsIncomingRequest.On())
             {

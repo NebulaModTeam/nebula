@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 
@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class ILSShipUpdateWarperCntProcessor : PacketProcessor<ILSShipUpdateWarperCnt>
     {
-        public override void ProcessPacket(ILSShipUpdateWarperCnt packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipUpdateWarperCnt packet, NetworkConnection conn)
         {
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             if (gStationPool.Length > packet.stationGId)

@@ -1,9 +1,10 @@
 ﻿using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets.Statistics;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using NebulaModel.Networking;
 
 namespace NebulaWorld.Statistics
 {
@@ -11,7 +12,7 @@ namespace NebulaWorld.Statistics
     {
         sealed class ThreadSafe
         {
-            internal readonly Dictionary<ushort, NebulaConnection> Requestors = new Dictionary<ushort, NebulaConnection>();
+            internal readonly Dictionary<ushort, NetworkConnection> Requestors = new Dictionary<ushort, NetworkConnection>();
         }
         public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
         public static bool IsStatisticsNeeded = false;
@@ -20,7 +21,7 @@ namespace NebulaWorld.Statistics
         public static StatisticsManager instance;
 
         readonly ThreadSafe threadSafe = new ThreadSafe();
-        public Locker GetRequestors(out Dictionary<ushort, NebulaConnection> requestors) =>
+        public Locker GetRequestors(out Dictionary<ushort, NetworkConnection> requestors) =>
             threadSafe.Requestors.GetLocked(out requestors);
 
         private List<StatisticalSnapShot> StatisticalSnapShots;
@@ -135,11 +136,11 @@ namespace NebulaWorld.Statistics
             }
         }
 
-        public void RegisterPlayer(NebulaConnection nebulaConnection, ushort playerId)
+        public void RegisterPlayer(NetworkConnection NetworkConnection, ushort playerId)
         {
             using (instance.GetRequestors(out var requestors))
             {
-                requestors.Add(playerId, nebulaConnection);
+                requestors.Add(playerId, NetworkConnection);
             }
 
             if (!IsStatisticsNeeded)

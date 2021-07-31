@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using Mirror;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets;
@@ -62,7 +63,7 @@ namespace NebulaModel.Networking
                     Console.WriteLine($"Registering {type.Name} to process packet of type: {packetType.Name}");
 
                     // Create instance of the processor
-                    Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));
+                    Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(NetworkConnection));
                     object processor = Activator.CreateInstance(type);
                     Delegate callback = Delegate.CreateDelegate(delegateType, processor, type.GetMethod(nameof(PacketProcessor<object>.ProcessPacket)));
 
@@ -70,8 +71,8 @@ namespace NebulaModel.Networking
                     type.BaseType.GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(processor, new object[] { isMasterClient });
 
                     // Register our processor callback to the PacketProcessor
-                    Type subscribeGenericType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));
-                    MethodInfo generic = method.MakeGenericMethod(packetType, typeof(NebulaConnection));
+                    Type subscribeGenericType = typeof(Action<,>).MakeGenericType(packetType, typeof(NetworkConnection));
+                    MethodInfo generic = method.MakeGenericMethod(packetType, typeof(NetworkConnection));
                     generic.Invoke(packetProcessor, new object[] { callback });
                 }
                 else

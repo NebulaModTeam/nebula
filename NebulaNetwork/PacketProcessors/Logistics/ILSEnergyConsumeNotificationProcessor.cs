@@ -1,5 +1,5 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 
@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class ILSEnergyConsumeNotificationProcessor : PacketProcessor<ILSEnergyConsumeNotification>
     {
-        public override void ProcessPacket(ILSEnergyConsumeNotification packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSEnergyConsumeNotification packet, NetworkConnection conn)
         {
             if (GameMain.data.galacticTransport.stationPool.Length > packet.stationGId && GameMain.data.galacticTransport.stationPool[packet.stationGId] != null)
             {

@@ -1,14 +1,15 @@
 ﻿using NebulaModel.Attributes;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
+using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
     class StorageSyncRequestProcessor : PacketProcessor<StorageSyncRequestPacket>
     {
-        public override void ProcessPacket(StorageSyncRequestPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(StorageSyncRequestPacket packet, NetworkConnection conn)
         {
             if (IsClient) return;
 

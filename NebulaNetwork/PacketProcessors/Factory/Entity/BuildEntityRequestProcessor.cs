@@ -1,6 +1,6 @@
 ﻿using NebulaModel.Attributes;
 using NebulaModel.Logger;
-using NebulaModel.Networking;
+using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld.Factory;
@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     [RegisterPacketProcessor]
     public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
     {
-        public override void ProcessPacket(BuildEntityRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(BuildEntityRequest packet, NetworkConnection conn)
         {
             if (IsHost && !FactoryManager.ContainsPrebuildRequest(packet.PlanetId, packet.PrebuildId))
             {
