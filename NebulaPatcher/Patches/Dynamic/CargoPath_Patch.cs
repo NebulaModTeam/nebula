@@ -116,34 +116,29 @@ namespace NebulaPatcher.Patches.Dynamic
                 // Code that reads/calculates the rotations and positions
                 for (int j = 0; j < ___bufferLength;)
                 {
-
                     var sameRelativeRotationAsPrevious = r.ReadBoolean();
                     var repCount = r.ReadInt32();
 
                     var previosRelativeRotation = new Quaternion();
-                    var isThereAPreviosRelativeRotation = false;
+                    var inSequence = false;
                     var planarMatrix = new Matrix4x4();
-                    var isThereAPlanarMatrix = false;
                     for (int i = 0; i < repCount; i++)
                     {
                         if (sameRelativeRotationAsPrevious)
                         {
 
-                            if (!isThereAPreviosRelativeRotation)
+                            if (!inSequence)
                             {
                                 previosRelativeRotation = new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
-                                isThereAPreviosRelativeRotation = true;
-                            }
-
-                            if (!isThereAPlanarMatrix)
-                            {
+           
                                 planarMatrix = new Matrix4x4(
                                     new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
                                     new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
                                     new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 0),
                                     new Vector4(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), 1)
                                 );
-                                isThereAPlanarMatrix = true;
+
+                                inSequence = true;
                             }
 
                             var planarPosition = new Vector3(r.ReadSingle(), r.ReadSingle());
@@ -156,28 +151,17 @@ namespace NebulaPatcher.Patches.Dynamic
                         }
                         else
                         {
-
                             __instance.pointRot[j].x = r.ReadSingle();
                             __instance.pointRot[j].y = r.ReadSingle();
                             __instance.pointRot[j].z = r.ReadSingle();
                             __instance.pointRot[j].w = r.ReadSingle();
 
-                            if (isThereAPreviosRelativeRotation)
-                            {
-                                isThereAPreviosRelativeRotation = false;
-                            }
-
                             __instance.pointPos[j].x = r.ReadSingle();
                             __instance.pointPos[j].y = r.ReadSingle();
                             __instance.pointPos[j].z = r.ReadSingle();
 
-                            if (isThereAPlanarMatrix)
-                            {
-                                isThereAPlanarMatrix = false;
-                            }
-
+                            inSequence = false;
                         }
-
 
                         j++;
 

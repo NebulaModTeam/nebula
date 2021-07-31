@@ -264,17 +264,8 @@ namespace NebulaWorld.Factory
                     }
                 }
 
-                // Write data in a compressed format
-                var startIndex = 0;
-                int endIndex;
-                for (int j = 0; j < differentialIndexes.Count; j++)
+                void handleSequenceWrite(ref int repCount, ref bool surfaceRelativeSequence, ref int startIndex, ref int endIndex, ref CargoPath cargoPathLocal)
                 {
-                    var differentialIndex = differentialIndexes[j];
-                    var surfaceRelativeSequence = simmilarityMap[differentialIndex];
-
-                    endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
-                    var repCount = endIndex - startIndex + 1;
-
                     // Sometimes we have a repcount of 0 we can then just skip this entire sequence
                     if (repCount > 0)
                     {
@@ -293,7 +284,7 @@ namespace NebulaWorld.Factory
 
                             // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
                             // we should compensate for this
-                            var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix(cargoPath.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], cargoPath.pointPos[startIndex], cargoPath.pointPos[endIndex]);
+                            var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix(cargoPathLocal.pointPos[startIndex + (int)Math.Ceiling(a: repCount / 2)], cargoPathLocal.pointPos[startIndex], cargoPathLocal.pointPos[endIndex]);
                             w.Write(matrixM[0, 0]);
                             w.Write(matrixM[1, 0]);
                             w.Write(matrixM[2, 0]);
@@ -317,7 +308,7 @@ namespace NebulaWorld.Factory
                                 // Write 2D coordinates on plane
                                 // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
 
-                                var projectedPoint = matrixMInv.MultiplyPoint3x4(cargoPath.pointPos[startIndex + i]); // Fuck yea!!!
+                                var projectedPoint = matrixMInv.MultiplyPoint3x4(cargoPathLocal.pointPos[startIndex + i]); // Fuck yea!!!
                                 w.Write(projectedPoint.x);
                                 w.Write(projectedPoint.y);
                             }
@@ -327,89 +318,45 @@ namespace NebulaWorld.Factory
                         {
                             for (int i = 0; i < repCount; i++)
                             {
-                                w.Write(cargoPath.pointRot[startIndex + i].x);
-                                w.Write(cargoPath.pointRot[startIndex + i].y);
-                                w.Write(cargoPath.pointRot[startIndex + i].z);
-                                w.Write(cargoPath.pointRot[startIndex + i].w);
+                                w.Write(cargoPathLocal.pointRot[startIndex + i].x);
+                                w.Write(cargoPathLocal.pointRot[startIndex + i].y);
+                                w.Write(cargoPathLocal.pointRot[startIndex + i].z);
+                                w.Write(cargoPathLocal.pointRot[startIndex + i].w);
 
-                                w.Write(cargoPath.pointPos[startIndex + i].x);
-                                w.Write(cargoPath.pointPos[startIndex + i].y);
-                                w.Write(cargoPath.pointPos[startIndex + i].z);
+                                w.Write(cargoPathLocal.pointPos[startIndex + i].x);
+                                w.Write(cargoPathLocal.pointPos[startIndex + i].y);
+                                w.Write(cargoPathLocal.pointPos[startIndex + i].z);
                             }
                         }
                     }
-
-                    startIndex = endIndex + 1;
                 }
 
-                // The end needs to be handled seperately (since it does not have a differentialIndex)
-                endIndex = bufferLength - 1;
-                var surfaceRelativeSequenceForEnd = simmilarityMap[bufferLength - 2];
-                var repCountForEnd = endIndex - startIndex + 1;
-
-                // Sometimes we have a repcount of 0 we can then just skip this entire sequence
-                if (repCountForEnd > 0)
                 {
-                    // TODO: compress the surfaceRelativeSequence and the repCount into one int (and dont forget to do the same in the decoding)
-                    // TODO: use a uint32 for the repcount instead of a int32 (so we do not waste space on negative numbers)
-                    w.Write(surfaceRelativeSequenceForEnd);
-                    w.Write(repCountForEnd);
-                    if (surfaceRelativeSequenceForEnd)
+                    // Write data in a compressed format
+                    var startIndex = 0;
+                    int endIndex;
+                    for (int j = 0; j < differentialIndexes.Count; j++)
                     {
-                        // TODO: If the repcount is 1 (and maybe 2 too) we should just write the original rotations (and dont forget to do the same in the decoding)
+                        var differentialIndex = differentialIndexes[j];
+                        var surfaceRelativeSequence = simmilarityMap[differentialIndex];
 
-                        w.Write(surfaceRelativeRotations[startIndex].x);
-                        w.Write(surfaceRelativeRotations[startIndex].y);
-                        w.Write(surfaceRelativeRotations[startIndex].z);
-                        w.Write(surfaceRelativeRotations[startIndex].w);
+                        endIndex = differentialIndex + (surfaceRelativeSequence ? 1 : 0);
+                        var repCount = endIndex - startIndex + 1;
 
-                        // TODO: How we pick the points might cause problems when the cricle that this section form's more than 2/3 of the circumvence of the planet,
-                        // we should compensate for this
-                        var matrixM = Get3DPoint3DPlaneAs2DPointProjectionMatrix(cargoPath.pointPos[startIndex + (int)Math.Ceiling(a: repCountForEnd / 2)], cargoPath.pointPos[startIndex], cargoPath.pointPos[endIndex]);
-                        w.Write(matrixM[0, 0]);
-                        w.Write(matrixM[1, 0]);
-                        w.Write(matrixM[2, 0]);
-                        //w.Write(matrixM[3, 0]); // This is always 0
-                        w.Write(matrixM[0, 1]);
-                        w.Write(matrixM[1, 1]);
-                        w.Write(matrixM[2, 1]);
-                        //w.Write(matrixM[3, 1]); // This is always 0
-                        w.Write(matrixM[0, 2]);
-                        w.Write(matrixM[1, 2]);
-                        w.Write(matrixM[2, 2]);
-                        //w.Write(matrixM[3, 2]); // This is always 0
-                        w.Write(matrixM[0, 3]);
-                        w.Write(matrixM[1, 3]);
-                        w.Write(matrixM[2, 3]);
-                        //w.Write(matrixM[3, 3]); // This is always 1
+                        handleSequenceWrite(ref repCount, ref surfaceRelativeSequence, ref startIndex, ref endIndex, ref cargoPath);
 
-                        var matrixMInv = matrixM.inverse;
-                        for (int i = 0; i < repCountForEnd; i++)
-                        {
-                            // Write 2D coordinates on plane
-                            // TODO: For the first one we can probably just take the origin points from matrixM (not acctually the first one but the (int)Math.Ceiling(a: repCount / 2) th one)
-
-                            var projectedPoint = matrixMInv.MultiplyPoint3x4(cargoPath.pointPos[startIndex + i]); // Fuck yea!!!
-                            w.Write(projectedPoint.x);
-                            w.Write(projectedPoint.y);
-                        }
-
+                        startIndex = endIndex + 1;
                     }
-                    else
-                    {
-                        for (int i = 0; i < repCountForEnd; i++)
-                        {
-                            w.Write(cargoPath.pointRot[startIndex + i].x);
-                            w.Write(cargoPath.pointRot[startIndex + i].y);
-                            w.Write(cargoPath.pointRot[startIndex + i].z);
-                            w.Write(cargoPath.pointRot[startIndex + i].w);
 
-                            w.Write(cargoPath.pointPos[startIndex + i].x);
-                            w.Write(cargoPath.pointPos[startIndex + i].y);
-                            w.Write(cargoPath.pointPos[startIndex + i].z);
-                        }
-                    }
+                    // The end needs to be handled seperately (since it does not have a differentialIndex)
+                    endIndex = bufferLength - 1;
+                    var surfaceRelativeSequenceForEnd = simmilarityMap[bufferLength - 2];
+                    var repCountForEnd = endIndex - startIndex + 1;
+
+                    handleSequenceWrite(ref repCountForEnd, ref surfaceRelativeSequenceForEnd, ref startIndex, ref endIndex, ref cargoPath);
+
                 }
+                
             }
             // END of rotational and positional compression code
 
