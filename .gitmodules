@@ -1,9 +1,0 @@
-[submodule "websocket-sharp"]
-	path = dep/websocket-sharp
-	url = https://github.com/PhantomGamers/websocket-sharp
-[submodule "dep/telepathy"]
-	path = dep/telepathy
-	url = https://github.com/vis2k/Telepathy
-[submodule "dep/mirror"]
-	path = dep/mirror
-	url = https://github.com/vis2k/Mirror
