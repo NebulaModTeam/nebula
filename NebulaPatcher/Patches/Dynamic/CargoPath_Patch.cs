@@ -87,12 +87,13 @@ namespace NebulaPatcher.Patches.Dynamic
             BinaryReader r
         )
         {
-            var initialBaseStreamPosition = r.BaseStream.Position;
+            // We use 4 bytes at the beginning of the data that are not used in the original implementation to store the version,
+            // this circumvents having to set the position of the BaseStream which is not possible if an underlying LZ4Stream is used
             var encodedVersion = r.ReadInt32();
             if (encodedVersion == CustomExporters.EncodedVersionNb00)
             {
                 __instance.Free();
-                //r.ReadInt32(); // Since we don't reset the BaseStream to its original position, we dont have to read the version here again
+                //r.ReadInt32(); // Since we can't reset the BinaryReader's BaseStream to its original position and we encode the version here we skip reading these not used 4 bytes
                 __instance.id = r.ReadInt32();
                 __instance.SetCapacity(r.ReadInt32());
                 ___bufferLength = r.ReadInt32();
@@ -197,53 +198,47 @@ namespace NebulaPatcher.Patches.Dynamic
 
             } else
             {
-                // Reset the BaseStream to its initial position
-                r.BaseStream.Position = initialBaseStreamPosition;
-
-                // Run the original method
-                return true;
-
-                //// The original implementation
-                //__instance.Free();
-                //r.ReadInt32();
-                //__instance.id = r.ReadInt32();
-                //__instance.SetCapacity(r.ReadInt32());
-                //___bufferLength = r.ReadInt32();
-                //__instance.SetChunkCapacity(r.ReadInt32());
-                //___chunkCount = r.ReadInt32();
-                //___updateLen = r.ReadInt32();
-                //__instance.closed = r.ReadBoolean();
-                //__instance.outputPathIdForImport = r.ReadInt32();
-                //__instance.outputIndex = r.ReadInt32();
-                //int num = r.ReadInt32();
-                //int num2 = r.ReadInt32();
-                //r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
-                //for (int i = 0; i < ___chunkCount; i++)
-                //{
-                //    __instance.chunks[i * 3] = r.ReadInt32();
-                //    __instance.chunks[i * 3 + 1] = r.ReadInt32();
-                //    __instance.chunks[i * 3 + 2] = r.ReadInt32();
-                //}
-                //for (int j = 0; j < ___bufferLength; j++)
-                //{
-                //    __instance.pointPos[j].x = r.ReadSingle();
-                //    __instance.pointPos[j].y = r.ReadSingle();
-                //    __instance.pointPos[j].z = r.ReadSingle();
-                //    __instance.pointRot[j].x = r.ReadSingle();
-                //    __instance.pointRot[j].y = r.ReadSingle();
-                //    __instance.pointRot[j].z = r.ReadSingle();
-                //    __instance.pointRot[j].w = r.ReadSingle();
-                //}
-                //__instance.belts = new List<int>();
-                //for (int k = 0; k < num; k++)
-                //{
-                //    __instance.belts.Add(r.ReadInt32());
-                //}
-                //__instance.inputPaths = new List<int>();
-                //for (int l = 0; l < num2; l++)
-                //{
-                //    __instance.inputPaths.Add(r.ReadInt32());
-                //}
+                // Run a sligltly modified original implementation
+                __instance.Free();
+                //r.ReadInt32(); // Since we can't reset the BinaryReader's BaseStream to its original position and we encode the version here we skip reading these not used 4 bytes
+                __instance.id = r.ReadInt32();
+                __instance.SetCapacity(r.ReadInt32());
+                ___bufferLength = r.ReadInt32();
+                __instance.SetChunkCapacity(r.ReadInt32());
+                ___chunkCount = r.ReadInt32();
+                ___updateLen = r.ReadInt32();
+                __instance.closed = r.ReadBoolean();
+                __instance.outputPathIdForImport = r.ReadInt32();
+                __instance.outputIndex = r.ReadInt32();
+                int num = r.ReadInt32();
+                int num2 = r.ReadInt32();
+                r.BaseStream.Read(__instance.buffer, 0, ___bufferLength);
+                for (int i = 0; i < ___chunkCount; i++)
+                {
+                    __instance.chunks[i * 3] = r.ReadInt32();
+                    __instance.chunks[i * 3 + 1] = r.ReadInt32();
+                    __instance.chunks[i * 3 + 2] = r.ReadInt32();
+                }
+                for (int j = 0; j < ___bufferLength; j++)
+                {
+                    __instance.pointPos[j].x = r.ReadSingle();
+                    __instance.pointPos[j].y = r.ReadSingle();
+                    __instance.pointPos[j].z = r.ReadSingle();
+                    __instance.pointRot[j].x = r.ReadSingle();
+                    __instance.pointRot[j].y = r.ReadSingle();
+                    __instance.pointRot[j].z = r.ReadSingle();
+                    __instance.pointRot[j].w = r.ReadSingle();
+                }
+                __instance.belts = new List<int>();
+                for (int k = 0; k < num; k++)
+                {
+                    __instance.belts.Add(r.ReadInt32());
+                }
+                __instance.inputPaths = new List<int>();
+                for (int l = 0; l < num2; l++)
+                {
+                    __instance.inputPaths.Add(r.ReadInt32());
+                }
             }            
 
             // Skip the original function
