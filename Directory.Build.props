@@ -14,6 +14,7 @@
     <BepInExDir>$(DSPGameDir)BepInEx\core\</BepInExDir>
     <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
     <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
+    <MirrorExternalWeaverDir>$(MSBuildThisFileDirectory)dep\Mirror-External-Weaver\</MirrorExternalWeaverDir>
   </PropertyGroup>
 
   <PropertyGroup Label="Common Properties">
@@ -37,7 +38,7 @@
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
 
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.11.0" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.205" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">
@@ -46,19 +47,25 @@
     <Reference Include="$(BepInExDir)BepInEx.Harmony.dll" Private="false" SpecificVersion="false" />
   </ItemGroup>
 
-  <ItemGroup Label="Dyson Sphere Program">
+<ItemGroup Label="Dyson Sphere Program">
     <Reference Include="$(DSPAssemblyDir)Assembly-CSharp.dll" Private="false" SpecificVersion="true" />
 
     <Reference Include="$(DSPAssemblyDir)UnityEngine.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.AudioModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.IMGUIModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.JSONSerializeModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.ParticleSystemModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.Physics2DModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.PhysicsModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.TextRenderingModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.UIElementsModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.UIModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.UNETModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.UnityWebRequestModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.VideoModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.ImageConversionModule.dll" Private="false" SpecificVersion="true" />
   </ItemGroup>
 </Project>

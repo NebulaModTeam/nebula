@@ -19,7 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
         public ILSRequestShipDockProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(ILSRequestShipDock packet, NetworkConnection conn)

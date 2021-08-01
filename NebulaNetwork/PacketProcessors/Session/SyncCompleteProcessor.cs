@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Session
 
         public SyncCompleteProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(SyncComplete packet, NetworkConnection conn)

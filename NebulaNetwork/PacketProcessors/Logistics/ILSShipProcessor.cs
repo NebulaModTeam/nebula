@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private PlayerManager playerManager;
         public ILSShipProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(ILSShipData packet, NetworkConnection conn)

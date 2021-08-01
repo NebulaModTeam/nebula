@@ -13,11 +13,11 @@ namespace NebulaNetwork.PacketProcessors.Session
     [RegisterPacketProcessor]
     public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
     {
-        private PlayerManager playerManager;
+        private readonly PlayerManager playerManager;
 
         public HandshakeRequestProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(HandshakeRequest packet, NetworkConnection conn)

@@ -1,6 +1,5 @@
 ﻿using Mirror;
 using NebulaModel.Attributes;
-using Mirror;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Belt;
 

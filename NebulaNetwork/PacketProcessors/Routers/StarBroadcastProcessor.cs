@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
         private PlayerManager playerManager;
         public StarBroadcastProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
         public override void ProcessPacket(StarBroadcastPacket packet, NetworkConnection conn)
         {

@@ -1,9 +1,6 @@
 ﻿using Mirror;
 using NebulaModel.DataStructures;
-using Mirror;
 using NebulaModel.Networking.Serialization;
-using System;
-using static NebulaNetwork.MultiplayerHostSession;
 using static NebulaModel.Networking.NebulaConnection;
 
 namespace NebulaNetwork

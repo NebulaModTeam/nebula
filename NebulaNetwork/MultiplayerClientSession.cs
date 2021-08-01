@@ -4,18 +4,13 @@ using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaModel;
 using NebulaWorld;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using NebulaModel.Networking;
 using static NebulaModel.Networking.NebulaConnection;
 using NebulaModel.Networking.Serialization;
-using System.Net;
-using kcp2k;
+using NebulaModel.Packets.Players;
 
 namespace NebulaNetwork
 {
@@ -45,11 +40,12 @@ namespace NebulaNetwork
         {
             LocalPlayer.TryLoadGalacticScale2();
 
-            NetworkManager = (NetworkManager)gameObject.AddComponent(typeof(NetworkManager));
-            NetworkManager.transport = (TelepathyTransport)gameObject.AddComponent(typeof(TelepathyTransport));
+            NetworkManager = (ClientManager)gameObject.AddComponent(typeof(ClientManager));
+            NetworkManager.autoCreatePlayer = false;
+            NetworkManager.dontDestroyOnLoad = false;
+            NetworkManager.showDebugMessages = true;
             gameObject.AddComponent(typeof(NetworkManagerHUD));
-            NetworkManager.OnValidate();
-            Transport.activeTransport = NetworkManager.transport;
+            Transport.activeTransport = (TelepathyTransport)gameObject.AddComponent(typeof(TelepathyTransport));
 
             PacketProcessor = new NetPacketProcessor();
 #if DEBUG
@@ -59,33 +55,16 @@ namespace NebulaNetwork
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
 
-            NetworkClient.OnConnectedEvent += OnConnected;
+            NebulaConnection.PacketProcessor = PacketProcessor;
+
+            NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
             NetworkManager.StartClient();
+        }
 
-            SimulatedWorld.Initialize();
-
-            LocalPlayer.IsMasterClient = false;
-
-            if (Config.Options.RememberLastIP)
-            {
-                // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
-                Config.Options.LastIP = NetworkClient.connection.address;
-                Config.SaveOptions();
-            }
-}
-
-        private void OnConnected()
+        private void OnNebulaMessage(NebulaMessage arg1)
         {
-            NebulaModel.Logger.Log.Info($"Server connection established");
-            NetworkConnection = NetworkClient.connection;
-            IsConnected = true;
-            //TODO: Maybe some challenge-response authentication mechanism?
-            NetworkConnection.SendPacket(new HandshakeRequest(
-                CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
-                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
-                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
-                LocalPlayer.GS2_GSSettings != null));
+            PacketProcessor.EnqueuePacketForProcessing(arg1.Payload.ToArray(), NetworkClient.connection);
         }
 
         public void DisplayPingIndicator()
@@ -122,14 +101,54 @@ namespace NebulaNetwork
             }
         }
 
-        public void SetupClient()
+        private void Update()
         {
-            NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
-        }
+            PacketProcessor.ProcessPacketQueue();
 
-        private void OnNebulaMessage(NebulaMessage arg1)
+            if (SimulatedWorld.IsGameLoaded)
+            {
+                mechaSynchonizationTimer += Time.deltaTime;
+                if (mechaSynchonizationTimer > MECHA_SYNCHONIZATION_INTERVAL)
+                {
+                    NetworkClient.connection.SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+                    mechaSynchonizationTimer = 0f;
+                }
+
+                pingTimer += Time.deltaTime;
+                if (pingTimer >= 1f)
+                {
+                    NetworkClient.connection.SendPacket(new PingPacket());
+                    pingTimestamp = Time.time;
+                    pingTimer = 0f;
+                }
+            }
+        }
+    }
+
+    public class ClientManager : NetworkManager
+    {
+        public override void OnClientConnect(NetworkConnection conn)
         {
-            PacketProcessor.EnqueuePacketForProcessing(arg1.Payload.ToArray(), NetworkClient.connection);
+            NebulaModel.Logger.Log.Info($"Server connection established");
+
+            SimulatedWorld.Initialize();
+
+            LocalPlayer.IsMasterClient = false;
+
+            if (Config.Options.RememberLastIP)
+            {
+                // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
+                Config.Options.LastIP = conn.address;
+                Config.SaveOptions();
+            }
+
+            //TODO: Maybe some challenge-response authentication mechanism?
+            conn.SendPacket(new HandshakeRequest(
+                CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
+                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
+                LocalPlayer.GS2_GSSettings != null));
+            base.OnClientConnect(conn);
         }
     }
 }

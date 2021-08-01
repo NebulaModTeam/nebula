@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public PlayerMechaDataProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(PlayerMechaData packet, NetworkConnection conn)

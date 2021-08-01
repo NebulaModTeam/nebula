@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private PlayerManager playerManager;
         public StationUIProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(StationUI packet, NetworkConnection conn)

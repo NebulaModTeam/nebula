@@ -17,7 +17,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public NameInputProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(NameInputPacket packet, NetworkConnection conn)

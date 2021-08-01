@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public DysonSphereAddNodeProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(DysonSphereAddNodePacket packet, NetworkConnection conn)

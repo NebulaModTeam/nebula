@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
 
         public GameHistoryEnqueueTechProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(GameHistoryEnqueueTechPacket packet, NetworkConnection conn)
