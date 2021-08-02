@@ -69,7 +69,6 @@ namespace NebulaNetwork
 
         private void OnNebulaMessage(NebulaMessage arg1)
         {
-            NebulaModel.Logger.Log.Info($"Received NebulaMessage from server");
             PacketProcessor.EnqueuePacketForProcessing(arg1.Payload.ToArray(), NetworkClient.connection);
         }
 
