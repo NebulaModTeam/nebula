@@ -56,7 +56,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     {
                         if (!string.IsNullOrEmpty(p.overrideName))
                         {
-                            player.SendPacket(new NameInputPacket(p.overrideName, p.id, FactoryManager.PLANET_NONE, LocalPlayer.PlayerId));
+                            player.SendPacket(new NameInputPacket(p.overrideName, FactoryManager.STAR_NONE, p.id, LocalPlayer.PlayerId));
                         }
                     }
                 }
