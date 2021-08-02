@@ -1,7 +1,9 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaModel.Attributes;
+using NebulaModel.DataStructures;
 
 namespace NebulaModel.Packets.Players
 {
+    [HidePacketInDebugLogs]
     public class PlayerAnimationUpdate
     {
         public ushort PlayerId { get; set; }
