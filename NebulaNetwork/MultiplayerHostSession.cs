@@ -17,7 +17,7 @@ using NebulaModel.Utils;
 
 namespace NebulaNetwork
 {
-    public class MultiplayerHostSession : MonoBehaviour
+    public class MultiplayerHostSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerHostSession Instance { get; protected set; }
         public PlayerManager PlayerManager {  get; protected set; }
@@ -51,22 +51,28 @@ namespace NebulaNetwork
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
+
+            PlayerManager = new PlayerManager()
+            {
+                PacketProcessor = PacketProcessor
+            };
+
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
 
             NebulaConnection.PacketProcessor = PacketProcessor;
 
-            NetworkManager = (HostManager)gameObject.AddComponent(typeof(HostManager));
+            GameObject mirrorRoot = new GameObject();
+            mirrorRoot.SetActive(false);
+            mirrorRoot.name = "Mirror Networking";
+            NetworkManager = (HostManager)mirrorRoot.AddComponent(typeof(HostManager));
             NetworkManager.autoCreatePlayer = false;
-            NetworkManager.dontDestroyOnLoad = false;
-            NetworkManager.showDebugMessages = true;
-            gameObject.AddComponent(typeof(NetworkManagerHUD));
-            Transport.activeTransport = (TelepathyTransport)gameObject.AddComponent(typeof(TelepathyTransport));
-
-            PlayerManager = new PlayerManager() 
-            {
-                PacketProcessor = PacketProcessor
-            };
+            TelepathyTransport telepathy = (TelepathyTransport)mirrorRoot.AddComponent(typeof(TelepathyTransport));
+            telepathy.clientMaxMessageSize = 30 * 1024 * 1024;
+            telepathy.serverMaxMessageSize = 30 * 1024 * 1024;
+            mirrorRoot.AddComponent(typeof(NetworkManagerHUD));
+            mirrorRoot.SetActive(true);
+            Transport.activeTransport = telepathy;
 
             NetworkServer.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
@@ -77,6 +83,7 @@ namespace NebulaNetwork
             SimulatedWorld.Initialize();
 
             LocalPlayer.IsMasterClient = true;
+            LocalPlayer.SetNetworkProvider(this);
 
             // TODO: Load saved player info here
             LocalPlayer.SetPlayerData(new PlayerData(
@@ -122,6 +129,47 @@ namespace NebulaNetwork
             }
 
             PacketProcessor.ProcessPacketQueue();
+        }
+
+        private void StopServer()
+        {
+            NetworkManager.StopServer();
+        }
+
+        public void DestroySession()
+        {
+            StopServer();
+            Destroy(gameObject);
+        }
+
+        public void SendPacket<T>(T packet) where T : class, new()
+        {
+            PlayerManager.SendPacketToAllPlayers(packet);
+        }
+
+        public void SendPacketToLocalStar<T>(T packet) where T : class, new()
+        {
+            PlayerManager.SendPacketToLocalStar(packet);
+        }
+
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        {
+            PlayerManager.SendPacketToLocalPlanet(packet);
+        }
+
+        public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        {
+            PlayerManager.SendPacketToPlanet(packet, planetId);
+        }
+
+        public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+        {
+            PlayerManager.SendPacketToStar(packet, starId);
+        }
+
+        public void SendPacketToStarExclude<T>(T packet, int starId, NetworkConnection exclude) where T : class, new()
+        {
+            PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
         }
     }
 
