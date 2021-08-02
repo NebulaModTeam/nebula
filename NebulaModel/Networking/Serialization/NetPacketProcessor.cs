@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NebulaModel.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -15,6 +16,7 @@ namespace NebulaModel.Networking.Serialization
         protected delegate void SubscribeDelegate(NetDataReader reader, object userData);
         private readonly NetSerializer _netSerializer;
         private readonly Dictionary<ulong, SubscribeDelegate> _callbacks = new Dictionary<ulong, SubscribeDelegate>();
+        private readonly Dictionary<ulong, Type> _callbacksDebugInfo = new Dictionary<ulong, Type>();
         private readonly NetDataWriter _netDataWriter = new NetDataWriter();
 
         private readonly List<DelayedPacket> delayedPackets = new List<DelayedPacket>();
@@ -134,6 +136,21 @@ namespace NebulaModel.Networking.Serialization
                 Logger.Log.Warn($"Unknown packet hash: {hash}");
                 throw new Exception("Undefined packet in NetDataReader");
             }
+
+#if DEBUG
+            if (_callbacksDebugInfo.TryGetValue(hash, out var packetType))
+            {
+                if (!packetType.IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
+                {
+                    Logger.Log.Debug($"Packet Received: {packetType.Name}");
+                }
+            }
+            else
+            {
+                Logger.Log.Warn($"Packet not registered: {hash}");
+            }
+#endif
+
             return action;
         }
 
@@ -249,6 +266,12 @@ namespace NebulaModel.Networking.Serialization
 
         public byte[] Write<T>(T packet) where T : class, new()
         {
+#if DEBUG
+            if (!typeof(T).IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
+            {
+                Logger.Log.Debug($"Packet Sent: {packet.GetType().Name}");
+            }
+#endif
             _netDataWriter.Reset();
             WriteHash<T>(_netDataWriter);
             _netSerializer.Serialize(_netDataWriter, packet);
@@ -340,6 +363,10 @@ namespace NebulaModel.Networking.Serialization
                 _netSerializer.Deserialize(reader, reference);
                 onReceive(reference, (TUserData)userData);
             };
+
+#if DEBUG
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
+#endif
         }
 
         public void SubscribeNetSerializable<T, TUserData>(

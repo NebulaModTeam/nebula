@@ -49,9 +49,6 @@ namespace NebulaNetwork.PacketProcessors.Universe
                         planet.NotifyOnDisplayNameChange();
                     }
                     GameMain.galaxy.NotifyAstroNameChange();
-
-                    // Relay packet to other players
-                    LocalPlayer.SendPacket(packet);
                 }
             }
         }
