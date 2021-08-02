@@ -163,6 +163,39 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
+        private static void RenderFaultySortersText()
+        {
+            foreach(var obj in InserterComponent_Transpiler.FaultySortersText)
+            {
+                if (!obj.Value.activeSelf)
+                {
+                    continue;
+                }
+                // Make sure the text is pointing at the camera
+                obj.Value.transform.rotation = GameCamera.main.transform.rotation;
+
+                // Resizes the text based on distance from camera for better visual quality
+                var distanceFromCamera = Vector3.Distance(obj.Value.transform.position, GameCamera.main.transform.position);
+                var nameTextMesh = obj.Value.GetComponent<TextMesh>();
+
+                if (distanceFromCamera > 100f)
+                {
+                    nameTextMesh.characterSize = 0.2f;
+                    nameTextMesh.fontSize = 60;
+                }
+                else if (distanceFromCamera > 50f)
+                {
+                    nameTextMesh.characterSize = 0.15f;
+                    nameTextMesh.fontSize = 48;
+                }
+                else
+                {
+                    nameTextMesh.characterSize = 0.1f;
+                    nameTextMesh.fontSize = 36;
+                }
+            }
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
@@ -171,6 +204,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if (SimulatedWorld.Initialized)
                 {
+                    RenderFaultySortersText();
                     StationUIManager.DecreaseCooldown();
                 }
                 return;
@@ -280,6 +314,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             PowerTowerManager.Energy.Clear();
             PowerTowerManager.RequestsSent.Clear();
+            InserterComponent_Transpiler.FaultySortersText.Clear();
         }
     }
 }

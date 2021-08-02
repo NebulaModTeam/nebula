@@ -6,6 +6,8 @@ using System.Reflection.Emit;
 
 namespace NebulaPatcher.Patches.Transpiler
 {
+    delegate bool surpressIndexOutOfBounds(int offset, PlanetFactory factory);
+
     [HarmonyPatch(typeof(PlanetFactory))]
     class PlanetFactory_Transpiler
     {
@@ -72,6 +74,43 @@ namespace NebulaPatcher.Patches.Transpiler
                 NebulaModel.Logger.Log.Error("OnBeltBuilt transpiler 2 failed. Mod version not compatible with game version.");
 
             return codes;
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(PlanetFactory.PickFrom))]
+        public static IEnumerable<CodeInstruction> PickFrom_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            CodeMatcher matcher = new CodeMatcher(instructions, generator)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetFactory), "powerSystem")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "genPool")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema, typeof(PowerGeneratorComponent)),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerGeneratorComponent), "id")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Bne_Un));
+            int injectPos = matcher.Pos;
+
+            matcher
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldc_I4_0),
+                    new CodeMatch(OpCodes.Ret))
+                .CreateLabel(out var jmpLabel);
+
+            matcher.Start();
+            matcher.Advance(injectPos);
+            matcher.InsertAndAdvance(
+                new CodeInstruction(OpCodes.Ldloc_S, 31),
+                new CodeInstruction(OpCodes.Ldarg_0),
+                HarmonyLib.Transpilers.EmitDelegate<surpressIndexOutOfBounds>((int offset, PlanetFactory factory) =>
+                {
+                    // we basically add a check for index out of bounds here 'if (powerGenId > 0 && offset > 0 && HERE && this.powerSystem.genPool[offset].id == offset)'
+                    return offset >= 0 && offset < factory.powerSystem.genPool.Length;
+                }),
+                new CodeInstruction(OpCodes.Brfalse, jmpLabel));
+
+            return matcher.InstructionEnumeration();
         }
     }
 }
