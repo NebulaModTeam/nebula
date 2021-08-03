@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31521.260
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebulaPatcher", "NebulaPatcher\NebulaPatcher.csproj", "{47B9362C-E91B-4AE4-979B-7D811AB4D1EA}"
 EndProject
@@ -20,8 +20,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebulaWorld", "NebulaWorld\NebulaWorld.csproj", "{28AEA139-FB22-4672-AF51-28B728CF2978}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebulaNetwork", "NebulaNetwork\NebulaNetwork.csproj", "{36A3D8AE-2A0A-4A1F-8A65-4FB61B01F779}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mirror", "dep\Mirror\Assets\Mirror\Runtime\Mirror.csproj", "{2A2B3C55-A46A-4D05-9D70-6C5E8DAE29B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,10 +43,6 @@ Global
 		{36A3D8AE-2A0A-4A1F-8A65-4FB61B01F779}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36A3D8AE-2A0A-4A1F-8A65-4FB61B01F779}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36A3D8AE-2A0A-4A1F-8A65-4FB61B01F779}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2A2B3C55-A46A-4D05-9D70-6C5E8DAE29B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A2B3C55-A46A-4D05-9D70-6C5E8DAE29B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A2B3C55-A46A-4D05-9D70-6C5E8DAE29B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A2B3C55-A46A-4D05-9D70-6C5E8DAE29B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

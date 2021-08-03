@@ -15,11 +15,13 @@
     <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
     <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
     <MirrorExternalWeaverDir>$(MSBuildThisFileDirectory)dep\Mirror-External-Weaver\</MirrorExternalWeaverDir>
+    <MirrorDir>$(MSBuildThisFileDirectory)dep\Mirror\</MirrorDir>
   </PropertyGroup>
 
   <PropertyGroup Label="Common Properties">
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
@@ -67,5 +69,14 @@
     <Reference Include="$(DSPAssemblyDir)UnityEngine.UnityWebRequestModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.VideoModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.ImageConversionModule.dll" Private="false" SpecificVersion="true" />
+  </ItemGroup>
+
+  <ItemGroup Label="Mirror Networking">
+    <Reference Include="$(MirrorDir)Mirror.dll" Private="true" SpecificVersion="true" />
+    <Reference Include="$(MirrorDir)Mirror.Authenticators.dll" Private="true" SpecificVersion="true" />
+    <Reference Include="$(MirrorDir)Mirror.Components.dll" Private="true" SpecificVersion="true" />
+    <Reference Include="$(MirrorDir)kcp2k.dll" Private="true" SpecificVersion="true" />
+    <Reference Include="$(MirrorDir)Telepathy.dll" Private="true" SpecificVersion="true" />
+    <Reference Include="$(MirrorDir)SimpleWebTransport.dll" Private="true" SpecificVersion="true" />
   </ItemGroup>
 </Project>
