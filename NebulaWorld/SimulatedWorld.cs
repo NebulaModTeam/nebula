@@ -12,6 +12,7 @@ using NebulaWorld.Planet;
 using NebulaWorld.Player;
 using NebulaWorld.Trash;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -37,6 +38,8 @@ namespace NebulaWorld
         public static bool IsGameLoaded { get; private set; }
         public static bool IsPlayerJoining { get; set; }
         public static bool ExitingMultiplayerSession { get; set; }
+
+        public static Stopwatch Watch = new Stopwatch();
 
         public static void Initialize()
         {
@@ -76,6 +79,7 @@ namespace NebulaWorld
 
         public static void OnPlayerJoining()
         {
+            Watch.Start();
             if (!IsPlayerJoining)
             {
                 IsPlayerJoining = true;
@@ -86,6 +90,9 @@ namespace NebulaWorld
 
         public static void OnAllPlayersSyncCompleted()
         {
+            Watch.Stop();
+            Log.Debug($"Joined in {Watch.Elapsed}");
+            Watch.Reset();
             IsPlayerJoining = false;
             InGamePopup.FadeOut();
             GameMain.isFullscreenPaused = false;
@@ -323,7 +330,7 @@ namespace NebulaWorld
             }
             else
             {
-                Debug.Log("Received VegeMinedPacket but could not do as i was told :C");
+                Log.Debug("Received VegeMinedPacket but could not do as i was told :C");
             }
         }
 
