@@ -8,7 +8,7 @@ namespace NebulaNetwork
     {
         public static NetworkManager SetupMirror(Type networkManagerType, string ip = "localhost", ushort port = 0)
         {
-            const int MaxMessageSize = 30 * 1024 * 1024; // 30 MB
+            const int MaxMessageSize = 50 * 1024 * 1024; // 50 MB
             GameObject mirrorRoot = new GameObject();
             mirrorRoot.SetActive(false);
             mirrorRoot.name = "Mirror Networking";
