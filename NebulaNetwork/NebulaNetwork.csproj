@@ -3,6 +3,5 @@
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
-    <ProjectReference Include="..\dep\Mirror\Assets\Mirror\Runtime\Mirror.csproj" />
   </ItemGroup>
 </Project>
