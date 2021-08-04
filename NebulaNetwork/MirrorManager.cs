@@ -8,15 +8,24 @@ namespace NebulaNetwork
     {
         public static NetworkManager SetupMirror(Type networkManagerType)
         {
+            const int MaxMessageSize = 30 * 1024 * 1024; // 30 MB
             GameObject mirrorRoot = new GameObject();
             mirrorRoot.SetActive(false);
             mirrorRoot.name = "Mirror Networking";
             NetworkManager NetworkManager = mirrorRoot.AddComponent(networkManagerType) as NetworkManager;
             NetworkManager.autoCreatePlayer = false;
-            TelepathyTransport telepathy = (TelepathyTransport)mirrorRoot.AddComponent(typeof(TelepathyTransport));
-            telepathy.clientMaxMessageSize = 30 * 1024 * 1024;
-            telepathy.serverMaxMessageSize = 30 * 1024 * 1024;
             mirrorRoot.AddComponent(typeof(NetworkManagerHUD));
+
+            // Telepathy
+            TelepathyTransport telepathy = mirrorRoot.AddComponent<TelepathyTransport>();
+            telepathy.clientMaxMessageSize = MaxMessageSize;
+            telepathy.serverMaxMessageSize = MaxMessageSize;
+
+            // KCP
+            kcp2k.KcpTransport kcp = mirrorRoot.AddComponent<kcp2k.KcpTransport>();
+            kcp.SendWindowSize = MaxMessageSize;
+            kcp.ReceiveWindowSize = MaxMessageSize;
+
             mirrorRoot.SetActive(true);
             Transport.activeTransport = telepathy;
 
