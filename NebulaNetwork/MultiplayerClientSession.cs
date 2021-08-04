@@ -40,18 +40,6 @@ namespace NebulaNetwork
         {
             LocalPlayer.TryLoadGalacticScale2();
 
-            GameObject mirrorRoot = new GameObject();
-            mirrorRoot.SetActive(false);
-            mirrorRoot.name = "Mirror Networking";
-            NetworkManager = (ClientManager)mirrorRoot.AddComponent(typeof(ClientManager));
-            NetworkManager.autoCreatePlayer = false;
-            TelepathyTransport telepathy = (TelepathyTransport)mirrorRoot.AddComponent(typeof(TelepathyTransport));
-            telepathy.clientMaxMessageSize = 30 * 1024 * 1024;
-            telepathy.serverMaxMessageSize = 30 * 1024 * 1024;
-            mirrorRoot.AddComponent(typeof(NetworkManagerHUD));
-            mirrorRoot.SetActive(true);
-            Transport.activeTransport = telepathy;
-
             PacketProcessor = new NetPacketProcessor();
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
@@ -61,6 +49,8 @@ namespace NebulaNetwork
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
 
             NebulaConnection.PacketProcessor = PacketProcessor;
+
+            NetworkManager = MirrorManager.SetupMirror(typeof(ClientManager));
 
             NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 

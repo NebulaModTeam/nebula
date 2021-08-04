@@ -62,17 +62,7 @@ namespace NebulaNetwork
 
             NebulaConnection.PacketProcessor = PacketProcessor;
 
-            GameObject mirrorRoot = new GameObject();
-            mirrorRoot.SetActive(false);
-            mirrorRoot.name = "Mirror Networking";
-            NetworkManager = (HostManager)mirrorRoot.AddComponent(typeof(HostManager));
-            NetworkManager.autoCreatePlayer = false;
-            TelepathyTransport telepathy = (TelepathyTransport)mirrorRoot.AddComponent(typeof(TelepathyTransport));
-            telepathy.clientMaxMessageSize = 30 * 1024 * 1024;
-            telepathy.serverMaxMessageSize = 30 * 1024 * 1024;
-            mirrorRoot.AddComponent(typeof(NetworkManagerHUD));
-            mirrorRoot.SetActive(true);
-            Transport.activeTransport = telepathy;
+            NetworkManager = MirrorManager.SetupMirror(typeof(HostManager));
 
             NetworkServer.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
