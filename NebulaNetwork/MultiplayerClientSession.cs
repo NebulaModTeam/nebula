@@ -51,7 +51,7 @@ namespace NebulaNetwork
 
             NebulaConnection.PacketProcessor = PacketProcessor;
 
-            NetworkManager = MirrorManager.SetupMirror(typeof(ClientManager));
+            NetworkManager = MirrorManager.SetupMirror(typeof(ClientManager), ip, (ushort)port);
 
             NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
