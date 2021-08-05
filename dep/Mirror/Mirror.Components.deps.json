@@ -23,16 +23,8 @@
         }
       },
       "Mirror/1.0.0": {
-        "dependencies": {
-          "Telepathy": "1.0.0"
-        },
         "runtime": {
           "Mirror.dll": {}
-        }
-      },
-      "Telepathy/1.0.0": {
-        "runtime": {
-          "Telepathy.dll": {}
         }
       }
     }
@@ -58,11 +50,6 @@
       "hashPath": "netstandard.library.2.0.3.nupkg.sha512"
     },
     "Mirror/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Telepathy/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
