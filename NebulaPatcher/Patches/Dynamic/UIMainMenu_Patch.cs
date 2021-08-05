@@ -172,7 +172,16 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 host = Config.Options.LastIP;
             }
-            string ip = new UriBuilder(NebulaNetwork.MirrorManager.DefaultScheme, host, Config.Options.HostPort).Uri.ToString();
+            string ip;
+            if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP) &&
+                Uri.TryCreate(Config.Options.LastIP, UriKind.Absolute, out Uri result))
+            {
+                ip = result.ToString();
+            }
+            else
+            {
+                ip = new UriBuilder(NebulaNetwork.MirrorManager.DefaultScheme, host, Config.Options.HostPort).Uri.ToString();
+            }
             hostIPAdressInput.text = ip;
 
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
