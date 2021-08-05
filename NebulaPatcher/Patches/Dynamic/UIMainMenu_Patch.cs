@@ -227,8 +227,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
-            if (Uri.TryCreate(s, UriKind.Absolute, out Uri result))
+            if (Uri.TryCreate(s, UriKind.Absolute, out Uri result) || 
+                Uri.TryCreate($"{NebulaNetwork.MirrorManager.DefaultScheme}://{s}", UriKind.Absolute, out result))
             {
+                if(result.IsDefaultPort)
+                {
+                    result = new UriBuilder(result.Scheme, result.Host, Config.Options.HostPort).Uri;
+                }
                 UIRoot.instance.StartCoroutine(TryConnectToServer(result));
             }
             else

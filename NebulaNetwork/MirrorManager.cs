@@ -8,7 +8,7 @@ namespace NebulaNetwork
 {
     public class MirrorManager
     {
-        public static string DefaultScheme = "tcp4";
+        public static string DefaultScheme { get; protected set; } = "tcp4";
         public static NetworkManager SetupMirror(Type networkManagerType, Uri uri)
         {
             NebulaModel.Logger.Log.Debug($"uri: {uri}");
