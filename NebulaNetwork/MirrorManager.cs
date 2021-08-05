@@ -44,6 +44,16 @@ namespace NebulaNetwork
                 transports.Add(telepathy);
             }
 
+            // EOS
+            if (Config.Options.EOSEnabled && GameObject.Find("Epic Online Services"))
+            {
+                EpicTransport.EosTransport eosTransport = mirrorRoot.AddComponent<EpicTransport.EosTransport>();
+                eosTransport.maxFragments = MaxMessageSize / 1159; // max packet size is 1159 bytes
+                eosTransport.timeout = Config.Options.Timeout;
+                transports.Add(eosTransport);
+            }
+
+            /*
             // Kcp
             if (!IsHost || Config.Options.TransportLayer == "kcp")
             {
@@ -58,16 +68,7 @@ namespace NebulaNetwork
                 kcp.Timeout = Timeout;
                 transports.Add(kcp);
             }
-
-            // EOS
-            if (Config.Options.EOSEnabled && GameObject.Find("Epic Online Services"))
-            {
-                EpicTransport.EosTransport eosTransport = mirrorRoot.AddComponent<EpicTransport.EosTransport>();
-                eosTransport.maxFragments = MaxMessageSize / 1159; // max packet size is 1159 bytes
-                eosTransport.timeout = Config.Options.Timeout;
-                transports.Add(eosTransport);
-            }
-
+            */
 
             // Multiplex (Multiple transports)
             MultiplexTransport multiplex = mirrorRoot.AddComponent<MultiplexTransport>();
