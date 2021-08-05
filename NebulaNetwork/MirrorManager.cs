@@ -17,7 +17,8 @@ namespace NebulaNetwork
             NebulaModel.Logger.Log.Debug($"uri port: {uri.Port}");
             NebulaModel.Logger.Log.Debug($"uri scheme: {uri.Scheme}");
 
-            const int MaxMessageSize = 50 * 1024 * 1024; // 50 MB
+            int MaxMessageSize = Config.Options.MaxMessageSize * 1024 * 1024; // 50 MB default
+            int Timeout = (int)TimeSpan.FromSeconds(Config.Options.Timeout).TotalMilliseconds;
             GameObject mirrorRoot = new GameObject();
             mirrorRoot.SetActive(false);
             mirrorRoot.name = "Mirror Networking";
@@ -34,7 +35,8 @@ namespace NebulaNetwork
             telepathy.clientMaxMessageSize = MaxMessageSize;
             telepathy.serverMaxMessageSize = MaxMessageSize;
             telepathy.port = (ushort)uri.Port;
-            telepathy.SendTimeout = (int)TimeSpan.FromSeconds(30).TotalMilliseconds;
+            telepathy.SendTimeout = Timeout;
+            telepathy.ReceiveTimeout = Timeout;
             if (Config.Options.TransportLayer == "telepathy") transports.Add(telepathy);
 
             // Kcp
@@ -43,9 +45,10 @@ namespace NebulaNetwork
 #if DEBUG
             kcp.statisticsGUI = true;
 #endif
-            kcp.ReceiveWindowSize = MaxMessageSize;
-            kcp.SendWindowSize = MaxMessageSize;
+            kcp.ReceiveWindowSize = (uint)MaxMessageSize;
+            kcp.SendWindowSize = (uint)MaxMessageSize;
             kcp.Port = (ushort)uri.Port;
+            kcp.Timeout = Timeout;
             if (Config.Options.TransportLayer == "kcp") transports.Add(kcp);
 
             // EOS
@@ -53,6 +56,7 @@ namespace NebulaNetwork
             {
                 EpicTransport.EosTransport eosTransport = mirrorRoot.AddComponent<EpicTransport.EosTransport>();
                 eosTransport.maxFragments = MaxMessageSize / 1159; // max packet size is 1159 bytes
+                eosTransport.timeout = Config.Options.Timeout;
                 transports.Add(eosTransport);
             }
 

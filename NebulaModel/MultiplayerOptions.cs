@@ -35,6 +35,12 @@ namespace NebulaModel
         [DisplayName("Epic Online Services Support")]
         public bool EOSEnabled { get; set; } = true;
 
+        [DisplayName("Connection Timeout (Seconds)")]
+        public int Timeout { get; set; } = 30;
+
+        [DisplayName("Max Packet Size (MB)")]
+        public int MaxMessageSize { get; set; } = 50;
+
         public string LastIP { get; set; } = string.Empty;
 
         // Detail function group buttons
