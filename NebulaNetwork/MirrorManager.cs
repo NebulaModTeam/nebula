@@ -38,6 +38,10 @@ namespace NebulaNetwork
 
             // Kcp
             kcp2k.KcpTransport kcp = mirrorRoot.AddComponent<kcp2k.KcpTransport>();
+            kcp.debugLog = true;
+#if DEBUG
+            kcp.statisticsGUI = true;
+#endif
             kcp.ReceiveWindowSize = MaxMessageSize;
             kcp.SendWindowSize = MaxMessageSize;
             kcp.Port = (ushort)uri.Port;
