@@ -32,7 +32,7 @@ namespace NebulaModel
         [DisplayName("Transport Layer")]
         public string TransportLayer { get; set; } = "telepathy";
 
-        [DisplayName("Epic Online Services Support (Requires Restart)")]
+        [DisplayName("Epic Online Services [Requires Restart]")]
         public bool EOSEnabled { get; set; } = true;
 
         [DisplayName("Connection Timeout (Seconds)")]
