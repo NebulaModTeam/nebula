@@ -1,28 +1,28 @@
-﻿using Mirror;
-using NebulaModel.DataStructures;
+﻿using BepInEx;
+using EpicTransport;
+using Mirror;
 using NebulaModel;
-using NebulaWorld;
-using System.Linq;
-using UnityEngine;
-using NebulaModel.Networking.Serialization;
-using NebulaWorld.Statistics;
-using BepInEx;
-using static NebulaModel.Networking.NebulaConnection;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using kcp2k;
-using System;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
+using NebulaWorld;
+using NebulaWorld.Statistics;
+using System;
+using System.Linq;
+using UnityEngine;
+using static NebulaModel.Networking.NebulaConnection;
 
 namespace NebulaNetwork
 {
     public class MultiplayerHostSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerHostSession Instance { get; protected set; }
-        public PlayerManager PlayerManager {  get; protected set; }
+        public PlayerManager PlayerManager { get; protected set; }
         public NetworkManager NetworkManager { get; protected set; }
-        public NetPacketProcessor PacketProcessor {  get; protected set; }
+        public NetPacketProcessor PacketProcessor { get; protected set; }
         public StatisticsManager StatisticsManager { get; protected set; }
 
         protected NetworkIdentity Identity;
@@ -42,7 +42,7 @@ namespace NebulaNetwork
 
         public void StartServer(int port, bool loadSaveFile = false)
         {
-            if(loadSaveFile)
+            if (loadSaveFile)
             {
                 SaveManager.LoadServerData();
             }
@@ -62,7 +62,7 @@ namespace NebulaNetwork
 
             NebulaConnection.PacketProcessor = PacketProcessor;
 
-            NetworkManager = MirrorManager.SetupMirror(typeof(HostManager), port: Config.Options.HostPort);
+            NetworkManager = MirrorManager.SetupMirror(typeof(HostManager), new UriBuilder("kcp://", "localhost", Config.Options.HostPort, "").Uri);
 
             NetworkServer.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
@@ -129,6 +129,7 @@ namespace NebulaNetwork
         {
             StopServer();
             Destroy(gameObject);
+            Destroy(GameObject.Find("Mirror Networking"));
         }
 
         public void SendPacket<T>(T packet) where T : class, new()
@@ -164,8 +165,17 @@ namespace NebulaNetwork
 
     public class HostManager : NetworkManager
     {
+        public override void OnStartServer()
+        {
+            base.OnStartServer();
+            if (GameObject.Find("Mirror Networking").GetComponent<EosTransport>())
+            {
+                NebulaModel.Logger.Log.Info($"Epic lobby ID: epic://{EOSSDKComponent.LocalUserProductIdString}");
+            }
+        }
         public override void OnServerConnect(NetworkConnection conn)
         {
+            base.OnServerConnect(conn);
             if (SimulatedWorld.IsGameLoaded == false)
             {
                 // Reject any connection that occurs while the host's game is loading.
@@ -175,17 +185,16 @@ namespace NebulaNetwork
 
             NebulaModel.Logger.Log.Info($"Client connected ID: {conn.connectionId}");
             MultiplayerHostSession.Instance.PlayerManager.PlayerConnected(conn);
-            base.OnServerConnect(conn);
         }
 
         public override void OnServerDisconnect(NetworkConnection conn)
         {
+            base.OnServerDisconnect(conn);
             NebulaModel.Logger.Log.Info($"Client disconnected: {conn.connectionId}");
             ThreadingHelper.Instance.StartSyncInvoke(() =>
             {
                 MultiplayerHostSession.Instance.PlayerManager.PlayerDisconnected(conn);
             });
-            base.OnServerDisconnect(conn);
         }
     }
 }

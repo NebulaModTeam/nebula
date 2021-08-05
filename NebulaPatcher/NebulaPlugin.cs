@@ -88,6 +88,34 @@ namespace NebulaPatcher
             var method = type.GetMethod("InitReadWriters");
             method.Invoke(null, null);
 
+            assembly = Assembly.GetAssembly(typeof(NetworkManager));
+            type = assembly.GetType("Mirror.NetworkLoop");
+            AccessTools.Method(type, "RuntimeInitializeOnLoad").Invoke(null, null);
+
+            // Epic Online Services SDK
+            string EOSSDKLocation = Path.Combine(Path.GetFullPath(Assembly.GetExecutingAssembly().Location), Epic.OnlineServices.Config.LibraryName);
+            if (NebulaModel.Config.Options.EOSEnabled && File.Exists(EOSSDKLocation))
+            {
+                GameObject eosSDKGO = new GameObject();
+                eosSDKGO.SetActive(false);
+                eosSDKGO.name = "Epic Online Services";
+                EpicTransport.EOSSDKComponent eossdk = eosSDKGO.AddComponent<EpicTransport.EOSSDKComponent>();
+                EosApiKey eosApiKey = ScriptableObject.CreateInstance<EosApiKey>();
+                eosApiKey.epicClientId = "xyza7891WyAHauFAKLJ0Z9pbZ7Xvcdlt";
+                eosApiKey.epicClientSecret = "apmKEgQ5D3L0R1n3ZAbJKdfHAUWMG6QBuCl7N2tORKY";
+                eosApiKey.epicDeploymentId = "70c2e8766a6846fba97f2cdf1f74a475";
+                eosApiKey.epicProductId = "1bda6ed6bdca4f3d9cc7d753b6400e2a";
+                eosApiKey.epicProductName = "Nebula Multiplayer Mod";
+                eosApiKey.epicSandboxId = "a1a5158970c049e5a52872ee83c44fa1";
+                eosApiKey.epicProductVersion = ThisAssembly.AssemblyInformationalVersion;
+                eossdk.apiKeys = eosApiKey;
+                eosSDKGO.SetActive(true);
+            }
+            else
+            {
+                Log.Warn($"{EOSSDKLocation} not found, Epic Online Services support disabled.");
+            }
+
             Log.Info("Behaviours applied.");
         }
     }

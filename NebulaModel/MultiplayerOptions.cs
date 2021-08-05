@@ -30,7 +30,10 @@ namespace NebulaModel
         public bool RememberLastIP { get; set; } = true;
 
         [DisplayName("Transport Layer")]
-        public string TransportLayer {  get; set; } = "telepathy";
+        public string TransportLayer { get; set; } = "telepathy";
+
+        [DisplayName("Epic Online Services Support")]
+        public bool EOSEnabled { get; set; } = true;
 
         public string LastIP { get; set; } = string.Empty;
 

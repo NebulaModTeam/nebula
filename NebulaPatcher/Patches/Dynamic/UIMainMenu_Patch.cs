@@ -3,13 +3,14 @@ using NebulaModel;
 using NebulaModel.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaWorld;
+using System;
 using System.Collections;
-using System.Globalization;
 using System.Linq;
-using System.Net;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -166,7 +167,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //256 will trigger an argument out of range exception
             hostIPAdressInput.characterLimit = 255;
 
-            string ip = "127.0.0.1";
+            string ip = new UriBuilder(NebulaNetwork.MirrorManager.DefaultScheme, "localhost", Config.Options.HostPort).Uri.ToString();
             if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
             {
                 ip = Config.Options.LastIP;
@@ -182,84 +183,63 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnJoinGameButtonClick()
         {
-            // Remove whitespaces from connection string
-            var s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
+            // Remove erraneous characters from connection string
+            var s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray()).Trim(new char[] { '\'', '"' });
 
-            // Taken from .net IPEndPoint
-            IPEndPoint result = null;
-            int addressLength = s.Length;  // If there's no port then send the entire string to the address parser
-            int lastColonPos = s.LastIndexOf(':');
+            Regex ipv6 = new Regex(@"^((?:\w+:\/\/?)?\[?(?:(?:\w{0,4}?:){7}\w{0,4}?|0{0,4}:0{0,4}:FFFF:(?:\d{1,3}\.){3}\d{1,3})\]?)(?::(\d+))?$", RegexOptions.IgnoreCase);
+            Regex everythingElse = new Regex(@"^(.+?)(?::(\d+))?$");
 
-            // Look to see if this is an IPv6 address with a port.
-            if (lastColonPos > 0)
+            var ipv6Matches = ipv6.Matches(s);
+            if (ipv6Matches.Count == 2)
             {
-                if (s[lastColonPos - 1] == ']')
+                if (int.TryParse(ipv6Matches[1].ToString(), out int port))
                 {
-                    addressLength = lastColonPos;
-                }
-                // Look to see if this is IPv4 with a port (IPv6 will have another colon)
-                else if (s.Substring(0, lastColonPos).LastIndexOf(':') == -1)
-                {
-                    addressLength = lastColonPos;
+                    UriBuilder uri = new UriBuilder(s.Take(s.Length - port.ToString().Length - 1).ToArray().ToString())
+                    {
+                        Port = port
+                    };
+                    UIRoot.instance.StartCoroutine(TryConnectToServer(uri.Uri));
+                    return;
                 }
             }
 
-            if (IPAddress.TryParse(s.Substring(0, addressLength), out IPAddress address))
+            var everythingElseMatches = everythingElse.Matches(s);
+            if (everythingElseMatches.Count == 2)
             {
-                uint port = 0;
-                if (addressLength == s.Length ||
-                    (uint.TryParse(s.Substring(addressLength + 1), NumberStyles.None, CultureInfo.InvariantCulture, out port) && port <= IPEndPoint.MaxPort))
-
+                if (int.TryParse(everythingElseMatches[1].ToString(), out int port))
                 {
-                    result = new IPEndPoint(address, (int)port);
+                    UriBuilder uri = new UriBuilder(s.Take(s.Length - port.ToString().Length - 1).ToArray().ToString())
+                    {
+                        Port = port
+                    };
+                    UIRoot.instance.StartCoroutine(TryConnectToServer(uri.Uri));
+                    return;
                 }
             }
 
-            var isIP = false;
-            var p = 0;
-            if (result != null)
+            if (Uri.TryCreate(s, UriKind.Absolute, out Uri result))
             {
-                if (result.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                {
-                    s = $"[{result.Address}]";
-                }
-                else
-                {
-                    s = $"{result.Address}";
-                }
-                p = result.Port;
-                isIP = true;
+                UIRoot.instance.StartCoroutine(TryConnectToServer(result));
             }
             else
             {
-                var tmpP = s.Split(':');
-                if (tmpP.Length == 2)
-                {
-                    if (!System.Int32.TryParse(tmpP[1], out p))
-                        p = 0;
-                    else
-                        s = tmpP[0];
-                }
+                InGamePopup.ShowWarning("Connect failed", $"{s} is not a valid host", "OK");
             }
-
-            p = p == 0 ? Config.Options.HostPort : p;
-
-            UIRoot.instance.StartCoroutine(TryConnectToServer(s, p, isIP));
         }
 
-        private static IEnumerator TryConnectToServer(string ip, int port, bool isIP)
+        private static IEnumerator TryConnectToServer(Uri uri)
         {
-            InGamePopup.ShowInfo("Connecting", $"Connecting to server {ip}:{port}...", null, null);
+            InGamePopup.ShowInfo("Connecting", $"Connecting to server {uri}...", null, null);
             multiplayerMenu.gameObject.SetActive(false);
 
             // We need to wait here to have time to display the Connecting popup since the game freezes during the connection.
             yield return new WaitForSeconds(0.5f);
 
-            if (!ConnectToServer(ip, port, isIP))
+            if (!ConnectToServer(uri))
             {
                 InGamePopup.FadeOut();
                 //re-enabling the menu again after failed connect attempt
-                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to {hostIPAdressInput.text}", "OK");
+                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to {uri.OriginalString}", "OK");
                 multiplayerMenu.gameObject.SetActive(true);
             }
             else
@@ -274,11 +254,11 @@ namespace NebulaPatcher.Patches.Dynamic
             UIRoot.instance.OpenMainMenuUI();
         }
 
-        private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
+        private static bool ConnectToServer(Uri uri)
         {
             NebulaNetwork.MultiplayerClientSession session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
 
-            session.Connect(connectionString, serverPort);
+            session.Connect(uri);
             return true;
             /*
             if (isIP)

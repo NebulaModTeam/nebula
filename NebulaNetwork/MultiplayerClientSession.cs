@@ -1,19 +1,19 @@
-﻿using Mirror;
-using NebulaModel.DataStructures;
-using NebulaModel.Packets.Session;
-using NebulaModel.Utils;
+﻿using BepInEx;
+using Mirror;
 using NebulaModel;
-using NebulaWorld;
-using System.Linq;
-using UnityEngine;
-using UnityEngine.UI;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using static NebulaModel.Networking.NebulaConnection;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Routers;
+using NebulaModel.Packets.Session;
+using NebulaModel.Utils;
+using NebulaWorld;
 using System;
-using BepInEx;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
+using static NebulaModel.Networking.NebulaConnection;
 
 namespace NebulaNetwork
 {
@@ -37,7 +37,7 @@ namespace NebulaNetwork
             Instance = this;
         }
 
-        public void Connect(string ip, int port)
+        public void Connect(Uri uri)
         {
             LocalPlayer.TryLoadGalacticScale2();
 
@@ -51,7 +51,7 @@ namespace NebulaNetwork
 
             NebulaConnection.PacketProcessor = PacketProcessor;
 
-            NetworkManager = MirrorManager.SetupMirror(typeof(ClientManager), ip, (ushort)port);
+            NetworkManager = MirrorManager.SetupMirror(typeof(ClientManager), uri);
 
             NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
@@ -120,7 +120,7 @@ namespace NebulaNetwork
             }
         }
 
-        void Disconnect()
+        static void Disconnect()
         {
             NetworkClient.connection?.Disconnect();
         }
@@ -130,6 +130,7 @@ namespace NebulaNetwork
             Disconnect();
             if (pingIndicator != null) pingIndicator.enabled = false;
             Destroy(gameObject);
+            Destroy(GameObject.Find("Mirror Networking"));
         }
 
         public void SendPacket<T>(T packet) where T : class, new()
@@ -166,7 +167,6 @@ namespace NebulaNetwork
         {
             SimulatedWorld.Clear();
             Disconnect();
-            Connect("x", 0);
         }
 
     }
@@ -175,6 +175,7 @@ namespace NebulaNetwork
     {
         public override void OnClientConnect(NetworkConnection conn)
         {
+            base.OnClientConnect(conn);
             NebulaModel.Logger.Log.Info($"Server connection established");
 
             SimulatedWorld.Initialize();
@@ -195,11 +196,11 @@ namespace NebulaNetwork
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
                 new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
                 LocalPlayer.GS2_GSSettings != null));
-            base.OnClientConnect(conn);
         }
 
         public override void OnClientDisconnect(NetworkConnection conn)
         {
+            base.OnClientDisconnect(conn);
             ThreadingHelper.Instance.StartSyncInvoke(() =>
             {
                 if (SimulatedWorld.IsGameLoaded)
@@ -225,7 +226,6 @@ namespace NebulaNetwork
                         });
                 }
             });
-            base.OnClientDisconnect(conn);
         }
 
         private static void OnDisconnectPopupCloseBeforeGameLoad()
