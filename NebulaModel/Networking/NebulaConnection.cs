@@ -17,7 +17,7 @@ namespace NebulaModel.Networking
             {
                 Payload = new ArraySegment<byte>(PacketProcessor.Write(packet))
             };
-            connection.Send(msg);
+            if(connection != null) connection.Send(msg);
         }
     }
 }
