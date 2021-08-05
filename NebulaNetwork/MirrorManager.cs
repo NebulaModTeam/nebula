@@ -52,8 +52,8 @@ namespace NebulaNetwork
 #if DEBUG
                 kcp.statisticsGUI = true;
 #endif
-                kcp.ReceiveWindowSize = (uint)MaxMessageSize;
-                kcp.SendWindowSize = (uint)MaxMessageSize;
+                kcp.ReceiveWindowSize = Math.Min(65535, (uint)MaxMessageSize);
+                kcp.SendWindowSize = Math.Min(65535, (uint)MaxMessageSize);
                 kcp.Port = (ushort)uri.Port;
                 kcp.Timeout = Timeout;
                 transports.Add(kcp);
