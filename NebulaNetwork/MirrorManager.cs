@@ -34,6 +34,7 @@ namespace NebulaNetwork
             telepathy.clientMaxMessageSize = MaxMessageSize;
             telepathy.serverMaxMessageSize = MaxMessageSize;
             telepathy.port = (ushort)uri.Port;
+            telepathy.SendTimeout = (int)TimeSpan.FromSeconds(30).TotalMilliseconds;
             if (Config.Options.TransportLayer == "telepathy") transports.Add(telepathy);
 
             // Kcp
