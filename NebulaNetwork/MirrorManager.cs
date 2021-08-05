@@ -25,6 +25,7 @@ namespace NebulaNetwork
             NetworkManager NetworkManager = mirrorRoot.AddComponent(networkManagerType) as NetworkManager;
             NetworkManager.autoCreatePlayer = false;
             NetworkManager.networkAddress = uri.Host;
+            NetworkManager.serverTickRate = Config.Options.TickRate; // 30 Hz default
 #if DEBUG
             mirrorRoot.AddComponent(typeof(NetworkManagerHUD));
 #endif
