@@ -93,7 +93,7 @@ namespace NebulaPatcher
             AccessTools.Method(type, "RuntimeInitializeOnLoad").Invoke(null, null);
 
             // Epic Online Services SDK
-            string EOSSDKLocation = Path.Combine(Path.GetFullPath(Assembly.GetExecutingAssembly().Location), Epic.OnlineServices.Config.LibraryName);
+            string EOSSDKLocation = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Epic.OnlineServices.Config.LibraryName);
             if (NebulaModel.Config.Options.EOSEnabled && File.Exists(EOSSDKLocation))
             {
                 GameObject eosSDKGO = new GameObject();
