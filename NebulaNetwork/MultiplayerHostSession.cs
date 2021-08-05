@@ -120,14 +120,9 @@ namespace NebulaNetwork
             PacketProcessor.ProcessPacketQueue();
         }
 
-        private void StopServer()
-        {
-            NetworkManager.StopServer();
-        }
-
         public void DestroySession()
         {
-            StopServer();
+            NetworkManager.StopServer();
             Destroy(gameObject);
             Destroy(GameObject.Find("Mirror Networking"));
         }

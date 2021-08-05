@@ -127,7 +127,7 @@ namespace NebulaNetwork
 
         public void DestroySession()
         {
-            Disconnect();
+            NetworkManager.StopClient();
             if (pingIndicator != null) pingIndicator.enabled = false;
             Destroy(gameObject);
             Destroy(GameObject.Find("Mirror Networking"));
