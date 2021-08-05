@@ -167,11 +167,12 @@ namespace NebulaPatcher.Patches.Dynamic
             //256 will trigger an argument out of range exception
             hostIPAdressInput.characterLimit = 255;
 
-            string ip = new UriBuilder(NebulaNetwork.MirrorManager.DefaultScheme, "localhost", Config.Options.HostPort).Uri.ToString();
+            string host = "localhost";
             if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
             {
-                ip = Config.Options.LastIP;
+                host = Config.Options.LastIP;
             }
+            string ip = new UriBuilder(NebulaNetwork.MirrorManager.DefaultScheme, host, Config.Options.HostPort).Uri.ToString();
             hostIPAdressInput.text = ip;
 
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);

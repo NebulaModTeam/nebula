@@ -20,6 +20,7 @@ namespace NebulaNetwork
     public class MultiplayerClientSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerClientSession Instance { get; protected set; }
+        public static Uri LastConnectedUri = null;
 
         private NetworkManager NetworkManager;
         private NetPacketProcessor PacketProcessor;
@@ -56,6 +57,8 @@ namespace NebulaNetwork
             NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
             NetworkManager.StartClient();
+
+            LastConnectedUri = uri;
         }
 
         private void OnNebulaMessage(NebulaMessage arg1)
@@ -167,6 +170,7 @@ namespace NebulaNetwork
         {
             SimulatedWorld.Clear();
             Disconnect();
+            Connect(LastConnectedUri);
         }
 
     }
@@ -185,8 +189,8 @@ namespace NebulaNetwork
 
             if (Config.Options.RememberLastIP)
             {
-                // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
-                Config.Options.LastIP = conn.address;
+                // We've successfully connected, set connection URI as last connected IP
+                Config.Options.LastIP = MultiplayerClientSession.LastConnectedUri.ToString();
                 Config.SaveOptions();
             }
 
