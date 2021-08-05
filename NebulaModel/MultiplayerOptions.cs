@@ -32,7 +32,7 @@ namespace NebulaModel
         [DisplayName("Transport Layer")]
         public string TransportLayer { get; set; } = "telepathy";
 
-        [DisplayName("Epic Online Services Support")]
+        [DisplayName("Epic Online Services Support (Requires Restart)")]
         public bool EOSEnabled { get; set; } = true;
 
         [DisplayName("Connection Timeout (Seconds)")]
@@ -41,7 +41,8 @@ namespace NebulaModel
         [DisplayName("Max Packet Size (MB)")]
         public int MaxMessageSize { get; set; } = 50;
 
-        [DisplayName("Server Tick Rate (Hz)")]
+        // not sure if this has any effect TODO INVESTIGATE
+        [DisplayName("Server Tick Rate (Hz) [UNUSED?]")]
         public int TickRate { get; set; } = 30;
 
         public string LastIP { get; set; } = string.Empty;
