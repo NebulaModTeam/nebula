@@ -17,6 +17,8 @@ namespace NebulaNetwork
             NebulaModel.Logger.Log.Debug($"uri port: {uri.Port}");
             NebulaModel.Logger.Log.Debug($"uri scheme: {uri.Scheme}");
 
+            bool IsHost = networkManagerType == typeof(HostManager);
+
             int MaxMessageSize = Config.Options.MaxMessageSize * 1024 * 1024; // 50 MB default
             int Timeout = (int)TimeSpan.FromSeconds(Config.Options.Timeout).TotalMilliseconds;
             GameObject mirrorRoot = new GameObject();
@@ -32,25 +34,31 @@ namespace NebulaNetwork
             var transports = new List<Transport>();
 
             // Telepathy
-            TelepathyTransport telepathy = mirrorRoot.AddComponent<TelepathyTransport>();
-            telepathy.clientMaxMessageSize = MaxMessageSize;
-            telepathy.serverMaxMessageSize = MaxMessageSize;
-            telepathy.port = (ushort)uri.Port;
-            telepathy.SendTimeout = Timeout;
-            telepathy.ReceiveTimeout = Timeout;
-            if (Config.Options.TransportLayer == "telepathy") transports.Add(telepathy);
+            if (!IsHost || Config.Options.TransportLayer == "telepathy")
+            {
+                TelepathyTransport telepathy = mirrorRoot.AddComponent<TelepathyTransport>();
+                telepathy.clientMaxMessageSize = MaxMessageSize;
+                telepathy.serverMaxMessageSize = MaxMessageSize;
+                telepathy.port = (ushort)uri.Port;
+                telepathy.SendTimeout = Timeout;
+                telepathy.ReceiveTimeout = Timeout;
+                transports.Add(telepathy);
+            }
 
             // Kcp
-            kcp2k.KcpTransport kcp = mirrorRoot.AddComponent<kcp2k.KcpTransport>();
-            kcp.debugLog = true;
+            if (!IsHost || Config.Options.TransportLayer == "kcp")
+            {
+                kcp2k.KcpTransport kcp = mirrorRoot.AddComponent<kcp2k.KcpTransport>();
+                kcp.debugLog = true;
 #if DEBUG
-            kcp.statisticsGUI = true;
+                kcp.statisticsGUI = true;
 #endif
-            kcp.ReceiveWindowSize = (uint)MaxMessageSize;
-            kcp.SendWindowSize = (uint)MaxMessageSize;
-            kcp.Port = (ushort)uri.Port;
-            kcp.Timeout = Timeout;
-            if (Config.Options.TransportLayer == "kcp") transports.Add(kcp);
+                kcp.ReceiveWindowSize = (uint)MaxMessageSize;
+                kcp.SendWindowSize = (uint)MaxMessageSize;
+                kcp.Port = (ushort)uri.Port;
+                kcp.Timeout = Timeout;
+                transports.Add(kcp);
+            }
 
             // EOS
             if (Config.Options.EOSEnabled && GameObject.Find("Epic Online Services"))

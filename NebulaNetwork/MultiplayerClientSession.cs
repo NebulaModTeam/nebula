@@ -56,7 +56,7 @@ namespace NebulaNetwork
 
             NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
-            NetworkManager.StartClient();
+            NetworkManager.StartClient(uri);
 
             LastConnectedUri = uri;
         }
