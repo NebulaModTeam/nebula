@@ -44,18 +44,8 @@ namespace NebulaNetwork
                 transports.Add(telepathy);
             }
 
-            // EOS
-            if (Config.Options.EOSEnabled && GameObject.Find("Epic Online Services"))
-            {
-                EpicTransport.EosTransport eosTransport = mirrorRoot.AddComponent<EpicTransport.EosTransport>();
-                eosTransport.relayControl = Epic.OnlineServices.P2P.RelayControl.NoRelays;
-                eosTransport.maxFragments = MaxMessageSize / 1159; // max packet size is 1159 bytes
-                eosTransport.timeout = Config.Options.Timeout;
-                transports.Add(eosTransport);
-            }
-
             /*
-            // Kcp
+            // Kcp [SHOULD BE LAST TRANSPORT BEFORE MULTIPLEX]
             if (!IsHost || Config.Options.TransportLayer == "kcp")
             {
                 kcp2k.KcpTransport kcp = mirrorRoot.AddComponent<kcp2k.KcpTransport>();

@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using EpicTransport;
 using Mirror;
 using NebulaModel;
 using NebulaModel.DataStructures;
@@ -163,10 +162,6 @@ namespace NebulaNetwork
         public override void OnStartServer()
         {
             base.OnStartServer();
-            if (GameObject.Find("Mirror Networking").GetComponent<EosTransport>())
-            {
-                NebulaModel.Logger.Log.Info($"Epic lobby ID: epic://{EOSSDKComponent.LocalUserProductIdString}");
-            }
         }
         public override void OnServerConnect(NetworkConnection conn)
         {

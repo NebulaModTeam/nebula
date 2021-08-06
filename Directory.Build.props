@@ -77,9 +77,5 @@
     <Reference Include="$(MirrorDir)Mirror.Components.dll" Private="true" SpecificVersion="true" />
     <Reference Include="$(MirrorDir)kcp2k.dll" Private="true" SpecificVersion="true" />
     <Reference Include="$(MirrorDir)Telepathy.dll" Private="true" SpecificVersion="true" />
-    <Reference Include="$(MirrorDir)EpicOnlineTransport.dll" Private="true" SpecificVersion="true" />
-    <Content Include="$(MirrorDir)EOSSDK-Win64-Shipping.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 </Project>
