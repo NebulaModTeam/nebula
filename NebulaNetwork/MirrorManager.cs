@@ -65,8 +65,21 @@ namespace NebulaNetwork
             MultiplexTransport multiplex = mirrorRoot.AddComponent<MultiplexTransport>();
             multiplex.transports = transports.ToArray();
 
+#if DEBUG
+            LatencySimulation latencySimulation = mirrorRoot.AddComponent<LatencySimulation>();
+            latencySimulation.wrap = multiplex;
+            latencySimulation.reliableLatency = Config.Options.ReliableLatency;
+            latencySimulation.unreliableLoss = Config.Options.UnreliableLoss;
+            latencySimulation.unreliableLatency = Config.Options.UnreliableLatency;
+            latencySimulation.unreliableScramble = Config.Options.UnreliableScramble;
+#endif
+
             mirrorRoot.SetActive(true);
+#if DEBUG
+            Transport.activeTransport = latencySimulation;
+#else
             Transport.activeTransport = multiplex;
+#endif
 
             return NetworkManager;
         }

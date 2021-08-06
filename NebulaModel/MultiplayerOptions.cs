@@ -41,6 +41,22 @@ namespace NebulaModel
         [DisplayName("Max Packet Size (MB)")]
         public int MaxMessageSize { get; set; } = 50;
 
+#if DEBUG
+        [DisplayName("Reliable Latency (Seconds)")]
+        public float ReliableLatency { get; set; } = 2f;
+
+        [DisplayName("Unreliable Loss (%)")]
+        [UIRange(0, 1)]
+        public float UnreliableLoss { get; set; } = 0.5f;
+
+        [DisplayName("Unreliable Latency (Seconds)")]
+        public float UnreliableLatency { get; set; } = 2f;
+
+        [DisplayName("Unreliable Scramble (%)")]
+        [UIRange(0, 1)]
+        public float UnreliableScramble { get; set; } = 1f;
+#endif
+
         public string LastIP { get; set; } = string.Empty;
 
         // Detail function group buttons

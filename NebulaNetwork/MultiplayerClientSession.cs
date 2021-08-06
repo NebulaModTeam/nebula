@@ -43,9 +43,6 @@ namespace NebulaNetwork
             LocalPlayer.TryLoadGalacticScale2();
 
             PacketProcessor = new NetPacketProcessor();
-#if DEBUG
-            PacketProcessor.SimulateLatency = true;
-#endif
 
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
