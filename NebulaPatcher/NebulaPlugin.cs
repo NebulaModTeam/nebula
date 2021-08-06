@@ -92,6 +92,14 @@ namespace NebulaPatcher
             type = assembly.GetType("Mirror.NetworkLoop");
             AccessTools.Method(type, "RuntimeInitializeOnLoad").Invoke(null, null);
 
+            assembly = Assembly.GetAssembly(typeof(NetworkManager));
+            type = assembly.GetType("Mirror.GeneratedNetworkCode");
+            AccessTools.Method(type, "InitReadWriters").Invoke(null, null);
+
+            assembly = Assembly.GetAssembly(typeof(DistanceInterestManagement));
+            type = assembly.GetType("Mirror.GeneratedNetworkCode");
+            AccessTools.Method(type, "InitReadWriters").Invoke(null, null);
+
             // Epic Online Services SDK
             string EOSSDKLocation = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Epic.OnlineServices.Config.LibraryName);
             if (NebulaModel.Config.Options.EOSEnabled && File.Exists(EOSSDKLocation))
