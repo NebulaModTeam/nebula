@@ -33,8 +33,8 @@ namespace NebulaNetwork
             var transports = new List<Transport>();
 
             // Telepathy
-            if (!IsHost || Config.Options.TransportLayer == "telepathy")
-            {
+            //if (!IsHost || Config.Options.TransportLayer == "telepathy")
+            //{
                 TelepathyTransport telepathy = mirrorRoot.AddComponent<TelepathyTransport>();
                 telepathy.clientMaxMessageSize = MaxMessageSize;
                 telepathy.serverMaxMessageSize = MaxMessageSize;
@@ -42,7 +42,7 @@ namespace NebulaNetwork
                 telepathy.SendTimeout = Timeout;
                 telepathy.ReceiveTimeout = Timeout;
                 transports.Add(telepathy);
-            }
+            //}
 
             /*
             // Kcp [SHOULD BE LAST TRANSPORT BEFORE MULTIPLEX]
@@ -82,7 +82,7 @@ namespace NebulaNetwork
             }
             else
             {
-                Transport.activeTransport = multiplex;
+                Transport.activeTransport = telepathy;
             }
 #else
             Transport.activeTransport = multiplex;
