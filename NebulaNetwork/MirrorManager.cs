@@ -76,7 +76,14 @@ namespace NebulaNetwork
 
             mirrorRoot.SetActive(true);
 #if DEBUG
-            Transport.activeTransport = latencySimulation;
+            if(Config.Options.SimulateLatency)
+            {
+                Transport.activeTransport = latencySimulation;
+            }
+            else
+            {
+                Transport.activeTransport = multiplex;
+            }
 #else
             Transport.activeTransport = multiplex;
 #endif

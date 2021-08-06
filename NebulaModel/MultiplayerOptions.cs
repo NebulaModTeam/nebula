@@ -42,6 +42,9 @@ namespace NebulaModel
         public int MaxMessageSize { get; set; } = 50;
 
 #if DEBUG
+        [DisplayName("Simulate Latency")]
+        public bool SimulateLatency { get; set; } = true;
+
         [DisplayName("Reliable Latency (Seconds)")]
         public float ReliableLatency { get; set; } = 2f;
 
