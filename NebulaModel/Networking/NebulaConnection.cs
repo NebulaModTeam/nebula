@@ -19,6 +19,7 @@ namespace NebulaModel.Networking
                 PacketType = packet.GetType().ToString(),
                 Payload = new ArraySegment<byte>(PacketProcessor.Write(packet))
             };
+            Logger.Log.Debug($"Sending NebulaMessage of type {packet.GetType()}");
             if(connection != null) connection.Send(msg);
         }
     }
