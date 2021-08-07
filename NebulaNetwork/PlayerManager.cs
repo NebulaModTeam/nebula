@@ -1,7 +1,6 @@
 ﻿using Mirror;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
-using Mirror;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Session;

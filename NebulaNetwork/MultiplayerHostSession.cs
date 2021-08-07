@@ -58,7 +58,7 @@ namespace NebulaNetwork
 
             NebulaConnection.PacketProcessor = PacketProcessor;
 
-            NetworkManager = MirrorManager.SetupMirror(typeof(HostManager), new UriBuilder("kcp://", "localhost", Config.Options.HostPort, "").Uri);
+            NetworkManager = MirrorManager.SetupMirror(typeof(HostManager), new UriBuilder("scheme://", "localhost", Config.Options.HostPort, "").Uri);
 
             NetworkServer.RegisterHandler<NebulaMessage>(OnNebulaMessage);
 
