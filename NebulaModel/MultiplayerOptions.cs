@@ -32,9 +32,6 @@ namespace NebulaModel
         [DisplayName("Transport Layer")]
         public string TransportLayer { get; set; } = "telepathy";
 
-        [DisplayName("Epic Online Services [Requires Restart]")]
-        public bool EOSEnabled { get; set; } = true;
-
         [DisplayName("Connection Timeout (Seconds)")]
         public int Timeout { get; set; } = 30;
 
@@ -43,7 +40,7 @@ namespace NebulaModel
 
 #if DEBUG
         [DisplayName("Simulate Latency")]
-        public bool SimulateLatency { get; set; } = true;
+        public bool SimulateLatency { get; set; } = false;
 
         [DisplayName("Reliable Latency (Seconds)")]
         public float ReliableLatency { get; set; } = 2f;
