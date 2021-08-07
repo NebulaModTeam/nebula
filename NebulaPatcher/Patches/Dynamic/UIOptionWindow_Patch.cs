@@ -68,7 +68,7 @@ namespace NebulaPatcher.Patches.Dynamic
             UIButton[] newRevertButtons = CollectionExtensions.AddToArray(revertButtons, revertButton.GetComponent<UIButton>());
             AccessTools.Field(__instance.GetType(), "revertButtons").SetValue(__instance, newRevertButtons);
 
-            // Find control templates
+            // Remove unwanted GameObject
             foreach (RectTransform child in multiplayerContent)
             {
                 if (child != revertButton)
@@ -77,11 +77,21 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
+            // Add ScrollView
+            RectTransform list = Object.Instantiate(tabTweeners[3].transform.Find("list").GetComponent<RectTransform>(), multiplayerContent);
+            list.offsetMax = Vector2.zero;
+            RectTransform listContent = list.Find("scroll-view/viewport/content").GetComponent<RectTransform>();
+            foreach (RectTransform child in listContent)
+            {
+                Object.Destroy(child.gameObject);
+            }
+
+            // Find control templates
             checkboxTemplate = contentTemplate.Find("fullscreen").GetComponent<RectTransform>();
             comboBoxTemplate = contentTemplate.Find("resolution").GetComponent<RectTransform>();
             sliderTemplate = contentTemplate.Find("dofblur").GetComponent<RectTransform>();
 
-            inputTemplate = Object.Instantiate(checkboxTemplate, multiplayerContent, false);
+            inputTemplate = Object.Instantiate(checkboxTemplate, listContent, false);
             Object.Destroy(inputTemplate.Find("CheckBox").gameObject);
             RectTransform inputField = Object.Instantiate(UIRoot.instance.saveGameWindow.transform.Find("input-filename/InputField").GetComponent<RectTransform>(), inputTemplate, false);
             Vector2 fieldPosition = checkboxTemplate.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
@@ -89,7 +99,7 @@ namespace NebulaPatcher.Patches.Dynamic
             inputField.sizeDelta = new Vector2(inputField.sizeDelta.x, 35);
             inputTemplate.gameObject.SetActive(false);
 
-            AddMultiplayerOptionsProperties(multiplayerContent);
+            AddMultiplayerOptionsProperties(listContent);
         }
 
         [HarmonyPostfix]
@@ -150,19 +160,19 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     if (prop.PropertyType == typeof(bool))
                     {
-                        CreateBooleanControl(displayAttr, prop, anchorPosition);
+                        CreateBooleanControl(displayAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) || prop.PropertyType == typeof(ushort))
                     {
-                        CreateNumberControl(displayAttr, prop, anchorPosition);
+                        CreateNumberControl(displayAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType == typeof(string))
                     {
-                        CreateStringControl(displayAttr, prop, anchorPosition);
+                        CreateStringControl(displayAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType.IsEnum)
                     {
-                        CreateEnumControl(displayAttr, prop, anchorPosition);
+                        CreateEnumControl(displayAttr, prop, anchorPosition, container);
                     }
                     else
                     {
@@ -173,11 +183,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     anchorPosition = new Vector2(anchorPosition.x, anchorPosition.y - 40);
                 }
             }
+
+            container.sizeDelta = new Vector2(container.sizeDelta.x, -anchorPosition.y + 40);
         }
 
-        private static void CreateBooleanControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateBooleanControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
-            RectTransform element = Object.Instantiate(checkboxTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(checkboxTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
             UIToggle toggle = element.GetComponentInChildren<UIToggle>();
             toggle.toggle.onValueChanged.RemoveAllListeners();
@@ -189,12 +201,12 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateNumberControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateNumberControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
             UIRangeAttribute rangeAttr = prop.GetCustomAttribute<UIRangeAttribute>();
             bool sliderControl = rangeAttr != null && rangeAttr.Slider;
 
-            RectTransform element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
 
             bool isFloatingPoint = prop.PropertyType == typeof(float) || prop.PropertyType == typeof(double);
@@ -256,9 +268,9 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        private static void CreateStringControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateStringControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
-            RectTransform element = Object.Instantiate(inputTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(inputTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
 
             InputField input = element.GetComponentInChildren<InputField>();
@@ -271,9 +283,9 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateEnumControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateEnumControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
-            RectTransform element = Object.Instantiate(comboBoxTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(comboBoxTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
             UIComboBox combo = element.GetComponentInChildren<UIComboBox>();
             combo.Items = System.Enum.GetNames(prop.PropertyType).ToList();
