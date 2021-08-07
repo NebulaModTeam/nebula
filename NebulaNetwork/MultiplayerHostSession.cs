@@ -81,6 +81,7 @@ namespace NebulaNetwork
 
         public void OnNebulaMessage(NetworkConnection arg1, NebulaMessage arg2)
         {
+            NebulaModel.Logger.Log.Debug($"Received NebulaMessage of type {arg2.PacketType}");
             PacketProcessor.EnqueuePacketForProcessing(arg2.Payload.ToArray(), arg1);
         }
 

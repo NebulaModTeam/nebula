@@ -60,6 +60,7 @@ namespace NebulaNetwork
 
         private void OnNebulaMessage(NebulaMessage arg1)
         {
+            NebulaModel.Logger.Log.Debug($"Received NebulaMessage of type {arg1.PacketType}");
             PacketProcessor.EnqueuePacketForProcessing(arg1.Payload.ToArray(), NetworkClient.connection);
         }
 
