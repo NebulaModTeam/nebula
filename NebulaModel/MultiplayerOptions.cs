@@ -30,7 +30,7 @@ namespace NebulaModel
         public bool RememberLastIP { get; set; } = true;
 
         [DisplayName("Transport Layer")]
-        public string TransportLayer { get; set; } = "telepathy";
+        public string TransportLayer { get; set; } = "ignorance";
 
         [DisplayName("Connection Timeout (Seconds)")]
         public int Timeout { get; set; } = 30;

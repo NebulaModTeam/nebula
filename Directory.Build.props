@@ -69,13 +69,15 @@
     <Reference Include="$(DSPAssemblyDir)UnityEngine.UnityWebRequestModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.VideoModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(DSPAssemblyDir)UnityEngine.ImageConversionModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(DSPAssemblyDir)UnityEngine.SharedInternalsModule.dll" Private="false" SpecificVersion="true" />
   </ItemGroup>
 
   <ItemGroup Label="Mirror Networking">
     <Reference Include="$(MirrorDir)Mirror.dll" Private="true" SpecificVersion="true" />
     <Reference Include="$(MirrorDir)Mirror.Authenticators.dll" Private="true" SpecificVersion="true" />
     <Reference Include="$(MirrorDir)Mirror.Components.dll" Private="true" SpecificVersion="true" />
-    <Reference Include="$(MirrorDir)kcp2k.dll" Private="true" SpecificVersion="true" />
-    <Reference Include="$(MirrorDir)Telepathy.dll" Private="true" SpecificVersion="true" />
+    <None Include="$(MirrorDir)enet.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

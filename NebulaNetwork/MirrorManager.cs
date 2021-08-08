@@ -8,7 +8,7 @@ namespace NebulaNetwork
 {
     public class MirrorManager
     {
-        public static string DefaultScheme { get; protected set; } = "tcp4";
+        public static string DefaultScheme { get; protected set; } = "enet";
         public static NetworkManager SetupMirror(Type networkManagerType, Uri uri)
         {
             NebulaModel.Logger.Log.Debug($"uri: {uri}");
@@ -19,7 +19,7 @@ namespace NebulaNetwork
 
             bool IsHost = networkManagerType == typeof(HostManager);
 
-            int MaxMessageSize = Config.Options.MaxMessageSize * 1024 * 1024; // 50 MB default
+            int MaxMessageSize = 1200;
             int Timeout = (int)TimeSpan.FromSeconds(Config.Options.Timeout).TotalMilliseconds;
             GameObject mirrorRoot = new GameObject();
             mirrorRoot.SetActive(false);
@@ -32,9 +32,10 @@ namespace NebulaNetwork
 #endif
             var transports = new List<Transport>();
 
+            /*
             // Telepathy
-            //if (!IsHost || Config.Options.TransportLayer == "telepathy")
-            //{
+            if (!IsHost || Config.Options.TransportLayer == "telepathy")
+            {
                 TelepathyTransport telepathy = mirrorRoot.AddComponent<TelepathyTransport>();
                 telepathy.clientMaxMessageSize = MaxMessageSize;
                 telepathy.serverMaxMessageSize = MaxMessageSize;
@@ -42,7 +43,24 @@ namespace NebulaNetwork
                 telepathy.SendTimeout = Timeout;
                 telepathy.ReceiveTimeout = Timeout;
                 transports.Add(telepathy);
-            //}
+            }
+            */
+
+            // Ignorance
+            if (!IsHost || Config.Options.TransportLayer == "ignorance")
+            {
+                IgnoranceTransport.Ignorance ignorance = mirrorRoot.AddComponent<IgnoranceTransport.Ignorance>();
+                ignorance.port = uri.Port;
+                ignorance.LogType = IgnoranceTransport.IgnoranceLogType.Verbose;
+                ignorance.DebugDisplay = true;
+                ignorance.Channels = new IgnoranceTransport.IgnoranceChannelTypes[]
+                {
+                    IgnoranceTransport.IgnoranceChannelTypes.Reliable,
+                    IgnoranceTransport.IgnoranceChannelTypes.Unreliable
+                };
+                ignorance.MaxAllowedPacketSize = MaxMessageSize;
+                transports.Add(ignorance);
+            }
 
             /*
             // Kcp [SHOULD BE LAST TRANSPORT BEFORE MULTIPLEX]
@@ -57,6 +75,7 @@ namespace NebulaNetwork
                 kcp.SendWindowSize = Math.Min(65535, (uint)MaxMessageSize);
                 kcp.Port = (ushort)uri.Port;
                 kcp.Timeout = Timeout;
+                kcp.Interval = 1u;
                 transports.Add(kcp);
             }
             */
@@ -82,7 +101,7 @@ namespace NebulaNetwork
             }
             else
             {
-                Transport.activeTransport = telepathy;
+                Transport.activeTransport = multiplex;
             }
 #else
             Transport.activeTransport = multiplex;
