@@ -34,7 +34,7 @@ namespace NebulaModel.Networking
                     TotalLength = processedPacket.Length,
                     Data = new byte[processedPacket.Length - i > MaxMessageSizeInBytes ? MaxMessageSizeInBytes : processedPacket.Length - i]
                 };
-                Array.Copy(processedPacket, i, msg.Data, 0, msg.Data.Length);
+                Buffer.BlockCopy(processedPacket, i, msg.Data, 0, msg.Data.Length);
                 if (connection == null) return;
                 connection.Send(msg);
             }
@@ -55,7 +55,7 @@ namespace NebulaModel.Networking
             }
 
             var index = nebulaMessage.MoreFragments ? ((nebulaMessage.Fragment) * MaxMessageSizeInBytes) : (CompletePayload.Length - nebulaMessage.Data.Length);
-            Array.Copy(nebulaMessage.Data, 0, CompletePayload, index, nebulaMessage.Data.Length);
+            Buffer.BlockCopy(nebulaMessage.Data, 0, CompletePayload, index, nebulaMessage.Data.Length);
 
             if (nebulaMessage.MoreFragments == false)
             {
