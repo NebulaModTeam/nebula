@@ -60,6 +60,7 @@ namespace NebulaNetwork
                 };
                 ignorance.MaxAllowedPacketSize = MaxMessageSize;
                 ignorance.clientMaxNativeWaitTime = 1;
+                ignorance.PacketBufferCapacity = 32 * 1024 * 1024;
                 transports.Add(ignorance);
             }
 
