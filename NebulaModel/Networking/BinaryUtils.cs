@@ -20,8 +20,8 @@ namespace NebulaModel.Networking
             public Writer()
             {
                 ms = new MemoryStream();
-                //ls = LZ4Stream.Encode(ms);
-                bs = new BufferedStream(ms, BUFFER_SIZE);
+                ls = LZ4Stream.Encode(ms);
+                bs = new BufferedStream(ls, BUFFER_SIZE);
                 bw = new BinaryWriter(bs);
             }
 
@@ -29,7 +29,7 @@ namespace NebulaModel.Networking
             {
                 bw?.Close();
                 bs?.Dispose();
-                //ls?.Dispose();
+                ls?.Dispose();
                 ms?.Dispose();
             }
 
@@ -43,7 +43,7 @@ namespace NebulaModel.Networking
         public class Reader : IDisposable
         {
             MemoryStream ms;
-            //LZ4DecoderStream ls;
+            LZ4DecoderStream ls;
             BufferedStream bs;
             BinaryReader br;
 
@@ -53,8 +53,8 @@ namespace NebulaModel.Networking
             public Reader(byte[] bytes)
             {
                 ms = new MemoryStream(bytes);
-                //ls = LZ4Stream.Decode(ms);
-                bs = new BufferedStream(ms, BUFFER_SIZE);
+                ls = LZ4Stream.Decode(ms);
+                bs = new BufferedStream(ls, BUFFER_SIZE);
                 br = new BinaryReader(bs);
             }
 
@@ -62,7 +62,7 @@ namespace NebulaModel.Networking
             {
                 br?.Close();
                 bs?.Dispose();
-                //ls?.Dispose();
+                ls?.Dispose();
                 ms?.Dispose();
             }
         }
