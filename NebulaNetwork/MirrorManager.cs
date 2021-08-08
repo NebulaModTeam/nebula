@@ -59,6 +59,7 @@ namespace NebulaNetwork
                     IgnoranceTransport.IgnoranceChannelTypes.Unreliable
                 };
                 ignorance.MaxAllowedPacketSize = MaxMessageSize;
+                ignorance.clientMaxNativeWaitTime = 1;
                 transports.Add(ignorance);
             }
 
