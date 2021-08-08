@@ -60,7 +60,7 @@ namespace NebulaNetwork
 
             NetworkManager = MirrorManager.SetupMirror(typeof(HostManager), new UriBuilder("scheme://", "localhost", Config.Options.HostPort, "").Uri);
 
-            NetworkServer.RegisterHandler<NebulaMessage>(OnNebulaMessage);
+            NetworkServer.RegisterHandler<NebulaMessage>((networkConnection, nebulaMessage) => OnNebulaMessage(networkConnection, nebulaMessage));
 
             NetworkManager.StartServer();
 
@@ -78,13 +78,6 @@ namespace NebulaNetwork
                 new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName));
         }
-
-        public void OnNebulaMessage(NetworkConnection arg1, NebulaMessage arg2)
-        {
-            NebulaModel.Logger.Log.Debug($"Received NebulaMessage of type {arg2.PacketType}");
-            PacketProcessor.EnqueuePacketForProcessing(arg2.Payload.ToArray(), arg1);
-        }
-
 
         private void Update()
         {

@@ -51,17 +51,11 @@ namespace NebulaNetwork
 
             NetworkManager = MirrorManager.SetupMirror(typeof(ClientManager), uri);
 
-            NetworkClient.RegisterHandler<NebulaMessage>(OnNebulaMessage);
+            NetworkClient.RegisterHandler<NebulaMessage>((nebulaMessage) => OnNebulaMessage(nebulaMessage));
 
             NetworkManager.StartClient(uri);
 
             LastConnectedUri = uri;
-        }
-
-        private void OnNebulaMessage(NebulaMessage arg1)
-        {
-            NebulaModel.Logger.Log.Debug($"Received NebulaMessage of type {arg1.PacketType}");
-            PacketProcessor.EnqueuePacketForProcessing(arg1.Payload.ToArray(), NetworkClient.connection);
         }
 
         public void DisplayPingIndicator()
