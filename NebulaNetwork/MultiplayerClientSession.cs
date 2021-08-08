@@ -20,7 +20,7 @@ namespace NebulaNetwork
     public class MultiplayerClientSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerClientSession Instance { get; protected set; }
-        public static Uri LastConnectedUri = null;
+        public static Uri LastConnectedUri { get; private set; }  = null;
 
         private NetworkManager NetworkManager;
         private NetPacketProcessor PacketProcessor;
