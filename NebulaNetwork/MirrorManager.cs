@@ -64,7 +64,17 @@ namespace NebulaNetwork
                 transports.Add(ignorance);
             }
 
-            /*
+            // SimpleWeb (Websocket)
+            if (!IsHost || Config.Options.TransportLayer == "SimpleWeb")
+            {
+                Mirror.SimpleWeb.SimpleWebTransport simpleWebTransport = mirrorRoot.AddComponent<Mirror.SimpleWeb.SimpleWebTransport>();
+                simpleWebTransport.port = (ushort)uri.Port;
+                simpleWebTransport.maxMessageSize = MaxMessageSize;
+                simpleWebTransport.receiveTimeout = Timeout;
+                simpleWebTransport.sendTimeout = Timeout;
+                transports.Add(simpleWebTransport);
+            }
+
             // Kcp [SHOULD BE LAST TRANSPORT BEFORE MULTIPLEX]
             if (!IsHost || Config.Options.TransportLayer == "kcp")
             {
@@ -77,10 +87,8 @@ namespace NebulaNetwork
                 kcp.SendWindowSize = Math.Min(65535, (uint)MaxMessageSize);
                 kcp.Port = (ushort)uri.Port;
                 kcp.Timeout = Timeout;
-                kcp.Interval = 1u;
                 transports.Add(kcp);
             }
-            */
 
             // Multiplex (Multiple transports)
             MultiplexTransport multiplex = mirrorRoot.AddComponent<MultiplexTransport>();

@@ -76,6 +76,7 @@
     <Reference Include="$(MirrorDir)Mirror.dll" Private="true" SpecificVersion="true" />
     <Reference Include="$(MirrorDir)Mirror.Authenticators.dll" Private="true" SpecificVersion="true" />
     <Reference Include="$(MirrorDir)Mirror.Components.dll" Private="true" SpecificVersion="true" />
+    <Reference Include="$(MirrorDir)SimpleWebTransport.dll" Private="true" SpecificVersion="true" />
     <None Include="$(MirrorDir)enet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
