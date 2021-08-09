@@ -80,8 +80,8 @@ namespace NebulaPatcher.Patches.Dynamic
             // Request initial dysonSphere data
             if (GameMain.data.dysonSpheres[star.index] == null)
             {
-                //Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
-                //NetworkClient.connection.Send(new DysonSphereLoadRequest(star.index));
+                Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
+                NetworkClient.connection.Send(new DysonSphereLoadRequest(star.index));
             }
             return false;
         }
