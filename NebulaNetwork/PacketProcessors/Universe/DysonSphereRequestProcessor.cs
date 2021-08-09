@@ -1,24 +1,28 @@
-﻿using NebulaModel.Attributes;
-using Mirror;
-using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+﻿using Mirror;
 using NebulaModel.Networking;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
-    [RegisterPacketProcessor]
-    public class DysonSphereRequestProcessor : PacketProcessor<DysonSphereLoadRequest>
+    public struct DysonSphereLoadRequest : NetworkMessage
     {
-        public override void ProcessPacket(DysonSphereLoadRequest packet, NetworkConnection conn)
+        public int StarIndex;
+
+        public DysonSphereLoadRequest(int starIndex)
         {
-            if (IsClient) return;
+            StarIndex = starIndex;
+            NebulaModel.Logger.Log.Info($"Creating {GetType()}");
+        }
+
+        public static void ProcessPacket(NetworkConnection conn, DysonSphereLoadRequest packet)
+        {
+            NebulaModel.Logger.Log.Info($"Processing {packet.GetType()}");
 
             DysonSphere dysonSphere = GameMain.data.CreateDysonSphere(packet.StarIndex);
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 dysonSphere.Export(writer.BinaryWriter);
-                conn.SendPacket(new DysonSphereData(packet.StarIndex, writer.CloseAndGetBytes()));
+                conn.Send(new DysonSphereData(packet.StarIndex, writer.CloseAndGetBytes()));
             }
         }
     }

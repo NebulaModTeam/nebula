@@ -2,6 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command='"Mirror External Weaver.exe" "$(PluginOutputDirectory)NebulaModel.dll" "$(DSPAssemblyDir)"' WorkingDirectory='$(MirrorExternalWeaverDir)'/>
+    <Exec Command='"Mirror External Weaver.exe" "$(PluginOutputDirectory)NebulaNetwork.dll" "$(DSPAssemblyDir)"' WorkingDirectory='$(MirrorExternalWeaverDir)'/>
     <Exec Command='"Mirror External Weaver.exe" "$(PluginOutputDirectory)Mirror.dll" "$(DSPAssemblyDir)"' WorkingDirectory='$(MirrorExternalWeaverDir)'/>
     <Exec Command='"Mirror External Weaver.exe" "$(PluginOutputDirectory)Mirror.Components.dll" "$(DSPAssemblyDir)"' WorkingDirectory='$(MirrorExternalWeaverDir)'/>
   </Target>

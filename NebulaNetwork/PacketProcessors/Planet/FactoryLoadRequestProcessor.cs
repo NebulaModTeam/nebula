@@ -1,18 +1,22 @@
-﻿using NebulaModel.Attributes;
-using Mirror;
-using NebulaModel.Packets;
-using NebulaModel.Packets.Planet;
-using NebulaWorld.Statistics;
+﻿using Mirror;
 using NebulaModel.Networking;
+using NebulaWorld.Statistics;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
-    [RegisterPacketProcessor]
-    public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
+    public struct FactoryLoadRequest : NetworkMessage
     {
-        public override void ProcessPacket(FactoryLoadRequest packet, NetworkConnection conn)
+        public int PlanetID;
+
+        public FactoryLoadRequest(int planetID)
         {
-            if (IsClient) return;
+            PlanetID = planetID;
+            NebulaModel.Logger.Log.Info($"Creating {GetType()}");
+        }
+
+        public static void ProcessPacket(NetworkConnection conn, FactoryLoadRequest packet)
+        {
+            NebulaModel.Logger.Log.Info($"Processing {packet.GetType()}");
 
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetID);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
@@ -20,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 factory.Export(writer.BinaryWriter);
-                conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
+                conn.Send(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
             }
             conn.SendPacket(StatisticsManager.instance.GetFactoryPlanetIds());
         }

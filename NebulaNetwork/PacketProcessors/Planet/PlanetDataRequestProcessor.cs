@@ -1,19 +1,23 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.Logger;
-using Mirror;
-using NebulaModel.Packets;
-using NebulaModel.Packets.Planet;
-using System.Collections.Generic;
+﻿using Mirror;
 using NebulaModel.Networking;
+using System.Collections.Generic;
+using Log = NebulaModel.Logger.Log;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
-    [RegisterPacketProcessor]
-    public class PlanetDataRequestProcessor : PacketProcessor<PlanetDataRequest>
+    public struct PlanetDataRequest : NetworkMessage
     {
-        public override void ProcessPacket(PlanetDataRequest packet, NetworkConnection conn)
+        public int[] PlanetIDs;
+
+        public PlanetDataRequest(int[] planetIDs)
         {
-            if (IsClient) return;
+            PlanetIDs = planetIDs;
+            NebulaModel.Logger.Log.Info($"Creating {GetType()}");
+        }
+
+        public static void ProcessPacket(NetworkConnection conn, PlanetDataRequest packet)
+        {
+            NebulaModel.Logger.Log.Info($"Processing {packet.GetType()}");
 
             Dictionary<int, byte[]> planetDataToReturn = new Dictionary<int, byte[]>();
 
@@ -56,10 +60,10 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 }
             }
 
-            conn.SendPacket(new PlanetDataResponse(planetDataToReturn));
+            conn.Send(new PlanetDataResponse(planetDataToReturn));
         }
 
-        public void OnActivePlanetLoaded(PlanetData planet)
+        public static void OnActivePlanetLoaded(PlanetData planet)
         {
             planet.Unload();
             planet.onLoaded -= OnActivePlanetLoaded;

@@ -1,19 +1,31 @@
-﻿using NebulaModel.Attributes;
+﻿using Mirror;
 using NebulaModel.Logger;
-using Mirror;
-using NebulaModel.Packets;
-using NebulaModel.Packets.Planet;
-using System.Linq;
 using NebulaModel.Networking;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
-    [RegisterPacketProcessor]
-    public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
+    public struct PlanetDataResponse : NetworkMessage
     {
-        public override void ProcessPacket(PlanetDataResponse packet, NetworkConnection conn)
+        public int[] PlanetDataIDs;
+        public byte[] PlanetDataBytes;
+        public int[] PlanetDataBytesLengths;
+
+        public PlanetDataResponse(Dictionary<int, byte[]> planetData)
         {
-            if (IsHost) return;
+            PlanetDataIDs = planetData.Keys.ToArray();
+
+            // Can't use a jagged array because LNL serializer says no, so flattening and separate offset array it is
+            // TODO: Possibly register a type with the serializer instead of doing this manually
+            PlanetDataBytes = planetData.Values.SelectMany(x => x).ToArray();
+            PlanetDataBytesLengths = planetData.Values.Select(x => x.Length).ToArray();
+            NebulaModel.Logger.Log.Info($"Creating {GetType()}");
+        }
+
+        public static void ProcessPacket(PlanetDataResponse packet)
+        {
+            NebulaModel.Logger.Log.Info($"Processing {packet.GetType()}");
 
             // We have to track the offset we are currently at in the flattened jagged array as we decode
             int currentOffset = 0;

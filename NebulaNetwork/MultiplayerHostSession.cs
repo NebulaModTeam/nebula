@@ -61,6 +61,9 @@ namespace NebulaNetwork
             NetworkManager = MirrorManager.SetupMirror(typeof(HostManager), new UriBuilder("scheme://", "localhost", port, "").Uri);
 
             NetworkServer.RegisterHandler<NebulaMessage>((networkConnection, nebulaMessage) => OnNebulaMessage(networkConnection, nebulaMessage));
+            NetworkServer.RegisterHandler<PacketProcessors.Planet.FactoryLoadRequest>(PacketProcessors.Planet.FactoryLoadRequest.ProcessPacket);
+            NetworkServer.RegisterHandler<PacketProcessors.Planet.PlanetDataRequest>(PacketProcessors.Planet.PlanetDataRequest.ProcessPacket);
+            NetworkServer.RegisterHandler<PacketProcessors.Universe.DysonSphereLoadRequest>(PacketProcessors.Universe.DysonSphereLoadRequest.ProcessPacket);
 
             NetworkManager.StartServer();
 

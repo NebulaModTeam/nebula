@@ -1,7 +1,8 @@
 ﻿using HarmonyLib;
+using Mirror;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Planet;
-using NebulaModel.Packets.Universe;
+using NebulaNetwork.PacketProcessors.Planet;
+using NebulaNetwork.PacketProcessors.Universe;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Request factory
             Log.Info($"Requested factory for planet {planet.name} (ID: {planet.id}) from host");
-            LocalPlayer.SendPacket(new FactoryLoadRequest(planet.id));
+            NetworkClient.connection.Send(new FactoryLoadRequest(planet.id));
 
             // Skip running the actual method
             return false;
@@ -80,7 +81,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (GameMain.data.dysonSpheres[star.index] == null)
             {
                 Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
-                LocalPlayer.SendPacket(new DysonSphereLoadRequest(star.index));
+                NetworkClient.connection.Send(new DysonSphereLoadRequest(star.index));
             }
             return false;
         }
@@ -105,7 +106,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if (planetsToRequest.Any())
                 {
-                    LocalPlayer.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
+                    NetworkClient.connection.Send(new PlanetDataRequest(planetsToRequest.ToArray()));
                 }
             }
         }
