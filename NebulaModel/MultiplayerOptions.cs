@@ -38,6 +38,9 @@ namespace NebulaModel
         [DisplayName("Max Packet Size (B/K/M/G)")]
         public string MaxMessageSize { get; set; } = "50M";
 
+        [DisplayName("Queue Limit")]
+        public int QueueLimit {  get; set; } = 10000;
+
 #if DEBUG
         [DisplayName("Simulate Latency")]
         public bool SimulateLatency { get; set; } = false;

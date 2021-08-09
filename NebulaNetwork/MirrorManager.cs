@@ -64,6 +64,10 @@ namespace NebulaNetwork
                 telepathy.port = (ushort)uri.Port;
                 telepathy.SendTimeout = Timeout;
                 telepathy.ReceiveTimeout = Timeout;
+                telepathy.clientReceiveQueueLimit = Config.Options.QueueLimit;
+                telepathy.clientSendQueueLimit = Config.Options.QueueLimit;
+                telepathy.serverReceiveQueueLimitPerConnection = Config.Options.QueueLimit;
+                telepathy.serverSendQueueLimitPerConnection = Config.Options.QueueLimit;
                 transports.Add(telepathy);
             }
 
