@@ -13,7 +13,6 @@ namespace NebulaNetwork.PacketProcessors.Planet
         public FactoryLoadRequest(int planetID)
         {
             PlanetID = planetID;
-            Thread.Sleep((int)TimeSpan.FromSeconds(2).TotalMilliseconds);
             NebulaModel.Logger.Log.Info($"Creating {GetType()}");
         }
 

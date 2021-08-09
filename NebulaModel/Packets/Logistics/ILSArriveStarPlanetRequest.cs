@@ -15,7 +15,6 @@ namespace NebulaModel.Packets.Logistics
         public ILSArriveStarPlanetRequest() { }
         public ILSArriveStarPlanetRequest(int starId, int planetId)
         {
-            Thread.Sleep((int)TimeSpan.FromSeconds(2).TotalMilliseconds);
             this.StarId = starId;
         }
     }

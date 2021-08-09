@@ -20,7 +20,6 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public static void ProcessPacket(DysonSphereData packet)
         {
-            Thread.Sleep((int)TimeSpan.FromSeconds(2).TotalMilliseconds);
             NebulaModel.Logger.Log.Info($"Processing {packet.GetType()} with {packet.BinaryData.Length} bytes");
 
             //Failsafe, if client does not have instantiated sphere for the star, it will create dummy one that will be replaced during import
