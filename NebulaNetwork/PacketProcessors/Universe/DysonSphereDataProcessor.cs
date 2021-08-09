@@ -13,12 +13,12 @@ namespace NebulaNetwork.PacketProcessors.Universe
         {
             StarIndex = starIndex;
             BinaryData = data;
-            NebulaModel.Logger.Log.Info($"Creating {GetType()}");
+            NebulaModel.Logger.Log.Info($"Creating {GetType()} with {BinaryData.Length} bytes");
         }
 
         public static void ProcessPacket(DysonSphereData packet)
         {
-            NebulaModel.Logger.Log.Info($"Processing {packet.GetType()}");
+            NebulaModel.Logger.Log.Info($"Processing {packet.GetType()} with {packet.BinaryData.Length} bytes");
 
             //Failsafe, if client does not have instantiated sphere for the star, it will create dummy one that will be replaced during import
             if (GameMain.data.dysonSpheres[packet.StarIndex] == null)
