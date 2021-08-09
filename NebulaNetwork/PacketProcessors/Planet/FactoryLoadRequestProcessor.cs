@@ -1,6 +1,8 @@
 ﻿using Mirror;
 using NebulaModel.Networking;
 using NebulaWorld.Statistics;
+using System;
+using System.Threading;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
@@ -11,6 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
         public FactoryLoadRequest(int planetID)
         {
             PlanetID = planetID;
+            Thread.Sleep((int)TimeSpan.FromSeconds(2).TotalMilliseconds);
             NebulaModel.Logger.Log.Info($"Creating {GetType()}");
         }
 
