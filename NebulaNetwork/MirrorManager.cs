@@ -55,7 +55,6 @@ namespace NebulaNetwork
 #endif
             var transports = new List<Transport>();
 
-            /*
             // Telepathy
             if (!IsHost || Config.Options.TransportLayer == "telepathy")
             {
@@ -67,7 +66,6 @@ namespace NebulaNetwork
                 telepathy.ReceiveTimeout = Timeout;
                 transports.Add(telepathy);
             }
-            */
 
             // Ignorance
             if (!IsHost || Config.Options.TransportLayer == "ignorance")
