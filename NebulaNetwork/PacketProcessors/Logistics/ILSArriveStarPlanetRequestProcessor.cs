@@ -19,7 +19,6 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
         public ILSArriveStarPlanetRequestProcessor()
         {
-            Thread.Sleep((int)TimeSpan.FromSeconds(2).TotalMilliseconds);
             playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 

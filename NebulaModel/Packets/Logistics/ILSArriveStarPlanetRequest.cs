@@ -3,6 +3,9 @@
  * this will also sync the belt filters
  * this will help to give the impression of alive factories
  */
+using System.Threading;
+using System;
+
 namespace NebulaModel.Packets.Logistics
 {
     public class ILSArriveStarPlanetRequest
@@ -12,6 +15,7 @@ namespace NebulaModel.Packets.Logistics
         public ILSArriveStarPlanetRequest() { }
         public ILSArriveStarPlanetRequest(int starId, int planetId)
         {
+            Thread.Sleep((int)TimeSpan.FromSeconds(2).TotalMilliseconds);
             this.StarId = starId;
         }
     }
