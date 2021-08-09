@@ -19,7 +19,30 @@ namespace NebulaNetwork
 
             bool IsHost = networkManagerType == typeof(HostManager);
 
-            int MaxMessageSize = 1200;
+            int multiplier = 1;
+            char endChar = Config.Options.MaxMessageSize[Config.Options.MaxMessageSize.Length - 1];
+            switch (endChar)
+            {
+                case 'G':
+                    multiplier = 1024 * 1024 * 1024;
+                    break;
+                case 'M':
+                    multiplier = 1024 * 1024;
+                    break;
+                case 'K':
+                    multiplier = 1024;
+                    break;
+                case 'B':
+                default:
+                    multiplier = 1;
+                    break;
+            }
+            int MaxMessageSize = 50 * 1024 * 1024;
+            if (int.TryParse(Config.Options.MaxMessageSize.TrimEnd(endChar), out int result))
+            {
+                MaxMessageSize = result * multiplier;
+            }
+
             int Timeout = (int)TimeSpan.FromSeconds(Config.Options.Timeout).TotalMilliseconds;
             GameObject mirrorRoot = new GameObject();
             mirrorRoot.SetActive(false);
@@ -83,8 +106,8 @@ namespace NebulaNetwork
 #if DEBUG
                 kcp.statisticsGUI = true;
 #endif
-                kcp.ReceiveWindowSize = Math.Min(65535, (uint)MaxMessageSize);
-                kcp.SendWindowSize = Math.Min(65535, (uint)MaxMessageSize);
+                kcp.ReceiveWindowSize = (uint)MaxMessageSize;
+                kcp.SendWindowSize = (uint)MaxMessageSize;
                 kcp.Port = (ushort)uri.Port;
                 kcp.Timeout = Timeout;
                 transports.Add(kcp);
@@ -105,7 +128,7 @@ namespace NebulaNetwork
 
             mirrorRoot.SetActive(true);
 #if DEBUG
-            if(Config.Options.SimulateLatency)
+            if (Config.Options.SimulateLatency)
             {
                 Transport.activeTransport = latencySimulation;
             }

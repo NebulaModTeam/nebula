@@ -35,8 +35,8 @@ namespace NebulaModel
         [DisplayName("Connection Timeout (Seconds)")]
         public int Timeout { get; set; } = 30;
 
-        [DisplayName("Max Packet Size (MB)")]
-        public int MaxMessageSize { get; set; } = 50;
+        [DisplayName("Max Packet Size (B/K/M/G)")]
+        public string MaxMessageSize { get; set; } = "50M";
 
 #if DEBUG
         [DisplayName("Simulate Latency")]
