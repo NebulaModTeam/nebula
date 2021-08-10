@@ -20,7 +20,7 @@ namespace NebulaNetwork
             bool IsHost = networkManagerType == typeof(HostManager);
 
             int multiplier = 1;
-            char endChar = Config.Options.MaxMessageSize[Config.Options.MaxMessageSize.Length - 1];
+            char endChar = char.ToUpper(Config.Options.MaxMessageSize[Config.Options.MaxMessageSize.Length - 1]);
             switch (endChar)
             {
                 case 'G':
