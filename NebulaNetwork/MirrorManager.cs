@@ -68,6 +68,7 @@ namespace NebulaNetwork
                 telepathy.clientSendQueueLimit = Config.Options.QueueLimit;
                 telepathy.serverReceiveQueueLimitPerConnection = Config.Options.QueueLimit;
                 telepathy.serverSendQueueLimitPerConnection = Config.Options.QueueLimit;
+                telepathy.NoDelay = false;
                 transports.Add(telepathy);
             }
 
