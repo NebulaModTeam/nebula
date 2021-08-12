@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
         {
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.StatisticsBinaryData))
             {
-                StatisticsManager.ImportAllHistorytData(reader.BinaryReader);
+                StatisticsManager.ImportAllHistoryData(reader.BinaryReader);
             }
         }
     }

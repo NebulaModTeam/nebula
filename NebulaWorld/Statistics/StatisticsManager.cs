@@ -240,7 +240,7 @@ namespace NebulaWorld.Statistics
             return num2;
         }
 
-        public static void ImportAllHistorytData(BinaryReader br)
+        public static void ImportAllHistoryData(BinaryReader br)
         {
             GameStatData Stats = GameMain.statistics;
 
