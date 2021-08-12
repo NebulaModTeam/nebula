@@ -28,7 +28,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 factory.Export(writer.BinaryWriter);
                 conn.Send(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
             }
-            conn.SendPacket(StatisticsManager.instance.GetFactoryPlanetIds());
+            conn.SendPacket(StatisticsManager.GetFactoryPlanetIds());
         }
     }
 }
