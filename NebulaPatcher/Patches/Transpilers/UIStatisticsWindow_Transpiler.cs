@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Transpiler
 					num2 += netPool[j].energyStored;
 				}
 
-                With: StatisticsManager.UpdateTotalChargedEnergy(ref num2, targetIndex);
+                With: StatisticsManager.UpdateTotalChargedEnergy(factoryIndex);
                    
              * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
             var matcher = new CodeMatcher(instructions, iLGenerator)
