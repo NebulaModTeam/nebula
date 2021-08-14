@@ -25,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
             {
                 if (packet.Event == StatisticEvent.WindowOpened)
                 {
-                    StatisticsManager.instance.RegisterPlayer(conn, player.Id);
+                    StatisticsManager.Instance.RegisterPlayer(conn, player.Id);
 
                     using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
                     {
@@ -35,7 +35,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
                 }
                 else if (packet.Event == StatisticEvent.WindowClosed)
                 {
-                    StatisticsManager.instance.UnRegisterPlayer(player.Id);
+                    StatisticsManager.UnRegisterPlayer(player.Id);
                 }
             }
         }

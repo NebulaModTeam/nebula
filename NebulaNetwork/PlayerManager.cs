@@ -253,7 +253,7 @@ namespace NebulaNetwork
                     {
                         availablePlayerIds.Enqueue(player.Id);
                     }
-                    StatisticsManager.instance.UnRegisterPlayer(player.Id);
+                    StatisticsManager.UnRegisterPlayer(player.Id);
 
                     //Notify players about queued building plans for drones
                     int[] DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
