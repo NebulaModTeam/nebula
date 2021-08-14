@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj" />
+    <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

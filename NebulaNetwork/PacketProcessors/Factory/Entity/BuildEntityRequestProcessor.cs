@@ -1,10 +1,11 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
 using NebulaWorld.Player;
+using FactoryManager = NebulaWorld.Factory.FactoryManager;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
@@ -15,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
         {
             if (IsHost && !FactoryManager.ContainsPrebuildRequest(packet.PlanetId, packet.PrebuildId))
             {
-                Log.Warn($"BuildEntityRequest received does not have a corresponding PrebuildRequest with the id {packet.PrebuildId} for the planet {packet.PlanetId}");
+                //Log.Warn($"BuildEntityRequest received does not have a corresponding PrebuildRequest with the id {packet.PrebuildId} for the planet {packet.PlanetId}");
                 return;
             }
 

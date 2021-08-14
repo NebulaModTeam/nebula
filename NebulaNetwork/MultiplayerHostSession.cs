@@ -8,6 +8,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using NebulaWorld.Statistics;
 using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -54,6 +55,11 @@ namespace NebulaNetwork
 
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
+            
+            foreach (Assembly assembly in NebulaAPI.NebulaModAPI.TargetAssemblies)
+            {
+                PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, true);
+            }
 
             socketServer = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socketServer);

@@ -1,9 +1,10 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Inserter;
-using NebulaWorld.Factory;
+using FactoryManager = NebulaWorld.Factory.FactoryManager;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Inserter
 {

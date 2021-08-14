@@ -1,8 +1,9 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Belt;
-using NebulaWorld.Factory;
+using FactoryManager = NebulaWorld.Factory.FactoryManager;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Belt
 {

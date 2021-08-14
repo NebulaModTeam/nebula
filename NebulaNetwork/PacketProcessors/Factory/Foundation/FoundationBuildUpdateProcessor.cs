@@ -1,11 +1,12 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
 using System;
 using UnityEngine;
+using FactoryManager = NebulaWorld.Factory.FactoryManager;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 {

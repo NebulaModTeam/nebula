@@ -12,6 +12,7 @@ using NebulaWorld;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
@@ -76,6 +77,11 @@ namespace NebulaNetwork
 
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
+
+            foreach (Assembly assembly in NebulaAPI.NebulaModAPI.TargetAssemblies)
+            {
+                PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, false);
+            }
 
             clientSocket.Connect();
 

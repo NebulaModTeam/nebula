@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;

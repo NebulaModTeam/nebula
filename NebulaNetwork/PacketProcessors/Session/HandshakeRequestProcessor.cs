@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -7,6 +8,7 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using LocalPlayer = NebulaWorld.LocalPlayer;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
