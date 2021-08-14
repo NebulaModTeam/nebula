@@ -268,7 +268,7 @@ namespace NebulaWorld.Statistics
                 Stats.techHashedHistory[i] = br.ReadInt32();
             }
 
-            //Resfresh the view
+            //Refresh the view
             UIRoot.instance.uiGame.statWindow.ComputeDisplayEntries();
         }
     }
