@@ -1,0 +1,106 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: dsp-installed
+
+    env:
+      SOLUTION_NAME: Nebula.sln
+      PLUGIN_PATH :  C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\
+      NEBULA_FOLDER : Nebula\
+      DIST_RELEASE_FOLDER : dist\\release\\
+
+    steps:
+      - name: Set NEBULA_PATH environmental variable
+        id: nebula-path
+        run: >
+          echo "::set-output name=PATH::${{ env.PLUGIN_PATH }}${{ env.NEBULA_FOLDER }}"
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0 # can't shallowly clone due to git versioning
+      - run: |
+          git config user.name '${{ github.actor }}'
+          git config user.email '${{ github.actor }}@users.noreply.github.com'
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Get npm cache directory
+        id: npm-cache
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+        
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Clear output directory in DSP files
+        # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
+        run :  rm -R -ErrorAction SilentlyContinue "${{ steps.nebula-path.outputs.PATH }}" 
+
+      # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      # Add dotnet to the PATH: https://github.com/actions/setup-dotnet
+      - name: Setup dotnet.exe
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "3.1.x"
+      - run: |
+             dotnet tool install --tool-path . nbgv
+
+
+      # Build it
+      - name: Build the application
+        run: msbuild $env:SOLUTION_NAME /p:Configuration=Release /p:PublicRelease=true
+
+      # Bundle
+      - name: Bundle build for thunderstore and github
+        env:
+          TSTORE_TOKEN: ${{ secrets.TSTORE_TOKEN }}
+        run: node .github\scripts\thunderstore_bundle.js
+
+      - name: Prepare Release
+        id: prepare-release
+        run: |
+          $version = ./nbgv prepare-release --format json;
+          echo "::set-output name=PREPARE_RELEASE_OUTPUT::$version";
+      
+      - name: Push changes
+        run: |
+          git push;
+          git checkout ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }};
+          git push -u origin head;
+          git checkout ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).CurrentBranch.Name }}
+
+      # Upload the thunderstore artifact (in case automatic upload fails)
+      - uses: actions/upload-artifact@v2.2.4
+        with:
+          name: nebula-thunderstore
+          path: ${{ env.DIST_RELEASE_FOLDER }}nebula
+
+      # Create release
+      - uses: ncipollo/release-action@v1
+        with:
+          artifactErrorsFailBuild: true
+          bodyFile: "${{ env.DIST_RELEASE_FOLDER }}BODY.md"
+          artifacts: "${{ env.DIST_RELEASE_FOLDER }}Nebula_${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Version }}.zip"
+          tag: ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
+          commit: ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
