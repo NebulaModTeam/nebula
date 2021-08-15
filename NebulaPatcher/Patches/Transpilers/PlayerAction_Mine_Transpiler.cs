@@ -37,16 +37,16 @@ namespace NebulaPatcher.Patches.Transpilers
             return codeMatcher
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<FetchVeinMineAmount>((PlayerAction_Mine _this) =>
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<FetchVeinMineAmount>((FetchVeinMineAmount)((PlayerAction_Mine _this) =>
                 {
                     // do we need to check for the event here? its very unlikely that we call the GameTick() by hand...
-                    if (SimulatedWorld.Initialized && !PlanetManager.EventFromClient && !PlanetManager.EventFromServer)
+                    if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
                     {
                         LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(_this.player.planetId, _this.miningId, _this.player.factory.veinPool[_this.miningId].amount, true));
                     }
 
                     return 0;
-                }))
+                })))
                 .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
         }

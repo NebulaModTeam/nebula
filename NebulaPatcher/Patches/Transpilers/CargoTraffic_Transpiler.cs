@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Transpiler
                            .CreateLabelAt(matcher.Pos + 5, out Label end)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                            {
-                               return SimulatedWorld.Initialized && (FactoryManager.EventFromClient || FactoryManager.EventFromServer);
+                               return SimulatedWorld.Initialized && FactoryManager.IsIncomingRequest;
                            }))
                            .Insert(new CodeInstruction(OpCodes.Brtrue, end))
                            .Advance(5);

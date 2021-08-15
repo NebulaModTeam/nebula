@@ -47,7 +47,7 @@ namespace NebulaModel.Networking
 
         public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
         {
-            if(string.IsNullOrEmpty(reasonString))
+            if (string.IsNullOrEmpty(reasonString))
             {
                 peerSocket.Close((ushort)reason);
             }

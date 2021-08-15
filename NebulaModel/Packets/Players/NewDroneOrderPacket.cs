@@ -12,7 +12,7 @@ namespace NebulaModel.Packets.Players
         public int Stage { get; set; }
         public int Priority { get; set; }
         public Float3 EntityPos { get; set; }
-        
+
         public NewDroneOrderPacket() { }
         public NewDroneOrderPacket(int planetId, int droneId, int entityId, ushort playerId, int stage, int priority, Vector3 entityPos)
         {

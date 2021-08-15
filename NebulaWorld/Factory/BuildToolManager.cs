@@ -12,7 +12,7 @@ namespace NebulaWorld.Factory
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             if (planet.factory == null)
             {
-                if (FactoryManager.EventFromServer)
+                if (FactoryManager.IsIncomingRequest)
                 {
                     // We only execute the code if the client has loaded the factory at least once.
                     // Else it will get it once it goes to the planet for the first time. 
@@ -70,7 +70,7 @@ namespace NebulaWorld.Factory
                 buildTool.factory = planet.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
-                if (FactoryManager.EventFromClient)
+                if (FactoryManager.IsIncomingRequest)
                 {
                     // Only the server needs to set these
                     pab.planetPhysics = planet.physics;
@@ -79,15 +79,15 @@ namespace NebulaWorld.Factory
 
                 //Check if prebuilds can be build (collision check, height check, etc)
                 bool canBuild = false;
-                if (FactoryManager.EventFromClient)
+                if (FactoryManager.IsIncomingRequest)
                 {
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                if (canBuild || FactoryManager.EventFromServer)
+                if (canBuild || FactoryManager.IsIncomingRequest)
                 {
-                    if (FactoryManager.EventFromClient) CheckAndFixConnections(buildTool, planet);
+                    if (FactoryManager.IsIncomingRequest) CheckAndFixConnections(buildTool, planet);
 
                     if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
                     {
@@ -141,7 +141,7 @@ namespace NebulaWorld.Factory
                 }
 
                 FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-                FactoryManager.PacketAuthor = -1;
+                FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
             }
         }
 

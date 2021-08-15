@@ -1,4 +1,4 @@
-﻿namespace NebulaHost.PacketProcessors.Players
+﻿namespace NebulaNetwork.PacketProcessors.Players
 {
     public class RemoveDroneOrdersPacket
     {

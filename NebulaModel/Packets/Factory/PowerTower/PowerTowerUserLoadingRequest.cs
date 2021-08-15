@@ -7,7 +7,9 @@
         public int NodeId { get; set; }
         public int PowerAmount { get; set; }
         public bool Charging { get; set; }
+
         public PowerTowerUserLoadingRequest() { }
+
         public PowerTowerUserLoadingRequest(int PlanetId, int NetId, int NodeId, int PowerAmount, bool Charging)
         {
             this.PlanetId = PlanetId;

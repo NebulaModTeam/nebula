@@ -25,8 +25,7 @@ namespace NebulaWorld.Factory
         static Locker GetPlanetTimers(out Dictionary<int, Timer> planetTimers) =>
             threadSafe.PlanetTimers.GetLocked(out planetTimers);
 
-        public static readonly ToggleSwitch EventFromServer = new ToggleSwitch();
-        public static readonly ToggleSwitch EventFromClient = new ToggleSwitch();
+        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
         public static PlanetFactory EventFactory { get; set; }
         public static readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
         public static readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
@@ -34,10 +33,12 @@ namespace NebulaWorld.Factory
         public static int PacketAuthor { get; set; }
         public static int TargetPlanet { get; set; }
         public const int PLANET_NONE = -2;
+        public const int AUTHOR_NONE = -1;
+        public const int STAR_NONE = -1;
 
         public static void Initialize()
         {
-            PacketAuthor = -1;
+            PacketAuthor = AUTHOR_NONE;
             TargetPlanet = PLANET_NONE;
         }
 

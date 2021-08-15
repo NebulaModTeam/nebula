@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NebulaModel.Packets.GameHistory
+﻿namespace NebulaModel.Packets.GameHistory
 {
     public class GameHistoryTechRefundPacket
     {
@@ -10,7 +8,7 @@ namespace NebulaModel.Packets.GameHistory
         public GameHistoryTechRefundPacket() { }
 
         public GameHistoryTechRefundPacket(int techId, long contributed)
-        { 
+        {
             this.TechIdContributed = techId;
             this.TechHashedContributed = contributed;
         }

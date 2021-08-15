@@ -276,7 +276,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
         {
-            NebulaClient.MultiplayerClientSession session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
+            NebulaNetwork.MultiplayerClientSession session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
 
             if (isIP)
             {

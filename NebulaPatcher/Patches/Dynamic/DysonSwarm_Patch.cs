@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that orbit for Dyson Swarm was created
-            if (!DysonSphere_Manager.IncomingDysonSwarmPacket)
+            if (!DysonSphereManager.IncomingDysonSwarmPacket)
             {
                 LocalPlayer.SendPacket(new DysonSwarmAddOrbitPacket(__instance.starData.index, radius, rotation));
             }
@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
             //Notify others that orbit for Dyson Swarm was deleted
-            if (!DysonSphere_Manager.IncomingDysonSwarmPacket)
+            if (!DysonSphereManager.IncomingDysonSwarmPacket)
             {
                 LocalPlayer.SendPacket(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId));
             }

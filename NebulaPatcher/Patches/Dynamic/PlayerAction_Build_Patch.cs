@@ -34,12 +34,12 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.EventFromServer)
+            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.EventFromServer;
+            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            if ((FactoryManager.EventFromServer || FactoryManager.EventFromClient) && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
+            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
             {
                 return false;
             }
