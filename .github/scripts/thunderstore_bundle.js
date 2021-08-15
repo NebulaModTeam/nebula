@@ -68,9 +68,7 @@ async function main() {
   await createTStoreArchive();
   await createGHArchive();
 
-  downloadTStoreCli();
-  generateTStoreConfig();
-  uploadToTStore();
+  await doTStoreRelease();
 }
 
 function getPluginInfo() {
@@ -155,7 +153,7 @@ function copyFolderContent(src, dst, excludedExts) {
   });
 }
 
-function downloadTStoreCli() {
+async function doTStoreRelease() {
   const user = "Windows10CE";
   const repo = "tstore-cli";
   const outputdir = DIST_TSTORE_CLI_FOLDER;
@@ -174,21 +172,25 @@ function downloadTStoreCli() {
     return asset.name.includes("tstore-cli.exe");
   }
 
-  downloadRelease(
-    user,
-    repo,
-    outputdir,
-    filterRelease,
-    filterAsset,
-    leaveZipped,
-    disableLogging
-  )
-    .then(function () {
-      console.log("Successfully downloaded tstore-cli.exe");
-    })
-    .catch(function (err) {
-      console.error(err.message);
-    });
+  try
+  {
+    await downloadRelease(
+      user,
+      repo,
+      outputdir,
+      filterRelease,
+      filterAsset,
+      leaveZipped,
+      disableLogging
+    );
+    console.log("Successfully downloaded tstore-cli.exe");
+    await new Promise(r => setTimeout(r, 2000));
+    generateTStoreConfig();
+    uploadToTStore();
+  } catch(err)
+  {
+    console.error(err.message);
+  }
 }
 
 function generateTStoreConfig() {

@@ -2,8 +2,10 @@
   "dependencies": {
     "@actions/core": "^1.4.0",
     "@terascope/fetch-github-release": "^0.7.7",
+    "child_process": "^1.0.2",
     "fs-extra": "^10.0.0",
     "json2toml": "^2.2.0",
+    "path": "^0.12.7",
     "xml-query": "^1.5.0",
     "xml-reader": "^2.4.3",
     "zip-a-folder": "^1.1.0"
