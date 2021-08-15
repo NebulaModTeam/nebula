@@ -96,7 +96,7 @@ jobs:
           path: ${{ env.DIST_RELEASE_FOLDER }}nebula
 
       # Create release
-      - uses: ncipollo/release-action@v1
+      - uses: hubastard/release-action@v1
         with:
           artifactErrorsFailBuild: true
           bodyFile: "${{ env.DIST_RELEASE_FOLDER }}BODY.md"
