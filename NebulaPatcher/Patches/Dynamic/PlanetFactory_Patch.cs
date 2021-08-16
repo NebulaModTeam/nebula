@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     // This prevents duplicating the entity when multiple players trigger the BuildFinally for the same entity at the same time.
                     // If it occurs in any other circumstances, it means that we have some desynchronization between clients and host prebuilds buffers.
-                    //Log.Warn($"BuildFinally was called without having a corresponding PrebuildRequest for the prebuild {prebuildId} on the planet {__instance.planetId}");
+                    Log.Warn($"BuildFinally was called without having a corresponding PrebuildRequest for the prebuild {prebuildId} on the planet {__instance.planetId}");
                     return false;
                 }
 
