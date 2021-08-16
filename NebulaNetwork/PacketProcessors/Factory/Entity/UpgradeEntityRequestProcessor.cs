@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     {
         public override void ProcessPacket(UpgradeEntityRequest packet, NebulaConnection conn)
         {
-            using (FactoryManager.IsIncomingRequest.On())
+            using (FactoryManager.Instance.IsIncomingRequest.On())
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
 
@@ -23,15 +23,15 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     return;
                 }
 
-                FactoryManager.TargetPlanet = packet.PlanetId;
-                FactoryManager.PacketAuthor = packet.AuthorId;
+                FactoryManager.Instance.TargetPlanet = packet.PlanetId;
+                FactoryManager.Instance.PacketAuthor = packet.AuthorId;
 
-                FactoryManager.AddPlanetTimer(packet.PlanetId);
+                FactoryManager.Instance.AddPlanetTimer(packet.PlanetId);
                 ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
                 planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
 
-                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-                FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
+                FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
+                FactoryManager.Instance.PacketAuthor = FactoryManager.Instance.AUTHOR_NONE;
             }
         }
     }

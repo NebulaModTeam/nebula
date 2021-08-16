@@ -12,12 +12,12 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnNameInputEndEdit")]
         public static void OnNameInputEndEdit_Postfix(UIPlanetDetail __instance)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.IsIncomingRequest)
+            if (SimulatedWorld.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
                 if (__instance.planet != null && !string.IsNullOrEmpty(__instance.planet.overrideName))
                 {
                     // Send packet with new planet name
-                    LocalPlayer.SendPacket(new NameInputPacket(__instance.planet.overrideName, FactoryManager.STAR_NONE, __instance.planet.id, LocalPlayer.PlayerId));
+                    LocalPlayer.Instance.SendPacket(new NameInputPacket(__instance.planet.overrideName, FactoryManager.Instance.STAR_NONE, __instance.planet.id, LocalPlayer.Instance.PlayerId));
                 }
             }
         }

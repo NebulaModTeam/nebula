@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     {
         public override void ProcessPacket(DestructEntityRequest packet, NebulaConnection conn)
         {
-            using (FactoryManager.IsIncomingRequest.On())
+            using (FactoryManager.Instance.IsIncomingRequest.On())
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
                 PlayerAction_Build pab = GameMain.mainPlayer.controller != null ? GameMain.mainPlayer.controller.actionBuild : null;
@@ -24,19 +24,19 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     return;
                 }
 
-                FactoryManager.TargetPlanet = packet.PlanetId;
-                FactoryManager.PacketAuthor = packet.AuthorId;
+                FactoryManager.Instance.TargetPlanet = packet.PlanetId;
+                FactoryManager.Instance.PacketAuthor = packet.AuthorId;
                 PlanetFactory tmpFactory = pab.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
 
-                FactoryManager.AddPlanetTimer(packet.PlanetId);
+                FactoryManager.Instance.AddPlanetTimer(packet.PlanetId);
                 pab.DoDismantleObject(packet.ObjId);
 
                 pab.factory = tmpFactory;
                 pab.noneTool.factory = tmpFactory;
-                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-                FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
+                FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
+                FactoryManager.Instance.PacketAuthor = FactoryManager.Instance.AUTHOR_NONE;
             }
         }
     }

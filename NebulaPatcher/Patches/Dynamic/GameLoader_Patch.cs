@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (___frame >= 11 && SimulatedWorld.Initialized)
             {
                 SimulatedWorld.OnGameLoadCompleted();
-                if (!LocalPlayer.IsMasterClient)
+                if (!LocalPlayer.Instance.IsMasterClient)
                 {
                     MultiplayerClientSession.Instance.DisplayPingIndicator();
                 }

@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_buildConfirm", MethodType.Getter)]
         static bool Prefix(ref VFInput.InputValue __result)
         {
-            if (FactoryManager.IsIncomingRequest)
+            if (FactoryManager.Instance.IsIncomingRequest.Value)
             {
                 __result = default(VFInput.InputValue);
                 __result.onDown = true;

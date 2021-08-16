@@ -31,7 +31,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
-                using (FactoryManager.IsIncomingRequest.On())
+                using (FactoryManager.Instance.IsIncomingRequest.On())
                 {
                     SimulatedWorld.OnILSShipUpdate(packet);
                 }

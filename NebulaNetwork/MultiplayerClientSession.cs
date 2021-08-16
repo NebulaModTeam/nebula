@@ -87,8 +87,8 @@ namespace NebulaNetwork
 
             SimulatedWorld.Initialize();
 
-            LocalPlayer.IsMasterClient = false;
-            LocalPlayer.SetNetworkProvider(this);
+            LocalPlayer.Instance.IsMasterClient = false;
+            LocalPlayer.Instance.SetNetworkProvider(this);
 
             if (Config.Options.RememberLastIP)
             {
@@ -247,7 +247,7 @@ namespace NebulaNetwork
                         "Connection Lost",
                         $"You have been disconnected from the server.\n{e.Reason}",
                         "Quit",
-                        () => LocalPlayer.LeaveGame());
+                        () => LocalPlayer.Instance.LeaveGame());
                 }
                 else
                 {
@@ -257,7 +257,7 @@ namespace NebulaNetwork
                         "OK",
                         () =>
                         {
-                            LocalPlayer.IsMasterClient = false;
+                            LocalPlayer.Instance.IsMasterClient = false;
                             SimulatedWorld.Clear();
                             DestroySession();
                             OnDisconnectPopupCloseBeforeGameLoad();

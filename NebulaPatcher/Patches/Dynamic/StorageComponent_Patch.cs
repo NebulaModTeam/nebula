@@ -78,7 +78,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // We should only take items to player if player requested
-            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
+            if (FactoryManager.Instance.IsIncomingRequest.Value && FactoryManager.Instance.PacketAuthor != LocalPlayer.Instance.PlayerId)
             {
                 count = 1;
                 return false;
@@ -95,13 +95,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            if (LocalPlayer.IsMasterClient)
+            if (LocalPlayer.Instance.IsMasterClient)
             {
                 StorageSyncManager.SendToPlayersOnTheSamePlanet(packet, GameMain.data.localPlanet.id);
             }
             else
             {
-                LocalPlayer.SendPacket(packet);
+                LocalPlayer.Instance.SendPacket(packet);
             }
         }
     }

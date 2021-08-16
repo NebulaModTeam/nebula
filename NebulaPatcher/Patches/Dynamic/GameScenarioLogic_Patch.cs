@@ -14,14 +14,14 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //Synchronize unlocking techs
             // Do not run if it is not multiplayer and if the player is not a client
-            if (!SimulatedWorld.Initialized || !LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || !LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
             //Notify all clients about unlocked tech
             Log.Info($"Sending Tech Unlocked notification");
             GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
-            LocalPlayer.SendPacket(new GameHistoryUnlockTechPacket(techId));
+            LocalPlayer.Instance.SendPacket(new GameHistoryUnlockTechPacket(techId));
         }
     }
 }

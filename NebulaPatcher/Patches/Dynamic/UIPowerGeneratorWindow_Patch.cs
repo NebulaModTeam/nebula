@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about change of ray receiver to mode "electricity"
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity, GameMain.localPlanet?.id ?? -1));
+                LocalPlayer.Instance.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about change of ray receiver to mode "produce photons"
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon, GameMain.localPlanet?.id ?? -1));
+                LocalPlayer.Instance.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about changing amount of gravitational lens
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.id ?? -1));
+                LocalPlayer.Instance.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -49,7 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (SimulatedWorld.Initialized)
             {
                 PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-                LocalPlayer.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.id ?? -1));
+                LocalPlayer.Instance.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

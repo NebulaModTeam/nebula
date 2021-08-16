@@ -82,7 +82,7 @@ namespace NebulaPatcher.Patches.Transpiler
                            .InsertAndAdvance(storeNum2Instruction)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                            {
-                               return SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient;
+                               return SimulatedWorld.Initialized && !LocalPlayer.Instance.IsMasterClient;
                            }))
                            .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, endLabel))
                            .InstructionEnumeration();

@@ -45,7 +45,7 @@ namespace NebulaNetwork
             {
                 int i = 0;
                 var result = new PlayerData[1 + connectedPlayers.Count];
-                result[i++] = LocalPlayer.Data;
+                result[i++] = LocalPlayer.Instance.Data;
                 foreach (var kvp in connectedPlayers)
                 {
                     result[i++] = kvp.Value.Data;
@@ -259,7 +259,7 @@ namespace NebulaNetwork
                     int[] DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
                     if (DronePlans != null && DronePlans.Length > 0 && player.Data.LocalPlanetId > 0)
                     {
-                        LocalPlayer.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
+                        LocalPlayer.Instance.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
                         //Remove it also from host queue, if host is on the same planet
                         if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                         {

@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     {
         public override void ProcessPacket(BuildEntityRequest packet, NebulaConnection conn)
         {
-            if (IsHost && !FactoryManager.ContainsPrebuildRequest(packet.PlanetId, packet.PrebuildId))
+            if (IsHost && !FactoryManager.Instance.ContainsPrebuildRequest(packet.PlanetId, packet.PrebuildId))
             {
                 //Log.Warn($"BuildEntityRequest received does not have a corresponding PrebuildRequest with the id {packet.PrebuildId} for the planet {packet.PlanetId}");
                 return;
@@ -26,13 +26,13 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
             // Else it will get it once it goes to the planet for the first time. 
             if (planet.factory != null)
             {
-                using (FactoryManager.IsIncomingRequest.On())
+                using (FactoryManager.Instance.IsIncomingRequest.On())
                 {
-                    FactoryManager.EventFactory = planet.factory;
-                    FactoryManager.TargetPlanet = packet.PlanetId;
-                    FactoryManager.PacketAuthor = packet.AuthorId;
+                    FactoryManager.Instance.EventFactory = planet.factory;
+                    FactoryManager.Instance.TargetPlanet = packet.PlanetId;
+                    FactoryManager.Instance.PacketAuthor = packet.AuthorId;
 
-                    FactoryManager.AddPlanetTimer(packet.PlanetId);
+                    FactoryManager.Instance.AddPlanetTimer(packet.PlanetId);
 
                     //Remove building from drone queue
                     GameMain.mainPlayer.mecha.droneLogic.serving.Remove(-packet.PrebuildId);
@@ -43,9 +43,9 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                         DroneManager.RemoveBuildRequest(-packet.PrebuildId);
                     }
 
-                    FactoryManager.EventFactory = null;
-                    FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
-                    FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
+                    FactoryManager.Instance.EventFactory = null;
+                    FactoryManager.Instance.PacketAuthor = FactoryManager.Instance.AUTHOR_NONE;
+                    FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
                 }
             }
         }

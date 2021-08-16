@@ -44,12 +44,14 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="FactoryManager.cs" />
-        <Compile Include="LocalPlayer.cs" />
+        <Compile Include="Data\IToggle.cs" />
         <Compile Include="NebulaModAPI.cs" />
+        <Compile Include="Network\BinaryInterfaces.cs" />
         <Compile Include="Packets\BasePacketProcessor.cs" />
         <Compile Include="Packets\INebulaConnection.cs" />
         <Compile Include="Packets\RegisterPacketProcessorAttribute.cs" />
+        <Compile Include="World\IFactoryManager.cs" />
+        <Compile Include="World\INebulaPlayer.cs" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Properties" />

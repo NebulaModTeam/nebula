@@ -113,7 +113,7 @@ namespace NebulaWorld.Logistics
          */
         public static void WorkShipBackToIdle(ILSShipData packet)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if(!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -201,7 +201,7 @@ namespace NebulaWorld.Logistics
          */
         private static void RequestgStationDockPos(int GId)
         {
-            LocalPlayer.SendPacket(new ILSRequestShipDock(GId));
+            LocalPlayer.Instance.SendPacket(new ILSRequestShipDock(GId));
         }
 
         /*
@@ -209,7 +209,7 @@ namespace NebulaWorld.Logistics
          */
         public static void UpdateRemoteOrder(ILSRemoteOrderData packet)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -234,7 +234,7 @@ namespace NebulaWorld.Logistics
          */
         public static void AddTakeItem(ILSShipItems packet)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
+            if(!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
             {
                 return;
             }
@@ -287,7 +287,7 @@ namespace NebulaWorld.Logistics
             
             // Clients only care about what happens on their planet, hosts always need to apply this.
             // Using PlanetFactory to prevent getting the "fakes" that are creates on clients.
-            if (LocalPlayer.IsMasterClient || (!LocalPlayer.IsMasterClient && packet.PlanetId == GameMain.localPlanet?.id))
+            if (LocalPlayer.Instance.IsMasterClient || (!LocalPlayer.Instance.IsMasterClient && packet.PlanetId == GameMain.localPlanet?.id))
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
                 StationComponent stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];

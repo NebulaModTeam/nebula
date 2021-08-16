@@ -35,9 +35,9 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (valid)
             {
-                using (FactoryManager.IsIncomingRequest.On())
+                using (FactoryManager.Instance.IsIncomingRequest.On())
                 {
-                    if (packet.StarId != FactoryManager.STAR_NONE)
+                    if (packet.StarId != FactoryManager.Instance.STAR_NONE)
                     {
                         var star = GameMain.galaxy.StarById(packet.StarId);
                         star.overrideName = packet.Name;

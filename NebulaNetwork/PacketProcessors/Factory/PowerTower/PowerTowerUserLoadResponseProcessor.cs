@@ -38,7 +38,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
 
                 if (IsHost)
                 {
-                    LocalPlayer.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
+                    LocalPlayer.Instance.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
                         packet.NetId,
                         packet.NodeId,
                         packet.PowerAmount,

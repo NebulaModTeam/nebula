@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized)
             {
-                LocalPlayer.SendPacketToLocalStar(new MinerStoragePickupPacket(__instance.minerId, GameMain.localPlanet?.id ?? -1));
+                LocalPlayer.Instance.SendPacketToLocalStar(new MinerStoragePickupPacket(__instance.minerId, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

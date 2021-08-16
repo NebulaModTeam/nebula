@@ -43,7 +43,7 @@ namespace NebulaWorld
             StationUIManager.Initialize();
             ILSShipManager.Initialize();
             DroneManager.Initialize();
-            FactoryManager.Initialize();
+            FactoryManager.Instance.Initialize();
             PlanetManager.Initialize();
             Initialized = true;
             ExitingMultiplayerSession = false;
@@ -217,7 +217,7 @@ namespace NebulaWorld
             {
                 Transform transform;
                 RemotePlayerModel remotePlayerModel;
-                if (playerId == LocalPlayer.PlayerId)
+                if (playerId == LocalPlayer.Instance.PlayerId)
                 {
                     transform = GameMain.data.mainPlayer.transform;
                 }
@@ -244,9 +244,9 @@ namespace NebulaWorld
                 }
 
                 // We changed our own color, so we have to let others know
-                if (LocalPlayer.PlayerId == playerId)
+                if (LocalPlayer.Instance.PlayerId == playerId)
                 {
-                    LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
+                    LocalPlayer.Instance.SendPacket(new PlayerColorChanged(playerId, color));
                 }
             }
         }
@@ -367,32 +367,32 @@ namespace NebulaWorld
             Log.Info("Game has finished loading");
 
             // Assign our own color
-            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.MechaColor);
+            UpdatePlayerColor(LocalPlayer.Instance.PlayerId, LocalPlayer.Instance.Data.MechaColor);
 
             // Change player location from spawn to the last known
-            VectorLF3 UPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
+            VectorLF3 UPosition = new VectorLF3(LocalPlayer.Instance.Data.UPosition.x, LocalPlayer.Instance.Data.UPosition.y, LocalPlayer.Instance.Data.UPosition.z);
             if (UPosition != VectorLF3.zero)
             {
-                GameMain.mainPlayer.planetId = LocalPlayer.Data.LocalPlanetId;
-                if (LocalPlayer.Data.LocalPlanetId == -1)
+                GameMain.mainPlayer.planetId = LocalPlayer.Instance.Data.LocalPlanetId;
+                if (LocalPlayer.Instance.Data.LocalPlanetId == -1)
                 {
                     GameMain.mainPlayer.uPosition = UPosition;
                 }
                 else
                 {
-                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToVector3();
+                    GameMain.mainPlayer.position = LocalPlayer.Instance.Data.LocalPlanetPosition.ToVector3();
                     GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
                 }
-                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToVector3());
+                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Instance.Data.Rotation.ToVector3());
 
                 //Load player's saved data from the last session.
-                AccessTools.Property(typeof(global::Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
-                GameMain.mainPlayer.mecha.forge = LocalPlayer.Data.Mecha.Forge;
-                GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Data.Mecha.CoreEnergy;
-                GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
-                GameMain.mainPlayer.mecha.reactorStorage = LocalPlayer.Data.Mecha.ReactorStorage;
-                GameMain.mainPlayer.mecha.warpStorage = LocalPlayer.Data.Mecha.WarpStorage;
-                GameMain.mainPlayer.SetSandCount(LocalPlayer.Data.Mecha.SandCount);
+                AccessTools.Property(typeof(global::Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Instance.Data.Mecha.Inventory, null);
+                GameMain.mainPlayer.mecha.forge = LocalPlayer.Instance.Data.Mecha.Forge;
+                GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Instance.Data.Mecha.CoreEnergy;
+                GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Instance.Data.Mecha.ReactorEnergy;
+                GameMain.mainPlayer.mecha.reactorStorage = LocalPlayer.Instance.Data.Mecha.ReactorStorage;
+                GameMain.mainPlayer.mecha.warpStorage = LocalPlayer.Instance.Data.Mecha.WarpStorage;
+                GameMain.mainPlayer.SetSandCount(LocalPlayer.Instance.Data.Mecha.SandCount);
 
                 //Fix references that brokes during import
                 AccessTools.Property(typeof(MechaForge), "mecha").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer.mecha, null);
@@ -401,15 +401,15 @@ namespace NebulaWorld
             }
 
             //Update player's Mecha tech bonuses
-            if (!LocalPlayer.IsMasterClient)
+            if (!LocalPlayer.Instance.IsMasterClient)
             {
-                LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
+                LocalPlayer.Instance.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
             }
 
             //Initialization on the host side after game is loaded
-            FactoryManager.InitializePrebuildRequests();
+            FactoryManager.Instance.InitializePrebuildRequests();
 
-            LocalPlayer.SetReady();
+            LocalPlayer.Instance.SetReady();
 
             IsGameLoaded = true;
         }
@@ -608,7 +608,7 @@ namespace NebulaWorld
                     }
 
                     // If the player is not on the same planet or is in space, then do not render their in-world tag
-                    if (playerModel.Movement.localPlanetId != LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
+                    if (playerModel.Movement.localPlanetId != LocalPlayer.Instance.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
                     {
                         playerNameText.gameObject.SetActive(false);
                     }

@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfGuideButtonClick")]
         public static void OnDfGuideButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfIconButtonClick")]
         public static void OnDfIconButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -41,7 +41,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfLightButtonClick")]
         public static void OnDfLightButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -54,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfPowerButtonClick")]
         public static void OnDfPowerButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -67,7 +67,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfSignButtonClick")]
         public static void OnDfSignButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -80,7 +80,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnDfVeinButtonClick")]
         public static void OnDfVeinButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }

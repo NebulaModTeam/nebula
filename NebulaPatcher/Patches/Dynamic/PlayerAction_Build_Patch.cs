@@ -18,28 +18,28 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            int planetId = FactoryManager.TargetPlanet != FactoryManager.PLANET_NONE ? FactoryManager.TargetPlanet : __instance.planet?.id ?? -1;
+            int planetId = FactoryManager.Instance.TargetPlanet != FactoryManager.Instance.PLANET_NONE ? FactoryManager.Instance.TargetPlanet : __instance.planet?.id ?? -1;
             // TODO: handle if 2 clients or if host and client trigger a destruct of the same object at the same time
 
             // If the object is a prebuild, remove it from the prebuild request list
-            if (LocalPlayer.IsMasterClient && objId < 0)
+            if (LocalPlayer.Instance.IsMasterClient && objId < 0)
             {
-                if (!FactoryManager.ContainsPrebuildRequest(planetId, -objId))
+                if (!FactoryManager.Instance.ContainsPrebuildRequest(planetId, -objId))
                 {
                     Log.Warn($"DestructFinally was called without having a corresponding PrebuildRequest for the prebuild {-objId} on the planet {planetId}");
                     return false;
                 }
 
-                FactoryManager.RemovePrebuildRequest(planetId, -objId);
+                FactoryManager.Instance.RemovePrebuildRequest(planetId, -objId);
             }
 
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
+            if (LocalPlayer.Instance.IsMasterClient || !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.Instance.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
+            return LocalPlayer.Instance.IsMasterClient || FactoryManager.Instance.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
+            if (FactoryManager.Instance.IsIncomingRequest.Value && FactoryManager.Instance.PacketAuthor != LocalPlayer.Instance.PlayerId && FactoryManager.Instance.TargetPlanet != GameMain.localPlanet?.id)
             {
                 return false;
             }

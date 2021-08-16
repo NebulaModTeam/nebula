@@ -14,13 +14,13 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix()
         {
             // Do not run if it is not multiplayer and the player is not a client
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
             // Request history data
             Log.Info($"Requesting GameHistoryData from the server");
-            LocalPlayer.SendPacket(new GameHistoryDataRequest());
+            LocalPlayer.Instance.SendPacket(new GameHistoryDataRequest());
         }
 
         [HarmonyPostfix]
@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             //Synchronize enqueueing techs by players
             Log.Info($"Sending Enqueue Tech notification");
-            LocalPlayer.SendPacket(new GameHistoryEnqueueTechPacket(techId));
+            LocalPlayer.Instance.SendPacket(new GameHistoryEnqueueTechPacket(techId));
         }
 
         [HarmonyPostfix]
@@ -56,7 +56,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             //Synchronize dequeueing techs by players and trigger refunds for all clients
             Log.Info($"Sending Dequeue Tech notification: remove techID{__state}");
-            LocalPlayer.SendPacket(new GameHistoryRemoveTechPacket(__state));
+            LocalPlayer.Instance.SendPacket(new GameHistoryRemoveTechPacket(__state));
         }
 
         [HarmonyPostfix]
@@ -74,7 +74,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             //Synchronize pausing techs by players
             Log.Info($"Sending Pause Tech queue notification");
-            LocalPlayer.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.PauseQueue));
+            LocalPlayer.Instance.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.PauseQueue));
         }
 
         [HarmonyPostfix]
@@ -92,7 +92,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             //Synchronize resuming techs by players
             Log.Info($"Sending Resume Tech queue notification");
-            LocalPlayer.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.ResumeQueue));
+            LocalPlayer.Instance.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.ResumeQueue));
         }
 
         [HarmonyPrefix]
@@ -100,7 +100,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnlockRecipe_Prefix()
         {
             //Wait for the authoritative packet for unlocking recipes in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -108,7 +108,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnlockTechFunction_Prefix()
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -116,7 +116,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GainTechAwards_Prefix()
         {
             //Wait for the authoritative packet for gaining tech awards in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -124,13 +124,13 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddTechHash_Prefix(GameHistoryData __instance, long addcnt)
         {
             //Host in multiplayer can do normal research in the mecha
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return true;
             }
 
             //Clients just sends contributing packet to the server
-            LocalPlayer.SendPacket(new GameHistoryResearchContributionPacket(addcnt, __instance.currentTech));
+            LocalPlayer.Instance.SendPacket(new GameHistoryResearchContributionPacket(addcnt, __instance.currentTech));
             return false;
         }
 
@@ -139,7 +139,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool DequeueTech_Prefix()
         {
             ///Wait for the authoritative packet for dequeing tech in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -147,7 +147,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnlockTech_Prefix()
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
+            return !SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || GameDataHistoryManager.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -155,7 +155,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void RemoveTechInQueue_Prefix(int index, out int __state)
         {
             __state = GameMain.history.techQueue[index];
-            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+            if (SimulatedWorld.Initialized && LocalPlayer.Instance.IsMasterClient)
             {
                 //we need to know which itemtypes are currently needed for refunds, so trigger refund before cancelling own research
                 NebulaNetwork.MultiplayerHostSession.Instance.PlayerManager.SendTechRefundPackagesToClients(__state);

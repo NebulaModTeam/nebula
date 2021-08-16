@@ -12,7 +12,7 @@ namespace NebulaWorld.Factory
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             if (planet.factory == null)
             {
-                if (FactoryManager.IsIncomingRequest)
+                if (FactoryManager.Instance.IsIncomingRequest.Value)
                 {
                     // We only execute the code if the client has loaded the factory at least once.
                     // Else it will get it once it goes to the planet for the first time. 
@@ -36,8 +36,8 @@ namespace NebulaWorld.Factory
 
             if (pab != null && buildTool != null)
             {
-                FactoryManager.TargetPlanet = packet.PlanetId;
-                FactoryManager.PacketAuthor = packet.AuthorId;
+                FactoryManager.Instance.TargetPlanet = packet.PlanetId;
+                FactoryManager.Instance.PacketAuthor = packet.AuthorId;
 
                 PlanetFactory tmpFactory = null;
                 NearColliderLogic tmpNearcdLogic = null;
@@ -50,7 +50,7 @@ namespace NebulaWorld.Factory
                     tmpFactory = buildTool.factory;
                     tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
                     tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
-                    FactoryManager.AddPlanetTimer(packet.PlanetId);
+                    FactoryManager.Instance.AddPlanetTimer(packet.PlanetId);
                 }
 
                 bool incomingBlueprintEvent = packet.BuildToolType == typeof(BuildTool_BlueprintPaste).ToString();
@@ -64,13 +64,13 @@ namespace NebulaWorld.Factory
                     buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 }
 
-                FactoryManager.EventFactory = planet.factory;
+                FactoryManager.Instance.EventFactory = planet.factory;
 
                 //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
                 buildTool.factory = planet.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
-                if (FactoryManager.IsIncomingRequest)
+                if (FactoryManager.Instance.IsIncomingRequest.Value)
                 {
                     // Only the server needs to set these
                     pab.planetPhysics = planet.physics;
@@ -79,15 +79,15 @@ namespace NebulaWorld.Factory
 
                 //Check if prebuilds can be build (collision check, height check, etc)
                 bool canBuild = false;
-                if (FactoryManager.IsIncomingRequest)
+                if (FactoryManager.Instance.IsIncomingRequest.Value)
                 {
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                if (canBuild || FactoryManager.IsIncomingRequest)
+                if (canBuild || FactoryManager.Instance.IsIncomingRequest.Value)
                 {
-                    if (FactoryManager.IsIncomingRequest) CheckAndFixConnections(buildTool, planet);
+                    if (FactoryManager.Instance.IsIncomingRequest.Value) CheckAndFixConnections(buildTool, planet);
 
                     if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
                     {
@@ -132,7 +132,7 @@ namespace NebulaWorld.Factory
                 }
 
                 GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
-                FactoryManager.EventFactory = null;
+                FactoryManager.Instance.EventFactory = null;
 
                 if (!incomingBlueprintEvent)
                 {
@@ -140,8 +140,8 @@ namespace NebulaWorld.Factory
                     buildTool.buildPreviews.AddRange(tmpList);
                 }
 
-                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-                FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
+                FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
+                FactoryManager.Instance.PacketAuthor = FactoryManager.Instance.AUTHOR_NONE;
             }
         }
 

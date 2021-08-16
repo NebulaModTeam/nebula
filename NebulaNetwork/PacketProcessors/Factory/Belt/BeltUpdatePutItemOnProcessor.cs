@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Belt
     {
         public override void ProcessPacket(BeltUpdatePutItemOnPacket packet, NebulaConnection conn)
         {
-            using (FactoryManager.IsIncomingRequest.On())
+            using (FactoryManager.Instance.IsIncomingRequest.On())
             {
                 GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic?.PutItemOnBelt(packet.BeltId, packet.ItemId);
             }

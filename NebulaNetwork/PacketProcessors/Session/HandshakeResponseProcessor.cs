@@ -27,8 +27,8 @@ namespace NebulaNetwork.PacketProcessors.Session
             gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
             DSPGame.StartGameSkipPrologue(gameDesc);
 
-            LocalPlayer.IsMasterClient = false;
-            LocalPlayer.SetPlayerData(packet.LocalPlayerData);
+            LocalPlayer.Instance.IsMasterClient = false;
+            LocalPlayer.Instance.SetPlayerData(packet.LocalPlayerData);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
         }

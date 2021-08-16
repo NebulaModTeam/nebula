@@ -38,7 +38,7 @@ namespace NebulaWorld.Player
             {
                 GameMain.mainPlayer.mecha.droneLogic.serving.Remove(entityId);
             }
-            LocalPlayer.SendPacketToLocalPlanet(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, droneId, entityId, LocalPlayer.PlayerId, stage, priority, GameMain.localPlanet.factory.prebuildPool[-entityId].pos));
+            LocalPlayer.Instance.SendPacketToLocalPlanet(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, droneId, entityId, LocalPlayer.Instance.PlayerId, stage, priority, GameMain.localPlanet.factory.prebuildPool[-entityId].pos));
         }
 
         public static void AddPlayerDronePlan(ushort playerId, int entityId)

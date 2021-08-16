@@ -30,7 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
                     PowerTowerManager.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
                 }
 
-                LocalPlayer.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
+                LocalPlayer.Instance.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
                         packet.NetId,
                         packet.NodeId,
                         packet.PowerAmount,

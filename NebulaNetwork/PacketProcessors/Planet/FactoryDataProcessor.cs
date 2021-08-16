@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
         {
             if (IsHost) return;
 
-            LocalPlayer.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
+            LocalPlayer.Instance.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
 
             lock (PlanetModelingManager.fctPlanetReqList)
             {

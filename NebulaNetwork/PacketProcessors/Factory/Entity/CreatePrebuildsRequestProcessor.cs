@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     {
         public override void ProcessPacket(CreatePrebuildsRequest packet, NebulaConnection conn)
         {
-            using (FactoryManager.IsIncomingRequest.On())
+            using (FactoryManager.Instance.IsIncomingRequest.On())
             {
                 BuildToolManager.CreatePrebuildsRequest(packet);
             }

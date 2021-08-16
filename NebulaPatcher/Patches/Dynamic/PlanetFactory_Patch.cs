@@ -21,9 +21,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
 
             // If the host game called the method, we need to compute the PrebuildId ourself
-            if (LocalPlayer.IsMasterClient)
+            if (LocalPlayer.Instance.IsMasterClient)
             {
-                FactoryManager.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.PlayerId);
+                FactoryManager.Instance.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.Instance.PlayerId);
             }
         }
 
@@ -34,9 +34,9 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!SimulatedWorld.Initialized)
                 return true;
 
-            if (LocalPlayer.IsMasterClient)
+            if (LocalPlayer.Instance.IsMasterClient)
             {
-                if (!FactoryManager.ContainsPrebuildRequest(__instance.planetId, prebuildId))
+                if (!FactoryManager.Instance.ContainsPrebuildRequest(__instance.planetId, prebuildId))
                 {
                     // This prevents duplicating the entity when multiple players trigger the BuildFinally for the same entity at the same time.
                     // If it occurs in any other circumstances, it means that we have some desynchronization between clients and host prebuilds buffers.
@@ -45,20 +45,20 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
 
                 // Remove the prebuild request from the list since we will now convert it to a real building
-                FactoryManager.RemovePrebuildRequest(__instance.planetId, prebuildId);
+                FactoryManager.Instance.RemovePrebuildRequest(__instance.planetId, prebuildId);
             }
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
+            if (LocalPlayer.Instance.IsMasterClient || !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.Instance.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor));
             }
 
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.IsIncomingRequest && !DroneManager.IsPendingBuildRequest(-prebuildId))
+            if (!LocalPlayer.Instance.IsMasterClient && !FactoryManager.Instance.IsIncomingRequest.Value && !DroneManager.IsPendingBuildRequest(-prebuildId))
             {
                 DroneManager.AddBuildRequestSent(-prebuildId);
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
+            return LocalPlayer.Instance.IsMasterClient || FactoryManager.Instance.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -68,12 +68,12 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!SimulatedWorld.Initialized)
                 return true;
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
+            if (LocalPlayer.Instance.IsMasterClient || !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.Instance.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, FactoryManager.Instance.PacketAuthor == -1 ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
+            return LocalPlayer.Instance.IsMasterClient || FactoryManager.Instance.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -95,9 +95,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.PasteBuildingSetting))]
         public static void PasteBuildingSetting_Prefix(PlanetFactory __instance, int objectId)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.IsIncomingRequest)
+            if (SimulatedWorld.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.id ?? -1));
+                LocalPlayer.Instance.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -105,9 +105,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
         public static void FlattenTerrainReform_Prefix(PlanetFactory __instance, Vector3 center, float radius, int reformSize, bool veinBuried, float fade0)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.IsIncomingRequest)
+            if (SimulatedWorld.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
+                LocalPlayer.Instance.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
             }
         }
 
@@ -117,7 +117,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
             {
-                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
+                LocalPlayer.Instance.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
             }
         }
 
@@ -127,13 +127,13 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
             {
-                if (LocalPlayer.IsMasterClient)
+                if (LocalPlayer.Instance.IsMasterClient)
                 {
-                    LocalPlayer.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true), __instance.planet.star.id);
+                    LocalPlayer.Instance.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true), __instance.planet.star.id);
                 }
                 else
                 {
-                    LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
+                    LocalPlayer.Instance.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
                 }
             }
         }

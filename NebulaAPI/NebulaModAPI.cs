@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI.Network;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -9,6 +10,11 @@ namespace NebulaAPI
     {
         private static bool _nebulaIsInstalled;
         private static bool _initialized;
+        
+        private static Type _localPlayer;
+        private static Type _factoryManager;
+        private static Type _binaryWriter;
+        private static Type _binaryReader;
         
         public static readonly List<Assembly> TargetAssemblies = new List<Assembly>();
         
@@ -38,31 +44,46 @@ namespace NebulaAPI
                 _nebulaIsInstalled = true;
                 break;
             }
+            _initialized = true;
             if (!_nebulaIsInstalled) return;
 
-            LocalPlayer.Init();
-            FactoryManager.Init();
-                
-            /*Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
-            {
-                if (!assembly.FullName.StartsWith("NebulaWorld")) continue;
-                
-                foreach (Type type in assembly.GetTypes())
-                {
-                    if (type.FullName == "NebulaWorld.LocalPlayer")
-                    {
-                        _localPlayer = type;
-                    }
-                }
-            }*/
-
-            _initialized = true;
+            _localPlayer = AccessTools.TypeByName("NebulaWorld.LocalPlayer");
+            _factoryManager = AccessTools.TypeByName("NebulaWorld.Factory.FactoryManager");
+            _binaryWriter = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils.Writer");
+            _binaryReader = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils.Reader");
         }
 
         public static void RegisterPackets(Assembly assembly)
         {
             TargetAssemblies.Add(assembly);
+        }
+
+        public static INebulaPlayer GetLocalPlayer()
+        {
+            if (!nebulaIsInstalled) return null;
+            
+            return (INebulaPlayer) _localPlayer.GetField("Instance").GetValue(null);
+        }
+        
+        public static IFactoryManager GetFactoryManager()
+        {
+            if (!nebulaIsInstalled) return null;
+            
+            return (IFactoryManager) _factoryManager.GetField("Instance").GetValue(null);
+        }
+        
+        public static IWriterProvider GetBinaryWriter()
+        {
+            if (!nebulaIsInstalled) return null;
+
+            return (IWriterProvider) _binaryWriter.GetConstructor(new Type[0]).Invoke(new object[0]);
+        }
+        
+        public static IReaderProvider GetBinaryReader(byte[] bytes)
+        {
+            if (!nebulaIsInstalled) return null;
+
+            return (IReaderProvider) _binaryReader.GetConstructor(new[]{typeof(byte[])}).Invoke(new object[]{bytes});
         }
     }
 }

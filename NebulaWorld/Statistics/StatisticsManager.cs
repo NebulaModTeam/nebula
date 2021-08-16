@@ -194,7 +194,7 @@ namespace NebulaWorld.Statistics
         {
             long num2 = 0L;
 
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if(!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return num2;
             }

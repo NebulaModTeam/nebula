@@ -72,11 +72,11 @@ namespace NebulaNetwork
 
             SimulatedWorld.Initialize();
 
-            LocalPlayer.SetNetworkProvider(this);
-            LocalPlayer.IsMasterClient = true;
+            LocalPlayer.Instance.SetNetworkProvider(this);
+            LocalPlayer.Instance.IsMasterClient = true;
 
             // TODO: Load saved player info here
-            LocalPlayer.SetPlayerData(new PlayerData(
+            LocalPlayer.Instance.SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
                 new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),

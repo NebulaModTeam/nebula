@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveLayer_Prefix()
         {
             //Soil should be given in singleplayer or to the player who is author of the "Build" request, or to the host if there is no author.
-            return !SimulatedWorld.Initialized || FactoryManager.PacketAuthor == LocalPlayer.PlayerId || (LocalPlayer.IsMasterClient && FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE) || !FactoryManager.IsIncomingRequest;
+            return !SimulatedWorld.Initialized || FactoryManager.Instance.PacketAuthor == LocalPlayer.Instance.PlayerId || (LocalPlayer.Instance.IsMasterClient && FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE) || !FactoryManager.Instance.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // We should only add items to player if player requested
-            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
+            if (FactoryManager.Instance.IsIncomingRequest.Value && FactoryManager.Instance.PacketAuthor != LocalPlayer.Instance.PlayerId)
             {
                 __result = 0;
                 return false;
@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // We should only take items to player if player requested
-            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId)
+            if (FactoryManager.Instance.IsIncomingRequest.Value && FactoryManager.Instance.PacketAuthor != LocalPlayer.Instance.PlayerId)
             {
                 __result = 1;
                 return false;

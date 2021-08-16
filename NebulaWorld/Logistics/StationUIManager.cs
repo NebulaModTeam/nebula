@@ -98,7 +98,7 @@ namespace NebulaWorld.Logistics
 
         public static void UpdateUI(StationUI packet)
         {
-            if((UpdateCooldown == 0 || !packet.IsStorageUI) && LocalPlayer.IsMasterClient)
+            if((UpdateCooldown == 0 || !packet.IsStorageUI) && LocalPlayer.Instance.IsMasterClient)
             {
                 UpdateCooldown = 10;
                 if (packet.IsStorageUI)
@@ -110,7 +110,7 @@ namespace NebulaWorld.Logistics
                     UpdateSettingsUI(packet);
                 }
             }
-            else if(!LocalPlayer.IsMasterClient)
+            else if(!LocalPlayer.Instance.IsMasterClient)
             {
                 if (packet.IsStorageUI)
                 {
@@ -410,13 +410,13 @@ namespace NebulaWorld.Logistics
                                 {
                                     storageUIs[packet.StorageIdx].OnItemIconMouseDown(mouseEvent);
                                     StationUI packet2 = new StationUI(packet.PlanetId, packet.StationId, packet.StationGId, packet.StorageIdx, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, packet.ItemId, stationComponent.storage[packet.StorageIdx].count);
-                                    LocalPlayer.SendPacket(packet2);
+                                    LocalPlayer.Instance.SendPacket(packet2);
                                 }
                                 else
                                 {
                                     storageUIs[packet.StorageIdx].OnItemIconMouseUp(mouseEvent);
                                     StationUI packet2 = new StationUI(packet.PlanetId, packet.StationId, packet.StationGId, packet.StorageIdx, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, packet.ItemId, stationComponent.storage[packet.StorageIdx].count);
-                                    LocalPlayer.SendPacket(packet2);
+                                    LocalPlayer.Instance.SendPacket(packet2);
                                 }
                                 LastMouseEvent = null;
                             }

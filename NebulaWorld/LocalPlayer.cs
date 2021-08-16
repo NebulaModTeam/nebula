@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
@@ -10,14 +11,16 @@ using System.Reflection;
 
 namespace NebulaWorld
 {
-    public static class LocalPlayer
+    public class LocalPlayer : INebulaPlayer
     {
-        public static bool IsMasterClient { get; set; }
-        public static ushort PlayerId => Data.PlayerId;
-        public static PlayerData Data { get; private set; }
-        public static Dictionary<int, byte[]> PendingFactories { get; set; } = new Dictionary<int, byte[]>();
+        public static LocalPlayer Instance = new LocalPlayer();
+        
+        public bool IsMasterClient { get; set; }
+        public ushort PlayerId => Data.PlayerId;
+        public PlayerData Data { get; private set; }
+        public Dictionary<int, byte[]> PendingFactories { get; set; } = new Dictionary<int, byte[]>();
 
-        private static INetworkProvider networkProvider;
+        private INetworkProvider networkProvider;
 
         public static Type GS2_GSSettings = null;
 
@@ -60,42 +63,42 @@ namespace NebulaWorld
             }
         }
 
-        public static void SetNetworkProvider(INetworkProvider provider)
+        public void SetNetworkProvider(INetworkProvider provider)
         {
             networkProvider = provider;
         }
 
-        public static void SendPacket<T>(T packet) where T : class, new()
+        public void SendPacket<T>(T packet) where T : class, new()
         {
             networkProvider?.SendPacket(packet);
         }
 
-        public static void SendPacketToLocalStar<T>(T packet) where T : class, new()
+        public void SendPacketToLocalStar<T>(T packet) where T : class, new()
         {
             networkProvider?.SendPacketToLocalStar(packet);
         }
 
-        public static void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+        public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
         {
             networkProvider?.SendPacketToLocalPlanet(packet);
         }
 
-        public static void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+        public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
         {
             networkProvider?.SendPacketToPlanet(packet, planetId);
         }
 
-        public static void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+        public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
         {
             networkProvider?.SendPacketToStar(packet, starId);
         }
 
-        public static void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude) where T : class, new()
+        public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
         {
-            networkProvider?.SendPacketToStarExclude(packet, starId, exclude);
+            networkProvider?.SendPacketToStarExclude(packet, starId, (NebulaConnection)exclude);
         }
 
-        public static void SetReady()
+        public void SetReady()
         {
 
             if (!IsMasterClient)
@@ -112,16 +115,16 @@ namespace NebulaWorld
             if (!IsMasterClient)
             {
                 //Subscribe for the local star events
-                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+                SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
             }
         }
 
-        public static void SetPlayerData(PlayerData data)
+        public void SetPlayerData(PlayerData data)
         {
             Data = data;
         }
 
-        public static void LeaveGame()
+        public void LeaveGame()
         {
             networkProvider.DestroySession();
             PendingFactories.Clear();
