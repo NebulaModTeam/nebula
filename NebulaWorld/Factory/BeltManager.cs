@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using NebulaModel.Packets.Belt;
+﻿using NebulaModel.Packets.Belt;
 using System.Collections.Generic;
 
 namespace NebulaWorld.Factory

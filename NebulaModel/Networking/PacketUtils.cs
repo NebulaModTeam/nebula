@@ -2,7 +2,6 @@
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
-using NebulaModel.Packets;
 using NebulaModel.Utils;
 using System;
 using System.Linq;

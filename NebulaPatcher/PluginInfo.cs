@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-
-namespace NebulaPatcher
+﻿namespace NebulaPatcher
 {
     /// <summary>
     /// The main metadata of the plugin.

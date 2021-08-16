@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 
-namespace NebulaAPI.Network
+namespace NebulaAPI
 {
     public interface IWriterProvider : IDisposable
     { 
