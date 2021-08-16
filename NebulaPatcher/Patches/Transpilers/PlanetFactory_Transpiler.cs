@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Transpiler
                                     new CodeInstruction(OpCodes.Ldloc_S, 4),
                                     new CodeInstruction(OpCodes.Ldloc_S, 16),
                                     new CodeInstruction(OpCodes.Ldelem, typeof(UnityEngine.Vector3)),
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "OnNewSetInserterPickTarget")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), nameof(FactoryManager.OnNewSetInserterPickTarget))),
                                     });
                     break;
                 }
@@ -62,7 +62,7 @@ namespace NebulaPatcher.Patches.Transpiler
                                     new CodeInstruction(OpCodes.Ldloc_S, 4),
                                     new CodeInstruction(OpCodes.Ldloc_S, 16),
                                     new CodeInstruction(OpCodes.Ldelem, typeof(UnityEngine.Vector3)),
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "OnNewSetInserterInsertTarget")),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), nameof(FactoryManager.OnNewSetInserterInsertTarget))),
                                     });
                     break;
                 }

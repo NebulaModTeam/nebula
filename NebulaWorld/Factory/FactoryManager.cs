@@ -213,17 +213,17 @@ namespace NebulaWorld.Factory
             return GetNextPrebuildId(planet.factory);
         }
 
-        public void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        public static void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (SimulatedWorld.Initialized && LocalPlayer.Instance.PlayerId == PacketAuthor)
+            if (SimulatedWorld.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
         }
 
-        public void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        public static void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (SimulatedWorld.Initialized && LocalPlayer.Instance.PlayerId == PacketAuthor)
+            if (SimulatedWorld.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
