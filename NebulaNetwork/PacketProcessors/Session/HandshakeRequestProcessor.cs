@@ -1,4 +1,5 @@
-﻿using NebulaAPI;
+﻿using BepInEx;
+using NebulaAPI;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -7,6 +8,7 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System.Collections.Generic;
 using LocalPlayer = NebulaWorld.LocalPlayer;
 
 namespace NebulaNetwork.PacketProcessors.Session
@@ -37,23 +39,55 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 pendingPlayers.Remove(conn);
             }
+            
+            Dictionary<string, string> clientMods = new Dictionary<string, string>();
 
-
-            if (packet.ModVersion != Config.ModVersion)
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.ModsVersion))
             {
-                conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{ packet.ModVersion };{ Config.ModVersion }");
-                return;
+                for (int i = 0; i < packet.ModsCount; i++)
+                {
+                    string guid = reader.BinaryReader.ReadString();
+                    string version = reader.BinaryReader.ReadString();
+
+                    if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
+                    {
+                        conn.Disconnect(DisconnectionReason.ModIsMissingOnServer, guid);
+                    }
+
+                    clientMods.Add(guid, version);
+                }
             }
+
+            foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+            {
+                if (pluginInfo.Value.Instance is IMultiplayerMod mod)
+                {
+                    if (!clientMods.ContainsKey(pluginInfo.Key))
+                    {
+                        conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
+                        return;
+                    }
+
+                    string version = clientMods[pluginInfo.Key];
+
+                    if (version == mod.Verson || !mod.CheckVersion) continue;
+                    
+                    conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Verson}");
+                    return;
+                }
+            }
+
 
             if (packet.GameVersionSig != GameConfig.gameVersion.sig)
             {
-                conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
+                conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{packet.GameVersionSig};{GameConfig.gameVersion.sig}");
                 return;
             }
 
             if (packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
             {
-                conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch, "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
+                conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch,
+                    "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
                 return;
             }
 
@@ -100,7 +134,8 @@ namespace NebulaNetwork.PacketProcessors.Session
             player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
             var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, (LocalPlayer.GS2_GSSettings != null) ? LocalPlayer.GS2GetSettings() : null));
+            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data,
+                (LocalPlayer.GS2_GSSettings != null) ? LocalPlayer.GS2GetSettings() : null));
         }
     }
 }

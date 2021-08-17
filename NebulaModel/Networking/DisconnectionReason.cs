@@ -12,8 +12,11 @@
         ClientRequestedDisconnect = 2001,
         ModVersionMismatch = 2002,
         GameVersionMismatch = 2003,
-
+        
+        
         // Mod Specific Error Codes
+        ModIsMissing = 2500,
+        ModIsMissingOnServer = 2501,
         GalacticScaleMissmatch = 3000,
     }
 }

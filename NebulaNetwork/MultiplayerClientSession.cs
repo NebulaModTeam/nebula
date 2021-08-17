@@ -224,7 +224,27 @@ namespace NebulaNetwork
                     string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
                         "Mod Version Mismatch",
-                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nYou:{versions[0]} - Remote:{versions[1]}",
+                        $"Your mod {versions[0]} version is not the same as the Host version.\nYou:{versions[1]} - Remote:{versions[2]}",
+                        "OK",
+                        OnDisconnectPopupCloseBeforeGameLoad);
+                    return;
+                }
+                
+                if (e.Code == (ushort)DisconnectionReason.ModIsMissing)
+                {
+                    InGamePopup.ShowWarning(
+                        "Mod Is Missing",
+                        $"Mod {e.Reason} is not installed on your client",
+                        "OK",
+                        OnDisconnectPopupCloseBeforeGameLoad);
+                    return;
+                }
+                
+                if (e.Code == (ushort)DisconnectionReason.ModIsMissingOnServer)
+                {
+                    InGamePopup.ShowWarning(
+                        "Mod Is Missing",
+                        $"Mod {e.Reason} is not installed on the Host",
                         "OK",
                         OnDisconnectPopupCloseBeforeGameLoad);
                     return;

@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
@@ -15,7 +16,7 @@ namespace NebulaPatcher
     [BepInPlugin(PluginInfo.PLUGIN_ID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency("dsp.galactic-scale.2", BepInDependency.DependencyFlags.SoftDependency)] // to load after GS2
     [BepInProcess("DSPGAME.exe")]
-    public class NebulaPlugin : BaseUnityPlugin
+    public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
         void Awake()
         {
@@ -82,5 +83,9 @@ namespace NebulaPatcher
 
             Log.Info("Behaviours applied.");
         }
+
+        public string Verson => NebulaModel.Config.ModVersion;
+
+        public bool CheckVersion => true;
     }
 }
