@@ -1,4 +1,5 @@
-﻿using NebulaAPI;
+﻿using BepInEx;
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -12,14 +13,17 @@ namespace NebulaNetwork.PacketProcessors.Session
     {
         public override void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
         {
-            if (LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings.Length > 1) // if host does not use GS2 we send a null byte
+            using (BinaryUtils.Reader p = new BinaryUtils.Reader(packet.ModsSettings))
             {
-                LocalPlayer.GS2ApplySettings(packet.CompressedGS2Settings);
-            }
-            else if (LocalPlayer.GS2_GSSettings != null && packet.CompressedGS2Settings.Length == 1)
-            {
-                InGamePopup.ShowWarning("Galactic Scale - Server not supported", "The server does not seem to use Galactic Scale. Make sure that your mod configuration matches.", "Close");
-                return;
+                for (int i = 0; i < packet.ModsSettingsCount; i++)
+                {
+                    string guid = p.BinaryReader.ReadString();
+                    PluginInfo info = BepInEx.Bootstrap.Chainloader.PluginInfos[guid];
+                    if (info.Instance is IMultiplayerModWithSettings mod)
+                    {
+                        mod.Import(p.BinaryReader);
+                    }
+                }
             }
 
             GameDesc gameDesc = new GameDesc();

@@ -84,12 +84,12 @@ namespace NebulaNetwork.PacketProcessors.Session
                 return;
             }
 
-            if (packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
+            /*if (packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
             {
                 conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch,
                     "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
                 return;
-            }
+            }*/
 
             SimulatedWorld.Instance.OnPlayerJoining();
 
@@ -133,9 +133,22 @@ namespace NebulaNetwork.PacketProcessors.Session
             //Add current tech bonuses to the connecting player based on the Host's mecha
             player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
-            var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data,
-                (LocalPlayer.GS2_GSSettings != null) ? LocalPlayer.GS2GetSettings() : null));
+            using (BinaryUtils.Writer p = new BinaryUtils.Writer())
+            {
+                int count = 0;
+                foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                {
+                    if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
+                    {
+                        p.BinaryWriter.Write(pluginInfo.Key);
+                        mod.Export(p.BinaryWriter);
+                        count++;
+                    }
+                }
+                
+                var gameDesc = GameMain.data.gameDesc;
+                player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, p.CloseAndGetBytes(), count));
+            }
         }
     }
 }

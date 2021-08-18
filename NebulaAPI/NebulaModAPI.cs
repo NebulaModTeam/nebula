@@ -19,7 +19,7 @@ namespace NebulaAPI
         
         public static readonly List<Assembly> TargetAssemblies = new List<Assembly>();
         public static readonly List<IModData<PlanetFactory>> FactorySerializers = new List<IModData<PlanetFactory>>();
-        
+
         public const string NebulaModid = "dsp.nebula-multiplayer";
 
         public static bool nebulaIsInstalled
