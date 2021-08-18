@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSwarm.NewOrbit))]
         public static bool NewOrbit_Prefix(DysonSwarm __instance, int __result, float radius, Quaternion rotation)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSwarm.RemoveOrbit))]
         public static bool RemoveOrbit_Prefix(DysonSwarm __instance, int orbitId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -46,7 +46,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void AddBullet_Postfix(DysonSwarm __instance, SailBullet bullet, int orbitId)
         {
             //Host is sending correction / authorization packet to correct constants of the generated bullet
-            if (SimulatedWorld.Initialized && LocalPlayer.Instance.IsMasterClient)
+            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
             {
                 LocalPlayer.Instance.SendPacket(new DysonSphereBulletCorrectionPacket(__instance.starData.index, bullet.id, bullet.uEndVel, bullet.uEnd));
             }

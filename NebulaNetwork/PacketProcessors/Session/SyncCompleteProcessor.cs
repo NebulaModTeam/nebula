@@ -63,13 +63,13 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
 
                 // Since the player is now connected, we can safely spawn his player model
-                SimulatedWorld.SpawnRemotePlayerModel(player.Data);
+                SimulatedWorld.Instance.SpawnRemotePlayerModel(player.Data);
 
                 if (syncingCount == 0)
                 {
                     var inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
                     playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
-                    SimulatedWorld.OnAllPlayersSyncCompleted();
+                    SimulatedWorld.Instance.OnAllPlayersSyncCompleted();
                 }
             }
             else // IsClient
@@ -79,11 +79,11 @@ namespace NebulaNetwork.PacketProcessors.Session
                 {
                     if (playerData.PlayerId != LocalPlayer.Instance.PlayerId)
                     {
-                        SimulatedWorld.SpawnRemotePlayerModel(playerData);
+                        SimulatedWorld.Instance.SpawnRemotePlayerModel(playerData);
                     }
                 }
 
-                SimulatedWorld.OnAllPlayersSyncCompleted();
+                SimulatedWorld.Instance.OnAllPlayersSyncCompleted();
             }
         }
     }

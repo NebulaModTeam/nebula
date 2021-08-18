@@ -91,7 +91,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 return;
             }
 
-            SimulatedWorld.OnPlayerJoining();
+            SimulatedWorld.Instance.OnPlayerJoining();
 
             //TODO: some validation of client cert / generating auth challenge for the client
             // Load old data of the client

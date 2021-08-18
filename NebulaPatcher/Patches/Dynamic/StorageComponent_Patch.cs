@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Instance.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItem2, itemId, count, startIndex, length));
             }
@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddItemStacked_Prefix(StorageComponent __instance, int itemId, int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Instance.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItemStacked, itemId, count));
             }
@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool TakeItemFromGrid_Prefix(StorageComponent __instance, int gridIndex, ref int itemId, ref int count)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Instance.Initialized && !StorageManager.IsIncomingRequest && StorageManager.IsHumanInput && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.TakeItemFromGrid, gridIndex, itemId, count));
             }
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StorageComponent.SetBans))]
         public static void SetBans_Postfix(StorageComponent __instance, int _bans)
         {
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest)
+            if (SimulatedWorld.Instance.Initialized && !StorageManager.IsIncomingRequest)
             {
                 HandleUserInteraction(__instance, new StorageSyncSetBansPacket(__instance.id, GameMain.data.localPlanet.id, _bans));
             }
@@ -61,7 +61,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StorageComponent.Sort))]
         public static void Sort_Postfix(StorageComponent __instance)
         {
-            if (SimulatedWorld.Initialized && !StorageManager.IsIncomingRequest && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Instance.Initialized && !StorageManager.IsIncomingRequest && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncSortPacket(__instance.id, GameMain.data.localPlanet.id));
             }
@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool TakeTailItems_Prefix(StorageComponent __instance, ref int count)
         {
             // Run normally if we are not in an MP session or StorageComponent is not player package
-            if (!SimulatedWorld.Initialized || __instance.id != GameMain.mainPlayer.package.id)
+            if (!SimulatedWorld.Instance.Initialized || __instance.id != GameMain.mainPlayer.package.id)
             {
                 return true;
             }

@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.NewDysonNode))]
         public static bool NewDysonNode_Prefix(DysonSphereLayer __instance, int __result, int protoId, Vector3 pos)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.NewDysonFrame))]
         public static bool NewDysonFrame_Prefix(DysonSphereLayer __instance, int __result, int protoId, int nodeAId, int nodeBId, bool euler)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -47,7 +47,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonFrame))]
         public static bool RemoveDysonFrame_Prefix(DysonSphereLayer __instance, int frameId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -63,7 +63,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonNode))]
         public static bool RemoveDysonNode_Prefix(DysonSphereLayer __instance, int nodeId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.NewDysonShell))]
         public static bool NewDysonShell_Prefix(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -95,7 +95,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonShell))]
         public static bool RemoveDysonShell_Prefix(DysonSphereLayer __instance, int shellId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }

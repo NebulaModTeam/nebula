@@ -113,7 +113,7 @@ namespace NebulaWorld.Logistics
          */
         public static void WorkShipBackToIdle(ILSShipData packet)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if(!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -209,7 +209,7 @@ namespace NebulaWorld.Logistics
          */
         public static void UpdateRemoteOrder(ILSRemoteOrderData packet)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
@@ -234,7 +234,7 @@ namespace NebulaWorld.Logistics
          */
         public static void AddTakeItem(ILSShipItems packet)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
+            if(!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
             {
                 return;
             }

@@ -12,14 +12,14 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveLayer_Prefix()
         {
             //Soil should be given in singleplayer or to the player who is author of the "Build" request, or to the host if there is no author.
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.PacketAuthor == LocalPlayer.Instance.PlayerId || (LocalPlayer.Instance.IsMasterClient && FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE) || !FactoryManager.Instance.IsIncomingRequest.Value;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.PacketAuthor == LocalPlayer.Instance.PlayerId || (LocalPlayer.Instance.IsMasterClient && FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE) || !FactoryManager.Instance.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(Player.TryAddItemToPackage))]
         public static bool TryAddItemToPackage_Prefix(ref int __result)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -39,7 +39,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UseHandItems_Prefix(ref int __result)
         {
             // Run normally if we are not in an MP session or StorageComponent is not player package
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }

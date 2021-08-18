@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.AddPrebuildData))]
         public static void AddPrebuildData_Postfix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
                 return;
 
             // If the host game called the method, we need to compute the PrebuildId ourself
@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.BuildFinally))]
         public static bool BuildFinally_Prefix(PlanetFactory __instance, Player player, int prebuildId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
                 return true;
 
             if (LocalPlayer.Instance.IsMasterClient)
@@ -65,7 +65,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("UpgradeFinally")]
         public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
                 return true;
 
             if (LocalPlayer.Instance.IsMasterClient || !FactoryManager.Instance.IsIncomingRequest.Value)
@@ -95,7 +95,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.PasteBuildingSetting))]
         public static void PasteBuildingSetting_Prefix(PlanetFactory __instance, int objectId)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
+            if (SimulatedWorld.Instance.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.id ?? -1));
             }
@@ -105,7 +105,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
         public static void FlattenTerrainReform_Prefix(PlanetFactory __instance, Vector3 center, float radius, int reformSize, bool veinBuried, float fade0)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
+            if (SimulatedWorld.Instance.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
             }
@@ -115,7 +115,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.RemoveVegeWithComponents))]
         public static void RemoveVegeWithComponents_Postfix(PlanetFactory __instance, int id)
         {
-            if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
+            if (SimulatedWorld.Instance.Initialized && !PlanetManager.IsIncomingRequest)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
             }
@@ -125,7 +125,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.RemoveVeinWithComponents))]
         public static void RemoveVeinWithComponents_Postfix(PlanetFactory __instance, int id)
         {
-            if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
+            if (SimulatedWorld.Instance.Initialized && !PlanetManager.IsIncomingRequest)
             {
                 if (LocalPlayer.Instance.IsMasterClient)
                 {

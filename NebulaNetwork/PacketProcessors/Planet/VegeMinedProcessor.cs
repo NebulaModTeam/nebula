@@ -17,7 +17,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
             {
                 using (PlanetManager.IsIncomingRequest.On())
                 {
-                    SimulatedWorld.OnVegetationMined(packet);
+                    SimulatedWorld.Instance.OnVegetationMined(packet);
                 }
             }
         }

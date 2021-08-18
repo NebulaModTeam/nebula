@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
                 .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
                 {
-                    if (SimulatedWorld.Initialized)
+                    if (SimulatedWorld.Instance.Initialized)
                     {
                         if (!LocalPlayer.Instance.IsMasterClient)
                         {
@@ -82,7 +82,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
                         .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
                         {
-                            if (SimulatedWorld.Initialized)
+                            if (SimulatedWorld.Instance.Initialized)
                             {
                                 if (!LocalPlayer.Instance.IsMasterClient)
                                 {

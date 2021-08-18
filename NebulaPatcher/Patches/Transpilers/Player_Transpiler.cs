@@ -35,7 +35,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(-1)
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                 {
-                    return LocalPlayer.Instance.IsMasterClient || !SimulatedWorld.Initialized;
+                    return LocalPlayer.Instance.IsMasterClient || !SimulatedWorld.Instance.Initialized;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Brfalse, op))
                 .InstructionEnumeration();

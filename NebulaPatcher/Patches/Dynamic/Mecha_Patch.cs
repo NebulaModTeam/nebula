@@ -10,9 +10,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(Mecha.GameTick))]
         public static void GameTick_Postfix(Mecha __instance, long time, float dt)
         {
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
-                SimulatedWorld.OnDronesGameTick(time, dt);
+                SimulatedWorld.Instance.OnDronesGameTick(time, dt);
             }
         }
 
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(Mecha), nameof(Mecha.AddProductionStat))]
         public static bool AddStat_Common_Prefix(ref PlanetFactory factory)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
                 return true;
 
             // TODO: Send packet to host to add stat?

@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(segId)
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int>>((item, cnt, belt, seg) =>
                     {
-                        if (SimulatedWorld.Initialized)
+                        if (SimulatedWorld.Instance.Initialized)
                         {
                             BeltManager.RegisterBeltPickupUpdate(item, cnt, belt, seg);
                         }
@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Transpiler
                            .CreateLabelAt(matcher.Pos + 5, out Label end)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                            {
-                               return SimulatedWorld.Initialized && FactoryManager.Instance.IsIncomingRequest.Value;
+                               return SimulatedWorld.Instance.Initialized && FactoryManager.Instance.IsIncomingRequest.Value;
                            }))
                            .Insert(new CodeInstruction(OpCodes.Brtrue, end))
                            .Advance(5);

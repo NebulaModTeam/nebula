@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnStorageIdChange")]
         public static bool OnStorageIdChange_Prefix(UIStorageWindow __instance)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.Instance.IsMasterClient && StorageManager.WindowOpened)
+            if (SimulatedWorld.Instance.Initialized && !LocalPlayer.Instance.IsMasterClient && StorageManager.WindowOpened)
             {
                 UIStorageGrid storageUI = (UIStorageGrid)AccessTools.Field(typeof(UIStorageWindow), "storageUI").GetValue(__instance);
                 StorageManager.ActiveUIStorageGrid = storageUI;

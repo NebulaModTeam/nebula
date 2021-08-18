@@ -23,7 +23,7 @@ namespace NebulaWorld.Player
 
         public static void BroadcastDroneOrder(int droneId, int entityId, int stage)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return;
             }
@@ -89,12 +89,12 @@ namespace NebulaWorld.Player
 
         public static bool AmIClosestPlayer(ref Vector3 entityPos)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
             float myDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
-            using (SimulatedWorld.GetRemotePlayersModels(out var remotePlayersModels))
+            using (SimulatedWorld.Instance.GetRemotePlayersModels(out var remotePlayersModels))
             {
                 foreach (var model in remotePlayersModels.Values)
                 {

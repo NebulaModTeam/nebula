@@ -35,7 +35,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
 
             if (valid)
             {
-                int myId = SimulatedWorld.GenerateTrashOnPlayer(packet);
+                int myId = SimulatedWorld.Instance.GenerateTrashOnPlayer(packet);
 
                 //Check if myID is same as the ID from the host
                 if (myId != packet.TrashId)

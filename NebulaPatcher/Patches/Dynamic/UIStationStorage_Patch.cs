@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemIconMouseDown")]
         public static bool OnItemIconMouseDown_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
-            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
+            if (SimulatedWorld.Instance.Initialized && !ILSShipManager.PatchLockILS)
             {
                 StationUIManager.LastMouseEvent = evt;
                 StationUIManager.LastMouseEventWasDown = true;
@@ -59,7 +59,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemIconMouseUp")]
         public static bool OnItemIconMouseUp_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
-            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
+            if (SimulatedWorld.Instance.Initialized && !ILSShipManager.PatchLockILS)
             {
                 StationUIManager.LastMouseEvent = evt;
                 StationUIManager.LastMouseEventWasDown = false;

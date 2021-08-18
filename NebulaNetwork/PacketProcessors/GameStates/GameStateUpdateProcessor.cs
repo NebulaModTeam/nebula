@@ -20,7 +20,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates
             long tickOffsetSinceSent = (long)System.Math.Round(timeOffset / (GameMain.tickDeltaTime * 1000));
             state.gameTick += tickOffsetSinceSent;
 
-            SimulatedWorld.UpdateGameState(state);
+            SimulatedWorld.Instance.UpdateGameState(state);
         }
     }
 }

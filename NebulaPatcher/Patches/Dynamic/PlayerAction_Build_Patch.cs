@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlayerAction_Build.DoDismantleObject))]
         public static bool DoDismantleObject_Prefix(PlayerAction_Build __instance, int objId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -46,7 +46,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlayerAction_Build.SetFactoryReferences))]
         public static bool SetFactoryReferences_Prefix()
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }

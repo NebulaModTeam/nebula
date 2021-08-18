@@ -215,7 +215,7 @@ namespace NebulaWorld.Factory
 
         public static void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (SimulatedWorld.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
+            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
@@ -223,7 +223,7 @@ namespace NebulaWorld.Factory
 
         public static void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (SimulatedWorld.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
+            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }

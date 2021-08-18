@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnManualServingContentChange_Postfix(UISiloWindow __instance)
         {
             //Notify about manual rockets inserting / withdrawing change
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
                 StorageComponent storage = (StorageComponent)AccessTools.Field(typeof(UISiloWindow), "servingStorage").GetValue(__instance);
                 LocalPlayer.Instance.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId, storage.grids[0].count, GameMain.localPlanet?.id ?? -1));

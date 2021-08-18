@@ -85,7 +85,7 @@ namespace NebulaNetwork
 
             clientSocket.Connect();
 
-            SimulatedWorld.Initialize();
+            SimulatedWorld.Instance.Initialize();
 
             LocalPlayer.Instance.IsMasterClient = false;
             LocalPlayer.Instance.SetNetworkProvider(this);
@@ -167,7 +167,7 @@ namespace NebulaNetwork
 
         public void Reconnect()
         {
-            SimulatedWorld.Clear();
+            SimulatedWorld.Instance.Clear();
             Disconnect();
             ConnectInternal();
         }
@@ -261,7 +261,7 @@ namespace NebulaNetwork
                     return;
                 }
 
-                if (SimulatedWorld.IsGameLoaded)
+                if (SimulatedWorld.Instance.IsGameLoaded)
                 {
                     InGamePopup.ShowWarning(
                         "Connection Lost",
@@ -278,7 +278,7 @@ namespace NebulaNetwork
                         () =>
                         {
                             LocalPlayer.Instance.IsMasterClient = false;
-                            SimulatedWorld.Clear();
+                            SimulatedWorld.Instance.Clear();
                             DestroySession();
                             OnDisconnectPopupCloseBeforeGameLoad();
                         });
@@ -297,7 +297,7 @@ namespace NebulaNetwork
         {
             PacketProcessor.ProcessPacketQueue();
 
-            if (SimulatedWorld.IsGameLoaded)
+            if (SimulatedWorld.Instance.IsGameLoaded)
             {
                 mechaSynchonizationTimer += Time.deltaTime;
                 if (mechaSynchonizationTimer > MECHA_SYNCHONIZATION_INTERVAL)

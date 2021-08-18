@@ -12,10 +12,13 @@ namespace NebulaAPI
         
         private static Type _localPlayer;
         private static Type _factoryManager;
+        private static Type _simulatedWorld;
+        
         private static Type _binaryWriter;
         private static Type _binaryReader;
         
         public static readonly List<Assembly> TargetAssemblies = new List<Assembly>();
+        public static readonly List<IModData<PlanetFactory>> FactorySerializers = new List<IModData<PlanetFactory>>();
         
         public const string NebulaModid = "dsp.nebula-multiplayer";
 
@@ -48,13 +51,22 @@ namespace NebulaAPI
 
             _localPlayer = AccessTools.TypeByName("NebulaWorld.LocalPlayer");
             _factoryManager = AccessTools.TypeByName("NebulaWorld.Factory.FactoryManager");
-            _binaryWriter = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils.Writer");
-            _binaryReader = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils.Reader");
+            _simulatedWorld = AccessTools.TypeByName("NebulaWorld.SimulatedWorld");
+            
+            Type binaryUtils = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils");
+
+            _binaryWriter = binaryUtils.GetNestedType("Writer");
+            _binaryReader = binaryUtils.GetNestedType("Reader");
         }
 
         public static void RegisterPackets(Assembly assembly)
         {
             TargetAssemblies.Add(assembly);
+        }
+        
+        public static void RegisterModFactoryData(IModData<PlanetFactory> serializer)
+        {
+            FactorySerializers.Add(serializer);
         }
 
         public static INebulaPlayer GetLocalPlayer()
@@ -69,6 +81,13 @@ namespace NebulaAPI
             if (!nebulaIsInstalled) return null;
             
             return (IFactoryManager) _factoryManager.GetField("Instance").GetValue(null);
+        }
+        
+        public static ISimulatedWorld GetSimulatedWorld()
+        {
+            if (!nebulaIsInstalled) return null;
+            
+            return (ISimulatedWorld) _simulatedWorld.GetField("Instance").GetValue(null);
         }
         
         public static IWriterProvider GetBinaryWriter()

@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UploadClusterGenerationToGalaxyServer_Prefix()
         {
             // We don't want to upload Milky Way data if we are playing MP
-            return !SimulatedWorld.Initialized;
+            return !SimulatedWorld.Instance.Initialized;
         }
     }
 }

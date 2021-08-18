@@ -68,12 +68,12 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 }
                 // always update values for host, but he does not need to rely on the mimic flag (infact its bad for him)
                 packet.ShouldMimic = false;
-                SimulatedWorld.OnStationUIChange(packet);
+                SimulatedWorld.Instance.OnStationUIChange(packet);
             }
 
             if (IsClient)
             {
-                SimulatedWorld.OnStationUIChange(packet);
+                SimulatedWorld.Instance.OnStationUIChange(packet);
             }
         }
     }

@@ -40,7 +40,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                SimulatedWorld.UpdateRemotePlayerPosition(packet);
+                SimulatedWorld.Instance.UpdateRemotePlayerPosition(packet);
             }
         }
     }

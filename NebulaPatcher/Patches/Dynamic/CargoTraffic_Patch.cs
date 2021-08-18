@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
         public static void PickupBeltItems_Prefix()
         {
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
                 BeltManager.BeltPickupStarted();
             }
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
         public static void PickupBeltItems_Postfix()
         {
-            if (SimulatedWorld.Initialized && GameMain.data.localPlanet != null)
+            if (SimulatedWorld.Instance.Initialized && GameMain.data.localPlanet != null)
             {
                 BeltManager.BeltPickupEnded();
             }
@@ -32,7 +32,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(CargoTraffic.PutItemOnBelt))]
         public static void PutItemOnBelt_Prefix(int beltId, int itemId)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
+            if (SimulatedWorld.Instance.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
                 LocalPlayer.Instance.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, GameMain.data.localPlanet.id));
             }
@@ -43,7 +43,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -59,7 +59,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterPathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -67,7 +67,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemovePathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -75,7 +75,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RefreshPathUV_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
     }
 }

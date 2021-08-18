@@ -70,7 +70,7 @@ namespace NebulaNetwork
 
             socketServer.Start();
 
-            SimulatedWorld.Initialize();
+            SimulatedWorld.Instance.Initialize();
 
             LocalPlayer.Instance.SetNetworkProvider(this);
             LocalPlayer.Instance.IsMasterClient = true;
@@ -175,7 +175,7 @@ namespace NebulaNetwork
 
             protected override void OnOpen()
             {
-                if (SimulatedWorld.IsGameLoaded == false)
+                if (SimulatedWorld.Instance.IsGameLoaded == false)
                 {
                     // Reject any connection that occurs while the host's game is loading.
                     this.Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");

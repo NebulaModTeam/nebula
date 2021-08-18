@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnInit")]
         public static void _OnInit_Postfix(UIGame __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }

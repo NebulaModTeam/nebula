@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnOpen")]
         public static void _OnOpen_Postfix()
         {
-            SimulatedWorld.ExitingMultiplayerSession = false;
+            SimulatedWorld.Instance.ExitingMultiplayerSession = false;
 
             GameObject overlayCanvas = GameObject.Find("Overlay Canvas");
             if (overlayCanvas == null)

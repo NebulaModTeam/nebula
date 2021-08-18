@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
         public static bool CreatePrebuilds_Prefix(BuildTool __instance)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
                 return true;
 
 

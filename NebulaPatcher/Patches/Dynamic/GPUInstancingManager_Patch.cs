@@ -16,7 +16,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("get_activePlanet")]
         public static bool get_activePlanet_Prefix(GPUInstancingManager __instance, ref PlanetData __result)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return true;
             }
@@ -41,7 +41,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddModel_Prefix(GPUInstancingManager __instance, ref int __result)
         {
             //Do not add model to the GPU queue if player is not on the same planet as building that was build
-            if (SimulatedWorld.Initialized && FactoryManager.Instance.EventFactory != null && FactoryManager.Instance.EventFactory.planet != __instance.activePlanet)
+            if (SimulatedWorld.Instance.Initialized && FactoryManager.Instance.EventFactory != null && FactoryManager.Instance.EventFactory.planet != __instance.activePlanet)
             {
                 __result = 0;
                 return false;
@@ -54,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddPrebuildModel_Prefix(GPUInstancingManager __instance, ref int __result)
         {
             //Do not add model to the GPU queue if player is not on the same planet as building that was build
-            if (SimulatedWorld.Initialized && FactoryManager.Instance.EventFactory != null && FactoryManager.Instance.EventFactory.planet != __instance.activePlanet)
+            if (SimulatedWorld.Instance.Initialized && FactoryManager.Instance.EventFactory != null && FactoryManager.Instance.EventFactory.planet != __instance.activePlanet)
             {
                 __result = 0;
                 return false;

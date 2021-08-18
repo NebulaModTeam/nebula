@@ -247,7 +247,7 @@ namespace NebulaNetwork
                 if (connectedPlayers.TryGetValue(conn, out Player player))
                 {
                     SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
-                    SimulatedWorld.DestroyRemotePlayerModel(player.Id);
+                    SimulatedWorld.Instance.DestroyRemotePlayerModel(player.Id);
                     connectedPlayers.Remove(conn);
                     using (threadSafe.availablePlayerIds.GetLocked(out var availablePlayerIds))
                     {

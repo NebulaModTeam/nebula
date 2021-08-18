@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
+using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
@@ -10,7 +11,7 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         //Ignore Pausing in the multiplayer:
         //Change:  if (!this._paused)
-        //To:      if (!this._paused || SimulatedWorld.Initialized)
+        //To:      if (!this._paused || SimulatedWorld.Instance.Initialized)
 
         [HarmonyTranspiler]
         [HarmonyPatch("FixedUpdate")]
@@ -34,7 +35,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
                     //Add my condition
                     codes.InsertRange(i + 4, new CodeInstruction[] {
-                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SimulatedWorld), "get_Initialized")),
+                            new CodeInstruction(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() => SimulatedWorld.Instance.Initialized)),
                             new CodeInstruction(OpCodes.Brfalse_S, codes[i+3].operand)
                     });
 

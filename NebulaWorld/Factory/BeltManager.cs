@@ -13,7 +13,7 @@ namespace NebulaWorld.Factory
         }
         public static void RegisterBeltPickupUpdate(int itemId, int count, int beltId, int segId)
         {
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
                 BeltUpdates.Add(new BeltUpdate(itemId, count, beltId, segId));
             }

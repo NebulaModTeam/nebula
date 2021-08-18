@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PowerSystem.GameTick))]
         public static void PowerSystem_GameTick_Postfix(PowerSystem __instance, long time, bool isActive, bool isMultithreadMode)
         {
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
                 for (int i = 1; i < __instance.netCursor; i++)
                 {
@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PowerSystem.RemoveNodeComponent))]
         public static bool RemoveNodeComponent(PowerSystem __instance, int id)
         {
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
                 // as the destruct is synced accross players this event is too
                 // and as such we can safely remove power demand for every player

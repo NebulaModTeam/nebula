@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
@@ -21,24 +22,27 @@ namespace NebulaWorld
     /// This class keeps track of our simulated world. It holds all temporary entities like remote player models 
     /// and also helps to execute some remote player actions that you would want to replicate on the local client.
     /// </summary>
-    public static class SimulatedWorld
+    public class SimulatedWorld : ISimulatedWorld
     {
+
+        public static SimulatedWorld Instance = new SimulatedWorld();
+        
         sealed class ThreadSafe
         {
             internal readonly Dictionary<ushort, RemotePlayerModel> remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
         }
 
-        private static readonly ThreadSafe threadSafe = new ThreadSafe();
+        private readonly ThreadSafe threadSafe = new ThreadSafe();
 
-        public static Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
+        public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
             threadSafe.remotePlayersModels.GetLocked(out remotePlayersModels);
 
-        public static bool Initialized { get; private set; }
-        public static bool IsGameLoaded { get; private set; }
-        public static bool IsPlayerJoining { get; set; }
-        public static bool ExitingMultiplayerSession { get; set; }
+        public bool Initialized { get; private set; }
+        public bool IsGameLoaded { get; private set; }
+        public bool IsPlayerJoining { get; set; }
+        public bool ExitingMultiplayerSession { get; set; }
 
-        public static void Initialize()
+        public void Initialize()
         {
             StationUIManager.Initialize();
             ILSShipManager.Initialize();
@@ -57,7 +61,7 @@ namespace NebulaWorld
         /// <summary>
         /// Removes any simulated entities that was added to the scene for a game.
         /// </summary>
-        public static void Clear()
+        public void Clear()
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -74,7 +78,7 @@ namespace NebulaWorld
             IsPlayerJoining = false;
         }
 
-        public static void OnPlayerJoining()
+        public void OnPlayerJoining()
         {
             if (!IsPlayerJoining)
             {
@@ -84,14 +88,14 @@ namespace NebulaWorld
             }
         }
 
-        public static void OnAllPlayersSyncCompleted()
+        public void OnAllPlayersSyncCompleted()
         {
             IsPlayerJoining = false;
             InGamePopup.FadeOut();
             GameMain.isFullscreenPaused = false;
         }
 
-        public static void UpdateGameState(GameState state)
+        public void UpdateGameState(GameState state)
         {
             // We allow for a small drift of 5 ticks since the tick offset using the ping is only an approximation
             if (GameMain.gameTick > 0 && Mathf.Abs(state.gameTick - GameMain.gameTick) > 5)
@@ -101,7 +105,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void SpawnRemotePlayerModel(PlayerData playerData)
+        public void SpawnRemotePlayerModel(PlayerData playerData)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -115,7 +119,7 @@ namespace NebulaWorld
             UpdatePlayerColor(playerData.PlayerId, playerData.MechaColor);
         }
 
-        public static void DestroyRemotePlayerModel(ushort playerId)
+        public void DestroyRemotePlayerModel(ushort playerId)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -127,7 +131,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerPosition(PlayerMovement packet)
+        public void UpdateRemotePlayerPosition(PlayerMovement packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -138,7 +142,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerAnimation(PlayerAnimationUpdate packet)
+        public void UpdateRemotePlayerAnimation(PlayerAnimationUpdate packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -150,7 +154,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
+        public void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -169,7 +173,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
+        public void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -211,7 +215,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdatePlayerColor(ushort playerId, Float3 color)
+        public void UpdatePlayerColor(ushort playerId, Float3 color)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -251,7 +255,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void OnILSShipUpdate(ILSShipData packet)
+        public void OnILSShipUpdate(ILSShipData packet)
         {
             if (packet.idleToWork)
             {
@@ -263,22 +267,22 @@ namespace NebulaWorld
             }
         }
 
-        public static void OnILSShipItemsUpdate(ILSShipItems packet)
+        public void OnILSShipItemsUpdate(ILSShipItems packet)
         {
             ILSShipManager.AddTakeItem(packet);
         }
 
-        public static void OnStationUIChange(StationUI packet)
+        public void OnStationUIChange(StationUI packet)
         {
             StationUIManager.UpdateUI(packet);
         }
 
-        public static void OnILSRemoteOrderUpdate(ILSRemoteOrderData packet)
+        public void OnILSRemoteOrderUpdate(ILSRemoteOrderData packet)
         {
             ILSShipManager.UpdateRemoteOrder(packet);
         }
 
-        public static void OnVegetationMined(VegeMinedPacket packet)
+        public void OnVegetationMined(VegeMinedPacket packet)
         {
             PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             if (packet.Amount == 0 && factory != null)
@@ -327,7 +331,7 @@ namespace NebulaWorld
             }
         }
 
-        public static int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
+        public int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -359,7 +363,7 @@ namespace NebulaWorld
             return 0;
         }
 
-        public static void OnGameLoadCompleted()
+        public void OnGameLoadCompleted()
         {
             if (Initialized == false)
                 return;
@@ -414,7 +418,7 @@ namespace NebulaWorld
             IsGameLoaded = true;
         }
 
-        public static void OnDronesDraw()
+        public void OnDronesDraw()
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -429,7 +433,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void OnDronesGameTick(long time, float dt)
+        public void OnDronesGameTick(long time, float dt)
         {
             double tmp = 1e10; //fake energy of remote player, needed to do the Update()
             double tmp2 = 1;
@@ -465,7 +469,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
+        public void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
         {
             // Make a copy of the "Icarus" text from the starmap
             Text starmap_playerNameText = (Text)AccessTools.Field(typeof(UIStarmap), "playerNameText").GetValue(starmap);
@@ -548,7 +552,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void ClearPlayerNameTagsOnStarmap()
+        public void ClearPlayerNameTagsOnStarmap()
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -565,7 +569,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void RenderPlayerNameTagsInGame()
+        public void RenderPlayerNameTagsInGame()
         {
             TextMesh uiSailIndicator_targetText = null;
 

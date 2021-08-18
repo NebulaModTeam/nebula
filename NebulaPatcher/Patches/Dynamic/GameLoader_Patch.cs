@@ -11,9 +11,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("FixedUpdate")]
         public static void FixedUpdate_Postfix(int ___frame)
         {
-            if (___frame >= 11 && SimulatedWorld.Initialized)
+            if (___frame >= 11 && SimulatedWorld.Instance.Initialized)
             {
-                SimulatedWorld.OnGameLoadCompleted();
+                SimulatedWorld.Instance.OnGameLoadCompleted();
                 if (!LocalPlayer.Instance.IsMasterClient)
                 {
                     MultiplayerClientSession.Instance.DisplayPingIndicator();

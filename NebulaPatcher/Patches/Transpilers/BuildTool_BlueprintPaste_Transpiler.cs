@@ -16,7 +16,7 @@ namespace NebulaPatcher.Patches.Transpiler
         {
             /*
              * Inserts
-             *  if(!SimulatedWorld.Initialized)
+             *  if(!SimulatedWorld.Instance.Initialized)
              * Before trying to take items, so that all prebuilds are assumed to require items while in MP
             */ 
             CodeMatcher matcher = new CodeMatcher(instructions, il)
@@ -52,7 +52,7 @@ namespace NebulaPatcher.Patches.Transpiler
             return matcher
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                     {
-                        return SimulatedWorld.Initialized;
+                        return SimulatedWorld.Instance.Initialized;
                     }))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jumpOperand))
                     .InstructionEnumeration();

@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnNameInputEndEdit")]
         public static void OnNameInputEndEdit_Postfix(UIPlanetDetail __instance)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
+            if (SimulatedWorld.Instance.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
                 if (__instance.planet != null && !string.IsNullOrEmpty(__instance.planet.overrideName))
                 {

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
@@ -18,10 +19,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.Update))]
         public static void Update_Prefix()
         {
-            if (!SimulatedWorld.Initialized || !SimulatedWorld.IsGameLoaded)
+            if (!SimulatedWorld.Instance.Initialized || !SimulatedWorld.Instance.IsGameLoaded)
                 return;
 
-            SimulatedWorld.RenderPlayerNameTagsInGame();
+            SimulatedWorld.Instance.RenderPlayerNameTagsInGame();
         }
 
         [HarmonyPrefix]
@@ -29,7 +30,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
-            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return true;
             }
@@ -55,12 +56,20 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (planet.factory == null)
                 {
                     __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    foreach (var serializer in NebulaModAPI.FactorySerializers)
+                    {
+                        serializer.Import(__instance.factories[factoryIndex], reader.BinaryReader);
+                    }
                     planet.factory = __instance.factories[factoryIndex];
                     planet.factoryIndex = factoryIndex;
                 }
                 else
                 {
                     __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, reader.BinaryReader);
+                    foreach (var serializer in NebulaModAPI.FactorySerializers)
+                    {
+                        serializer.Import(__instance.factories[planet.factoryIndex], reader.BinaryReader);
+                    }
                     planet.factory = __instance.factories[planet.factoryIndex];
                 }
             }
@@ -78,7 +87,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
 
-            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return true;
             }
@@ -137,7 +146,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix(GameData __instance)
         {
             //Set starting star and planet to request from the server
-            if (SimulatedWorld.Initialized && !LocalPlayer.Instance.IsMasterClient)
+            if (SimulatedWorld.Instance.Initialized && !LocalPlayer.Instance.IsMasterClient)
             {
                 if (LocalPlayer.Instance.Data.LocalPlanetId != -1)
                 {
@@ -167,9 +176,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
-                if (SimulatedWorld.Initialized)
+                if (SimulatedWorld.Instance.Initialized)
                 {
                     StationUIManager.DecreaseCooldown();
                 }
@@ -219,9 +228,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.OnDraw))]
         public static void OnDraw_Postfix()
         {
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
-                SimulatedWorld.OnDronesDraw();
+                SimulatedWorld.Instance.OnDronesDraw();
             }
         }
 
@@ -230,7 +239,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void LeaveStar_Prefix(GameData __instance)
         {
             //Client should unload all factories once they leave the star system
-            if (SimulatedWorld.Initialized && !LocalPlayer.Instance.IsMasterClient)
+            if (SimulatedWorld.Instance.Initialized && !LocalPlayer.Instance.IsMasterClient)
             {
                 using (ILSShipManager.PatchLockILS.On())
                 {
@@ -256,7 +265,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void ArriveStar_Prefix(GameData __instance, StarData star)
         {
             //Client should unload all factories once they leave the star system
-            if (SimulatedWorld.Initialized && !LocalPlayer.Instance.IsMasterClient && star != null)
+            if (SimulatedWorld.Instance.Initialized && !LocalPlayer.Instance.IsMasterClient && star != null)
             {
                 LocalPlayer.Instance.SendPacket(new PlayerUpdateLocalStarId(star.id));
                 LocalPlayer.Instance.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));
@@ -268,7 +277,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void LeavePlanet_Prefix(GameData __instance)
         {
             //Players should clear the list of drone orders of other players when they leave the planet
-            if (SimulatedWorld.Initialized)
+            if (SimulatedWorld.Instance.Initialized)
             {
                 GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
             }

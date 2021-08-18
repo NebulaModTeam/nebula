@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnOpen")]
         public static void _OnOpen_Postfix()
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.Instance.IsMasterClient)
+            if (SimulatedWorld.Instance.Initialized && !LocalPlayer.Instance.IsMasterClient)
             {
                 StatisticsManager.IsStatisticsNeeded = true;
                 LocalPlayer.Instance.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowOpened));
@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnClose")]
         public static void _OnClose_Postfix()
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.Instance.IsMasterClient && StatisticsManager.IsStatisticsNeeded)
+            if (SimulatedWorld.Instance.Initialized && !LocalPlayer.Instance.IsMasterClient && StatisticsManager.IsStatisticsNeeded)
             {
                 StatisticsManager.IsStatisticsNeeded = false;
                 LocalPlayer.Instance.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowClosed));

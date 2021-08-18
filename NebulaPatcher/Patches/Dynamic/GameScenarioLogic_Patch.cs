@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //Synchronize unlocking techs
             // Do not run if it is not multiplayer and if the player is not a client
-            if (!SimulatedWorld.Initialized || !LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || !LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }

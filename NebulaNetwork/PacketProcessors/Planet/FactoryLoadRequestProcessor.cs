@@ -19,6 +19,10 @@ namespace NebulaNetwork.PacketProcessors.Planet
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 factory.Export(writer.BinaryWriter);
+                foreach (var serializer in NebulaModAPI.FactorySerializers)
+                {
+                    serializer.Export(factory, writer.BinaryWriter);
+                }
                 conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
             }
             conn.SendPacket(StatisticsManager.GetFactoryPlanetIds());

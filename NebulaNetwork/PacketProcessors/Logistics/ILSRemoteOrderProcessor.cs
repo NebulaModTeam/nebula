@@ -24,12 +24,12 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
 
-                // TODO: Don't we need to call SimulatedWorld.OnILSRemoteOrderUpdate() here too ??
+                // TODO: Don't we need to call SimulatedWorld.Instance.OnILSRemoteOrderUpdate() here too ??
             }
 
             if (IsClient)
             {
-                SimulatedWorld.OnILSRemoteOrderUpdate(packet);
+                SimulatedWorld.Instance.OnILSRemoteOrderUpdate(packet);
             }
         }
     }

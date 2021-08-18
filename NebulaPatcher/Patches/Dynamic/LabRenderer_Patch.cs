@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == FactoryManager.Instance.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
         }
     }
 }

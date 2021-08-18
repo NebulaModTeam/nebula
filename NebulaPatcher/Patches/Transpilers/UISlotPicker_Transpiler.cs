@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UISlotPicker), "selectedIndex")))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
                 {
-                    if (!SimulatedWorld.Initialized)
+                    if (!SimulatedWorld.Instance.Initialized)
                     {
                         return 0;
                     }

@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.SetStationStorage))]
         public static bool SetStationStorage_Postfix(PlanetTransport __instance, int stationId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, Player player)
         {
-            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
+            if (SimulatedWorld.Instance.Initialized && !ILSShipManager.PatchLockILS)
             {
                 StationComponent stationComponent = __instance.stationPool[stationId];
 
@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
         public static void NewStationComponent_AddPlanetId_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return;
             }
@@ -53,7 +53,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
         public static void NewStationComponent_BroadcastNewILS_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
-            if (!SimulatedWorld.Initialized || !LocalPlayer.Instance.IsMasterClient) return;
+            if (!SimulatedWorld.Instance.Initialized || !LocalPlayer.Instance.IsMasterClient) return;
 
             // We don't need to do this for PLS
             if (__result.gid == 0) return;
@@ -70,7 +70,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.Import))]
         public static void Import_Postfix(PlanetTransport __instance)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!SimulatedWorld.Instance.Initialized)
             {
                 return;
             }
@@ -92,7 +92,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
         public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id)
         {
-            return !SimulatedWorld.Initialized || LocalPlayer.Instance.IsMasterClient || ILSShipManager.PatchLockILS;
+            return !SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient || ILSShipManager.PatchLockILS;
         }
 
         /*
@@ -102,7 +102,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
         public static void RemoveStationComponent_Postfix(PlanetTransport __instance, int id)
         {
-            if (!SimulatedWorld.Initialized || !LocalPlayer.Instance.IsMasterClient)
+            if (!SimulatedWorld.Instance.Initialized || !LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }

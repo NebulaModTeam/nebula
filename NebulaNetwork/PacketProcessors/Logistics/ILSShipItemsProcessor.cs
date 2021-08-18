@@ -28,7 +28,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
-                SimulatedWorld.OnILSShipItemsUpdate(packet);
+                SimulatedWorld.Instance.OnILSShipItemsUpdate(packet);
             }
         }
     }

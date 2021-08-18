@@ -39,7 +39,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 }
             }
 
-            SimulatedWorld.UpdateRemotePlayerDrone(packet);
+            SimulatedWorld.Instance.UpdateRemotePlayerDrone(packet);
         }
     }
 }

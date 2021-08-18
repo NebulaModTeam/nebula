@@ -32,7 +32,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 using (FactoryManager.Instance.IsIncomingRequest.On())
                 {
-                    SimulatedWorld.OnILSShipUpdate(packet);
+                    SimulatedWorld.Instance.OnILSShipUpdate(packet);
                 }
             }
         }

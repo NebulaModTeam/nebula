@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>
                         {
                             // send to host / clients
-                            if (!SimulatedWorld.Initialized)
+                            if (!SimulatedWorld.Instance.Initialized)
                             {
                                 return;
                             }
