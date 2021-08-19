@@ -29,7 +29,7 @@ namespace NebulaModel.Packets.Session
                     if (pluginInfo.Value.Instance is IMultiplayerMod mod)
                     {
                         writer.BinaryWriter.Write(pluginInfo.Key);
-                        writer.BinaryWriter.Write(mod.Verson);
+                        writer.BinaryWriter.Write(mod.Version);
                         count++;
                     }
                 }
