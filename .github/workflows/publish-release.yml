@@ -6,19 +6,14 @@ on:
 
 jobs:
   build:
-    runs-on: dsp-installed
+    runs-on: windows-latest
 
     env:
       SOLUTION_NAME: Nebula.sln
-      PLUGIN_PATH :  C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\plugins\
-      NEBULA_FOLDER : Nebula\
+      NEBULA_FOLDER : dist\\release\\nebula\\
       DIST_RELEASE_FOLDER : dist\\release\\
 
     steps:
-      - name: Set NEBULA_PATH environmental variable
-        id: nebula-path
-        run: >
-          echo "::set-output name=PATH::${{ env.PLUGIN_PATH }}${{ env.NEBULA_FOLDER }}"
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -51,7 +46,10 @@ jobs:
 
       - name: Clear output directory in DSP files
         # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
-        run :  rm -R -ErrorAction SilentlyContinue "${{ steps.nebula-path.outputs.PATH }}" 
+        run :  rm -R -ErrorAction SilentlyContinue "${{ env.NEBULA_FOLDER }}" 
+    
+      - name: Add remote build identifier
+        run: copy /b /Y NUL .remoteBuild
 
       # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
       - name: Setup MSBuild.exe
