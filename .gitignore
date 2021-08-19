@@ -372,3 +372,6 @@ FodyWeavers.xsd
 # GitVersioning nbgv prepare-release
 .store/
 nbgv.exe
+
+# CI build indicator
+.remoteBuild
