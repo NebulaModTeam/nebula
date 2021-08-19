@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, readFileSync } from "fs";
-import { basename, dirname, extname, join, resolve } from "path";
+import { basename, dirname, join, resolve } from "path";
 import child_process from "child_process";
+import XmlReader from "xml-reader";
+import xmlQuery from "xml-query";
 
-const DSP_DIR =
-  "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Dyson Sphere Program\\";
+const DSP_DIR = getDSPFolder();
 const BEPINEX_DIR = join(DSP_DIR, "BepInEx\\core\\");
 const DSP_ASSEMBLY_DIR = join(DSP_DIR, "DSPGAME_Data\\Managed\\");
 
@@ -16,6 +17,23 @@ function main() {
     mkdirSync("Libs");
   }
   publicizeAndStubAssemblies(getReferencePaths());
+}
+
+function getDSPFolder() {
+  const targetsFile = "DevEnv.targets";
+
+  var nebulaPath =
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Dyson Sphere Program";
+
+  if (existsSync(targetsFile)) {
+    const xml = XmlReader.parseSync(readFileSync(targetsFile, "utf-8"));
+    const tmpPath = xmlQuery(xml).find("DSPGameDir").text();
+    if (existsSync(tmpPath)) {
+      nebulaPath = tmpPath;
+    }
+  }
+
+  return join(nebulaPath);
 }
 
 function readReferenceFile() {

@@ -15,8 +15,6 @@ import fgrpkg from "@terascope/fetch-github-release";
 const downloadRelease = fgrpkg;
 import json2toml from "json2toml";
 import child_process from "child_process";
-import XmlReader from "xml-reader";
-import xmlQuery from "xml-query";
 import { zip } from "zip-a-folder";
 import fsepkg from "fs-extra";
 const move = fsepkg.move;
@@ -83,23 +81,6 @@ function getPluginInfo() {
     id: pluginInfoRaw.match(/PLUGIN_ID = "(.*)";/)[1],
     version: JSON.parse(versionInfoRaw).version,
   };
-}
-
-function getNebulaFolder() {
-  const targetsFile = "DevEnv.targets";
-
-  var nebulaPath =
-    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Dyson Sphere Program";
-
-  if (existsSync(targetsFile)) {
-    const xml = XmlReader.parseSync(readFileSync(targetsFile, "utf-8"));
-    const tmpPath = xmlQuery(xml).find("DSPGameDir").text();
-    if (existsSync(tmpPath)) {
-      nebulaPath = tmpPath;
-    }
-  }
-
-  return join(nebulaPath, "BepInEx\\plugins\\Nebula");
 }
 
 function generateManifest() {
