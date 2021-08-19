@@ -4,7 +4,7 @@ namespace NebulaAPI
 {
     public interface IMultiplayerMod
     {
-        string Verson { get; }
+        string Version { get; }
         bool CheckVersion { get; }
     }
     
