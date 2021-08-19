@@ -1,9 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
-
-  "version": "0.3.1",
-
+  "version": "0.4.0",
+  "assemblyVersion": {
+    "precision": "build"
+  },
+  "gitCommitIdShortFixedLength": 7,
   "publicReleaseRefSpec": [
-    "^refs/heads/master$"
-  ]
-} 
+    "^refs/tags/v\\d+\\.\\d+"
+  ],
+  "release": {
+    "versionIncrement": "build",
+    "firstUnstableTag": ""
+  }
+}

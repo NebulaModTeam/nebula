@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (SimulatedWorld.Initialized)
                     {
-                        text = $"{PluginInfo.PLUGIN_SHORT_NAME} {PluginInfo.PLUGIN_VERSION_WITH_SHORT_SHA}\r\n{text}";
+                        text = $"{PluginInfo.PLUGIN_SHORT_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}\r\n{text}";
                     }
                     return text;
                 }))

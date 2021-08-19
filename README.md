@@ -54,3 +54,4 @@ Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) to ask if someon
 ## How can I support the team?
 
 If you like what we do and would like to support us, you can donate through our [Patreon](https://www.patreon.com/nebula_mod_team). Thanks for the support <3
+

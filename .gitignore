@@ -368,3 +368,7 @@ FodyWeavers.xsd
 
 # Jetbrains IDE working folder
 .idea/
+
+# GitVersioning nbgv prepare-release
+.store/
+nbgv.exe

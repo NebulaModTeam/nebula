@@ -5,8 +5,8 @@ using NebulaWorld.Statistics;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
-    [HarmonyPatch(typeof(UIProductionStatWindow))]
-    class UIProductionStatWindow_Patch
+    [HarmonyPatch(typeof(UIStatisticsWindow))]
+    class UIStatisticsWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch("_OnOpen")]
