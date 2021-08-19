@@ -1,6 +1,4 @@
-﻿// unset
-
-using System;
+﻿using System;
 
 namespace NebulaAPI
 {

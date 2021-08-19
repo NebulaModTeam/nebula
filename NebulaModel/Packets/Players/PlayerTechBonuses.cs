@@ -1,4 +1,5 @@
-﻿using NebulaModel.Networking.Serialization;
+﻿using NebulaAPI;
+using NebulaModel.Networking.Serialization;
 
 namespace NebulaModel.Packets.Players
 {
@@ -96,7 +97,7 @@ namespace NebulaModel.Packets.Players
             }
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(coreEnergyCap);
             writer.Put(corePowerGen);
@@ -126,7 +127,7 @@ namespace NebulaModel.Packets.Players
             writer.Put(inventorySize);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             coreEnergyCap = reader.GetDouble();
             corePowerGen = reader.GetDouble();

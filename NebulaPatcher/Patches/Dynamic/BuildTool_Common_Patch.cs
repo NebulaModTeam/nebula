@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using NebulaWorld.Factory;
@@ -32,13 +33,13 @@ namespace NebulaPatcher.Patches.Dynamic
             if (LocalPlayer.Instance.IsMasterClient)
             {
                 int planetId = FactoryManager.Instance.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
-                LocalPlayer.Instance.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
+                LocalPlayer.Instance.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, FactoryManager.Instance.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
             }
 
             //If client builds, he need to first send request to the host and wait for reply
             if (!LocalPlayer.Instance.IsMasterClient && !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.Instance.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor, __instance.GetType().ToString()));
+                LocalPlayer.Instance.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, FactoryManager.Instance.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor, __instance.GetType().ToString()));
                 return false;
             }
             return true;

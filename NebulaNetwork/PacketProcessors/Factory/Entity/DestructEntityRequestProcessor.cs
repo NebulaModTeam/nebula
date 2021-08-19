@@ -34,8 +34,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
 
                 pab.factory = tmpFactory;
                 pab.noneTool.factory = tmpFactory;
-                FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
-                FactoryManager.Instance.PacketAuthor = FactoryManager.Instance.AUTHOR_NONE;
+                FactoryManager.Instance.TargetPlanet = NebulaModAPI.PLANET_NONE;
+                FactoryManager.Instance.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
         }
     }

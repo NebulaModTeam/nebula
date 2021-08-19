@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking.Serialization;
 
 namespace NebulaModel.DataStructures
@@ -31,7 +31,7 @@ namespace NebulaModel.DataStructures
             Mecha = new MechaData();
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(Username);
             writer.Put(PlayerId);
@@ -44,7 +44,7 @@ namespace NebulaModel.DataStructures
             Mecha.Serialize(writer);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             Username = reader.GetString();
             PlayerId = reader.GetUShort();

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
@@ -18,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            int planetId = FactoryManager.Instance.TargetPlanet != FactoryManager.Instance.PLANET_NONE ? FactoryManager.Instance.TargetPlanet : __instance.planet?.id ?? -1;
+            int planetId = FactoryManager.Instance.TargetPlanet != NebulaModAPI.PLANET_NONE ? FactoryManager.Instance.TargetPlanet : __instance.planet?.id ?? -1;
             // TODO: handle if 2 clients or if host and client trigger a destruct of the same object at the same time
 
             // If the object is a prebuild, remove it from the prebuild request list
@@ -36,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.Instance.IsMasterClient || !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.Instance.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor));
+                LocalPlayer.Instance.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.Instance.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor));
             }
 
             return LocalPlayer.Instance.IsMasterClient || FactoryManager.Instance.IsIncomingRequest.Value;

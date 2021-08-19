@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Planet;
@@ -50,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (LocalPlayer.Instance.IsMasterClient || !FactoryManager.Instance.IsIncomingRequest.Value)
             {
-                LocalPlayer.Instance.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.Instance.PacketAuthor == FactoryManager.Instance.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor));
+                LocalPlayer.Instance.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.Instance.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? LocalPlayer.Instance.PlayerId : FactoryManager.Instance.PacketAuthor));
             }
 
             if (!LocalPlayer.Instance.IsMasterClient && !FactoryManager.Instance.IsIncomingRequest.Value && !DroneManager.IsPendingBuildRequest(-prebuildId))

@@ -1,5 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Utils;
@@ -11,19 +10,18 @@ namespace NebulaModel.Networking
 {
     public static class PacketUtils
     {
-        public static void RegisterAllPacketNestedTypes(NetPacketProcessor packetProcessor)
+        
+        public static void RegisterAllPacketNestedTypesInAssembly(Assembly assembly, NetPacketProcessor packetProcessor)
         {
-            var nestedTypes = AssembliesUtils.GetTypesWithAttribute<RegisterNestedTypeAttribute>();
+            var nestedTypes = AssembliesUtils.GetTypesWithAttributeInAssembly<RegisterNestedTypeAttribute>(assembly);
             foreach (Type type in nestedTypes)
             {
                 Console.WriteLine($"Registering Nested Type: {type.Name}");
                 if (type.IsClass)
                 {
-                    // TODO: Find a better way to get the "NetPacketProcessor.RegisterNestedType" that as the Func<T> param instead of by index.
-                    MethodInfo registerMethod = packetProcessor.GetType()
-                        .GetMethods()
+                    MethodInfo registerMethod = packetProcessor.GetType().GetMethods()
                         .Where(m => m.Name == nameof(NetPacketProcessor.RegisterNestedType))
-                        .ToArray()[2]
+                        .FirstOrDefault(m => m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType.Name.Equals(typeof(Func<>).Name))
                         .MakeGenericMethod(type);
 
                     MethodInfo delegateMethod = packetProcessor.GetType().GetMethod(nameof(NetPacketProcessor.CreateNestedClassInstance)).MakeGenericMethod(type);

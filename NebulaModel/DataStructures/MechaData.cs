@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Players;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace NebulaModel.DataStructures
             this.TechBonuses = new PlayerTechBonuses();
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             TechBonuses.Serialize(writer);
             writer.Put(SandCount);
@@ -63,7 +63,7 @@ namespace NebulaModel.DataStructures
             }
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             TechBonuses = new PlayerTechBonuses();
             Inventory = new StorageComponent(4);

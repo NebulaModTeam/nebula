@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking.Serialization;
 using UnityEngine;
 
@@ -29,14 +29,14 @@ namespace NebulaModel.DataStructures
             return new Color(x, y, z);
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(x);
             writer.Put(y);
             writer.Put(z);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             x = reader.GetFloat();
             y = reader.GetFloat();

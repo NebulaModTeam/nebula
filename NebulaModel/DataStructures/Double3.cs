@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking.Serialization;
 
 namespace NebulaModel.DataStructures
@@ -17,14 +17,14 @@ namespace NebulaModel.DataStructures
             this.z = z;
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(x);
             writer.Put(y);
             writer.Put(z);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             x = reader.GetDouble();
             y = reader.GetDouble();

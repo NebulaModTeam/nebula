@@ -29,8 +29,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                 ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
                 planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
 
-                FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
-                FactoryManager.Instance.PacketAuthor = FactoryManager.Instance.AUTHOR_NONE;
+                FactoryManager.Instance.TargetPlanet = NebulaModAPI.PLANET_NONE;
+                FactoryManager.Instance.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
         }
     }

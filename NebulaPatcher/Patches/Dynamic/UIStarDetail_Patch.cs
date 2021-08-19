@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
 using NebulaWorld.Factory;
@@ -17,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (__instance.star != null && !string.IsNullOrEmpty(__instance.star.overrideName))
                 {
                     // Send packet with new star name
-                    LocalPlayer.Instance.SendPacket(new NameInputPacket(__instance.star.overrideName, __instance.star.id, FactoryManager.Instance.PLANET_NONE, LocalPlayer.Instance.PlayerId));
+                    LocalPlayer.Instance.SendPacket(new NameInputPacket(__instance.star.overrideName, __instance.star.id, NebulaModAPI.PLANET_NONE, LocalPlayer.Instance.PlayerId));
                 }
             }
         }

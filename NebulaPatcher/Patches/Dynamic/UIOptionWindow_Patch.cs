@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel;
+using NebulaAPI;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NGPT;

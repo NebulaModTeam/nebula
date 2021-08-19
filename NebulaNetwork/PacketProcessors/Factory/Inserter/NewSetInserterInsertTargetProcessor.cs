@@ -19,7 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Inserter
                 factory.WriteObjectConn(packet.ObjId, 1, false, packet.OtherObjId, -1);
                 factory.factorySystem.SetInserterInsertTarget(packet.InserterId, packet.OtherObjId, packet.Offset);
                 factory.factorySystem.inserterPool[packet.InserterId].pos2 = packet.PointPos.ToVector3();
-                FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
+                FactoryManager.Instance.TargetPlanet = NebulaModAPI.PLANET_NONE;
             }
         }
     }

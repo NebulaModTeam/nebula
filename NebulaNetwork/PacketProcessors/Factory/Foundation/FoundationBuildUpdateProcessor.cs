@@ -35,7 +35,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 
                 factoryManager.TargetPlanet = packet.PlanetId;
                 factoryManager.AddPlanetTimer(packet.PlanetId);
-                factoryManager.TargetPlanet = factoryManager.PLANET_NONE;
+                factoryManager.TargetPlanet = NebulaModAPI.PLANET_NONE;
 
                 //Perform terrain operation
                 int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out reformCenterPoint);

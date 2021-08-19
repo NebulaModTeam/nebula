@@ -17,6 +17,5 @@
         // Mod Specific Error Codes
         ModIsMissing = 2500,
         ModIsMissingOnServer = 2501
-        //GalacticScaleMissmatch = 3000,
     }
 }

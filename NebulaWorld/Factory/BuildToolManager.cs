@@ -1,4 +1,5 @@
-﻿using NebulaModel.Logger;
+﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using System.Collections.Generic;
 using UnityEngine;
@@ -140,8 +141,8 @@ namespace NebulaWorld.Factory
                     buildTool.buildPreviews.AddRange(tmpList);
                 }
 
-                FactoryManager.Instance.TargetPlanet = FactoryManager.Instance.PLANET_NONE;
-                FactoryManager.Instance.PacketAuthor = FactoryManager.Instance.AUTHOR_NONE;
+                FactoryManager.Instance.TargetPlanet = NebulaModAPI.PLANET_NONE;
+                FactoryManager.Instance.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
         }
 

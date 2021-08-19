@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking.Serialization;
 using UnityEngine;
 
@@ -28,7 +28,7 @@ namespace NebulaModel.DataStructures
             w = value.w;
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(x);
             writer.Put(y);
@@ -36,7 +36,7 @@ namespace NebulaModel.DataStructures
             writer.Put(w);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             x = reader.GetFloat();
             y = reader.GetFloat();

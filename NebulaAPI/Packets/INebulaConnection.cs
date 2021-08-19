@@ -1,6 +1,4 @@
-﻿// unset
-
-namespace NebulaAPI
+﻿namespace NebulaAPI
 {
     public interface INebulaConnection
     {

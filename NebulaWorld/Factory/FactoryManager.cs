@@ -20,32 +20,28 @@ namespace NebulaWorld.Factory
             internal readonly Dictionary<PrebuildOwnerKey, ushort> PrebuildRequests = new Dictionary<PrebuildOwnerKey, ushort>();
             internal readonly Dictionary<int, Timer> PlanetTimers = new Dictionary<int, Timer>();
         }
-        private readonly ThreadSafe _threadSafe = new ThreadSafe();
+        private readonly ThreadSafe threadSafe = new ThreadSafe();
 
         Locker GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests) =>
-            _threadSafe.PrebuildRequests.GetLocked(out prebuildRequests);
+            threadSafe.PrebuildRequests.GetLocked(out prebuildRequests);
 
         Locker GetPlanetTimers(out Dictionary<int, Timer> planetTimers) =>
-            _threadSafe.PlanetTimers.GetLocked(out planetTimers);
+            threadSafe.PlanetTimers.GetLocked(out planetTimers);
 
-        private readonly ToggleSwitch _isIncomingRequest = new ToggleSwitch();
+        private readonly ToggleSwitch isIncomingRequest = new ToggleSwitch();
         public readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
         public readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
         
         public PlanetFactory EventFactory { get; set; }
-        public IToggle IsIncomingRequest => _isIncomingRequest;
+        public IToggle IsIncomingRequest => isIncomingRequest;
 
         public int PacketAuthor { get; set; }
         public int TargetPlanet { get; set; }
 
-        public int PLANET_NONE => -2;
-        public int AUTHOR_NONE => -1;
-        public int STAR_NONE => -1;
-
         public void Initialize()
         {
-            PacketAuthor = AUTHOR_NONE;
-            TargetPlanet = PLANET_NONE;
+            PacketAuthor = NebulaModAPI.AUTHOR_NONE;
+            TargetPlanet = NebulaModAPI.PLANET_NONE;
         }
 
         public void AddPlanetTimer(int planetId)

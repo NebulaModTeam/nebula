@@ -75,11 +75,15 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            foreach (Assembly assembly in AssembliesUtils.GetNebulaAssemblies())
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            }
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
 
             foreach (Assembly assembly in NebulaAPI.NebulaModAPI.TargetAssemblies)
             {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
                 PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, false);
             }
 

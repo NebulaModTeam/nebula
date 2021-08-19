@@ -13,9 +13,5 @@ namespace NebulaAPI
         PlanetFactory EventFactory { get; set; }
 
         void AddPlanetTimer(int planetId);
-        
-        int PLANET_NONE { get; }
-        int AUTHOR_NONE { get; }
-        int STAR_NONE { get; }
     }
 }

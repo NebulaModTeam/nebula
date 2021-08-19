@@ -1,10 +1,11 @@
-﻿using System;
+﻿using NebulaAPI;
+using System;
 using System.Net;
 using System.Text;
 
 namespace NebulaModel.Networking.Serialization
 {
-    public class NetDataWriter
+    public class NetDataWriter : INetDataWriter
     {
         protected byte[] _data;
         protected int _position;

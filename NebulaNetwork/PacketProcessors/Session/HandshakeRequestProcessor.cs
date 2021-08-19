@@ -84,13 +84,6 @@ namespace NebulaNetwork.PacketProcessors.Session
                 return;
             }
 
-            /*if (packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
-            {
-                conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch,
-                    "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
-                return;
-            }*/
-
             SimulatedWorld.Instance.OnPlayerJoining();
 
             //TODO: some validation of client cert / generating auth challenge for the client

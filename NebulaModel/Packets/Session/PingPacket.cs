@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 
 namespace NebulaModel.Packets.Session
 {
