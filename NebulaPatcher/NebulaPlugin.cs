@@ -83,7 +83,7 @@ namespace NebulaPatcher
             Log.Info("Behaviours applied.");
         }
 
-        public string Verson => NebulaModel.Config.ModVersion;
+        public string Version => NebulaModel.Config.ModVersion;
 
         public bool CheckVersion => true;
     }
