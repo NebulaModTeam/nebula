@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Transpiler
         //To:      if (!this._paused || SimulatedWorld.Initialized)
 
         [HarmonyTranspiler]
-        [HarmonyPatch("FixedUpdate")]
+        [HarmonyPatch(nameof(GameMain.FixedUpdate))]
         static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
             var found = false;

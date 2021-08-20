@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class EntitySignRenderer_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("Init")]
+        [HarmonyPatch(nameof(EntitySignRenderer.Init))]
         public static void Init_Postfix()
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)

@@ -30,7 +30,7 @@ namespace NebulaPatcher.Patches.Transpilers
         private static int RemOrderCounter3 = 0;
 
         [HarmonyTranspiler]
-        [HarmonyPatch("RematchRemotePairs")]
+        [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]
         public static IEnumerable<CodeInstruction> RematchRemotePairs_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             // BEGIN: transpilers to catch StationStore::remoteOrder changes
@@ -244,7 +244,7 @@ namespace NebulaPatcher.Patches.Transpilers
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch("InternalTickRemote")]
+        [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static IEnumerable<CodeInstruction> InternalTickRemote_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             // get all the AddItem calls
@@ -886,7 +886,7 @@ namespace NebulaPatcher.Patches.Transpilers
         }
 
         [HarmonyReversePatch]
-        [HarmonyPatch("InternalTickRemote")]
+        [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static void ILSUpdateShipPos(StationComponent stationComponent, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
 

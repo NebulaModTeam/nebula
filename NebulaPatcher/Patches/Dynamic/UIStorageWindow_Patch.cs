@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIStorageWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnStorageIdChange")]
+        [HarmonyPatch(nameof(UIStorageWindow.OnStorageIdChange))]
         public static bool OnStorageIdChange_Prefix(UIStorageWindow __instance)
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient && StorageManager.WindowOpened)
@@ -33,7 +33,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIStorageWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnOpen_Prefix()
         {
             StorageManager.WindowOpened = true;
@@ -41,7 +42,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
+        [HarmonyPatch(nameof(UIStorageWindow._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Prefix()
         {
             StorageManager.WindowOpened = false;

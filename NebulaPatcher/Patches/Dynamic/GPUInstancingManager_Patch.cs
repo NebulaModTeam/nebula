@@ -13,7 +13,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class GPUInstancingManager_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("get_activePlanet")]
+        [HarmonyPatch(nameof(GPUInstancingManager.activePlanet), MethodType.Getter)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool get_activePlanet_Prefix(GPUInstancingManager __instance, ref PlanetData __result)
         {
             if (!SimulatedWorld.Initialized)

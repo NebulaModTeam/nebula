@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UILabWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemButtonClick")]
+        [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance, int index)
         {
             if (!SimulatedWorld.Initialized)
@@ -82,7 +82,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnProductButtonClick")]
+        [HarmonyPatch(nameof(UILabWindow.OnProductButtonClick))]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance)
         {
             if (!SimulatedWorld.Initialized)
@@ -105,7 +105,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnBackButtonClick")]
+        [HarmonyPatch(nameof(UILabWindow.OnBackButtonClick))]
         public static void OnBackButtonClick_Prefix(UILabWindow __instance)
         {
             //Notify about recipe reset

@@ -9,7 +9,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIEscMenu_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIEscMenu._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Prefix(UIEscMenu __instance)
         {
             // Disable save game button if you are a client in a multiplayer session
@@ -22,14 +23,14 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnButton5Click")]
+        [HarmonyPatch(nameof(UIEscMenu.OnButton5Click))]
         public static void OnButton5Click_Prefix()
         {
             QuitGame();
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnButton6Click")]
+        [HarmonyPatch(nameof(UIEscMenu.OnButton6Click))]
         public static void OnButton6Click_Prefix()
         {
             QuitGame();

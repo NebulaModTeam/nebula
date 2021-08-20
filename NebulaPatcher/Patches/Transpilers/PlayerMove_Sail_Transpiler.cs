@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Transpilers
     {
 
         [HarmonyTranspiler]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PlayerMove_Sail.GameTick))]
         public static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             // Send PlayerUseWarper(bool) whenever warpCommand is toggled between true or false

@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("dysonSphereSystemUnlocked", MethodType.Getter)]
+        [HarmonyPatch(nameof(GameHistoryData.dysonSphereSystemUnlocked), MethodType.Getter)]
         public static bool DysonSphereSystemUnlocked_Prefix(GameHistoryData __instance, ref bool __result)
         {
             __result = true;
@@ -78,7 +78,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("AddTaskIterate")]
+        [HarmonyPatch(nameof(MechaForge.AddTaskIterate))]
         public static bool AddTaskIterate_Prefix(MechaForge __instance, ForgeTask __result, int recipeId, int count)
         {
             ForgeTask recipe = new ForgeTask(recipeId, count);
@@ -95,14 +95,14 @@ namespace NebulaPatcher.Patches.Dynamic
     class Debug_UIAdvisorTip_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("PlayAdvisorTip")]
+        [HarmonyPatch(nameof(UIAdvisorTip.PlayAdvisorTip))]
         public static bool PlayAdvisorTip_Prefix()
         {
             return false;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("RunAdvisorTip")]
+        [HarmonyPatch(nameof(UIAdvisorTip.RunAdvisorTip))]
         public static bool RunAdvisorTip_Prefix()
         {
             return false;
@@ -113,8 +113,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class Debug_UITutorialTip_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("PopupTutorialTip")]
-        public static bool PlayAdvisorTip_Prefix()
+        [HarmonyPatch(nameof(UITutorialTip.PopupTutorialTip))]
+        public static bool PopupTutorialTip_Prefix()
         {
             return false;
         }

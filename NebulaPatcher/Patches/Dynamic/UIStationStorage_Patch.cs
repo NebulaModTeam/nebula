@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
          * clients send a request to the server and only run the original method once they receive the response
          */
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemIconMouseDown")]
+        [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseDown))]
         public static bool OnItemIconMouseDown_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
@@ -56,7 +56,7 @@ namespace NebulaPatcher.Patches.Dynamic
          * clients send a request to the server and only run the original method once they receive the response
          */
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemIconMouseUp")]
+        [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseUp))]
         public static bool OnItemIconMouseUp_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)

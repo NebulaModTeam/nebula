@@ -9,7 +9,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIAutoSave_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIAutoSave._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Postfix(UIAutoSave __instance)
         {
             // Hide AutoSave failed message on clients, since client cannot save in multiplayer
@@ -19,7 +20,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnLateUpdate")]
+        [HarmonyPatch(nameof(UIAutoSave._OnLateUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnLateUpdate_Prefix()
         {
             return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient;

@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIEjectorWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnManualServingContentChange")]
+        [HarmonyPatch(nameof(UIEjectorWindow.OnManualServingContentChange))]
         public static void OnManualServingContentChange_Postfix(UIEjectorWindow __instance)
         {
             //Notify about manual bullet inserting / withdrawing change
@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnSetOrbit")]
+        [HarmonyPatch(nameof(UIEjectorWindow.OnSetOrbit))]
         public static void OnSetOrbit_Postfix(UIEjectorWindow __instance, int orbitId)
         {
             //Notify about target orbit change

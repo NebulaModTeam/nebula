@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class PostEffectController_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("Start")]
+        [HarmonyPatch(nameof(PostEffectController.Start))]
         public static void Start_Postfix(UIGameMenu __instance)
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)

@@ -10,21 +10,21 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool pointerPress = false;
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnTakeBackPointerDown")]
+        [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerDown))]
         public static void OnTakeBackPointerDown_Postfix(UITankWindow __instance)
         {
             pointerPress = __instance.pointerPress;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnTakeBackPointerUp")]
+        [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerUp))]
         public static void OnTakeBackPointerUp_Postfix(UITankWindow __instance)
         {
             pointerPress = false;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnApplicationFocus")]
+        [HarmonyPatch(nameof(UITankWindow.OnApplicationFocus))]
         public static void OnApplicationFocus_Postfix(UITankWindow __instance, bool focus)
         {
             if (!focus)
@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnOutputSwitchClick")]
+        [HarmonyPatch(nameof(UITankWindow.OnOutputSwitchClick))]
         public static void OnOutputSwitchClick_Postfix(UITankWindow __instance)
         {
             if (SimulatedWorld.Initialized)
@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnInputSwitchClick")]
+        [HarmonyPatch(nameof(UITankWindow.OnInputSwitchClick))]
         public static void OnInputSwitchClick_Postfix(UITankWindow __instance)
         {
             if (SimulatedWorld.Initialized)
@@ -54,7 +54,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnUpdate")]
+        [HarmonyPatch(nameof(UITankWindow._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnUpdate_Postfix(UITankWindow __instance)
         {
             if (pointerPress && SimulatedWorld.Initialized)

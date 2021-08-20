@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UISiloWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnManualServingContentChange")]
+        [HarmonyPatch(nameof(UISiloWindow.OnManualServingContentChange))]
         public static void OnManualServingContentChange_Postfix(UISiloWindow __instance)
         {
             //Notify about manual rockets inserting / withdrawing change

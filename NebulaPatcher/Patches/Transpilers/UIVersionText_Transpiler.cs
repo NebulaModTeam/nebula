@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Transpilers
     class UIVersionText_Transpiler
     {
         [HarmonyTranspiler]
-        [HarmonyPatch("Refresh")]
+        [HarmonyPatch(nameof(UIVersionText.Refresh))]
         public static IEnumerable<CodeInstruction> Refresh_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
             var codeMatcher = new CodeMatcher(instructions, iL)

@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIPowerExchangerWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnModeButtonClick")]
+        [HarmonyPatch(nameof(UIPowerExchangerWindow.OnModeButtonClick))]
         public static void OnModeButtonClick_Prefix(UIPowerExchangerWindow __instance, int targetState)
         {
             //Notify other players about changing mode of the Power Exchenger
@@ -19,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnEmptyOrFullUIButtonClick")]
+        [HarmonyPatch(nameof(UIPowerExchangerWindow.OnEmptyOrFullUIButtonClick))]
         public static void OnEmptyOrFullUIButtonClick_Postfix(UIPowerExchangerWindow __instance, int itemId)
         {
             //Notify other about taking or inserting accumulators
