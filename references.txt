@@ -1,6 +1,3 @@
-$(BepInExDir)0Harmony.dll
-$(BepInExDir)BepInEx.dll
-$(BepInExDir)BepInEx.Harmony.dll
 $(DSPAssemblyDir)Assembly-CSharp.dll
 $(DSPAssemblyDir)UnityEngine.dll
 $(DSPAssemblyDir)UnityEngine.AnimationModule.dll
