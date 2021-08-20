@@ -50,13 +50,13 @@ namespace NebulaWorld
 
             PlayerInstance = new global::Player();
             MechaInstance = new Mecha();
-            AccessTools.Property(typeof(global::Player), "mecha").SetValue(PlayerInstance, MechaInstance, null);
+            PlayerInstance.mecha = MechaInstance;
             MechaInstance.Init(PlayerInstance);
 
             //Fix MechaDroneRenderers
-            AccessTools.Field(typeof(MechaDroneRenderer), "mat_0").SetValue(MechaInstance.droneRenderer, new Material(Configs.builtin.mechaDroneMat.shader));
-            Material mat = (Material)AccessTools.Field(typeof(MechaDroneRenderer), "mat_0").GetValue(MechaInstance.droneRenderer);
-            MethodInvoker.GetHandler(AccessTools.Method(typeof(Material), "CopyPropertiesFromMaterial", new System.Type[] { typeof(Material) })).Invoke(mat, Configs.builtin.mechaDroneMat);
+            MechaInstance.droneRenderer.mat_0 = new Material(Configs.builtin.mechaDroneMat.shader);
+            Material mat = MechaInstance.droneRenderer.mat_0;
+            mat.CopyPropertiesFromMaterial(Configs.builtin.mechaDroneMat);
 
             PlayerId = playerId;
             Username = username;

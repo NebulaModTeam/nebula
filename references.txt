@@ -1,0 +1,14 @@
+$(BepInExDir)0Harmony.dll
+$(BepInExDir)BepInEx.dll
+$(BepInExDir)BepInEx.Harmony.dll
+$(DSPAssemblyDir)Assembly-CSharp.dll
+$(DSPAssemblyDir)UnityEngine.dll
+$(DSPAssemblyDir)UnityEngine.AnimationModule.dll
+$(DSPAssemblyDir)UnityEngine.CoreModule.dll
+$(DSPAssemblyDir)UnityEngine.IMGUIModule.dll
+$(DSPAssemblyDir)UnityEngine.ParticleSystemModule.dll
+$(DSPAssemblyDir)UnityEngine.PhysicsModule.dll
+$(DSPAssemblyDir)UnityEngine.TextRenderingModule.dll
+$(DSPAssemblyDir)UnityEngine.UI.dll
+$(DSPAssemblyDir)UnityEngine.UIElementsModule.dll
+$(DSPAssemblyDir)UnityEngine.UIModule.dll

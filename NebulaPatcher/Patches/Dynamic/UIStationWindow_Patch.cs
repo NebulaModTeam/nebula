@@ -288,7 +288,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
-            ((Text)AccessTools.Field(typeof(UIStationWindow), "titleText").GetValue(__instance)).text = "Loading...";
+            __instance.titleText.text = "Loading...";
             StationUIManager.LastSelectedGameObj = EventSystem.current.currentSelectedGameObject;
             if (__instance.factory == null)
             {
@@ -301,7 +301,7 @@ namespace NebulaPatcher.Patches.Dynamic
             StationComponent stationComponent = null;
             if (__instance.stationId == 0)
             {
-                UIStationStorage[] stationStorage = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(__instance);
+                UIStationStorage[] stationStorage = __instance.storageUIs;
                 if (stationStorage != null && stationStorage[0] != null && stationStorage[0].station.id != 0)
                 {
                     stationComponent = __instance.transport.stationPool[stationStorage[0].station.id];

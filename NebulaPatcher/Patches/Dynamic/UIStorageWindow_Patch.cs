@@ -15,13 +15,13 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient && StorageManager.WindowOpened)
             {
-                UIStorageGrid storageUI = (UIStorageGrid)AccessTools.Field(typeof(UIStorageWindow), "storageUI").GetValue(__instance);
+                UIStorageGrid storageUI = __instance.storageUI;
                 StorageManager.ActiveUIStorageGrid = storageUI;
-                Text titleText = (Text)AccessTools.Field(typeof(UIStorageWindow), "titleText").GetValue(__instance);
+                Text titleText = __instance.titleText;
                 StorageManager.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
                 StorageManager.ActiveWindowTitle = titleText;
-                StorageManager.ActiveBansSlider = (Slider)AccessTools.Field(typeof(UIStorageWindow), "bansSlider").GetValue(__instance);
-                StorageManager.ActiveBansValueText = (Text)AccessTools.Field(typeof(UIStorageWindow), "bansValueText").GetValue(__instance);
+                StorageManager.ActiveBansSlider = __instance.bansSlider;
+                StorageManager.ActiveBansValueText = __instance.bansValueText;
                 titleText.text = "Loading...";
                 storageUI._Free();
                 storageUI._Open();

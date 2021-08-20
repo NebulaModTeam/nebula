@@ -23,5 +23,5 @@
   <!-- Note that this is the first target, called by InitialTargets -->
   <Target Name="TestDSPGameFolder"
           DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid"
-          Condition="!Exists('$(DSPGameDir)')" />
+          Condition="!Exists('$(DSPGameDir)') And !Exists('$(PropSheetPath).remoteBuild')" />
 </Project>

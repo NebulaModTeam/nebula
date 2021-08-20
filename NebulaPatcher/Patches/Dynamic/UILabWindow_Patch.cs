@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (GameMain.mainPlayer.inhandItemId > 0 && GameMain.mainPlayer.inhandItemCount > 0)
                 {
                     //Notify about depositing source cubes
-                    ItemProto[] matrixProtos = (ItemProto[])AccessTools.Field(typeof(UILabWindow), "matrixProtos").GetValue(__instance);
+                    ItemProto[] matrixProtos = __instance.matrixProtos;
                     int id = matrixProtos[index].ID;
                     if (GameMain.mainPlayer.inhandItemId == id)
                     {

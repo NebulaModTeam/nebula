@@ -16,7 +16,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(PowerSystemRenderer), "powerGraphOn") = Config.Options.PowerGridEnabled;
+            PowerSystemRenderer.powerGraphOn = Config.Options.PowerGridEnabled;
         }
     }
 }

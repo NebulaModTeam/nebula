@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Config.Options.BuildingIconEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showIcon");
+            Config.Options.BuildingIconEnabled = EntitySignRenderer.showIcon;
             Config.SaveOptions();
         }
 
@@ -46,7 +46,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Config.Options.GuidingLightEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PowerSystemRenderer), "powerGraphOn");
+            Config.Options.GuidingLightEnabled = PowerSystemRenderer.powerGraphOn;
             Config.SaveOptions();
         }
 
@@ -59,7 +59,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Config.Options.PowerGridEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight");
+            Config.Options.PowerGridEnabled = PostEffectController.headlight;
             Config.SaveOptions();
         }
 
@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Config.Options.BuildingWarningEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showSign");
+            Config.Options.BuildingWarningEnabled = EntitySignRenderer.showSign;
             Config.SaveOptions();
         }
 

@@ -46,13 +46,13 @@ namespace NebulaWorld.MonoBehaviours.Remote
             rootTransform = GetComponent<Transform>();
             rootAnimation = GetComponent<RemotePlayerAnimation>();
 
-            warpEffect = UnityEngine.Object.Instantiate<VFWarpEffect>(Configs.builtin.warpEffectPrefab, GetComponent<Transform>());
+            warpEffect = Instantiate(Configs.builtin.warpEffectPrefab, GetComponent<Transform>());
             warpEffect.enabled = false;
 
-            tunnelMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "tunnelMat").GetValue(warpEffect);
-            distortMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "distortMat").GetValue(warpEffect);
-            astrosMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "astrosMat").GetValue(warpEffect);
-            nebulasMat = (Material)AccessTools.Field(typeof(VFWarpEffect), "nebulasMat").GetValue(warpEffect);
+            tunnelMat = warpEffect.tunnelMat;
+            distortMat = warpEffect.distortMat;
+            astrosMat = warpEffect.astrosMat;
+            nebulasMat = warpEffect.nebulasMat;
 
             astrosParticles = warpEffect.astrosParticles;
             nebulasParticles = warpEffect.nebulasParticles;
@@ -63,20 +63,20 @@ namespace NebulaWorld.MonoBehaviours.Remote
             astrosRenderer = warpEffect.astrosRenderer;
             nebulasRenderer = warpEffect.nebulasRenderer;
 
-            tunnelMul = (float)AccessTools.Field(typeof(VFWarpEffect), "tunnelMul").GetValue(warpEffect);
-            distortMul = (float)AccessTools.Field(typeof(VFWarpEffect), "distortMul").GetValue(warpEffect);
-            astrosMul = (float)AccessTools.Field(typeof(VFWarpEffect), "astrosMul").GetValue(warpEffect);
-            nebulasMul = (float)AccessTools.Field(typeof(VFWarpEffect), "nebulasMul").GetValue(warpEffect);
+            tunnelMul = warpEffect.tunnelMul;
+            distortMul = warpEffect.distortMul;
+            astrosMul = warpEffect.astrosMul;
+            nebulasMul = warpEffect.nebulasMul;
 
             intensByState_astro = warpEffect.intensByState_astro;
             intensByState = warpEffect.intensByState;
 
             warpRotations = new Vector4[24];
 
-            tunnelMat = UnityEngine.Object.Instantiate<Material>(tunnelRenderer.sharedMaterial);
-            distortMat = UnityEngine.Object.Instantiate<Material>(distortRenderer.sharedMaterial);
-            astrosMat = UnityEngine.Object.Instantiate<Material>(astrosRenderer.sharedMaterial);
-            nebulasMat = UnityEngine.Object.Instantiate<Material>(nebulasRenderer.sharedMaterial);
+            tunnelMat = Instantiate(tunnelRenderer.sharedMaterial);
+            distortMat = Instantiate(distortRenderer.sharedMaterial);
+            astrosMat = Instantiate(astrosRenderer.sharedMaterial);
+            nebulasMat = Instantiate(nebulasRenderer.sharedMaterial);
 
             tunnelRenderer.sharedMaterial = tunnelMat;
             distortRenderer.sharedMaterial = distortMat;

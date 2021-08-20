@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnTakeBackPointerDown")]
         public static void OnTakeBackPointerDown_Postfix(UITankWindow __instance)
         {
-            pointerPress = (bool)AccessTools.Field(typeof(UITankWindow), "pointerPress").GetValue(__instance);
+            pointerPress = __instance.pointerPress;
         }
 
         [HarmonyPostfix]

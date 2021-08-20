@@ -66,7 +66,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 StationUI packet;
                 if (LocalPlayer.IsMasterClient)
                 {
-                    if ((bool)AccessTools.Field(typeof(UIStationStorage), "insplit").GetValue(__instance))
+                    if (__instance.insplit)
                     {
                         int splitVal = UIRoot.instance.uiGame.gridSplit.value;
                         int diff = (splitVal >= __instance.station.storage[__instance.index].count) ? __instance.station.storage[__instance.index].count : splitVal;

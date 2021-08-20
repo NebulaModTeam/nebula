@@ -16,7 +16,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight") = Config.Options.GuidingLightEnabled;
+            PostEffectController.headlight = Config.Options.GuidingLightEnabled;
         }
     }
 }

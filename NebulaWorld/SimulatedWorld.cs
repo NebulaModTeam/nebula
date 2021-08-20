@@ -41,7 +41,6 @@ namespace NebulaWorld
         public static void Initialize()
         {
             StationUIManager.Initialize();
-            ILSShipManager.Initialize();
             DroneManager.Initialize();
             FactoryManager.Initialize();
             PlanetManager.Initialize();
@@ -196,8 +195,8 @@ namespace NebulaWorld
                     {
                         drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                     }
-                    drone.target = (Vector3)MethodInvoker.GetHandler(AccessTools.Method(typeof(MechaDroneLogic), "_obj_hpos", new System.Type[] { typeof(int) })).Invoke(GameMain.mainPlayer.mecha.droneLogic, packet.EntityId);
-                    drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + UnityEngine.Random.insideUnitSphere) * 1.5f;
+                    drone.target = GameMain.mainPlayer.mecha.droneLogic._obj_hpos(packet.EntityId);
+                    drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + Random.insideUnitSphere) * 1.5f;
                     drone.forward = drone.initialVector;
                     drone.progress = 0f;
                     player.MechaInstance.droneCount = GameMain.mainPlayer.mecha.droneCount;
@@ -386,7 +385,7 @@ namespace NebulaWorld
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToVector3());
 
                 //Load player's saved data from the last session.
-                AccessTools.Property(typeof(global::Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
+                GameMain.mainPlayer.package = LocalPlayer.Data.Mecha.Inventory;
                 GameMain.mainPlayer.mecha.forge = LocalPlayer.Data.Mecha.Forge;
                 GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Data.Mecha.CoreEnergy;
                 GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
@@ -395,8 +394,8 @@ namespace NebulaWorld
                 GameMain.mainPlayer.SetSandCount(LocalPlayer.Data.Mecha.SandCount);
 
                 //Fix references that brokes during import
-                AccessTools.Property(typeof(MechaForge), "mecha").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer.mecha, null);
-                AccessTools.Property(typeof(MechaForge), "player").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer, null);
+                GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
+                GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             }
 
@@ -468,8 +467,8 @@ namespace NebulaWorld
         public static void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
         {
             // Make a copy of the "Icarus" text from the starmap
-            Text starmap_playerNameText = (Text)AccessTools.Field(typeof(UIStarmap), "playerNameText").GetValue(starmap);
-            Transform starmap_playerTrack = (Transform)AccessTools.Field(typeof(UIStarmap), "playerTrack").GetValue(starmap);
+            Text starmap_playerNameText = starmap.playerNameText;
+            Transform starmap_playerTrack = starmap.playerTrack;
 
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -585,7 +584,7 @@ namespace NebulaWorld
                         // Only get the field required if we actually need to, no point getting it every time
                         if (uiSailIndicator_targetText == null)
                         {
-                            uiSailIndicator_targetText = (TextMesh)AccessTools.Field(typeof(UISailIndicator), "targetText").GetValue(UIRoot.instance.uiGame.sailIndicator);
+                            uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
                         }
 
                         // Initialise a new game object to contain the text
