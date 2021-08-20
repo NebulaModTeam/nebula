@@ -15,8 +15,9 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // Hide AutoSave failed message on clients, since client cannot save in multiplayer
             CanvasGroup contentCanvas = __instance.contentCanvas;
-            contentCanvas?.gameObject.SetActive(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient);
-            Log.Warn($"UIAutoSave active: {contentCanvas?.gameObject.activeSelf}");
+            if(contentCanvas == null) return;
+            contentCanvas.gameObject.SetActive(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient);
+            Log.Warn($"UIAutoSave active: {contentCanvas.gameObject.activeSelf}");
         }
 
         [HarmonyPrefix]

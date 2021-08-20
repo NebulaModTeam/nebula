@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (FactoryManager.IsIncomingRequest)
             {
-                __result = default(VFInput.InputValue);
+                __result = default;
                 __result.onDown = true;
                 return false;
             }

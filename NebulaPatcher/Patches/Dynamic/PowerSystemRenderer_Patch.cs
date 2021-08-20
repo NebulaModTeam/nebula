@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PowerSystemRenderer.Init))]
-        public static void Init_Postfix(UIGameMenu __instance)
+        public static void Init_Postfix()
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {

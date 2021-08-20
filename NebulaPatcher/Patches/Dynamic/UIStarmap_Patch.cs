@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIStarmap._OnClose))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        public static void _OnClose_Postfix(UIStarmap __instance)
+        public static void _OnClose_Postfix()
         {
             if (SimulatedWorld.Initialized)
             {

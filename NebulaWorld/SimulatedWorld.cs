@@ -215,12 +215,11 @@ namespace NebulaWorld
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 Transform transform;
-                RemotePlayerModel remotePlayerModel;
                 if (playerId == LocalPlayer.PlayerId)
                 {
                     transform = GameMain.data.mainPlayer.transform;
                 }
-                else if (remotePlayersModels.TryGetValue(playerId, out remotePlayerModel))
+                else if (remotePlayersModels.TryGetValue(playerId, out RemotePlayerModel remotePlayerModel))
                 {
                     transform = remotePlayerModel.PlayerTransform;
                 }
@@ -236,7 +235,7 @@ namespace NebulaWorld
                 SkinnedMeshRenderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
                 foreach (Renderer r in componentsInChildren)
                 {
-                    if (r.material?.name.StartsWith("icarus-armor", System.StringComparison.Ordinal) ?? false)
+                    if (r.material != null && r.material.name.StartsWith("icarus-armor", System.StringComparison.Ordinal))
                     {
                         r.material.SetColor("_Color", color.ToColor());
                     }
@@ -428,7 +427,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void OnDronesGameTick(long time, float dt)
+        public static void OnDronesGameTick(float dt)
         {
             double tmp = 1e10; //fake energy of remote player, needed to do the Update()
             double tmp2 = 1;
@@ -609,11 +608,11 @@ namespace NebulaWorld
                     // If the player is not on the same planet or is in space, then do not render their in-world tag
                     if (playerModel.Movement.localPlanetId != LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
                     {
-                        playerNameText.gameObject.SetActive(false);
+                        playerNameText.SetActive(false);
                     }
-                    else if (!playerNameText.gameObject.activeSelf)
+                    else if (!playerNameText.activeSelf)
                     {
-                        playerNameText.gameObject.SetActive(true);
+                        playerNameText.SetActive(true);
                     }
 
                     // Make sure the text is pointing at the camera

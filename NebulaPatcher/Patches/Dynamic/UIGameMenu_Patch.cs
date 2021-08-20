@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGameMenu.OnDfIconButtonClick))]
-        public static void OnDfIconButtonClick_Postfix(UIGameMenu __instance)
+        public static void OnDfIconButtonClick_Postfix()
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
@@ -35,7 +35,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGameMenu.OnDfLightButtonClick))]
-        public static void OnDfLightButtonClick_Postfix(UIGameMenu __instance)
+        public static void OnDfLightButtonClick_Postfix()
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
@@ -48,7 +48,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGameMenu.OnDfPowerButtonClick))]
-        public static void OnDfPowerButtonClick_Postfix(UIGameMenu __instance)
+        public static void OnDfPowerButtonClick_Postfix()
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {
@@ -61,7 +61,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGameMenu.OnDfSignButtonClick))]
-        public static void OnDfSignButtonClick_Postfix(UIGameMenu __instance)
+        public static void OnDfSignButtonClick_Postfix()
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
             {

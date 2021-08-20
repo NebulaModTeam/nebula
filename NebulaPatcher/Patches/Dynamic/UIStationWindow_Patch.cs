@@ -114,7 +114,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnWarperNecessaryClick))]
-        public static bool OnWarperNecessaryClick_Prefix(UIStationWindow __instance, int obj)
+        public static bool OnWarperNecessaryClick_Prefix(UIStationWindow __instance)
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
@@ -131,7 +131,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnIncludeOrbitCollectorClick))]
-        public static bool OnIncludeOrbitCollectorClick_Prefix(UIStationWindow __instance, int obj)
+        public static bool OnIncludeOrbitCollectorClick_Prefix(UIStationWindow __instance)
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS && (StationUIManager.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
@@ -148,7 +148,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnDroneIconClick))]
-        public static bool OnDroneIconClick_Prefix(UIStationWindow __instance, int obj)
+        public static bool OnDroneIconClick_Prefix(UIStationWindow __instance)
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
             {
@@ -193,7 +193,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnShipIconClick))]
-        public static bool OnShipIconClick_Prefix(UIStationWindow __instance, int obj)
+        public static bool OnShipIconClick_Prefix(UIStationWindow __instance)
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
             {
@@ -238,7 +238,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnWarperIconClick))]
-        public static bool OnWarperIconClick_Prefix(UIStationWindow __instance, int obj)
+        public static bool OnWarperIconClick_Prefix(UIStationWindow __instance)
         {
             if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
             {
@@ -324,7 +324,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow._OnUpdate))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        public static bool _OnUpdate_Prefix(UIStationWindow __instance)
+        public static bool _OnUpdate_Prefix()
         {
             if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || StationUIManager.UIIsSyncedStage == 2)
             {

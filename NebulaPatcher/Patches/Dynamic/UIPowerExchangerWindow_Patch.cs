@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIPowerExchangerWindow.OnEmptyOrFullUIButtonClick))]
-        public static void OnEmptyOrFullUIButtonClick_Postfix(UIPowerExchangerWindow __instance, int itemId)
+        public static void OnEmptyOrFullUIButtonClick_Postfix(UIPowerExchangerWindow __instance)
         {
             //Notify other about taking or inserting accumulators
             if (SimulatedWorld.Initialized)

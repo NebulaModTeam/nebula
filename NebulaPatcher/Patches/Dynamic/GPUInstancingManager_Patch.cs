@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            __result = (__instance.specifyPlanet != null) ? __instance.specifyPlanet : GameMain.localPlanet;
+            __result = __instance.specifyPlanet ?? GameMain.localPlanet;
             if (__result == null && GameMain.localStar != null)
             {
                 foreach (PlanetData p in GameMain.galaxy.StarById(GameMain.localStar.id).planets)

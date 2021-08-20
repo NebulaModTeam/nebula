@@ -35,8 +35,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // Get the recieved bytes from the remote server that we will import
-            byte[] factoryBytes;
-            if (!LocalPlayer.PendingFactories.TryGetValue(planet.id, out factoryBytes))
+            if (!LocalPlayer.PendingFactories.TryGetValue(planet.id, out byte[] factoryBytes))
             {
                 // We messed up, just defer to the default behaviour on the client (will cause desync but not outright crash)
                 Log.Error($"PendingFactories did not have value we wanted, factory will not be synced!");
@@ -253,7 +252,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameData.ArriveStar))]
-        public static void ArriveStar_Prefix(GameData __instance, StarData star)
+        public static void ArriveStar_Prefix(StarData star)
         {
             //Client should unload all factories once they leave the star system
             if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient && star != null)
@@ -265,7 +264,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameData.LeavePlanet))]
-        public static void LeavePlanet_Prefix(GameData __instance)
+        public static void LeavePlanet_Prefix()
         {
             //Players should clear the list of drone orders of other players when they leave the planet
             if (SimulatedWorld.Initialized)

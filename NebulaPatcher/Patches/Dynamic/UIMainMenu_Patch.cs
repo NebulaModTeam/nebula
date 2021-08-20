@@ -286,7 +286,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             //trying to resolve as uri
-            if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out var serverUri))
+            if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out _))
             {
                 session.ConnectToUrl(connectionString, serverPort);
                 return true;

@@ -13,11 +13,11 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveStarPlanetRequest>
     {
-        private PlayerManager playerManager;
+        private readonly PlayerManager playerManager;
 
         public ILSArriveStarPlanetRequestProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
         }
 
         public override void ProcessPacket(ILSArriveStarPlanetRequest packet, NebulaConnection conn)
@@ -64,7 +64,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
                 if (stationGId.Count > 0)
                 {
-                    StationComponent[] gStationPool = null;
+                    StationComponent[] gStationPool;
                     if (packet.PlanetId == 0) // arrive at solar system
                     {
                         gStationPool = GameMain.data.galacticTransport.stationPool;
