@@ -31,6 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch("_OnCreate")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnCreate_Postfix(UIOptionWindow __instance)
         {
             tempToUICallbacks = new Dictionary<string, System.Action>();
@@ -104,6 +105,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch("_OnDestroy")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnDestroy_Postfix()
         {
             tempToUICallbacks?.Clear();
@@ -111,6 +113,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch("_OnOpen")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Prefix()
         {
             tempMultiplayerOptions = (MultiplayerOptions)Config.Options.Clone();

@@ -25,13 +25,13 @@ namespace NebulaWorld
     {
         sealed class ThreadSafe
         {
-            internal readonly Dictionary<ushort, RemotePlayerModel> remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
+            internal readonly Dictionary<ushort, RemotePlayerModel> RemotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
         }
 
         private static readonly ThreadSafe threadSafe = new ThreadSafe();
 
         public static Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
-            threadSafe.remotePlayersModels.GetLocked(out remotePlayersModels);
+            threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);
 
         public static bool Initialized { get; private set; }
         public static bool IsGameLoaded { get; private set; }
