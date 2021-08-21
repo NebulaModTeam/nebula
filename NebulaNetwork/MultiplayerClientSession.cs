@@ -263,8 +263,8 @@ namespace NebulaNetwork
         private void OnDisconnectPopupCloseBeforeGameLoad()
         {
             GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
-            Transform multiplayerMenu = overlayCanvasGo?.transform?.Find("Nebula - Multiplayer Menu");
-            multiplayerMenu?.gameObject?.SetActive(true);
+            Transform multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");
+            multiplayerMenu.gameObject.SetActive(true);
         }
 
         private void Update()

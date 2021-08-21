@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIPlanetGlobe_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnNameInputEndEdit")]
+        [HarmonyPatch(nameof(UIPlanetGlobe.OnNameInputEndEdit))]
         public static void OnNameInputEndEdit_Postfix()
         {
             if (SimulatedWorld.Initialized && !FactoryManager.IsIncomingRequest)

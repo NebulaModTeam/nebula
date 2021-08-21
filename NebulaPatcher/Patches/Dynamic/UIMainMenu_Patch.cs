@@ -24,7 +24,8 @@ namespace NebulaPatcher.Patches.Dynamic
         private static InputField hostIPAdressInput;
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIMainMenu._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Postfix()
         {
             SimulatedWorld.ExitingMultiplayerSession = false;
@@ -285,7 +286,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             //trying to resolve as uri
-            if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out var serverUri))
+            if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out _))
             {
                 session.ConnectToUrl(connectionString, serverPort);
                 return true;

@@ -6,12 +6,13 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(VFInput))]
     class VFInput_Patch
     {
-        [HarmonyPatch("_buildConfirm", MethodType.Getter)]
-        static bool Prefix(ref VFInput.InputValue __result)
+        [HarmonyPatch(nameof(VFInput._buildConfirm), MethodType.Getter)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static bool _buildConfirm_Prefix(ref VFInput.InputValue __result)
         {
             if (FactoryManager.IsIncomingRequest)
             {
-                __result = default(VFInput.InputValue);
+                __result = default;
                 __result.onDown = true;
                 return false;
             }

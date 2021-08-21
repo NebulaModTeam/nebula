@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
 
         [HarmonyTranspiler]
-        [HarmonyPatch("SetFilterToEntity")]
+        [HarmonyPatch(nameof(UIBeltBuildTip.SetFilterToEntity))]
         public static IEnumerable<CodeInstruction> SetFilterToEntity_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             instructions = new CodeMatcher(instructions)

@@ -7,8 +7,9 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIStarmap_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("_OnLateUpdate")]
-        public static void OnLateUpdate_Postfix(UIStarmap __instance)
+        [HarmonyPatch(nameof(UIStarmap._OnLateUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnLateUpdate_Postfix(UIStarmap __instance)
         {
             if (SimulatedWorld.Initialized)
             {
@@ -17,8 +18,9 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
-        public static void OnClose_Postfix(UIStarmap __instance)
+        [HarmonyPatch(nameof(UIStarmap._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnClose_Postfix()
         {
             if (SimulatedWorld.Initialized)
             {

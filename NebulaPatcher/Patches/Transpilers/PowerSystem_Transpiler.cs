@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
 
         [HarmonyTranspiler]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PowerSystem.GameTick))]
         public static IEnumerable<CodeInstruction> PowerSystem_GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             instructions = new CodeMatcher(instructions)

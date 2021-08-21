@@ -41,9 +41,7 @@
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">
-    <Reference Include="$(PropsheetPath)\Libs\0Harmony.dll" Private="false" SpecificVersion="false" />
-    <Reference Include="$(PropsheetPath)\Libs\BepInEx.dll" Private="false" SpecificVersion="false" />
-    <Reference Include="$(PropsheetPath)\Libs\BepInEx.Harmony.dll" Private="false" SpecificVersion="false" />
+    <PackageReference Include="BepInEx.Core" Version="5.4.11" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="Dyson Sphere Program">

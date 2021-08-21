@@ -30,7 +30,8 @@ namespace NebulaPatcher.Patches.Dynamic
         static MultiplayerOptions tempMultiplayerOptions = new MultiplayerOptions();
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnCreate")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnCreate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnCreate_Postfix(UIOptionWindow __instance)
         {
             tempToUICallbacks = new Dictionary<string, System.Action>();
@@ -103,21 +104,23 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnDestroy")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnDestroy))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnDestroy_Postfix()
         {
             tempToUICallbacks?.Clear();
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Prefix()
         {
             tempMultiplayerOptions = (MultiplayerOptions)Config.Options.Clone();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("ApplyOptions")]
+        [HarmonyPatch(nameof(UIOptionWindow.ApplyOptions))]
         public static void ApplyOptions()
         {
             Config.Options = tempMultiplayerOptions;
@@ -125,7 +128,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnRevertButtonClick")]
+        [HarmonyPatch(nameof(UIOptionWindow.OnRevertButtonClick))]
         public static void OnRevertButtonClick_Prefix(int idx)
         {
             if (idx == multiplayerTabIndex)
@@ -135,7 +138,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("TempOptionToUI")]
+        [HarmonyPatch(nameof(UIOptionWindow.TempOptionToUI))]
         public static void TempOptionToUI_Postfix()
         {
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));

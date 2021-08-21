@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Transpiler
     class MechaDroneLogic_Transpiler
     {
         [HarmonyTranspiler]
-        [HarmonyPatch("UpdateTargets")]
+        [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
         static IEnumerable<CodeInstruction> UpdateTargets_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
             /*
@@ -129,7 +129,7 @@ namespace NebulaPatcher.Patches.Transpiler
          * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
          */
         [HarmonyTranspiler]
-        [HarmonyPatch("UpdateDrones")]
+        [HarmonyPatch(nameof(MechaDroneLogic.UpdateDrones))]
         static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var found = false;
@@ -195,7 +195,7 @@ namespace NebulaPatcher.Patches.Transpiler
          * To avoid client's drones from trying to target pending request (caused by drone having additional tasks unlocked via the Communication control tech)
         */
         [HarmonyTranspiler]
-        [HarmonyPatch("FindNext")]
+        [HarmonyPatch(nameof(MechaDroneLogic.FindNext))]
         static IEnumerable<CodeInstruction> FindNext_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
             var codeMatcher = new CodeMatcher(instructions, iL)

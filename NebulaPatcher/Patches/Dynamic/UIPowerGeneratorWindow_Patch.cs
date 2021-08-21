@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIPowerGeneratorWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnGammaMode1Click")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnGammaMode1Click))]
         public static void OnGammaMode1Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "electricity"
@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnGammaMode2Click")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnGammaMode2Click))]
         public static void OnGammaMode2Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "produce photons"
@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnCataButtonClick")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnCataButtonClick))]
         public static void OnCataButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about changing amount of gravitational lens
@@ -42,7 +42,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnFuelButtonClick")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnFuelButtonClick))]
         public static void OnFuelButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about changing amount of fuel in power plant
