@@ -58,16 +58,26 @@ namespace NebulaAPI
         public const int AUTHOR_NONE = -1;
         public const int STAR_NONE = -1;
 
+        /// <summary>
+        /// Register all packets within assembly
+        /// </summary>
+        /// <param name="assembly">Target assembly</param>
         public static void RegisterPackets(Assembly assembly)
         {
             TargetAssemblies.Add(assembly);
         }
         
+        /// <summary>
+        /// Register custom PlanetFactory Data
+        /// </summary>
         public static void RegisterModFactoryData(IModData<PlanetFactory> serializer)
         {
             FactorySerializers.Add(serializer);
         }
 
+        /// <summary>
+        /// Provides access to LocalPlayer class
+        /// </summary>
         public static INebulaPlayer GetLocalPlayer()
         {
             if (!NebulaIsInstalled) return null;
@@ -75,6 +85,9 @@ namespace NebulaAPI
             return (INebulaPlayer) localPlayer.GetField("Instance").GetValue(null);
         }
         
+        /// <summary>
+        /// Provides access to FactoryManager class
+        /// </summary>
         public static IFactoryManager GetFactoryManager()
         {
             if (!NebulaIsInstalled) return null;
@@ -82,6 +95,9 @@ namespace NebulaAPI
             return (IFactoryManager) factoryManager.GetField("Instance").GetValue(null);
         }
         
+        /// <summary>
+        /// Provides access to SimulatedWorld class
+        /// </summary>
         public static ISimulatedWorld GetSimulatedWorld()
         {
             if (!NebulaIsInstalled) return null;
@@ -89,6 +105,9 @@ namespace NebulaAPI
             return (ISimulatedWorld) simulatedWorld.GetField("Instance").GetValue(null);
         }
         
+        /// <summary>
+        /// Provides access to BinaryWriter with LZ4 compression
+        /// </summary>
         public static IWriterProvider GetBinaryWriter()
         {
             if (!NebulaIsInstalled) return null;
@@ -96,6 +115,9 @@ namespace NebulaAPI
             return (IWriterProvider) binaryWriter.GetConstructor(new Type[0]).Invoke(new object[0]);
         }
         
+        /// <summary>
+        /// Provides access to BinaryReader with LZ4 compression
+        /// </summary>
         public static IReaderProvider GetBinaryReader(byte[] bytes)
         {
             if (!NebulaIsInstalled) return null;

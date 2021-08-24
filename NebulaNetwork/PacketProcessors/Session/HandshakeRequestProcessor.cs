@@ -70,7 +70,7 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                     string version = clientMods[pluginInfo.Key];
 
-                    if (version == mod.Version || !mod.CheckVersion) continue;
+                    if (version == mod.Version) continue;
                     
                     conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Version}");
                     return;

@@ -84,7 +84,5 @@ namespace NebulaPatcher
         }
 
         public string Version => NebulaModel.Config.ModVersion;
-
-        public bool CheckVersion => true;
     }
 }
