@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, readFileSync } from "fs";
-import { basename, dirname, join, resolve } from "path";
+import { basename, join, resolve } from "path";
 import child_process from "child_process";
 import XmlReader from "xml-reader";
 import xmlQuery from "xml-query";
 
 const DSP_DIR = getDSPFolder();
-const BEPINEX_DIR = join(DSP_DIR, "BepInEx\\core\\");
 const DSP_ASSEMBLY_DIR = join(DSP_DIR, "DSPGAME_Data\\Managed\\");
 
 const refFile = readReferenceFile();
@@ -37,10 +36,10 @@ function getDSPFolder() {
 }
 
 function readReferenceFile() {
-  const refFile = readFileSync("references.txt", "utf8");
+  const refFile = readFileSync("Directory.Build.props", "utf8");
 
   if (!refFile) {
-    throw "Could not read references.txt";
+    throw "Could not read Directory.Build.props";
   }
 
   return refFile;
@@ -48,31 +47,20 @@ function readReferenceFile() {
 
 function getReferencePaths() {
   return refFile
-    .replaceAll("$(BepInExDir)", BEPINEX_DIR)
-    .replaceAll("$(DSPAssemblyDir)", DSP_ASSEMBLY_DIR)
+    .match(/\$\(PropsheetPath\)(.*)(?=\" P)/g)
+    .join("\n")
+    .replaceAll("$(PropsheetPath)\\Libs", DSP_ASSEMBLY_DIR)
     .trim()
     .split("\n");
 }
 
 function publicizeAndStubAssemblies(refPaths) {
-  const ASSEMBLYPUBLICIZER_PATH = resolve(
-    "Libs\\AssemblyPublicizer\\AssemblyPublicizer.exe"
-  );
+  const NSTRIP_PATH = resolve("Libs\\NStrip\\NStrip.exe");
   const LIBS_PATH = resolve("Libs");
   Array.from(refPaths).forEach((line) => {
     console.log("Publicizing and stubbing " + line);
     child_process.execSync(
-      'cd "' +
-        dirname(line) +
-        '" && "' +
-        ASSEMBLYPUBLICIZER_PATH +
-        '" "' +
-        line +
-        '" && copy "' +
-        join(dirname(line), "publicized_assemblies", basename(line)) +
-        '" "' +
-        LIBS_PATH +
-        '"'
+      `"${NSTRIP_PATH}" -p -cg --cg-exclude-events "${line}" "${join(LIBS_PATH, basename(line))}"`
     );
   });
 }
