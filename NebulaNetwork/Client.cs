@@ -45,8 +45,6 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            Log.Warn($"ws://{serverEndpoint}/socket");
-
             clientSocket = new WebSocket($"ws://{serverEndpoint}/socket");
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
@@ -132,7 +130,6 @@ namespace NebulaNetwork
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            Log.Warn("MESSAGE RECEIVED");
             PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
         }
 
@@ -140,7 +137,7 @@ namespace NebulaNetwork
         {
             DisableNagleAlgorithm(clientSocket);
 
-            Log.Info($"Server connection established: {clientSocket.Url}");
+            Log.Info($"Server connection established");
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
 
             //TODO: Maybe some challenge-response authentication mechanism?
