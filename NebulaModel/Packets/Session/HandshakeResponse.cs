@@ -18,6 +18,7 @@ namespace NebulaModel.Packets.Session
             GalaxySeed = galaxySeed;
             StarCount = starCount;
             ResourceMultiplier = resourceMultiplier;
+            LocalPlayerData = localPlayerData;
         }
     }
 }
