@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public PlayerMechaDataProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = Multiplayer.Session?.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)

@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
         private IPlayerManager playerManager;
         public StarBroadcastProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = Multiplayer.Session?.Network.PlayerManager;
         }
         public override void ProcessPacket(StarBroadcastPacket packet, NebulaConnection conn)
         {

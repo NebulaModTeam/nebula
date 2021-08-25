@@ -9,17 +9,16 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(FactoryStorage.GameTick))]
-        public static bool GameTick_Prefix()
+        public static void GameTick_Prefix()
         {
-            Multiplayer.Session.Storage.IsHumanInput = false;
-            return true;
+            if(Multiplayer.IsActive) Multiplayer.Session.Storage.IsHumanInput = false;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static void GameTick_Postfix()
         {
-            Multiplayer.Session.Storage.IsHumanInput = true;
+            if (Multiplayer.IsActive) Multiplayer.Session.Storage.IsHumanInput = true;
         }
     }
 }

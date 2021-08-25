@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
 
         public GameHistoryRemoveTechProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = Multiplayer.Session?.Network.PlayerManager;
         }
 
         public override void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
