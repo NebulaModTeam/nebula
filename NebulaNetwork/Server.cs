@@ -166,6 +166,7 @@ namespace NebulaNetwork
 
             protected override void OnMessage(MessageEventArgs e)
             {
+                NebulaModel.Logger.Log.Warn("MESSAGE RECEIVED");
                 packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
             }
 

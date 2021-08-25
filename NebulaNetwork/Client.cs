@@ -128,6 +128,7 @@ namespace NebulaNetwork
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
+            Log.Warn("MESSAGE RECEIVED");
             PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
         }
 
