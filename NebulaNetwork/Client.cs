@@ -35,15 +35,16 @@ namespace NebulaNetwork
         {
             serverEndpoint = endpoint;
 
+        }
+
+        public override void Start()
+        {
             PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
-        }
 
-        public override void Start()
-        {
             clientSocket = new WebSocket($"ws://{serverEndpoint}/socket");
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;

@@ -34,11 +34,6 @@ namespace NebulaNetwork
             this.port = port;
             this.loadSaveFile = loadSaveFile;
 
-            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
-            PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
-#if DEBUG
-            PacketProcessor.SimulateLatency = true;
-#endif
         }
 
         public override void Start()
@@ -47,6 +42,12 @@ namespace NebulaNetwork
             {
                 SaveManager.LoadServerData();
             }
+
+            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
+#if DEBUG
+            PacketProcessor.SimulateLatency = true;
+#endif
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socket);

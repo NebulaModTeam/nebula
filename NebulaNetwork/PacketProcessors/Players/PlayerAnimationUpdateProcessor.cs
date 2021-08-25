@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public PlayerAnimationUpdateProcessor()
         {
-            playerManager = Multiplayer.Session?.Network.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerAnimationUpdate packet, NebulaConnection conn)
