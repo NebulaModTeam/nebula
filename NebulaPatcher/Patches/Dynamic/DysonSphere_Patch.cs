@@ -21,7 +21,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that user added layer to dyson sphere plan
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereAddLayerPacket(__instance.starData.index, orbitRadius, orbitRotation, orbitAngularSpeed));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddLayerPacket(__instance.starData.index, orbitRadius, orbitRotation, orbitAngularSpeed));
             }
             return true;
         }
@@ -56,7 +56,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereRemoveLayerPacket(starIndex, id));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveLayerPacket(starIndex, id));
             }
         }
     }

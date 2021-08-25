@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public PlayerUseWarperProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerUseWarper packet, NebulaConnection conn)

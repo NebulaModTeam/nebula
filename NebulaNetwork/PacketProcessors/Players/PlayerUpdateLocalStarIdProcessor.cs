@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public PlayerUpdateLocalStarIdProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)

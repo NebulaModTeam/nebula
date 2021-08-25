@@ -35,7 +35,7 @@ namespace NebulaWorld.Factory
         {
             if (GameMain.data.localPlanet != null)
             {
-                LocalPlayer.SendPacketToLocalStar(new BeltUpdatePickupItemsPacket(BeltUpdates.ToArray(), GameMain.data.localPlanet.id));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePickupItemsPacket(BeltUpdates.ToArray(), GameMain.data.localPlanet.id));
             }
 
             BeltUpdates.Clear();

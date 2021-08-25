@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that orbit for Dyson Swarm was created
             if (!Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket)
             {
-                LocalPlayer.SendPacket(new DysonSwarmAddOrbitPacket(__instance.starData.index, radius, rotation));
+                Multiplayer.Session.Network.SendPacket(new DysonSwarmAddOrbitPacket(__instance.starData.index, radius, rotation));
             }
             return true;
         }
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that orbit for Dyson Swarm was deleted
             if (!Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket)
             {
-                LocalPlayer.SendPacket(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId));
+                Multiplayer.Session.Network.SendPacket(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId));
             }
             return true;
         }
@@ -46,9 +46,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void AddBullet_Postfix(DysonSwarm __instance, SailBullet bullet, int orbitId)
         {
             //Host is sending correction / authorization packet to correct constants of the generated bullet
-            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
-                LocalPlayer.SendPacket(new DysonSphereBulletCorrectionPacket(__instance.starData.index, bullet.id, bullet.uEndVel, bullet.uEnd));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereBulletCorrectionPacket(__instance.starData.index, bullet.id, bullet.uEndVel, bullet.uEnd));
             }
         }
     }

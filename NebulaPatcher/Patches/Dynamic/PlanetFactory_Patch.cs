@@ -21,9 +21,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
 
             // If the host game called the method, we need to compute the PrebuildId ourself
-            if (LocalPlayer.IsMasterClient)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
-                Multiplayer.Session.Factories.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.PlayerId);
+                Multiplayer.Session.Factories.SetPrebuildRequest(__instance.planetId, __result, Multiplayer.Session.LocalPlayer.Id);
             }
         }
 
@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!Multiplayer.IsActive)
                 return true;
 
-            if (LocalPlayer.IsMasterClient)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 if (!Multiplayer.Session.Factories.ContainsPrebuildRequest(__instance.planetId, prebuildId))
                 {
@@ -48,17 +48,17 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.Factories.RemovePrebuildRequest(__instance.planetId, prebuildId);
             }
 
-            if (LocalPlayer.IsMasterClient || !Multiplayer.Session.Factories.IsIncomingRequest)
+            if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor));
+                Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
             }
 
-            if (!LocalPlayer.IsMasterClient && !Multiplayer.Session.Factories.IsIncomingRequest && !Multiplayer.Session.Drones.IsPendingBuildRequest(-prebuildId))
+            if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest && !Multiplayer.Session.Drones.IsPendingBuildRequest(-prebuildId))
             {
                 Multiplayer.Session.Drones.AddBuildRequestSent(-prebuildId);
             }
 
-            return LocalPlayer.IsMasterClient || Multiplayer.Session.Factories.IsIncomingRequest;
+            return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -68,12 +68,12 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!Multiplayer.IsActive)
                 return true;
 
-            if (LocalPlayer.IsMasterClient || !Multiplayer.Session.Factories.IsIncomingRequest)
+            if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor));
+                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || Multiplayer.Session.Factories.IsIncomingRequest;
+            return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -97,7 +97,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -107,7 +107,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
             }
         }
 
@@ -117,7 +117,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
             {
-                LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
             }
         }
 
@@ -127,13 +127,13 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
             {
-                if (LocalPlayer.IsMasterClient)
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
-                    LocalPlayer.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true), __instance.planet.star.id);
+                    Multiplayer.Session.Network.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true), __instance.planet.star.id);
                 }
                 else
                 {
-                    LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
                 }
             }
         }

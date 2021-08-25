@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about reseting inserter's filter
             if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, 0, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about changing filter item
             if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

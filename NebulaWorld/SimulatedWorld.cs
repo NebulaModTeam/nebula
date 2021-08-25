@@ -190,7 +190,7 @@ namespace NebulaWorld
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 Transform transform;
-                if (playerId == LocalPlayer.PlayerId)
+                if (playerId == Multiplayer.Session.LocalPlayer.Id)
                 {
                     transform = GameMain.data.mainPlayer.transform;
                 }
@@ -217,9 +217,9 @@ namespace NebulaWorld
                 }
 
                 // We changed our own color, so we have to let others know
-                if (LocalPlayer.PlayerId == playerId)
+                if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
-                    LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
+                    Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, color));
                 }
             }
         }
@@ -449,7 +449,7 @@ namespace NebulaWorld
                     }
 
                     // If the player is not on the same planet or is in space, then do not render their in-world tag
-                    if (playerModel.Movement.localPlanetId != LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
+                    if (playerModel.Movement.localPlanetId != Multiplayer.Session.LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
                     {
                         playerNameText.SetActive(false);
                     }

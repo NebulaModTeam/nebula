@@ -79,7 +79,7 @@ namespace NebulaNetwork
 
             clientSocket.Connect();
 
-            LocalPlayer.IsMasterClient = false;
+            Multiplayer.Session.LocalPlayer.IsHost = false;
             LocalPlayer.SetNetworkProvider(this);
 
             if (Config.Options.RememberLastIP)
@@ -224,7 +224,7 @@ namespace NebulaNetwork
                         "OK",
                         () =>
                         {
-                            LocalPlayer.IsMasterClient = false;
+                            Multiplayer.Session.LocalPlayer.IsHost = false;
                             DestroySession();
                             OnDisconnectPopupCloseBeforeGameLoad();
                         });

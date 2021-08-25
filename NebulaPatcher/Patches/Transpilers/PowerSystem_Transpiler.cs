@@ -36,12 +36,12 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive)
                     {
-                        if (!LocalPlayer.IsMasterClient)
+                        if (!Multiplayer.Session.LocalPlayer.IsHost)
                         {
                             _this.nodePool[powerNodeId].requiredEnergy = _this.nodePool[powerNodeId].idleEnergyPerTick; // this gets added onto the known required energy by Multiplayer.Session.PowerTowers. and PowerSystem_Patch
                             if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
                             {
-                                LocalPlayer.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, true));
+                                Multiplayer.Session.Network.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, true));
                             }
                         }
                         else
@@ -50,7 +50,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
                             {
                                 Multiplayer.Session.PowerTowers.AddExtraDemand(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick);
-                                LocalPlayer.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
+                                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
                                 pNet.energyCapacity,
                                 pNet.energyRequired,
                                 pNet.energyServed,
@@ -84,11 +84,11 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (Multiplayer.IsActive)
                             {
-                                if (!LocalPlayer.IsMasterClient)
+                                if (!Multiplayer.Session.LocalPlayer.IsHost)
                                 {
                                     if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
                                     {
-                                        LocalPlayer.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, false));
+                                        Multiplayer.Session.Network.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, false));
                                     }
                                 }
                                 else
@@ -97,7 +97,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                     if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
                                     {
                                         Multiplayer.Session.PowerTowers.RemExtraDemand(_this.planet.id, powerNetId, powerNodeId);
-                                        LocalPlayer.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
+                                        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
                                         pNet.energyCapacity,
                                         pNet.energyRequired,
                                         pNet.energyServed,

@@ -14,7 +14,7 @@ namespace NebulaWorld
             IsLeavingGame = false;
 
             Session = new MultiplayerSession(server);
-            Session.NetProvider.Start();
+            Session.Network.Start();
         }
 
         public static void JoinGame(NetworkProvider client)
@@ -22,7 +22,7 @@ namespace NebulaWorld
             IsLeavingGame = false;
 
             Session = new MultiplayerSession(client);
-            Session.NetProvider.Start();
+            Session.Network.Start();
         }
 
         public static void LeaveGame()
@@ -32,7 +32,11 @@ namespace NebulaWorld
             Session?.Dispose();
             Session = null;
 
-            // TODO: make sure that we go to the main menu
+            if (!UIRoot.instance.backToMainMenu)
+            {
+                UIRoot.instance.backToMainMenu = true;
+                DSPGame.EndGame();
+            }
         }
     }
 }

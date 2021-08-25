@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIGameMenu.OnDfGuideButtonClick))]
         public static void OnDfGuideButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -24,7 +24,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIGameMenu.OnDfIconButtonClick))]
         public static void OnDfIconButtonClick_Postfix()
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIGameMenu.OnDfLightButtonClick))]
         public static void OnDfLightButtonClick_Postfix()
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -50,7 +50,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIGameMenu.OnDfPowerButtonClick))]
         public static void OnDfPowerButtonClick_Postfix()
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -63,7 +63,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIGameMenu.OnDfSignButtonClick))]
         public static void OnDfSignButtonClick_Postfix()
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -76,7 +76,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIGameMenu.OnDfVeinButtonClick))]
         public static void OnDfVeinButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }

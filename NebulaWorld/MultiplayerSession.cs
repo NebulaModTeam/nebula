@@ -2,9 +2,13 @@
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Session;
 using NebulaWorld.Factory;
 using NebulaWorld.GameDataHistory;
 using NebulaWorld.Logistics;
+using NebulaWorld.MonoBehaviours;
+using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.Planet;
 using NebulaWorld.Player;
 using NebulaWorld.Statistics;
@@ -17,30 +21,30 @@ namespace NebulaWorld
 {
     public class MultiplayerSession : IDisposable
     {
-        public readonly NetworkProvider NetProvider;
-
-        public readonly SimulatedWorld World;
-
-        public readonly FactoryManager Factories;
-        public readonly StorageManager Storage;
-        public readonly PowerTowerManager PowerTowers;
-        public readonly BeltManager Belts;
-        public readonly BuildToolManager BuildTools;
-        public readonly DroneManager Drones;
-        public readonly GameDataHistoryManager History;
-        public readonly ILSShipManager Ships;
-        public readonly StationUIManager StationsUI;
-        public readonly PlanetManager Planets;
-        public readonly StatisticsManager Statistics;
-        public readonly TrashManager Trashes;
-        public readonly DysonSphereManager DysonSpheres;
+        public NetworkProvider Network { get; private set; }
+        public LocalPlayer LocalPlayer { get; private set; }
+        public SimulatedWorld World { get; private set; }
+        public FactoryManager Factories { get; private set; }
+        public StorageManager Storage { get; private set; }
+        public PowerTowerManager PowerTowers { get; private set; }
+        public BeltManager Belts { get; private set; }
+        public BuildToolManager BuildTools { get; private set; }
+        public DroneManager Drones { get; private set; }
+        public GameDataHistoryManager History { get; private set; }
+        public ILSShipManager Ships { get; private set; }
+        public StationUIManager StationsUI { get; private set; }
+        public PlanetManager Planets { get; private set; }
+        public StatisticsManager Statistics { get; private set; }
+        public TrashManager Trashes { get; private set; }
+        public DysonSphereManager DysonSpheres { get; private set; }
 
         public bool IsGameLoaded { get; set; }
 
         public MultiplayerSession(NetworkProvider networkProvider)
         {
-            NetProvider = networkProvider;
+            Network = networkProvider;
 
+            LocalPlayer = new LocalPlayer();
             World = new SimulatedWorld();
             Factories = new FactoryManager();
             Storage = new StorageManager();
@@ -59,21 +63,53 @@ namespace NebulaWorld
 
         public void Dispose()
         {
-            NetProvider?.Dispose();
+            Network?.Dispose();
+            Network = null;
+
+            LocalPlayer?.Dispose();
+            LocalPlayer = null;
+
             World?.Dispose();
+            World = null;
+
             Factories?.Dispose();
+            Factories = null;
+
             Storage?.Dispose();
+            Storage = null;
+
             PowerTowers?.Dispose();
+            PowerTowers = null;
+
             Belts?.Dispose();
+            Belts = null;
+
             BuildTools?.Dispose();
+            BuildTools = null;
+
             Drones?.Dispose();
+            Drones = null;
+
             History?.Dispose();
+            History = null;
+
             Ships?.Dispose();
+            Ships = null;
+
             StationsUI?.Dispose();
+            StationsUI = null;
+
             Planets?.Dispose();
+            Planets = null;
+
             Statistics?.Dispose();
+            Statistics = null;
+
             Trashes?.Dispose();
+            Trashes = null;
+
             DysonSpheres?.Dispose();
+            DysonSpheres = null;
         }
 
 
@@ -83,7 +119,7 @@ namespace NebulaWorld
             Log.Info("Game has finished loading");
 
             // Assign our own color
-            World.UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.MechaColor);
+            World.UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, LocalPlayer.Data.MechaColor);
 
             // Change player location from spawn to the last known
             VectorLF3 uPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
@@ -116,19 +152,30 @@ namespace NebulaWorld
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             }
 
-            //Update player's Mecha tech bonuses
-            if (!LocalPlayer.IsMasterClient)
+            //Initialization on the host side after game is loaded
+            Multiplayer.Session.Factories.InitializePrebuildRequests();
+
+            if (!Multiplayer.Session.LocalPlayer.IsHost)
             {
+                // Update player's Mecha tech bonuses
                 LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
 
                 // Enable Ping Indicator for Clients
                 World.DisplayPingIndicator();
+
+                // Notify the server that we are done loading the game
+                Network.SendPacket(new SyncComplete());
+
+                // Subscribe for the local star events
+                Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+
+                // Hide the "Joining Game" popup
+                InGamePopup.FadeOut();
             }
 
-            //Initialization on the host side after game is loaded
-            Multiplayer.Session.Factories.InitializePrebuildRequests();
-
-            LocalPlayer.SetReady();
+            // Finally we need add the local player components to the player character
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
 
             IsGameLoaded = true;
         }

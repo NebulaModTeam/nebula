@@ -19,7 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private IPlayerManager playerManager;
         public ILSgStationPoolSyncRequestProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
         public override void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
         {

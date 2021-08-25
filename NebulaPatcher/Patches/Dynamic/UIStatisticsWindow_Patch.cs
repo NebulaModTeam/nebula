@@ -13,10 +13,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Postfix()
         {
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 Multiplayer.Session.Statistics.IsStatisticsNeeded = true;
-                LocalPlayer.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowOpened));
+                Multiplayer.Session.Network.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowOpened));
             }
         }
 
@@ -25,10 +25,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Postfix()
         {
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient && Multiplayer.Session.Statistics.IsStatisticsNeeded)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Statistics.IsStatisticsNeeded)
             {
                 Multiplayer.Session.Statistics.IsStatisticsNeeded = false;
-                LocalPlayer.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowClosed));
+                Multiplayer.Session.Network.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowClosed));
             }
         }
     }

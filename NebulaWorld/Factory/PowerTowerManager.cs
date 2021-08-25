@@ -43,7 +43,7 @@ namespace NebulaWorld.Factory
 
         public void GivePlayerPower()
         {
-            if (LocalPlayer.IsMasterClient)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // host gets it anyways
                 return;

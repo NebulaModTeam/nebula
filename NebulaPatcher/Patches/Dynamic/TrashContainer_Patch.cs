@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify other that trash was removed
             if (Multiplayer.IsActive && !Multiplayer.Session.Trashes.RemoveTrashFromOtherPlayers)
             {
-                LocalPlayer.SendPacket(new TrashSystemTrashRemovedPacket(index));
+                Multiplayer.Session.Network.SendPacket(new TrashSystemTrashRemovedPacket(index));
             }
         }
 
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 //Refresh trash to assign local planet Id and local position
                 GameMain.data.trashSystem.Gravity(ref trashData, GameMain.data.galaxy.astroPoses, 0, 0, 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.id : 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.data : null);
-                LocalPlayer.SendPacket(new TrashSystemNewTrashCreatedPacket(__result, trashObj, trashData, LocalPlayer.PlayerId, GameMain.mainPlayer.planetId));
+                Multiplayer.Session.Network.SendPacket(new TrashSystemNewTrashCreatedPacket(__result, trashObj, trashData, Multiplayer.Session.LocalPlayer.Id, GameMain.mainPlayer.planetId));
             }
         }
     }

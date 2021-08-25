@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public PlayerColorChangedProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)

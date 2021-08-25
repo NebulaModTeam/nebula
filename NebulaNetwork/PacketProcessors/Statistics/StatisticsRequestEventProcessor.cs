@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
 
         public StatisticsRequestEventProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)

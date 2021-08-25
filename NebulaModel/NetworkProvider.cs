@@ -35,6 +35,6 @@ namespace NebulaModel
         public abstract void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude)
             where T : class, new();
 
-        public abstract void OnUpdate();
+        public abstract void Update();
     }
 }

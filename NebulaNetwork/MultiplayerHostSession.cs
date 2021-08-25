@@ -66,7 +66,7 @@ namespace NebulaNetwork
             socketServer.Start();
 
             LocalPlayer.SetNetworkProvider(this);
-            LocalPlayer.IsMasterClient = true;
+            Multiplayer.Session.LocalPlayer.IsHost = true;
 
             // TODO: Load saved player info here
             LocalPlayer.SetPlayerData(new PlayerData(

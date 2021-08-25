@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (__instance.planet != null && !string.IsNullOrEmpty(__instance.planet.overrideName))
                 {
                     // Send packet with new planet name
-                    LocalPlayer.SendPacket(new NameInputPacket(__instance.planet.overrideName, FactoryManager.STAR_NONE, __instance.planet.id, LocalPlayer.PlayerId));
+                    Multiplayer.Session.Network.SendPacket(new NameInputPacket(__instance.planet.overrideName, FactoryManager.STAR_NONE, __instance.planet.id, Multiplayer.Session.LocalPlayer.Id));
                 }
             }
         }

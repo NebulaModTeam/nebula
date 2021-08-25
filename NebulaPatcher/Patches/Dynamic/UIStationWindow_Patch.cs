@@ -17,8 +17,8 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxChargePower, value);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -31,11 +31,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnMaxTripDroneSliderValueChange))]
         public static bool OnMaxTripDroneSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxTripDrones, value);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -48,11 +48,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnMaxTripVesselSliderValueChange))]
         public static bool OnMaxTripVesselSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxTripVessel, value);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -65,11 +65,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnMinDeliverDroneValueChange))]
         public static bool OnMinDeliverDroneValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MinDeliverDrone, value);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -82,11 +82,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnMinDeliverVesselValueChange))]
         public static bool OnMinDeliverVesselValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MinDeliverVessel, value);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -99,11 +99,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnWarperDistanceValueChange))]
         public static bool OnWarperDistanceValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.WarpDistance, value);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -116,11 +116,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnWarperNecessaryClick))]
         public static bool OnWarperNecessaryClick_Prefix(UIStationWindow __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.WarperNeeded, 0f);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -133,11 +133,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnIncludeOrbitCollectorClick))]
         public static bool OnIncludeOrbitCollectorClick_Prefix(UIStationWindow __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
             {
                 StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.IncludeCollectors, 0f);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -175,14 +175,14 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     toAdd = stationComponent.idleDroneCount * -1;
                 }
-                if (!LocalPlayer.IsMasterClient)
+                if (!Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     Multiplayer.Session.StationsUI.UIRequestedShipDronWarpChange = true;
                 }
 
                 StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetDroneCount, stationComponent.idleDroneCount + toAdd);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -220,14 +220,14 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     toAdd = stationComponent.idleShipCount * -1;
                 }
-                if (!LocalPlayer.IsMasterClient)
+                if (!Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     Multiplayer.Session.StationsUI.UIRequestedShipDronWarpChange = true;
                 }
                 StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetShipCount, stationComponent.idleShipCount + toAdd);
-                LocalPlayer.SendPacket(packet);
+                Multiplayer.Session.Network.SendPacket(packet);
 
-                if (LocalPlayer.IsMasterClient)
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -264,14 +264,14 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     toAdd = stationComponent.warperCount * -1;
                 }
-                if (!LocalPlayer.IsMasterClient)
+                if (!Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     Multiplayer.Session.StationsUI.UIRequestedShipDronWarpChange = true;
                 }
 
                 StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount + toAdd);
-                LocalPlayer.SendPacket(packet);
-                if (LocalPlayer.IsMasterClient)
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -284,7 +284,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnStationIdChange))]
         public static bool OnStationIdChange_Prefix(UIStationWindow __instance)
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient || Multiplayer.Session.StationsUI.UIIsSyncedStage > 0 || GameMain.localPlanet == null || !__instance.active)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.StationsUI.UIIsSyncedStage > 0 || GameMain.localPlanet == null || !__instance.active)
             {
                 return true;
             }
@@ -315,7 +315,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 int id = (stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id;
                 // for some reason PLS has planetId set to 0, so we use players localPlanet here (he should be on a planet anyways when opening the UI)
-                LocalPlayer.SendPacket(new StationUIInitialSyncRequest(stationComponent.planetId, stationComponent.id, stationComponent.gid));
+                Multiplayer.Session.Network.SendPacket(new StationUIInitialSyncRequest(stationComponent.planetId, stationComponent.id, stationComponent.gid));
                 Multiplayer.Session.StationsUI.UIIsSyncedStage++;
             }
             return false;
@@ -326,7 +326,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnUpdate_Prefix()
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient || Multiplayer.Session.StationsUI.UIIsSyncedStage == 2)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.StationsUI.UIIsSyncedStage == 2)
             {
                 return true;
             }
@@ -338,7 +338,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Postfix(UIStationWindow __instance)
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -353,7 +353,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (__instance.stationId != 0 || Multiplayer.Session.StationsUI.UIStationId != 0)
             {
                 // it is actually 0 before we manually set it to the right value in StationUIInitialSyncProcessor.cs and thus its a good check to skip sending the packet on the Free() call
-                LocalPlayer.SendPacket(new StationSubscribeUIUpdates(false, __instance.transport.planet.id, __instance.transport.stationPool[Multiplayer.Session.StationsUI.UIStationId].id, __instance.transport.stationPool[Multiplayer.Session.StationsUI.UIStationId].gid));
+                Multiplayer.Session.Network.SendPacket(new StationSubscribeUIUpdates(false, __instance.transport.planet.id, __instance.transport.stationPool[Multiplayer.Session.StationsUI.UIStationId].id, __instance.transport.stationPool[Multiplayer.Session.StationsUI.UIStationId].gid));
                 Multiplayer.Session.StationsUI.LastSelectedGameObj = null;
                 Multiplayer.Session.StationsUI.UIIsSyncedStage = 0;
                 Multiplayer.Session.StationsUI.UIStationId = 0;

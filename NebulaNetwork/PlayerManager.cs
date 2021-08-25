@@ -44,7 +44,7 @@ namespace NebulaNetwork
             {
                 int i = 0;
                 var result = new PlayerData[1 + connectedPlayers.Count];
-                result[i++] = LocalPlayer.Data;
+                result[i++] = Multiplayer.Session.LocalPlayer.Data;
                 foreach (var kvp in connectedPlayers)
                 {
                     result[i++] = kvp.Value.Data;
@@ -219,16 +219,7 @@ namespace NebulaNetwork
             ushort playerId = GetNextAvailablePlayerId();
 
             Float3 PlayerColor = new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255);
-            PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
-            PlayerData playerData;
-            if (LocalPlayer.GS2_GSSettings != null)
-            {
-                playerData = new PlayerData(playerId, -1, PlayerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
-            }
-            else
-            {
-                playerData = new PlayerData(playerId, -1, PlayerColor);
-            }
+            PlayerData playerData = new PlayerData(playerId, -1, PlayerColor);
 
             NebulaPlayer newPlayer = new NebulaPlayer(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))
@@ -258,7 +249,7 @@ namespace NebulaNetwork
                     int[] DronePlans = Multiplayer.Session.Drones.GetPlayerDronePlans(player.Id);
                     if (DronePlans != null && DronePlans.Length > 0 && player.Data.LocalPlanetId > 0)
                     {
-                        LocalPlayer.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
+                        Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
                         //Remove it also from host queue, if host is on the same planet
                         if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                         {

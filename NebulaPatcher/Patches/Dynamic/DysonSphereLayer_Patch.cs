@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that user added node to the dyson plan
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereAddNodePacket(__instance.starData.index, __instance.id, protoId, new Float3(pos)));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddNodePacket(__instance.starData.index, __instance.id, protoId, new Float3(pos)));
             }
             return true;
         }
@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that user added frame to the dyson plan
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereAddFramePacket(__instance.starData.index, __instance.id, protoId, nodeAId, nodeBId, euler));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddFramePacket(__instance.starData.index, __instance.id, protoId, nodeAId, nodeBId, euler));
             }
             return true;
         }
@@ -54,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that user removed frame from the dyson plan
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereRemoveFramePacket(__instance.starData.index, __instance.id, frameId));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveFramePacket(__instance.starData.index, __instance.id, frameId));
             }
             return true;
         }
@@ -70,7 +70,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that user removed node from the dyson plan
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereRemoveNodePacket(__instance.starData.index, __instance.id, nodeId));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveNodePacket(__instance.starData.index, __instance.id, nodeId));
             }
             return true;
         }
@@ -86,7 +86,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that user removed node from the dyson plan
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereAddShellPacket(__instance.starData.index, __instance.id, protoId, nodeIds));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddShellPacket(__instance.starData.index, __instance.id, protoId, nodeIds));
             }
             return true;
         }
@@ -102,7 +102,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify others that user removed node from the dyson plan
             if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereRemoveShellPacket(__instance.starData.index, __instance.id, shellId));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveShellPacket(__instance.starData.index, __instance.id, shellId));
             }
             return true;
         }

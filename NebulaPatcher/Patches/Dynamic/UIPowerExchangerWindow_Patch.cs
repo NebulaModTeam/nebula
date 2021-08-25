@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify other players about changing mode of the Power Exchenger
             if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new PowerExchangerChangeModePacket(__instance.exchangerId, targetState, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerChangeModePacket(__instance.exchangerId, targetState, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive)
             {
                 PowerExchangerComponent powerExchangerComponent = __instance.powerSystem.excPool[__instance.exchangerId];
-                LocalPlayer.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId, powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId, powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

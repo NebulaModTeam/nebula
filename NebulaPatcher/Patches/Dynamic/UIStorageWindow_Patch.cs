@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStorageWindow.OnStorageIdChange))]
         public static bool OnStorageIdChange_Prefix(UIStorageWindow __instance)
         {
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient && Multiplayer.Session.Storage.WindowOpened)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Storage.WindowOpened)
             {
                 UIStorageGrid storageUI = __instance.storageUI;
                 Multiplayer.Session.Storage.ActiveUIStorageGrid = storageUI;
@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 storageUI._Free();
                 storageUI._Open();
                 storageUI.OnStorageDataChanged();
-                LocalPlayer.SendPacket(new StorageSyncRequestPacket(GameMain.data.localPlanet.id, __instance.storageId));
+                Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(GameMain.data.localPlanet.id, __instance.storageId));
                 return false;
             }
             return true;

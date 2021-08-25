@@ -197,7 +197,7 @@ namespace NebulaWorld.Statistics
         {
             long num2 = 0L;
 
-            if(!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return num2;
             }

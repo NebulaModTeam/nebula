@@ -42,17 +42,17 @@ namespace NebulaPatcher.Patches.Transpilers
                                 return;
                             }
 
-                            if (LocalPlayer.IsMasterClient)
+                            if (Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 PlayerUseWarper packet = new PlayerUseWarper(warpCommand)
                                 {
-                                    PlayerId = LocalPlayer.PlayerId
+                                    PlayerId = Multiplayer.Session.LocalPlayer.Id
                                 };
-                                LocalPlayer.SendPacket(packet);
+                                Multiplayer.Session.Network.SendPacket(packet);
                             }
                             else
                             {
-                                LocalPlayer.SendPacket(new PlayerUseWarper(warpCommand));
+                                Multiplayer.Session.Network.SendPacket(new PlayerUseWarper(warpCommand));
                             }
 
                             return;

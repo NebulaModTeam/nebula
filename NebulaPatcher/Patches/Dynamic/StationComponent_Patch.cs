@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static bool InternalTickRemote_Prefix(StationComponent __instance, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // skip vanilla code entirely and use our modified version instead (which focuses on ship movement)
                 // call our InternalTickRemote() for every StationComponent in game. Normally this would be done by each PlanetFactory, but as a client
@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]
         public static bool RematchRemotePairs_Prefix(StationComponent __instance, StationComponent[] gStationPool, int gStationCursor, int keyStationGId, int shipCarries)
         {
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // skip vanilla code entirely for clients as we do this event based triggered by the server
                 return false;
@@ -42,7 +42,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]
         public static void RematchRemotePairs_Postfix(StationComponent __instance)
         {
-            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient && __instance.isStellar)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost && __instance.isStellar)
             {
                 int[] shipIndex = new int[__instance.workShipDatas.Length];
                 int[] otherGId = new int[__instance.workShipDatas.Length];
@@ -55,7 +55,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     direction[i] = __instance.workShipDatas[i].direction;
                     itemId[i] = __instance.workShipDatas[i].itemId;
                 }
-                LocalPlayer.SendPacket(new ILSShipDataUpdate(__instance.gid, shipIndex, otherGId, direction, itemId));
+                Multiplayer.Session.Network.SendPacket(new ILSShipDataUpdate(__instance.gid, shipIndex, otherGId, direction, itemId));
             }
         }
 
@@ -63,10 +63,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StationComponent.IdleShipGetToWork))]
         public static void IdleShipGetToWork_Postfix(StationComponent __instance, int index)
         {
-            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
                 ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[__instance.workShipCount - 1].planetA, __instance.workShipDatas[__instance.workShipCount - 1].planetB, __instance.workShipDatas[__instance.workShipCount - 1].itemId, __instance.workShipDatas[__instance.workShipCount - 1].itemCount, __instance.gid, __instance.workShipDatas[__instance.workShipCount - 1].otherGId, index, __instance.workShipDatas[__instance.workShipCount - 1].warperCnt, __instance.warperCount);
-                LocalPlayer.SendPacket(packet);
+                Multiplayer.Session.Network.SendPacket(packet);
             }
         }
 
@@ -74,10 +74,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StationComponent.WorkShipBackToIdle))]
         public static void WorkShipBackToIdle_Postfix(StationComponent __instance, int index)
         {
-            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
                 ILSShipData packet = new ILSShipData(false, __instance.gid, index);
-                LocalPlayer.SendPacket(packet);
+                Multiplayer.Session.Network.SendPacket(packet);
             }
         }
 

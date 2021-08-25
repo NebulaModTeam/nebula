@@ -50,7 +50,7 @@ namespace NebulaNetwork
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
 
-            LocalPlayer.IsMasterClient = false;
+            Multiplayer.Session.LocalPlayer.IsHost = false;
 
             if (Config.Options.RememberLastIP)
             {
@@ -104,7 +104,7 @@ namespace NebulaNetwork
             throw new System.NotImplementedException();
         }
 
-        public override void OnUpdate()
+        public override void Update()
         {
             PacketProcessor.ProcessPacketQueue();
 
@@ -143,15 +143,14 @@ namespace NebulaNetwork
             SendPacket(new HandshakeRequest(
                 CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
-                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
-                LocalPlayer.GS2_GSSettings != null));
+                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255)));
         }
 
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)
         {
             serverConnection = null;
         }
-        
+
         static void DisableNagleAlgorithm(WebSocket socket)
         {
             var tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);

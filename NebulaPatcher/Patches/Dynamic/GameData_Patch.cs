@@ -27,13 +27,13 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
 
             // Get the recieved bytes from the remote server that we will import
-            if (!LocalPlayer.PendingFactories.TryGetValue(planet.id, out byte[] factoryBytes))
+            if (!Multiplayer.Session.Planets.PendingFactories.TryGetValue(planet.id, out byte[] factoryBytes))
             {
                 // We messed up, just defer to the default behaviour on the client (will cause desync but not outright crash)
                 Log.Error($"PendingFactories did not have value we wanted, factory will not be synced!");
@@ -41,7 +41,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // Take it off the list, as we will process it now
-            LocalPlayer.PendingFactories.Remove(planet.id);
+            Multiplayer.Session.Planets.PendingFactories.Remove(planet.id);
 
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(factoryBytes))
             {
@@ -75,7 +75,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
 
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -101,7 +101,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
 
-            if (LocalPlayer.IsMasterClient)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -119,7 +119,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             // sync station storages and slot filter for belt i/o
             // do this once the factory is loaded so the processor has access to PlanetData.factory.transport.stationPool
-            LocalPlayer.SendPacket(new ILSArriveStarPlanetRequest(0, planet.id));
+            Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(0, planet.id));
 
             // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor
             // Arragement() updates galacticTransport.stationCursor
@@ -134,11 +134,11 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix(GameData __instance)
         {
             //Set starting star and planet to request from the server
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
-                if (LocalPlayer.Data.LocalPlanetId != -1)
+                if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
                 {
-                    PlanetData planet = __instance.galaxy.PlanetById(LocalPlayer.Data.LocalPlanetId);
+                    PlanetData planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
                     __instance.ArrivePlanet(planet);
                 }
                 else
@@ -146,7 +146,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     StarData nearestStar = null;
                     PlanetData nearestPlanet = null;
                     //Update player's position before searching for closest star
-                    __instance.mainPlayer.uPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
+                    __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x, Multiplayer.Session.LocalPlayer.Data.UPosition.y, Multiplayer.Session.LocalPlayer.Data.UPosition.z);
                     GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
 
                     if (nearestStar == null)
@@ -164,7 +164,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 if (Multiplayer.IsActive)
                 {
@@ -227,7 +227,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void LeaveStar_Prefix(GameData __instance)
         {
             //Client should unload all factories once they leave the star system
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 using (Multiplayer.Session.Ships.PatchLockILS.On())
                 {
@@ -244,7 +244,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         }
                     }
                 }
-                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(-1));
+                Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
             }
         }
 
@@ -253,10 +253,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void ArriveStar_Prefix(StarData star)
         {
             //Client should unload all factories once they leave the star system
-            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient && star != null)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && star != null)
             {
-                LocalPlayer.SendPacket(new PlayerUpdateLocalStarId(star.id));
-                LocalPlayer.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));
+                Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
+                Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));
             }
         }
 

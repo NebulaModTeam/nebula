@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive)
             {
                 StorageComponent storage = __instance.servingStorage;
-                LocalPlayer.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId, storage.grids[0].count, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId, storage.grids[0].count, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

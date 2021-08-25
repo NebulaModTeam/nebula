@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
         private IPlayerManager playerManager;
         public PlanetBroadcastProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
         public override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
         {
@@ -25,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
                 //Forward packet to other users
                 playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
                 //Forward packet to the host
-                Multiplayer.Session.NetProvider.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
+                Multiplayer.Session.Network.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
             }
         }
     }

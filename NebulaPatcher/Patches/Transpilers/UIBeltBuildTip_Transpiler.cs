@@ -47,7 +47,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         return 0;
                     }
 
-                    LocalPlayer.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
                     Multiplayer.Session.Ships.ItemSlotStationId = stationComponent.id;
                     Multiplayer.Session.Ships.ItemSlotStationGId = stationComponent.gid;
                     Multiplayer.Session.Ships.ItemSlotLastSlotId = outputSlotId;

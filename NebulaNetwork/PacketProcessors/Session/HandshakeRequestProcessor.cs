@@ -17,7 +17,7 @@ namespace NebulaNetwork.PacketProcessors.Session
 
         public HandshakeRequestProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
@@ -47,12 +47,6 @@ namespace NebulaNetwork.PacketProcessors.Session
             if (packet.GameVersionSig != GameConfig.gameVersion.sig)
             {
                 conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
-                return;
-            }
-
-            if (packet.HasGS2 != (LocalPlayer.GS2_GSSettings != null))
-            {
-                conn.Disconnect(DisconnectionReason.GalacticScaleMissmatch, "Either the client or the host did or did not have Galactic Scale installed. Please make sure both have it or dont have it.");
                 return;
             }
 
@@ -99,7 +93,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
             var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, (LocalPlayer.GS2_GSSettings != null) ? LocalPlayer.GS2GetSettings() : null));
+            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data));
         }
     }
 }

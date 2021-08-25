@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public DysonSphereAddLayerProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)

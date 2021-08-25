@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
 
         public TrashSystemTrashRemovedProcessor()
         {
-            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(TrashSystemTrashRemovedPacket packet, NebulaConnection conn)

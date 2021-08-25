@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // some players managed to break the fuel chamber on clients.
             // the game thought there is still fuel burning while not adding energy to the mecha and preventing new fuel from beeing added.
             // this checks for this corner case and resets the reactor energy to 0 (empty fuel chamber as displayed to the player)
-            if (!LocalPlayer.IsMasterClient && __instance.reactorEnergy > 0 && __instance.reactorItemId == 0)
+            if (!Multiplayer.Session.LocalPlayer.IsHost && __instance.reactorEnergy > 0 && __instance.reactorItemId == 0)
             {
                 __instance.reactorEnergy = 0;
             }
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(Mecha), nameof(Mecha.AddProductionStat))]
         public static bool AddStat_Common_Prefix()
         {
-            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
                 return true;
 
             // TODO: Send packet to host to add stat?

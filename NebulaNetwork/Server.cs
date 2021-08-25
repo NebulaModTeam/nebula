@@ -26,8 +26,6 @@ namespace NebulaNetwork
 
         private WebSocketServer socket;
 
-        public PlayerManager PlayerManager { get; protected set; }
-
         private readonly int port;
         private readonly bool loadSaveFile;
 
@@ -45,7 +43,6 @@ namespace NebulaNetwork
 
         public override void Start()
         {
-            PlayerManager = new PlayerManager();
             if (loadSaveFile)
             {
                 SaveManager.LoadServerData();
@@ -55,9 +52,9 @@ namespace NebulaNetwork
             DisableNagleAlgorithm(socket);
             socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
 
-            LocalPlayer.IsMasterClient = true;
+            Multiplayer.Session.LocalPlayer.IsHost = true;
             // TODO: Load saved player info here
-            LocalPlayer.SetPlayerData(new PlayerData(
+            Multiplayer.Session.LocalPlayer.SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
                 new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
@@ -104,7 +101,7 @@ namespace NebulaNetwork
             PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
         }
 
-        public override void OnUpdate()
+        public override void Update()
         {
             gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
@@ -143,10 +140,10 @@ namespace NebulaNetwork
 
         private class WebSocketService : WebSocketBehavior
         {
-            private readonly PlayerManager playerManager;
+            private readonly IPlayerManager playerManager;
             private readonly NetPacketProcessor packetProcessor;
 
-            public WebSocketService(PlayerManager playerManager, NetPacketProcessor packetProcessor)
+            public WebSocketService(IPlayerManager playerManager, NetPacketProcessor packetProcessor)
             {
                 this.playerManager = playerManager;
                 this.packetProcessor = packetProcessor;

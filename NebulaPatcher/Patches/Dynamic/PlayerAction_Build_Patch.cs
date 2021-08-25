@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // TODO: handle if 2 clients or if host and client trigger a destruct of the same object at the same time
 
             // If the object is a prebuild, remove it from the prebuild request list
-            if (LocalPlayer.IsMasterClient && objId < 0)
+            if (Multiplayer.Session.LocalPlayer.IsHost && objId < 0)
             {
                 if (!Multiplayer.Session.Factories.ContainsPrebuildRequest(planetId, -objId))
                 {
@@ -34,12 +34,12 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
 
-            if (LocalPlayer.IsMasterClient || !Multiplayer.Session.Factories.IsIncomingRequest)
+            if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor));
+                Multiplayer.Session.Network.SendPacket(new DestructEntityRequest(planetId, objId, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || Multiplayer.Session.Factories.IsIncomingRequest;
+            return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            if (Multiplayer.Session.Factories.IsIncomingRequest && Multiplayer.Session.Factories.PacketAuthor != LocalPlayer.PlayerId && Multiplayer.Session.Factories.TargetPlanet != GameMain.localPlanet?.id)
+            if (Multiplayer.Session.Factories.IsIncomingRequest && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id && Multiplayer.Session.Factories.TargetPlanet != GameMain.localPlanet?.id)
             {
                 return false;
             }
