@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaWorld;
 using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -10,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static bool GameTick_Prefix()
         {
-            StorageManager.IsHumanInput = false;
+            Multiplayer.Session.Storage.IsHumanInput = false;
             return true;
         }
 
@@ -18,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static void GameTick_Postfix()
         {
-            StorageManager.IsHumanInput = true;
+            Multiplayer.Session.Storage.IsHumanInput = true;
         }
     }
 }

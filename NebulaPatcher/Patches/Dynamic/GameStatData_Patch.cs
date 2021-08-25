@@ -11,9 +11,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameStatData.AfterTick))]
         public static void AfterTick_Postfix()
         {
-            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient)
             {
-                StatisticsManager.Instance.CaptureStatisticalSnapshot();
+                Multiplayer.Session.Statistics.CaptureStatisticalSnapshot();
             }
         }
     }

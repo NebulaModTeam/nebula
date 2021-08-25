@@ -13,45 +13,45 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlayerAction_Build.DoDismantleObject))]
         public static bool DoDismantleObject_Prefix(PlayerAction_Build __instance, int objId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
 
-            int planetId = FactoryManager.TargetPlanet != FactoryManager.PLANET_NONE ? FactoryManager.TargetPlanet : __instance.planet?.id ?? -1;
+            int planetId = Multiplayer.Session.Factories.TargetPlanet != FactoryManager.PLANET_NONE ? Multiplayer.Session.Factories.TargetPlanet : __instance.planet?.id ?? -1;
             // TODO: handle if 2 clients or if host and client trigger a destruct of the same object at the same time
 
             // If the object is a prebuild, remove it from the prebuild request list
             if (LocalPlayer.IsMasterClient && objId < 0)
             {
-                if (!FactoryManager.ContainsPrebuildRequest(planetId, -objId))
+                if (!Multiplayer.Session.Factories.ContainsPrebuildRequest(planetId, -objId))
                 {
                     Log.Warn($"DestructFinally was called without having a corresponding PrebuildRequest for the prebuild {-objId} on the planet {planetId}");
                     return false;
                 }
 
-                FactoryManager.RemovePrebuildRequest(planetId, -objId);
+                Multiplayer.Session.Factories.RemovePrebuildRequest(planetId, -objId);
             }
 
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
+            if (LocalPlayer.IsMasterClient || !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new DestructEntityRequest(planetId, objId, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
+            return LocalPlayer.IsMasterClient || Multiplayer.Session.Factories.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerAction_Build.SetFactoryReferences))]
         public static bool SetFactoryReferences_Prefix()
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
 
-            if (FactoryManager.IsIncomingRequest && FactoryManager.PacketAuthor != LocalPlayer.PlayerId && FactoryManager.TargetPlanet != GameMain.localPlanet?.id)
+            if (Multiplayer.Session.Factories.IsIncomingRequest && Multiplayer.Session.Factories.PacketAuthor != LocalPlayer.PlayerId && Multiplayer.Session.Factories.TargetPlanet != GameMain.localPlanet?.id)
             {
                 return false;
             }

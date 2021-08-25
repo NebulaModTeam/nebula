@@ -22,11 +22,11 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
 
                 if (packet.Charging)
                 {
-                    PowerTowerManager.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
+                    Multiplayer.Session.PowerTowers.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
                 }
                 else
                 {
-                    PowerTowerManager.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
+                    Multiplayer.Session.PowerTowers.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
                 }
 
                 LocalPlayer.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,

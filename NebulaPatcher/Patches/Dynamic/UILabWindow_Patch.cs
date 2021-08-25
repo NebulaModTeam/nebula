@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemButtonClick")]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance, int index)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -85,7 +85,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnProductButtonClick")]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -109,7 +109,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnBackButtonClick_Prefix(UILabWindow __instance)
         {
             //Notify about recipe reset
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
                 LocalPlayer.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.id ?? -1));
             }

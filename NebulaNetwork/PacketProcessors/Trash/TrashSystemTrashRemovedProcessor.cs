@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
+using NebulaWorld;
 using NebulaWorld.Trash;
 
 namespace NebulaNetwork.PacketProcessors.Trash
@@ -35,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
 
             if (valid)
             {
-                using (TrashManager.RemoveTrashFromOtherPlayers.On())
+                using (Multiplayer.Session.Trashes.RemoveTrashFromOtherPlayers.On())
                 {
                     GameMain.data.trashSystem.container.RemoveTrash(packet.TrashId);
                 }

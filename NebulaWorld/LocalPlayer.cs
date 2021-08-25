@@ -56,7 +56,7 @@ namespace NebulaWorld
         {
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(compressedSettings))
             {
-                GS2_GSSettings.GetMethod("DeSerialize").Invoke(GS2_GSSettings.GetProperty("Instance"), new object[] { reader.BinaryReader.ReadString()});
+                GS2_GSSettings.GetMethod("DeSerialize").Invoke(GS2_GSSettings.GetProperty("Instance"), new object[] { reader.BinaryReader.ReadString() });
             }
         }
 
@@ -123,17 +123,20 @@ namespace NebulaWorld
 
         public static void LeaveGame()
         {
+            // TODO: HG FIX
+            /*
             networkProvider.DestroySession();
             PendingFactories.Clear();
             IsMasterClient = false;
-            SimulatedWorld.Clear();
-            SimulatedWorld.ExitingMultiplayerSession = true;
+            Multiplayer.Session.World.Clear();
+            Multiplayer.Session.World.ExitingMultiplayerSession = true;
 
             if (!UIRoot.instance.backToMainMenu)
             {
                 UIRoot.instance.backToMainMenu = true;
                 DSPGame.EndGame();
             }
+            */
         }
     }
 }

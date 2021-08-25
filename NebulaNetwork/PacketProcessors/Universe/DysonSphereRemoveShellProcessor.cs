@@ -2,7 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
-using NebulaWorld.Universe;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -30,10 +30,10 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (valid)
             {
-                using (DysonSphereManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
                 {
                     DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-                    if (DysonSphereManager.CanRemoveShell(packet.ShellId, dsl))
+                    if (Multiplayer.Session.DysonSpheres.CanRemoveShell(packet.ShellId, dsl))
                     {
                         dsl.RemoveDysonShell(packet.ShellId);
                     }

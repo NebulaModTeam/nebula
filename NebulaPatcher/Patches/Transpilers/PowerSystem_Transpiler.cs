@@ -34,12 +34,12 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
                 .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
                 {
-                    if (SimulatedWorld.Initialized)
+                    if (Multiplayer.IsActive)
                     {
                         if (!LocalPlayer.IsMasterClient)
                         {
-                            _this.nodePool[powerNodeId].requiredEnergy = _this.nodePool[powerNodeId].idleEnergyPerTick; // this gets added onto the known required energy by PowerTowerManager and PowerSystem_Patch
-                            if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
+                            _this.nodePool[powerNodeId].requiredEnergy = _this.nodePool[powerNodeId].idleEnergyPerTick; // this gets added onto the known required energy by Multiplayer.Session.PowerTowers. and PowerSystem_Patch
+                            if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
                             {
                                 LocalPlayer.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, true));
                             }
@@ -47,9 +47,9 @@ namespace NebulaPatcher.Patches.Transpilers
                         else
                         {
                             PowerNetwork pNet = _this.netPool[powerNetId];
-                            if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
+                            if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
                             {
-                                PowerTowerManager.AddExtraDemand(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick);
+                                Multiplayer.Session.PowerTowers.AddExtraDemand(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick);
                                 LocalPlayer.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
                                 pNet.energyCapacity,
                                 pNet.energyRequired,
@@ -82,11 +82,11 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
                         .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
                         {
-                            if (SimulatedWorld.Initialized)
+                            if (Multiplayer.IsActive)
                             {
                                 if (!LocalPlayer.IsMasterClient)
                                 {
-                                    if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
+                                    if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
                                     {
                                         LocalPlayer.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, false));
                                     }
@@ -94,9 +94,9 @@ namespace NebulaPatcher.Patches.Transpilers
                                 else
                                 {
                                     PowerNetwork pNet = _this.netPool[powerNetId];
-                                    if (PowerTowerManager.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
+                                    if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
                                     {
-                                        PowerTowerManager.RemExtraDemand(_this.planet.id, powerNetId, powerNodeId);
+                                        Multiplayer.Session.PowerTowers.RemExtraDemand(_this.planet.id, powerNetId, powerNodeId);
                                         LocalPlayer.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
                                         pNet.energyCapacity,
                                         pNet.energyRequired,

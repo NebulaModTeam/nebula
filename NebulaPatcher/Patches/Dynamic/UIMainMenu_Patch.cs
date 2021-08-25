@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel;
 using NebulaModel.Logger;
+using NebulaNetwork;
 using NebulaPatcher.MonoBehaviours;
 using NebulaWorld;
 using System.Collections;
@@ -27,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("_OnOpen")]
         public static void _OnOpen_Postfix()
         {
-            SimulatedWorld.ExitingMultiplayerSession = false;
+            Multiplayer.IsLeavingGame = false;
 
             GameObject overlayCanvas = GameObject.Find("Overlay Canvas");
             if (overlayCanvas == null)
@@ -276,22 +277,19 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
         {
-            NebulaNetwork.MultiplayerClientSession session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
-
             if (isIP)
             {
-                session.ConnectToIp(new IPEndPoint(IPAddress.Parse(connectionString), serverPort));
+                Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort)));
                 return true;
             }
 
             //trying to resolve as uri
             if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out var serverUri))
             {
-                session.ConnectToUrl(connectionString, serverPort);
+                Multiplayer.JoinGame(new Client(connectionString, serverPort));
                 return true;
             }
 
-            session.DestroySession();
             return false;
         }
     }

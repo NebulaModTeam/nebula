@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("Start")]
         public static void Start_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
             {
                 return;
             }

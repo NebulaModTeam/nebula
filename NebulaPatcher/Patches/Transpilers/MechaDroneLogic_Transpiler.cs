@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaWorld;
 using NebulaWorld.Player;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace NebulaPatcher.Patches.Transpiler
              *   if (!this.serving.Contains(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
              * 
              * To:
-             *   if (!this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
+             *   if (!this.serving.Contains(num4) && !Multiplayer.Session.Drones.IsPendingBuildRequest(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
              */
             var codeMatcher = new CodeMatcher(instructions, iL)
                 .MatchForward(true,
@@ -46,7 +47,7 @@ namespace NebulaPatcher.Patches.Transpiler
                           .InsertAndAdvance(num4Instruction)
                           .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>((num4) =>
                           {
-                              return DroneManager.IsPendingBuildRequest(num4);
+                              return Multiplayer.Session.Drones.IsPendingBuildRequest(num4);
                           }))
                           .InsertAndAdvance(jumpInstruction);
 
@@ -55,7 +56,7 @@ namespace NebulaPatcher.Patches.Transpiler
              * Change:
              *  if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
              * To:
-             *  if (DroneManager.AmIClosestPlayer(ref a) && a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
+             *  if (Multiplayer.Session.Drones.AmIClosestPlayer(ref a) && a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
             */
             codeMatcher = codeMatcher
                             .MatchForward(false,
@@ -79,13 +80,13 @@ namespace NebulaPatcher.Patches.Transpiler
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, aOperand))
                             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<Vector3, bool>>((aVar) =>
                             {
-                                return DroneManager.AmIClosestPlayer(ref aVar);
+                                return Multiplayer.Session.Drones.AmIClosestPlayer(ref aVar);
                             }))
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse, jumpOperand));
 
             /*
              * Insert
-             *  DroneManager.BroadcastDroneOrder(droneId, entityId, stage);
+             *  Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
              * After
              *  this.serving.Add(num3);
             */
@@ -120,13 +121,13 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(stageInstruction)
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int>>((droneId, entityId, stage) =>
                     {
-                        DroneManager.BroadcastDroneOrder(droneId, entityId, stage);
+                        Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
                     }))
                     .InstructionEnumeration();
         }
 
         /*
-         * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
+         * Call Multiplayer.Session.Drones.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
          */
         [HarmonyTranspiler]
         [HarmonyPatch("UpdateDrones")]
@@ -191,7 +192,7 @@ namespace NebulaPatcher.Patches.Transpiler
          * Changes
          *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4))
          * To
-         *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4))
+         *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !Multiplayer.Session.Drones.IsPendingBuildRequest(num4))
          * To avoid client's drones from trying to target pending request (caused by drone having additional tasks unlocked via the Communication control tech)
         */
         [HarmonyTranspiler]
@@ -219,7 +220,7 @@ namespace NebulaPatcher.Patches.Transpiler
                    .InsertAndAdvance(target)
                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>((targetId) =>
                    {
-                       return DroneManager.IsPendingBuildRequest(targetId);
+                       return Multiplayer.Session.Drones.IsPendingBuildRequest(targetId);
                    }))
                    .Insert(new CodeInstruction(OpCodes.Brtrue, jump))
                    .InstructionEnumeration();

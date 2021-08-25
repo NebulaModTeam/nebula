@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld;
 using NebulaWorld.Logistics;
 
 /*
@@ -17,7 +18,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
             if (pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
             {
-                using (ILSShipManager.PatchLockILS.On())
+                using (Multiplayer.Session.Ships.PatchLockILS.On())
                 {
                     pData.factory.transport.RemoveStationComponent(packet.StationId);
                 }
@@ -27,7 +28,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
                 if (packet.StationGId < gStationPool.Length)
                 {
-                    using (ILSShipManager.PatchLockILS.On())
+                    using (Multiplayer.Session.Ships.PatchLockILS.On())
                     {
                         GameMain.data.galacticTransport.RemoveStationComponent(packet.StationGId);
                     }

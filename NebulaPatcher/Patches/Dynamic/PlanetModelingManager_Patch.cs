@@ -16,7 +16,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RequestLoadPlanetFactory_Prefix(PlanetData planet)
         {
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
@@ -54,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // RequestLoadStar takes care of these instead currently
 
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
             {
                 return true;
             }
@@ -69,7 +69,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RequestLoadStar_Prefix(StarData star)
         {
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
             {
                 return true;
             }

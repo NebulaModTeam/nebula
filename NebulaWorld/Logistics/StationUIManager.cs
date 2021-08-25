@@ -31,27 +31,30 @@ namespace NebulaWorld.Logistics
         }
     }
     
-    public static class StationUIManager
+    public class StationUIManager : IDisposable
     {
-        private static Dictionary<string, Subscribers> _stationUISubscribers;
-        public static int UpdateCooldown; // cooldown is used to slow down updates on storage slider
-        public static BaseEventData LastMouseEvent;
-        public static bool LastMouseEventWasDown;
-        public static GameObject LastSelectedGameObj;
-        public static int UIIsSyncedStage; // 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
-        public static int UIStationId;
-        public static bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
+        private Dictionary<string, Subscribers> _stationUISubscribers;
 
-        public static void Initialize()
+        public int UpdateCooldown; // cooldown is used to slow down updates on storage slider
+        public BaseEventData LastMouseEvent;
+        public bool LastMouseEventWasDown;
+        public GameObject LastSelectedGameObj;
+        public int UIIsSyncedStage; // 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
+        public int UIStationId;
+        public bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
+
+        public StationUIManager()
         {
             _stationUISubscribers = new Dictionary<string, Subscribers>();
-            UpdateCooldown = 0;
-            UIIsSyncedStage = 0;
-            UIStationId = 0;
-            UIRequestedShipDronWarpChange = false;
         }
+
+        public void Dispose()
+        {
+            _stationUISubscribers = null;
+        }
+
         // When a client opens a station's UI he requests a subscription for live updates, so add him to the list
-        public static void AddSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
+        public void AddSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
         {
             // Attempt to find existing subscribers to a specific station, if we couldn't find an existing one
             // we must initialize a new Subscribers for this specific station.
@@ -64,7 +67,7 @@ namespace NebulaWorld.Logistics
             
             subscribers?.Connections.Add(connection);
         }
-        public static void RemoveSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
+        public void RemoveSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
         {
             if(_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
             {
@@ -77,7 +80,7 @@ namespace NebulaWorld.Logistics
             }
         }
         
-        public static List<NebulaConnection> GetSubscribers(int planetId, int stationId, int stationGId)
+        public List<NebulaConnection> GetSubscribers(int planetId, int stationId, int stationGId)
         {
             if(!_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
             {
@@ -87,7 +90,7 @@ namespace NebulaWorld.Logistics
             return subscribers.Connections;
         }
 
-        public static void DecreaseCooldown()
+        public void DecreaseCooldown()
         {
             // cooldown is for the storage sliders
             if(UpdateCooldown > 0)
@@ -96,7 +99,7 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        public static void UpdateUI(StationUI packet)
+        public void UpdateUI(StationUI packet)
         {
             if((UpdateCooldown == 0 || !packet.IsStorageUI) && LocalPlayer.IsMasterClient)
             {
@@ -126,7 +129,7 @@ namespace NebulaWorld.Logistics
         /**
          * Updates to a given station that should happen in the background.
          */
-        private static void UpdateSettingsUIBackground(StationUI packet, PlanetData planet, StationComponent stationComponent)
+        private void UpdateSettingsUIBackground(StationUI packet, PlanetData planet, StationComponent stationComponent)
         {
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
 
@@ -262,7 +265,7 @@ namespace NebulaWorld.Logistics
          * 
          * First determine if the local player has the station window opened and handle that accordingly.
          */
-        private static void UpdateSettingsUI(StationUI packet)
+        private void UpdateSettingsUI(StationUI packet)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
             
@@ -297,7 +300,7 @@ namespace NebulaWorld.Logistics
             }
 
             // this locks the patches so we can call vanilla functions without triggering our patches to avoid endless loops
-            using (ILSShipManager.PatchLockILS.On())
+            using (Multiplayer.Session.Ships.PatchLockILS.On())
             {
                 if (packet.SettingIndex == StationUI.EUISettings.MaxChargePower)
                 {
@@ -433,7 +436,7 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        private static void UpdateStorageUI(StationUI packet)
+        private void UpdateStorageUI(StationUI packet)
         {
             StationComponent stationComponent = null;
             PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
@@ -452,7 +455,7 @@ namespace NebulaWorld.Logistics
                 return;
             }
             
-            using (ILSShipManager.PatchLockILS.On())
+            using (Multiplayer.Session.Ships.PatchLockILS.On())
             {
                 planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldMimic == true) ? GameMain.mainPlayer : null);
             }

@@ -1,18 +1,28 @@
 ﻿using NebulaModel.DataStructures;
+using System;
 using UnityEngine.UI;
 
 namespace NebulaWorld.Factory
 {
-    public static class StorageManager
+    public class StorageManager : IDisposable
     {
-        public static StorageComponent ActiveStorageComponent;
-        public static UIStorageGrid ActiveUIStorageGrid;
-        public static Text ActiveWindowTitle;
-        public static Slider ActiveBansSlider;
-        public static Text ActiveBansValueText;
+        public StorageComponent ActiveStorageComponent;
+        public UIStorageGrid ActiveUIStorageGrid;
+        public Text ActiveWindowTitle;
+        public Slider ActiveBansSlider;
+        public Text ActiveBansValueText;
+        public bool WindowOpened = false;
+        public bool IsHumanInput = false;
 
-        public static bool WindowOpened = false;
-        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
-        public static bool IsHumanInput = false;
+        public readonly ToggleSwitch IsIncomingRequest;
+
+        public StorageManager()
+        {
+            IsIncomingRequest = new ToggleSwitch();
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

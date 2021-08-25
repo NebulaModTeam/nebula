@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
+using NebulaWorld;
 using NebulaWorld.GameDataHistory;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
@@ -23,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
                 Player player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
-                    using (GameDataHistoryManager.IsIncomingRequest.On())
+                    using (Multiplayer.Session.History.IsIncomingRequest.On())
                     {
                         GameMain.history.EnqueueTech(packet.TechId);
                     }
@@ -32,7 +33,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             }
             else
             {
-                using (GameDataHistoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.History.IsIncomingRequest.On())
                 {
                     GameMain.history.EnqueueTech(packet.TechId);
                 }

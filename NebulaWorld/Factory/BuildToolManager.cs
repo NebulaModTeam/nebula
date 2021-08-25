@@ -1,18 +1,27 @@
 ﻿using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace NebulaWorld.Factory
 {
-    public class BuildToolManager
+    public class BuildToolManager : IDisposable
     {
-        public static void CreatePrebuildsRequest(CreatePrebuildsRequest packet)
+        public BuildToolManager()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void CreatePrebuildsRequest(CreatePrebuildsRequest packet)
         {
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             if (planet.factory == null)
             {
-                if (FactoryManager.IsIncomingRequest)
+                if (Multiplayer.Session.Factories.IsIncomingRequest)
                 {
                     // We only execute the code if the client has loaded the factory at least once.
                     // Else it will get it once it goes to the planet for the first time. 
@@ -36,8 +45,8 @@ namespace NebulaWorld.Factory
 
             if (pab != null && buildTool != null)
             {
-                FactoryManager.TargetPlanet = packet.PlanetId;
-                FactoryManager.PacketAuthor = packet.AuthorId;
+                Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+                Multiplayer.Session.Factories.PacketAuthor = packet.AuthorId;
 
                 PlanetFactory tmpFactory = null;
                 NearColliderLogic tmpNearcdLogic = null;
@@ -50,7 +59,7 @@ namespace NebulaWorld.Factory
                     tmpFactory = buildTool.factory;
                     tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
                     tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
-                    FactoryManager.AddPlanetTimer(packet.PlanetId);
+                    Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
                 }
 
                 bool incomingBlueprintEvent = packet.BuildToolType == typeof(BuildTool_BlueprintPaste).ToString();
@@ -64,13 +73,13 @@ namespace NebulaWorld.Factory
                     buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
                 }
 
-                FactoryManager.EventFactory = planet.factory;
+                Multiplayer.Session.Factories.EventFactory = planet.factory;
 
                 //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
                 buildTool.factory = planet.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
-                if (FactoryManager.IsIncomingRequest)
+                if (Multiplayer.Session.Factories.IsIncomingRequest)
                 {
                     // Only the server needs to set these
                     pab.planetPhysics = planet.physics;
@@ -79,15 +88,18 @@ namespace NebulaWorld.Factory
 
                 //Check if prebuilds can be build (collision check, height check, etc)
                 bool canBuild = false;
-                if (FactoryManager.IsIncomingRequest)
+                if (Multiplayer.Session.Factories.IsIncomingRequest)
                 {
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                if (canBuild || FactoryManager.IsIncomingRequest)
+                if (canBuild || Multiplayer.Session.Factories.IsIncomingRequest)
                 {
-                    if (FactoryManager.IsIncomingRequest) CheckAndFixConnections(buildTool, planet);
+                    if (Multiplayer.Session.Factories.IsIncomingRequest)
+                    {
+                        CheckAndFixConnections(buildTool, planet);
+                    }
 
                     if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
                     {
@@ -132,7 +144,7 @@ namespace NebulaWorld.Factory
                 }
 
                 GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
-                FactoryManager.EventFactory = null;
+                Multiplayer.Session.Factories.EventFactory = null;
 
                 if (!incomingBlueprintEvent)
                 {
@@ -140,12 +152,12 @@ namespace NebulaWorld.Factory
                     buildTool.buildPreviews.AddRange(tmpList);
                 }
 
-                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
-                FactoryManager.PacketAuthor = FactoryManager.AUTHOR_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
+                Multiplayer.Session.Factories.PacketAuthor = FactoryManager.AUTHOR_NONE;
             }
         }
 
-        public static void CheckAndFixConnections(BuildTool buildTool, PlanetData planet)
+        public void CheckAndFixConnections(BuildTool buildTool, PlanetData planet)
         {
             foreach (BuildPreview preview in buildTool.buildPreviews)
             {
@@ -178,7 +190,7 @@ namespace NebulaWorld.Factory
             }
         }
 
-        public static bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
+        public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
         {
             //Check if some entity that is suppose to be connected to this building is missing
             for (int i = 0; i < buildPreviews.Count; i++)

@@ -1,30 +1,43 @@
-﻿using HarmonyLib;
-using NebulaModel.Packets.Belt;
+﻿using NebulaModel.Packets.Belt;
+using System;
 using System.Collections.Generic;
 
 namespace NebulaWorld.Factory
 {
-    public static class BeltManager
+    public class BeltManager : IDisposable
     {
-        public static List<BeltUpdate> BeltUpdates = new List<BeltUpdate>();
+        public List<BeltUpdate> BeltUpdates;
 
-        public static void BeltPickupStarted()
+        public BeltManager()
+        {
+            BeltUpdates = new List<BeltUpdate>();
+        }
+
+        public void Dispose()
+        {
+            BeltUpdates = null;
+        }
+
+        public void BeltPickupStarted()
         {
             BeltUpdates.Clear();
         }
-        public static void RegisterBeltPickupUpdate(int itemId, int count, int beltId, int segId)
+
+        public void RegisterBeltPickupUpdate(int itemId, int count, int beltId, int segId)
         {
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
                 BeltUpdates.Add(new BeltUpdate(itemId, count, beltId, segId));
             }
         }
-        public static void BeltPickupEnded()
+
+        public void BeltPickupEnded()
         {
             if (GameMain.data.localPlanet != null)
             {
                 LocalPlayer.SendPacketToLocalStar(new BeltUpdatePickupItemsPacket(BeltUpdates.ToArray(), GameMain.data.localPlanet.id));
             }
+
             BeltUpdates.Clear();
         }
     }

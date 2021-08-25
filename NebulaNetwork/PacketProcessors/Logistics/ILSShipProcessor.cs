@@ -4,6 +4,7 @@ using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using NebulaWorld.Factory;
+using NebulaWorld.Logistics;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
@@ -30,9 +31,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
-                using (FactoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    SimulatedWorld.OnILSShipUpdate(packet);
+                    if (packet.idleToWork)
+                    {
+                        Multiplayer.Session.Ships.IdleShipGetToWork(packet);
+                    }
+                    else
+                    {
+                        Multiplayer.Session.Ships.WorkShipBackToIdle(packet);
+                    }
                 }
             }
         }

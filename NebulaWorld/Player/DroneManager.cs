@@ -1,11 +1,12 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace NebulaWorld.Player
 {
-    public static class DroneManager
+    public class DroneManager : IDisposable
     {
         public static int[] DronePriorities = new int[255];
         public static System.Random rnd = new System.Random();
@@ -13,7 +14,7 @@ namespace NebulaWorld.Player
         public static List<int> PendingBuildRequests = new List<int>();
         public static Dictionary<ushort, Vector3> CachedPositions = new Dictionary<ushort, Vector3>();
 
-        public static void Initialize()
+        public DroneManager()
         {
             DronePriorities = new int[255];
             PlayerDroneBuildingPlans = new Dictionary<ushort, List<int>>();
@@ -21,9 +22,18 @@ namespace NebulaWorld.Player
             CachedPositions = new Dictionary<ushort, Vector3>();
         }
 
-        public static void BroadcastDroneOrder(int droneId, int entityId, int stage)
+        public void Dispose()
         {
-            if (!SimulatedWorld.Initialized)
+            DronePriorities = null;
+            PlayerDroneBuildingPlans = null;
+            PendingBuildRequests = null;
+            CachedPositions = null;
+        }
+
+
+        public void BroadcastDroneOrder(int droneId, int entityId, int stage)
+        {
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -41,7 +51,7 @@ namespace NebulaWorld.Player
             LocalPlayer.SendPacketToLocalPlanet(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, droneId, entityId, LocalPlayer.PlayerId, stage, priority, GameMain.localPlanet.factory.prebuildPool[-entityId].pos));
         }
 
-        public static void AddPlayerDronePlan(ushort playerId, int entityId)
+        public void AddPlayerDronePlan(ushort playerId, int entityId)
         {
             if (!PlayerDroneBuildingPlans.ContainsKey(playerId))
             {
@@ -50,7 +60,7 @@ namespace NebulaWorld.Player
             PlayerDroneBuildingPlans[playerId].Add(entityId);
         }
 
-        public static void RemovePlayerDronePlan(ushort playerId, int entityId)
+        public void RemovePlayerDronePlan(ushort playerId, int entityId)
         {
             if (PlayerDroneBuildingPlans.ContainsKey(playerId))
             {
@@ -58,7 +68,7 @@ namespace NebulaWorld.Player
             }
         }
 
-        public static int[] GetPlayerDronePlans(ushort playerId)
+        public int[] GetPlayerDronePlans(ushort playerId)
         {
             if (PlayerDroneBuildingPlans.ContainsKey(playerId))
             {
@@ -67,34 +77,35 @@ namespace NebulaWorld.Player
             return null;
         }
 
-        public static void AddBuildRequestSent(int entityId)
+        public void AddBuildRequestSent(int entityId)
         {
             PendingBuildRequests.Add(entityId);
         }
 
-        public static bool IsPendingBuildRequest(int entityId)
+        public bool IsPendingBuildRequest(int entityId)
         {
             return PendingBuildRequests.Contains(entityId);
         }
 
-        public static bool RemoveBuildRequest(int entityId)
+        public bool RemoveBuildRequest(int entityId)
         {
             return PendingBuildRequests.Remove(entityId);
         }
 
-        public static void ClearCachedPositions()
+        public void ClearCachedPositions()
         {
             CachedPositions.Clear();
         }
 
-        public static bool AmIClosestPlayer(ref Vector3 entityPos)
+        public bool AmIClosestPlayer(ref Vector3 entityPos)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
+
             float myDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
-            using (SimulatedWorld.GetRemotePlayersModels(out var remotePlayersModels))
+            using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
             {
                 foreach (var model in remotePlayersModels.Values)
                 {

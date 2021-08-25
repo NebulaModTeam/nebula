@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
             [HarmonyPatch("_OnUpdate")]
             public static bool _OnUpdate_Prefix()
             {
-                return !SimulatedWorld.Initialized || GameMain.localPlanet?.factory != null;
+                return !Multiplayer.IsActive || GameMain.localPlanet?.factory != null;
             }
         }
     }

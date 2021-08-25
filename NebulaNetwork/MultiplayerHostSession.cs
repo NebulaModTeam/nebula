@@ -64,8 +64,6 @@ namespace NebulaNetwork
 
             socketServer.Start();
 
-            SimulatedWorld.Initialize();
-
             LocalPlayer.SetNetworkProvider(this);
             LocalPlayer.IsMasterClient = true;
 
@@ -150,7 +148,7 @@ namespace NebulaNetwork
             if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
             {
                 productionStatisticsUpdateTimer = 0;
-                StatisticsManager.SendBroadcastIfNeeded();
+                Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
             }
 
             PacketProcessor.ProcessPacketQueue();
@@ -169,7 +167,7 @@ namespace NebulaNetwork
 
             protected override void OnOpen()
             {
-                if (SimulatedWorld.IsGameLoaded == false)
+                if (Multiplayer.Session.IsGameLoaded == false)
                 {
                     // Reject any connection that occurs while the host's game is loading.
                     this.Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");

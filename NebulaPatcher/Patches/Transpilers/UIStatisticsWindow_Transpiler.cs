@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Transpiler
 					num2 += netPool[j].energyStored;
 				}
 
-                With: StatisticsManager.UpdateTotalChargedEnergy(factoryIndex);
+                With: Multiplayer.Session.Statistics.UpdateTotalChargedEnergy(factoryIndex);
                    
              * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
             var matcher = new CodeMatcher(instructions, iLGenerator)
@@ -77,16 +77,16 @@ namespace NebulaPatcher.Patches.Transpiler
                            .InsertAndAdvance(loadFactoryIndexInstruction)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<long, long>>((factoryIndex) =>
                            {
-                               return NebulaWorld.Statistics.StatisticsManager.UpdateTotalChargedEnergy((int)factoryIndex);
+                               return Multiplayer.Session.Statistics.UpdateTotalChargedEnergy((int)factoryIndex);
                            }))
                            .InsertAndAdvance(storeNum2Instruction)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                            {
-                               return SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient;
+                               return Multiplayer.IsActive && !LocalPlayer.IsMasterClient;
                            }))
                            .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, endLabel))
                            .InstructionEnumeration();
-                           
+
         }
 
         public static IEnumerable<CodeInstruction> ReplaceFactoryCondition(IEnumerable<CodeInstruction> instructions)

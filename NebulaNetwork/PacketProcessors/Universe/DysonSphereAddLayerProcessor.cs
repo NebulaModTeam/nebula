@@ -3,7 +3,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
-using NebulaWorld.Universe;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -31,7 +31,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (valid)
             {
-                using (DysonSphereManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
                 {
                     GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToQuaternion(packet.OrbitRotation), packet.OrbitAngularSpeed);
                 }

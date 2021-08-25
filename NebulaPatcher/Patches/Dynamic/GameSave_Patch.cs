@@ -11,13 +11,13 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameSave.SaveCurrentGame))]
         public static bool SaveCurrentGame_Prefix(string saveName)
         {
-            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient)
             {
                 SaveManager.SaveServerData(saveName);
             }
 
             // Only save if in single player or if you are the host
-            return (!SimulatedWorld.Initialized && !SimulatedWorld.ExitingMultiplayerSession) || LocalPlayer.IsMasterClient;
+            return (!Multiplayer.IsActive && !Multiplayer.IsLeavingGame) || LocalPlayer.IsMasterClient;
         }
 
         [HarmonyPrefix]
@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AutoSave_Prefix()
         {
             // Only save if in single player or if you are the host
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient;
+            return !Multiplayer.IsActive || LocalPlayer.IsMasterClient;
         }
 
         [HarmonyPrefix]
@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool SaveAsLastExit_Prefix()
         {
             // Only save if in single player, since multiplayer requires to load from the Load Save Window
-            return (!SimulatedWorld.Initialized && !SimulatedWorld.ExitingMultiplayerSession);
+            return (!Multiplayer.IsActive && !Multiplayer.IsLeavingGame);
         }
     }
 }

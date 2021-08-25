@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                SimulatedWorld.UpdateRemotePlayerWarpState(packet);
+                Multiplayer.Session.World.UpdateRemotePlayerWarpState(packet);
             }
         }
     }

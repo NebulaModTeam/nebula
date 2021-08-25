@@ -5,8 +5,6 @@ using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Session;
 using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
-using NebulaWorld.Player;
-using NebulaWorld.Statistics;
 using System.Collections.Generic;
 using System.Threading;
 using Config = NebulaModel.Config;
@@ -247,16 +245,16 @@ namespace NebulaNetwork
                 if (connectedPlayers.TryGetValue(conn, out Player player))
                 {
                     SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
-                    SimulatedWorld.DestroyRemotePlayerModel(player.Id);
+                    Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
                     connectedPlayers.Remove(conn);
                     using (threadSafe.availablePlayerIds.GetLocked(out var availablePlayerIds))
                     {
                         availablePlayerIds.Enqueue(player.Id);
                     }
-                    StatisticsManager.UnRegisterPlayer(player.Id);
+                    Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
 
                     //Notify players about queued building plans for drones
-                    int[] DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
+                    int[] DronePlans = Multiplayer.Session.Drones.GetPlayerDronePlans(player.Id);
                     if (DronePlans != null && DronePlans.Length > 0 && player.Data.LocalPlanetId > 0)
                     {
                         LocalPlayer.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);

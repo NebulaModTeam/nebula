@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
+using NebulaWorld;
 using NebulaWorld.Universe;
 
 namespace NebulaNetwork.PacketProcessors.Universe
@@ -30,7 +31,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (valid)
             {
-                using (DysonSphereManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
                 {
                     DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
                     if (dsl != null)

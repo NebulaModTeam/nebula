@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld;
 using NebulaWorld.Logistics;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
@@ -42,12 +43,12 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     playerManager.SendPacketToStar(packet, pData.star.id);
                 }
 
-                ILSShipManager.UpdateSlotData(packet);
+                Multiplayer.Session.Ships.UpdateSlotData(packet);
             }
 
             if (IsClient)
             {
-                ILSShipManager.UpdateSlotData(packet);
+                Multiplayer.Session.Ships.UpdateSlotData(packet);
             }
         }
     }

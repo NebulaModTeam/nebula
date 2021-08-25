@@ -2,7 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
-using NebulaWorld.Universe;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -30,7 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (valid)
             {
-                using (DysonSphereManager.IncomingDysonSwarmPacket.On())
+                using (Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket.On())
                 {
                     GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.RemoveOrbit(packet.OrbitId);
                 }

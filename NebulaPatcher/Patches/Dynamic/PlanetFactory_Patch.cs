@@ -17,13 +17,13 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.AddPrebuildData))]
         public static void AddPrebuildData_Postfix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
                 return;
 
             // If the host game called the method, we need to compute the PrebuildId ourself
             if (LocalPlayer.IsMasterClient)
             {
-                FactoryManager.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.PlayerId);
+                Multiplayer.Session.Factories.SetPrebuildRequest(__instance.planetId, __result, LocalPlayer.PlayerId);
             }
         }
 
@@ -31,12 +31,12 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.BuildFinally))]
         public static bool BuildFinally_Prefix(PlanetFactory __instance, Player player, int prebuildId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
                 return true;
 
             if (LocalPlayer.IsMasterClient)
             {
-                if (!FactoryManager.ContainsPrebuildRequest(__instance.planetId, prebuildId))
+                if (!Multiplayer.Session.Factories.ContainsPrebuildRequest(__instance.planetId, prebuildId))
                 {
                     // This prevents duplicating the entity when multiple players trigger the BuildFinally for the same entity at the same time.
                     // If it occurs in any other circumstances, it means that we have some desynchronization between clients and host prebuilds buffers.
@@ -45,42 +45,42 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
 
                 // Remove the prebuild request from the list since we will now convert it to a real building
-                FactoryManager.RemovePrebuildRequest(__instance.planetId, prebuildId);
+                Multiplayer.Session.Factories.RemovePrebuildRequest(__instance.planetId, prebuildId);
             }
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
+            if (LocalPlayer.IsMasterClient || !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor));
             }
 
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.IsIncomingRequest && !DroneManager.IsPendingBuildRequest(-prebuildId))
+            if (!LocalPlayer.IsMasterClient && !Multiplayer.Session.Factories.IsIncomingRequest && !Multiplayer.Session.Drones.IsPendingBuildRequest(-prebuildId))
             {
-                DroneManager.AddBuildRequestSent(-prebuildId);
+                Multiplayer.Session.Drones.AddBuildRequestSent(-prebuildId);
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
+            return LocalPlayer.IsMasterClient || Multiplayer.Session.Factories.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch("UpgradeFinally")]
         public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
                 return true;
 
-            if (LocalPlayer.IsMasterClient || !FactoryManager.IsIncomingRequest)
+            if (LocalPlayer.IsMasterClient || !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, FactoryManager.PacketAuthor == -1 ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor));
+                LocalPlayer.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor));
             }
 
-            return LocalPlayer.IsMasterClient || FactoryManager.IsIncomingRequest;
+            return LocalPlayer.IsMasterClient || Multiplayer.Session.Factories.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetFactory.GameTick))]
         public static bool InternalUpdate_Prefix()
         {
-            StorageManager.IsHumanInput = false;
+            Multiplayer.Session.Storage.IsHumanInput = false;
             return true;
         }
 
@@ -88,14 +88,14 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.GameTick))]
         public static void InternalUpdate_Postfix()
         {
-            StorageManager.IsHumanInput = true;
+            Multiplayer.Session.Storage.IsHumanInput = true;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetFactory.PasteBuildingSetting))]
         public static void PasteBuildingSetting_Prefix(PlanetFactory __instance, int objectId)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.IsIncomingRequest)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest)
             {
                 LocalPlayer.SendPacketToLocalStar(new PasteBuildingSettingUpdate(objectId, BuildingParameters.clipboard, GameMain.localPlanet?.id ?? -1));
             }
@@ -105,7 +105,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
         public static void FlattenTerrainReform_Prefix(PlanetFactory __instance, Vector3 center, float radius, int reformSize, bool veinBuried, float fade0)
         {
-            if (SimulatedWorld.Initialized && !FactoryManager.IsIncomingRequest)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest)
             {
                 LocalPlayer.SendPacketToLocalStar(new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
             }
@@ -115,7 +115,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.RemoveVegeWithComponents))]
         public static void RemoveVegeWithComponents_Postfix(PlanetFactory __instance, int id)
         {
-            if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
             {
                 LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
             }
@@ -125,7 +125,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.RemoveVeinWithComponents))]
         public static void RemoveVeinWithComponents_Postfix(PlanetFactory __instance, int id)
         {
-            if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
             {
                 if (LocalPlayer.IsMasterClient)
                 {

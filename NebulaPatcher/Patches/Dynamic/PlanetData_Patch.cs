@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnloadMeshes_Prefix(PlanetData __instance)
         {
             //Host should not unload planet meshes, since he need to permorm all terrain operations
-            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient)
             {
                 //Do not unload meshes, just hide them so it is not visible
                 UnloadVisuals(__instance);
@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnloadData_Prefix()
         {
             //Host should not unload planet data, since he need to permorm all operations from users
-            if (SimulatedWorld.Initialized && LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && LocalPlayer.IsMasterClient)
             {
                 return false;
             }

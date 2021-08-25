@@ -1,14 +1,23 @@
 ﻿using NebulaModel.DataStructures;
+using System;
 
 namespace NebulaWorld.Trash
 {
-    public static class TrashManager
+    public class TrashManager : IDisposable
     {
-        public static readonly ToggleSwitch NewTrashFromOtherPlayers = new ToggleSwitch();
-        public static readonly ToggleSwitch RemoveTrashFromOtherPlayers = new ToggleSwitch();
-        public static readonly ToggleSwitch ClearAllTrashFromOtherPlayers = new ToggleSwitch();
+        public readonly ToggleSwitch NewTrashFromOtherPlayers = new ToggleSwitch();
+        public readonly ToggleSwitch RemoveTrashFromOtherPlayers = new ToggleSwitch();
+        public readonly ToggleSwitch ClearAllTrashFromOtherPlayers = new ToggleSwitch();
 
-        public static void SwitchTrashWithIds(int itemId1, int itemId2)
+        public TrashManager()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void SwitchTrashWithIds(int itemId1, int itemId2)
         {
             TrashContainer container = GameMain.data.trashSystem.container;
             TrashObject to = container.trashObjPool[itemId1];

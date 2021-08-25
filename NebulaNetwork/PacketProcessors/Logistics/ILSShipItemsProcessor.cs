@@ -28,7 +28,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
-                SimulatedWorld.OnILSShipItemsUpdate(packet);
+                // TODO: Aren't we missing a using (incoming.On()) here ?
+                Multiplayer.Session.Ships.AddTakeItem(packet);
             }
         }
     }

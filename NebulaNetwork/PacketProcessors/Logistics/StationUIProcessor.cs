@@ -3,7 +3,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 using System.Collections.Generic;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
@@ -22,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             if (IsHost)
             {
                 // if a user adds/removes a ship, drone or warper or changes max power input broadcast to everyone.
-                if (StationUIManager.UpdateCooldown == 0 &&
+                if (Multiplayer.Session.StationsUI.UpdateCooldown == 0 &&
                     (packet.SettingIndex == StationUI.EUISettings.MaxChargePower
                      || packet.SettingIndex == StationUI.EUISettings.SetDroneCount
                      || packet.SettingIndex == StationUI.EUISettings.SetShipCount
@@ -49,9 +48,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         playerManager.SendPacketToPlanet(packet, player.Data.LocalPlanetId);
                     }
                 }
-                else if (StationUIManager.UpdateCooldown == 0 || !packet.IsStorageUI)
+                else if (Multiplayer.Session.StationsUI.UpdateCooldown == 0 || !packet.IsStorageUI)
                 {
-                    List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(packet.PlanetId, packet.StationId, packet.StationGId);
+                    List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(packet.PlanetId, packet.StationId, packet.StationGId);
 
                     for (int i = 0; i < subscribers.Count; i++)
                     {
@@ -68,12 +67,13 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 }
                 // always update values for host, but he does not need to rely on the mimic flag (infact its bad for him)
                 packet.ShouldMimic = false;
-                SimulatedWorld.OnStationUIChange(packet);
+
+                Multiplayer.Session.StationsUI.UpdateUI(packet);
             }
 
             if (IsClient)
             {
-                SimulatedWorld.OnStationUIChange(packet);
+                Multiplayer.Session.StationsUI.UpdateUI(packet);
             }
         }
     }

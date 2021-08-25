@@ -2,7 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
-using NebulaWorld.Statistics;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Statistics
 {
@@ -25,17 +25,17 @@ namespace NebulaNetwork.PacketProcessors.Statistics
             {
                 if (packet.Event == StatisticEvent.WindowOpened)
                 {
-                    StatisticsManager.Instance.RegisterPlayer(conn, player.Id);
+                    Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
 
                     using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
                     {
-                        StatisticsManager.ExportAllData(writer.BinaryWriter);
+                        Multiplayer.Session.Statistics.ExportAllData(writer.BinaryWriter);
                         conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
                     }
                 }
                 else if (packet.Event == StatisticEvent.WindowClosed)
                 {
-                    StatisticsManager.UnRegisterPlayer(player.Id);
+                    Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
                 }
             }
         }

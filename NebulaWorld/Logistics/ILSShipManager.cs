@@ -8,33 +8,37 @@ using NebulaModel.Logger;
 
 namespace NebulaWorld.Logistics
 {
-    public static class ILSShipManager
+    public class ILSShipManager
     {
-        private static AccessTools.FieldRef<object, int> FR_stationId;
-        private static AccessTools.FieldRef<object, UIStationStorage[]> FR_storageUIs;
-        private static MethodInfo MI_RefreshValues = null;
-
-        public static readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
+        private AccessTools.FieldRef<object, int> FR_stationId;
+        private AccessTools.FieldRef<object, UIStationStorage[]> FR_storageUIs;
+        private MethodInfo MI_RefreshValues = null;
 
         // the following 4 are needed to prevent a packet flood when the filter on a belt connected to a PLS/ILS is set.
-        public static int ItemSlotLastSelectedIndex = 0;
-        public static int ItemSlotLastSlotId = 0;
-        public static int ItemSlotStationId = 0;
-        public static int ItemSlotStationGId = 0;
+        public int ItemSlotLastSelectedIndex = 0;
+        public int ItemSlotLastSlotId = 0;
+        public int ItemSlotStationId = 0;
+        public int ItemSlotStationGId = 0;
 
-        public const int ILSMaxShipCount = 10;
+        public readonly int ILSMaxShipCount = 10;
+        public readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
 
-        public static void Initialize()
+        public ILSShipManager()
         {
             FR_stationId = AccessTools.FieldRefAccess<int>(typeof(UIStationWindow), "_stationId");
             FR_storageUIs = AccessTools.FieldRefAccess<UIStationStorage[]>(typeof(UIStationWindow), "storageUIs");
             MI_RefreshValues = AccessTools.Method(typeof(UIStationStorage), "RefreshValues");
         }
+
+        public void Dispose()
+        {
+        }
+
         /*
          * When the host notifies the client that a ship started its travel client needs to check if he got both ILS in his gStationPool
          * if not we create a fake entry (which gets updated to the full one when client arrives that planet) and also request the stations dock position
          */
-        public static void IdleShipGetToWork(ILSShipData packet)
+        public void IdleShipGetToWork(ILSShipData packet)
         {
             PlanetData planetA = GameMain.galaxy.PlanetById(packet.planetA);
             PlanetData planetB = GameMain.galaxy.PlanetById(packet.planetB);
@@ -111,9 +115,9 @@ namespace NebulaWorld.Logistics
         /*
          * this is also triggered by server and called once a ship lands back to the dock station
          */
-        public static void WorkShipBackToIdle(ILSShipData packet)
+        public void WorkShipBackToIdle(ILSShipData packet)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if(!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
             {
                 return;
             }
@@ -151,7 +155,7 @@ namespace NebulaWorld.Logistics
          * The information is needed in StationComponent.InternalTickRemote(), but we use a reverse patched version of that
          * which is stripped down to the ship movement and rendering part.
          */
-        public static void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
+        public void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
         {
             // it may be needed to make additional room for the new ILS
             while(GameMain.data.galacticTransport.stationCapacity <= GId)
@@ -199,7 +203,7 @@ namespace NebulaWorld.Logistics
         /*
          * As StationComponent.InternalTickRemote() neds to have the dock position to correctly compute ship movement we request it here from server.
          */
-        private static void RequestgStationDockPos(int GId)
+        private void RequestgStationDockPos(int GId)
         {
             LocalPlayer.SendPacket(new ILSRequestShipDock(GId));
         }
@@ -207,9 +211,9 @@ namespace NebulaWorld.Logistics
         /*
          * Update the items that are currently in transfer by ships
          */
-        public static void UpdateRemoteOrder(ILSRemoteOrderData packet)
+        public void UpdateRemoteOrder(ILSRemoteOrderData packet)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
             {
                 return;
             }
@@ -232,9 +236,9 @@ namespace NebulaWorld.Logistics
          * This is triggered by server and either adds or removes items to an ILS caused by a ship transport.
          * Also update the remoteOrder value to reflect the changes
          */
-        public static void AddTakeItem(ILSShipItems packet)
+        public void AddTakeItem(ILSShipItems packet)
         {
-            if(!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
+            if(!Multiplayer.IsActive || LocalPlayer.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
             {
                 return;
             }
@@ -268,7 +272,7 @@ namespace NebulaWorld.Logistics
         /*
          * call UIStationStorage.RefreshValues() on the current opened stations UI
          */
-        private static void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
+        private void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
             if (stationWindow != null && FR_stationId(stationWindow) == stationComponent.id)
@@ -281,7 +285,7 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        public static void UpdateSlotData(ILSUpdateSlotData packet)
+        public void UpdateSlotData(ILSUpdateSlotData packet)
         {
             Log.Info($"Updating slot data for planet {packet.PlanetId}, station {packet.StationId} gid {packet.StationGId}. Index {packet.Index}, storageIdx {packet.StorageIdx}");
             

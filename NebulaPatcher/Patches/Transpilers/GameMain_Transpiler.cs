@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         //Ignore Pausing in the multiplayer:
         //Change:  if (!this._paused)
-        //To:      if (!this._paused || SimulatedWorld.Initialized)
+        //To:      if (!this._paused || Multiplayer.IsActive)
 
         [HarmonyTranspiler]
         [HarmonyPatch("FixedUpdate")]

@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.Session
     {
         public override void ProcessPacket(PlayerDisconnected packet, NebulaConnection conn)
         {
-            SimulatedWorld.DestroyRemotePlayerModel(packet.PlayerId);
+            Multiplayer.Session.World.DestroyRemotePlayerModel(packet.PlayerId);
         }
     }
 }

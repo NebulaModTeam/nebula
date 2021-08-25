@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
         public static bool CreatePrebuilds_Prefix(BuildTool __instance)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
                 return true;
 
 
@@ -31,14 +31,14 @@ namespace NebulaPatcher.Patches.Dynamic
             // Host will just broadcast event to other players
             if (LocalPlayer.IsMasterClient)
             {
-                int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
-                LocalPlayer.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
+                int planetId = Multiplayer.Session.Factories.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
+                LocalPlayer.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
             }
 
             //If client builds, he need to first send request to the host and wait for reply
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.IsIncomingRequest)
+            if (!LocalPlayer.IsMasterClient && !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()));
+                LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()));
                 return false;
             }
             return true;
@@ -51,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
         public static bool CheckBuildConditions(ref bool __result)
         {
-            if (FactoryManager.IsIncomingRequest)
+            if (Multiplayer.Session.Factories.IsIncomingRequest)
             {
                 __result = true;
                 return false;

@@ -17,10 +17,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemIconMouseDown")]
         public static bool OnItemIconMouseDown_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
-            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUIManager.LastMouseEvent = evt;
-                StationUIManager.LastMouseEventWasDown = true;
+                Multiplayer.Session.StationsUI.LastMouseEvent = evt;
+                Multiplayer.Session.StationsUI.LastMouseEventWasDown = true;
                 StationUI packet;
                 if (LocalPlayer.IsMasterClient)
                 {
@@ -59,10 +59,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch("OnItemIconMouseUp")]
         public static bool OnItemIconMouseUp_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
-            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUIManager.LastMouseEvent = evt;
-                StationUIManager.LastMouseEventWasDown = false;
+                Multiplayer.Session.StationsUI.LastMouseEvent = evt;
+                Multiplayer.Session.StationsUI.LastMouseEventWasDown = false;
                 StationUI packet;
                 if (LocalPlayer.IsMasterClient)
                 {

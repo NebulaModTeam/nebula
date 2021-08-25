@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GalacticTransport.SetForNewGame))]
         public static void SetForNewGame_Postfix()
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient)
+            if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient)
             {
                 LocalPlayer.SendPacket(new ILSRequestgStationPoolSync());
             }
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GalacticTransport.RemoveStationComponent))]
         public static bool RemoveStationComponent_Prefix(GalacticTransport __instance, int gid)
         {
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS;
+            return !Multiplayer.IsActive || LocalPlayer.IsMasterClient || Multiplayer.Session.Ships.PatchLockILS;
         }
     }
 }

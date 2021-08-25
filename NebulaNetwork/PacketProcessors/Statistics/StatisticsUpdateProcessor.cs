@@ -3,6 +3,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
+using NebulaWorld;
 using NebulaWorld.Statistics;
 
 namespace NebulaNetwork.PacketProcessors.Statistics
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
         public override void ProcessPacket(StatisticUpdateDataPacket packet, NebulaConnection conn)
         {
             StatisticalSnapShot snapshot;
-            using (StatisticsManager.IsIncomingRequest.On())
+            using (Multiplayer.Session.Statistics.IsIncomingRequest.On())
             {
                 using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.StatisticsBinaryData))
                 {
@@ -54,7 +55,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
                             productionStats[factoryId].powerDisRegister = snapshot.PowerDischargingRegister[factoryId];
 
                             //Import fake energy stored values
-                            StatisticsManager.PowerEnergyStoredData = snapshot.EnergyStored;
+                            Multiplayer.Session.Statistics.PowerEnergyStoredData = snapshot.EnergyStored;
 
                             //Import Research statistics
                             productionStats[factoryId].hashRegister = snapshot.HashRegister[factoryId];

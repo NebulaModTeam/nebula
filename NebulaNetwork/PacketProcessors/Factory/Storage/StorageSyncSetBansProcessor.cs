@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
+using NebulaWorld;
 using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
@@ -20,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
 
             if (storage != null)
             {
-                using (StorageManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Storage.IsIncomingRequest.On())
                 {
                     storage.SetBans(packet.Bans);
                 }

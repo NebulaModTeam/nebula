@@ -34,7 +34,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (valid)
             {
-                using (FactoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
                     if (packet.StarId != FactoryManager.STAR_NONE)
                     {
