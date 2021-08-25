@@ -1,9 +1,9 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 
-namespace NebulaNetwork
+namespace NebulaModel
 {
-    public class Player
+    public class NebulaPlayer
     {
         public NebulaConnection Connection { get; private set; }
         public PlayerData Data { get; private set; }
@@ -11,7 +11,7 @@ namespace NebulaNetwork
         public int CurrentResearchId { get; private set; }
         public long TechProgressContributed { get; private set; }
 
-        public Player(NebulaConnection connection, PlayerData data)
+        public NebulaPlayer(NebulaConnection connection, PlayerData data)
         {
             Connection = connection;
             Data = data;

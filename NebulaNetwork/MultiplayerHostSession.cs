@@ -15,6 +15,7 @@ using Config = NebulaModel.Config;
 
 namespace NebulaNetwork
 {
+    /*
     public class MultiplayerHostSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerHostSession Instance { get; protected set; }
@@ -205,4 +206,5 @@ namespace NebulaNetwork
             }
         }
     }
+    */
 }

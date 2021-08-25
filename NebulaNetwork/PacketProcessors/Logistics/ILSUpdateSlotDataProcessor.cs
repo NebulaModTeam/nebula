@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -10,10 +11,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class ILSUpdateSlotDataProcessor : PacketProcessor<ILSUpdateSlotData>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
         public ILSUpdateSlotDataProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(ILSUpdateSlotData packet, NebulaConnection conn)

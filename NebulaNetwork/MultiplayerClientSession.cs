@@ -18,6 +18,7 @@ using WebSocketSharp;
 
 namespace NebulaNetwork
 {
+    /*
     public class MultiplayerClientSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerClientSession Instance { get; protected set; }
@@ -29,7 +30,6 @@ namespace NebulaNetwork
 
         private float pingTimer = 0f;
         private float pingTimestamp = 0f;
-        private Text pingIndicator;
         private int previousDelay = 0;
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
@@ -90,30 +90,6 @@ namespace NebulaNetwork
             }
         }
 
-        public void DisplayPingIndicator()
-        {
-            GameObject previousObject = GameObject.Find("Ping Indicator");
-            if (previousObject == null)
-            {
-                GameObject targetObject = GameObject.Find("label");
-                pingIndicator = GameObject.Instantiate(targetObject, UIRoot.instance.uiGame.gameObject.transform).GetComponent<Text>();
-                pingIndicator.gameObject.name = "Ping Indicator";
-                pingIndicator.alignment = TextAnchor.UpperLeft;
-                pingIndicator.enabled = true;
-                RectTransform rect = pingIndicator.GetComponent<RectTransform>();
-                rect.anchorMin = new Vector2(0f, 1f);
-                rect.offsetMax = new Vector2(-68f, -40f);
-                rect.offsetMin = new Vector2(10f, -100f);
-                pingIndicator.text = "";
-                pingIndicator.fontSize = 14;
-            }
-            else
-            {
-                pingIndicator = previousObject.GetComponent<Text>();
-                pingIndicator.enabled = true;
-            }
-        }
-
         void Disconnect()
         {
             IsConnected = false;
@@ -168,7 +144,7 @@ namespace NebulaNetwork
             int newDelay = (int)((Time.time - pingTimestamp) * 1000);
             if (newDelay != previousDelay)
             {
-                pingIndicator.text = $"Ping: {newDelay}ms";
+                Multiplayer.Session.World.UpdatePingIndicator($"Ping: {newDelay}ms");
                 previousDelay = newDelay;
             }
         }
@@ -286,4 +262,5 @@ namespace NebulaNetwork
             }
         }
     }
+    */
 }

@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -9,11 +10,11 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     class DysonSphereAddFrameProcessor : PacketProcessor<DysonSphereAddFramePacket>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public DysonSphereAddFrameProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(DysonSphereAddFramePacket packet, NebulaConnection conn)
@@ -22,7 +23,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);

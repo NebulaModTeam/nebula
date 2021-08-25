@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -11,11 +12,11 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
     [RegisterPacketProcessor]
     class GameHistoryRemoveTechProcessor : PacketProcessor<GameHistoryRemoveTechPacket>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public GameHistoryRemoveTechProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
@@ -23,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 else

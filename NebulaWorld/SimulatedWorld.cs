@@ -24,6 +24,8 @@ namespace NebulaWorld
 
         private readonly ThreadSafe threadSafe = new ThreadSafe();
 
+        private Text pingIndicator;
+
         public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
             threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);
 
@@ -479,6 +481,46 @@ namespace NebulaWorld
                         nameTextMesh.fontSize = 36;
                     }
                 }
+            }
+        }
+
+        public void DisplayPingIndicator()
+        {
+            GameObject previousObject = GameObject.Find("Ping Indicator");
+            if (previousObject == null)
+            {
+                GameObject targetObject = GameObject.Find("label");
+                pingIndicator = GameObject.Instantiate(targetObject, UIRoot.instance.uiGame.gameObject.transform).GetComponent<Text>();
+                pingIndicator.gameObject.name = "Ping Indicator";
+                pingIndicator.alignment = TextAnchor.UpperLeft;
+                pingIndicator.enabled = true;
+                RectTransform rect = pingIndicator.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0f, 1f);
+                rect.offsetMax = new Vector2(-68f, -40f);
+                rect.offsetMin = new Vector2(10f, -100f);
+                pingIndicator.text = "";
+                pingIndicator.fontSize = 14;
+            }
+            else
+            {
+                pingIndicator = previousObject.GetComponent<Text>();
+                pingIndicator.enabled = true;
+            }
+        }
+
+        public void HidePingIndicator()
+        {
+            if (pingIndicator != null)
+            {
+                pingIndicator.enabled = false;
+            }
+        }
+
+        public void UpdatePingIndicator(string text)
+        {
+            if (pingIndicator != null)
+            {
+                pingIndicator.text = text;
             }
         }
     }

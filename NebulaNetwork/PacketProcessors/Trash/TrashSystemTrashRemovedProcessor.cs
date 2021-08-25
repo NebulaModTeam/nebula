@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
@@ -10,11 +11,11 @@ namespace NebulaNetwork.PacketProcessors.Trash
     [RegisterPacketProcessor]
     class TrashSystemTrashRemovedProcessor : PacketProcessor<TrashSystemTrashRemovedPacket>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public TrashSystemTrashRemovedProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(TrashSystemTrashRemovedPacket packet, NebulaConnection conn)
@@ -23,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
 
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);

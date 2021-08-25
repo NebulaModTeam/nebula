@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using NebulaWorld;
+using UnityEngine;
 
 namespace NebulaPatcher.MonoBehaviours
 {
@@ -13,6 +14,14 @@ namespace NebulaPatcher.MonoBehaviours
 
             // This makes sure that even if the game is minimized, it will still receive and send packets
             Application.runInBackground = true;
+        }
+
+        private void Update()
+        {
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.NetProvider.OnUpdate();
+            }
         }
     }
 }

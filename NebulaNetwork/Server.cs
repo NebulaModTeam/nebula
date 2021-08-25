@@ -1,10 +1,14 @@
 ﻿using HarmonyLib;
 using NebulaModel;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
+using NebulaModel.Packets.GameHistory;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Net.Sockets;
+using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -12,6 +16,14 @@ namespace NebulaNetwork
 {
     public class Server : NetworkProvider
     {
+        const float GAME_STATE_UPDATE_INTERVAL = 1;
+        const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
+        const float STATISTICS_UPDATE_INTERVAL = 1;
+
+        private float gameStateUpdateTimer = 0;
+        private float gameResearchHashUpdateTimer = 0;
+        private float productionStatisticsUpdateTimer = 0;
+
         private WebSocketServer socket;
 
         public PlayerManager PlayerManager { get; protected set; }
@@ -19,7 +31,7 @@ namespace NebulaNetwork
         private readonly int port;
         private readonly bool loadSaveFile;
 
-        public Server(int port, bool loadSaveFile = false)
+        public Server(int port, bool loadSaveFile = false) : base(new PlayerManager())
         {
             this.port = port;
             this.loadSaveFile = loadSaveFile;
@@ -33,9 +45,23 @@ namespace NebulaNetwork
 
         public override void Start()
         {
+            PlayerManager = new PlayerManager();
+            if (loadSaveFile)
+            {
+                SaveManager.LoadServerData();
+            }
+
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socket);
             socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
+
+            LocalPlayer.IsMasterClient = true;
+            // TODO: Load saved player info here
+            LocalPlayer.SetPlayerData(new PlayerData(
+                PlayerManager.GetNextAvailablePlayerId(),
+                GameMain.localPlanet?.id ?? -1,
+                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName));
         }
 
         public override void Stop()
@@ -76,6 +102,37 @@ namespace NebulaNetwork
         public override void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude)
         {
             PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
+        }
+
+        public override void OnUpdate()
+        {
+            gameStateUpdateTimer += Time.deltaTime;
+            gameResearchHashUpdateTimer += Time.deltaTime;
+            productionStatisticsUpdateTimer += Time.deltaTime;
+
+            if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
+            {
+                gameStateUpdateTimer = 0;
+                SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
+            }
+
+            if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
+            {
+                gameResearchHashUpdateTimer = 0;
+                if (GameMain.data.history.currentTech != 0)
+                {
+                    TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
+                    SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
+                }
+            }
+
+            if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
+            {
+                productionStatisticsUpdateTimer = 0;
+                Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
+            }
+
+            PacketProcessor.ProcessPacketQueue();
         }
 
         void DisableNagleAlgorithm(WebSocketServer socketServer)

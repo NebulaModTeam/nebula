@@ -3,28 +3,36 @@ using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 using WebSocketSharp;
+using UnityEngine.UI;
 
 namespace NebulaNetwork
 {
     public class Client : NetworkProvider
     {
+        private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
+
         private readonly IPEndPoint serverEndpoint;
         private WebSocket clientSocket;
         private NebulaConnection serverConnection;
+
+        private float mechaSynchonizationTimer = 0f;
+        private float pingTimer = 0f;
 
         public Client(string url, int port)
             : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port))
         {
         }
 
-        public Client(IPEndPoint endpoint)
+        public Client(IPEndPoint endpoint) : base(null)
         {
             serverEndpoint = endpoint;
 
@@ -41,6 +49,15 @@ namespace NebulaNetwork
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
+
+            LocalPlayer.IsMasterClient = false;
+
+            if (Config.Options.RememberLastIP)
+            {
+                // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
+                Config.Options.LastIP = serverEndpoint.ToString();
+                Config.SaveOptions();
+            }
         }
 
         public override void Stop()
@@ -51,6 +68,7 @@ namespace NebulaNetwork
         public override void Dispose()
         {
             Stop();
+            Multiplayer.Session.World.HidePingIndicator();
         }
 
         public override void SendPacket<T>(T packet)
@@ -86,6 +104,28 @@ namespace NebulaNetwork
             throw new System.NotImplementedException();
         }
 
+        public override void OnUpdate()
+        {
+            PacketProcessor.ProcessPacketQueue();
+
+            if (Multiplayer.Session.IsGameLoaded)
+            {
+                mechaSynchonizationTimer += Time.deltaTime;
+                if (mechaSynchonizationTimer > MECHA_SYNCHONIZATION_INTERVAL)
+                {
+                    SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+                    mechaSynchonizationTimer = 0f;
+                }
+
+                pingTimer += Time.deltaTime;
+                if (pingTimer >= 1f)
+                {
+                    SendPacket(new PingPacket());
+                    pingTimer = 0f;
+                }
+            }
+        }
+
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
             PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
@@ -111,7 +151,7 @@ namespace NebulaNetwork
         {
             serverConnection = null;
         }
-
+        
         static void DisableNagleAlgorithm(WebSocket socket)
         {
             var tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);

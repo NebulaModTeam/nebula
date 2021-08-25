@@ -13,18 +13,18 @@ namespace NebulaNetwork.PacketProcessors.Session
     [RegisterPacketProcessor]
     public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public HandshakeRequestProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
         {
             if (IsClient) return;
 
-            Player player;
+            NebulaPlayer player;
             using (playerManager.GetPendingPlayers(out var pendingPlayers))
             {
                 if (!pendingPlayers.TryGetValue(conn, out player))

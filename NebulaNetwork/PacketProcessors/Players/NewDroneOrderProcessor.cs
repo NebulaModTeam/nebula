@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -9,11 +10,11 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public NewDroneOrderProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
@@ -24,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 if (GameMain.mainPlayer.planetId != packet.PlanetId)
                     return;
 
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     if (packet.Stage == 1 || packet.Stage == 2)

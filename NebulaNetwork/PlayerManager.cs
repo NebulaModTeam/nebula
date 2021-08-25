@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaModel;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
@@ -11,13 +12,13 @@ using Config = NebulaModel.Config;
 
 namespace NebulaNetwork
 {
-    public class PlayerManager
+    public class PlayerManager : IPlayerManager
     {
         sealed class ThreadSafe
         {
-            internal readonly Dictionary<NebulaConnection, Player> pendingPlayers = new Dictionary<NebulaConnection, Player>();
-            internal readonly Dictionary<NebulaConnection, Player> syncingPlayers = new Dictionary<NebulaConnection, Player>();
-            internal readonly Dictionary<NebulaConnection, Player> connectedPlayers = new Dictionary<NebulaConnection, Player>();
+            internal readonly Dictionary<NebulaConnection, NebulaPlayer> pendingPlayers = new Dictionary<NebulaConnection, NebulaPlayer>();
+            internal readonly Dictionary<NebulaConnection, NebulaPlayer> syncingPlayers = new Dictionary<NebulaConnection, NebulaPlayer>();
+            internal readonly Dictionary<NebulaConnection, NebulaPlayer> connectedPlayers = new Dictionary<NebulaConnection, NebulaPlayer>();
             internal readonly Dictionary<string, PlayerData> savedPlayerData = new Dictionary<string, PlayerData>();
             internal readonly Queue<ushort> availablePlayerIds = new Queue<ushort>();
         }
@@ -25,13 +26,13 @@ namespace NebulaNetwork
         private readonly ThreadSafe threadSafe = new ThreadSafe();
         private int highestPlayerID = 0;
 
-        public Locker GetPendingPlayers(out Dictionary<NebulaConnection, Player> pendingPlayers) =>
+        public Locker GetPendingPlayers(out Dictionary<NebulaConnection, NebulaPlayer> pendingPlayers) =>
             threadSafe.pendingPlayers.GetLocked(out pendingPlayers);
 
-        public Locker GetSyncingPlayers(out Dictionary<NebulaConnection, Player> syncingPlayers) =>
+        public Locker GetSyncingPlayers(out Dictionary<NebulaConnection, NebulaPlayer> syncingPlayers) =>
             threadSafe.syncingPlayers.GetLocked(out syncingPlayers);
 
-        public Locker GetConnectedPlayers(out Dictionary<NebulaConnection, Player> connectedPlayers) =>
+        public Locker GetConnectedPlayers(out Dictionary<NebulaConnection, NebulaPlayer> connectedPlayers) =>
             threadSafe.connectedPlayers.GetLocked(out connectedPlayers);
 
         public Locker GetSavedPlayerData(out Dictionary<string, PlayerData> savedPlayerData) =>
@@ -53,11 +54,11 @@ namespace NebulaNetwork
             }
         }
 
-        public Player GetPlayer(NebulaConnection conn)
+        public NebulaPlayer GetPlayer(NebulaConnection conn)
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
-                if (connectedPlayers.TryGetValue(conn, out Player player))
+                if (connectedPlayers.TryGetValue(conn, out NebulaPlayer player))
                 {
                     return player;
                 }
@@ -66,11 +67,11 @@ namespace NebulaNetwork
             return null;
         }
 
-        public Player GetSyncingPlayer(NebulaConnection conn)
+        public NebulaPlayer GetSyncingPlayer(NebulaConnection conn)
         {
             using (GetSyncingPlayers(out var syncingPlayers))
             {
-                if (syncingPlayers.TryGetValue(conn, out Player player))
+                if (syncingPlayers.TryGetValue(conn, out NebulaPlayer player))
                 {
                     return player;
                 }
@@ -85,7 +86,7 @@ namespace NebulaNetwork
             {
                 foreach (var kvp in connectedPlayers)
                 {
-                    Player player = kvp.Value;
+                    NebulaPlayer player = kvp.Value;
                     player.SendPacket(packet);
                 }
             }
@@ -197,7 +198,7 @@ namespace NebulaNetwork
             }
         }
 
-        public void SendPacketToOtherPlayers<T>(T packet, Player sender) where T : class, new()
+        public void SendPacketToOtherPlayers<T>(T packet, NebulaPlayer sender) where T : class, new()
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
@@ -212,7 +213,7 @@ namespace NebulaNetwork
             }
         }
 
-        public Player PlayerConnected(NebulaConnection conn)
+        public NebulaPlayer PlayerConnected(NebulaConnection conn)
         {
             //Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
@@ -229,7 +230,7 @@ namespace NebulaNetwork
                 playerData = new PlayerData(playerId, -1, PlayerColor);
             }
 
-            Player newPlayer = new Player(conn, playerData);
+            NebulaPlayer newPlayer = new NebulaPlayer(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))
             {
                 pendingPlayers.Add(conn, newPlayer);
@@ -242,7 +243,7 @@ namespace NebulaNetwork
         {
             using (GetConnectedPlayers(out var connectedPlayers))
             {
-                if (connectedPlayers.TryGetValue(conn, out Player player))
+                if (connectedPlayers.TryGetValue(conn, out NebulaPlayer player))
                 {
                     SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
                     Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
@@ -296,7 +297,7 @@ namespace NebulaNetwork
             }
             using (GetConnectedPlayers(out var connectedPlayers))
             {
-                if (connectedPlayers.TryGetValue(conn, out Player player))
+                if (connectedPlayers.TryGetValue(conn, out NebulaPlayer player))
                 {
                     //Find correct player for data to update
                     player.Data.Mecha = mechaData;
@@ -311,7 +312,7 @@ namespace NebulaNetwork
             {
                 foreach (var kvp in connectedPlayers)
                 {
-                    Player curPlayer = kvp.Value;
+                    NebulaPlayer curPlayer = kvp.Value;
                     long techProgress = curPlayer.ReleaseResearchProgress();
 
                     if (techProgress > 0)

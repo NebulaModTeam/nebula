@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -12,18 +13,18 @@ namespace NebulaNetwork.PacketProcessors.Session
     [RegisterPacketProcessor]
     public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public SyncCompleteProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                Player player = playerManager.GetSyncingPlayer(conn);
+                NebulaPlayer player = playerManager.GetSyncingPlayer(conn);
                 if (player == null)
                 {
                     Log.Warn("Received a SyncComplete packet, but no player is joining.");

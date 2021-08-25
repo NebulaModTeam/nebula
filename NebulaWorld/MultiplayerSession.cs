@@ -122,8 +122,7 @@ namespace NebulaWorld
                 LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
 
                 // Enable Ping Indicator for Clients
-                // TODO: HG FIX
-                // MultiplayerClientSession.Instance.DisplayPingIndicator();
+                World.DisplayPingIndicator();
             }
 
             //Initialization on the host side after game is loaded

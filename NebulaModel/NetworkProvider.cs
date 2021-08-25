@@ -8,9 +8,12 @@ namespace NebulaModel
     {
         public NetPacketProcessor PacketProcessor { get; protected set; }
 
-        protected NetworkProvider()
+        public readonly IPlayerManager PlayerManager;
+
+        protected NetworkProvider(IPlayerManager playerManager)
         {
             PacketProcessor = new NetPacketProcessor();
+            PlayerManager = playerManager;
         }
 
         public abstract void Start();
@@ -31,5 +34,7 @@ namespace NebulaModel
 
         public abstract void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude)
             where T : class, new();
+
+        public abstract void OnUpdate();
     }
 }

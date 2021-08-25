@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -10,10 +11,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class StationUIProcessor : PacketProcessor<StationUI>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
         public StationUIProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.NetProvider.PlayerManager;
         }
 
         public override void ProcessPacket(StationUI packet, NebulaConnection conn)
@@ -33,7 +34,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     {
                         foreach (var kvp in connectedPlayers)
                         {
-                            Player p = kvp.Value;
+                            NebulaPlayer p = kvp.Value;
                             packet.ShouldMimic = p.Connection == conn;
                             p.SendPacket(packet);
                         }
@@ -42,7 +43,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 else if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
                 {
                     // if someone adds or removes items by hand broadcast to every player on that planet
-                    Player player = playerManager.GetPlayer(conn);
+                    NebulaPlayer player = playerManager.GetPlayer(conn);
                     if (player != null)
                     {
                         playerManager.SendPacketToPlanet(packet, player.Data.LocalPlanetId);
