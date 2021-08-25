@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Transpiler
              * Calls
              * Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
              * After
-             * this.factorySystem.SetInserterPickTarget(inserterId, num9, num5 - num10);
+             * this.factorySystem.SetInserterPickTarget(inserterId, num6, num5 - num7);
             */
             var codeMatcher = new CodeMatcher(instructions, iLGenerator)
                                   .MatchForward(true,
