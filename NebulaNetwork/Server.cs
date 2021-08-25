@@ -7,6 +7,7 @@ using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System;
 using System.Net.Sockets;
 using UnityEngine;
 using WebSocketSharp;
@@ -52,6 +53,7 @@ namespace NebulaNetwork
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socket);
             socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
+            socket.Start();
 
             Multiplayer.Session.LocalPlayer.IsHost = true;
             // TODO: Load saved player info here

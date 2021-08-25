@@ -45,10 +45,14 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
+            Log.Warn($"ws://{serverEndpoint}/socket");
+
             clientSocket = new WebSocket($"ws://{serverEndpoint}/socket");
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
+
+            clientSocket.Connect();
 
             Multiplayer.Session.LocalPlayer.IsHost = false;
 
