@@ -22,47 +22,6 @@ namespace NebulaWorld
 
         private INetworkProvider networkProvider;
 
-        public static Type GS2_GSSettings = null;
-
-        public static void TryLoadGalacticScale2()
-        {
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
-            {
-                if (assembly.FullName.StartsWith("GalacticScale"))
-                {
-                    foreach (Type t in assembly.GetTypes())
-                    {
-                        if (t.Name == "GSSettings")
-                        {
-                            GS2_GSSettings = t;
-                        }
-                    }
-                }
-            }
-        }
-
-        public static byte[] GS2GetSettings()
-        {
-            byte[] compressedSettings = null;
-
-            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
-            {
-                writer.BinaryWriter.Write((String)GS2_GSSettings.GetMethod("Serialize").Invoke(GS2_GSSettings.GetProperty("Instance"), null));
-                compressedSettings = writer.CloseAndGetBytes();
-            }
-
-            return compressedSettings;
-        }
-
-        public static void GS2ApplySettings(byte[] compressedSettings)
-        {
-            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(compressedSettings))
-            {
-                GS2_GSSettings.GetMethod("DeSerialize").Invoke(GS2_GSSettings.GetProperty("Instance"), new object[] { reader.BinaryReader.ReadString()});
-            }
-        }
-
         public void SetNetworkProvider(INetworkProvider provider)
         {
             networkProvider = provider;

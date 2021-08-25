@@ -63,8 +63,6 @@ namespace NebulaNetwork
 
         private void ConnectInternal()
         {
-            LocalPlayer.TryLoadGalacticScale2();
-
             clientSocket = new WebSocket(socketAddress);
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
@@ -202,8 +200,7 @@ namespace NebulaNetwork
             SendPacket(new HandshakeRequest(
                 CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
-                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
-                LocalPlayer.GS2_GSSettings != null));
+                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255)));
         }
 
         static void DisableNagleAlgorithm(WebSocket socket)

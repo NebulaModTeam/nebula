@@ -10,13 +10,12 @@ namespace NebulaModel.Packets.Session
         public Float3 MechaColor { get; set; }
         public byte[] ModsVersion { get; set; }
         public int ModsCount { get; set; }
-        public bool HasGS2 { get; set; }
         public int GameVersionSig { get; set; }
         public byte[] ClientCert { get; set; }
 
         public HandshakeRequest() { }
 
-        public HandshakeRequest(byte[] clientCert, string username, Float3 mechaColor, bool hasGS2 = false)
+        public HandshakeRequest(byte[] clientCert, string username, Float3 mechaColor)
         {
             Username = username;
             MechaColor = mechaColor;
@@ -38,7 +37,6 @@ namespace NebulaModel.Packets.Session
                 ModsCount = count;
             }
 
-            HasGS2 = hasGS2;
             GameVersionSig = GameConfig.gameVersion.sig;
             ClientCert = clientCert;
         }

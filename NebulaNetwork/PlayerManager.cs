@@ -221,15 +221,8 @@ namespace NebulaNetwork
 
             Float3 PlayerColor = new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255);
             PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
-            PlayerData playerData;
-            if (LocalPlayer.GS2_GSSettings != null)
-            {
-                playerData = new PlayerData(playerId, -1, PlayerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
-            }
-            else
-            {
-                playerData = new PlayerData(playerId, -1, PlayerColor);
-            }
+            PlayerData playerData = new PlayerData(playerId, -1, PlayerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+
 
             Player newPlayer = new Player(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))
