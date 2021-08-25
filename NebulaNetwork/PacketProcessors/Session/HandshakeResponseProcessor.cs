@@ -11,12 +11,12 @@ namespace NebulaNetwork.PacketProcessors.Session
     {
         public override void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
         {
+            Multiplayer.Session.LocalPlayer.IsHost = false;
+            Multiplayer.Session.LocalPlayer.SetPlayerData(packet.LocalPlayerData);
+
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
             DSPGame.StartGameSkipPrologue(gameDesc);
-
-            Multiplayer.Session.LocalPlayer.IsHost = false;
-            Multiplayer.Session.LocalPlayer.SetPlayerData(packet.LocalPlayerData);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
         }
