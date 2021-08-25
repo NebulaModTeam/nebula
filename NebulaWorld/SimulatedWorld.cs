@@ -1,8 +1,10 @@
-﻿using HarmonyLib;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
+using NebulaWorld.MonoBehaviours;
+using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Remote;
 using System;
 using System.Collections.Generic;
@@ -40,22 +42,80 @@ namespace NebulaWorld
         {
         }
 
-        /// <summary>
-        /// Removes any simulated entities that was added to the scene for a game.
-        /// </summary>
-        public void Clear()
+        public void SetupInitialPlayerState()
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            if (!Multiplayer.Session.IsGameLoaded)
             {
-                foreach (var model in remotePlayersModels.Values)
-                {
-                    model.Destroy();
-                }
-
-                remotePlayersModels.Clear();
+                Log.Warn("Trying to setup initial player state before the game is loaded!");
+                return;
             }
 
-            IsPlayerJoining = false;
+            if (!Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
+            {
+                Log.Warn("Trying to setup initial player state before the player data was received!");
+                return;
+            }
+
+            LocalPlayer player = Multiplayer.Session.LocalPlayer;
+
+            // Assign our own color
+            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColor);
+
+            // Change player location from spawn to the last known
+            VectorLF3 uPosition = new VectorLF3(player.Data.UPosition.x, player.Data.UPosition.y, player.Data.UPosition.z);
+            if (uPosition != VectorLF3.zero)
+            {
+                GameMain.mainPlayer.planetId = player.Data.LocalPlanetId;
+                if (player.Data.LocalPlanetId == -1)
+                {
+                    GameMain.mainPlayer.uPosition = uPosition;
+                }
+                else
+                {
+                    GameMain.mainPlayer.position = player.Data.LocalPlanetPosition.ToVector3();
+                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
+                }
+                GameMain.mainPlayer.uRotation = Quaternion.Euler(player.Data.Rotation.ToVector3());
+
+                //Load player's saved data from the last session.
+                GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
+                GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
+                GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
+                GameMain.mainPlayer.mecha.reactorEnergy = player.Data.Mecha.ReactorEnergy;
+                GameMain.mainPlayer.mecha.reactorStorage = player.Data.Mecha.ReactorStorage;
+                GameMain.mainPlayer.mecha.warpStorage = player.Data.Mecha.WarpStorage;
+                GameMain.mainPlayer.SetSandCount(player.Data.Mecha.SandCount);
+
+                //Fix references that broke during import
+                GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
+                GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
+                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+            }
+
+            //Initialization on the host side after game is loaded
+            Multiplayer.Session.Factories.InitializePrebuildRequests();
+
+            if (player.IsClient)
+            {
+                // Update player's Mecha tech bonuses
+                player.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
+
+                // Enable Ping Indicator for Clients
+                DisplayPingIndicator();
+
+                // Notify the server that we are done loading the game
+                Multiplayer.Session.Network.SendPacket(new SyncComplete());
+
+                // Subscribe for the local star events
+                Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+
+                // Hide the "Joining Game" popup
+                InGamePopup.FadeOut();
+            }
+
+            // Finally we need add the local player components to the player character
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
         }
 
         public void OnPlayerJoining()

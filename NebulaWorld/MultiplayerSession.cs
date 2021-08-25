@@ -112,73 +112,18 @@ namespace NebulaWorld
             DysonSpheres = null;
         }
 
-
-        // TODO: Move this in the MultiplayerSession maybe ?
         public void OnGameLoadCompleted()
         {
-            Log.Info("Game has finished loading");
-
-            // Assign our own color
-            World.UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, LocalPlayer.Data.MechaColor);
-
-            // Change player location from spawn to the last known
-            VectorLF3 uPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
-            if (uPosition != VectorLF3.zero)
+            if (!IsGameLoaded)
             {
-                GameMain.mainPlayer.planetId = LocalPlayer.Data.LocalPlanetId;
-                if (LocalPlayer.Data.LocalPlanetId == -1)
+                Log.Info("Game load completed");
+                IsGameLoaded = true;
+
+                if (Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
                 {
-                    GameMain.mainPlayer.uPosition = uPosition;
+                    Multiplayer.Session.World.SetupInitialPlayerState();
                 }
-                else
-                {
-                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToVector3();
-                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
-                }
-                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToVector3());
-
-                //Load player's saved data from the last session.
-                AccessTools.Property(typeof(global::Player), "package").SetValue(GameMain.mainPlayer, LocalPlayer.Data.Mecha.Inventory, null);
-                GameMain.mainPlayer.mecha.forge = LocalPlayer.Data.Mecha.Forge;
-                GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Data.Mecha.CoreEnergy;
-                GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
-                GameMain.mainPlayer.mecha.reactorStorage = LocalPlayer.Data.Mecha.ReactorStorage;
-                GameMain.mainPlayer.mecha.warpStorage = LocalPlayer.Data.Mecha.WarpStorage;
-                GameMain.mainPlayer.SetSandCount(LocalPlayer.Data.Mecha.SandCount);
-
-                //Fix references that brokes during import
-                AccessTools.Property(typeof(MechaForge), "mecha").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer.mecha, null);
-                AccessTools.Property(typeof(MechaForge), "player").SetValue(GameMain.mainPlayer.mecha.forge, GameMain.mainPlayer, null);
-                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             }
-
-            //Initialization on the host side after game is loaded
-            Multiplayer.Session.Factories.InitializePrebuildRequests();
-
-            if (!Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                // Update player's Mecha tech bonuses
-                LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
-
-                // Enable Ping Indicator for Clients
-                World.DisplayPingIndicator();
-
-                // Notify the server that we are done loading the game
-                Network.SendPacket(new SyncComplete());
-
-                // Subscribe for the local star events
-                Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
-
-                // Hide the "Joining Game" popup
-                InGamePopup.FadeOut();
-            }
-
-            // Finally we need add the local player components to the player character
-            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
-            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
-
-            IsGameLoaded = true;
         }
-
     }
 }

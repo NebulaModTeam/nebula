@@ -130,7 +130,10 @@ namespace NebulaNetwork
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
+            if (!Multiplayer.IsLeavingGame)
+            {
+                PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
+            }
         }
 
         private void ClientSocket_OnOpen(object sender, System.EventArgs e)

@@ -5,6 +5,7 @@ namespace NebulaWorld
 {
     public class LocalPlayer : IDisposable
     {
+        public bool IsInitialDataReceived { get; private set; }
         public bool IsHost { get; set; }
         public bool IsClient => !IsHost;
         public ushort Id => Data.PlayerId;
@@ -13,6 +14,16 @@ namespace NebulaWorld
         public void SetPlayerData(PlayerData data)
         {
             Data = data;
+
+            if (!IsInitialDataReceived)
+            {
+                IsInitialDataReceived = true;
+
+                if (Multiplayer.Session.IsGameLoaded)
+                {
+                    Multiplayer.Session.World.SetupInitialPlayerState();
+                }
+            }
         }
 
         public void Dispose()
