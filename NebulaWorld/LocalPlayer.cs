@@ -6,6 +6,7 @@ namespace NebulaWorld
     public class LocalPlayer : IDisposable
     {
         public bool IsHost { get; set; }
+        public bool IsClient => !IsHost;
         public ushort Id => Data.PlayerId;
         public PlayerData Data { get; private set; }
 
