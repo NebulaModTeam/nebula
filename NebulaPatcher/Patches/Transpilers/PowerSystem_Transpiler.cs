@@ -13,21 +13,21 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
 
         [HarmonyTranspiler]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PowerSystem.GameTick))]
         public static IEnumerable<CodeInstruction> PowerSystem_GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "nodePool")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "nodePool")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), "workEnergyPerTick")),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), "requiredEnergy")))
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.workEnergyPerTick))),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))))
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 58))
@@ -64,15 +64,15 @@ namespace NebulaPatcher.Patches.Transpilers
                 // now search for where its set back to idle after player leaves radius / has charged fully
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "nodePool")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "nodePool")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), "idleEnergyPerTick")),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), "requiredEnergy")))
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.idleEnergyPerTick))),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))))
                 .Repeat(matcher =>
                 {
                     matcher

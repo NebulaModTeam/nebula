@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
          * clients send a request to the server and only run the original method once they receive the response
          */
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemIconMouseDown")]
+        [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseDown))]
         public static bool OnItemIconMouseDown_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
@@ -56,7 +56,7 @@ namespace NebulaPatcher.Patches.Dynamic
          * clients send a request to the server and only run the original method once they receive the response
          */
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemIconMouseUp")]
+        [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseUp))]
         public static bool OnItemIconMouseUp_Postfix(UIStationStorage __instance, BaseEventData evt)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
@@ -66,7 +66,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 StationUI packet;
                 if (LocalPlayer.IsMasterClient)
                 {
-                    if ((bool)AccessTools.Field(typeof(UIStationStorage), "insplit").GetValue(__instance))
+                    if (__instance.insplit)
                     {
                         int splitVal = UIRoot.instance.uiGame.gridSplit.value;
                         int diff = (splitVal >= __instance.station.storage[__instance.index].count) ? __instance.station.storage[__instance.index].count : splitVal;

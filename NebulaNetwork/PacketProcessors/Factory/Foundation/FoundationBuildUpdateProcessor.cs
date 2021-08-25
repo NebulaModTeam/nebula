@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
     [RegisterPacketProcessor]
     class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
     {
-        Vector3[] reformPoints = new Vector3[100];
+        readonly Vector3[] reformPoints = new Vector3[100];
 
         public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
@@ -23,7 +23,6 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
             PlanetFactory factory = IsHost ? GameMain.data.GetOrCreateFactory(planet) : planet?.factory;
             if (factory != null)
             {
-                Vector3 reformCenterPoint = new Vector3();
                 Array.Clear(reformPoints, 0, reformPoints.Length);
 
                 //Check if some mandatory variables are missing
@@ -37,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
                 Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
 
                 //Perform terrain operation
-                int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out reformCenterPoint);
+                int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out Vector3 reformCenterPoint);
                 factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, 3f, 1f);
                 using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {

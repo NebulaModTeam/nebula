@@ -8,15 +8,15 @@ namespace NebulaPatcher.Patches.Dynamic
     class PowerSystemRenderer_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("Init")]
-        public static void Init_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(PowerSystemRenderer.Init))]
+        public static void Init_Postfix()
         {
             if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)
             {
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(PowerSystemRenderer), "powerGraphOn") = Config.Options.PowerGridEnabled;
+            PowerSystemRenderer.powerGraphOn = Config.Options.PowerGridEnabled;
         }
     }
 }

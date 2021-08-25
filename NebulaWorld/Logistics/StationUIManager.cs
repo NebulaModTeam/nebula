@@ -289,7 +289,7 @@ namespace NebulaWorld.Logistics
 
             if (stationWindow == null) return;
             
-            int _stationId = (int)AccessTools.Field(typeof(UIStationWindow), "_stationId")?.GetValue(stationWindow);
+            int _stationId = stationWindow._stationId;
 
             // Client has no knowledge of the planet, closed the window or
             // opened a different station, do all updates in the background.
@@ -332,49 +332,33 @@ namespace NebulaWorld.Logistics
                 }
                 if (packet.SettingIndex == StationUI.EUISettings.IncludeCollectors)
                 {
-                    Type[] args = new Type[1];
-                    object[] values = new object[1];
-                    args[0] = typeof(int);
-                    values[0] = 0;
-                    AccessTools.Method(typeof(UIStationWindow), "OnIncludeOrbitCollectorClick", args).Invoke(stationWindow, values);
+                    stationWindow.OnIncludeOrbitCollectorClick(0);
                 }
                 if (packet.SettingIndex >= StationUI.EUISettings.SetDroneCount && packet.SettingIndex <= StationUI.EUISettings.SetWarperCount)
                 {
                     if (packet.SettingIndex == StationUI.EUISettings.SetDroneCount)
                     {
-                        Type[] args = new Type[1];
-                        object[] values = new object[1];
-                        args[0] = typeof(int);
-                        values[0] = 0;
                         if (UIRequestedShipDronWarpChange)
                         {
-                            AccessTools.Method(typeof(UIStationWindow), "OnDroneIconClick", args).Invoke(stationWindow, values);
+                            stationWindow.OnDroneIconClick(0);
                             UIRequestedShipDronWarpChange = false;
                         }
                         stationComponent.idleDroneCount = (int)packet.SettingValue;
                     }
                     if (packet.SettingIndex == StationUI.EUISettings.SetShipCount)
                     {
-                        Type[] args = new Type[1];
-                        object[] values = new object[1];
-                        args[0] = typeof(int);
-                        values[0] = 0;
                         if (UIRequestedShipDronWarpChange)
                         {
-                            AccessTools.Method(typeof(UIStationWindow), "OnShipIconClick", args).Invoke(stationWindow, values);
+                            stationWindow.OnShipIconClick(0);
                             UIRequestedShipDronWarpChange = false;
                         }
                         stationComponent.idleShipCount = (int)packet.SettingValue;
                     }
                     if (packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
                     {
-                        Type[] args = new Type[1];
-                        object[] values = new object[1];
-                        args[0] = typeof(int);
-                        values[0] = 0;
                         if (UIRequestedShipDronWarpChange)
                         {
-                            AccessTools.Method(typeof(UIStationWindow), "OnWarperIconClick", args).Invoke(stationWindow, values);
+                            stationWindow.OnWarperIconClick(0);
                             UIRequestedShipDronWarpChange = false;
                         }
                         stationComponent.warperCount = (int)packet.SettingValue;
@@ -403,7 +387,7 @@ namespace NebulaWorld.Logistics
                         if (packet.ShouldMimic)
                         {
                             BaseEventData mouseEvent = LastMouseEvent;
-                            UIStationStorage[] storageUIs = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(stationWindow);
+                            UIStationStorage[] storageUIs = stationWindow.storageUIs;
 
                             if (LastMouseEvent != null)
                             {
@@ -455,7 +439,7 @@ namespace NebulaWorld.Logistics
                 return;
             }
             
-            using (Multiplayer.Session.Ships.PatchLockILS.On())
+            using (Multiplayer.Session.Ships .PatchLockILS.On())
             {
                 planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldMimic == true) ? GameMain.mainPlayer : null);
             }

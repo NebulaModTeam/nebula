@@ -21,8 +21,10 @@ namespace NebulaModel.DataStructures
         public MechaData()
         {
             //This is needed for the serialization and deserialization
-            this.Forge = new MechaForge();
-            this.Forge.tasks = new List<ForgeTask>();
+            this.Forge = new MechaForge
+            {
+                tasks = new List<ForgeTask>()
+            };
             this.TechBonuses = new PlayerTechBonuses();
         }
 
@@ -69,9 +71,11 @@ namespace NebulaModel.DataStructures
             Inventory = new StorageComponent(4);
             ReactorStorage = new StorageComponent(4);
             WarpStorage = new StorageComponent(1);
-            Forge = new MechaForge();
-            Forge.tasks = new List<ForgeTask>();
-            Forge.extraItems = new ItemPack();
+            Forge = new MechaForge
+            {
+                tasks = new List<ForgeTask>(),
+                extraItems = new ItemPack()
+            };
             TechBonuses.Deserialize(reader);
             SandCount = reader.GetInt();
             CoreEnergy = reader.GetDouble();

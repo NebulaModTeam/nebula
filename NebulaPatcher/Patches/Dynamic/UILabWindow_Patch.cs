@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UILabWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemButtonClick")]
+        [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance, int index)
         {
             if (!Multiplayer.IsActive)
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (GameMain.mainPlayer.inhandItemId > 0 && GameMain.mainPlayer.inhandItemCount > 0)
                 {
                     //Notify about depositing source cubes
-                    ItemProto[] matrixProtos = (ItemProto[])AccessTools.Field(typeof(UILabWindow), "matrixProtos").GetValue(__instance);
+                    ItemProto[] matrixProtos = __instance.matrixProtos;
                     int id = matrixProtos[index].ID;
                     if (GameMain.mainPlayer.inhandItemId == id)
                     {
@@ -82,7 +82,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnProductButtonClick")]
+        [HarmonyPatch(nameof(UILabWindow.OnProductButtonClick))]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance)
         {
             if (!Multiplayer.IsActive)
@@ -105,7 +105,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnBackButtonClick")]
+        [HarmonyPatch(nameof(UILabWindow.OnBackButtonClick))]
         public static void OnBackButtonClick_Prefix(UILabWindow __instance)
         {
             //Notify about recipe reset

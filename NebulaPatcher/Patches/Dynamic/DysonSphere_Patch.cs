@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(DysonSphere.AddLayer))]
-        public static bool AddLayer_Prefix(DysonSphere __instance, DysonSphereLayer __result, float orbitRadius, Quaternion orbitRotation, float orbitAngularSpeed)
+        public static bool AddLayer_Prefix(DysonSphere __instance, float orbitRadius, Quaternion orbitRotation, float orbitAngularSpeed)
         {
             if (!Multiplayer.IsActive)
             {

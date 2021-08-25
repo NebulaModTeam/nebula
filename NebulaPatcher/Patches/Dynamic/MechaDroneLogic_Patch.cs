@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class MechaDroneLogic_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("UpdateTargets")]
+        [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
         public static void UpdateTargets_Prefix()
         {
             if (Multiplayer.IsActive)

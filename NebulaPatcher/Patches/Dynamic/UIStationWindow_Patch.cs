@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIStationWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnMaxChargePowerSliderValueChange")]
+        [HarmonyPatch(nameof(UIStationWindow.OnMaxChargePowerSliderValueChange))]
         public static bool OnMaxChargePowerSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnMaxTripDroneSliderValueChange")]
+        [HarmonyPatch(nameof(UIStationWindow.OnMaxTripDroneSliderValueChange))]
         public static bool OnMaxTripDroneSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnMaxTripVesselSliderValueChange")]
+        [HarmonyPatch(nameof(UIStationWindow.OnMaxTripVesselSliderValueChange))]
         public static bool OnMaxTripVesselSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
@@ -62,7 +62,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnMinDeliverDroneValueChange")]
+        [HarmonyPatch(nameof(UIStationWindow.OnMinDeliverDroneValueChange))]
         public static bool OnMinDeliverDroneValueChange_Prefix(UIStationWindow __instance, float value)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnMinDeliverVesselValueChange")]
+        [HarmonyPatch(nameof(UIStationWindow.OnMinDeliverVesselValueChange))]
         public static bool OnMinDeliverVesselValueChange_Prefix(UIStationWindow __instance, float value)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
@@ -96,7 +96,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnWarperDistanceValueChange")]
+        [HarmonyPatch(nameof(UIStationWindow.OnWarperDistanceValueChange))]
         public static bool OnWarperDistanceValueChange_Prefix(UIStationWindow __instance, float value)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
@@ -113,8 +113,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnWarperNecessaryClick")]
-        public static bool OnWarperNecessaryClick_Prefix(UIStationWindow __instance, int obj)
+        [HarmonyPatch(nameof(UIStationWindow.OnWarperNecessaryClick))]
+        public static bool OnWarperNecessaryClick_Prefix(UIStationWindow __instance)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
@@ -130,8 +130,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnIncludeOrbitCollectorClick")]
-        public static bool OnIncludeOrbitCollectorClick_Prefix(UIStationWindow __instance, int obj)
+        [HarmonyPatch(nameof(UIStationWindow.OnIncludeOrbitCollectorClick))]
+        public static bool OnIncludeOrbitCollectorClick_Prefix(UIStationWindow __instance)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || LocalPlayer.IsMasterClient))
             {
@@ -147,8 +147,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnDroneIconClick")]
-        public static bool OnDroneIconClick_Prefix(UIStationWindow __instance, int obj)
+        [HarmonyPatch(nameof(UIStationWindow.OnDroneIconClick))]
+        public static bool OnDroneIconClick_Prefix(UIStationWindow __instance)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
@@ -192,8 +192,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnShipIconClick")]
-        public static bool OnShipIconClick_Prefix(UIStationWindow __instance, int obj)
+        [HarmonyPatch(nameof(UIStationWindow.OnShipIconClick))]
+        public static bool OnShipIconClick_Prefix(UIStationWindow __instance)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
@@ -237,8 +237,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnWarperIconClick")]
-        public static bool OnWarperIconClick_Prefix(UIStationWindow __instance, int obj)
+        [HarmonyPatch(nameof(UIStationWindow.OnWarperIconClick))]
+        public static bool OnWarperIconClick_Prefix(UIStationWindow __instance)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
@@ -281,14 +281,14 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnStationIdChange")]
+        [HarmonyPatch(nameof(UIStationWindow.OnStationIdChange))]
         public static bool OnStationIdChange_Prefix(UIStationWindow __instance)
         {
             if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient || Multiplayer.Session.StationsUI.UIIsSyncedStage > 0 || GameMain.localPlanet == null || !__instance.active)
             {
                 return true;
             }
-            ((Text)AccessTools.Field(typeof(UIStationWindow), "titleText").GetValue(__instance)).text = "Loading...";
+            __instance.titleText.text = "Loading...";
             Multiplayer.Session.StationsUI.LastSelectedGameObj = EventSystem.current.currentSelectedGameObject;
             if (__instance.factory == null)
             {
@@ -301,7 +301,7 @@ namespace NebulaPatcher.Patches.Dynamic
             StationComponent stationComponent = null;
             if (__instance.stationId == 0)
             {
-                UIStationStorage[] stationStorage = (UIStationStorage[])AccessTools.Field(typeof(UIStationWindow), "storageUIs").GetValue(__instance);
+                UIStationStorage[] stationStorage = __instance.storageUIs;
                 if (stationStorage != null && stationStorage[0] != null && stationStorage[0].station.id != 0)
                 {
                     stationComponent = __instance.transport.stationPool[stationStorage[0].station.id];
@@ -322,8 +322,9 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnUpdate")]
-        public static bool _OnUpdate_Prefix(UIStationWindow __instance)
+        [HarmonyPatch(nameof(UIStationWindow._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static bool _OnUpdate_Prefix()
         {
             if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient || Multiplayer.Session.StationsUI.UIIsSyncedStage == 2)
             {
@@ -333,7 +334,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
+        [HarmonyPatch(nameof(UIStationWindow._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Postfix(UIStationWindow __instance)
         {
             if (!Multiplayer.IsActive || LocalPlayer.IsMasterClient)

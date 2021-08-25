@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UILoadGameWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("DoLoadSelectedGame")]
+        [HarmonyPatch(nameof(UILoadGameWindow.DoLoadSelectedGame))]
         public static void DoLoadSelectedGame_Postfix()
         {
             if (MainMenuManager.IsInMultiplayerMenu)

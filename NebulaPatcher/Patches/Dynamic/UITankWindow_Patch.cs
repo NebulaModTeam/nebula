@@ -7,34 +7,34 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UITankWindow))]
     class UITankWindow_Patch
     {
-        public static bool pointerPress = false;
+        public static bool PointerPress = false;
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnTakeBackPointerDown")]
+        [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerDown))]
         public static void OnTakeBackPointerDown_Postfix(UITankWindow __instance)
         {
-            pointerPress = (bool)AccessTools.Field(typeof(UITankWindow), "pointerPress").GetValue(__instance);
+            PointerPress = __instance.pointerPress;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnTakeBackPointerUp")]
-        public static void OnTakeBackPointerUp_Postfix(UITankWindow __instance)
+        [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerUp))]
+        public static void OnTakeBackPointerUp_Postfix()
         {
-            pointerPress = false;
+            PointerPress = false;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnApplicationFocus")]
-        public static void OnApplicationFocus_Postfix(UITankWindow __instance, bool focus)
+        [HarmonyPatch(nameof(UITankWindow.OnApplicationFocus))]
+        public static void OnApplicationFocus_Postfix(bool focus)
         {
             if (!focus)
             {
-                pointerPress = false;
+                PointerPress = false;
             }
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnOutputSwitchClick")]
+        [HarmonyPatch(nameof(UITankWindow.OnOutputSwitchClick))]
         public static void OnOutputSwitchClick_Postfix(UITankWindow __instance)
         {
             if (Multiplayer.IsActive)
@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnInputSwitchClick")]
+        [HarmonyPatch(nameof(UITankWindow.OnInputSwitchClick))]
         public static void OnInputSwitchClick_Postfix(UITankWindow __instance)
         {
             if (Multiplayer.IsActive)
@@ -54,10 +54,11 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnUpdate")]
+        [HarmonyPatch(nameof(UITankWindow._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnUpdate_Postfix(UITankWindow __instance)
         {
-            if (pointerPress && Multiplayer.IsActive)
+            if (PointerPress && Multiplayer.IsActive)
             {
                 //Send update for inserting or withdrawing
                 TankComponent thisTank = __instance.storage.tankPool[__instance.tankId];

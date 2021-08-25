@@ -10,18 +10,18 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIStorageWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnStorageIdChange")]
+        [HarmonyPatch(nameof(UIStorageWindow.OnStorageIdChange))]
         public static bool OnStorageIdChange_Prefix(UIStorageWindow __instance)
         {
             if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient && Multiplayer.Session.Storage.WindowOpened)
             {
-                UIStorageGrid storageUI = (UIStorageGrid)AccessTools.Field(typeof(UIStorageWindow), "storageUI").GetValue(__instance);
+                UIStorageGrid storageUI = __instance.storageUI;
                 Multiplayer.Session.Storage.ActiveUIStorageGrid = storageUI;
-                Text titleText = (Text)AccessTools.Field(typeof(UIStorageWindow), "titleText").GetValue(__instance);
+                Text titleText = __instance.titleText;
                 Multiplayer.Session.Storage.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
                 Multiplayer.Session.Storage.ActiveWindowTitle = titleText;
-                Multiplayer.Session.Storage.ActiveBansSlider = (Slider)AccessTools.Field(typeof(UIStorageWindow), "bansSlider").GetValue(__instance);
-                Multiplayer.Session.Storage.ActiveBansValueText = (Text)AccessTools.Field(typeof(UIStorageWindow), "bansValueText").GetValue(__instance);
+                Multiplayer.Session.Storage.ActiveBansSlider = __instance.bansSlider;
+                Multiplayer.Session.Storage.ActiveBansValueText = __instance.bansValueText;
                 titleText.text = "Loading...";
                 storageUI._Free();
                 storageUI._Open();
@@ -33,7 +33,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIStorageWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnOpen_Prefix()
         {
             Multiplayer.Session.Storage.WindowOpened = true;
@@ -41,7 +42,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
+        [HarmonyPatch(nameof(UIStorageWindow._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Prefix()
         {
             Multiplayer.Session.Storage.WindowOpened = false;

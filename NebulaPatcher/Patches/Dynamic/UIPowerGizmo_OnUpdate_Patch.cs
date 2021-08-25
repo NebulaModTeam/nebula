@@ -15,7 +15,8 @@ namespace NebulaPatcher.Patches.Dynamic
         class OnUpdatePatch
         {
             [HarmonyPrefix]
-            [HarmonyPatch("_OnUpdate")]
+            [HarmonyPatch(nameof(UIPowerGizmo._OnUpdate))]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
             public static bool _OnUpdate_Prefix()
             {
                 return !Multiplayer.IsActive || GameMain.localPlanet?.factory != null;

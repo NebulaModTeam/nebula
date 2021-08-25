@@ -20,8 +20,8 @@ namespace NebulaModel.Networking.Serialization
         private readonly NetDataWriter _netDataWriter = new NetDataWriter();
 
         private readonly Random simulationRandom = new Random();
-        private List<DelayedPacket> delayedPackets = new List<DelayedPacket>();
-        private Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
+        private readonly List<DelayedPacket> delayedPackets = new List<DelayedPacket>();
+        private readonly Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
 
         public bool SimulateLatency = false;
         public int SimulatedMinLatency = 20;
@@ -117,7 +117,7 @@ namespace NebulaModel.Networking.Serialization
             string typeName = typeof(T).FullName;
             for (var i = 0; i < typeName.Length; i++)
             {
-                hash = hash ^ typeName[i];
+                hash ^= typeName[i];
                 hash *= 1099511628211UL; //prime
             }
             HashCache<T>.Initialized = true;
@@ -128,8 +128,7 @@ namespace NebulaModel.Networking.Serialization
         protected virtual SubscribeDelegate GetCallbackFromData(NetDataReader reader)
         {
             var hash = reader.GetULong();
-            SubscribeDelegate action;
-            if (!_callbacks.TryGetValue(hash, out action))
+            if (!_callbacks.TryGetValue(hash, out SubscribeDelegate action))
             {
                 Logger.Log.Warn($"Unknown packet hash: {hash}");
                 throw new Exception("Undefined packet in NetDataReader");
@@ -157,6 +156,7 @@ namespace NebulaModel.Networking.Serialization
             writer.Put(GetHash<T>());
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Produces error when static")]
         public T CreateNestedClassInstance<T>() where T : class, INetSerializable, new()
         {
             return new T();

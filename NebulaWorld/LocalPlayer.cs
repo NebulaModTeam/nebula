@@ -19,7 +19,7 @@ namespace NebulaWorld
 
         private static INetworkProvider networkProvider;
 
-        public static Type GS2_GSSettings = null;
+        public static Type GS2_GSSettings { get; private set; } = null;
 
         public static void TryLoadGalacticScale2()
         {

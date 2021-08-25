@@ -19,13 +19,13 @@ namespace NebulaWorld
     {
         sealed class ThreadSafe
         {
-            internal readonly Dictionary<ushort, RemotePlayerModel> remotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
+            internal readonly Dictionary<ushort, RemotePlayerModel> RemotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
         }
 
         private readonly ThreadSafe threadSafe = new ThreadSafe();
 
         public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
-            threadSafe.remotePlayersModels.GetLocked(out remotePlayersModels);
+            threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);
 
         public bool IsPlayerJoining { get; set; }
 
@@ -168,7 +168,7 @@ namespace NebulaWorld
                     {
                         drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                     }
-                    drone.target = (Vector3)MethodInvoker.GetHandler(AccessTools.Method(typeof(MechaDroneLogic), "_obj_hpos", new System.Type[] { typeof(int) })).Invoke(GameMain.mainPlayer.mecha.droneLogic, packet.EntityId);
+                    drone.target = GameMain.mainPlayer.mecha.droneLogic._obj_hpos(packet.EntityId);
                     drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + UnityEngine.Random.insideUnitSphere) * 1.5f;
                     drone.forward = drone.initialVector;
                     drone.progress = 0f;
@@ -188,12 +188,11 @@ namespace NebulaWorld
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 Transform transform;
-                RemotePlayerModel remotePlayerModel;
                 if (playerId == LocalPlayer.PlayerId)
                 {
                     transform = GameMain.data.mainPlayer.transform;
                 }
-                else if (remotePlayersModels.TryGetValue(playerId, out remotePlayerModel))
+                else if (remotePlayersModels.TryGetValue(playerId, out RemotePlayerModel remotePlayerModel))
                 {
                     transform = remotePlayerModel.PlayerTransform;
                 }
@@ -209,7 +208,7 @@ namespace NebulaWorld
                 SkinnedMeshRenderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
                 foreach (Renderer r in componentsInChildren)
                 {
-                    if (r.material?.name.StartsWith("icarus-armor", System.StringComparison.Ordinal) ?? false)
+                    if (r.material != null && r.material.name.StartsWith("icarus-armor", System.StringComparison.Ordinal))
                     {
                         r.material.SetColor("_Color", color.ToColor());
                     }
@@ -269,7 +268,7 @@ namespace NebulaWorld
             }
         }
 
-        public void OnDronesGameTick(long time, float dt)
+        public void OnDronesGameTick(float dt)
         {
             double tmp = 1e10; //fake energy of remote player, needed to do the Update()
             double tmp2 = 1;
@@ -308,8 +307,8 @@ namespace NebulaWorld
         public void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
         {
             // Make a copy of the "Icarus" text from the starmap
-            Text starmap_playerNameText = (Text)AccessTools.Field(typeof(UIStarmap), "playerNameText").GetValue(starmap);
-            Transform starmap_playerTrack = (Transform)AccessTools.Field(typeof(UIStarmap), "playerTrack").GetValue(starmap);
+            Text starmap_playerNameText = starmap.playerNameText;
+            Transform starmap_playerTrack = starmap.playerTrack;
 
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -425,7 +424,7 @@ namespace NebulaWorld
                         // Only get the field required if we actually need to, no point getting it every time
                         if (uiSailIndicator_targetText == null)
                         {
-                            uiSailIndicator_targetText = (TextMesh)AccessTools.Field(typeof(UISailIndicator), "targetText").GetValue(UIRoot.instance.uiGame.sailIndicator);
+                            uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
                         }
 
                         // Initialise a new game object to contain the text
@@ -450,11 +449,11 @@ namespace NebulaWorld
                     // If the player is not on the same planet or is in space, then do not render their in-world tag
                     if (playerModel.Movement.localPlanetId != LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
                     {
-                        playerNameText.gameObject.SetActive(false);
+                        playerNameText.SetActive(false);
                     }
-                    else if (!playerNameText.gameObject.activeSelf)
+                    else if (!playerNameText.activeSelf)
                     {
-                        playerNameText.gameObject.SetActive(true);
+                        playerNameText.SetActive(true);
                     }
 
                     // Make sure the text is pointing at the camera

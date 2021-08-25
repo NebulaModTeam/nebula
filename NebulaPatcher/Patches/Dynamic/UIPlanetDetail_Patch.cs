@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIPlanetDetail_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnNameInputEndEdit")]
+        [HarmonyPatch(nameof(UIPlanetDetail.OnNameInputEndEdit))]
         public static void OnNameInputEndEdit_Postfix(UIPlanetDetail __instance)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest)

@@ -16,7 +16,7 @@ namespace NebulaModel.Networking
             var nestedTypes = AssembliesUtils.GetTypesWithAttribute<RegisterNestedTypeAttribute>();
             foreach (Type type in nestedTypes)
             {
-                Console.WriteLine($"Registering Nested Type: {type.Name}");
+                Log.Info($"Registering Nested Type: {type.Name}");
                 if (type.IsClass)
                 {
                     // TODO: Find a better way to get the "NetPacketProcessor.RegisterNestedType" that as the Func<T> param instead of by index.
@@ -59,7 +59,7 @@ namespace NebulaModel.Networking
                 if (type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(PacketProcessor<>))
                 {
                     Type packetType = type.BaseType.GetGenericArguments().FirstOrDefault();
-                    Console.WriteLine($"Registering {type.Name} to process packet of type: {packetType.Name}");
+                    Log.Info($"Registering {type.Name} to process packet of type: {packetType.Name}");
 
                     // Create instance of the processor
                     Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(NebulaConnection));

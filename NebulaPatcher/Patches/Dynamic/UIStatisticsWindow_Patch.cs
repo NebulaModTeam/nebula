@@ -9,7 +9,8 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIStatisticsWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIStatisticsWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Postfix()
         {
             if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient)
@@ -20,7 +21,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
+        [HarmonyPatch(nameof(UIStatisticsWindow._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Postfix()
         {
             if (Multiplayer.IsActive && !LocalPlayer.IsMasterClient && Multiplayer.Session.Statistics.IsStatisticsNeeded)

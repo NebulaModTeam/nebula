@@ -1,9 +1,11 @@
 ﻿using BepInEx;
-using HarmonyLib;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
+using NebulaModel.Packets.Factory.Inserter;
 using System;
 using System.Collections.Generic;
 using System.Timers;
+using UnityEngine;
 
 namespace NebulaWorld.Factory
 {
@@ -116,8 +118,8 @@ namespace NebulaWorld.Factory
                 planet.audio.Init();
             }
 
-            if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null ||
-                AccessTools.Field(typeof(CargoTraffic), "pathRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+            if (planet.factory.cargoTraffic.beltRenderingBatch == null ||
+                planet.factory.cargoTraffic.pathRenderingBatch == null)
             {
                 planet.factory.cargoTraffic.CreateRenderingBatches();
             }
@@ -193,6 +195,47 @@ namespace NebulaWorld.Factory
         {
             using (GetPrebuildRequests(out var prebuildRequests))
                 return prebuildRequests.ContainsKey(new PrebuildOwnerKey(planetId, prebuildId));
+        }
+
+        public int GetNextPrebuildId(int planetId)
+        {
+            PlanetData planet = GameMain.galaxy.PlanetById(planetId);
+            if (planet == null)
+            {
+                Log.Error($"Planet with id: {planetId} could not be found!!");
+                return -1;
+            }
+
+            return GetNextPrebuildId(planet.factory);
+        }
+
+        public int GetNextPrebuildId(PlanetFactory factory)
+        {
+            if (factory == null)
+            {
+                return -1;
+            }
+
+
+            int prebuildRecycleCursor = factory.prebuildRecycleCursor;
+            int[] prebuildRecycle = factory.prebuildRecycle;
+            return prebuildRecycleCursor <= 0 ? factory.prebuildCursor + 1 : prebuildRecycle[prebuildRecycleCursor - 1];
+        }
+
+        public void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (Multiplayer.IsActive && LocalPlayer.PlayerId == PacketAuthor)
+            {
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
+            }
+        }
+
+        public void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (Multiplayer.IsActive && LocalPlayer.PlayerId == PacketAuthor)
+            {
+                LocalPlayer.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
+            }
         }
     }
 

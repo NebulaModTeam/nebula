@@ -29,7 +29,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
                 Multiplayer.Session.Storage.ActiveUIStorageGrid._Free();
                 Multiplayer.Session.Storage.ActiveUIStorageGrid._Init(storageComponent);
                 Multiplayer.Session.Storage.ActiveStorageComponent = storageComponent;
-                MethodInvoker.GetHandler(AccessTools.Method(typeof(UIStorageGrid), "SetStorageData")).Invoke(Multiplayer.Session.Storage.ActiveUIStorageGrid, Multiplayer.Session.Storage.ActiveStorageComponent);
+                Multiplayer.Session.Storage.ActiveUIStorageGrid.SetStorageData(Multiplayer.Session.Storage.ActiveStorageComponent);
                 Multiplayer.Session.Storage.ActiveUIStorageGrid._Open();
                 Multiplayer.Session.Storage.ActiveUIStorageGrid.OnStorageDataChanged();
                 Multiplayer.Session.Storage.ActiveBansSlider.maxValue = (float)storageComponent.size;

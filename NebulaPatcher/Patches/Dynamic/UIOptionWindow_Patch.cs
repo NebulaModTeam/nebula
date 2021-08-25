@@ -30,14 +30,15 @@ namespace NebulaPatcher.Patches.Dynamic
         static MultiplayerOptions tempMultiplayerOptions = new MultiplayerOptions();
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnCreate")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnCreate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnCreate_Postfix(UIOptionWindow __instance)
         {
             tempToUICallbacks = new Dictionary<string, System.Action>();
             tempMultiplayerOptions = new MultiplayerOptions();
 
             // Add multiplayer tab button
-            UIButton[] tabButtons = AccessTools.Field(__instance.GetType(), "tabButtons").GetValue(__instance) as UIButton[];
+            UIButton[] tabButtons = __instance.tabButtons;
             multiplayerTabIndex = tabButtons.Length;
             RectTransform lastTab = tabButtons[tabButtons.Length - 1].GetComponent<RectTransform>();
             RectTransform beforeLastTab = tabButtons[tabButtons.Length - 2].GetComponent<RectTransform>();
@@ -45,28 +46,28 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerTab = Object.Instantiate(lastTab, lastTab.parent, true);
             multiplayerTab.anchoredPosition = new Vector2(lastTab.anchoredPosition.x + tabOffset, lastTab.anchoredPosition.y);
             UIButton[] newTabButtons = CollectionExtensions.AddToArray(tabButtons, multiplayerTab.GetComponent<UIButton>());
-            AccessTools.Field(__instance.GetType(), "tabButtons").SetValue(__instance, newTabButtons);
+            __instance.tabButtons = newTabButtons;
 
             // Update multiplayer tab text
             Text tabText = multiplayerTab.GetComponentInChildren<Text>();
             tabText.GetComponent<Localizer>().enabled = false;
             tabText.text = "Multiplayer";
-            Text[] tabTexts = AccessTools.Field(__instance.GetType(), "tabTexts").GetValue(__instance) as Text[];
+            Text[] tabTexts = __instance.tabTexts;
             Text[] newTabTexts = CollectionExtensions.AddToArray(tabTexts, tabText);
-            AccessTools.Field(__instance.GetType(), "tabTexts").SetValue(__instance, newTabTexts);
+            __instance.tabTexts = newTabTexts;
 
             // Add multiplayer tab content
-            Tweener[] tabTweeners = AccessTools.Field(__instance.GetType(), "tabTweeners").GetValue(__instance) as Tweener[];
+            Tweener[] tabTweeners = __instance.tabTweeners;
             RectTransform contentTemplate = tabTweeners[0].GetComponent<RectTransform>();
             multiplayerContent = Object.Instantiate(contentTemplate, contentTemplate.parent, true);
             multiplayerContent.name = "multiplayer-content";
 
             Tweener[] newContents = CollectionExtensions.AddToArray(tabTweeners, multiplayerContent.GetComponent<Tweener>());
-            AccessTools.Field(__instance.GetType(), "tabTweeners").SetValue(__instance, newContents);
-            UIButton[] revertButtons = AccessTools.Field(__instance.GetType(), "revertButtons").GetValue(__instance) as UIButton[];
+            __instance.tabTweeners = newContents;
+            UIButton[] revertButtons = __instance.revertButtons;
             RectTransform revertButton = multiplayerContent.Find("revert-button").GetComponent<RectTransform>();
             UIButton[] newRevertButtons = CollectionExtensions.AddToArray(revertButtons, revertButton.GetComponent<UIButton>());
-            AccessTools.Field(__instance.GetType(), "revertButtons").SetValue(__instance, newRevertButtons);
+            __instance.revertButtons = newRevertButtons;
 
             // Remove unwanted GameObject
             foreach (RectTransform child in multiplayerContent)
@@ -103,21 +104,23 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnDestroy")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnDestroy))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnDestroy_Postfix()
         {
             tempToUICallbacks?.Clear();
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Prefix()
         {
             tempMultiplayerOptions = (MultiplayerOptions)Config.Options.Clone();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("ApplyOptions")]
+        [HarmonyPatch(nameof(UIOptionWindow.ApplyOptions))]
         public static void ApplyOptions()
         {
             Config.Options = tempMultiplayerOptions;
@@ -125,7 +128,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnRevertButtonClick")]
+        [HarmonyPatch(nameof(UIOptionWindow.OnRevertButtonClick))]
         public static void OnRevertButtonClick_Prefix(int idx)
         {
             if (idx == multiplayerTabIndex)
@@ -135,7 +138,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("TempOptionToUI")]
+        [HarmonyPatch(nameof(UIOptionWindow.TempOptionToUI))]
         public static void TempOptionToUI_Postfix()
         {
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
