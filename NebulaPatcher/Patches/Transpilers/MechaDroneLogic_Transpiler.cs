@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
-using NebulaWorld.Player;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -137,7 +136,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 .MatchForward(true,
                     new CodeMatch(i => i.IsLdloc()),
                     new CodeMatch(i => i.IsLdloc()),
-                    new CodeMatch(OpCodes.Ldelema), // MechaDrone
+                    new CodeMatch(OpCodes.Ldelema, typeof(MechaDrone)),
                     new CodeMatch(i => i.opcode == OpCodes.Ldc_I4_2 || i.opcode == OpCodes.Ldc_I4_3),
                     new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "stage")
                 );
