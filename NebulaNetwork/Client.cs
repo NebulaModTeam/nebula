@@ -12,7 +12,6 @@ using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
 using WebSocketSharp;
-using UnityEngine.UI;
 
 namespace NebulaNetwork
 {
@@ -149,7 +148,55 @@ namespace NebulaNetwork
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)
         {
             serverConnection = null;
+
+            UnityDispatchQueue.RunOnMainThread(() =>
+            {
+                // If the client is Quitting by himself, we don't have to inform him of his disconnection.
+                if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
+                    return;
+
+                if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
+                {
+                    string[] versions = e.Reason.Split(';');
+                    InGamePopup.ShowWarning(
+                        "Mod Version Mismatch",
+                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nYou:{versions[0]} - Remote:{versions[1]}",
+                        "OK",
+                        Multiplayer.LeaveGame);
+                    return;
+                }
+
+                if (e.Code == (ushort)DisconnectionReason.GameVersionMismatch)
+                {
+                    string[] versions = e.Reason.Split(';');
+                    InGamePopup.ShowWarning(
+                        "Game Version Mismatch",
+                        $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
+                        "OK",
+                        Multiplayer.LeaveGame);
+                    return;
+                }
+
+                if (Multiplayer.Session.IsGameLoaded)
+                {
+                    InGamePopup.ShowWarning(
+                        "Connection Lost",
+                        $"You have been disconnected from the server.\n{e.Reason}",
+                        "Quit",
+                        Multiplayer.LeaveGame);
+                }
+                else
+                {
+                    InGamePopup.ShowWarning(
+                        "Server Unavailable",
+                        $"Could not reach the server, please try again later.",
+                        "OK",
+                        Multiplayer.LeaveGame);
+                }
+            });
         }
+
+        
 
         static void DisableNagleAlgorithm(WebSocket socket)
         {
