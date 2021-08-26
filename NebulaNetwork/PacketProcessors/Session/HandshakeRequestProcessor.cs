@@ -52,6 +52,8 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             Multiplayer.Session.World.OnPlayerJoining();
 
+            bool isNewUser = false;
+
             //TODO: some validation of client cert / generating auth challenge for the client
             // Load old data of the client
             string clientCertHash = CryptoUtils.Hash(packet.ClientCert);
@@ -64,6 +66,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 else
                 {
                     savedPlayerData.Add(clientCertHash, player.Data);
+                    isNewUser = true;
                 }
             }
 
@@ -93,7 +96,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
             var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data));
+            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, player.Data));
         }
     }
 }

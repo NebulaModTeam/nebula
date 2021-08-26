@@ -270,13 +270,5 @@ namespace NebulaPatcher.Patches.Dynamic
                 GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
             }
         }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(GameData.Destroy))]
-        public static void Destroy_Postfix()
-        {
-            Multiplayer.Session.PowerTowers.Energy.Clear();
-            Multiplayer.Session.PowerTowers.RequestsSent.Clear();
-        }
     }
 }

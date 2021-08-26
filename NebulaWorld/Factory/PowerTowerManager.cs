@@ -37,7 +37,10 @@ namespace NebulaWorld.Factory
 
         public void Dispose()
         {
+            Energy.Clear();
             Energy = null;
+
+            RequestsSent.Clear();
             RequestsSent = null;
         }
 

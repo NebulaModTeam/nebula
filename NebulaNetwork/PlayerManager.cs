@@ -215,12 +215,12 @@ namespace NebulaNetwork
 
         public NebulaPlayer PlayerConnected(NebulaConnection conn)
         {
-            //Generate new data for the player
+            // Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
 
-            Float3 PlayerColor = new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255);
+            Float3 playerColor = new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255);
             PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
-            PlayerData playerData = new PlayerData(playerId, -1, PlayerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+            PlayerData playerData = new PlayerData(playerId, -1, playerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
 
             NebulaPlayer newPlayer = new NebulaPlayer(conn, playerData);
             using (GetPendingPlayers(out var pendingPlayers))
@@ -309,7 +309,7 @@ namespace NebulaNetwork
 
                     if (techProgress > 0)
                     {
-                        Log.Info($"Sending Recoverrequest for player {curPlayer.Id}: refunding for techId {techId} - raw progress: {curPlayer.TechProgressContributed}");
+                        Log.Info($"Sending Recover request for player {curPlayer.Id}: refunding for techId {techId} - raw progress: {curPlayer.TechProgressContributed}");
                         GameHistoryTechRefundPacket refundPacket = new GameHistoryTechRefundPacket(techId, techProgress);
                         curPlayer.SendPacket(refundPacket);
                     }

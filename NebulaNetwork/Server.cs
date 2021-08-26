@@ -34,7 +34,6 @@ namespace NebulaNetwork
         {
             this.port = port;
             this.loadSaveFile = loadSaveFile;
-
         }
 
         public override void Start()
@@ -56,12 +55,12 @@ namespace NebulaNetwork
             socket.Start();
 
             Multiplayer.Session.LocalPlayer.IsHost = true;
-            // TODO: Load saved player info here
+           
             Multiplayer.Session.LocalPlayer.SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
                 new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
-                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName));
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
         }
 
         public override void Stop()

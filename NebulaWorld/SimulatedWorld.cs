@@ -61,14 +61,13 @@ namespace NebulaWorld
             // Assign our own color
             UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColor);
 
-            // Change player location from spawn to the last known
-            VectorLF3 uPosition = new VectorLF3(player.Data.UPosition.x, player.Data.UPosition.y, player.Data.UPosition.z);
-            if (uPosition != VectorLF3.zero)
+            // If not a new client, we need to update the player position to put him where he was previously
+            if (player.IsClient && !player.IsNewPlayer)
             {
                 GameMain.mainPlayer.planetId = player.Data.LocalPlanetId;
                 if (player.Data.LocalPlanetId == -1)
                 {
-                    GameMain.mainPlayer.uPosition = uPosition;
+                    GameMain.mainPlayer.uPosition = new VectorLF3(player.Data.UPosition.x, player.Data.UPosition.y, player.Data.UPosition.z);
                 }
                 else
                 {
@@ -77,7 +76,7 @@ namespace NebulaWorld
                 }
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(player.Data.Rotation.ToVector3());
 
-                //Load player's saved data from the last session.
+                // Load client's saved data from the last session.
                 GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
                 GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
                 GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
@@ -86,13 +85,14 @@ namespace NebulaWorld
                 GameMain.mainPlayer.mecha.warpStorage = player.Data.Mecha.WarpStorage;
                 GameMain.mainPlayer.SetSandCount(player.Data.Mecha.SandCount);
 
-                //Fix references that broke during import
+                // Fix references that broke during import
                 GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
                 GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             }
 
-            //Initialization on the host side after game is loaded
+            // Initialization on the host side after game is loaded
             Multiplayer.Session.Factories.InitializePrebuildRequests();
 
             if (player.IsClient)
