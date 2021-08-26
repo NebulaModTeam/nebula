@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate int FetchVeinMineAmount(PlayerAction_Mine _this);
 
         [HarmonyTranspiler]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PlayerAction_Mine.GameTick))]
         public static IEnumerable<CodeInstruction> PlayerActionMine_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codeMatcher = new CodeMatcher(instructions)

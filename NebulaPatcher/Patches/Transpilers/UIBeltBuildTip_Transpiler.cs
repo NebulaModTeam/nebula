@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
 
         [HarmonyTranspiler]
-        [HarmonyPatch("SetFilterToEntity")]
+        [HarmonyPatch(nameof(UIBeltBuildTip.SetFilterToEntity))]
         public static IEnumerable<CodeInstruction> SetFilterToEntity_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             instructions = new CodeMatcher(instructions)
@@ -30,9 +30,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2),
                                     new CodeInstruction(OpCodes.Ldarg_0),
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), "outputSlotId")),
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.outputSlotId))),
                                     new CodeInstruction(OpCodes.Ldarg_0),
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), "selectedIndex")))
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.selectedIndex))))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
                 {
                     if (!SimulatedWorld.Instance.Initialized)

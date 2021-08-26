@@ -8,15 +8,15 @@ namespace NebulaPatcher.Patches.Dynamic
     class PostEffectController_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("Start")]
-        public static void Start_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(PostEffectController.Start))]
+        public static void Start_Postfix()
         {
             if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight") = Config.Options.GuidingLightEnabled;
+            PostEffectController.headlight = Config.Options.GuidingLightEnabled;
         }
     }
 }

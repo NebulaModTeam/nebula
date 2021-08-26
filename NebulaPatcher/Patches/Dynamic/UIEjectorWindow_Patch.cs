@@ -8,19 +8,19 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIEjectorWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnManualServingContentChange")]
+        [HarmonyPatch(nameof(UIEjectorWindow.OnManualServingContentChange))]
         public static void OnManualServingContentChange_Postfix(UIEjectorWindow __instance)
         {
             //Notify about manual bullet inserting / withdrawing change
             if (SimulatedWorld.Instance.Initialized)
             {
-                StorageComponent storage = (StorageComponent)AccessTools.Field(typeof(UIEjectorWindow), "servingStorage").GetValue(__instance);
+                StorageComponent storage = __instance.servingStorage;
                 LocalPlayer.Instance.SendPacketToLocalStar(new EjectorStorageUpdatePacket(__instance.ejectorId, storage.grids[0].count, GameMain.localPlanet?.id ?? -1));
             }
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnSetOrbit")]
+        [HarmonyPatch(nameof(UIEjectorWindow.OnSetOrbit))]
         public static void OnSetOrbit_Postfix(UIEjectorWindow __instance, int orbitId)
         {
             //Notify about target orbit change

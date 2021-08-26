@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIInserterWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnResetFilterButtonClick")]
+        [HarmonyPatch(nameof(UIInserterWindow.OnResetFilterButtonClick))]
         public static void OnResetFilterButtonClick_Prefix(UIInserterWindow __instance)
         {
             //Notify about reseting inserter's filter
@@ -19,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemPickerReturn")]
+        [HarmonyPatch(nameof(UIInserterWindow.OnItemPickerReturn))]
         public static void OnItemPickerReturn_Prefix(UIInserterWindow __instance, ItemProto item)
         {
             //Notify about changing filter item

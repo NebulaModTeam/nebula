@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class GameLoader_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("FixedUpdate")]
+        [HarmonyPatch(nameof(GameLoader.FixedUpdate))]
         public static void FixedUpdate_Postfix(int ___frame)
         {
             if (___frame >= 11 && SimulatedWorld.Instance.Initialized)

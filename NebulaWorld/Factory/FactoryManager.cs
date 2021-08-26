@@ -118,8 +118,8 @@ namespace NebulaWorld.Factory
                 planet.audio.Init();
             }
 
-            if (AccessTools.Field(typeof(CargoTraffic), "beltRenderingBatch").GetValue(planet.factory.cargoTraffic) == null ||
-                AccessTools.Field(typeof(CargoTraffic), "pathRenderingBatch").GetValue(planet.factory.cargoTraffic) == null)
+            if (planet.factory.cargoTraffic.beltRenderingBatch == null ||
+                planet.factory.cargoTraffic.pathRenderingBatch == null)
             {
                 planet.factory.cargoTraffic.CreateRenderingBatches();
             }
@@ -224,12 +224,8 @@ namespace NebulaWorld.Factory
                 LocalPlayer.Instance.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
         }
-        readonly AccessTools.FieldRef<object, int> GetPrebuildRecycleCursor =
-            AccessTools.FieldRefAccess<int>(typeof(PlanetFactory), "prebuildRecycleCursor");
-        readonly AccessTools.FieldRef<object, int[]> GetPrebuildRecycle =
-            AccessTools.FieldRefAccess<int[]>(typeof(PlanetFactory), "prebuildRecycle");
 
-        public int GetNextPrebuildId(PlanetFactory factory)
+        public static int GetNextPrebuildId(PlanetFactory factory)
         {
             if (factory == null)
             {
@@ -237,8 +233,8 @@ namespace NebulaWorld.Factory
             }
 
 
-            int prebuildRecycleCursor = GetPrebuildRecycleCursor(factory);
-            int[] prebuildRecycle = GetPrebuildRecycle(factory);
+            int prebuildRecycleCursor = factory.prebuildRecycleCursor;
+            int[] prebuildRecycle = factory.prebuildRecycle;
             return prebuildRecycleCursor <= 0 ? factory.prebuildCursor + 1 : prebuildRecycle[prebuildRecycleCursor - 1];
         }
     }

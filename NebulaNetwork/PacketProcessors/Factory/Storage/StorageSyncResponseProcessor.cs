@@ -28,7 +28,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
                 StorageManager.ActiveUIStorageGrid._Free();
                 StorageManager.ActiveUIStorageGrid._Init(storageComponent);
                 StorageManager.ActiveStorageComponent = storageComponent;
-                MethodInvoker.GetHandler(AccessTools.Method(typeof(UIStorageGrid), "SetStorageData")).Invoke(StorageManager.ActiveUIStorageGrid, StorageManager.ActiveStorageComponent);
+                StorageManager.ActiveUIStorageGrid.SetStorageData(StorageManager.ActiveStorageComponent);
                 StorageManager.ActiveUIStorageGrid._Open();
                 StorageManager.ActiveUIStorageGrid.OnStorageDataChanged();
                 StorageManager.ActiveBansSlider.maxValue = (float)storageComponent.size;

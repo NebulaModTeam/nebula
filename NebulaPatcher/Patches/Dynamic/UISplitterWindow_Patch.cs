@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UISplitterWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnItemPickerReturn")]
+        [HarmonyPatch(nameof(UISplitterWindow.OnItemPickerReturn))]
         public static void OnItemPickerReturn_Postfix(UISplitterWindow __instance, ItemProto item)
         {
             //Send notification about changing splitter output filter
@@ -19,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnCircleFilterRightClick")]
+        [HarmonyPatch(nameof(UISplitterWindow.OnCircleFilterClick))]
         public static void OnCircleFilterRightClick_Prefix(UISplitterWindow __instance, int slot)
         {
             if (!SimulatedWorld.Instance.Initialized)

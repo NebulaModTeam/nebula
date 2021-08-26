@@ -10,10 +10,6 @@ namespace NebulaWorld.Logistics
 {
     public static class ILSShipManager
     {
-        private static AccessTools.FieldRef<object, int> FR_stationId;
-        private static AccessTools.FieldRef<object, UIStationStorage[]> FR_storageUIs;
-        private static MethodInfo MI_RefreshValues = null;
-
         public static readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
 
         // the following 4 are needed to prevent a packet flood when the filter on a belt connected to a PLS/ILS is set.
@@ -23,13 +19,6 @@ namespace NebulaWorld.Logistics
         public static int ItemSlotStationGId = 0;
 
         public const int ILSMaxShipCount = 10;
-
-        public static void Initialize()
-        {
-            FR_stationId = AccessTools.FieldRefAccess<int>(typeof(UIStationWindow), "_stationId");
-            FR_storageUIs = AccessTools.FieldRefAccess<UIStationStorage[]>(typeof(UIStationWindow), "storageUIs");
-            MI_RefreshValues = AccessTools.Method(typeof(UIStationStorage), "RefreshValues");
-        }
         /*
          * When the host notifies the client that a ship started its travel client needs to check if he got both ILS in his gStationPool
          * if not we create a fake entry (which gets updated to the full one when client arrives that planet) and also request the stations dock position
@@ -156,9 +145,7 @@ namespace NebulaWorld.Logistics
             // it may be needed to make additional room for the new ILS
             while(GameMain.data.galacticTransport.stationCapacity <= GId)
             {
-                object[] args = new object[1];
-                args[0] = GameMain.data.galacticTransport.stationCapacity * 2;
-                AccessTools.Method(typeof(GalacticTransport), "SetStationCapacity").Invoke(GameMain.data.galacticTransport, args);
+                GameMain.data.galacticTransport.SetStationCapacity(GameMain.data.galacticTransport.stationCapacity * 2);
             }
 
            
@@ -271,12 +258,12 @@ namespace NebulaWorld.Logistics
         private static void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-            if (stationWindow != null && FR_stationId(stationWindow) == stationComponent.id)
+            if (stationWindow != null && stationWindow._stationId == stationComponent.id)
             {
-                UIStationStorage[] stationStorageUI = FR_storageUIs(stationWindow);
+                UIStationStorage[] stationStorageUI = stationWindow.storageUIs;
                 if (stationStorageUI != null && stationStorageUI.Length > storageIndex)
                 {
-                    MI_RefreshValues.Invoke(stationStorageUI[storageIndex], null);
+                    stationStorageUI[storageIndex].RefreshValues();
                 }
             }
         }

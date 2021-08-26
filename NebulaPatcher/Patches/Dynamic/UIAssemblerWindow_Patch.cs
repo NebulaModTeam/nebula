@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIAssemblerWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnRecipeResetClick")]
+        [HarmonyPatch(nameof(UIAssemblerWindow.OnRecipeResetClick))]
         public static void OnRecipeResetClick_Prefix(UIAssemblerWindow __instance)
         {
             if (SimulatedWorld.Instance.Initialized)
@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnRecipePickerReturn")]
+        [HarmonyPatch(nameof(UIAssemblerWindow.OnRecipePickerReturn))]
         public static void OnRecipePickerReturn_Prefix(UIAssemblerWindow __instance, RecipeProto recipe)
         {
             if (SimulatedWorld.Instance.Initialized)
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnProductIcon0Click")]
+        [HarmonyPatch(nameof(UIAssemblerWindow.OnProductIcon0Click))]
         public static void OnProductIcon0Click_Prefix(UIAssemblerWindow __instance)
         {
             if (SimulatedWorld.Instance.Initialized)
@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnProductIcon1Click")]
+        [HarmonyPatch(nameof(UIAssemblerWindow.OnProductIcon1Click))]
         public static void OnProductIcon1Click_Prefix(UIAssemblerWindow __instance)
         {
             if (SimulatedWorld.Instance.Initialized)
@@ -48,8 +48,8 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnManualServingContentChange")]
-        public static void OnAssemblerIdChange_Prefix(UIAssemblerWindow __instance)
+        [HarmonyPatch(nameof(UIAssemblerWindow.OnManualServingContentChange))]
+        public static void OnManualServingContentChange_Prefix(UIAssemblerWindow __instance)
         {
             if (!SimulatedWorld.Instance.Initialized)
             {
@@ -57,7 +57,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             int[] update = new int[__instance.factorySystem.assemblerPool[__instance.assemblerId].served.Length];
-            StorageComponent assemblerStorage = (StorageComponent)AccessTools.Field(typeof(UIAssemblerWindow), "servingStorage").GetValue(__instance);
+            StorageComponent assemblerStorage = __instance.servingStorage;
             for (int i = 0; i < update.Length; i++)
             {
                 update[i] = assemblerStorage.grids[i].count;

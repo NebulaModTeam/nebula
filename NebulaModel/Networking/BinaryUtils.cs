@@ -10,10 +10,10 @@ namespace NebulaModel.Networking
 
         public class Writer : IWriterProvider
         {
-            MemoryStream ms;
-            LZ4EncoderStream ls;
-            BufferedStream bs;
-            BinaryWriter bw;
+            readonly MemoryStream ms;
+            readonly LZ4EncoderStream ls;
+            readonly BufferedStream bs;
+            readonly BinaryWriter bw;
 
             public BinaryWriter BinaryWriter => bw;
 
@@ -31,21 +31,22 @@ namespace NebulaModel.Networking
                 bs?.Dispose();
                 ls?.Dispose();
                 ms?.Dispose();
+                GC.SuppressFinalize(this);
             }
 
             public byte[] CloseAndGetBytes()
             {
                 bw?.Close();
-                return ms?.ToArray() ?? new byte[0];
+                return ms?.ToArray() ?? Array.Empty<byte>();
             }
         }
 
         public class Reader : IReaderProvider
         {
-            MemoryStream ms;
-            LZ4DecoderStream ls;
-            BufferedStream bs;
-            BinaryReader br;
+            readonly MemoryStream ms;
+            readonly LZ4DecoderStream ls;
+            readonly BufferedStream bs;
+            readonly BinaryReader br;
 
             public MemoryStream MemoryStream => ms;
             public BinaryReader BinaryReader => br;
@@ -64,6 +65,7 @@ namespace NebulaModel.Networking
                 bs?.Dispose();
                 ls?.Dispose();
                 ms?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

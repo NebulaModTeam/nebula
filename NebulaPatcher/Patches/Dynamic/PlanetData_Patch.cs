@@ -7,7 +7,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class PlanetData_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("UnloadMeshes")]
+        [HarmonyPatch(nameof(PlanetData.UnloadMeshes))]
         public static bool UnloadMeshes_Prefix(PlanetData __instance)
         {
             //Host should not unload planet meshes, since he need to permorm all terrain operations
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("UnloadData")]
+        [HarmonyPatch(nameof(PlanetData.UnloadData))]
         public static bool UnloadData_Prefix()
         {
             //Host should not unload planet data, since he need to permorm all operations from users

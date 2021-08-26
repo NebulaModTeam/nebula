@@ -65,7 +65,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     StationUIManager.UIIsSyncedStage++;
                     stationWindow._Free();
                     stationWindow._Init(stationComponent);
-                    AccessTools.Field(typeof(UIStationWindow), "_stationId").SetValue(stationWindow, stationComponent.id);
+                    stationWindow._stationId = stationComponent.id;
                     stationWindow._Open();
                     stationWindow._Update();
                 }

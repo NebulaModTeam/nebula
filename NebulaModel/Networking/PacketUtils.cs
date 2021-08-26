@@ -1,4 +1,4 @@
-﻿using NebulaAPI;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Utils;
@@ -16,7 +16,7 @@ namespace NebulaModel.Networking
             var nestedTypes = AssembliesUtils.GetTypesWithAttributeInAssembly<RegisterNestedTypeAttribute>(assembly);
             foreach (Type type in nestedTypes)
             {
-                Console.WriteLine($"Registering Nested Type: {type.Name}");
+                Log.Info($"Registering Nested Type: {type.Name}");
                 if (type.IsClass)
                 {
                     MethodInfo registerMethod = packetProcessor.GetType().GetMethods()
@@ -68,7 +68,7 @@ namespace NebulaModel.Networking
                 if (IsSubclassOfRawGeneric(typeof(BasePacketProcessor<>), type))
                 {
                     Type packetType = type.BaseType.GetGenericArguments().FirstOrDefault();
-                    Console.WriteLine($"Registering {type.Name} to process packet of type: {packetType.Name}");
+                    Log.Info($"Registering {type.Name} to process packet of type: {packetType.Name}");
 
                     // Create instance of the processor
                     Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(INebulaConnection));

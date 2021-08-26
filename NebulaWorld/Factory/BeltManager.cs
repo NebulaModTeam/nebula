@@ -5,7 +5,7 @@ namespace NebulaWorld.Factory
 {
     public static class BeltManager
     {
-        public static List<BeltUpdate> BeltUpdates = new List<BeltUpdate>();
+        public static List<BeltUpdate> BeltUpdates { get; private set; } = new List<BeltUpdate>();
 
         public static void BeltPickupStarted()
         {

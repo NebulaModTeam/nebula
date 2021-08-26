@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIGameMenu_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfGuideButtonClick")]
+        [HarmonyPatch(nameof(UIGameMenu.OnDfGuideButtonClick))]
         public static void OnDfGuideButtonClick_Postfix(UIGameMenu __instance)
         {
             if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
@@ -21,59 +21,59 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfIconButtonClick")]
-        public static void OnDfIconButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfIconButtonClick))]
+        public static void OnDfIconButtonClick_Postfix()
         {
             if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
 
-            Config.Options.BuildingIconEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showIcon");
+            Config.Options.BuildingIconEnabled = EntitySignRenderer.showIcon;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfLightButtonClick")]
-        public static void OnDfLightButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfLightButtonClick))]
+        public static void OnDfLightButtonClick_Postfix()
         {
             if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
 
-            Config.Options.GuidingLightEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PowerSystemRenderer), "powerGraphOn");
+            Config.Options.GuidingLightEnabled = PowerSystemRenderer.powerGraphOn;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfPowerButtonClick")]
-        public static void OnDfPowerButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfPowerButtonClick))]
+        public static void OnDfPowerButtonClick_Postfix()
         {
             if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
 
-            Config.Options.PowerGridEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight");
+            Config.Options.PowerGridEnabled = PostEffectController.headlight;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfSignButtonClick")]
-        public static void OnDfSignButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfSignButtonClick))]
+        public static void OnDfSignButtonClick_Postfix()
         {
             if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
             {
                 return;
             }
 
-            Config.Options.BuildingWarningEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showSign");
+            Config.Options.BuildingWarningEnabled = EntitySignRenderer.showSign;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfVeinButtonClick")]
+        [HarmonyPatch(nameof(UIGameMenu.OnDfVeinButtonClick))]
         public static void OnDfVeinButtonClick_Postfix(UIGameMenu __instance)
         {
             if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)

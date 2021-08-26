@@ -10,17 +10,17 @@
   <PropertyGroup Label="Game Install Properties">
     <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
     <DSPGameDir>$([MSBuild]::EnsureTrailingSlash('$(DSPGameDir)'))</DSPGameDir>
-    <SteamDir>$([MSBuild]::EnsureTrailingSlash('$(SteamDir)'))</SteamDir>
-    <BepInExDir>$(DSPGameDir)BepInEx\core\</BepInExDir>
-    <DSPAssemblyDir>$(DSPGameDir)DSPGAME_Data\Managed\</DSPAssemblyDir>
     <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
+    <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
+    <PluginOutputDirectory Condition="Exists('$(PropSheetPath).remoteBuild')">$(PropSheetPath)dist\release\nebula</PluginOutputDirectory>
   </PropertyGroup>
 
   <PropertyGroup Label="Common Properties">
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <OutputPath Condition="Exists('$(DSPGameDir)')">$(PluginOutputDirectory)</OutputPath>
+    <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(PluginOutputDirectory)</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>7.3</LangVersion>
@@ -34,30 +34,28 @@
   
   <!-- Shared Items -->
   <ItemGroup Label="NuGets">
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.12" />
 
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.11.0" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.205" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">
-    <Reference Include="$(BepInExDir)0Harmony.dll" Private="false" SpecificVersion="false" />
-    <Reference Include="$(BepInExDir)BepInEx.dll" Private="false" SpecificVersion="false" />
-    <Reference Include="$(BepInExDir)BepInEx.Harmony.dll" Private="false" SpecificVersion="false" />
+    <PackageReference Include="BepInEx.Core" Version="5.4.11" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="Dyson Sphere Program">
-    <Reference Include="$(DSPAssemblyDir)Assembly-CSharp.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\Assembly-CSharp.dll" Private="false" SpecificVersion="true" />
 
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.IMGUIModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.ParticleSystemModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.PhysicsModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.TextRenderingModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.UIElementsModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(DSPAssemblyDir)UnityEngine.UIModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.IMGUIModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.ParticleSystemModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.PhysicsModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.TextRenderingModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UIElementsModule.dll" Private="false" SpecificVersion="true" />
+    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UIModule.dll" Private="false" SpecificVersion="true" />
   </ItemGroup>
 </Project>

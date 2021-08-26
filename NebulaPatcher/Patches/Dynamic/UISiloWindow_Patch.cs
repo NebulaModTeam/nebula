@@ -8,13 +8,13 @@ namespace NebulaPatcher.Patches.Dynamic
     class UISiloWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnManualServingContentChange")]
+        [HarmonyPatch(nameof(UISiloWindow.OnManualServingContentChange))]
         public static void OnManualServingContentChange_Postfix(UISiloWindow __instance)
         {
             //Notify about manual rockets inserting / withdrawing change
             if (SimulatedWorld.Instance.Initialized)
             {
-                StorageComponent storage = (StorageComponent)AccessTools.Field(typeof(UISiloWindow), "servingStorage").GetValue(__instance);
+                StorageComponent storage = __instance.servingStorage;
                 LocalPlayer.Instance.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId, storage.grids[0].count, GameMain.localPlanet?.id ?? -1));
             }
         }

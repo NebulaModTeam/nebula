@@ -8,7 +8,7 @@ namespace NebulaPatcher.Patches.Dynamic
     class UIMinerWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnProductIconClick")]
+        [HarmonyPatch(nameof(UIMinerWindow.OnProductIconClick))]
         public static void OnProductIconClick_Prefix(UIMinerWindow __instance)
         {
             if (SimulatedWorld.Instance.Initialized)

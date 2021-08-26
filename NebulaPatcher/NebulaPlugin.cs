@@ -34,13 +34,13 @@ namespace NebulaPatcher
             }
         }
 
-        void Initialize()
+        static void Initialize()
         {
             InitPatches();
             AddNebulaBootstrapper();
         }
 
-        private void InitPatches()
+        private static void InitPatches()
         {
             Log.Info("Patching Dyson Sphere Program...");
 
@@ -72,12 +72,14 @@ namespace NebulaPatcher
             }
         }
 
-        void AddNebulaBootstrapper()
+        static void AddNebulaBootstrapper()
         {
             Log.Info("Applying Nebula behaviours..");
 
-            GameObject nebulaRoot = new GameObject();
-            nebulaRoot.name = "Nebula Multiplayer Mod";
+            GameObject nebulaRoot = new GameObject
+            {
+                name = "Nebula Multiplayer Mod"
+            };
             nebulaRoot.AddComponent<NebulaBootstrapper>();
 
             Log.Info("Behaviours applied.");
