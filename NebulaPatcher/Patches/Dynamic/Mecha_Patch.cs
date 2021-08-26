@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (SimulatedWorld.Instance.Initialized)
             {
-                SimulatedWorld.Instance.OnDronesGameTick(dt);
+                SimulatedWorld.OnDronesGameTick(dt);
             }
         }
 

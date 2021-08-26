@@ -230,7 +230,7 @@ namespace NebulaNetwork
                         OnDisconnectPopupCloseBeforeGameLoad);
                     return;
                 }
-                
+
                 if (e.Code == (ushort)DisconnectionReason.ModIsMissing)
                 {
                     InGamePopup.ShowWarning(
@@ -240,7 +240,7 @@ namespace NebulaNetwork
                         OnDisconnectPopupCloseBeforeGameLoad);
                     return;
                 }
-                
+
                 if (e.Code == (ushort)DisconnectionReason.ModIsMissingOnServer)
                 {
                     InGamePopup.ShowWarning(

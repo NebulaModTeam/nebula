@@ -25,14 +25,14 @@ namespace NebulaWorld
     public class SimulatedWorld : ISimulatedWorld
     {
 
-        public static SimulatedWorld Instance = new SimulatedWorld();
+        public static SimulatedWorld Instance { get; private set; } = new SimulatedWorld();
         
         sealed class ThreadSafe
         {
             internal readonly Dictionary<ushort, RemotePlayerModel> RemotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
         }
 
-        private readonly ThreadSafe threadSafe = new ThreadSafe();
+        private static readonly ThreadSafe threadSafe = new ThreadSafe();
 
         public static Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
             threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);

@@ -10,7 +10,7 @@ namespace NebulaModel.Networking
 {
     public static class PacketUtils
     {
-        
+
         public static void RegisterAllPacketNestedTypesInAssembly(Assembly assembly, NetPacketProcessor packetProcessor)
         {
             var nestedTypes = AssembliesUtils.GetTypesWithAttributeInAssembly<RegisterNestedTypeAttribute>(assembly);
@@ -41,11 +41,14 @@ namespace NebulaModel.Networking
                 }
             }
         }
-        
-        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck) {
-            while (toCheck != null && toCheck != typeof(object)) {
+
+        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
+        {
+            while (toCheck != null && toCheck != typeof(object))
+            {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic == cur) {
+                if (generic == cur)
+                {
                     return true;
                 }
                 toCheck = toCheck.BaseType;
@@ -73,7 +76,7 @@ namespace NebulaModel.Networking
                     // Create instance of the processor
                     Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(INebulaConnection));
                     object processor = Activator.CreateInstance(type);
-                    Delegate callback = Delegate.CreateDelegate(delegateType, processor, type.GetMethod(nameof(BasePacketProcessor<object>.ProcessPacket), new Type[]{packetType, typeof(INebulaConnection)}));
+                    Delegate callback = Delegate.CreateDelegate(delegateType, processor, type.GetMethod(nameof(BasePacketProcessor<object>.ProcessPacket), new Type[] { packetType, typeof(INebulaConnection) }));
 
                     // Initialize processor
                     type.BaseType.GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(processor, new object[] { isMasterClient });

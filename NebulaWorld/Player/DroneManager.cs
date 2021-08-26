@@ -94,7 +94,7 @@ namespace NebulaWorld.Player
                 return true;
             }
             float myDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
-            using (SimulatedWorld.Instance.GetRemotePlayersModels(out var remotePlayersModels))
+            using (SimulatedWorld.GetRemotePlayersModels(out var remotePlayersModels))
             {
                 foreach (var model in remotePlayersModels.Values)
                 {

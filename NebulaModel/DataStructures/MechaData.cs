@@ -1,5 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.Players;
 using System.Collections.Generic;
 using System.IO;

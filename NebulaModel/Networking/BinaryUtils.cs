@@ -1,5 +1,6 @@
 ﻿using K4os.Compression.LZ4.Streams;
 using NebulaAPI;
+using System;
 using System.IO;
 
 namespace NebulaModel.Networking
