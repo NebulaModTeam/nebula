@@ -14,7 +14,6 @@ using UnityEngine;
 namespace NebulaPatcher
 {
     [BepInPlugin(PluginInfo.PLUGIN_ID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency(NebulaAPI.NebulaModAPI.API_GUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInProcess("DSPGAME.exe")]
     public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
