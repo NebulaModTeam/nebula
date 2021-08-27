@@ -10,9 +10,9 @@
   <PropertyGroup Label="Game Install Properties">
     <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
     <DSPGameDir>$([MSBuild]::EnsureTrailingSlash('$(DSPGameDir)'))</DSPGameDir>
-    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
+    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
     <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
-    <PluginOutputDirectory Condition="Exists('$(PropSheetPath).remoteBuild')">$(PropSheetPath)dist\release\nebula</PluginOutputDirectory>
+    <PluginOutputDirectory Condition="Exists('$(PropSheetPath).remoteBuild')">$(PropSheetPath)dist\release\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
   </PropertyGroup>
 
   <PropertyGroup Label="Common Properties">

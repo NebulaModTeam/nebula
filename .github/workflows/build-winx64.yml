@@ -29,7 +29,7 @@ jobs:
         
     - name: Clear output directory in DSP files
       # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
-      run: rm -R -ErrorAction SilentlyContinue "dist\release\nebula"
+      run: rm -R -ErrorAction SilentlyContinue "dist"
     
     - name: Add remote build identifier
       run: New-Item -Name .remoteBuild -ItemType File -force
@@ -50,4 +50,4 @@ jobs:
       with:
         # Artifact name
         name: build-artifacts-${{ matrix.configuration }}
-        path: dist\release\nebula
+        path: dist\release

@@ -24,7 +24,7 @@ namespace NebulaAPI
         public const string NEBULA_MODID = "dsp.nebula-multiplayer";
         
         public const string API_GUID = "dsp.nebula-multiplayer-api";
-        public const string API_NAME = "Nebula API";
+        public const string API_NAME = "NebulaMultiplayerModApi";
         
         public static bool NebulaIsInstalled => nebulaIsInstalled;
 
