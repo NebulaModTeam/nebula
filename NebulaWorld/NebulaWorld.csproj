@@ -2,5 +2,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
+    <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
   </ItemGroup>
 </Project>
