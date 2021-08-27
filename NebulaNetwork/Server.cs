@@ -181,7 +181,12 @@ namespace NebulaNetwork
                 NebulaModel.Logger.Log.Info($"Client disconnected: {ID}, reason: {e.Reason}");
                 UnityDispatchQueue.RunOnMainThread(() =>
                 {
-                    playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                    // This is to make sure that we don't try to deal with player disconnection
+                    // if it is because we have stopped the server and are not in a multiplayer game anymore.
+                    if (Multiplayer.IsActive)
+                    {
+                        playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                    }
                 });
             }
 

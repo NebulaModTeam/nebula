@@ -70,7 +70,6 @@ namespace NebulaNetwork
         public override void Dispose()
         {
             Stop();
-            Multiplayer.Session.World.HidePingIndicator();
         }
 
         public override void SendPacket<T>(T packet)

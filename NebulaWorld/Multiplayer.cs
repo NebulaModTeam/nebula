@@ -32,20 +32,14 @@ namespace NebulaWorld
 
             bool wasGameLoaded = Session?.IsGameLoaded ?? false;
 
-            // TODO: MAYBE WE SHOULD DO SOMETHING LIKE THIS INSTEAD:
-            /*
-             * Session.Network.Stop(() => {
-             *      This would be called once the actual socket.close event is fired
-             *      So here we could dispose of the Session
-             *      And do the transition back to the main menu
-             * })
-             *
-             */
+            if (wasGameLoaded)
+            {
+                Session.World.HidePingIndicator();
+            }
 
             Session?.Dispose();
             Session = null;
 
-            // TODO: THIS WILL PROBABLY BE CALLED BEFORE THE ACTUAL CLIENT DISCONNECT POPUP, IS IT AN ISSUE ??
             if (wasGameLoaded)
             {
                 if (!UIRoot.instance.backToMainMenu)

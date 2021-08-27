@@ -27,6 +27,8 @@ namespace NebulaWorld
         private readonly ThreadSafe threadSafe = new ThreadSafe();
 
         private Text pingIndicator;
+        private LocalPlayerMovement localPlayerMovement;
+        private LocalPlayerAnimation localPlayerAnimation;
 
         public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
             threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);
@@ -40,6 +42,18 @@ namespace NebulaWorld
 
         public void Dispose()
         {
+            using (GetRemotePlayersModels(out var remotePlayersModels))
+            {
+                foreach (var model in remotePlayersModels.Values)
+                {
+                    model.Destroy();
+                }
+                
+                remotePlayersModels.Clear();
+            }
+
+            UnityEngine.Object.Destroy(localPlayerMovement);
+            UnityEngine.Object.Destroy(localPlayerAnimation);
         }
 
         public void SetupInitialPlayerState()
@@ -114,8 +128,8 @@ namespace NebulaWorld
             }
 
             // Finally we need add the local player components to the player character
-            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
-            GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
+            localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
+            localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
         }
 
         public void OnPlayerJoining()
