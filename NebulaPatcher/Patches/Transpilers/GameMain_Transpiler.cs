@@ -34,10 +34,12 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 4].labels.Add(targetLabel);
 
                     //Add my condition
-                    codes.InsertRange(i + 4, new CodeInstruction[] {
-                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SimulatedWorld), "get_" + nameof(SimulatedWorld.Instance.Initialized))),
-                            new CodeInstruction(OpCodes.Brfalse_S, codes[i+3].operand)
-                    });
+                    codes.InsertRange(i + 4,
+                        new[]
+                        {
+                            new CodeInstruction(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() => SimulatedWorld.Instance.Initialized)),
+                            new CodeInstruction(OpCodes.Brfalse_S, codes[i + 3].operand)
+                        });
 
                     //Change jump of first condition
                     codes[i + 3] = new CodeInstruction(OpCodes.Brfalse_S, targetLabel);
