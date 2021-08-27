@@ -160,6 +160,9 @@ namespace NebulaNetwork
                 if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
                     return;
 
+                // Opens the pause menu on disconnection to prevent NRE when leaving the game
+                GameMain.instance._paused = true;
+
                 if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
                 {
                     string[] versions = e.Reason.Split(';');
