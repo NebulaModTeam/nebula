@@ -38,6 +38,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     {
                         return 0;
                     }
+
                     Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
                     return 0;
                 }))

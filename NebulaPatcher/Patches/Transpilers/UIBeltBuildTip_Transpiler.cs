@@ -39,6 +39,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     {
                         return 0;
                     }
+
                     if (Multiplayer.Session.Ships.ItemSlotStationId == stationComponent.id &&
                         Multiplayer.Session.Ships.ItemSlotStationGId == stationComponent.gid &&
                         Multiplayer.Session.Ships.ItemSlotLastSlotId == outputSlotId &&

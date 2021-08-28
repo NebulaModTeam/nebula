@@ -197,11 +197,6 @@ namespace NebulaWorld.Statistics
         {
             long num2 = 0L;
 
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                return num2;
-            }
-
             //Total Stored Energy for "Entire Star Cluster"
             if (targetIndex == -1)
             {
