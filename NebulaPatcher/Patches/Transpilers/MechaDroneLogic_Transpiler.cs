@@ -46,6 +46,7 @@ namespace NebulaPatcher.Patches.Transpiler
                           .InsertAndAdvance(num4Instruction)
                           .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>((num4) =>
                           {
+                              if (!Multiplayer.IsActive) return false;
                               return Multiplayer.Session.Drones.IsPendingBuildRequest(num4);
                           }))
                           .InsertAndAdvance(jumpInstruction);
@@ -79,6 +80,7 @@ namespace NebulaPatcher.Patches.Transpiler
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, aOperand))
                             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<Vector3, bool>>((aVar) =>
                             {
+                                if (!Multiplayer.IsActive) return true;
                                 return Multiplayer.Session.Drones.AmIClosestPlayer(ref aVar);
                             }))
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse, jumpOperand));
@@ -120,6 +122,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(stageInstruction)
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int>>((droneId, entityId, stage) =>
                     {
+                        if (!Multiplayer.IsActive) return;
                         Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
                     }))
                     .InstructionEnumeration();
@@ -162,6 +165,7 @@ namespace NebulaPatcher.Patches.Transpiler
                                  .InsertAndAdvance(stageInst)
                                  .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int>>((droneId, entityId, stage) =>
                                  {
+                                     if (!Multiplayer.IsActive) return;
                                      Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
                                  }))
                                  .Advance(1);
@@ -201,6 +205,7 @@ namespace NebulaPatcher.Patches.Transpiler
                    .InsertAndAdvance(target)
                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>((targetId) =>
                    {
+                       if (!Multiplayer.IsActive) return false;
                        return Multiplayer.Session.Drones.IsPendingBuildRequest(targetId);
                    }))
                    .Insert(new CodeInstruction(OpCodes.Brtrue, jump))
