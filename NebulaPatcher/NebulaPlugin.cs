@@ -86,5 +86,9 @@ namespace NebulaPatcher
         }
 
         public string Version => NebulaModel.Config.ModVersion;
+        public bool CheckVersion(string hostVersion, string clientVersion)
+        {
+            return hostVersion.Equals(clientVersion);
+        }
     }
 }
