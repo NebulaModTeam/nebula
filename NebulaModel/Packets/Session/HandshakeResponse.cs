@@ -15,7 +15,7 @@ namespace NebulaModel.Packets.Session
         
         public HandshakeResponse() { }
 
-        public HandshakeResponse(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier, PlayerData localPlayerData, byte[] modsSettings, int settingsCount)
+        public HandshakeResponse(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier, bool isNewPlayer, PlayerData localPlayerData, byte[] modsSettings, int settingsCount)
         {
             AlgoVersion = algoVersion;
             GalaxySeed = galaxySeed;

@@ -9,6 +9,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System;
 using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -43,8 +44,17 @@ namespace NebulaNetwork
                 SaveManager.LoadServerData();
             }
 
-            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            foreach (Assembly assembly in AssembliesUtils.GetNebulaAssemblies())
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            }
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
+
+            foreach (Assembly assembly in NebulaAPI.NebulaModAPI.TargetAssemblies)
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+                PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, true);
+            }
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif

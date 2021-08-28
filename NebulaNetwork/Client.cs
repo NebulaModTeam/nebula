@@ -10,6 +10,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 
@@ -39,8 +40,17 @@ namespace NebulaNetwork
 
         public override void Start()
         {
-            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            foreach (Assembly assembly in AssembliesUtils.GetNebulaAssemblies())
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            }
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
+
+            foreach (Assembly assembly in NebulaAPI.NebulaModAPI.TargetAssemblies)
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+                PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, false);
+            }
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif

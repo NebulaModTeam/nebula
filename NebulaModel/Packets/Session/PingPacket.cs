@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using System;
 
 namespace NebulaModel.Packets.Session
 {

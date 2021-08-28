@@ -142,7 +142,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
                 
                 var gameDesc = GameMain.data.gameDesc;
-                player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, player.Data, p.CloseAndGetBytes(), count));
+                player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, player.Data, p.CloseAndGetBytes(), count));
             }
         }
     }
