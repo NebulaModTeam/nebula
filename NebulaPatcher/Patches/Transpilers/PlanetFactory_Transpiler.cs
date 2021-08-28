@@ -44,6 +44,7 @@ namespace NebulaPatcher.Patches.Transpiler
                           .InsertAndAdvance(pointPosInsts.ToArray())
                           .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, UnityEngine.Vector3>>((inserterId, pickTarget, offset, objId, pointPos) =>
                           {
+                              if (!Multiplayer.IsActive) return;
                               Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
                           }));
 
@@ -77,6 +78,7 @@ namespace NebulaPatcher.Patches.Transpiler
                           .InsertAndAdvance(pointPosInsts.ToArray())
                           .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, UnityEngine.Vector3>>((inserterId, pickTarget, offset, objId, pointPos) =>
                           {
+                              if (!Multiplayer.IsActive) return;
                               Multiplayer.Session.Factories.OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset, pointPos);
                           }));
 

@@ -77,6 +77,7 @@ namespace NebulaPatcher.Patches.Transpiler
                            .InsertAndAdvance(loadFactoryIndexInstruction)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<long, long>>((factoryIndex) =>
                            {
+                               if (!Multiplayer.IsActive) return 0;
                                return Multiplayer.Session.Statistics.UpdateTotalChargedEnergy((int)factoryIndex);
                            }))
                            .InsertAndAdvance(storeNum2Instruction)
