@@ -35,7 +35,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(-1)
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                 {
-                    return !Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost;
+                    return ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || !Multiplayer.IsActive;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Brfalse, op))
                 .InstructionEnumeration();
