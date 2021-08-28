@@ -1,8 +1,10 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
@@ -18,7 +20,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             {
                 Log.Info($"ProcessPacket researchContribution: got package for same tech");
                 GameMain.history.AddTechHash(packet.Hashes);
-                PlayerManager playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+                IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
                 playerManager.GetPlayer(conn).UpdateResearchProgress(packet.TechId, packet.Hashes);
                 Log.Debug($"ProcessPacket researchContribution: playerid by: {playerManager.GetPlayer(conn).Id} - hashes {packet.Hashes}");
             }

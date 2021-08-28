@@ -1,8 +1,10 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
+using NebulaWorld;
 using NebulaWorld.GameDataHistory;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
@@ -10,11 +12,11 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
     [RegisterPacketProcessor]
     class GameHistoryRemoveTechProcessor : PacketProcessor<GameHistoryRemoveTechPacket>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public GameHistoryRemoveTechProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
@@ -22,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 else
@@ -31,7 +33,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
 
             if (valid)
             {
-                using (GameDataHistoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.History.IsIncomingRequest.On())
                 {
                     int index = System.Array.IndexOf(GameMain.history.techQueue, packet.TechId);
                     //sanity: packet wanted to remove tech, which is not queued on this client, ignore it

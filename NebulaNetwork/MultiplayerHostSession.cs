@@ -15,6 +15,7 @@ using Config = NebulaModel.Config;
 
 namespace NebulaNetwork
 {
+    /*
     public class MultiplayerHostSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerHostSession Instance { get; protected set; }
@@ -64,10 +65,8 @@ namespace NebulaNetwork
 
             socketServer.Start();
 
-            SimulatedWorld.Initialize();
-
             LocalPlayer.SetNetworkProvider(this);
-            LocalPlayer.IsMasterClient = true;
+            Multiplayer.Session.LocalPlayer.IsHost = true;
 
             // TODO: Load saved player info here
             LocalPlayer.SetPlayerData(new PlayerData(
@@ -150,7 +149,7 @@ namespace NebulaNetwork
             if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
             {
                 productionStatisticsUpdateTimer = 0;
-                StatisticsManager.SendBroadcastIfNeeded();
+                Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
             }
 
             PacketProcessor.ProcessPacketQueue();
@@ -169,7 +168,7 @@ namespace NebulaNetwork
 
             protected override void OnOpen()
             {
-                if (SimulatedWorld.IsGameLoaded == false)
+                if (Multiplayer.Session.IsGameLoaded == false)
                 {
                     // Reject any connection that occurs while the host's game is loading.
                     this.Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");
@@ -207,4 +206,5 @@ namespace NebulaNetwork
             }
         }
     }
+    */
 }

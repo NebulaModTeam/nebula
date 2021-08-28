@@ -12,13 +12,13 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GameTick_Prefix(FactoryProductionStat __instance)
         {
             //Do not run in single player for host
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
 
             //Multiplayer clients should not include their own calculated statistics
-            if (!StatisticsManager.IsIncomingRequest)
+            if (!Multiplayer.Session.Statistics.IsIncomingRequest)
             {
                 __instance.ClearRegisters();
                 return false;

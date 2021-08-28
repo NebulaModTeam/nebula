@@ -11,8 +11,8 @@ namespace NebulaNetwork.PacketProcessors.Session
     {
         public override void ProcessPacket(PlayerJoining packet, NebulaConnection conn)
         {
-            SimulatedWorld.SpawnRemotePlayerModel(packet.PlayerData);
-            SimulatedWorld.OnPlayerJoining();
+            Multiplayer.Session.World.SpawnRemotePlayerModel(packet.PlayerData);
+            Multiplayer.Session.World.OnPlayerJoining();
         }
     }
 }

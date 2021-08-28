@@ -34,11 +34,11 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UISlotPicker), nameof(UISlotPicker.selectedIndex))))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
                 {
-                    if (!SimulatedWorld.Initialized)
+                    if (!Multiplayer.IsActive)
                     {
                         return 0;
                     }
-                    LocalPlayer.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))

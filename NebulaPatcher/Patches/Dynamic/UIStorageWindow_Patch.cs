@@ -13,20 +13,20 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStorageWindow.OnStorageIdChange))]
         public static bool OnStorageIdChange_Prefix(UIStorageWindow __instance)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient && StorageManager.WindowOpened)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Storage.WindowOpened)
             {
                 UIStorageGrid storageUI = __instance.storageUI;
-                StorageManager.ActiveUIStorageGrid = storageUI;
+                Multiplayer.Session.Storage.ActiveUIStorageGrid = storageUI;
                 Text titleText = __instance.titleText;
-                StorageManager.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
-                StorageManager.ActiveWindowTitle = titleText;
-                StorageManager.ActiveBansSlider = __instance.bansSlider;
-                StorageManager.ActiveBansValueText = __instance.bansValueText;
+                Multiplayer.Session.Storage.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
+                Multiplayer.Session.Storage.ActiveWindowTitle = titleText;
+                Multiplayer.Session.Storage.ActiveBansSlider = __instance.bansSlider;
+                Multiplayer.Session.Storage.ActiveBansValueText = __instance.bansValueText;
                 titleText.text = "Loading...";
                 storageUI._Free();
                 storageUI._Open();
                 storageUI.OnStorageDataChanged();
-                LocalPlayer.SendPacket(new StorageSyncRequestPacket(GameMain.data.localPlanet.id, __instance.storageId));
+                Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(GameMain.data.localPlanet.id, __instance.storageId));
                 return false;
             }
             return true;
@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnOpen_Prefix()
         {
-            StorageManager.WindowOpened = true;
+            Multiplayer.Session.Storage.WindowOpened = true;
             return true;
         }
 
@@ -46,8 +46,8 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Prefix()
         {
-            StorageManager.WindowOpened = false;
-            StorageManager.ActiveStorageComponent = null;
+            Multiplayer.Session.Storage.WindowOpened = false;
+            Multiplayer.Session.Storage.ActiveStorageComponent = null;
         }
     }
 }

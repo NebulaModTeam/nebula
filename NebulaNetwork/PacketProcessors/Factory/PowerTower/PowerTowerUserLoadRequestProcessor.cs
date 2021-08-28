@@ -15,21 +15,21 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
             if (IsClient) return;
 
             PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-            
+
             if (factory?.powerSystem != null)
             {
                 PowerNetwork pNet = factory.powerSystem.netPool[packet.NetId];
 
                 if (packet.Charging)
                 {
-                    PowerTowerManager.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
+                    Multiplayer.Session.PowerTowers.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
                 }
                 else
                 {
-                    PowerTowerManager.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
+                    Multiplayer.Session.PowerTowers.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
                 }
 
-                LocalPlayer.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
+                Multiplayer.Session.Network.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
                         packet.NetId,
                         packet.NodeId,
                         packet.PowerAmount,

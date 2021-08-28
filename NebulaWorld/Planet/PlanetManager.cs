@@ -1,13 +1,23 @@
 ﻿using NebulaModel.DataStructures;
+using System;
+using System.Collections.Generic;
 
 namespace NebulaWorld.Planet
 {
-    public static class PlanetManager
+    public class PlanetManager : IDisposable
     {
-        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
+        public Dictionary<int, byte[]> PendingFactories { get; private set; }
 
-        public static void Initialize()
+        public readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
+
+        public PlanetManager()
         {
+            PendingFactories = new Dictionary<int, byte[]>();
+        }
+
+        public void Dispose()
+        {
+            PendingFactories = null;
         }
     }
 }

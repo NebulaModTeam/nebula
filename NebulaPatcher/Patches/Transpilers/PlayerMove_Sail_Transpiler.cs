@@ -37,22 +37,22 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>
                         {
                             // send to host / clients
-                            if (!SimulatedWorld.Initialized)
+                            if (!Multiplayer.IsActive)
                             {
                                 return;
                             }
 
-                            if (LocalPlayer.IsMasterClient)
+                            if (Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 PlayerUseWarper packet = new PlayerUseWarper(warpCommand)
                                 {
-                                    PlayerId = LocalPlayer.PlayerId
+                                    PlayerId = Multiplayer.Session.LocalPlayer.Id
                                 };
-                                LocalPlayer.SendPacket(packet);
+                                Multiplayer.Session.Network.SendPacket(packet);
                             }
                             else
                             {
-                                LocalPlayer.SendPacket(new PlayerUseWarper(warpCommand));
+                                Multiplayer.Session.Network.SendPacket(new PlayerUseWarper(warpCommand));
                             }
 
                             return;

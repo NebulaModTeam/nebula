@@ -40,9 +40,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<FetchVeinMineAmount>((FetchVeinMineAmount)((PlayerAction_Mine _this) =>
                 {
                     // do we need to check for the event here? its very unlikely that we call the GameTick() by hand...
-                    if (SimulatedWorld.Initialized && !PlanetManager.IsIncomingRequest)
+                    if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
                     {
-                        LocalPlayer.SendPacketToLocalStar(new VegeMinedPacket(_this.player.planetId, _this.miningId, _this.player.factory.veinPool[_this.miningId].amount, true));
+                        Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(_this.player.planetId, _this.miningId, _this.player.factory.veinPool[_this.miningId].amount, true));
                     }
 
                     return 0;

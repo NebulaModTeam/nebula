@@ -11,9 +11,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnLateUpdate_Postfix(UIStarmap __instance)
         {
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                SimulatedWorld.RenderPlayerNameTagsOnStarmap(__instance);
+                Multiplayer.Session.World.RenderPlayerNameTagsOnStarmap(__instance);
             }
         }
 
@@ -22,9 +22,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Postfix()
         {
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                SimulatedWorld.ClearPlayerNameTagsOnStarmap();
+                Multiplayer.Session.World.ClearPlayerNameTagsOnStarmap();
             }
         }
     }

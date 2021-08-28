@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
+using NebulaWorld;
 using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
@@ -16,7 +17,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
             {
                 BuildingParameters backup = BuildingParameters.clipboard;
                 BuildingParameters.clipboard = packet.GetBuildingSettings();
-                using (FactoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
                     GameMain.galaxy.PlanetById(packet.PlanetId).factory.PasteBuildingSetting(packet.ObjectId);
                 }

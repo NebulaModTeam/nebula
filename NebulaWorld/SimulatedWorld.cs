@@ -1,16 +1,12 @@
-﻿using HarmonyLib;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Logistics;
-using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
-using NebulaWorld.Factory;
-using NebulaWorld.Logistics;
+using NebulaWorld.MonoBehaviours;
+using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Remote;
-using NebulaWorld.Planet;
-using NebulaWorld.Player;
-using NebulaWorld.Trash;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,42 +17,30 @@ namespace NebulaWorld
     /// This class keeps track of our simulated world. It holds all temporary entities like remote player models 
     /// and also helps to execute some remote player actions that you would want to replicate on the local client.
     /// </summary>
-    public static class SimulatedWorld
+    public class SimulatedWorld : IDisposable
     {
         sealed class ThreadSafe
         {
             internal readonly Dictionary<ushort, RemotePlayerModel> RemotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
         }
 
-        private static readonly ThreadSafe threadSafe = new ThreadSafe();
+        private readonly ThreadSafe threadSafe = new ThreadSafe();
 
-        public static Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
+        private Text pingIndicator;
+        private LocalPlayerMovement localPlayerMovement;
+        private LocalPlayerAnimation localPlayerAnimation;
+
+        public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
             threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);
 
-        public static bool Initialized { get; private set; }
-        public static bool IsGameLoaded { get; private set; }
-        public static bool IsPlayerJoining { get; set; }
-        public static bool ExitingMultiplayerSession { get; set; }
+        public bool IsPlayerJoining { get; set; }
 
-        public static void Initialize()
+        public SimulatedWorld()
         {
-            StationUIManager.Initialize();
-            DroneManager.Initialize();
-            FactoryManager.Initialize();
-            PlanetManager.Initialize();
-            Initialized = true;
-            ExitingMultiplayerSession = false;
-
-            using (GetRemotePlayersModels(out var remotePlayersModels))
-            {
-                remotePlayersModels.Clear();
-            }
+            threadSafe = new ThreadSafe();
         }
 
-        /// <summary>
-        /// Removes any simulated entities that was added to the scene for a game.
-        /// </summary>
-        public static void Clear()
+        public void Dispose()
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -64,16 +48,91 @@ namespace NebulaWorld
                 {
                     model.Destroy();
                 }
-
+                
                 remotePlayersModels.Clear();
             }
 
-            Initialized = false;
-            IsGameLoaded = false;
-            IsPlayerJoining = false;
+            UnityEngine.Object.Destroy(localPlayerMovement);
+            UnityEngine.Object.Destroy(localPlayerAnimation);
         }
 
-        public static void OnPlayerJoining()
+        public void SetupInitialPlayerState()
+        {
+            if (!Multiplayer.Session.IsGameLoaded)
+            {
+                Log.Warn("Trying to setup initial player state before the game is loaded!");
+                return;
+            }
+
+            if (!Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
+            {
+                Log.Warn("Trying to setup initial player state before the player data was received!");
+                return;
+            }
+
+            LocalPlayer player = Multiplayer.Session.LocalPlayer;
+
+            // Assign our own color
+            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColor);
+
+            // If not a new client, we need to update the player position to put him where he was previously
+            if (player.IsClient && !player.IsNewPlayer)
+            {
+                GameMain.mainPlayer.planetId = player.Data.LocalPlanetId;
+                if (player.Data.LocalPlanetId == -1)
+                {
+                    GameMain.mainPlayer.uPosition = new VectorLF3(player.Data.UPosition.x, player.Data.UPosition.y, player.Data.UPosition.z);
+                }
+                else
+                {
+                    GameMain.mainPlayer.position = player.Data.LocalPlanetPosition.ToVector3();
+                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
+                }
+                GameMain.mainPlayer.uRotation = Quaternion.Euler(player.Data.Rotation.ToVector3());
+
+                // Load client's saved data from the last session.
+                GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
+                GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
+                GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
+                GameMain.mainPlayer.mecha.reactorEnergy = player.Data.Mecha.ReactorEnergy;
+                GameMain.mainPlayer.mecha.reactorStorage = player.Data.Mecha.ReactorStorage;
+                GameMain.mainPlayer.mecha.warpStorage = player.Data.Mecha.WarpStorage;
+                GameMain.mainPlayer.SetSandCount(player.Data.Mecha.SandCount);
+
+                // Fix references that broke during import
+                GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
+                GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
+                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+            }
+
+            // Initialization on the host side after game is loaded
+            Multiplayer.Session.Factories.InitializePrebuildRequests();
+
+            if (player.IsClient)
+            {
+                // Update player's Mecha tech bonuses
+                player.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
+
+                // Enable Ping Indicator for Clients
+                DisplayPingIndicator();
+
+                // Notify the server that we are done loading the game
+                Multiplayer.Session.Network.SendPacket(new SyncComplete());
+
+                // Subscribe for the local star events
+                Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+
+                // Hide the "Joining Game" popup
+                InGamePopup.FadeOut();
+            }
+
+            // Finally we need add the local player components to the player character
+            localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
+            localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
+        }
+
+        public void OnPlayerJoining()
         {
             if (!IsPlayerJoining)
             {
@@ -83,24 +142,14 @@ namespace NebulaWorld
             }
         }
 
-        public static void OnAllPlayersSyncCompleted()
+        public void OnAllPlayersSyncCompleted()
         {
             IsPlayerJoining = false;
             InGamePopup.FadeOut();
             GameMain.isFullscreenPaused = false;
         }
 
-        public static void UpdateGameState(GameState state)
-        {
-            // We allow for a small drift of 5 ticks since the tick offset using the ping is only an approximation
-            if (GameMain.gameTick > 0 && Mathf.Abs(state.gameTick - GameMain.gameTick) > 5)
-            {
-                Log.Info($"Game Tick got updated since it was desynced, was {GameMain.gameTick}, received {state.gameTick}");
-                GameMain.gameTick = state.gameTick;
-            }
-        }
-
-        public static void SpawnRemotePlayerModel(PlayerData playerData)
+        public void SpawnRemotePlayerModel(PlayerData playerData)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -114,7 +163,7 @@ namespace NebulaWorld
             UpdatePlayerColor(playerData.PlayerId, playerData.MechaColor);
         }
 
-        public static void DestroyRemotePlayerModel(ushort playerId)
+        public void DestroyRemotePlayerModel(ushort playerId)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -126,7 +175,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerPosition(PlayerMovement packet)
+        public void UpdateRemotePlayerPosition(PlayerMovement packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -137,7 +186,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerAnimation(PlayerAnimationUpdate packet)
+        public void UpdateRemotePlayerAnimation(PlayerAnimationUpdate packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -149,7 +198,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
+        public void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -168,7 +217,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
+        public void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -182,7 +231,7 @@ namespace NebulaWorld
                     droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
 
                     // factory can sometimes be null when transitioning to or from a planet, in this case we do not want to continue
-                    if(droneLogic.factory == null)
+                    if (droneLogic.factory == null)
                     {
                         droneLogic.factory = tmpFactory;
                         return;
@@ -196,7 +245,7 @@ namespace NebulaWorld
                         drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                     }
                     drone.target = GameMain.mainPlayer.mecha.droneLogic._obj_hpos(packet.EntityId);
-                    drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + Random.insideUnitSphere) * 1.5f;
+                    drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + UnityEngine.Random.insideUnitSphere) * 1.5f;
                     drone.forward = drone.initialVector;
                     drone.progress = 0f;
                     player.MechaInstance.droneCount = GameMain.mainPlayer.mecha.droneCount;
@@ -210,12 +259,12 @@ namespace NebulaWorld
             }
         }
 
-        public static void UpdatePlayerColor(ushort playerId, Float3 color)
+        public void UpdatePlayerColor(ushort playerId, Float3 color)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 Transform transform;
-                if (playerId == LocalPlayer.PlayerId)
+                if (playerId == Multiplayer.Session.LocalPlayer.Id)
                 {
                     transform = GameMain.data.mainPlayer.transform;
                 }
@@ -242,90 +291,14 @@ namespace NebulaWorld
                 }
 
                 // We changed our own color, so we have to let others know
-                if (LocalPlayer.PlayerId == playerId)
+                if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
-                    LocalPlayer.SendPacket(new PlayerColorChanged(playerId, color));
+                    Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, color));
                 }
             }
         }
 
-        public static void OnILSShipUpdate(ILSShipData packet)
-        {
-            if (packet.idleToWork)
-            {
-                ILSShipManager.IdleShipGetToWork(packet);
-            }
-            else
-            {
-                ILSShipManager.WorkShipBackToIdle(packet);
-            }
-        }
-
-        public static void OnILSShipItemsUpdate(ILSShipItems packet)
-        {
-            ILSShipManager.AddTakeItem(packet);
-        }
-
-        public static void OnStationUIChange(StationUI packet)
-        {
-            StationUIManager.UpdateUI(packet);
-        }
-
-        public static void OnILSRemoteOrderUpdate(ILSRemoteOrderData packet)
-        {
-            ILSShipManager.UpdateRemoteOrder(packet);
-        }
-
-        public static void OnVegetationMined(VegeMinedPacket packet)
-        {
-            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-            if (packet.Amount == 0 && factory != null)
-            {
-                if (packet.IsVein)
-                {
-                    VeinData veinData = factory.GetVeinData(packet.VegeId);
-                    VeinProto veinProto = LDB.veins.Select((int)veinData.type);
-
-                    factory.RemoveVeinWithComponents(packet.VegeId);
-
-                    if (veinProto != null)
-                    {
-                        VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
-                        VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true);
-                    }
-                }
-                else
-                {
-                    VegeData vegeData = factory.GetVegeData(packet.VegeId);
-                    VegeProto vegeProto = LDB.veges.Select((int)vegeData.protoId);
-
-                    factory.RemoveVegeWithComponents(packet.VegeId);
-
-                    if (vegeProto != null)
-                    {
-                        VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
-                        VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true);
-                    }
-                }
-            }
-            else if (factory != null)
-            {
-                VeinData veinData = factory.GetVeinData(packet.VegeId);
-                PlanetData.VeinGroup[] veinGroups = factory.planet.veinGroups;
-                short groupIndex = veinData.groupIndex;
-
-                // must be a vein/oil patch (i think the game treats them same now as oil patches can run out too)
-                factory.veinPool[packet.VegeId].amount = packet.Amount;
-                factory.planet.veinAmounts[(int)veinData.type] -= 1L;
-                veinGroups[(int)groupIndex].amount = veinGroups[(int)groupIndex].amount - 1L;
-            }
-            else
-            {
-                Debug.Log("Received VegeMinedPacket but could not do as i was told :C");
-            }
-        }
-
-        public static int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
+        public int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -345,10 +318,9 @@ namespace NebulaWorld
                         trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
                     }
 
-                    using (TrashManager.NewTrashFromOtherPlayers.On())
+                    using (Multiplayer.Session.Trashes.NewTrashFromOtherPlayers.On())
                     {
                         int myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
-
                         return myId;
                     }
                 }
@@ -357,62 +329,7 @@ namespace NebulaWorld
             return 0;
         }
 
-        public static void OnGameLoadCompleted()
-        {
-            if (Initialized == false)
-                return;
-
-            Log.Info("Game has finished loading");
-
-            // Assign our own color
-            UpdatePlayerColor(LocalPlayer.PlayerId, LocalPlayer.Data.MechaColor);
-
-            // Change player location from spawn to the last known
-            VectorLF3 UPosition = new VectorLF3(LocalPlayer.Data.UPosition.x, LocalPlayer.Data.UPosition.y, LocalPlayer.Data.UPosition.z);
-            if (UPosition != VectorLF3.zero)
-            {
-                GameMain.mainPlayer.planetId = LocalPlayer.Data.LocalPlanetId;
-                if (LocalPlayer.Data.LocalPlanetId == -1)
-                {
-                    GameMain.mainPlayer.uPosition = UPosition;
-                }
-                else
-                {
-                    GameMain.mainPlayer.position = LocalPlayer.Data.LocalPlanetPosition.ToVector3();
-                    GameMain.mainPlayer.uPosition = new VectorLF3(GameMain.localPlanet.uPosition.x + GameMain.mainPlayer.position.x, GameMain.localPlanet.uPosition.y + GameMain.mainPlayer.position.y, GameMain.localPlanet.uPosition.z + GameMain.mainPlayer.position.z);
-                }
-                GameMain.mainPlayer.uRotation = Quaternion.Euler(LocalPlayer.Data.Rotation.ToVector3());
-
-                //Load player's saved data from the last session.
-                GameMain.mainPlayer.package = LocalPlayer.Data.Mecha.Inventory;
-                GameMain.mainPlayer.mecha.forge = LocalPlayer.Data.Mecha.Forge;
-                GameMain.mainPlayer.mecha.coreEnergy = LocalPlayer.Data.Mecha.CoreEnergy;
-                GameMain.mainPlayer.mecha.reactorEnergy = LocalPlayer.Data.Mecha.ReactorEnergy;
-                GameMain.mainPlayer.mecha.reactorStorage = LocalPlayer.Data.Mecha.ReactorStorage;
-                GameMain.mainPlayer.mecha.warpStorage = LocalPlayer.Data.Mecha.WarpStorage;
-                GameMain.mainPlayer.SetSandCount(LocalPlayer.Data.Mecha.SandCount);
-
-                //Fix references that brokes during import
-                GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
-                GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
-                GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
-            }
-
-            //Update player's Mecha tech bonuses
-            if (!LocalPlayer.IsMasterClient)
-            {
-                LocalPlayer.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
-            }
-
-            //Initialization on the host side after game is loaded
-            FactoryManager.InitializePrebuildRequests();
-
-            LocalPlayer.SetReady();
-
-            IsGameLoaded = true;
-        }
-
-        public static void OnDronesDraw()
+        public void OnDronesDraw()
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -427,7 +344,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void OnDronesGameTick(float dt)
+        public void OnDronesGameTick(float dt)
         {
             double tmp = 1e10; //fake energy of remote player, needed to do the Update()
             double tmp2 = 1;
@@ -463,7 +380,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
+        public void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
         {
             // Make a copy of the "Icarus" text from the starmap
             Text starmap_playerNameText = starmap.playerNameText;
@@ -526,7 +443,7 @@ namespace NebulaWorld
                     if (playerModel.Movement.localPlanetId > 0)
                     {
                         PlanetData planet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
-                        var rotation = planet.runtimeRotation * 
+                        var rotation = planet.runtimeRotation *
                             Quaternion.LookRotation(playerModel.PlayerModelTransform.forward, playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToVector3());
                         starmapTracker.rotation = rotation;
                     }
@@ -536,7 +453,7 @@ namespace NebulaWorld
                         starmapTracker.rotation = rotation;
                     }
 
-                    starmapTracker.localScale = UIStarmap.isChangingToMilkyWay ? Vector3.zero : 
+                    starmapTracker.localScale = UIStarmap.isChangingToMilkyWay ? Vector3.zero :
                         Vector3.one * (starmap.screenCamera.transform.position - starmapTracker.position).magnitude;
 
                     // Put their name above or below it
@@ -546,7 +463,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void ClearPlayerNameTagsOnStarmap()
+        public void ClearPlayerNameTagsOnStarmap()
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
@@ -563,7 +480,7 @@ namespace NebulaWorld
             }
         }
 
-        public static void RenderPlayerNameTagsInGame()
+        public void RenderPlayerNameTagsInGame()
         {
             TextMesh uiSailIndicator_targetText = null;
 
@@ -606,7 +523,7 @@ namespace NebulaWorld
                     }
 
                     // If the player is not on the same planet or is in space, then do not render their in-world tag
-                    if (playerModel.Movement.localPlanetId != LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
+                    if (playerModel.Movement.localPlanetId != Multiplayer.Session.LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
                     {
                         playerNameText.SetActive(false);
                     }
@@ -638,6 +555,46 @@ namespace NebulaWorld
                         nameTextMesh.fontSize = 36;
                     }
                 }
+            }
+        }
+
+        public void DisplayPingIndicator()
+        {
+            GameObject previousObject = GameObject.Find("Ping Indicator");
+            if (previousObject == null)
+            {
+                GameObject targetObject = GameObject.Find("label");
+                pingIndicator = GameObject.Instantiate(targetObject, UIRoot.instance.uiGame.gameObject.transform).GetComponent<Text>();
+                pingIndicator.gameObject.name = "Ping Indicator";
+                pingIndicator.alignment = TextAnchor.UpperLeft;
+                pingIndicator.enabled = true;
+                RectTransform rect = pingIndicator.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0f, 1f);
+                rect.offsetMax = new Vector2(-68f, -40f);
+                rect.offsetMin = new Vector2(10f, -100f);
+                pingIndicator.text = "";
+                pingIndicator.fontSize = 14;
+            }
+            else
+            {
+                pingIndicator = previousObject.GetComponent<Text>();
+                pingIndicator.enabled = true;
+            }
+        }
+
+        public void HidePingIndicator()
+        {
+            if (pingIndicator != null)
+            {
+                pingIndicator.enabled = false;
+            }
+        }
+
+        public void UpdatePingIndicator(string text)
+        {
+            if (pingIndicator != null)
+            {
+                pingIndicator.text = text;
             }
         }
     }

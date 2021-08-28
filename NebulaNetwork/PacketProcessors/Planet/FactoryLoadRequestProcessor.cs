@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
+using NebulaWorld;
 using NebulaWorld.Statistics;
 
 namespace NebulaNetwork.PacketProcessors.Planet
@@ -21,7 +22,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 factory.Export(writer.BinaryWriter);
                 conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
             }
-            conn.SendPacket(StatisticsManager.GetFactoryPlanetIds());
+            conn.SendPacket(Multiplayer.Session.Statistics.GetFactoryPlanetIds());
         }
     }
 }

@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PostEffectController.Start))]
         public static void Start_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }

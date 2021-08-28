@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(1)
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<string, string>>((text) =>
                 {
-                    if (SimulatedWorld.Initialized)
+                    if (Multiplayer.IsActive)
                     {
                         text = $"{PluginInfo.PLUGIN_SHORT_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}\r\n{text}";
                     }

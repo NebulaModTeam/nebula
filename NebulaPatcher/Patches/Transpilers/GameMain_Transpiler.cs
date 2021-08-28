@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         //Ignore Pausing in the multiplayer:
         //Change:  if (!this._paused)
-        //To:      if (!this._paused || SimulatedWorld.Initialized)
+        //To:      if (!this._paused || Multiplayer.IsActive)
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(GameMain.FixedUpdate))]
@@ -34,7 +34,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
                     //Add my condition
                     codes.InsertRange(i + 4, new CodeInstruction[] {
-                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SimulatedWorld), "get_" + nameof(SimulatedWorld.Initialized))),
+                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Multiplayer), "get_" + nameof(Multiplayer.IsActive))),
                             new CodeInstruction(OpCodes.Brfalse_S, codes[i+3].operand)
                     });
 

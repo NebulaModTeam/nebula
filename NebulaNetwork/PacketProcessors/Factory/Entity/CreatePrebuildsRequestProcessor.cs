@@ -2,7 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
@@ -11,9 +11,9 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     {
         public override void ProcessPacket(CreatePrebuildsRequest packet, NebulaConnection conn)
         {
-            using (FactoryManager.IsIncomingRequest.On())
+            using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
-                BuildToolManager.CreatePrebuildsRequest(packet);
+                Multiplayer.Session.BuildTools.CreatePrebuildsRequest(packet);
             }
         }
     }

@@ -12,9 +12,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnItemPickerReturn_Postfix(UISplitterWindow __instance, ItemProto item)
         {
             //Send notification about changing splitter output filter
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UISplitterWindow.OnCircleFilterClick))]
         public static void OnCircleFilterRightClick_Prefix(UISplitterWindow __instance, int slot)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -35,7 +35,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (sendResetOutputFilter && thisComponent.outFilter != 0)
             {
-                LocalPlayer.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, 0, GameMain.localPlanet?.id ?? -1));
             }
         }
     }
