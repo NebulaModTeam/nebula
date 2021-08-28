@@ -101,6 +101,8 @@ namespace NebulaAPI
             binaryWriter = binaryUtils.GetNestedType("Writer");
             binaryReader = binaryUtils.GetNestedType("Reader");
             
+            RegisterPackets(Assembly.GetExecutingAssembly());
+            
             Logger.LogInfo("Nebula API is ready!");
         }
 
