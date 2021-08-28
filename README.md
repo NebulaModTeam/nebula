@@ -17,7 +17,7 @@ Please do keep in mind that this mod is still in heavy development, it may still
 
 ## API Documentation
 
-This mod has an API, that makes it easier for other mod developers to be compatible with Nebula. If you are a mod developer and you want your mods to be compatible, follow instructions [here](https://github.com/hubastard/nebula/wiki/Nebula-mod-API). Also you can always join our [Discord Server](https://discord.gg/UHeB2QvgDa) for help with using API.
+This mod has an API, that makes it easier for other mod developers to make their mods compatible with Nebula. If you are a mod developer and you want your mods to be compatible, follow the instructions [here](https://github.com/hubastard/nebula/wiki/Nebula-mod-API). Also you can always join our [Discord Server](https://discord.gg/UHeB2QvgDa) for help with using the API.
 
 ## What is the current status?
 
