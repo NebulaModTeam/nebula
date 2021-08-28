@@ -15,14 +15,14 @@ namespace NebulaNetwork.PacketProcessors.Statistics
 
         public StatisticsRequestEventProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
         {
             if (IsClient) return;
 
-            NebulaPlayer player = playerManager.GetPlayer(conn);
+            INebulaPlayer player = playerManager.GetPlayer(conn);
             if (player != null)
             {
                 if (packet.Event == StatisticEvent.WindowOpened)

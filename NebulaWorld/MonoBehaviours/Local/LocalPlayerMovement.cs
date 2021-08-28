@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 Double3 uPosition = new Double3(GameMain.mainPlayer.uPosition.x, GameMain.mainPlayer.uPosition.y, GameMain.mainPlayer.uPosition.z);
                 Multiplayer.Session.Network.SendPacket(new PlayerMovement(((LocalPlayer)Multiplayer.Session.LocalPlayer).Id, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToFloat3(), uPosition, rotation, bodyRotation));
 
-                PlayerData playerData = ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data;
+                IPlayerData playerData = Multiplayer.Session.LocalPlayer.Data;
                 playerData.BodyRotation = bodyRotation;
                 playerData.LocalPlanetId = GameMain.localPlanet?.id ?? -1;
                 playerData.LocalPlanetPosition = rootTransform.position.ToFloat3();

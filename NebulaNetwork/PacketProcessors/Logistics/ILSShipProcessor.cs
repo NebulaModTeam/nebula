@@ -16,14 +16,14 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private IPlayerManager playerManager;
         public ILSShipProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(ILSShipData packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);

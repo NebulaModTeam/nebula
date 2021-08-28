@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
 
         public TrashSystemClearAllTrashProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
@@ -24,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
             bool valid = true;
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);

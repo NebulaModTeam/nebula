@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public DysonSwarmRemoveOrbitProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
@@ -23,7 +23,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             bool valid = true;
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 else

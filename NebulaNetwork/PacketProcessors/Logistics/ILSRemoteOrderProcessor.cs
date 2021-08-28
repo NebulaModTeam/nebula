@@ -15,14 +15,14 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
         public ILSRemoteOrderProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(ILSRemoteOrderData packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
 

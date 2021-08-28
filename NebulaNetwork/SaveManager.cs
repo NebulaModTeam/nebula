@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking.Serialization;
@@ -16,14 +17,14 @@ namespace NebulaNetwork
         public static void SaveServerData(string saveName)
         {
             string path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
-            IPlayerManager playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
             NetDataWriter netDataWriter = new NetDataWriter();
 
             using (playerManager.GetSavedPlayerData(out var savedPlayerData))
             {
                 netDataWriter.Put(savedPlayerData.Count + 1);
                 //Add data about all players
-                foreach (KeyValuePair<string, PlayerData> data in savedPlayerData)
+                foreach (KeyValuePair<string, IPlayerData> data in savedPlayerData)
                 {
                     string hash = data.Key;
                     netDataWriter.Put(hash);
@@ -70,7 +71,7 @@ namespace NebulaNetwork
         {
             string path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
 
-            IPlayerManager playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
             if (!File.Exists(path) || playerManager == null)
             {
                 return;

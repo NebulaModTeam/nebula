@@ -4,7 +4,7 @@ using NebulaModel.Networking.Serialization;
 namespace NebulaModel.DataStructures
 {
     [RegisterNestedType]
-    public class PlayerData : INetSerializable
+    public class PlayerData : IPlayerData
     {
         public string Username { get; set; }
         public ushort PlayerId { get; set; }
@@ -14,7 +14,7 @@ namespace NebulaModel.DataStructures
         public Double3 UPosition { get; set; }
         public Float3 Rotation { get; set; }
         public Float3 BodyRotation { get; set; }
-        public MechaData Mecha { get; set; }
+        public IMechaData Mecha { get; set; }
         public int LocalStarId { get; set; }
 
         public PlayerData() { }
@@ -58,7 +58,7 @@ namespace NebulaModel.DataStructures
             Mecha.Deserialize(reader);
         }
 
-        public PlayerData CreateCopyWithoutMechaData()
+        public IPlayerData CreateCopyWithoutMechaData()
         {
             return new PlayerData(PlayerId, LocalPlanetId, MechaColor, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
         }

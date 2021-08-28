@@ -6,7 +6,7 @@ using System.IO;
 namespace NebulaModel.DataStructures
 {
     [RegisterNestedType]
-    public class MechaData : INetSerializable
+    public class MechaData : IMechaData
     {
         public int SandCount { get; set; }
         public double CoreEnergy { get; set; }

@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public DysonSphereAddFrameProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(DysonSphereAddFramePacket packet, NebulaConnection conn)
@@ -24,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);

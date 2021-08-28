@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public NewDroneOrderProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
@@ -26,7 +26,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 if (GameMain.mainPlayer.planetId != packet.PlanetId)
                     return;
 
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     if (packet.Stage == 1 || packet.Stage == 2)

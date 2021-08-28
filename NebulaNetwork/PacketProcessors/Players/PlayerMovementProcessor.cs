@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public PlayerMovementProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
@@ -23,7 +23,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             bool valid = true;
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     player.Data.LocalPlanetId = packet.LocalPlanetId;

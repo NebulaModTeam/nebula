@@ -159,7 +159,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive && ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 //we need to know which itemtypes are currently needed for refunds, so trigger refund before cancelling own research
-                ((NetworkProvider)Multiplayer.Session.Network).PlayerManager.SendTechRefundPackagesToClients(__state);
+                Multiplayer.Session.Network.PlayerManager.SendTechRefundPackagesToClients(__state);
             }
             Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }

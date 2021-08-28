@@ -1,6 +1,4 @@
-﻿// unset
-
-using System;
+﻿using System;
 
 namespace NebulaAPI
 {
@@ -14,5 +12,6 @@ namespace NebulaAPI
         bool IsClient { get; }
         bool IsNewPlayer { get; }
         ushort Id { get; }
+        IPlayerData Data { get; }
     }
 }

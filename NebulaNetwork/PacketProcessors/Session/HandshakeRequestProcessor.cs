@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using NebulaAPI;
 using NebulaModel;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -20,14 +21,14 @@ namespace NebulaNetwork.PacketProcessors.Session
 
         public HandshakeRequestProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
         {
             if (IsClient) return;
 
-            NebulaPlayer player;
+            INebulaPlayer player;
             using (playerManager.GetPendingPlayers(out var pendingPlayers))
             {
                 if (!pendingPlayers.TryGetValue(conn, out player))
@@ -110,7 +111,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             player.Data.MechaColor = packet.MechaColor;
 
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
-            PlayerJoining pdata = new PlayerJoining(player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
+            PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
             using (playerManager.GetConnectedPlayers(out var connectedPlayers))
             {
                 foreach (var kvp in connectedPlayers)
@@ -126,7 +127,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             }
 
             //Add current tech bonuses to the connecting player based on the Host's mecha
-            player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
+            ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
             using (BinaryUtils.Writer p = new BinaryUtils.Writer())
             {
@@ -142,7 +143,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
                 
                 var gameDesc = GameMain.data.gameDesc;
-                player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, player.Data, p.CloseAndGetBytes(), count));
+                player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
             }
         }
     }

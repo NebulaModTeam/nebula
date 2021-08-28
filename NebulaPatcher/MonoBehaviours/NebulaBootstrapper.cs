@@ -21,7 +21,7 @@ namespace NebulaPatcher.MonoBehaviours
         {
             if (Multiplayer.IsActive)
             {
-                ((NetworkProvider)Multiplayer.Session.Network).Update();
+                Multiplayer.Session.Network.Update();
             }
         }
     }

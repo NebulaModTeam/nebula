@@ -3,34 +3,34 @@ using NebulaModel.Networking.Serialization;
 
 namespace NebulaModel.Packets.Players
 {
-    public class PlayerTechBonuses : INetSerializable
+    public class PlayerTechBonuses : IPlayerTechBonuses
     {
-        double coreEnergyCap { get; set; }
-        double corePowerGen { get; set; }
-        double reactorPowerGen { get; set; }
-        double walkPower { get; set; }
-        double jumpEnergy { get; set; }
-        double thrustPowerPerAcc { get; set; }
-        double warpKeepingPowerPerSpeed { get; set; }
-        double warpStartPowerPerSpeed { get; set; }
-        double miningPower { get; set; }
-        double replicatePower { get; set; }
-        double researchPower { get; set; }
-        double droneEjectEnergy { get; set; }
-        double droneEnergyPerMeter { get; set; }
-        int coreLevel { get; set; }
-        int thrusterLevel { get; set; }
-        float miningSpeed { get; set; }
-        float replicateSpeed { get; set; }
-        float walkSpeed { get; set; }
-        float jumpSpeed { get; set; }
-        float maxSailSpeed { get; set; }
-        float maxWarpSpeed { get; set; }
-        float buildArea { get; set; }
-        int droneCount { get; set; }
-        float droneSpeed { get; set; }
-        int droneMovement { get; set; }
-        int inventorySize { get; set; }
+        public double coreEnergyCap { get; set; }
+        public double corePowerGen { get; set; }
+        public double reactorPowerGen { get; set; }
+        public double walkPower { get; set; }
+        public double jumpEnergy { get; set; }
+        public double thrustPowerPerAcc { get; set; }
+        public double warpKeepingPowerPerSpeed { get; set; }
+        public double warpStartPowerPerSpeed { get; set; }
+        public double miningPower { get; set; }
+        public double replicatePower { get; set; }
+        public double researchPower { get; set; }
+        public double droneEjectEnergy { get; set; }
+        public double droneEnergyPerMeter { get; set; }
+        public int coreLevel { get; set; }
+        public int thrusterLevel { get; set; }
+        public float miningSpeed { get; set; }
+        public float replicateSpeed { get; set; }
+        public float walkSpeed { get; set; }
+        public float jumpSpeed { get; set; }
+        public float maxSailSpeed { get; set; }
+        public float maxWarpSpeed { get; set; }
+        public float buildArea { get; set; }
+        public int droneCount { get; set; }
+        public float droneSpeed { get; set; }
+        public int droneMovement { get; set; }
+        public int inventorySize { get; set; }
 
         public PlayerTechBonuses() { }
 

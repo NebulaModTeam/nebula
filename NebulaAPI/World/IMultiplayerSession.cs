@@ -1,8 +1,4 @@
-﻿// unset
-
-using System;
-
-namespace NebulaAPI
+﻿namespace NebulaAPI
 {
     public interface IMultiplayerSession
     {

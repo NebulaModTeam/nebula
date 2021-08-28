@@ -9,7 +9,7 @@ namespace NebulaModel
     {
         public NetPacketProcessor PacketProcessor { get; protected set; }
 
-        public readonly IPlayerManager PlayerManager;
+        public IPlayerManager PlayerManager { get; }
 
         protected NetworkProvider(IPlayerManager playerManager)
         {

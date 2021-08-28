@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private IPlayerManager playerManager;
         public StationUIProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(StationUI packet, NebulaConnection conn)
@@ -35,8 +35,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     {
                         foreach (var kvp in connectedPlayers)
                         {
-                            NebulaPlayer p = kvp.Value;
-                            packet.ShouldMimic = p.Connection == conn;
+                            INebulaPlayer p = kvp.Value;
+                            packet.ShouldMimic = ((NebulaConnection)p.Connection) == conn;
                             p.SendPacket(packet);
                         }
                     }
@@ -44,7 +44,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 else if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
                 {
                     // if someone adds or removes items by hand broadcast to every player on that planet
-                    NebulaPlayer player = playerManager.GetPlayer(conn);
+                    INebulaPlayer player = playerManager.GetPlayer(conn);
                     if (player != null)
                     {
                         playerManager.SendPacketToPlanet(packet, player.Data.LocalPlanetId);

@@ -11,7 +11,7 @@ namespace NebulaWorld
         public bool IsClient => !IsHost;
         public bool IsNewPlayer { get; private set; }
         public ushort Id => Data.PlayerId;
-        public PlayerData Data { get; private set; }
+        public IPlayerData Data { get; private set; }
 
         public void SetPlayerData(PlayerData data, bool isNewPlayer)
         {

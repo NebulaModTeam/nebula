@@ -1,31 +1,30 @@
-﻿using NebulaAPI;
-using NebulaModel.Networking.Serialization;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace NebulaModel.DataStructures
+namespace NebulaAPI
 {
     [RegisterNestedType]
-    public struct Float4 : INetSerializable
+    public struct Float3 : INetSerializable
     {
         public float x;
         public float y;
         public float z;
-        public float w;
 
-        public Float4(float x, float y, float z, float w)
+        public Float3(float x, float y, float z)
         {
             this.x = x;
             this.y = y;
             this.z = z;
-            this.w = w;
         }
 
-        public Float4(Quaternion value)
+        public Float3(Vector3 value)
         {
             x = value.x;
             y = value.y;
             z = value.z;
-            w = value.w;
+        }
+        public Color ToColor()
+        {
+            return new Color(x, y, z);
         }
 
         public void Serialize(INetDataWriter writer)
@@ -33,7 +32,6 @@ namespace NebulaModel.DataStructures
             writer.Put(x);
             writer.Put(y);
             writer.Put(z);
-            writer.Put(w);
         }
 
         public void Deserialize(INetDataReader reader)
@@ -41,13 +39,11 @@ namespace NebulaModel.DataStructures
             x = reader.GetFloat();
             y = reader.GetFloat();
             z = reader.GetFloat();
-            w = reader.GetFloat();
         }
-
 
         public override string ToString()
         {
-            return $"x: {x}, y: {y}, z: {z}, w: {w}";
+            return $"(x: {x}, y: {y}, z: {z})";
         }
     }
 }

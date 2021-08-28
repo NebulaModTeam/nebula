@@ -19,7 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public NameInputProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
@@ -27,7 +27,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             bool valid = true;
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 else

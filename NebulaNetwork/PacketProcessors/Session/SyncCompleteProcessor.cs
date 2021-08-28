@@ -19,14 +19,14 @@ namespace NebulaNetwork.PacketProcessors.Session
 
         public SyncCompleteProcessor()
         {
-            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetSyncingPlayer(conn);
+                INebulaPlayer player = playerManager.GetSyncingPlayer(conn);
                 if (player == null)
                 {
                     Log.Warn("Received a SyncComplete packet, but no player is joining.");

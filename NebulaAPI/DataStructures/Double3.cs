@@ -1,7 +1,5 @@
-﻿using NebulaAPI;
-using NebulaModel.Networking.Serialization;
-
-namespace NebulaModel.DataStructures
+﻿
+namespace NebulaAPI
 {
     [RegisterNestedType]
     public struct Double3 : INetSerializable

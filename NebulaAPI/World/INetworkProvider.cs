@@ -1,6 +1,4 @@
-﻿// unset
-
-using System;
+﻿using System;
 
 namespace NebulaAPI
 {
@@ -29,5 +27,9 @@ namespace NebulaAPI
         void SendPacketToStar<T>(T packet, int starId) where T : class, new();
         
         void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
+
+        IPlayerManager PlayerManager { get; }
+        
+        void Update();
     }
 }

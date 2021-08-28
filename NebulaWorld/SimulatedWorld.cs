@@ -113,7 +113,7 @@ namespace NebulaWorld
             if (player.IsClient)
             {
                 // Update player's Mecha tech bonuses
-                player.Data.Mecha.TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
+                ((MechaData)player.Data.Mecha).TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
 
                 // Enable Ping Indicator for Clients
                 DisplayPingIndicator();
@@ -150,7 +150,7 @@ namespace NebulaWorld
             GameMain.isFullscreenPaused = false;
         }
 
-        public void SpawnRemotePlayerModel(PlayerData playerData)
+        public void SpawnRemotePlayerModel(IPlayerData playerData)
         {
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
