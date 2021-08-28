@@ -53,7 +53,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
         public static bool CheckBuildConditions(ref bool __result)
         {
-            if (Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value)
+            if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
                 __result = true;
                 return false;

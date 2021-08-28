@@ -104,7 +104,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
 
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return true;
             }
