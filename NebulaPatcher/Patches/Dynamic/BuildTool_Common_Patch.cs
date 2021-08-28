@@ -20,7 +20,6 @@ namespace NebulaPatcher.Patches.Dynamic
             if (!Multiplayer.IsActive)
                 return true;
 
-
             List<BuildPreview> previews = __instance.buildPreviews;
             if (__instance is BuildTool_BlueprintPaste)
             {
@@ -51,11 +50,12 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
         public static bool CheckBuildConditions(ref bool __result)
         {
-            if (Multiplayer.Session.Factories.IsIncomingRequest)
+            if (Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest)
             {
                 __result = true;
                 return false;
             }
+
             return true;
         }
     }
