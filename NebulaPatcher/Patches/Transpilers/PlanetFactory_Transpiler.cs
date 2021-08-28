@@ -44,7 +44,10 @@ namespace NebulaPatcher.Patches.Transpiler
                           .InsertAndAdvance(pointPosInsts.ToArray())
                           .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, UnityEngine.Vector3>>((inserterId, pickTarget, offset, objId, pointPos) =>
                           {
-                              Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
+                              if (Multiplayer.IsActive)
+                              {
+                                  Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
+                              }
                           }));
 
             /*
@@ -77,7 +80,10 @@ namespace NebulaPatcher.Patches.Transpiler
                           .InsertAndAdvance(pointPosInsts.ToArray())
                           .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, UnityEngine.Vector3>>((inserterId, pickTarget, offset, objId, pointPos) =>
                           {
-                              Multiplayer.Session.Factories.OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset, pointPos);
+                              if (Multiplayer.IsActive)
+                              {
+                                  Multiplayer.Session.Factories.OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset, pointPos);
+                              }
                           }));
 
             return codeMatcher.InstructionEnumeration();

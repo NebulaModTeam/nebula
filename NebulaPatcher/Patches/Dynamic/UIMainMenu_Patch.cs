@@ -69,7 +69,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnMultiplayerButtonClick()
         {
-            MainMenuManager.IsInMultiplayerMenu = true;
+            Multiplayer.IsInMultiplayerMenu = true;
             mainMenuButtonGroup.gameObject.SetActive(false);
             multiplayerSubMenu.gameObject.SetActive(true);
         }
@@ -113,7 +113,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnMultiplayerBackButtonClick()
         {
-            MainMenuManager.IsInMultiplayerMenu = false;
+            Multiplayer.IsInMultiplayerMenu = false;
             multiplayerSubMenu.gameObject.SetActive(false);
             mainMenuButtonGroup.gameObject.SetActive(true);
         }

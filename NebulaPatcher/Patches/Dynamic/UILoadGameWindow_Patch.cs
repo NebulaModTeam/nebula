@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UILoadGameWindow.DoLoadSelectedGame))]
         public static void DoLoadSelectedGame_Postfix()
         {
-            if (MainMenuManager.IsInMultiplayerMenu)
+            if (Multiplayer.IsInMultiplayerMenu)
             {
                 Log.Info($"Listening server on port {Config.Options.HostPort}");
                 Multiplayer.HostGame(new Server(Config.Options.HostPort, true));

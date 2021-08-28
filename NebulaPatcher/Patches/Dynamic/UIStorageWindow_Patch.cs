@@ -37,7 +37,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnOpen_Prefix()
         {
-            Multiplayer.Session.Storage.WindowOpened = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.WindowOpened = true;
+            }
+            
             return true;
         }
 
@@ -46,8 +50,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Prefix()
         {
-            Multiplayer.Session.Storage.WindowOpened = false;
-            Multiplayer.Session.Storage.ActiveStorageComponent = null;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.WindowOpened = false;
+                Multiplayer.Session.Storage.ActiveStorageComponent = null;
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
-            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -78,7 +78,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
 
-            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -102,9 +102,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.OnActivePlanetFactoryLoaded))]
         public static bool OnActivePlanetFactoryLoaded_Prefix(GameData __instance, PlanetData planet)
         {
-            // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
-
-            if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -137,7 +135,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix(GameData __instance)
         {
             //Set starting star and planet to request from the server
-            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 if (((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.LocalPlanetId != -1)
                 {
@@ -167,7 +165,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
         {
-            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 if (Multiplayer.IsActive)
                 {
@@ -230,7 +228,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void LeaveStar_Prefix(GameData __instance)
         {
             //Client should unload all factories once they leave the star system
-            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 using (Multiplayer.Session.Ships.PatchLockILS.On())
                 {
@@ -256,7 +254,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void ArriveStar_Prefix(StarData star)
         {
             //Client should unload all factories once they leave the star system
-            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost && star != null)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && star != null)
             {
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
                 Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));

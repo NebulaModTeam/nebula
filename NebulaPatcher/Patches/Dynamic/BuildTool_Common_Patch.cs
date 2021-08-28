@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // Host will just broadcast event to other players
-            if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 int planetId = Multiplayer.Session.Factories.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
                 Multiplayer.Session.Network.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
@@ -53,7 +53,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
         public static bool CheckBuildConditions(ref bool __result)
         {
-            if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
+            if (Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
                 __result = true;
                 return false;

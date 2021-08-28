@@ -8,7 +8,11 @@ namespace NebulaWorld
         public static MultiplayerSession Session { get; private set; }
 
         public static bool IsActive => Session != null;
+        
         public static bool IsLeavingGame { get; set; }
+
+        public static bool IsInMultiplayerMenu { get; set; }
+
 
         public static void HostGame(NetworkProvider server)
         {
