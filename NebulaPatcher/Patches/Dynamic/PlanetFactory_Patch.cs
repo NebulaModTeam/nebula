@@ -80,7 +80,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.GameTick))]
         public static bool InternalUpdate_Prefix()
         {
-            Multiplayer.Session.Storage.IsHumanInput = false;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.IsHumanInput = false;
+            }
             return true;
         }
 
@@ -88,7 +91,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.GameTick))]
         public static void InternalUpdate_Postfix()
         {
-            Multiplayer.Session.Storage.IsHumanInput = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.IsHumanInput = true;
+            }
         }
 
         [HarmonyPrefix]

@@ -58,20 +58,21 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        public static bool RefreshMissingMeshes = false;
-
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameData.ArrivePlanet))]
         public static void ArrivePlanet_Postfix(GameData __instance, PlanetData planet)
         {
-            RefreshMissingMeshes = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.PlanetRefreshMissingMeshes = true;
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance)
         {
-            if (Multiplayer.IsActive && RefreshMissingMeshes && __instance.localPlanet != null)
+            if (Multiplayer.IsActive && Multiplayer.Session.PlanetRefreshMissingMeshes && __instance.localPlanet != null)
             {
                 PlanetData planetData = __instance.localPlanet;
 
@@ -84,7 +85,7 @@ namespace NebulaPatcher.Patches.Dynamic
                             planetData.meshColliders[i].sharedMesh = planetData.meshes[i];
                         }
                     }
-                    RefreshMissingMeshes = false;
+                    Multiplayer.Session.PlanetRefreshMissingMeshes = false;
                 }
             }
         }

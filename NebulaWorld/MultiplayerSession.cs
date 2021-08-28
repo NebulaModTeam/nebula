@@ -31,6 +31,11 @@ namespace NebulaWorld
         public TrashManager Trashes { get; private set; }
         public DysonSphereManager DysonSpheres { get; private set; }
 
+        // Some Patch Flags
+        public bool IsTankWindowPointerPress { get; set; }
+        public bool PlanetRefreshMissingMeshes { get; set; }
+
+
         public bool IsGameLoaded { get; set; }
 
         public MultiplayerSession(NetworkProvider networkProvider)
