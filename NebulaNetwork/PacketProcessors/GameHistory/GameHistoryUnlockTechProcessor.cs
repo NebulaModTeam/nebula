@@ -3,6 +3,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
+using NebulaWorld;
 using NebulaWorld.GameDataHistory;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
         public override void ProcessPacket(GameHistoryUnlockTechPacket packet, NebulaConnection conn)
         {
             Log.Info($"Unlocking tech (ID: {packet.TechId})");
-            using (GameDataHistoryManager.IsIncomingRequest.On())
+            using (Multiplayer.Session.History.IsIncomingRequest.On())
             {
                 GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
                 GameMain.history.DequeueTech();

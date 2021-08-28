@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
-using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
@@ -11,7 +10,7 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         //Ignore Pausing in the multiplayer:
         //Change:  if (!this._paused)
-        //To:      if (!this._paused || SimulatedWorld.Instance.Initialized)
+        //To:      if (!this._paused || Multiplayer.IsActive)
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(GameMain.FixedUpdate))]
@@ -34,12 +33,10 @@ namespace NebulaPatcher.Patches.Transpiler
                     codes[i + 4].labels.Add(targetLabel);
 
                     //Add my condition
-                    codes.InsertRange(i + 4,
-                        new[]
-                        {
-                            new CodeInstruction(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() => SimulatedWorld.Instance.Initialized)),
-                            new CodeInstruction(OpCodes.Brfalse_S, codes[i + 3].operand)
-                        });
+                    codes.InsertRange(i + 4, new CodeInstruction[] {
+                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Multiplayer), "get_" + nameof(Multiplayer.IsActive))),
+                            new CodeInstruction(OpCodes.Brfalse_S, codes[i+3].operand)
+                    });
 
                     //Change jump of first condition
                     codes[i + 3] = new CodeInstruction(OpCodes.Brfalse_S, targetLabel);

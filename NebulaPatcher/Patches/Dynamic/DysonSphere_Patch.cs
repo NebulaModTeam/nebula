@@ -14,14 +14,14 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphere.AddLayer))]
         public static bool AddLayer_Prefix(DysonSphere __instance, float orbitRadius, Quaternion orbitRotation, float orbitAngularSpeed)
         {
-            if (!SimulatedWorld.Instance.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
             //Notify others that user added layer to dyson sphere plan
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.Instance.SendPacket(new DysonSphereAddLayerPacket(__instance.starData.index, orbitRadius, orbitRotation, orbitAngularSpeed));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddLayerPacket(__instance.starData.index, orbitRadius, orbitRotation, orbitAngularSpeed));
             }
             return true;
         }
@@ -30,7 +30,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphere.RemoveLayer), new Type[] { typeof(int) })]
         public static bool RemoveLayer_Prefix(DysonSphere __instance, int id)
         {
-            if (!SimulatedWorld.Instance.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
@@ -43,7 +43,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphere.RemoveLayer), new Type[] { typeof(DysonSphereLayer) })]
         public static bool RemoveLayer_Prefix2(DysonSphere __instance, DysonSphereLayer layer)
         {
-            if (!SimulatedWorld.Instance.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
@@ -54,9 +54,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
         public static void RemoveLayer(int id, int starIndex)
         {
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.Instance.SendPacket(new DysonSphereRemoveLayerPacket(starIndex, id));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveLayerPacket(starIndex, id));
             }
         }
     }

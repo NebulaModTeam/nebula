@@ -1,9 +1,9 @@
-﻿using NebulaAPI;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.PowerTower;
+using NebulaWorld;
 using NebulaWorld.Factory;
-using LocalPlayer = NebulaWorld.LocalPlayer;
 
 namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
 {
@@ -19,25 +19,25 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
 
                 if (packet.Charging)
                 {
-                    PowerTowerManager.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
+                    Multiplayer.Session.PowerTowers.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
                     if (IsClient)
                     {
-                        if (PowerTowerManager.DidRequest(packet.PlanetId, packet.NetId, packet.NodeId))
+                        if (Multiplayer.Session.PowerTowers.DidRequest(packet.PlanetId, packet.NetId, packet.NodeId))
                         {
                             int baseDemand = factory.powerSystem.nodePool[packet.NodeId].workEnergyPerTick - factory.powerSystem.nodePool[packet.NodeId].idleEnergyPerTick;
                             float mult = factory.powerSystem.networkServes[packet.NetId];
-                            PowerTowerManager.PlayerChargeAmount += (int)(mult * (float)baseDemand);
+                            Multiplayer.Session.PowerTowers.PlayerChargeAmount += (int)(mult * (float)baseDemand);
                         }
                     }
                 }
                 else
                 {
-                    PowerTowerManager.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
+                    Multiplayer.Session.PowerTowers.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
                 }
 
                 if (IsHost)
                 {
-                    LocalPlayer.Instance.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
+                    Multiplayer.Session.Network.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
                         packet.NetId,
                         packet.NodeId,
                         packet.PowerAmount,

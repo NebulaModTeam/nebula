@@ -19,6 +19,7 @@ using WebSocketSharp;
 
 namespace NebulaNetwork
 {
+    /*
     public class MultiplayerClientSession : MonoBehaviour, INetworkProvider
     {
         public static MultiplayerClientSession Instance { get; protected set; }
@@ -30,7 +31,6 @@ namespace NebulaNetwork
 
         private float pingTimer = 0f;
         private float pingTimestamp = 0f;
-        private Text pingIndicator;
         private int previousDelay = 0;
 
         public NetPacketProcessor PacketProcessor { get; protected set; }
@@ -87,40 +87,14 @@ namespace NebulaNetwork
 
             clientSocket.Connect();
 
-            SimulatedWorld.Instance.Initialize();
-
-            LocalPlayer.Instance.IsMasterClient = false;
-            LocalPlayer.Instance.SetNetworkProvider(this);
+            Multiplayer.Session.LocalPlayer.IsHost = false;
+            LocalPlayer.SetNetworkProvider(this);
 
             if (Config.Options.RememberLastIP)
             {
                 // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
                 Config.Options.LastIP = socketAddress.Substring(5, socketAddress.Length - 12);
                 Config.SaveOptions();
-            }
-        }
-
-        public void DisplayPingIndicator()
-        {
-            GameObject previousObject = GameObject.Find("Ping Indicator");
-            if (previousObject == null)
-            {
-                GameObject targetObject = GameObject.Find("label");
-                pingIndicator = GameObject.Instantiate(targetObject, UIRoot.instance.uiGame.gameObject.transform).GetComponent<Text>();
-                pingIndicator.gameObject.name = "Ping Indicator";
-                pingIndicator.alignment = TextAnchor.UpperLeft;
-                pingIndicator.enabled = true;
-                RectTransform rect = pingIndicator.GetComponent<RectTransform>();
-                rect.anchorMin = new Vector2(0f, 1f);
-                rect.offsetMax = new Vector2(-68f, -40f);
-                rect.offsetMin = new Vector2(10f, -100f);
-                pingIndicator.text = "";
-                pingIndicator.fontSize = 14;
-            }
-            else
-            {
-                pingIndicator = previousObject.GetComponent<Text>();
-                pingIndicator.enabled = true;
             }
         }
 
@@ -169,7 +143,6 @@ namespace NebulaNetwork
 
         public void Reconnect()
         {
-            SimulatedWorld.Instance.Clear();
             Disconnect();
             ConnectInternal();
         }
@@ -179,7 +152,7 @@ namespace NebulaNetwork
             int newDelay = (int)((Time.time - pingTimestamp) * 1000);
             if (newDelay != previousDelay)
             {
-                pingIndicator.text = $"Ping: {newDelay}ms";
+                Multiplayer.Session.World.UpdatePingIndicator($"Ping: {newDelay}ms");
                 previousDelay = newDelay;
             }
         }
@@ -262,7 +235,7 @@ namespace NebulaNetwork
                     return;
                 }
 
-                if (SimulatedWorld.Instance.IsGameLoaded)
+                if (Multiplayer.Session.IsGameLoaded)
                 {
                     InGamePopup.ShowWarning(
                         "Connection Lost",
@@ -278,8 +251,7 @@ namespace NebulaNetwork
                         "OK",
                         () =>
                         {
-                            LocalPlayer.Instance.IsMasterClient = false;
-                            SimulatedWorld.Instance.Clear();
+                            Multiplayer.Session.LocalPlayer.IsHost = false;
                             DestroySession();
                             OnDisconnectPopupCloseBeforeGameLoad();
                         });
@@ -298,7 +270,7 @@ namespace NebulaNetwork
         {
             PacketProcessor.ProcessPacketQueue();
 
-            if (SimulatedWorld.Instance.IsGameLoaded)
+            if (Multiplayer.Session.IsGameLoaded)
             {
                 mechaSynchonizationTimer += Time.deltaTime;
                 if (mechaSynchonizationTimer > MECHA_SYNCHONIZATION_INTERVAL)
@@ -317,4 +289,5 @@ namespace NebulaNetwork
             }
         }
     }
+    */
 }

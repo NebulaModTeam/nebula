@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaWorld;
 using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -10,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _buildConfirm_Prefix(ref VFInput.InputValue __result)
         {
-            if (FactoryManager.Instance.IsIncomingRequest.Value)
+            if (Multiplayer.Session.Factories.IsIncomingRequest)
             {
                 __result = default;
                 __result.onDown = true;

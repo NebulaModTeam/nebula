@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Transpiler
 {
     /*  
      *  Add:
-     *      BeltManager.RegisterBeltPickupUpdate(itemId, count, beltId, segId);
+     *      Multiplayer.Session.Belts.RegisterBeltPickupUpdate(itemId, count, beltId, segId);
      *  After:
      *      int itemId = cargoPath.TryPickItem(i - 4 - 1, 12);
     */
@@ -45,9 +45,9 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(segId)
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int>>((item, cnt, belt, seg) =>
                     {
-                        if (SimulatedWorld.Instance.Initialized)
+                        if (Multiplayer.IsActive)
                         {
-                            BeltManager.RegisterBeltPickupUpdate(item, cnt, belt, seg);
+                            Multiplayer.Session.Belts.RegisterBeltPickupUpdate(item, cnt, belt, seg);
                         }
                     }))
                     .InstructionEnumeration();
@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Transpiler
                            .CreateLabelAt(matcher.Pos + 5, out Label end)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                            {
-                               return SimulatedWorld.Instance.Initialized && FactoryManager.Instance.IsIncomingRequest.Value;
+                               return Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest;
                            }))
                            .Insert(new CodeInstruction(OpCodes.Brtrue, end))
                            .Advance(5);

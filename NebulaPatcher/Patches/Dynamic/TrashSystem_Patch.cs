@@ -13,9 +13,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix()
         {
             //Request trash data from the host
-            if (SimulatedWorld.Instance.Initialized && !LocalPlayer.Instance.IsMasterClient)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
-                LocalPlayer.Instance.SendPacket(new TrashSystemRequestDataPacket(GameMain.localStar == null ? -1 : GameMain.localStar.id));
+                Multiplayer.Session.Network.SendPacket(new TrashSystemRequestDataPacket(GameMain.localStar == null ? -1 : GameMain.localStar.id));
             }
         }
 
@@ -24,9 +24,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void ClearAllTrash_Postfix()
         {
             //Send notification, that somebody clicked on "ClearAllTrash"
-            if (SimulatedWorld.Instance.Initialized && !TrashManager.ClearAllTrashFromOtherPlayers)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers)
             {
-                LocalPlayer.Instance.SendPacket(new TrashSystemClearAllTrashPacket());
+                Multiplayer.Session.Network.SendPacket(new TrashSystemClearAllTrashPacket());
             }
         }
     }

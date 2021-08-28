@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaAPI;
 using NebulaModel.Packets.Belt;
 using NebulaWorld;
 using NebulaWorld.Factory;
@@ -13,9 +12,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
         public static void PickupBeltItems_Prefix()
         {
-            if (SimulatedWorld.Instance.Initialized)
+            if (Multiplayer.IsActive)
             {
-                BeltManager.BeltPickupStarted();
+                Multiplayer.Session.Belts.BeltPickupStarted();
             }
         }
 
@@ -23,9 +22,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
         public static void PickupBeltItems_Postfix()
         {
-            if (SimulatedWorld.Instance.Initialized && GameMain.data.localPlanet != null)
+            if (Multiplayer.IsActive && GameMain.data.localPlanet != null)
             {
-                BeltManager.BeltPickupEnded();
+                Multiplayer.Session.Belts.BeltPickupEnded();
             }
         }
 
@@ -33,9 +32,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(CargoTraffic.PutItemOnBelt))]
         public static void PutItemOnBelt_Prefix(int beltId, int itemId)
         {
-            if (SimulatedWorld.Instance.Initialized && !FactoryManager.Instance.IsIncomingRequest.Value)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest)
             {
-                LocalPlayer.Instance.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, GameMain.data.localPlanet.id));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, GameMain.data.localPlanet.id));
             }
         }
 
@@ -44,7 +43,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -52,7 +51,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveBeltRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -60,7 +59,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterPathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -68,7 +67,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemovePathRenderer_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -76,7 +75,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RefreshPathUV_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Instance.Initialized || FactoryManager.Instance.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.Instance.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
     }
 }

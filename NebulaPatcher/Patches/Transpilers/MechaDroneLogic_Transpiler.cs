@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaWorld.Player;
+using NebulaWorld;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -21,7 +21,7 @@ namespace NebulaPatcher.Patches.Transpiler
              *   if (!this.serving.Contains(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
              * 
              * To:
-             *   if (!this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
+             *   if (!this.serving.Contains(num4) && !Multiplayer.Session.Drones.IsPendingBuildRequest(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
              */
             var codeMatcher = new CodeMatcher(instructions, iL)
                 .MatchForward(true,
@@ -46,7 +46,7 @@ namespace NebulaPatcher.Patches.Transpiler
                           .InsertAndAdvance(num4Instruction)
                           .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>((num4) =>
                           {
-                              return DroneManager.IsPendingBuildRequest(num4);
+                              return Multiplayer.Session.Drones.IsPendingBuildRequest(num4);
                           }))
                           .InsertAndAdvance(jumpInstruction);
 
@@ -55,7 +55,7 @@ namespace NebulaPatcher.Patches.Transpiler
              * Change:
              *  if (a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
              * To:
-             *  if (DroneManager.AmIClosestPlayer(ref a) && a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
+             *  if (Multiplayer.Session.Drones.AmIClosestPlayer(ref a) && a.sqrMagnitude > this.sqrMinBuildAlt && sqrMagnitude <= num2)
             */
             codeMatcher = codeMatcher
                             .MatchForward(false,
@@ -79,13 +79,13 @@ namespace NebulaPatcher.Patches.Transpiler
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, aOperand))
                             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<Vector3, bool>>((aVar) =>
                             {
-                                return DroneManager.AmIClosestPlayer(ref aVar);
+                                return Multiplayer.Session.Drones.AmIClosestPlayer(ref aVar);
                             }))
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse, jumpOperand));
 
             /*
              * Insert
-             *  DroneManager.BroadcastDroneOrder(droneId, entityId, stage);
+             *  Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
              * After
              *  this.serving.Add(num3);
             */
@@ -120,78 +120,60 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(stageInstruction)
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int>>((droneId, entityId, stage) =>
                     {
-                        DroneManager.BroadcastDroneOrder(droneId, entityId, stage);
+                        Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
                     }))
                     .InstructionEnumeration();
         }
 
         /*
-         * Call DroneManager.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
+         * Call Multiplayer.Session.Drones.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
          */
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MechaDroneLogic.UpdateDrones))]
-        static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
         {
-            var found = false;
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 0; i < codes.Count; i++)
+            var codeMatcher = new CodeMatcher(instructions, iLGenerator)
+                .MatchForward(true,
+                    new CodeMatch(i => i.IsLdloc()),
+                    new CodeMatch(i => i.IsLdloc()),
+                    new CodeMatch(OpCodes.Ldelema, typeof(MechaDrone)),
+                    new CodeMatch(i => i.opcode == OpCodes.Ldc_I4_2 || i.opcode == OpCodes.Ldc_I4_3),
+                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "stage")
+                );
+
+            if (codeMatcher.IsInvalid)
             {
-                if (codes[i].opcode == OpCodes.Brfalse &&
-                    codes[i - 1].opcode == OpCodes.Call &&
-                    codes[i + 2].opcode == OpCodes.Ldloc_S &&
-                    codes[i + 1].opcode == OpCodes.Ldloc_0 &&
-                    codes[i - 2].opcode == OpCodes.Ldloca_S)
-                {
-                    found = true;
-                    codes.InsertRange(i + 1, new CodeInstruction[] {
-                        new CodeInstruction(OpCodes.Ldloc_S, 4),
-                        new CodeInstruction(OpCodes.Ldloc_S, 6),
-                        new CodeInstruction(OpCodes.Ldc_I4_2),
-                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), "BroadcastDroneOrder", new System.Type[] { typeof(int), typeof(int), typeof(int) }))
-                        });
-                    break;
-                }
+                NebulaModel.Logger.Log.Error("MechaDroneLogic_Transpiler.UpdateDrones failed. Mod version not compatible with game version.");
+                return instructions;
             }
 
-            if (!found)
-                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 1 failed. Mod version not compatible with game version.");
+            return codeMatcher
+                   .Repeat(matcher =>
+                   {
+                       matcher = matcher.Advance(1);
 
-            found = false;
+                       CodeInstruction droneIdInst = matcher.InstructionAt(1); // [i]
+                       CodeInstruction entityIdInst = matcher.InstructionAt(3); // drones[i].targetObject
+                       CodeInstruction stageInst = matcher.InstructionAt(-2); // drones[i].stage
 
-            for (int i = 0; i < codes.Count; i++)
-            {
-                if (codes[i].opcode == OpCodes.Br &&
-                    codes[i - 1].opcode == OpCodes.Pop &&
-                    codes[i + 2].opcode == OpCodes.Ldloc_S &&
-                    codes[i + 1].opcode == OpCodes.Ldloc_0 &&
-                    codes[i - 2].opcode == OpCodes.Callvirt &&
-                    codes[i - 3].opcode == OpCodes.Ldloc_S)
-                {
-                    found = true;
-                    codes.InsertRange(i + 5, new CodeInstruction[] {
-                        new CodeInstruction(OpCodes.Ldloc_S, 4),
-                        new CodeInstruction(OpCodes.Ldloc_0),
-                        new CodeInstruction(OpCodes.Ldloc_S, 4),
-                        new CodeInstruction(OpCodes.Ldelema, typeof(MechaDrone)),
-                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(MechaDrone), "targetObject")),
-                        new CodeInstruction(OpCodes.Ldc_I4_3),
-                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DroneManager), "BroadcastDroneOrder", new System.Type[] { typeof(int), typeof(int), typeof(int) }))
-                        });
-                    break;
-                }
-            }
-
-            if (!found)
-                NebulaModel.Logger.Log.Error("UpdateDrones transpiler 2 failed. Mod version not compatible with game version.");
-
-            return codes;
+                       matcher = matcher
+                                 .InsertAndAdvance(droneIdInst)
+                                 .InsertAndAdvance(entityIdInst)
+                                 .InsertAndAdvance(stageInst)
+                                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int>>((droneId, entityId, stage) =>
+                                 {
+                                     Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
+                                 }))
+                                 .Advance(1);
+                   })
+                   .InstructionEnumeration();
         }
 
         /*
          * Changes
          *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4))
          * To
-         *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !DroneManager.IsPendingBuildRequest(num4))
+         *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !Multiplayer.Session.Drones.IsPendingBuildRequest(num4))
          * To avoid client's drones from trying to target pending request (caused by drone having additional tasks unlocked via the Communication control tech)
         */
         [HarmonyTranspiler]
@@ -219,7 +201,7 @@ namespace NebulaPatcher.Patches.Transpiler
                    .InsertAndAdvance(target)
                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>((targetId) =>
                    {
-                       return DroneManager.IsPendingBuildRequest(targetId);
+                       return Multiplayer.Session.Drones.IsPendingBuildRequest(targetId);
                    }))
                    .Insert(new CodeInstruction(OpCodes.Brtrue, jump))
                    .InstructionEnumeration();

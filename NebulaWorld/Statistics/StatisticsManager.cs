@@ -1,36 +1,39 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Statistics;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 namespace NebulaWorld.Statistics
 {
-    public class StatisticsManager
+    public class StatisticsManager : IDisposable
     {
         sealed class ThreadSafe
         {
             internal readonly Dictionary<ushort, NebulaConnection> Requestors = new Dictionary<ushort, NebulaConnection>();
         }
-        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
-        public static bool IsStatisticsNeeded { get; set; } = false;
-        public static long[] PowerEnergyStoredData { get; set; }
-
-        public static StatisticsManager Instance { get; private set; }
-
         readonly ThreadSafe threadSafe = new ThreadSafe();
+
         public Locker GetRequestors(out Dictionary<ushort, NebulaConnection> requestors) =>
             threadSafe.Requestors.GetLocked(out requestors);
 
-        private readonly List<StatisticalSnapShot> StatisticalSnapShots;
+        private List<StatisticalSnapShot> StatisticalSnapShots;
+
+        public readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
+
+        public bool IsStatisticsNeeded { get; set; }
+        public long[] PowerEnergyStoredData { get; set; }
 
         public StatisticsManager()
         {
             StatisticalSnapShots = new List<StatisticalSnapShot>();
-            IsStatisticsNeeded = false;
-            Instance = this;
-            ClearCapturedData();
+        }
+
+        public void Dispose()
+        {
+            StatisticalSnapShots = null;
         }
 
         public void ClearCapturedData()
@@ -105,7 +108,7 @@ namespace NebulaWorld.Statistics
             {
                 return;
             }
-            using (Instance.GetRequestors(out var requestors))
+            using (GetRequestors(out var requestors))
             {
                 if (requestors.Count > 0)
                 {
@@ -137,7 +140,7 @@ namespace NebulaWorld.Statistics
 
         public void RegisterPlayer(NebulaConnection nebulaConnection, ushort playerId)
         {
-            using (Instance.GetRequestors(out var requestors))
+            using (GetRequestors(out var requestors))
             {
                 requestors.Add(playerId, nebulaConnection);
             }
@@ -149,9 +152,9 @@ namespace NebulaWorld.Statistics
             }
         }
 
-        public static void UnRegisterPlayer(ushort playerId)
+        public void UnRegisterPlayer(ushort playerId)
         {
-            using (Instance.GetRequestors(out var requestors))
+            using (GetRequestors(out var requestors))
             {
                 if (requestors.Remove(playerId) && requestors.Count == 0)
                 {
@@ -160,7 +163,7 @@ namespace NebulaWorld.Statistics
             }
         }
 
-        public static void ExportAllData(BinaryWriter bw)
+        public void ExportAllData(BinaryWriter bw)
         {
             GameStatData Stats = GameMain.statistics;
             bw.Write(GameMain.data.factoryCount);
@@ -180,7 +183,7 @@ namespace NebulaWorld.Statistics
             }
         }
 
-        public static StatisticsPlanetDataPacket GetFactoryPlanetIds()
+        public StatisticsPlanetDataPacket GetFactoryPlanetIds()
         {
             int[] result = new int[GameMain.data.factoryCount];
             for (int i = 0; i < result.Length; i++)
@@ -190,11 +193,11 @@ namespace NebulaWorld.Statistics
             return new StatisticsPlanetDataPacket(result);
         }
 
-        public static long UpdateTotalChargedEnergy(int targetIndex)
+        public long UpdateTotalChargedEnergy(int targetIndex)
         {
             long num2 = 0L;
 
-            if(!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return num2;
             }
@@ -240,7 +243,7 @@ namespace NebulaWorld.Statistics
             return num2;
         }
 
-        public static void ImportAllHistoryData(BinaryReader br)
+        public void ImportAllHistoryData(BinaryReader br)
         {
             GameStatData Stats = GameMain.statistics;
 

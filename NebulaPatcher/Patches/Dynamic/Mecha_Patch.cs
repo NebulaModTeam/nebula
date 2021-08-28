@@ -10,9 +10,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(Mecha.GameTick))]
         public static void GameTick_Postfix(float dt)
         {
-            if (SimulatedWorld.Instance.Initialized)
+            if (Multiplayer.IsActive)
             {
-                SimulatedWorld.OnDronesGameTick(dt);
+                Multiplayer.Session.World.OnDronesGameTick(dt);
             }
         }
 
@@ -20,10 +20,12 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(Mecha.GenerateEnergy))]
         public static bool Mecha_GenerateEnergy_Prefix(Mecha __instance)
         {
+            if(!Multiplayer.IsActive) return true;
+
             // some players managed to break the fuel chamber on clients.
             // the game thought there is still fuel burning while not adding energy to the mecha and preventing new fuel from beeing added.
             // this checks for this corner case and resets the reactor energy to 0 (empty fuel chamber as displayed to the player)
-            if (!LocalPlayer.Instance.IsMasterClient && __instance.reactorEnergy > 0 && __instance.reactorItemId == 0)
+            if (!Multiplayer.Session.LocalPlayer.IsHost && __instance.reactorEnergy > 0 && __instance.reactorItemId == 0)
             {
                 __instance.reactorEnergy = 0;
             }
@@ -36,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(Mecha), nameof(Mecha.AddProductionStat))]
         public static bool AddStat_Common_Prefix()
         {
-            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
                 return true;
 
             // TODO: Send packet to host to add stat?

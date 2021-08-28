@@ -11,9 +11,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
         public static void UpdateTargets_Prefix()
         {
-            if (SimulatedWorld.Instance.Initialized)
+            if (Multiplayer.IsActive)
             {
-                DroneManager.ClearCachedPositions();
+                Multiplayer.Session.Drones.ClearCachedPositions();
             }
         }
     }

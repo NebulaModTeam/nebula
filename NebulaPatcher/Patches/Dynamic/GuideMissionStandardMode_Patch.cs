@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Skip_Prefix()
         {
             //This prevents spawning landing capsule and preparing spawn area for the clients in multiplayer.
-            return !SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient;
+            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
         }
     }
 }

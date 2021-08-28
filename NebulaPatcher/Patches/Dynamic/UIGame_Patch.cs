@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnInit_Postfix(UIGame __instance)
         {
-            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }

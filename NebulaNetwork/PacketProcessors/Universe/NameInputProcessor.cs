@@ -1,8 +1,10 @@
-﻿using NebulaAPI;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
-using FactoryManager = NebulaWorld.Factory.FactoryManager;
+using NebulaWorld;
+using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -12,11 +14,11 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     class NameInputProcessor : PacketProcessor<NameInputPacket>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public NameInputProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
@@ -24,7 +26,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 else
@@ -33,9 +35,9 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
             if (valid)
             {
-                using (FactoryManager.Instance.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    if (packet.StarId != NebulaModAPI.STAR_NONE)
+                    if (packet.StarId != FactoryManager.STAR_NONE)
                     {
                         var star = GameMain.galaxy.StarById(packet.StarId);
                         star.overrideName = packet.Name;

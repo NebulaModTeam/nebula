@@ -1,28 +1,30 @@
-﻿using NebulaAPI;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Routers;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Routers
 {
     [RegisterPacketProcessor]
     class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
         public StarBroadcastProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
         public override void ProcessPacket(StarBroadcastPacket packet, NebulaConnection conn)
         {
             if (IsClient) return;
 
-            Player player = playerManager.GetPlayer(conn);
+            NebulaPlayer player = playerManager.GetPlayer(conn);
             if (player != null)
             {
                 //Forward packet to other users
                 playerManager.SendRawPacketToStar(packet.PacketObject, packet.StarId, conn);
-                MultiplayerHostSession.Instance.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
+                Multiplayer.Session.Network.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
             }
         }
     }

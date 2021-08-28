@@ -35,23 +35,23 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.selectedIndex))))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
                 {
-                    if (!SimulatedWorld.Instance.Initialized)
+                    if (!Multiplayer.IsActive)
                     {
                         return 0;
                     }
-                    if (ILSShipManager.ItemSlotStationId == stationComponent.id &&
-                        ILSShipManager.ItemSlotStationGId == stationComponent.gid &&
-                        ILSShipManager.ItemSlotLastSlotId == outputSlotId &&
-                        ILSShipManager.ItemSlotLastSelectedIndex == selectedIndex)
+                    if (Multiplayer.Session.Ships.ItemSlotStationId == stationComponent.id &&
+                        Multiplayer.Session.Ships.ItemSlotStationGId == stationComponent.gid &&
+                        Multiplayer.Session.Ships.ItemSlotLastSlotId == outputSlotId &&
+                        Multiplayer.Session.Ships.ItemSlotLastSelectedIndex == selectedIndex)
                     {
                         return 0;
                     }
 
-                    LocalPlayer.Instance.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
-                    ILSShipManager.ItemSlotStationId = stationComponent.id;
-                    ILSShipManager.ItemSlotStationGId = stationComponent.gid;
-                    ILSShipManager.ItemSlotLastSlotId = outputSlotId;
-                    ILSShipManager.ItemSlotLastSelectedIndex = selectedIndex;
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
+                    Multiplayer.Session.Ships.ItemSlotStationId = stationComponent.id;
+                    Multiplayer.Session.Ships.ItemSlotStationGId = stationComponent.gid;
+                    Multiplayer.Session.Ships.ItemSlotLastSlotId = outputSlotId;
+                    Multiplayer.Session.Ships.ItemSlotLastSelectedIndex = selectedIndex;
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))

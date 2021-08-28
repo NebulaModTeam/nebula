@@ -30,9 +30,9 @@ namespace NebulaWorld.MonoBehaviours.Local
                 Vector3 horzVel = controller.velocity - vertSpeed * base.transform.up;
                 float horzSpeed = horzVel.magnitude;
 
-                LocalPlayer.Instance.SendPacket(new PlayerAnimationUpdate()
+                Multiplayer.Session.Network.SendPacket(new PlayerAnimationUpdate()
                 {
-                    PlayerId = LocalPlayer.Instance.PlayerId,
+                    PlayerId = Multiplayer.Session.LocalPlayer.Id,
                     Idle = playerAnimator.idle.ToNebula(),
                     RunSlow = playerAnimator.runSlow.ToNebula(),
                     RunFast = playerAnimator.runFast.ToNebula(),

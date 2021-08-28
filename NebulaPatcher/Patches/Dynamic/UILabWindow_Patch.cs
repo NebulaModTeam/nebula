@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance, int index)
         {
-            if (!SimulatedWorld.Instance.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -35,7 +35,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         int num3 = (GameMain.mainPlayer.inhandItemCount >= num2) ? num2 : GameMain.mainPlayer.inhandItemCount;
                         if (num3 > 0)
                         {
-                            LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(labComponent.matrixServed[index] + num3 * 3600, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                            Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(labComponent.matrixServed[index] + num3 * 3600, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
                         }
                     }
                 }
@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     //Notify about widthrawing source cubes
                     if ((int)(labComponent.matrixServed[index] / 3600) > 0)
                     {
-                        LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(0, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                        Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(0, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
                     }
                 }
             }
@@ -62,7 +62,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     int num9 = (GameMain.mainPlayer.inhandItemCount >= num8) ? num8 : GameMain.mainPlayer.inhandItemCount;
                     if (num9 > 0)
                     {
-                        LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateStoragePacket(labComponent.served[index] + num9, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                        Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateStoragePacket(labComponent.served[index] + num9, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
                     }
                 }
                 else
@@ -70,14 +70,14 @@ namespace NebulaPatcher.Patches.Dynamic
                     //Notify about withdrawing source items from the center
                     if (labComponent.served[index] > 0)
                     {
-                        LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateStoragePacket(0, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                        Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateStoragePacket(0, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
                     }
                 }
             }
             else
             {
                 //Notify about changing matrix selection
-                LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(index, __instance.labId, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -85,7 +85,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UILabWindow.OnProductButtonClick))]
         public static void OnItemButtonClick_Prefix(UILabWindow __instance)
         {
-            if (!SimulatedWorld.Instance.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -94,12 +94,12 @@ namespace NebulaPatcher.Patches.Dynamic
             if (labComponent.matrixMode)
             {
                 //Notify about withdrawing produced cubes
-                LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-3, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-3, __instance.labId, GameMain.localPlanet?.id ?? -1));
             }
             else if (!labComponent.researchMode)
             {
                 //Notify about selection of research mode
-                LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-1, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-1, __instance.labId, GameMain.localPlanet?.id ?? -1));
             }
 
         }
@@ -109,9 +109,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void OnBackButtonClick_Prefix(UILabWindow __instance)
         {
             //Notify about recipe reset
-            if (SimulatedWorld.Instance.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.Instance.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

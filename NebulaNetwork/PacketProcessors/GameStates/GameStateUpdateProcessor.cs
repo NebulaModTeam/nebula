@@ -1,10 +1,11 @@
 ﻿using NebulaAPI;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
-using NebulaWorld;
+using UnityEngine;
 
 namespace NebulaNetwork.PacketProcessors.GameStates
 {
@@ -20,7 +21,12 @@ namespace NebulaNetwork.PacketProcessors.GameStates
             long tickOffsetSinceSent = (long)System.Math.Round(timeOffset / (GameMain.tickDeltaTime * 1000));
             state.gameTick += tickOffsetSinceSent;
 
-            SimulatedWorld.Instance.UpdateGameState(state);
+            // We allow for a small drift of 5 ticks since the tick offset using the ping is only an approximation
+            if (GameMain.gameTick > 0 && Mathf.Abs(state.gameTick - GameMain.gameTick) > 5)
+            {
+                Log.Info($"Game Tick got updated since it was desynced, was {GameMain.gameTick}, received {state.gameTick}");
+                GameMain.gameTick = state.gameTick;
+            }
         }
     }
 }

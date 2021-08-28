@@ -1,6 +1,4 @@
 ﻿using BepInEx;
-using HarmonyLib;
-using NebulaAPI;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.Inserter;
@@ -11,10 +9,8 @@ using UnityEngine;
 
 namespace NebulaWorld.Factory
 {
-    public class FactoryManager : IFactoryManager
+    public class FactoryManager : IDisposable
     {
-        public static FactoryManager Instance = new FactoryManager();
-        
         sealed class ThreadSafe
         {
             internal readonly Dictionary<PrebuildOwnerKey, ushort> PrebuildRequests = new Dictionary<PrebuildOwnerKey, ushort>();
@@ -28,20 +24,24 @@ namespace NebulaWorld.Factory
         Locker GetPlanetTimers(out Dictionary<int, Timer> planetTimers) =>
             threadSafe.PlanetTimers.GetLocked(out planetTimers);
 
-        private readonly ToggleSwitch isIncomingRequest = new ToggleSwitch();
-        public readonly ToggleSwitch IgnoreBasicBuildConditionChecks = new ToggleSwitch();
-        public readonly ToggleSwitch DoNotAddItemsFromBuildingOnDestruct = new ToggleSwitch();
-        
-        public PlanetFactory EventFactory { get; set; }
-        public IToggle IsIncomingRequest => isIncomingRequest;
+        public readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
 
+        public PlanetFactory EventFactory { get; set; }
         public int PacketAuthor { get; set; }
         public int TargetPlanet { get; set; }
 
-        public void Initialize()
+        public const int PLANET_NONE = -2;
+        public const int AUTHOR_NONE = -1;
+        public const int STAR_NONE = -1;
+
+        public FactoryManager()
         {
-            PacketAuthor = NebulaModAPI.AUTHOR_NONE;
-            TargetPlanet = NebulaModAPI.PLANET_NONE;
+            PacketAuthor = AUTHOR_NONE;
+            TargetPlanet = PLANET_NONE;
+        }
+
+        public void Dispose()
+        {
         }
 
         public void AddPlanetTimer(int planetId)
@@ -133,8 +133,8 @@ namespace NebulaWorld.Factory
                 return;
             }
 
-            int tmpTargetPlanet = TargetPlanet;
-            TargetPlanet = planetId;
+            int tmpTargetPlanet = Multiplayer.Session.Factories.TargetPlanet;
+            Multiplayer.Session.Factories.TargetPlanet = planetId;
 
             PlanetData planet = GameMain.galaxy.PlanetById(planetId);
 
@@ -152,13 +152,13 @@ namespace NebulaWorld.Factory
 
             planet.factory.cargoTraffic.DestroyRenderingBatches();
 
-            TargetPlanet = tmpTargetPlanet;
+            Multiplayer.Session.Factories.TargetPlanet = tmpTargetPlanet;
         }
 
         public void InitializePrebuildRequests()
         {
             //Load existing prebuilds to the dictionary so it will be ready to build
-            if (LocalPlayer.Instance.IsMasterClient)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 using (GetPrebuildRequests(out var prebuildRequests))
                 {
@@ -170,7 +170,7 @@ namespace NebulaWorld.Factory
                             {
                                 if (factory.prebuildPool[i].id != 0)
                                 {
-                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[i].id)] = LocalPlayer.Instance.PlayerId;
+                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[i].id)] = Multiplayer.Session.LocalPlayer.Id;
                                 }
                             }
                         }
@@ -209,23 +209,7 @@ namespace NebulaWorld.Factory
             return GetNextPrebuildId(planet.factory);
         }
 
-        public static void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
-        {
-            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
-            {
-                LocalPlayer.Instance.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
-            }
-        }
-
-        public static void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
-        {
-            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.PlayerId == Instance.PacketAuthor)
-            {
-                LocalPlayer.Instance.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
-            }
-        }
-
-        public static int GetNextPrebuildId(PlanetFactory factory)
+        public int GetNextPrebuildId(PlanetFactory factory)
         {
             if (factory == null)
             {
@@ -237,17 +221,33 @@ namespace NebulaWorld.Factory
             int[] prebuildRecycle = factory.prebuildRecycle;
             return prebuildRecycleCursor <= 0 ? factory.prebuildCursor + 1 : prebuildRecycle[prebuildRecycleCursor - 1];
         }
+
+        public void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.Id == PacketAuthor)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
+            }
+        }
+
+        public void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
+        {
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.Id == PacketAuthor)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
+            }
+        }
     }
 
-    struct PrebuildOwnerKey : System.IEquatable<PrebuildOwnerKey>
+    internal readonly struct PrebuildOwnerKey : IEquatable<PrebuildOwnerKey>
     {
         public readonly int PlanetId;
         public readonly int PrebuildId;
 
         public PrebuildOwnerKey(int planetId, int prebuildId)
         {
-            this.PlanetId = planetId;
-            this.PrebuildId = prebuildId;
+            PlanetId = planetId;
+            PrebuildId = prebuildId;
         }
 
         public override int GetHashCode()
@@ -257,7 +257,7 @@ namespace NebulaWorld.Factory
 
         public bool Equals(PrebuildOwnerKey other)
         {
-            return other.PlanetId == this.PlanetId && other.PrebuildId == this.PrebuildId;
+            return other.PlanetId == PlanetId && other.PrebuildId == PrebuildId;
         }
     }
 }

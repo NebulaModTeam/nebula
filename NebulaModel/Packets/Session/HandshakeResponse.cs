@@ -8,6 +8,7 @@ namespace NebulaModel.Packets.Session
         public int GalaxySeed { get; set; }
         public int StarCount { get; set; }
         public float ResourceMultiplier { get; set; }
+        public bool IsNewPlayer { get; set; }
         public PlayerData LocalPlayerData { get; set; }
         public byte[] ModsSettings { get; set; }
         public int ModsSettingsCount { get; set; }
@@ -20,6 +21,7 @@ namespace NebulaModel.Packets.Session
             GalaxySeed = galaxySeed;
             StarCount = starCount;
             ResourceMultiplier = resourceMultiplier;
+            IsNewPlayer = isNewPlayer;
             LocalPlayerData = localPlayerData;
             ModsSettings = modsSettings;
             ModsSettingsCount = settingsCount;

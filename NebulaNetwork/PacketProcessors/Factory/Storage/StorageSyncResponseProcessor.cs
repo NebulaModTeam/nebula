@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
+using NebulaWorld;
 using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
@@ -23,16 +24,16 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
                 ItemProto itemProto = LDB.items.Select((int)GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.entityPool[storageComponent.entityId].protoId);
 
                 //Imitation of UIStorageWindow.OnStorageIdChange()
-                StorageManager.ActiveWindowTitle.text = itemProto.name;
-                StorageManager.ActiveUIStorageGrid._Free();
-                StorageManager.ActiveUIStorageGrid._Init(storageComponent);
-                StorageManager.ActiveStorageComponent = storageComponent;
-                StorageManager.ActiveUIStorageGrid.SetStorageData(StorageManager.ActiveStorageComponent);
-                StorageManager.ActiveUIStorageGrid._Open();
-                StorageManager.ActiveUIStorageGrid.OnStorageDataChanged();
-                StorageManager.ActiveBansSlider.maxValue = (float)storageComponent.size;
-                StorageManager.ActiveBansSlider.value = (float)(storageComponent.size - storageComponent.bans);
-                StorageManager.ActiveBansValueText.text = StorageManager.ActiveBansSlider.value.ToString();
+                Multiplayer.Session.Storage.ActiveWindowTitle.text = itemProto.name;
+                Multiplayer.Session.Storage.ActiveUIStorageGrid._Free();
+                Multiplayer.Session.Storage.ActiveUIStorageGrid._Init(storageComponent);
+                Multiplayer.Session.Storage.ActiveStorageComponent = storageComponent;
+                Multiplayer.Session.Storage.ActiveUIStorageGrid.SetStorageData(Multiplayer.Session.Storage.ActiveStorageComponent);
+                Multiplayer.Session.Storage.ActiveUIStorageGrid._Open();
+                Multiplayer.Session.Storage.ActiveUIStorageGrid.OnStorageDataChanged();
+                Multiplayer.Session.Storage.ActiveBansSlider.maxValue = (float)storageComponent.size;
+                Multiplayer.Session.Storage.ActiveBansSlider.value = (float)(storageComponent.size - storageComponent.bans);
+                Multiplayer.Session.Storage.ActiveBansValueText.text = Multiplayer.Session.Storage.ActiveBansSlider.value.ToString();
                 GameMain.galaxy.PlanetById(packet.PlanetId).factory.factoryStorage.storagePool[packet.StorageIndex] = storageComponent;
             }
         }

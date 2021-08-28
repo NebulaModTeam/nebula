@@ -85,7 +85,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i + 1], (float)ratio);
                     break;
                 }
-                else if (i == snapshotBuffer.Length - 2 && renderTime > t2)
+                
+                if (i == snapshotBuffer.Length - 2 && renderTime > t2)
                 {
                     // This will skip interpolation and will snap to the most recent position.
                     MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i + 1], 1);
@@ -120,8 +121,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
             Vector3 currentRelativePosition = GetRelativePosition(current);
             Vector3 previousAbsolutePosition = GetAbsolutePosition(previous);
             Vector3 currentAbsolutePosition = GetAbsolutePosition(current);
-            float deltaPosition = Vector3.Distance(previousRelativePosition, currentRelativePosition);
-            Vector3 velocity = (previousRelativePosition - currentRelativePosition) / (previous.Timestamp - current.Timestamp);
 
             localPlanetId = current.LocalPlanetId;
 
@@ -134,6 +133,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private Vector3 GetRelativePosition(Snapshot snapshot)
         {
+            if (GameMain.data == null)
+                return Vector3.zero;
+
             // If we are on a local planet and the remote player is on the same local planet, we use the LocalPlanetPosition that is more precise.
             if (GameMain.localPlanet != null && GameMain.localPlanet.id == snapshot.LocalPlanetId)
             {

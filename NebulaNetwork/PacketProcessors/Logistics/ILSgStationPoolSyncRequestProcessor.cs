@@ -1,8 +1,10 @@
-﻿using NebulaAPI;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld;
 using NebulaWorld.Logistics;
 
 /*
@@ -14,16 +16,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class ILSgStationPoolSyncRequestProcessor : PacketProcessor<ILSRequestgStationPoolSync>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
         public ILSgStationPoolSyncRequestProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
         public override void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
         {
             if (IsClient) return;
 
-            Player player = playerManager.GetPlayer(conn);
+            NebulaPlayer player = playerManager.GetPlayer(conn);
             if (player == null)
             {
                 player = playerManager.GetSyncingPlayer(conn);
@@ -56,25 +58,25 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 ulong[] workShipIndices = new ulong[countILS];
                 ulong[] idleShipIndices = new ulong[countILS];
 
-                int[] shipStationGId = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipStage = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipDirection = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                float[] shipWarpState = new float[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipWarperCnt = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipItemID = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipItemCount = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipPlanetA = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipPlanetB = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipOtherGId = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                float[] shipT = new float[countILS * ILSShipManager.ILSMaxShipCount];
-                int[] shipIndex = new int[countILS * ILSShipManager.ILSMaxShipCount];
-                Double3[] shipPos = new Double3[countILS * ILSShipManager.ILSMaxShipCount];
-                Float4[] shipRot = new Float4[countILS * ILSShipManager.ILSMaxShipCount];
-                Float3[] shipVel = new Float3[countILS * ILSShipManager.ILSMaxShipCount];
-                float[] shipSpeed = new float[countILS * ILSShipManager.ILSMaxShipCount];
-                Float3[] shipAngularVel = new Float3[countILS * ILSShipManager.ILSMaxShipCount];
-                Double3[] shipPPosTemp = new Double3[countILS * ILSShipManager.ILSMaxShipCount];
-                Float4[] shipPRotTemp = new Float4[countILS * ILSShipManager.ILSMaxShipCount];
+                int[] shipStationGId = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipStage = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipDirection = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                float[] shipWarpState = new float[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipWarperCnt = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipItemID = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipItemCount = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipPlanetA = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipPlanetB = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipOtherGId = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                float[] shipT = new float[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                int[] shipIndex = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                Double3[] shipPos = new Double3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                Float4[] shipRot = new Float4[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                Float3[] shipVel = new Float3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                float[] shipSpeed = new float[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                Float3[] shipAngularVel = new Float3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                Double3[] shipPPosTemp = new Double3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                Float4[] shipPRotTemp = new Float4[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
 
                 foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
@@ -91,10 +93,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         idleShipIndices[iter] = stationComponent.idleShipIndices;
 
                         // ShipData is never null
-                        for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
+                        for (int j = 0; j < Multiplayer.Session.Ships.ILSMaxShipCount; j++)
                         {
                             ShipData shipData = stationComponent.workShipDatas[j];
-                            int index = iter * ILSShipManager.ILSMaxShipCount + j;
+                            int index = iter * Multiplayer.Session.Ships.ILSMaxShipCount + j;
 
                             shipStationGId[index] = stationComponent.gid;
                             shipStage[index] = shipData.stage;

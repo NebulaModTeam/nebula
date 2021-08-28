@@ -1,8 +1,9 @@
-﻿using NebulaAPI;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using FactoryManager = NebulaWorld.Factory.FactoryManager;
+using NebulaWorld;
+using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
@@ -11,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     {
         public override void ProcessPacket(DestructEntityRequest packet, NebulaConnection conn)
         {
-            using (FactoryManager.Instance.IsIncomingRequest.On())
+            using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
                 PlayerAction_Build pab = GameMain.mainPlayer.controller != null ? GameMain.mainPlayer.controller.actionBuild : null;
@@ -23,19 +24,19 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     return;
                 }
 
-                FactoryManager.Instance.TargetPlanet = packet.PlanetId;
-                FactoryManager.Instance.PacketAuthor = packet.AuthorId;
+                Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+                Multiplayer.Session.Factories.PacketAuthor = packet.AuthorId;
                 PlanetFactory tmpFactory = pab.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
 
-                FactoryManager.Instance.AddPlanetTimer(packet.PlanetId);
+                Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
                 pab.DoDismantleObject(packet.ObjId);
 
                 pab.factory = tmpFactory;
                 pab.noneTool.factory = tmpFactory;
-                FactoryManager.Instance.TargetPlanet = NebulaModAPI.PLANET_NONE;
-                FactoryManager.Instance.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
+                Multiplayer.Session.Factories.PacketAuthor = FactoryManager.AUTHOR_NONE;
             }
         }
     }

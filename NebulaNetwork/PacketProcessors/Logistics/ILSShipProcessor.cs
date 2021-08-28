@@ -1,26 +1,28 @@
-﻿using NebulaAPI;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using FactoryManager = NebulaWorld.Factory.FactoryManager;
+using NebulaWorld.Factory;
+using NebulaWorld.Logistics;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
     public class ILSShipProcessor : PacketProcessor<ILSShipData>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
         public ILSShipProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(ILSShipData packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);
@@ -30,9 +32,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
-                using (FactoryManager.Instance.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    SimulatedWorld.Instance.OnILSShipUpdate(packet);
+                    if (packet.idleToWork)
+                    {
+                        Multiplayer.Session.Ships.IdleShipGetToWork(packet);
+                    }
+                    else
+                    {
+                        Multiplayer.Session.Ships.WorkShipBackToIdle(packet);
+                    }
                 }
             }
         }

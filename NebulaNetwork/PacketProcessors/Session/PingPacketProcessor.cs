@@ -2,6 +2,8 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
+using NebulaWorld;
+using System;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -16,7 +18,8 @@ namespace NebulaNetwork.PacketProcessors.Session
             }
             else
             {
-                MultiplayerClientSession.Instance.UpdatePingIndicator();
+                int rtt = (int)(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - packet.SentTimestamp);
+                Multiplayer.Session.World.UpdatePingIndicator($"Ping: {rtt}ms");
             }
         }
     }

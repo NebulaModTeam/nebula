@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld;
 using NebulaWorld.Logistics;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
@@ -36,7 +37,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 if (packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
                 {
-                    ILSShipManager.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i]);
+                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i]);
                 }
 
                 StationComponent stationComponent = gStationPool[packet.StationGId[i]];

@@ -8,27 +8,36 @@ using NebulaModel.Logger;
 
 namespace NebulaWorld.Logistics
 {
-    public static class ILSShipManager
+    public class ILSShipManager
     {
-        public static readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
+        public readonly ToggleSwitch PatchLockILS = new ToggleSwitch();
 
         // the following 4 are needed to prevent a packet flood when the filter on a belt connected to a PLS/ILS is set.
-        public static int ItemSlotLastSelectedIndex = 0;
-        public static int ItemSlotLastSlotId = 0;
-        public static int ItemSlotStationId = 0;
-        public static int ItemSlotStationGId = 0;
+        public int ItemSlotLastSelectedIndex = 0;
+        public int ItemSlotLastSlotId = 0;
+        public int ItemSlotStationId = 0;
+        public int ItemSlotStationGId = 0;
 
-        public const int ILSMaxShipCount = 10;
+        public readonly int ILSMaxShipCount = 10;
+
+        public ILSShipManager()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
         /*
          * When the host notifies the client that a ship started its travel client needs to check if he got both ILS in his gStationPool
          * if not we create a fake entry (which gets updated to the full one when client arrives that planet) and also request the stations dock position
          */
-        public static void IdleShipGetToWork(ILSShipData packet)
+        public void IdleShipGetToWork(ILSShipData packet)
         {
             PlanetData planetA = GameMain.galaxy.PlanetById(packet.planetA);
             PlanetData planetB = GameMain.galaxy.PlanetById(packet.planetB);
 
-            if(planetA != null && planetB != null)
+            if (planetA != null && planetB != null)
             {
                 if (GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
                 {
@@ -38,7 +47,7 @@ namespace NebulaWorld.Logistics
                 {
                     CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
                 }
-                else if(GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
+                else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
                 {
                     RequestgStationDockPos(packet.planetAStationGID);
                 }
@@ -46,11 +55,11 @@ namespace NebulaWorld.Logistics
                 {
                     CreateFakeStationComponent(packet.planetBStationGID, packet.planetB);
                 }
-                else if(GameMain.data.galacticTransport.stationPool[packet.planetBStationGID] == null)
+                else if (GameMain.data.galacticTransport.stationPool[packet.planetBStationGID] == null)
                 {
                     CreateFakeStationComponent(packet.planetBStationGID, packet.planetB);
                 }
-                else if(GameMain.data.galacticTransport.stationPool[packet.planetBStationGID].shipDockPos == Vector3.zero)
+                else if (GameMain.data.galacticTransport.stationPool[packet.planetBStationGID].shipDockPos == Vector3.zero)
                 {
                     RequestgStationDockPos(packet.planetBStationGID);
                 }
@@ -71,22 +80,22 @@ namespace NebulaWorld.Logistics
 
                 stationComponent.workShipCount++;
                 stationComponent.idleShipCount--;
-                if(stationComponent.idleShipCount < 0)
+                if (stationComponent.idleShipCount < 0)
                 {
                     stationComponent.idleShipCount = 0;
                 }
-                if(stationComponent.workShipCount > ILSMaxShipCount)
+                if (stationComponent.workShipCount > ILSMaxShipCount)
                 {
                     stationComponent.workShipCount = ILSMaxShipCount;
                 }
                 stationComponent.IdleShipGetToWork(packet.origShipIndex);
 
                 StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[packet.planetBStationGID];
-                if(otherStationComponent != null && otherStationComponent.storage != null)
+                if (otherStationComponent != null && otherStationComponent.storage != null)
                 {
-                    for(int i = 0; i < otherStationComponent.storage.Length; i++)
+                    for (int i = 0; i < otherStationComponent.storage.Length; i++)
                     {
-                        if(otherStationComponent.storage[i].itemId == packet.itemId)
+                        if (otherStationComponent.storage[i].itemId == packet.itemId)
                         {
                             otherStationComponent.storage[i].remoteOrder += packet.itemCount;
                             RefreshValuesUI(otherStationComponent, i);
@@ -100,22 +109,22 @@ namespace NebulaWorld.Logistics
         /*
          * this is also triggered by server and called once a ship lands back to the dock station
          */
-        public static void WorkShipBackToIdle(ILSShipData packet)
+        public void WorkShipBackToIdle(ILSShipData packet)
         {
-            if(!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            if(GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
+            if (GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
             {
                 CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
             }
-            else if(GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
+            else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
             {
                 CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
             }
-            else if(GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
+            else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
             {
                 RequestgStationDockPos(packet.planetAStationGID);
             }
@@ -140,15 +149,15 @@ namespace NebulaWorld.Logistics
          * The information is needed in StationComponent.InternalTickRemote(), but we use a reverse patched version of that
          * which is stripped down to the ship movement and rendering part.
          */
-        public static void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
+        public void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
         {
             // it may be needed to make additional room for the new ILS
-            while(GameMain.data.galacticTransport.stationCapacity <= GId)
+            while (GameMain.data.galacticTransport.stationCapacity <= GId)
             {
                 GameMain.data.galacticTransport.SetStationCapacity(GameMain.data.galacticTransport.stationCapacity * 2);
             }
 
-           
+
             GameMain.data.galacticTransport.stationPool[GId] = new StationComponent();
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[GId];
             stationComponent.isStellar = true;
@@ -186,25 +195,25 @@ namespace NebulaWorld.Logistics
         /*
          * As StationComponent.InternalTickRemote() neds to have the dock position to correctly compute ship movement we request it here from server.
          */
-        private static void RequestgStationDockPos(int GId)
+        private void RequestgStationDockPos(int GId)
         {
-            LocalPlayer.Instance.SendPacket(new ILSRequestShipDock(GId));
+            Multiplayer.Session.Network.SendPacket(new ILSRequestShipDock(GId));
         }
 
         /*
          * Update the items that are currently in transfer by ships
          */
-        public static void UpdateRemoteOrder(ILSRemoteOrderData packet)
+        public void UpdateRemoteOrder(ILSRemoteOrderData packet)
         {
-            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
-            foreach(StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+            foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
             {
-                if(stationComponent != null && stationComponent.gid == packet.stationGID)
+                if (stationComponent != null && stationComponent.gid == packet.stationGID)
                 {
-                    if(stationComponent.storage == null || packet.storageIndex >= stationComponent.storage.Length)
+                    if (stationComponent.storage == null || packet.storageIndex >= stationComponent.storage.Length)
                     {
                         return;
                     }
@@ -219,9 +228,9 @@ namespace NebulaWorld.Logistics
          * This is triggered by server and either adds or removes items to an ILS caused by a ship transport.
          * Also update the remoteOrder value to reflect the changes
          */
-        public static void AddTakeItem(ILSShipItems packet)
+        public void AddTakeItem(ILSShipItems packet)
         {
-            if(!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
             {
                 return;
             }
@@ -232,9 +241,9 @@ namespace NebulaWorld.Logistics
                 if (packet.addItem)
                 {
                     stationComponent.AddItem(packet.itemId, packet.itemCount);
-                    for(int i = 0; i < stationComponent.storage.Length; i++)
+                    for (int i = 0; i < stationComponent.storage.Length; i++)
                     {
-                        if(stationComponent.storage[i].itemId == packet.itemId)
+                        if (stationComponent.storage[i].itemId == packet.itemId)
                         {
                             stationComponent.storage[i].remoteOrder -= packet.itemCount;
                             RefreshValuesUI(stationComponent, i);
@@ -255,7 +264,7 @@ namespace NebulaWorld.Logistics
         /*
          * call UIStationStorage.RefreshValues() on the current opened stations UI
          */
-        private static void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
+        private void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
         {
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
             if (stationWindow != null && stationWindow._stationId == stationComponent.id)
@@ -268,17 +277,17 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        public static void UpdateSlotData(ILSUpdateSlotData packet)
+        public void UpdateSlotData(ILSUpdateSlotData packet)
         {
             Log.Info($"Updating slot data for planet {packet.PlanetId}, station {packet.StationId} gid {packet.StationGId}. Index {packet.Index}, storageIdx {packet.StorageIdx}");
-            
+
             // Clients only care about what happens on their planet, hosts always need to apply this.
             // Using PlanetFactory to prevent getting the "fakes" that are creates on clients.
-            if (LocalPlayer.Instance.IsMasterClient || (!LocalPlayer.Instance.IsMasterClient && packet.PlanetId == GameMain.localPlanet?.id))
+            if (Multiplayer.Session.LocalPlayer.IsHost || (!Multiplayer.Session.LocalPlayer.IsHost && packet.PlanetId == GameMain.localPlanet?.id))
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
                 StationComponent stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];
-                
+
                 if (stationComponent?.slots != null)
                 {
                     stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;

@@ -1,4 +1,5 @@
-﻿using NebulaAPI;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -9,16 +10,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     class ILSShipItemsProcessor : PacketProcessor<ILSShipItems>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
         public ILSShipItemsProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
         public override void ProcessPacket(ILSShipItems packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                NebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);
@@ -28,7 +29,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
-                SimulatedWorld.Instance.OnILSShipItemsUpdate(packet);
+                // TODO: Aren't we missing a using (incoming.On()) here ?
+                Multiplayer.Session.Ships.AddTakeItem(packet);
             }
         }
     }

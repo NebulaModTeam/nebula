@@ -32,7 +32,7 @@ namespace NebulaPatcher.Patches.Transpiler
             return matcher
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                     {
-                        return SimulatedWorld.Instance.Initialized && FactoryManager.Instance.IsIncomingRequest.Value && FactoryManager.Instance.PacketAuthor != LocalPlayer.Instance.PlayerId;
+                        return Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id;
                     }))
                     .CreateLabelAt(matcher.Pos + 19, out Label jmpLabel)
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabel))

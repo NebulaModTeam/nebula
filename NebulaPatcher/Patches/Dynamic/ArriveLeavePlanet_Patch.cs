@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // due to that we have a time window between the vanilla ArrivePlanet() setting the localPlanet and planetId values and
             // our code loading the factory data.
             // this results in weird planet jumps, so we need to delay this until the factory data is loaded into the game.
-            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // if we are the server continue with vanilla logic
                 return true;
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // it is very painfull to patch the skip prologue functionality
             // so i apply the patched logic only after that.
-            if (!SimulatedWorld.Instance.IsGameLoaded)
+            if (!Multiplayer.Session.IsGameLoaded)
             {
                 return true;
             }
@@ -71,7 +71,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance)
         {
-            if (SimulatedWorld.Instance.Initialized && RefreshMissingMeshes && __instance.localPlanet != null)
+            if (Multiplayer.IsActive && RefreshMissingMeshes && __instance.localPlanet != null)
             {
                 PlanetData planetData = __instance.localPlanet;
 

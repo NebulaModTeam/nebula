@@ -1,8 +1,8 @@
-﻿using NebulaAPI;
+﻿using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
-using LocalPlayer = NebulaWorld.LocalPlayer;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
         {
             if (IsHost) return;
 
-            LocalPlayer.Instance.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
+            Multiplayer.Session.Planets.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
 
             lock (PlanetModelingManager.fctPlanetReqList)
             {

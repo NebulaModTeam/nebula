@@ -3,6 +3,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld;
 using NebulaWorld.Logistics;
 
 /*
@@ -29,7 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 return;
             }
 
-            if (StationUIManager.UIIsSyncedStage == 1)
+            if (Multiplayer.Session.StationsUI.UIIsSyncedStage == 1)
             {
                 UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
 
@@ -61,7 +62,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 if (stationWindow != null && stationWindow.active)
                 {
                     conn.SendPacket(new StationSubscribeUIUpdates(true, stationComponent.planetId, stationComponent.id, stationComponent.gid));
-                    StationUIManager.UIIsSyncedStage++;
+                    Multiplayer.Session.StationsUI.UIIsSyncedStage++;
                     stationWindow._Free();
                     stationWindow._Init(stationComponent);
                     stationWindow._stationId = stationComponent.id;
@@ -69,7 +70,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     stationWindow._Update();
                 }
 
-                StationUIManager.UIStationId = stationComponent.id;
+                Multiplayer.Session.StationsUI.UIStationId = stationComponent.id;
             }
         }
     }

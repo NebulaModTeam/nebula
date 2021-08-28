@@ -2,7 +2,8 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using FactoryManager = NebulaWorld.Factory.FactoryManager;
+using NebulaWorld;
+using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
@@ -11,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
     {
         public override void ProcessPacket(UpgradeEntityRequest packet, NebulaConnection conn)
         {
-            using (FactoryManager.Instance.IsIncomingRequest.On())
+            using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
 
@@ -22,15 +23,15 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     return;
                 }
 
-                FactoryManager.Instance.TargetPlanet = packet.PlanetId;
-                FactoryManager.Instance.PacketAuthor = packet.AuthorId;
+                Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+                Multiplayer.Session.Factories.PacketAuthor = packet.AuthorId;
 
-                FactoryManager.Instance.AddPlanetTimer(packet.PlanetId);
+                Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
                 ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
                 planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
 
-                FactoryManager.Instance.TargetPlanet = NebulaModAPI.PLANET_NONE;
-                FactoryManager.Instance.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
+                Multiplayer.Session.Factories.PacketAuthor = FactoryManager.AUTHOR_NONE;
             }
         }
     }

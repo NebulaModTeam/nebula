@@ -66,9 +66,9 @@ namespace NebulaPatcher.Patches.Transpilers
                                         new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.thisIndex))))
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                     {
-                        if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                         {
-                            List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                            List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                             ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                             for (int i = 0; i < subscribers.Count; i++)
                             {
@@ -109,13 +109,13 @@ namespace NebulaPatcher.Patches.Transpilers
                                         new CodeInstruction(OpCodes.Ldloc_S, 10))
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc3>((StationComponent stationComponent, StationComponent[] gStationComponent, int n) =>
                     {
-                        if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                         {
                             int gIndex = stationComponent.workShipDatas[n].otherGId;
                             StationStore[] storeArray = gStationComponent[gIndex]?.storage;
                             if (storeArray != null)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
 
                                 int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
@@ -153,9 +153,9 @@ namespace NebulaPatcher.Patches.Transpilers
                                             new CodeInstruction(OpCodes.Ldloc_S, 14))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -171,13 +171,13 @@ namespace NebulaPatcher.Patches.Transpilers
                                             new CodeInstruction(OpCodes.Ldloc_S, 10))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc3>((StationComponent stationComponent, StationComponent[] gStationComponent, int n) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 int gIndex = stationComponent.workShipDatas[n].otherGId;
                                 StationStore[] storeArray = gStationComponent[gIndex]?.storage;
                                 if (storeArray != null)
                                 {
-                                    List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
+                                    List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
                                     int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                     ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
                                     for (int i = 0; i < subscribers.Count; i++)
@@ -199,9 +199,9 @@ namespace NebulaPatcher.Patches.Transpilers
                                             new CodeInstruction(OpCodes.Ldloc_S, 18)) // this is the only difference
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -217,13 +217,13 @@ namespace NebulaPatcher.Patches.Transpilers
                                             new CodeInstruction(OpCodes.Ldloc_S, 10))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc3>((StationComponent stationComponent, StationComponent[] gStationComponent, int n) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 int gIndex = stationComponent.workShipDatas[n].otherGId;
                                 StationStore[] storeArray = gStationComponent[gIndex]?.storage;
                                 if (storeArray != null)
                                 {
-                                    List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
+                                    List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(gStationComponent[gIndex].planetId, gStationComponent[gIndex].id, gStationComponent[gIndex].gid);
                                     int otherIndex = stationComponent.workShipOrders[n].otherIndex;
                                     ILSRemoteOrderData packet = new ILSRemoteOrderData(gStationComponent[gIndex].gid, otherIndex, storeArray[otherIndex].remoteOrder);
                                     for (int i = 0; i < subscribers.Count; i++)
@@ -265,10 +265,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
-                        LocalPlayer.Instance.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                        Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
                 }))
@@ -289,10 +289,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
-                        LocalPlayer.Instance.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                        Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
                 }))
@@ -317,10 +317,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         ILSShipItems packet = new ILSShipItems(false, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
-                        LocalPlayer.Instance.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                        Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
                 }))
@@ -353,10 +353,10 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 34))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
-                                LocalPlayer.Instance.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                                Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                             return 0;
                         }))
@@ -366,9 +366,9 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                LocalPlayer.Instance.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                                Multiplayer.Session.Network.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                             return 0;
                         }))
@@ -386,10 +386,10 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 47))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
-                                LocalPlayer.Instance.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                                Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                             return 0;
                         }))
@@ -399,9 +399,9 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                LocalPlayer.Instance.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                                Multiplayer.Session.Network.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                             return 0;
                         }))
@@ -432,10 +432,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 143))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int storageIndex, int amount) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
-                        LocalPlayer.Instance.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                        Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
                 }))
@@ -468,9 +468,9 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -491,9 +491,9 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 46))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -528,9 +528,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {
@@ -561,9 +561,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 27))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {
@@ -578,9 +578,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 42))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<EnergyCost>((StationComponent stationComponent, long cost) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        LocalPlayer.Instance.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                        Multiplayer.Session.Network.SendPacketToStar(new ILSEnergyConsumeNotification(stationComponent.gid, cost), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
                 }))
@@ -617,14 +617,14 @@ namespace NebulaPatcher.Patches.Transpilers
                                             new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.thisIndex))))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 if (index > 4)
                                 {
                                     // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                                     return 0;
                                 }
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -649,14 +649,14 @@ namespace NebulaPatcher.Patches.Transpilers
                                             new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.otherIndex))))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 if (index > 4)
                                 {
                                     // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                                     return 0;
                                 }
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -681,14 +681,14 @@ namespace NebulaPatcher.Patches.Transpilers
                                             new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.otherIndex))))
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                         {
-                            if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
                                 if (index > 4)
                                 {
                                     // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                                     return 0;
                                 }
-                                List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                                List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                                 ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                                 for (int i = 0; i < subscribers.Count; i++)
                                 {
@@ -723,9 +723,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 142))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc>((StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, supplyDemandPair.demandIndex, stationComponent.storage[supplyDemandPair.demandIndex].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {
@@ -762,14 +762,14 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(RemoteLogisticOrder), nameof(RemoteLogisticOrder.thisIndex))))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<RemOrderFunc2>((StationComponent stationComponent, int index) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         if (index > 4)
                         {
                             // needed as some times game passes 5 as index causing out of bounds exception (really weird this happens..)
                             return 0;
                         }
-                        List<NebulaConnection> subscribers = StationUIManager.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
+                        List<NebulaConnection> subscribers = Multiplayer.Session.StationsUI.GetSubscribers(stationComponent.planetId, stationComponent.id, stationComponent.gid);
                         ILSRemoteOrderData packet = new ILSRemoteOrderData(stationComponent.gid, index, stationComponent.storage[index].remoteOrder);
                         for (int i = 0; i < subscribers.Count; i++)
                         {
@@ -798,9 +798,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        LocalPlayer.Instance.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                        Multiplayer.Session.Network.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
                     }
                     return 0;
                 }))
@@ -821,9 +821,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, 51))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipFunc>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        LocalPlayer.Instance.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
+                        Multiplayer.Session.Network.SendPacket(new ILSShipUpdateWarperCnt(stationComponent.gid, shipData.shipIndex, shipData.warperCnt));
                     }
                     return 0;
                 }))
@@ -844,9 +844,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        LocalPlayer.Instance.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount, true));
+                        Multiplayer.Session.Network.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount, true));
                     }
                     return 0;
                 }))
@@ -865,9 +865,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 138))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<StationComponent, int>>(stationComponent =>
                 {
-                    if (SimulatedWorld.Instance.Initialized && LocalPlayer.Instance.IsMasterClient)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        LocalPlayer.Instance.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount));
+                        Multiplayer.Session.Network.SendPacket(new StationUI(stationComponent.planetId, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount));
                     }
                     return 0;
                 }))

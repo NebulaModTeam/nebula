@@ -37,9 +37,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UITankWindow.OnOutputSwitchClick))]
         public static void OnOutputSwitchClick_Postfix(UITankWindow __instance)
         {
-            if (SimulatedWorld.Instance.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.Instance.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, false, __instance.storage.tankPool[__instance.tankId].outputSwitch, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, false, __instance.storage.tankPool[__instance.tankId].outputSwitch, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -47,9 +47,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UITankWindow.OnInputSwitchClick))]
         public static void OnInputSwitchClick_Postfix(UITankWindow __instance)
         {
-            if (SimulatedWorld.Instance.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.Instance.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, true, __instance.storage.tankPool[__instance.tankId].inputSwitch, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, true, __instance.storage.tankPool[__instance.tankId].inputSwitch, GameMain.localPlanet?.id ?? -1));
             }
         }
 
@@ -58,11 +58,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnUpdate_Postfix(UITankWindow __instance)
         {
-            if (PointerPress && SimulatedWorld.Instance.Initialized)
+            if (PointerPress && Multiplayer.IsActive)
             {
                 //Send update for inserting or withdrawing
                 TankComponent thisTank = __instance.storage.tankPool[__instance.tankId];
-                LocalPlayer.Instance.SendPacketToLocalStar(new TankStorageUpdatePacket(__instance.tankId, thisTank.fluidId, thisTank.fluidCount, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(__instance.tankId, thisTank.fluidId, thisTank.fluidCount, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

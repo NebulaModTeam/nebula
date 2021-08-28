@@ -1,41 +1,42 @@
-﻿using NebulaAPI;
+﻿using NebulaModel;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
-using NebulaWorld.Statistics;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Statistics
 {
     [RegisterPacketProcessor]
     class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public StatisticsRequestEventProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
         {
             if (IsClient) return;
 
-            Player player = playerManager.GetPlayer(conn);
+            NebulaPlayer player = playerManager.GetPlayer(conn);
             if (player != null)
             {
                 if (packet.Event == StatisticEvent.WindowOpened)
                 {
-                    StatisticsManager.Instance.RegisterPlayer(conn, player.Id);
+                    Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
 
                     using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
                     {
-                        StatisticsManager.ExportAllData(writer.BinaryWriter);
+                        Multiplayer.Session.Statistics.ExportAllData(writer.BinaryWriter);
                         conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
                     }
                 }
                 else if (packet.Event == StatisticEvent.WindowClosed)
                 {
-                    StatisticsManager.UnRegisterPlayer(player.Id);
+                    Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
                 }
             }
         }

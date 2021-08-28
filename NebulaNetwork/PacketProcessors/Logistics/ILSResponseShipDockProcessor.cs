@@ -3,6 +3,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
+using NebulaWorld;
 using NebulaWorld.Logistics;
 using UnityEngine;
 
@@ -26,12 +27,12 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             stationComponent.shipDockPos = DataStructureExtensions.ToVector3(packet.shipDockPos);
             stationComponent.shipDockRot = DataStructureExtensions.ToQuaternion(packet.shipDockRot);
 
-            for (int i = 0; i < ILSShipManager.ILSMaxShipCount; i++)
+            for (int i = 0; i < Multiplayer.Session.Ships.ILSMaxShipCount; i++)
             {
-                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)ILSShipManager.ILSMaxShipCount * (float)i, 0f);
+                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)Multiplayer.Session.Ships.ILSMaxShipCount * (float)i, 0f);
                 stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
             }
-            for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
+            for (int j = 0; j < Multiplayer.Session.Ships.ILSMaxShipCount; j++)
             {
                 stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
                 stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];

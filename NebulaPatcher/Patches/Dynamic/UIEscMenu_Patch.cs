@@ -15,11 +15,11 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // Disable save game button if you are a client in a multiplayer session
             Button saveGameWindowButton = __instance.button2;
-            SetButtonEnableState(saveGameWindowButton, !SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient);
+            SetButtonEnableState(saveGameWindowButton, !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost);
 
             // Disable load game button if in a multiplayer session
             Button loadGameWindowButton = __instance.button3;
-            SetButtonEnableState(loadGameWindowButton, !SimulatedWorld.Instance.Initialized);
+            SetButtonEnableState(loadGameWindowButton, !Multiplayer.IsActive);
         }
 
         [HarmonyPrefix]
@@ -38,9 +38,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void QuitGame()
         {
-            if (SimulatedWorld.Instance.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.Instance.LeaveGame();
+                Multiplayer.LeaveGame();
             }
         }
         private static void SetButtonEnableState(Button button, bool enable)

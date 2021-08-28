@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
+using NebulaWorld;
 using NebulaWorld.Statistics;
 
 namespace NebulaNetwork.PacketProcessors.Statistics
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Statistics
         {
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.StatisticsBinaryData))
             {
-                StatisticsManager.ImportAllHistoryData(reader.BinaryReader);
+                Multiplayer.Session.Statistics.ImportAllHistoryData(reader.BinaryReader);
             }
         }
     }

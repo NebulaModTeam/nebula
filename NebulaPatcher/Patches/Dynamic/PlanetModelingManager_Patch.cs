@@ -16,7 +16,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RequestLoadPlanetFactory_Prefix(PlanetData planet)
         {
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Request factory
             Log.Info($"Requested factory for planet {planet.name} (ID: {planet.id}) from host");
-            LocalPlayer.Instance.SendPacket(new FactoryLoadRequest(planet.id));
+            Multiplayer.Session.Network.SendPacket(new FactoryLoadRequest(planet.id));
 
             // Skip running the actual method
             return false;
@@ -54,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // RequestLoadStar takes care of these instead currently
 
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -69,7 +69,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RequestLoadStar_Prefix(StarData star)
         {
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Instance.Initialized || LocalPlayer.Instance.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -80,7 +80,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (GameMain.data.dysonSpheres[star.index] == null)
             {
                 Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
-                LocalPlayer.Instance.SendPacket(new DysonSphereLoadRequest(star.index));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(star.index));
             }
             return false;
         }
@@ -105,7 +105,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if (planetsToRequest.Any())
                 {
-                    LocalPlayer.Instance.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
+                    Multiplayer.Session.Network.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
                 }
             }
         }

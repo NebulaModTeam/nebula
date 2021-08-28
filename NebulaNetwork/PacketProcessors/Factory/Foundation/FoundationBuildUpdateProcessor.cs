@@ -1,11 +1,12 @@
-﻿using NebulaAPI;
+﻿using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
+using NebulaWorld;
+using NebulaWorld.Factory;
 using System;
 using UnityEngine;
-using FactoryManager = NebulaWorld.Factory.FactoryManager;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 {
@@ -30,16 +31,14 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
                     factory.platformSystem.InitReformData();
                 }
 
-                FactoryManager factoryManager = FactoryManager.Instance;
-
-                factoryManager.TargetPlanet = packet.PlanetId;
-                factoryManager.AddPlanetTimer(packet.PlanetId);
-                factoryManager.TargetPlanet = NebulaModAPI.PLANET_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+                Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
+                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
 
                 //Perform terrain operation
                 int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out Vector3 reformCenterPoint);
                 factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, 3f, 1f);
-                using (factoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
                     factory.FlattenTerrainReform(reformCenterPoint, packet.Radius, packet.ReformSize, packet.VeinBuried, 3f);
                 }

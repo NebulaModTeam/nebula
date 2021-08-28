@@ -16,18 +16,18 @@ namespace NebulaNetwork.PacketProcessors.Session
     [RegisterPacketProcessor]
     public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
     {
-        private PlayerManager playerManager;
+        private IPlayerManager playerManager;
 
         public HandshakeRequestProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
         {
             if (IsClient) return;
 
-            Player player;
+            NebulaPlayer player;
             using (playerManager.GetPendingPlayers(out var pendingPlayers))
             {
                 if (!pendingPlayers.TryGetValue(conn, out player))
@@ -77,14 +77,15 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
             }
 
-
             if (packet.GameVersionSig != GameConfig.gameVersion.sig)
             {
-                conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{packet.GameVersionSig};{GameConfig.gameVersion.sig}");
+                conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
                 return;
             }
 
-            SimulatedWorld.Instance.OnPlayerJoining();
+            Multiplayer.Session.World.OnPlayerJoining();
+
+            bool isNewUser = false;
 
             //TODO: some validation of client cert / generating auth challenge for the client
             // Load old data of the client
@@ -98,6 +99,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 else
                 {
                     savedPlayerData.Add(clientCertHash, player.Data);
+                    isNewUser = true;
                 }
             }
 

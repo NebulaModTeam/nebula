@@ -25,13 +25,12 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
                 }
             }
+            Multiplayer.Session.LocalPlayer.IsHost = false;
+            Multiplayer.Session.LocalPlayer.SetPlayerData(packet.LocalPlayerData, packet.IsNewPlayer);
 
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
             DSPGame.StartGameSkipPrologue(gameDesc);
-
-            LocalPlayer.Instance.IsMasterClient = false;
-            LocalPlayer.Instance.SetPlayerData(packet.LocalPlayerData);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
         }

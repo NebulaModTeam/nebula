@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveLinkedColliderData_Prefix(PlanetPhysics __instance)
         {
             //Collider does not need to be removed if player is not on the planet
-            if (SimulatedWorld.Instance.Initialized && __instance.planet.id != GameMain.mainPlayer.planetId)
+            if (Multiplayer.IsActive && __instance.planet.id != GameMain.mainPlayer.planetId)
             {
                 return false;
             }
@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveColliderData_Prefix(PlanetPhysics __instance)
         {
             //Collider does not need to be removed if player is not on the planet
-            if (SimulatedWorld.Instance.Initialized && __instance.planet.id != GameMain.mainPlayer.planetId)
+            if (Multiplayer.IsActive && __instance.planet.id != GameMain.mainPlayer.planetId)
             {
                 return false;
             }
