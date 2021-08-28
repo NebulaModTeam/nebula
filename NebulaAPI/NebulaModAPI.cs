@@ -11,15 +11,13 @@ namespace NebulaAPI
     public class NebulaModAPI : BaseUnityPlugin
     {
         private static bool nebulaIsInstalled;
-        private static Type localPlayer;
-        private static Type factoryManager;
-        private static Type simulatedWorld;
+        
+        private static Type multiplayer;
         
         private static Type binaryWriter;
         private static Type binaryReader;
         
         public static readonly List<Assembly> TargetAssemblies = new List<Assembly>();
-        public static readonly List<IModData<PlanetFactory>> FactorySerializers = new List<IModData<PlanetFactory>>();
 
         public const string NEBULA_MODID = "dsp.nebula-multiplayer";
         
@@ -27,7 +25,61 @@ namespace NebulaAPI
         public const string API_NAME = "NebulaMultiplayerModApi";
         
         public static bool NebulaIsInstalled => nebulaIsInstalled;
+        
+        /// <summary>
+        /// Is this session in multiplayer
+        /// </summary>
+        public static bool IsMultiplayerActive
+        {
+            get
+            {
+                if (!NebulaIsInstalled) return false;
+                
+                return (bool)multiplayer.GetProperty("IsActive").GetValue(null);
+            }
+        }
+        
+        /// <summary>
+        /// Provides access to MultiplayerSession class
+        /// </summary>
+        public static IMultiplayerSession MultiplayerSession
+        {
+            get
+            {
+                if (!NebulaIsInstalled) return null;
+                
+                return (IMultiplayerSession) multiplayer.GetProperty("Session").GetValue(null);
+            }
+        }
 
+        /// <summary>
+        /// Subscribe to receive event when new multiplayer game is started
+        /// </summary>
+        public static Action OnMultiplayerGameStarted;
+        
+        /// <summary>
+        /// Subscribe to receive event when multiplayer game end
+        /// </summary>
+        public static Action OnMultiplayerGameEnded;
+
+        /// <summary>
+        /// Subscribe to receive event when a new star starts loaded<br/>
+        /// int starIndex - index of star to load
+        /// </summary>
+        public static Action<int> OnStarLoadRequest;
+        
+        /// <summary>
+        /// Subscribe to receive event when a new planet starts loaded<br/>
+        /// int planetId - id of planet to load
+        /// </summary>
+        public static Action<int> OnPlanetLoadRequest;
+        
+        /// <summary>
+        /// Subscribe to receive event when a new planet is finished loading<br/>
+        /// int planetId - id of planet to load
+        /// </summary>
+        public static Action<int> OnPlanetLoadFinished;
+        
         private void Awake()
         {
             nebulaIsInstalled = false;
@@ -42,9 +94,7 @@ namespace NebulaAPI
             
             if (!nebulaIsInstalled) return;
 
-            localPlayer = AccessTools.TypeByName("NebulaWorld.LocalPlayer");
-            factoryManager = AccessTools.TypeByName("NebulaWorld.Factory.FactoryManager");
-            simulatedWorld = AccessTools.TypeByName("NebulaWorld.SimulatedWorld");
+            multiplayer = AccessTools.TypeByName("NebulaWorld.Multiplayer");
             
             Type binaryUtils = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils");
 
@@ -66,45 +116,7 @@ namespace NebulaAPI
         {
             TargetAssemblies.Add(assembly);
         }
-        
-        /// <summary>
-        /// Register custom PlanetFactory Data
-        /// </summary>
-        public static void RegisterModFactoryData(IModData<PlanetFactory> serializer)
-        {
-            FactorySerializers.Add(serializer);
-        }
 
-        /// <summary>
-        /// Provides access to LocalPlayer class
-        /// </summary>
-        public static INebulaPlayer GetLocalPlayer()
-        {
-            if (!NebulaIsInstalled) return null;
-            
-            return (INebulaPlayer) localPlayer.GetField("Instance").GetValue(null);
-        }
-        
-        /// <summary>
-        /// Provides access to FactoryManager class
-        /// </summary>
-        public static IFactoryManager GetFactoryManager()
-        {
-            if (!NebulaIsInstalled) return null;
-            
-            return (IFactoryManager) factoryManager.GetField("Instance").GetValue(null);
-        }
-        
-        /// <summary>
-        /// Provides access to SimulatedWorld class
-        /// </summary>
-        public static ISimulatedWorld GetSimulatedWorld()
-        {
-            if (!NebulaIsInstalled) return null;
-            
-            return (ISimulatedWorld) simulatedWorld.GetField("Instance").GetValue(null);
-        }
-        
         /// <summary>
         /// Provides access to BinaryWriter with LZ4 compression
         /// </summary>

@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     Multiplayer.Session.Network.SendPacket(packet);
                 }
 
-                if (Multiplayer.Session.LocalPlayer.IsHost)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                 {
                     return true;
                 }
@@ -53,7 +53,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
         public static void NewStationComponent_BroadcastNewILS_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
-            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost) return;
+            if (!Multiplayer.IsActive || !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost) return;
 
             // We don't need to do this for PLS
             if (__result.gid == 0) return;
@@ -92,7 +92,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
         public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id)
         {
-            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Ships.PatchLockILS;
+            return !Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || Multiplayer.Session.Ships.PatchLockILS;
         }
 
         /*
@@ -102,7 +102,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
         public static void RemoveStationComponent_Postfix(PlanetTransport __instance, int id)
         {
-            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return;
             }

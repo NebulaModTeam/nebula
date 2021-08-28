@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.StationsUI.LastMouseEvent = evt;
                 Multiplayer.Session.StationsUI.LastMouseEventWasDown = true;
                 StationUI packet;
-                if (Multiplayer.Session.LocalPlayer.IsHost)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                 {
                     PointerEventData pointEventData = evt as PointerEventData;
                     if (GameMain.mainPlayer.inhandItemId == __instance.station.storage[__instance.index].itemId && pointEventData.button == PointerEventData.InputButton.Left)
@@ -42,7 +42,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorageRequest, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
                     Multiplayer.Session.Network.SendPacket(packet);
                 }
-                if (Multiplayer.Session.LocalPlayer.IsHost)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                 {
                     return true;
                 }
@@ -64,7 +64,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.StationsUI.LastMouseEvent = evt;
                 Multiplayer.Session.StationsUI.LastMouseEventWasDown = false;
                 StationUI packet;
-                if (Multiplayer.Session.LocalPlayer.IsHost)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                 {
                     if (__instance.insplit)
                     {
@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorageRequest, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
                     Multiplayer.Session.Network.SendPacket(packet);
                 }
-                if (Multiplayer.Session.LocalPlayer.IsHost)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                 {
                     return true;
                 }

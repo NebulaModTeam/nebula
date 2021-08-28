@@ -22,7 +22,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
         public ILSRequestShipDockProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)

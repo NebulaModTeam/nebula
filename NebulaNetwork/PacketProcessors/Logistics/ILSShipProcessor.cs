@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private IPlayerManager playerManager;
         public ILSShipProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(ILSShipData packet, NebulaConnection conn)

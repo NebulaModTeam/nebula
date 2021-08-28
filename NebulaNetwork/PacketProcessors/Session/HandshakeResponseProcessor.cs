@@ -1,10 +1,10 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
-using LocalPlayer = NebulaWorld.LocalPlayer;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -18,15 +18,15 @@ namespace NebulaNetwork.PacketProcessors.Session
                 for (int i = 0; i < packet.ModsSettingsCount; i++)
                 {
                     string guid = p.BinaryReader.ReadString();
-                    PluginInfo info = BepInEx.Bootstrap.Chainloader.PluginInfos[guid];
+                    PluginInfo info = Chainloader.PluginInfos[guid];
                     if (info.Instance is IMultiplayerModWithSettings mod)
                     {
                         mod.Import(p.BinaryReader);
                     }
                 }
             }
-            Multiplayer.Session.LocalPlayer.IsHost = false;
-            Multiplayer.Session.LocalPlayer.SetPlayerData(packet.LocalPlayerData, packet.IsNewPlayer);
+            ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
+            ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(packet.LocalPlayerData, packet.IsNewPlayer);
 
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);

@@ -22,7 +22,7 @@ namespace NebulaWorld.Factory
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             if (planet.factory == null)
             {
-                if (Multiplayer.Session.Factories.IsIncomingRequest)
+                if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
                 {
                     // We only execute the code if the client has loaded the factory at least once.
                     // Else it will get it once it goes to the planet for the first time. 
@@ -80,7 +80,7 @@ namespace NebulaWorld.Factory
                 buildTool.factory = planet.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
-                if (Multiplayer.Session.Factories.IsIncomingRequest)
+                if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
                 {
                     // Only the server needs to set these
                     pab.planetPhysics = planet.physics;
@@ -89,15 +89,15 @@ namespace NebulaWorld.Factory
 
                 //Check if prebuilds can be build (collision check, height check, etc)
                 bool canBuild = false;
-                if (Multiplayer.Session.Factories.IsIncomingRequest)
+                if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
                 {
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                if (canBuild || Multiplayer.Session.Factories.IsIncomingRequest)
+                if (canBuild || Multiplayer.Session.Factories.IsIncomingRequest.Value)
                 {
-                    if (Multiplayer.Session.Factories.IsIncomingRequest)
+                    if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
                     {
                         CheckAndFixConnections(buildTool, planet);
                     }
@@ -153,8 +153,8 @@ namespace NebulaWorld.Factory
                     buildTool.buildPreviews.AddRange(tmpList);
                 }
 
-                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
-                Multiplayer.Session.Factories.PacketAuthor = FactoryManager.AUTHOR_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
+                Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
         }
 

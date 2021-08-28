@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         private IPlayerManager playerManager;
         public ILSUpdateSlotDataProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(ILSUpdateSlotData packet, NebulaConnection conn)

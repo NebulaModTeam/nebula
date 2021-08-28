@@ -1,10 +1,11 @@
-﻿using NebulaModel.Networking;
+﻿using NebulaAPI;
+using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using System;
 
 namespace NebulaModel
 {
-    public abstract class NetworkProvider : IDisposable
+    public abstract class NetworkProvider : IDisposable, INetworkProvider
     {
         public NetPacketProcessor PacketProcessor { get; protected set; }
 
@@ -32,7 +33,7 @@ namespace NebulaModel
 
         public abstract void SendPacketToStar<T>(T packet, int starId) where T : class, new();
 
-        public abstract void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude)
+        public abstract void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
             where T : class, new();
 
         public abstract void Update();

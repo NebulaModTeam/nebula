@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaWorld;
 using NebulaWorld.Factory;
 
@@ -12,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveLayer_Prefix()
         {
             //Soil should be given in singleplayer or to the player who is author of the "Build" request, or to the host if there is no author.
-            return !Multiplayer.IsActive || Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id || (Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Factories.PacketAuthor == FactoryManager.AUTHOR_NONE) || !Multiplayer.Session.Factories.IsIncomingRequest;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.PacketAuthor == ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id || (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost && Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE) || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -25,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // We should only add items to player if player requested
-            if (Multiplayer.Session.Factories.IsIncomingRequest && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id)
+            if (Multiplayer.Session.Factories.IsIncomingRequest.Value && Multiplayer.Session.Factories.PacketAuthor != ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id)
             {
                 __result = 0;
                 return false;
@@ -45,7 +46,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // We should only take items to player if player requested
-            if (Multiplayer.Session.Factories.IsIncomingRequest && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id)
+            if (Multiplayer.Session.Factories.IsIncomingRequest.Value && Multiplayer.Session.Factories.PacketAuthor != ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id)
             {
                 __result = 1;
                 return false;

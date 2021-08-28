@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return true;
             }
@@ -53,26 +53,20 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (planet.factory == null)
                 {
                     __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
-                    foreach (var serializer in NebulaModAPI.FactorySerializers)
-                    {
-                        serializer.Import(__instance.factories[factoryIndex], reader.BinaryReader);
-                    }
                     planet.factory = __instance.factories[factoryIndex];
                     planet.factoryIndex = factoryIndex;
                 }
                 else
                 {
                     __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, reader.BinaryReader);
-                    foreach (var serializer in NebulaModAPI.FactorySerializers)
-                    {
-                        serializer.Import(__instance.factories[planet.factoryIndex], reader.BinaryReader);
-                    }
                     planet.factory = __instance.factories[planet.factoryIndex];
                 }
             }
 
             // Assign the factory to the result
             __result = __instance.factories[planet.factoryIndex];
+            
+            NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
 
             // Do not run the original method
             return false;
@@ -84,7 +78,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
 
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return true;
             }
@@ -110,7 +104,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
 
-            if (Multiplayer.Session.LocalPlayer.IsHost)
+            if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return true;
             }
@@ -143,11 +137,11 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix(GameData __instance)
         {
             //Set starting star and planet to request from the server
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
-                if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.LocalPlanetId != -1)
                 {
-                    PlanetData planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
+                    PlanetData planet = __instance.galaxy.PlanetById(((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.LocalPlanetId);
                     __instance.ArrivePlanet(planet);
                 }
                 else
@@ -155,7 +149,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     StarData nearestStar = null;
                     PlanetData nearestPlanet = null;
                     //Update player's position before searching for closest star
-                    __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x, Multiplayer.Session.LocalPlayer.Data.UPosition.y, Multiplayer.Session.LocalPlayer.Data.UPosition.z);
+                    __instance.mainPlayer.uPosition = new VectorLF3(((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.UPosition.x, ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.UPosition.y, ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.UPosition.z);
                     GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
 
                     if (nearestStar == null)
@@ -173,7 +167,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 if (Multiplayer.IsActive)
                 {
@@ -236,7 +230,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void LeaveStar_Prefix(GameData __instance)
         {
             //Client should unload all factories once they leave the star system
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 using (Multiplayer.Session.Ships.PatchLockILS.On())
                 {
@@ -262,7 +256,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void ArriveStar_Prefix(StarData star)
         {
             //Client should unload all factories once they leave the star system
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && star != null)
+            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost && star != null)
             {
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
                 Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));

@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix()
         {
             //Do not show popups if they are triggered remotely
-            return !Multiplayer.IsActive || (!Multiplayer.Session.Factories.IsIncomingRequest);
+            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix2()
         {
             //Do not show popups if they are triggered remotely
-            return !Multiplayer.IsActive || (!Multiplayer.Session.Factories.IsIncomingRequest);
+            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -30,7 +30,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix3()
         {
             //Do not show popups if they are triggered remotely
-            return !Multiplayer.IsActive || (!Multiplayer.Session.Factories.IsIncomingRequest);
+            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
     }
 }

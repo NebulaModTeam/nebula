@@ -1,9 +1,10 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 using System;
 
 namespace NebulaWorld
 {
-    public class LocalPlayer : IDisposable
+    public class LocalPlayer : IDisposable, ILocalPlayer
     {
         public bool IsInitialDataReceived { get; private set; }
         public bool IsHost { get; set; }

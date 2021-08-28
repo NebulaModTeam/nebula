@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // due to that we have a time window between the vanilla ArrivePlanet() setting the localPlanet and planetId values and
             // our code loading the factory data.
             // this results in weird planet jumps, so we need to delay this until the factory data is loaded into the game.
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 // if we are the server continue with vanilla logic
                 return true;

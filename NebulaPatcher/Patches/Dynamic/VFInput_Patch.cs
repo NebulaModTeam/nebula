@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _buildConfirm_Prefix(ref VFInput.InputValue __result)
         {
-            if (Multiplayer.Session.Factories.IsIncomingRequest)
+            if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
                 __result = default;
                 __result.onDown = true;

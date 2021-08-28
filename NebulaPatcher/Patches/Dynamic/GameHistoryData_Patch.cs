@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Packets.GameHistory;
 using NebulaWorld;
@@ -14,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix()
         {
             // Do not run if it is not multiplayer and the player is not a client
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return;
             }
@@ -100,7 +101,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnlockRecipe_Prefix()
         {
             //Wait for the authoritative packet for unlocking recipes in multiplayer for clients
-            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
+            return !Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -108,7 +109,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnlockTechFunction_Prefix()
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
-            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
+            return !Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -116,7 +117,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GainTechAwards_Prefix()
         {
             //Wait for the authoritative packet for gaining tech awards in multiplayer for clients
-            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
+            return !Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -124,7 +125,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddTechHash_Prefix(GameHistoryData __instance, long addcnt)
         {
             //Host in multiplayer can do normal research in the mecha
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return true;
             }
@@ -139,7 +140,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool DequeueTech_Prefix()
         {
             ///Wait for the authoritative packet for dequeing tech in multiplayer for clients
-            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
+            return !Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -147,7 +148,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UnlockTech_Prefix()
         {
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
-            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
+            return !Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
 
         [HarmonyPrefix]
@@ -155,10 +156,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void RemoveTechInQueue_Prefix(int index, out int __state)
         {
             __state = GameMain.history.techQueue[index];
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsActive && ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 //we need to know which itemtypes are currently needed for refunds, so trigger refund before cancelling own research
-                Multiplayer.Session.Network.PlayerManager.SendTechRefundPackagesToClients(__state);
+                ((NetworkProvider)Multiplayer.Session.Network).PlayerManager.SendTechRefundPackagesToClients(__state);
             }
             Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }

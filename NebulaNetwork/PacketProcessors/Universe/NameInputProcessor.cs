@@ -19,7 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public NameInputProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
@@ -38,7 +38,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             {
                 using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    if (packet.StarId != FactoryManager.STAR_NONE)
+                    if (packet.StarId != NebulaModAPI.STAR_NONE)
                     {
                         var star = GameMain.galaxy.StarById(packet.StarId);
                         star.overrideName = packet.Name;

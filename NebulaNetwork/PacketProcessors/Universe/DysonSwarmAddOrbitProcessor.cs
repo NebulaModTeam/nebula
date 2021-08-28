@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public DysonSwarmAddOrbitProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(DysonSwarmAddOrbitPacket packet, NebulaConnection conn)

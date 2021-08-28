@@ -1,4 +1,5 @@
-﻿using NebulaWorld;
+﻿using NebulaModel;
+using NebulaWorld;
 using UnityEngine;
 
 namespace NebulaPatcher.MonoBehaviours
@@ -20,7 +21,7 @@ namespace NebulaPatcher.MonoBehaviours
         {
             if (Multiplayer.IsActive)
             {
-                Multiplayer.Session.Network.Update();
+                ((NetworkProvider)Multiplayer.Session.Network).Update();
             }
         }
     }

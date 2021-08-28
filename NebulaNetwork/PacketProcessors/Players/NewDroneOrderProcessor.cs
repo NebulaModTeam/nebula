@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public NewDroneOrderProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)

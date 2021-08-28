@@ -44,7 +44,7 @@ namespace NebulaNetwork
             {
                 int i = 0;
                 var result = new PlayerData[1 + connectedPlayers.Count];
-                result[i++] = Multiplayer.Session.LocalPlayer.Data;
+                result[i++] = ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data;
                 foreach (var kvp in connectedPlayers)
                 {
                     result[i++] = kvp.Value.Data;

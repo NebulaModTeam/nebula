@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaWorld.Factory;
 using NebulaWorld.GameDataHistory;
@@ -12,12 +13,12 @@ using System;
 
 namespace NebulaWorld
 {
-    public class MultiplayerSession : IDisposable
+    public class MultiplayerSession : IDisposable, IMultiplayerSession
     {
-        public NetworkProvider Network { get; private set; }
-        public LocalPlayer LocalPlayer { get; private set; }
+        public NebulaAPI.INetworkProvider Network { get; private set; }
+        public ILocalPlayer LocalPlayer { get; private set; }
         public SimulatedWorld World { get; private set; }
-        public FactoryManager Factories { get; private set; }
+        public IFactoryManager Factories { get; private set; }
         public StorageManager Storage { get; private set; }
         public PowerTowerManager PowerTowers { get; private set; }
         public BeltManager Belts { get; private set; }
@@ -112,7 +113,7 @@ namespace NebulaWorld
                 Log.Info("Game load completed");
                 IsGameLoaded = true;
 
-                if (Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsInitialDataReceived)
                 {
                     Multiplayer.Session.World.SetupInitialPlayerState();
                 }

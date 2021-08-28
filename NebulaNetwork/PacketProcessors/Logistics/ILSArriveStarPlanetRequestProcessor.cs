@@ -20,7 +20,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
         public ILSArriveStarPlanetRequestProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(ILSArriveStarPlanetRequest packet, NebulaConnection conn)

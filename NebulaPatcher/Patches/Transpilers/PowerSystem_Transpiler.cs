@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive)
                     {
-                        if (!Multiplayer.Session.LocalPlayer.IsHost)
+                        if (!((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                         {
                             _this.nodePool[powerNodeId].requiredEnergy = _this.nodePool[powerNodeId].idleEnergyPerTick; // this gets added onto the known required energy by Multiplayer.Session.PowerTowers. and PowerSystem_Patch
                             if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
@@ -84,7 +84,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (Multiplayer.IsActive)
                             {
-                                if (!Multiplayer.Session.LocalPlayer.IsHost)
+                                if (!((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                                 {
                                     if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
                                     {

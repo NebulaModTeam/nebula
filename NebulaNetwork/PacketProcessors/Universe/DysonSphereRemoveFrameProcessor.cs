@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public DysonSphereRemoveFrameProcessor()
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            playerManager = ((NetworkProvider)Multiplayer.Session.Network).PlayerManager;
         }
 
         public override void ProcessPacket(DysonSphereRemoveFramePacket packet, NebulaConnection conn)
