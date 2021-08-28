@@ -33,6 +33,6 @@
         /// </summary>
         public const string PLUGIN_VERSION = ThisAssembly.AssemblyFileVersion;
 
-        public const string PLUGIN_DISPLAY_VERSION = ThisAssembly.IsPublicRelease ? ThisAssembly.AssemblyFileVersion : ThisAssembly.AssemblyInformationalVersion;
+        public const string PLUGIN_DISPLAY_VERSION = ThisAssembly.IsPublicRelease ? ThisAssembly.AssemblyVersion : ThisAssembly.AssemblyInformationalVersion;
     }
 }
