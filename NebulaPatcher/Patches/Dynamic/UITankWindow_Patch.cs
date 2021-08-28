@@ -7,29 +7,36 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UITankWindow))]
     class UITankWindow_Patch
     {
-        public static bool PointerPress = false;
-
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerDown))]
         public static void OnTakeBackPointerDown_Postfix(UITankWindow __instance)
         {
-            PointerPress = __instance.pointerPress;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.IsTankWindowPointerPress = __instance.pointerPress;
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerUp))]
         public static void OnTakeBackPointerUp_Postfix()
         {
-            PointerPress = false;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.IsTankWindowPointerPress = false;
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UITankWindow.OnApplicationFocus))]
         public static void OnApplicationFocus_Postfix(bool focus)
         {
-            if (!focus)
+            if (Multiplayer.IsActive)
             {
-                PointerPress = false;
+                if (!focus)
+                {
+                    Multiplayer.Session.IsTankWindowPointerPress = false;
+                }
             }
         }
 
@@ -58,7 +65,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnUpdate_Postfix(UITankWindow __instance)
         {
-            if (PointerPress && Multiplayer.IsActive)
+            if (Multiplayer.IsActive && Multiplayer.Session.IsTankWindowPointerPress)
             {
                 //Send update for inserting or withdrawing
                 TankComponent thisTank = __instance.storage.tankPool[__instance.tankId];

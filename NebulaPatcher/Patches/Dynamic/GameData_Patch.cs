@@ -99,12 +99,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.OnActivePlanetFactoryLoaded))]
         public static bool OnActivePlanetFactoryLoaded_Prefix(GameData __instance, PlanetData planet)
         {
-            // NOTE: this is part of the weird planet movement fix, see ArrivePlanet() patch for more information
-
-            if (Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
+
             if (planet != null)
             {
                 if (GameMain.gameTick == 0L && DSPGame.SkipPrologue)

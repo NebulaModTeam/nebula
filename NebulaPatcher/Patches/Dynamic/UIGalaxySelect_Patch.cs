@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIGalaxySelect.EnterGame))]
         public static bool EnterGame_Prefix(UIGalaxySelect __instance)
         {
-            if (MainMenuManager.IsInMultiplayerMenu)
+            if (Multiplayer.IsInMultiplayerMenu)
             {
                 Log.Info($"Listening server on port {Config.Options.HostPort}");
                 Multiplayer.HostGame(new Server(Config.Options.HostPort));
