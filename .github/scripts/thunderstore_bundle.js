@@ -87,8 +87,6 @@ async function main() {
   await createTStoreApiArchive();
   await createGHArchive();
 
-  // await doTStoreRelease();
-
   uploadToTStore();
 }
 
