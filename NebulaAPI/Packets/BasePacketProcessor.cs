@@ -6,6 +6,9 @@
     /// <typeparam name="T">Packet class</typeparam>
     public abstract class BasePacketProcessor<T>
     {
+        /// <summary>
+        /// Is code running on Host
+        /// </summary>
         protected bool IsHost;
         /// <summary>
         /// Is code running on Client

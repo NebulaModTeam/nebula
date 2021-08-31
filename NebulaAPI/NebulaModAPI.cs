@@ -86,10 +86,11 @@ namespace NebulaAPI
                 
             foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
             {
-                if (pluginInfo.Value.Metadata.GUID != NEBULA_MODID) continue;
-
-                nebulaIsInstalled = true;
-                break;
+                if (pluginInfo.Value.Metadata.GUID == NEBULA_MODID)
+                {
+                    nebulaIsInstalled = true;
+                    break;
+                }
             }
             
             if (!nebulaIsInstalled) return;
