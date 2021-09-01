@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -26,7 +27,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             bool valid = true;
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 else
@@ -37,7 +38,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             {
                 using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    if (packet.StarId != FactoryManager.STAR_NONE)
+                    if (packet.StarId != NebulaModAPI.STAR_NONE)
                     {
                         var star = GameMain.galaxy.StarById(packet.StarId);
                         star.overrideName = packet.Name;

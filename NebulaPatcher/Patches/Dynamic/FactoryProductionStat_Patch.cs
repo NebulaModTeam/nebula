@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool GameTick_Prefix(FactoryProductionStat __instance)
         {
             //Do not run in single player for host
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 return true;
             }

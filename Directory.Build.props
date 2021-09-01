@@ -10,9 +10,9 @@
   <PropertyGroup Label="Game Install Properties">
     <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
     <DSPGameDir>$([MSBuild]::EnsureTrailingSlash('$(DSPGameDir)'))</DSPGameDir>
-    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\Nebula\</PluginOutputDirectory>
+    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
     <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
-    <PluginOutputDirectory Condition="Exists('$(PropSheetPath).remoteBuild')">$(PropSheetPath)dist\release\nebula</PluginOutputDirectory>
+    <PluginOutputDirectory Condition="Exists('$(PropSheetPath).remoteBuild')">$(PropSheetPath)dist\release\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
   </PropertyGroup>
 
   <PropertyGroup Label="Common Properties">
@@ -21,7 +21,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(PluginOutputDirectory)</OutputPath>
-    <OutDir>$(OutputPath)</OutDir>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -31,13 +30,19 @@
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+
+  <PropertyGroup Label="API Properties" Condition=" '$(MSBuildProjectName)' == 'NebulaAPI' " >
+    <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(OutputPath)..\nebula-NebulaMultiplayerModApi</OutputPath>
+  </PropertyGroup>
   
   <!-- Shared Items -->
   <ItemGroup Label="NuGets">
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.12" />
-
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.11.0" PrivateAssets="all" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.205" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Label="NuGetsMain" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.12" />
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">

@@ -19,7 +19,7 @@ namespace NebulaWorld
             IsLeavingGame = false;
 
             Session = new MultiplayerSession(server);
-            Session.Network.Start();
+            ((NetworkProvider)Session.Network).Start();
         }
 
         public static void JoinGame(NetworkProvider client)
@@ -27,7 +27,7 @@ namespace NebulaWorld
             IsLeavingGame = false;
 
             Session = new MultiplayerSession(client);
-            Session.Network.Start();
+            ((NetworkProvider)Session.Network).Start();
         }
 
         public static void LeaveGame()

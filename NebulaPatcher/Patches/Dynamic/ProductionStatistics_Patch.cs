@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(ProductionStatistics.PrepareTick))]
         public static bool PrepareTick_Prefix(ProductionStatistics __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 for (int i = 0; i < __instance.gameData.factoryCount; i++)
                 {
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(ProductionStatistics.AfterTick))]
         public static bool AfterTick_Prefix(ProductionStatistics __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 for (int i = 0; i < __instance.gameData.factoryCount; i++)
                 {
@@ -43,7 +43,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(ProductionStatistics.GameTick))]
         public static bool GameTick_Prefix(ProductionStatistics __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 //Do not run on client if you do not have all data
                 for (int i = 0; i < __instance.gameData.factoryCount; i++)

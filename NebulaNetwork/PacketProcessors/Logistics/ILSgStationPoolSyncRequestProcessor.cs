@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
@@ -25,7 +26,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         {
             if (IsClient) return;
 
-            NebulaPlayer player = playerManager.GetPlayer(conn);
+            INebulaPlayer player = playerManager.GetPlayer(conn);
             if (player == null)
             {
                 player = playerManager.GetSyncingPlayer(conn);

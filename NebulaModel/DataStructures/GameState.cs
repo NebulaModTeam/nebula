@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking.Serialization;
 
 namespace NebulaModel.DataStructures
@@ -15,13 +15,13 @@ namespace NebulaModel.DataStructures
             this.gameTick = gameTick;
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(timestamp);
             writer.Put(gameTick);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             timestamp = reader.GetLong();
             gameTick = reader.GetLong();

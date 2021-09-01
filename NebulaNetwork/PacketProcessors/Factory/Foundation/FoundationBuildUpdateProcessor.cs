@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -33,7 +34,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 
                 Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
                 Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
-                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
 
                 //Perform terrain operation
                 int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out Vector3 reformCenterPoint);

@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using System;
 using System.ComponentModel;
 

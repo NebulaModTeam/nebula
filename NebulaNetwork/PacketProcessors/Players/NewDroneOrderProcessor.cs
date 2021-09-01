@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -25,7 +26,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 if (GameMain.mainPlayer.planetId != packet.PlanetId)
                     return;
 
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     if (packet.Stage == 1 || packet.Stage == 2)

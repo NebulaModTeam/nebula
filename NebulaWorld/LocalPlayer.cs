@@ -1,16 +1,17 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 using System;
 
 namespace NebulaWorld
 {
-    public class LocalPlayer : IDisposable
+    public class LocalPlayer : IDisposable, ILocalPlayer
     {
         public bool IsInitialDataReceived { get; private set; }
         public bool IsHost { get; set; }
         public bool IsClient => !IsHost;
         public bool IsNewPlayer { get; private set; }
         public ushort Id => Data.PlayerId;
-        public PlayerData Data { get; private set; }
+        public IPlayerData Data { get; private set; }
 
         public void SetPlayerData(PlayerData data, bool isNewPlayer)
         {

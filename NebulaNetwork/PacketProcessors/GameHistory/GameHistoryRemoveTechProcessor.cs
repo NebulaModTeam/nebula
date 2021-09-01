@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -24,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             bool valid = true;
             if (IsHost)
             {
-                NebulaPlayer player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 else

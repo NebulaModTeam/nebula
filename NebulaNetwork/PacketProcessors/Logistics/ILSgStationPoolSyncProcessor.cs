@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -27,9 +27,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 Multiplayer.Session.Ships.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i], false); // handles array resizing
                 gStationPool = GameMain.data.galacticTransport.stationPool; // dont remove or you get an ArrayOutOfBounds
 
-                gStationPool[packet.stationGId[i]].shipDockPos = DataStructureExtensions.ToVector3(packet.DockPos[i]);
+                gStationPool[packet.stationGId[i]].shipDockPos = packet.DockPos[i].ToVector3();
 
-                gStationPool[packet.stationGId[i]].shipDockRot = DataStructureExtensions.ToQuaternion(packet.DockRot[i]);
+                gStationPool[packet.stationGId[i]].shipDockRot = packet.DockRot[i].ToQuaternion();
 
                 gStationPool[packet.stationGId[i]].id = packet.stationId[i];
                 gStationPool[packet.stationGId[i]].planetId = packet.planetId[i];
@@ -73,13 +73,13 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 shipData.t = packet.shipT[i];
                 shipData.shipIndex = packet.shipIndex[i];
 
-                shipData.uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
-                shipData.uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
-                shipData.uVel = DataStructureExtensions.ToVector3(packet.shipVel[i]);
+                shipData.uPos = packet.shipPos[i].ToVectorLF3();
+                shipData.uRot = packet.shipRot[i].ToQuaternion();
+                shipData.uVel = packet.shipVel[i].ToVector3();
                 shipData.uSpeed = packet.shipSpeed[i];
-                shipData.uAngularVel = DataStructureExtensions.ToVector3(packet.shipAngularVel[i]);
-                shipData.pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
-                shipData.pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
+                shipData.uAngularVel = packet.shipAngularVel[i].ToVector3();
+                shipData.pPosTemp = packet.shipPPosTemp[i].ToVectorLF3();
+                shipData.pRotTemp = packet.shipRot[i].ToQuaternion();
 
                 gStationPool[packet.shipStationGId[i]].workShipDatas[i % Multiplayer.Session.Ships.ILSMaxShipCount] = shipData;
             }

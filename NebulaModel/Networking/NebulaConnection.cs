@@ -1,4 +1,5 @@
-﻿using NebulaModel.Logger;
+﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
 using System.Net;
@@ -6,7 +7,7 @@ using WebSocketSharp;
 
 namespace NebulaModel.Networking
 {
-    public class NebulaConnection
+    public class NebulaConnection : INebulaConnection
     {
         private readonly EndPoint peerEndpoint;
         private readonly WebSocket peerSocket;

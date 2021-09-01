@@ -1,15 +1,13 @@
-﻿using NebulaModel.Networking;
+﻿using NebulaAPI;
+using NebulaModel.Networking;
 
 namespace NebulaModel.Packets
 {
-    public abstract class PacketProcessor<T>
+    public abstract class PacketProcessor<T> : BasePacketProcessor<T>
     {
-        protected bool IsHost;
-        protected bool IsClient => !IsHost;
-
-        internal void Initialize(bool isHost)
+        public override void ProcessPacket(T packet, INebulaConnection conn)
         {
-            IsHost = isHost;
+            this.ProcessPacket(packet, (NebulaConnection)conn);
         }
 
         public abstract void ProcessPacket(T packet, NebulaConnection conn);

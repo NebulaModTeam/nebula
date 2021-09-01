@@ -1,4 +1,5 @@
-﻿using NebulaWorld;
+﻿using NebulaModel;
+using NebulaWorld;
 using UnityEngine;
 
 namespace NebulaPatcher.MonoBehaviours

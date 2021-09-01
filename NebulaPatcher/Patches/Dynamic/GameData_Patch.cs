@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
@@ -64,6 +65,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Assign the factory to the result
             __result = __instance.factories[planet.factoryIndex];
+            
+            NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
 
             // Do not run the original method
             return false;
@@ -103,7 +106,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
-
             if (planet != null)
             {
                 if (GameMain.gameTick == 0L && DSPGame.SkipPrologue)
@@ -135,9 +137,9 @@ namespace NebulaPatcher.Patches.Dynamic
             //Set starting star and planet to request from the server
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
-                if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
+                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.LocalPlanetId != -1)
                 {
-                    PlanetData planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
+                    PlanetData planet = __instance.galaxy.PlanetById(((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.LocalPlanetId);
                     __instance.ArrivePlanet(planet);
                 }
                 else
@@ -145,7 +147,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     StarData nearestStar = null;
                     PlanetData nearestPlanet = null;
                     //Update player's position before searching for closest star
-                    __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x, Multiplayer.Session.LocalPlayer.Data.UPosition.y, Multiplayer.Session.LocalPlayer.Data.UPosition.z);
+                    __instance.mainPlayer.uPosition = new VectorLF3(((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.UPosition.x, ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.UPosition.y, ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.UPosition.z);
                     GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
 
                     if (nearestStar == null)

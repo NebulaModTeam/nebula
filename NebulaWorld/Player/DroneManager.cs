@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using System;
 using System.Collections.Generic;
@@ -48,7 +49,7 @@ namespace NebulaWorld.Player
             {
                 GameMain.mainPlayer.mecha.droneLogic.serving.Remove(entityId);
             }
-            Multiplayer.Session.Network.SendPacketToLocalPlanet(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, droneId, entityId, Multiplayer.Session.LocalPlayer.Id, stage, priority, GameMain.localPlanet.factory.prebuildPool[-entityId].pos));
+            Multiplayer.Session.Network.SendPacketToLocalPlanet(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, droneId, entityId, ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id, stage, priority, GameMain.localPlanet.factory.prebuildPool[-entityId].pos));
         }
 
         public void AddPlayerDronePlan(ushort playerId, int entityId)

@@ -46,10 +46,10 @@ jobs:
 
       - name: Clear output directory in DSP files
         # We use SilentlyContinue here because it errors out if the folder does not exist otherwise
-        run :  rm -R -ErrorAction SilentlyContinue "${{ env.NEBULA_FOLDER }}" 
+        run :  rm -R -ErrorAction SilentlyContinue "dist"
     
       - name: Add remote build identifier
-        run: copy /b /Y NUL .remoteBuild
+        run: New-Item -Name .remoteBuild -ItemType File -force
 
       # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
       - name: Setup MSBuild.exe
@@ -91,7 +91,13 @@ jobs:
       - uses: actions/upload-artifact@v2.2.4
         with:
           name: nebula-thunderstore
-          path: ${{ env.DIST_RELEASE_FOLDER }}nebula
+          path: ${{ env.DIST_RELEASE_FOLDER }}nebula-NebulaMultiplayerMod
+
+      # Upload the API thunderstore artifact (in case automatic upload fails)
+      - uses: actions/upload-artifact@v2.2.4
+        with:
+          name: nebula-api-thunderstore
+          path: ${{ env.DIST_RELEASE_FOLDER }}nebula-NebulaMultiplayerModApi
 
       # Create release
       - uses: hubastard/release-action@v1

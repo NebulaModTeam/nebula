@@ -1,4 +1,5 @@
 ﻿using K4os.Compression.LZ4.Streams;
+using NebulaAPI;
 using System;
 using System.IO;
 
@@ -8,7 +9,7 @@ namespace NebulaModel.Networking
     {
         const int BUFFER_SIZE = 8192;
 
-        public class Writer : IDisposable
+        public class Writer : IWriterProvider
         {
             readonly MemoryStream ms;
             readonly LZ4EncoderStream ls;
@@ -41,7 +42,7 @@ namespace NebulaModel.Networking
             }
         }
 
-        public class Reader : IDisposable
+        public class Reader : IReaderProvider
         {
             readonly MemoryStream ms;
             readonly LZ4DecoderStream ls;

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
@@ -10,6 +11,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 
@@ -39,8 +41,17 @@ namespace NebulaNetwork
 
         public override void Start()
         {
-            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            foreach (Assembly assembly in AssembliesUtils.GetNebulaAssemblies())
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            }
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
+
+            foreach (Assembly assembly in NebulaModAPI.TargetAssemblies)
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+                PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, false);
+            }
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
@@ -52,7 +63,7 @@ namespace NebulaNetwork
 
             clientSocket.Connect();
 
-            Multiplayer.Session.LocalPlayer.IsHost = false;
+            ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
 
             if (Config.Options.RememberLastIP)
             {
@@ -60,11 +71,15 @@ namespace NebulaNetwork
                 Config.Options.LastIP = serverEndpoint.ToString();
                 Config.SaveOptions();
             }
+
+            NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
         public override void Stop()
         {
             clientSocket?.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
+            
+            NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
 
         public override void Dispose()
@@ -99,7 +114,7 @@ namespace NebulaNetwork
             throw new System.NotImplementedException();
         }
 
-        public override void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude)
+        public override void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
         {
             // Only possible from host
             throw new System.NotImplementedException();

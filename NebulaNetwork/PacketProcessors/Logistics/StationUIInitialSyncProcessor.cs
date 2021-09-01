@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;

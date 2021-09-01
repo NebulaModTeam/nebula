@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
@@ -35,8 +36,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
 
                 pab.factory = tmpFactory;
                 pab.noneTool.factory = tmpFactory;
-                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
-                Multiplayer.Session.Factories.PacketAuthor = FactoryManager.AUTHOR_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
+                Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
         }
     }

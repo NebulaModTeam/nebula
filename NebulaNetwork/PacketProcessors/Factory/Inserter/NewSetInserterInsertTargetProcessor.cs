@@ -1,4 +1,5 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
+using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -20,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Inserter
                 factory.WriteObjectConn(packet.ObjId, 1, false, packet.OtherObjId, -1);
                 factory.factorySystem.SetInserterInsertTarget(packet.InserterId, packet.OtherObjId, packet.Offset);
                 factory.factorySystem.inserterPool[packet.InserterId].pos2 = packet.PointPos.ToVector3();
-                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
             }
         }
     }

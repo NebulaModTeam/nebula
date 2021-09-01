@@ -1,5 +1,7 @@
-﻿using NebulaModel;
-using NebulaModel.Attributes;
+﻿using BepInEx;
+using NebulaAPI;
+using NebulaModel;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -7,6 +9,8 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System.Collections.Generic;
+using LocalPlayer = NebulaWorld.LocalPlayer;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -24,7 +28,7 @@ namespace NebulaNetwork.PacketProcessors.Session
         {
             if (IsClient) return;
 
-            NebulaPlayer player;
+            INebulaPlayer player;
             using (playerManager.GetPendingPlayers(out var pendingPlayers))
             {
                 if (!pendingPlayers.TryGetValue(conn, out player))
@@ -36,12 +40,42 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 pendingPlayers.Remove(conn);
             }
+            
+            Dictionary<string, string> clientMods = new Dictionary<string, string>();
 
-
-            if (packet.ModVersion != Config.ModVersion)
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.ModsVersion))
             {
-                conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{ packet.ModVersion };{ Config.ModVersion }");
-                return;
+                for (int i = 0; i < packet.ModsCount; i++)
+                {
+                    string guid = reader.BinaryReader.ReadString();
+                    string version = reader.BinaryReader.ReadString();
+
+                    if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
+                    {
+                        conn.Disconnect(DisconnectionReason.ModIsMissingOnServer, guid);
+                    }
+
+                    clientMods.Add(guid, version);
+                }
+            }
+
+            foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+            {
+                if (pluginInfo.Value.Instance is IMultiplayerMod mod)
+                {
+                    if (!clientMods.ContainsKey(pluginInfo.Key))
+                    {
+                        conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
+                        return;
+                    }
+
+                    string version = clientMods[pluginInfo.Key];
+
+                    if (mod.CheckVersion(mod.Version, version)) continue;
+                    
+                    conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Version}");
+                    return;
+                }
             }
 
             if (packet.GameVersionSig != GameConfig.gameVersion.sig)
@@ -77,7 +111,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             player.Data.MechaColor = packet.MechaColor;
 
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
-            PlayerJoining pdata = new PlayerJoining(player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
+            PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
             using (playerManager.GetConnectedPlayers(out var connectedPlayers))
             {
                 foreach (var kvp in connectedPlayers)
@@ -93,10 +127,24 @@ namespace NebulaNetwork.PacketProcessors.Session
             }
 
             //Add current tech bonuses to the connecting player based on the Host's mecha
-            player.Data.Mecha.TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
+            ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
-            var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, player.Data));
+            using (BinaryUtils.Writer p = new BinaryUtils.Writer())
+            {
+                int count = 0;
+                foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                {
+                    if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
+                    {
+                        p.BinaryWriter.Write(pluginInfo.Key);
+                        mod.Export(p.BinaryWriter);
+                        count++;
+                    }
+                }
+                
+                var gameDesc = GameMain.data.gameDesc;
+                player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
+            }
         }
     }
 }

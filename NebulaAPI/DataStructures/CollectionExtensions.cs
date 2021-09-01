@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Threading;
 
-namespace NebulaModel.DataStructures
+namespace NebulaAPI
 {
     public static class CollectionExtensions
     {

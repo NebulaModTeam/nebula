@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void SetForNewGame_Postfix()
         {
             //Request trash data from the host
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
             {
                 Multiplayer.Session.Network.SendPacket(new TrashSystemRequestDataPacket(GameMain.localStar == null ? -1 : GameMain.localStar.id));
             }

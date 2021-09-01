@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking.Serialization;
@@ -23,7 +24,7 @@ namespace NebulaNetwork
             {
                 netDataWriter.Put(savedPlayerData.Count + 1);
                 //Add data about all players
-                foreach (KeyValuePair<string, PlayerData> data in savedPlayerData)
+                foreach (KeyValuePair<string, IPlayerData> data in savedPlayerData)
                 {
                     string hash = data.Key;
                     netDataWriter.Put(hash);
@@ -33,7 +34,7 @@ namespace NebulaNetwork
 
             //Add host's data
             netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash());
-            Multiplayer.Session.LocalPlayer.Data.Serialize(netDataWriter);
+            ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.Serialize(netDataWriter);
 
             File.WriteAllBytes(path, netDataWriter.Data);
 

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using NebulaAPI;
+using System;
 using System.Threading;
 
 namespace NebulaModel.DataStructures
 {
-    public sealed class ToggleSwitch
+    public sealed class ToggleSwitch : IToggle
     {
         int onCount;
 
@@ -12,7 +13,7 @@ namespace NebulaModel.DataStructures
         public static implicit operator bool(ToggleSwitch toggle) => toggle.Value;
 
         public Toggle On(bool conditional) => new Toggle(this, conditional ? 1 : 0);
-        public Toggle On() => new Toggle(this, 1);
+        public IDisposable On() => new Toggle(this, 1);
 
         public readonly struct Toggle : IDisposable
         {

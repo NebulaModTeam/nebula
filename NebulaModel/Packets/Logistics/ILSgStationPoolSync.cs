@@ -1,4 +1,5 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 
 namespace NebulaModel.Packets.Logistics
 {

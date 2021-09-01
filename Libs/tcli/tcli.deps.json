@@ -1,0 +1,74 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v5.0/win-x64",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v5.0": {},
+    ".NETCoreApp,Version=v5.0/win-x64": {
+      "tcli/0.0.1": {
+        "dependencies": {
+          "CommandLineParser": "2.8.0",
+          "Crayon": "2.0.60",
+          "Tommy": "2.0.0"
+        },
+        "runtime": {
+          "tcli.dll": {}
+        }
+      },
+      "CommandLineParser/2.8.0": {
+        "runtime": {
+          "lib/netstandard2.0/CommandLine.dll": {
+            "assemblyVersion": "2.8.0.0",
+            "fileVersion": "2.8.0.0"
+          }
+        }
+      },
+      "Crayon/2.0.60": {
+        "runtime": {
+          "lib/netstandard2.0/Crayon.dll": {
+            "assemblyVersion": "2.0.60.0",
+            "fileVersion": "2.0.60.0"
+          }
+        }
+      },
+      "Tommy/2.0.0": {
+        "runtime": {
+          "lib/netstandard2.0/Tommy.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "tcli/0.0.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CommandLineParser/2.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eco2HlKQBY4Joz9odHigzGpVzv6pjsXnY5lziioMveQxr+i2Z7xYcIOMeZTgYiqnMtMAbXMXsVhrNfWO5vJS8Q==",
+      "path": "commandlineparser/2.8.0",
+      "hashPath": "commandlineparser.2.8.0.nupkg.sha512"
+    },
+    "Crayon/2.0.60": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pqARvOP7vsCdTa/nMB115Ci0eSbkhKDqBbWxsVgLUoJUejgFE9qJ+N5j44nmqHCRP2ohuGgFQnCD9Iodhm+DSA==",
+      "path": "crayon/2.0.60",
+      "hashPath": "crayon.2.0.60.nupkg.sha512"
+    },
+    "Tommy/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-5XBermvZiJPubbS6njoNRcq8+hy+iKQ21xArDznKoc/nvSLyF/va4PCwHHMLESf2SVFUbadP9zl0KqQzHHhVPg==",
+      "path": "tommy/2.0.0",
+      "hashPath": "tommy.2.0.0.nupkg.sha512"
+    }
+  }
+}

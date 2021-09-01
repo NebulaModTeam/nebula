@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -19,13 +20,13 @@ namespace NebulaNetwork.PacketProcessors.Routers
         {
             if (IsClient) return;
 
-            NebulaPlayer player = playerManager.GetPlayer(conn);
+            INebulaPlayer player = playerManager.GetPlayer(conn);
             if (player != null)
             {
                 //Forward packet to other users
                 playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
                 //Forward packet to the host
-                Multiplayer.Session.Network.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
+                ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel;
+using NebulaAPI;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NGPT;
@@ -45,7 +46,7 @@ namespace NebulaPatcher.Patches.Dynamic
             float tabOffset = lastTab.anchoredPosition.x - beforeLastTab.anchoredPosition.x;
             multiplayerTab = Object.Instantiate(lastTab, lastTab.parent, true);
             multiplayerTab.anchoredPosition = new Vector2(lastTab.anchoredPosition.x + tabOffset, lastTab.anchoredPosition.y);
-            UIButton[] newTabButtons = CollectionExtensions.AddToArray(tabButtons, multiplayerTab.GetComponent<UIButton>());
+            UIButton[] newTabButtons = tabButtons.AddToArray(multiplayerTab.GetComponent<UIButton>());
             __instance.tabButtons = newTabButtons;
 
             // Update multiplayer tab text
@@ -53,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
             tabText.GetComponent<Localizer>().enabled = false;
             tabText.text = "Multiplayer";
             Text[] tabTexts = __instance.tabTexts;
-            Text[] newTabTexts = CollectionExtensions.AddToArray(tabTexts, tabText);
+            Text[] newTabTexts = tabTexts.AddToArray(tabText);
             __instance.tabTexts = newTabTexts;
 
             // Add multiplayer tab content
@@ -62,11 +63,11 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerContent = Object.Instantiate(contentTemplate, contentTemplate.parent, true);
             multiplayerContent.name = "multiplayer-content";
 
-            Tweener[] newContents = CollectionExtensions.AddToArray(tabTweeners, multiplayerContent.GetComponent<Tweener>());
+            Tweener[] newContents = tabTweeners.AddToArray(multiplayerContent.GetComponent<Tweener>());
             __instance.tabTweeners = newContents;
             UIButton[] revertButtons = __instance.revertButtons;
             RectTransform revertButton = multiplayerContent.Find("revert-button").GetComponent<RectTransform>();
-            UIButton[] newRevertButtons = CollectionExtensions.AddToArray(revertButtons, revertButton.GetComponent<UIButton>());
+            UIButton[] newRevertButtons = revertButtons.AddToArray(revertButton.GetComponent<UIButton>());
             __instance.revertButtons = newRevertButtons;
 
             // Remove unwanted GameObject

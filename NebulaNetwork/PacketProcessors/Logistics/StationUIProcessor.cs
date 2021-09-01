@@ -1,4 +1,5 @@
-﻿using NebulaModel;
+﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -34,8 +35,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     {
                         foreach (var kvp in connectedPlayers)
                         {
-                            NebulaPlayer p = kvp.Value;
-                            packet.ShouldMimic = p.Connection == conn;
+                            INebulaPlayer p = kvp.Value;
+                            packet.ShouldMimic = ((NebulaConnection)p.Connection) == conn;
                             p.SendPacket(packet);
                         }
                     }
@@ -43,7 +44,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 else if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
                 {
                     // if someone adds or removes items by hand broadcast to every player on that planet
-                    NebulaPlayer player = playerManager.GetPlayer(conn);
+                    INebulaPlayer player = playerManager.GetPlayer(conn);
                     if (player != null)
                     {
                         playerManager.SendPacketToPlanet(packet, player.Data.LocalPlanetId);

@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.DataStructures;
 
 namespace NebulaModel.Packets.GameStates

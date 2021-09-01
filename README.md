@@ -15,6 +15,10 @@ Please do keep in mind that this mod is still in heavy development, it may still
 - Stable version of the mod can be downloaded from [Thunderstore](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) (Recommended).
 - If you want to install the latest version of the mod, you can install pre-release versions be following the [installation guide](https://github.com/hubastard/nebula/wiki/Installing-a-pre-release-version).
 
+## API Documentation
+
+This mod has an API, that makes it easier for other mod developers to make their mods compatible with Nebula. If you are a mod developer and you want your mods to be compatible, follow the instructions [here](https://github.com/hubastard/nebula/wiki/Nebula-mod-API). Also you can always join our [Discord Server](https://discord.gg/UHeB2QvgDa) for help with using the API.
+
 ## What is the current status?
 
 The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.

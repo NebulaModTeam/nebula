@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
@@ -9,6 +10,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System;
 using System.Net.Sockets;
+using System.Reflection;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -43,8 +45,17 @@ namespace NebulaNetwork
                 SaveManager.LoadServerData();
             }
 
-            PacketUtils.RegisterAllPacketNestedTypes(PacketProcessor);
+            foreach (Assembly assembly in AssembliesUtils.GetNebulaAssemblies())
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            }
             PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
+
+            foreach (Assembly assembly in NebulaModAPI.TargetAssemblies)
+            {
+                PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+                PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, true);
+            }
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
@@ -54,18 +65,22 @@ namespace NebulaNetwork
             socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
             socket.Start();
 
-            Multiplayer.Session.LocalPlayer.IsHost = true;
+            ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
            
-            Multiplayer.Session.LocalPlayer.SetPlayerData(new PlayerData(
+            ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
                 new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
+            
+            NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
         public override void Stop()
         {
             socket?.Stop();
+            
+            NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
 
         public override void Dispose()
@@ -98,9 +113,9 @@ namespace NebulaNetwork
             PlayerManager.SendPacketToStar(packet, starId);
         }
 
-        public override void SendPacketToStarExclude<T>(T packet, int starId, NebulaConnection exclude)
+        public override void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
         {
-            PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
+            PlayerManager.SendPacketToStarExcept(packet, starId, (NebulaConnection)exclude);
         }
 
         public override void Update()

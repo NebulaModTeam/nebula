@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
@@ -30,8 +30,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                 ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
                 planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
 
-                Multiplayer.Session.Factories.TargetPlanet = FactoryManager.PLANET_NONE;
-                Multiplayer.Session.Factories.PacketAuthor = FactoryManager.AUTHOR_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
+                Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
         }
     }

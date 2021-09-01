@@ -79,7 +79,7 @@ namespace NebulaPatcher.Patches.Transpiler
                            .CreateLabelAt(matcher.Pos + 5, out Label end)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                            {
-                               return Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest;
+                               return Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value;
                            }))
                            .Insert(new CodeInstruction(OpCodes.Brtrue, end))
                            .Advance(5);

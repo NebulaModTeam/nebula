@@ -32,7 +32,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
                 Multiplayer.Session.Network.SendPacket(new PlayerAnimationUpdate()
                 {
-                    PlayerId = Multiplayer.Session.LocalPlayer.Id,
+                    PlayerId = ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id,
                     Idle = playerAnimator.idle.ToNebula(),
                     RunSlow = playerAnimator.runSlow.ToNebula(),
                     RunFast = playerAnimator.runFast.ToNebula(),

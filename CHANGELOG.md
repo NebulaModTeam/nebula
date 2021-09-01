@@ -1,5 +1,12 @@
 ## Changelog
 
+0.5.0:
+
+- Added API that enables other mods to sync over multiplayer! (Big thanks to @kremnev8!)
+- Fixed a bug that caused sorters to break when a client built a belt under preexisting sorters.
+- Fixed a bug that resulted in the client getting an error after disconnecting from a game that the host left.
+- Refactored session architecture (big changes to codebase but should be seamless to users)
+
 0.4.0:
 
 - Nebula now supports DSP version 0.8.20.7962+
