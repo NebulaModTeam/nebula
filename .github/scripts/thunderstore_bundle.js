@@ -51,6 +51,7 @@ const GH_ARCHIVE_PATH = join(
 const MOD_ICON_PATH = "thunderstore_icon.png";
 const README_PATH = "README.md";
 const CHANGELOG_PATH = "CHANGELOG.md";
+const BEPINEX_DEPENDENCY = "xiaoye97-BepInEx-5.4.11";
 
 async function main() {
   if (!existsSync(DIST_NEBULA_FOLDER)) {
@@ -119,11 +120,11 @@ function generateManifest() {
       "With this mod you will be able to play with your friends in the same game!",
     version_number: pluginInfo.version,
     dependencies: [
-      "xiaoye97-BepInEx-5.4.11",
+      BEPINEX_DEPENDENCY,
       `nebula-${apiPluginInfo.name}-${apiPluginInfo.version}`,
       "PhantomGamers-IlLine-1.0.0",
     ],
-    website_url: "https://github.com/hubastard/nebula",
+    website_url: "https://github.com/hubastard/nebula"
   };
   writeFileSync(
     join(DIST_NEBULA_FOLDER, "manifest.json"),
@@ -136,7 +137,10 @@ function generateApiManifest() {
     name: apiPluginInfo.name,
     description: "API for other mods to work with the Nebula Multiplayer Mod",
     version_number: apiPluginInfo.version,
-    website_url: "https://github.com/hubastard/nebula",
+    dependencies: [
+      BEPINEX_DEPENDENCY
+    ],
+    website_url: "https://github.com/hubastard/nebula"
   };
   writeFileSync(
     join(DIST_NEBULA_API_FOLDER, "manifest.json"),
@@ -270,7 +274,7 @@ function uploadToTStore() {
   } catch (error) {
     console.error(`Thunderstore upload failed for ${TSTORE_API_ARCHIVE_PATH}`);
   }
-  
+
   try {
     child_process.execSync(
       `"${DIST_TSTORE_CLI_EXE_PATH}" publish --file "${TSTORE_ARCHIVE_PATH}" --token "${process.env.TSTORE_TOKEN}" --use-session-auth`
