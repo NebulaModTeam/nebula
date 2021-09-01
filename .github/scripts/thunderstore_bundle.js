@@ -265,18 +265,18 @@ async function createGHArchive() {
 function uploadToTStore() {
   try {
     child_process.execSync(
-      `"${DIST_TSTORE_CLI_EXE_PATH}" publish --file "${TSTORE_ARCHIVE_PATH}" --token "${process.env.TSTORE_TOKEN}" --use-session-auth`
-    );
-  } catch (error) {
-    console.error(`Thunderstore upload failed for ${TSTORE_ARCHIVE_PATH}`);
-  }
-
-  try {
-    child_process.execSync(
       `"${DIST_TSTORE_CLI_EXE_PATH}" publish --file "${TSTORE_API_ARCHIVE_PATH}" --token "${process.env.TSTORE_TOKEN}" --use-session-auth`
     );
   } catch (error) {
     console.error(`Thunderstore upload failed for ${TSTORE_API_ARCHIVE_PATH}`);
+  }
+  
+  try {
+    child_process.execSync(
+      `"${DIST_TSTORE_CLI_EXE_PATH}" publish --file "${TSTORE_ARCHIVE_PATH}" --token "${process.env.TSTORE_TOKEN}" --use-session-auth`
+    );
+  } catch (error) {
+    console.error(`Thunderstore upload failed for ${TSTORE_ARCHIVE_PATH}`);
   }
 }
 
