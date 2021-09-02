@@ -87,7 +87,7 @@ namespace NebulaPatcher.Patches.Transpiler
                            .InsertAndAdvance(storeNum2Instruction)
                            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                            {
-                               return Multiplayer.IsActive && !((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost;
+                               return Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost;
                            }))
                            .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, endLabel))
                            .InstructionEnumeration();

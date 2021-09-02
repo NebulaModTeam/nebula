@@ -156,7 +156,7 @@ namespace NebulaWorld.Factory
         public void InitializePrebuildRequests()
         {
             //Load existing prebuilds to the dictionary so it will be ready to build
-            if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 using (GetPrebuildRequests(out var prebuildRequests))
                 {
@@ -168,7 +168,7 @@ namespace NebulaWorld.Factory
                             {
                                 if (factory.prebuildPool[i].id != 0)
                                 {
-                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[i].id)] = ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id;
+                                    prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[i].id)] = Multiplayer.Session.LocalPlayer.Id;
                                 }
                             }
                         }
@@ -222,7 +222,7 @@ namespace NebulaWorld.Factory
 
         public void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (Multiplayer.IsActive && ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id == PacketAuthor)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.Id == PacketAuthor)
             {
                 Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
@@ -230,7 +230,7 @@ namespace NebulaWorld.Factory
 
         public void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (Multiplayer.IsActive && ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id == PacketAuthor)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.Id == PacketAuthor)
             {
                 Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }

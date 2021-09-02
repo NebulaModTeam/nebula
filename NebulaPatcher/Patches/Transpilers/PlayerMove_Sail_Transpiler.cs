@@ -42,7 +42,7 @@ namespace NebulaPatcher.Patches.Transpilers
                                 {
                                     PlayerUseWarper packet = new PlayerUseWarper(warpCommand)
                                     {
-                                        PlayerId = ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id
+                                        PlayerId = Multiplayer.Session.LocalPlayer.Id
                                     };
                                     Multiplayer.Session.Network.SendPacket(packet);
                                 }

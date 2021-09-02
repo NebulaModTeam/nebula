@@ -118,7 +118,7 @@ namespace NebulaWorld
                 Log.Info("Game load completed");
                 IsGameLoaded = true;
 
-                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsInitialDataReceived)
+                if (Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
                 {
                     Multiplayer.Session.World.SetupInitialPlayerState();
                 }

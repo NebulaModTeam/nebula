@@ -77,7 +77,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // We should only take items to player if player requested
-            if (Multiplayer.Session.Factories.IsIncomingRequest.Value && Multiplayer.Session.Factories.PacketAuthor != ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id)
+            if (Multiplayer.Session.Factories.IsIncomingRequest.Value && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id)
             {
                 count = 1;
                 return false;
@@ -94,7 +94,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 StorageSyncManager.SendToPlayersOnTheSamePlanet(packet, GameMain.data.localPlanet.id);
             }

@@ -17,12 +17,12 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (GameMain.localPlanet != null && !string.IsNullOrEmpty(GameMain.localPlanet.overrideName))
                 {
                     // Send packet with new planet name
-                    Multiplayer.Session.Network.SendPacket(new NameInputPacket(GameMain.localPlanet.overrideName, NebulaModAPI.STAR_NONE, GameMain.localPlanet.id, ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id));
+                    Multiplayer.Session.Network.SendPacket(new NameInputPacket(GameMain.localPlanet.overrideName, NebulaModAPI.STAR_NONE, GameMain.localPlanet.id, Multiplayer.Session.LocalPlayer.Id));
                 }
                 else if (GameMain.localStar != null && !string.IsNullOrEmpty(GameMain.localStar.overrideName))
                 {
                     // Send packet with new star name
-                    Multiplayer.Session.Network.SendPacket(new NameInputPacket(GameMain.localStar.overrideName, GameMain.localStar.id, NebulaModAPI.PLANET_NONE, ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id));
+                    Multiplayer.Session.Network.SendPacket(new NameInputPacket(GameMain.localStar.overrideName, GameMain.localStar.id, NebulaModAPI.PLANET_NONE, Multiplayer.Session.LocalPlayer.Id));
                 }
             }
         }

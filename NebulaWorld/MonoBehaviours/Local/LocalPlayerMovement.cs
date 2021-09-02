@@ -31,7 +31,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 var bodyRotation = new Float3(bodyTransform.eulerAngles);
 
                 Double3 uPosition = new Double3(GameMain.mainPlayer.uPosition.x, GameMain.mainPlayer.uPosition.y, GameMain.mainPlayer.uPosition.z);
-                Multiplayer.Session.Network.SendPacket(new PlayerMovement(((LocalPlayer)Multiplayer.Session.LocalPlayer).Id, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToFloat3(), uPosition, rotation, bodyRotation));
+                Multiplayer.Session.Network.SendPacket(new PlayerMovement(Multiplayer.Session.LocalPlayer.Id, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToFloat3(), uPosition, rotation, bodyRotation));
 
                 IPlayerData playerData = Multiplayer.Session.LocalPlayer.Data;
                 playerData.BodyRotation = bodyRotation;

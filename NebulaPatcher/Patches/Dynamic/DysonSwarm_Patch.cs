@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void AddBullet_Postfix(DysonSwarm __instance, SailBullet bullet, int orbitId)
         {
             //Host is sending correction / authorization packet to correct constants of the generated bullet
-            if (Multiplayer.IsActive && ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
                 Multiplayer.Session.Network.SendPacket(new DysonSphereBulletCorrectionPacket(__instance.starData.index, bullet.id, bullet.uEndVel, bullet.uEnd));
             }

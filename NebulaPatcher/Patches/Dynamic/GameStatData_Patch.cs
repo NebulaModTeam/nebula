@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameStatData.AfterTick))]
         public static void AfterTick_Postfix()
         {
-            if (Multiplayer.IsActive && ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
                 Multiplayer.Session.Statistics.CaptureStatisticalSnapshot();
             }

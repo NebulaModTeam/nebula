@@ -65,16 +65,16 @@ namespace NebulaWorld
                 return;
             }
 
-            if (!((LocalPlayer)Multiplayer.Session.LocalPlayer).IsInitialDataReceived)
+            if (!Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
             {
                 Log.Warn("Trying to setup initial player state before the player data was received!");
                 return;
             }
 
-            LocalPlayer player = ((LocalPlayer)Multiplayer.Session.LocalPlayer);
+            LocalPlayer player = Multiplayer.Session.LocalPlayer as LocalPlayer;
 
             // Assign our own color
-            UpdatePlayerColor(((LocalPlayer)Multiplayer.Session.LocalPlayer).Id, player.Data.MechaColor);
+            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColor);
 
             // If not a new client, we need to update the player position to put him where he was previously
             if (player.IsClient && !player.IsNewPlayer)
@@ -265,7 +265,7 @@ namespace NebulaWorld
             using (GetRemotePlayersModels(out var remotePlayersModels))
             {
                 Transform transform;
-                if (playerId == ((LocalPlayer)Multiplayer.Session.LocalPlayer).Id)
+                if (playerId == Multiplayer.Session.LocalPlayer.Id)
                 {
                     transform = GameMain.data.mainPlayer.transform;
                 }
@@ -292,7 +292,7 @@ namespace NebulaWorld
                 }
 
                 // We changed our own color, so we have to let others know
-                if (((LocalPlayer)Multiplayer.Session.LocalPlayer).Id == playerId)
+                if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
                     Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, color));
                 }
@@ -524,7 +524,7 @@ namespace NebulaWorld
                     }
 
                     // If the player is not on the same planet or is in space, then do not render their in-world tag
-                    if (playerModel.Movement.localPlanetId != ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
+                    if (playerModel.Movement.localPlanetId != Multiplayer.Session.LocalPlayer.Data.LocalPlanetId && playerModel.Movement.localPlanetId <= 0)
                     {
                         playerNameText.SetActive(false);
                     }

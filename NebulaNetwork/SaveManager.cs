@@ -32,7 +32,7 @@ namespace NebulaNetwork
 
             //Add host's data
             netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash());
-            ((LocalPlayer)Multiplayer.Session.LocalPlayer).Data.Serialize(netDataWriter);
+            Multiplayer.Session.LocalPlayer.Data.Serialize(netDataWriter);
 
             File.WriteAllBytes(path, netDataWriter.Data);
 

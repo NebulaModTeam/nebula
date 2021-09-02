@@ -109,7 +109,7 @@ namespace NebulaWorld.Logistics
          */
         public void WorkShipBackToIdle(ILSShipData packet)
         {
-            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -203,7 +203,7 @@ namespace NebulaWorld.Logistics
          */
         public void UpdateRemoteOrder(ILSRemoteOrderData packet)
         {
-            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -228,7 +228,7 @@ namespace NebulaWorld.Logistics
          */
         public void AddTakeItem(ILSShipItems packet)
         {
-            if (!Multiplayer.IsActive || ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
             {
                 return;
             }
@@ -281,7 +281,7 @@ namespace NebulaWorld.Logistics
 
             // Clients only care about what happens on their planet, hosts always need to apply this.
             // Using PlanetFactory to prevent getting the "fakes" that are creates on clients.
-            if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost || (!((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost && packet.PlanetId == GameMain.localPlanet?.id))
+            if (Multiplayer.Session.LocalPlayer.IsHost || (!Multiplayer.Session.LocalPlayer.IsHost && packet.PlanetId == GameMain.localPlanet?.id))
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
                 StationComponent stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];

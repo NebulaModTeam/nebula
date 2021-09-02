@@ -100,7 +100,7 @@ namespace NebulaWorld.Logistics
 
         public void UpdateUI(StationUI packet)
         {
-            if ((UpdateCooldown == 0 || !packet.IsStorageUI) && ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            if ((UpdateCooldown == 0 || !packet.IsStorageUI) && Multiplayer.Session.LocalPlayer.IsHost)
             {
                 UpdateCooldown = 10;
                 if (packet.IsStorageUI)
@@ -112,7 +112,7 @@ namespace NebulaWorld.Logistics
                     UpdateSettingsUI(packet);
                 }
             }
-            else if (!((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
+            else if (!Multiplayer.Session.LocalPlayer.IsHost)
             {
                 if (packet.IsStorageUI)
                 {
