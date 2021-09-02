@@ -49,7 +49,7 @@ namespace NebulaWorld
                 {
                     model.Destroy();
                 }
-                
+
                 remotePlayersModels.Clear();
             }
 

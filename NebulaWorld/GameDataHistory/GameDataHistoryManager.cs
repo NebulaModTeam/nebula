@@ -1,5 +1,4 @@
-﻿using NebulaAPI;
-using NebulaModel.DataStructures;
+﻿using NebulaModel.DataStructures;
 using System;
 
 namespace NebulaWorld.GameDataHistory
@@ -11,7 +10,7 @@ namespace NebulaWorld.GameDataHistory
         public GameDataHistoryManager()
         {
         }
-        
+
 
         public void Dispose()
         {

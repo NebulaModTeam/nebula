@@ -10,13 +10,13 @@ namespace NebulaAPI
         string Version { get; }
         bool CheckVersion(string hostVersion, string clientVersion);
     }
-    
+
     /// <summary>
     /// Implement this interface if you have important settings that clients need to know
     /// </summary>
     public interface IMultiplayerModWithSettings : IMultiplayerMod
     {
-        void Export (BinaryWriter w);
-        void Import (BinaryReader r);
+        void Export(BinaryWriter w);
+        void Import(BinaryReader r);
     }
 }

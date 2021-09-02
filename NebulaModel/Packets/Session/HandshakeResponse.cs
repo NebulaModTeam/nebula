@@ -12,7 +12,7 @@ namespace NebulaModel.Packets.Session
         public PlayerData LocalPlayerData { get; set; }
         public byte[] ModsSettings { get; set; }
         public int ModsSettingsCount { get; set; }
-        
+
         public HandshakeResponse() { }
 
         public HandshakeResponse(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier, bool isNewPlayer, PlayerData localPlayerData, byte[] modsSettings, int settingsCount)

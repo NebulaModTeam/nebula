@@ -8,7 +8,6 @@ using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
-using System;
 using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
@@ -66,20 +65,20 @@ namespace NebulaNetwork
             socket.Start();
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
-           
+
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
                 new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
-            
+
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
         public override void Stop()
         {
             socket?.Stop();
-            
+
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
 

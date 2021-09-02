@@ -65,7 +65,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Assign the factory to the result
             __result = __instance.factories[planet.factoryIndex];
-            
+
             NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
 
             // Do not run the original method

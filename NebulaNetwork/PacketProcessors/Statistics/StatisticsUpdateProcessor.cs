@@ -4,7 +4,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
 using NebulaWorld;
-using NebulaWorld.Statistics;
 
 namespace NebulaNetwork.PacketProcessors.Statistics
 {

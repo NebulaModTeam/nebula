@@ -1,12 +1,8 @@
 ﻿using NebulaAPI;
-using NebulaModel;
-using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 
 /*
  * Whenever a client connects we sync the current state of all ILS and ships to them

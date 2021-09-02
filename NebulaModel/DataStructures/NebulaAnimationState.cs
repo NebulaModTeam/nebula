@@ -1,5 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.Networking.Serialization;
 
 namespace NebulaModel.DataStructures
 {

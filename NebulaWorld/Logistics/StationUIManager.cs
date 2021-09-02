@@ -1,9 +1,8 @@
-﻿using NebulaModel.Packets.Logistics;
-using HarmonyLib;
-using NebulaModel.Logger;
+﻿using NebulaModel.Logger;
+using NebulaModel.Networking;
+using NebulaModel.Packets.Logistics;
 using System;
 using System.Collections.Generic;
-using NebulaModel.Networking;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

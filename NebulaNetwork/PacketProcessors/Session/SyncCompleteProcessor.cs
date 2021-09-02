@@ -1,13 +1,10 @@
 ﻿using NebulaAPI;
-using NebulaModel;
-using NebulaModel.Attributes;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using FactoryManager = NebulaWorld.Factory.FactoryManager;
 using LocalPlayer = NebulaWorld.LocalPlayer;
 
 namespace NebulaNetwork.PacketProcessors.Session

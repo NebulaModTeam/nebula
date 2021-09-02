@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
-using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -11,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static void GameTick_Prefix()
         {
-            if(Multiplayer.IsActive) Multiplayer.Session.Storage.IsHumanInput = false;
+            if (Multiplayer.IsActive) Multiplayer.Session.Storage.IsHumanInput = false;
         }
 
         [HarmonyPostfix]

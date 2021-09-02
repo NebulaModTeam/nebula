@@ -1,9 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
-using NebulaModel.DataStructures;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using NebulaWorld.Universe;
 using System.Collections.Generic;
 using UnityEngine;
 

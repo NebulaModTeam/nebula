@@ -2,7 +2,6 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

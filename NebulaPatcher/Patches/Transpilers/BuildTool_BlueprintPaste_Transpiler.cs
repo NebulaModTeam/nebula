@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Transpiler
              * Inserts
              *  if(!Multiplayer.IsActive)
              * Before trying to take items, so that all prebuilds are assumed to require items while in MP
-            */ 
+            */
             CodeMatcher matcher = new CodeMatcher(instructions, il)
                 .MatchForward(true,
                     new CodeMatch(i => i.IsLdloc()), // count

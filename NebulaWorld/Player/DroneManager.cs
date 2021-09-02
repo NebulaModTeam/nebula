@@ -1,5 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using System;
 using System.Collections.Generic;

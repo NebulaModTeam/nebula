@@ -4,7 +4,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
-using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {

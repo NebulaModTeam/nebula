@@ -1,5 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.DataStructures;
 
 namespace NebulaModel.Packets.Universe
 {

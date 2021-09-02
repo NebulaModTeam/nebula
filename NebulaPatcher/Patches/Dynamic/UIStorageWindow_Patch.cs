@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
-using NebulaWorld.Factory;
 using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -41,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 Multiplayer.Session.Storage.WindowOpened = true;
             }
-            
+
             return true;
         }
 

@@ -1,6 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel;
-using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;

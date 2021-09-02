@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
-using NebulaWorld.Player;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

@@ -1,8 +1,7 @@
 ﻿using HarmonyLib;
-using NebulaNetwork;
 using NebulaModel.Packets.Factory;
+using NebulaNetwork;
 using NebulaWorld;
-using NebulaWorld.Factory;
 using System;
 
 namespace NebulaPatcher.Patches.Dynamic

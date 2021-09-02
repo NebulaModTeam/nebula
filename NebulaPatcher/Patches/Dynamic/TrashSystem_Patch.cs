@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Trash;
 using NebulaWorld;
-using NebulaWorld.Trash;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

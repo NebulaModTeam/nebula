@@ -1,6 +1,4 @@
-﻿using BepInEx;
-using NebulaAPI;
-using NebulaModel;
+﻿using NebulaAPI;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -10,7 +8,6 @@ using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
-using LocalPlayer = NebulaWorld.LocalPlayer;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -40,7 +37,7 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 pendingPlayers.Remove(conn);
             }
-            
+
             Dictionary<string, string> clientMods = new Dictionary<string, string>();
 
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.ModsVersion))
@@ -72,7 +69,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     string version = clientMods[pluginInfo.Key];
 
                     if (mod.CheckVersion(mod.Version, version)) continue;
-                    
+
                     conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Version}");
                     return;
                 }
@@ -141,7 +138,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                         count++;
                     }
                 }
-                
+
                 var gameDesc = GameMain.data.gameDesc;
                 player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
             }

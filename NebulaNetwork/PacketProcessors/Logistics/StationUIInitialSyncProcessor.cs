@@ -4,7 +4,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 
 /*
  * When the client opens the UI of a station (ILS/PLS/Collector) the contents gets updated and shown to

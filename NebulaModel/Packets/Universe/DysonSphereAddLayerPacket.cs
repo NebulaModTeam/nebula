@@ -1,5 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.DataStructures;
 using UnityEngine;
 
 namespace NebulaModel.Packets.Universe

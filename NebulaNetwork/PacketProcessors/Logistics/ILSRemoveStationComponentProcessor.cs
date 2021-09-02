@@ -3,7 +3,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 
 /*
  * If client knows the planets factory we call the removal there, if not we call it on the gStationPool if possible

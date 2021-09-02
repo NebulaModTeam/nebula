@@ -11,21 +11,21 @@ namespace NebulaAPI
     public class NebulaModAPI : BaseUnityPlugin
     {
         private static bool nebulaIsInstalled;
-        
+
         private static Type multiplayer;
-        
+
         private static Type binaryWriter;
         private static Type binaryReader;
-        
+
         public static readonly List<Assembly> TargetAssemblies = new List<Assembly>();
 
         public const string NEBULA_MODID = "dsp.nebula-multiplayer";
-        
+
         public const string API_GUID = "dsp.nebula-multiplayer-api";
         public const string API_NAME = "NebulaMultiplayerModApi";
-        
+
         public static bool NebulaIsInstalled => nebulaIsInstalled;
-        
+
         /// <summary>
         /// Is this session in multiplayer
         /// </summary>
@@ -34,11 +34,11 @@ namespace NebulaAPI
             get
             {
                 if (!NebulaIsInstalled) return false;
-                
+
                 return (bool)multiplayer.GetProperty("IsActive").GetValue(null);
             }
         }
-        
+
         /// <summary>
         /// Provides access to MultiplayerSession class
         /// </summary>
@@ -47,8 +47,8 @@ namespace NebulaAPI
             get
             {
                 if (!NebulaIsInstalled) return null;
-                
-                return (IMultiplayerSession) multiplayer.GetProperty("Session").GetValue(null);
+
+                return (IMultiplayerSession)multiplayer.GetProperty("Session").GetValue(null);
             }
         }
 
@@ -56,7 +56,7 @@ namespace NebulaAPI
         /// Subscribe to receive event when new multiplayer game is started
         /// </summary>
         public static Action OnMultiplayerGameStarted;
-        
+
         /// <summary>
         /// Subscribe to receive event when multiplayer game end
         /// </summary>
@@ -67,23 +67,23 @@ namespace NebulaAPI
         /// int starIndex - index of star to load
         /// </summary>
         public static Action<int> OnStarLoadRequest;
-        
+
         /// <summary>
         /// Subscribe to receive event when a new planet starts loaded<br/>
         /// int planetId - id of planet to load
         /// </summary>
         public static Action<int> OnPlanetLoadRequest;
-        
+
         /// <summary>
         /// Subscribe to receive event when a new planet is finished loading<br/>
         /// int planetId - id of planet to load
         /// </summary>
         public static Action<int> OnPlanetLoadFinished;
-        
+
         private void Awake()
         {
             nebulaIsInstalled = false;
-                
+
             foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
             {
                 if (pluginInfo.Value.Metadata.GUID == NEBULA_MODID)
@@ -92,16 +92,16 @@ namespace NebulaAPI
                     break;
                 }
             }
-            
+
             if (!nebulaIsInstalled) return;
 
             multiplayer = AccessTools.TypeByName("NebulaWorld.Multiplayer");
-            
+
             Type binaryUtils = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils");
 
             binaryWriter = binaryUtils.GetNestedType("Writer");
             binaryReader = binaryUtils.GetNestedType("Reader");
-            
+
             Logger.LogInfo("Nebula API is ready!");
         }
 
@@ -125,9 +125,9 @@ namespace NebulaAPI
         {
             if (!NebulaIsInstalled) return null;
 
-            return (IWriterProvider) binaryWriter.GetConstructor(new Type[0]).Invoke(new object[0]);
+            return (IWriterProvider)binaryWriter.GetConstructor(new Type[0]).Invoke(new object[0]);
         }
-        
+
         /// <summary>
         /// Provides access to BinaryReader with LZ4 compression
         /// </summary>
@@ -135,7 +135,7 @@ namespace NebulaAPI
         {
             if (!NebulaIsInstalled) return null;
 
-            return (IReaderProvider) binaryReader.GetConstructor(new[]{typeof(byte[])}).Invoke(new object[]{bytes});
+            return (IReaderProvider)binaryReader.GetConstructor(new[] { typeof(byte[]) }).Invoke(new object[] { bytes });
         }
     }
 }

@@ -1,11 +1,8 @@
 ﻿using NebulaAPI;
-using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
-using NebulaWorld.Factory;
 using System;
 using UnityEngine;
 

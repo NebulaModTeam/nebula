@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Factory.Splitter;
 using NebulaWorld;
-using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

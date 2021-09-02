@@ -1,11 +1,8 @@
 ﻿using NebulaAPI;
-using NebulaModel;
-using NebulaModel.Attributes;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using NebulaWorld.Universe;
 using System.Collections.Generic;
 
 namespace NebulaNetwork.PacketProcessors.Universe

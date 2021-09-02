@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
 using NebulaModel;
-using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
@@ -78,7 +77,7 @@ namespace NebulaNetwork
         public override void Stop()
         {
             clientSocket?.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
-            
+
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
 
@@ -222,7 +221,7 @@ namespace NebulaNetwork
             });
         }
 
-        
+
 
         static void DisableNagleAlgorithm(WebSocket socket)
         {

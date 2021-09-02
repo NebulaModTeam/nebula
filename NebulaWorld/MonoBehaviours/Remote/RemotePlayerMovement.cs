@@ -1,5 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours.Local;
@@ -86,7 +85,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i + 1], (float)ratio);
                     break;
                 }
-                
+
                 if (i == snapshotBuffer.Length - 2 && renderTime > t2)
                 {
                     // This will skip interpolation and will snap to the most recent position.

@@ -4,7 +4,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
 using NebulaWorld;
-using NebulaWorld.GameDataHistory;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {

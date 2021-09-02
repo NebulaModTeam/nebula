@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 Log.Info($"Listening server on port {Config.Options.HostPort}");
                 Multiplayer.HostGame(new Server(Config.Options.HostPort));
-                
+
                 GameDesc gameDesc = __instance.gameDesc;
                 DSPGame.StartGameSkipPrologue(gameDesc);
                 return false;

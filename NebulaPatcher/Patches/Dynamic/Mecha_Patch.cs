@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(Mecha.GenerateEnergy))]
         public static bool Mecha_GenerateEnergy_Prefix(Mecha __instance)
         {
-            if(!Multiplayer.IsActive) return true;
+            if (!Multiplayer.IsActive) return true;
 
             // some players managed to break the fuel chamber on clients.
             // the game thought there is still fuel burning while not adding energy to the mecha and preventing new fuel from beeing added.

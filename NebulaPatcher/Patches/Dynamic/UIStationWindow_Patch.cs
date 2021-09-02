@@ -1,9 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Dynamic
 {

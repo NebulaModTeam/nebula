@@ -3,7 +3,6 @@ using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
-using NebulaWorld.Factory;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
