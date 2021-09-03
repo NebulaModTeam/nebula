@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Transpilers
             CodeMatcher matcher = new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Blt),
-                    new CodeMatch(i => i.IsLdloc()),
+                    new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldc_I4_0),
                     new CodeMatch(OpCodes.Ble)
                 );
@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Transpilers
             return matcher
                    .Advance(1)
                    .InsertAndAdvance(num4Inst)
-                   .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int>>(hashRate =>
+                   .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>(hashRate =>
                    {
                        if (Multiplayer.IsActive)
                        {
@@ -50,7 +50,6 @@ namespace NebulaPatcher.Patches.Transpilers
                                    mechaData.ResearchHashRate = hashRate;
                                    Multiplayer.Session.Network.SendPacket(new PlayerMechaData(GameMain.mainPlayer, hashRate));
                                }
-                               return;
                            }
 
                            // For host, add client's hash rates
@@ -64,10 +63,11 @@ namespace NebulaPatcher.Patches.Transpilers
                                        hashRate += playerDataArr[i].Mecha.ResearchHashRate;
                                    }
                                }
-                               return;
                            }
                        }
+                       return hashRate;
                    }))
+                   .InsertAndAdvance(new CodeInstruction(OpCodes.Stloc_S, num4Inst.operand))
                    .InstructionEnumeration();
         }
     }
