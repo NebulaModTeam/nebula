@@ -11,5 +11,6 @@ namespace NebulaAPI
         StorageComponent ReactorStorage { get; set; }
         StorageComponent WarpStorage { get; set; }
         MechaForge Forge { get; set; }
+        int ResearchHashRate { get; set; }
     }
 }

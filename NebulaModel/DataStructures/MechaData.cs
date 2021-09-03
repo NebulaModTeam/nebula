@@ -15,6 +15,7 @@ namespace NebulaModel.DataStructures
         public StorageComponent ReactorStorage { get; set; }
         public StorageComponent WarpStorage { get; set; }
         public MechaForge Forge { get; set; }
+        public int ResearchHashRate { get; set; }
         public PlayerTechBonuses TechBonuses { get; set; }
 
         public MechaData()
@@ -27,7 +28,7 @@ namespace NebulaModel.DataStructures
             this.TechBonuses = new PlayerTechBonuses();
         }
 
-        public MechaData(int sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory, StorageComponent reactorStorage, StorageComponent warpStorage, MechaForge forge)
+        public MechaData(int sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory, StorageComponent reactorStorage, StorageComponent warpStorage, MechaForge forge, int researchHashRate)
         {
             this.SandCount = sandCount;
             this.CoreEnergy = coreEnergy;
@@ -35,6 +36,7 @@ namespace NebulaModel.DataStructures
             this.ReactorStorage = reactorStorage;
             this.WarpStorage = warpStorage;
             this.Forge = forge;
+            this.ResearchHashRate = researchHashRate;
             this.Inventory = inventory;
             this.TechBonuses = new PlayerTechBonuses();
         }
