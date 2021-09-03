@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIInserterWindow))]
-    class UIInserterWindow_Patch
+    internal class UIInserterWindow_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIInserterWindow.OnResetFilterButtonClick))]

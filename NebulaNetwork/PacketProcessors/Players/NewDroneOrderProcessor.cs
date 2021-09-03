@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
+    internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public NewDroneOrderProcessor()
         {
@@ -22,7 +22,9 @@ namespace NebulaNetwork.PacketProcessors.Players
             if (IsHost)
             {
                 if (GameMain.mainPlayer.planetId != packet.PlanetId)
+                {
                     return;
+                }
 
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)

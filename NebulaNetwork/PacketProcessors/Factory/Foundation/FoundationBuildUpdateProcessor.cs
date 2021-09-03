@@ -9,9 +9,9 @@ using UnityEngine;
 namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 {
     [RegisterPacketProcessor]
-    class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
+    internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
     {
-        readonly Vector3[] reformPoints = new Vector3[100];
+        private readonly Vector3[] reformPoints = new Vector3[100];
 
         public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {

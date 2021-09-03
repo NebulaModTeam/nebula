@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameStatData))]
-    class GameStatData_Patch
+    internal class GameStatData_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameStatData.AfterTick))]

@@ -12,12 +12,12 @@ namespace NebulaWorld.MonoBehaviours.Local
         private float time;
         private PlayerAnimator playerAnimator;
 
-        void Awake()
+        private void Awake()
         {
             playerAnimator = GetComponent<PlayerAnimator>();
         }
 
-        void Update()
+        private void Update()
         {
             time += Time.deltaTime;
 

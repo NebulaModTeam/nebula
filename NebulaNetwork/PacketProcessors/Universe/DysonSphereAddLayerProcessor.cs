@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     public class DysonSphereAddLayerProcessor : PacketProcessor<DysonSphereAddLayerPacket>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public DysonSphereAddLayerProcessor()
         {
@@ -23,9 +23,13 @@ namespace NebulaNetwork.PacketProcessors.Universe
             {
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
                 else
+                {
                     valid = false;
+                }
             }
 
             if (valid)

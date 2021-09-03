@@ -196,7 +196,7 @@ namespace NebulaWorld.Factory
             //Check if some entity that is suppose to be connected to this building is missing
             for (int i = 0; i < buildPreviews.Count; i++)
             {
-                var buildPreview = buildPreviews[i];
+                BuildPreview buildPreview = buildPreviews[i];
                 int inputObjId = buildPreview.inputObjId;
                 if (inputObjId > 0)
                 {

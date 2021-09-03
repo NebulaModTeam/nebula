@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqueueTechPacket>
+    internal class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqueueTechPacket>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public GameHistoryEnqueueTechProcessor()
         {

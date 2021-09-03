@@ -8,7 +8,7 @@
 
         public PlanetDataRequest(int[] planetIDs)
         {
-            this.PlanetIDs = planetIDs;
+            PlanetIDs = planetIDs;
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(GameMain))]
-    class GameMain_Transpiler
+    internal class GameMain_Transpiler
     {
         //Ignore Pausing in the multiplayer:
         //Change:  if (!this._paused)
@@ -14,10 +14,10 @@ namespace NebulaPatcher.Patches.Transpiler
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(GameMain.FixedUpdate))]
-        static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
         {
-            var found = false;
-            var codes = new List<CodeInstruction>(instructions);
+            bool found = false;
+            List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
             for (int i = 6; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Callvirt &&
@@ -46,7 +46,10 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             if (!found)
+            {
                 NebulaModel.Logger.Log.Error("GameMain FixedUpdate transpiler failed. Mod version not compatible with game version.");
+            }
+
             return codes;
         }
     }

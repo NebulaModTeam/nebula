@@ -11,7 +11,10 @@ namespace NebulaNetwork.PacketProcessors.Planet
     {
         public override void ProcessPacket(FactoryLoadRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetID);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);

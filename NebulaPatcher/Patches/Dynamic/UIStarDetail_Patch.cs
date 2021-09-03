@@ -6,7 +6,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStarDetail))]
-    class UIStarDetail_Patch
+    internal class UIStarDetail_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIStarDetail.OnNameInputEndEdit))]

@@ -11,7 +11,10 @@ namespace NebulaNetwork.PacketProcessors.Planet
     {
         public override void ProcessPacket(FactoryData packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
             Multiplayer.Session.Planets.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
 

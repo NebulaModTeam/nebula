@@ -54,8 +54,8 @@ namespace NebulaWorld.Factory
 
             if (PlayerChargeAmount > 0)
             {
-                GameMain.mainPlayer.mecha.coreEnergy += (double)PlayerChargeAmount;
-                GameMain.mainPlayer.mecha.MarkEnergyChange(2, (double)PlayerChargeAmount);
+                GameMain.mainPlayer.mecha.coreEnergy += PlayerChargeAmount;
+                GameMain.mainPlayer.mecha.MarkEnergyChange(2, PlayerChargeAmount);
                 if (GameMain.mainPlayer.mecha.coreEnergy > GameMain.mainPlayer.mecha.coreEnergyCap)
                 {
                     GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
@@ -66,7 +66,7 @@ namespace NebulaWorld.Factory
         // return true if added or changed state, false if already known
         public bool AddRequested(int PlanetId, int NetId, int NodeId, bool Charging, bool eventFromOtherPlayer)
         {
-            if (RequestsSent.TryGetValue(PlanetId, out var requests))
+            if (RequestsSent.TryGetValue(PlanetId, out List<Requested> requests))
             {
                 for (int i = 0; i < requests.Count; i++)
                 {
@@ -83,7 +83,7 @@ namespace NebulaWorld.Factory
                                     int baseDemand = factory.powerSystem.nodePool[NodeId].workEnergyPerTick - factory.powerSystem.nodePool[NodeId].idleEnergyPerTick;
                                     float mult = factory.powerSystem.networkServes[NetId];
 
-                                    PlayerChargeAmount -= (int)(mult * (float)baseDemand);
+                                    PlayerChargeAmount -= (int)(mult * baseDemand);
                                     ChargerCount--;
 
                                     if (PlayerChargeAmount < 0)
@@ -106,9 +106,11 @@ namespace NebulaWorld.Factory
                     }
                 }
 
-                Requested req = new Requested();
-                req.NetId = NetId;
-                req.NodeId = NodeId;
+                Requested req = new Requested
+                {
+                    NetId = NetId,
+                    NodeId = NodeId
+                };
 
                 requests.Add(req);
 
@@ -116,9 +118,11 @@ namespace NebulaWorld.Factory
             }
 
             List<Requested> list = new List<Requested>();
-            Requested req2 = new Requested();
-            req2.NetId = NetId;
-            req2.NodeId = NodeId;
+            Requested req2 = new Requested
+            {
+                NetId = NetId,
+                NodeId = NodeId
+            };
 
             list.Add(req2);
             return RequestsSent.TryAdd(PlanetId, list);
@@ -126,7 +130,7 @@ namespace NebulaWorld.Factory
 
         public bool DidRequest(int PlanetId, int NetId, int NodeId)
         {
-            if (RequestsSent.TryGetValue(PlanetId, out var requests))
+            if (RequestsSent.TryGetValue(PlanetId, out List<Requested> requests))
             {
                 for (int i = 0; i < requests.Count; i++)
                 {
@@ -144,7 +148,7 @@ namespace NebulaWorld.Factory
         public int GetExtraDemand(int PlanetId, int NetId)
         {
 
-            if (Energy.TryGetValue(PlanetId, out var mapping))
+            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
             {
                 if (Monitor.TryEnter(mapping, 100))
                 {
@@ -174,7 +178,7 @@ namespace NebulaWorld.Factory
 
         public void RemExtraDemand(int PlanetId, int NetId, int NodeId)
         {
-            if (Energy.TryGetValue(PlanetId, out var mapping))
+            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
             {
                 for (int i = 0; i < mapping.Count; i++)
                 {
@@ -228,7 +232,7 @@ namespace NebulaWorld.Factory
 
         public void AddExtraDemand(int PlanetId, int NetId, int NodeId, int PowerAmount)
         {
-            if (Energy.TryGetValue(PlanetId, out var mapping))
+            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
             {
                 for (int i = 0; i < mapping.Count; i++)
                 {
@@ -275,8 +279,10 @@ namespace NebulaWorld.Factory
                 {
                     try
                     {
-                        EnergyMapping map = new EnergyMapping();
-                        map.NetId = NetId;
+                        EnergyMapping map = new EnergyMapping
+                        {
+                            NetId = NetId
+                        };
                         map.NodeId.Add(NodeId);
                         map.Activated.Add(1);
                         map.ExtraPower = PowerAmount;
@@ -297,8 +303,10 @@ namespace NebulaWorld.Factory
             {
                 List<EnergyMapping> mapping2 = new List<EnergyMapping>();
 
-                EnergyMapping map = new EnergyMapping();
-                map.NetId = NetId;
+                EnergyMapping map = new EnergyMapping
+                {
+                    NetId = NetId
+                };
                 map.NodeId.Add(NodeId);
                 map.Activated.Add(1);
                 map.ExtraPower = PowerAmount;
@@ -314,7 +322,7 @@ namespace NebulaWorld.Factory
 
         public void UpdateAllAnimations(int PlanetId)
         {
-            if (Energy.TryGetValue(PlanetId, out var mapping))
+            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
             {
                 if (Monitor.TryEnter(mapping, 100))
                 {

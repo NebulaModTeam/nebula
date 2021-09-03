@@ -7,9 +7,9 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpilers
 {
     [HarmonyPatch(typeof(PowerSystem))]
-    class PowerSystem_Transpiler
+    internal class PowerSystem_Transpiler
     {
-        delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
+        private delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(PowerSystem.GameTick))]

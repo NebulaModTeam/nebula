@@ -11,7 +11,7 @@
         public ILSShipItems() { }
         public ILSShipItems(bool AddItem, int itemId, int itemCount, int origShipIndex, int stationGID)
         {
-            this.addItem = AddItem;
+            addItem = AddItem;
             this.itemId = itemId;
             this.itemCount = itemCount;
             this.origShipIndex = origShipIndex;

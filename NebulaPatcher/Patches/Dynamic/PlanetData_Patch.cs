@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetData))]
-    class PlanetData_Patch
+    internal class PlanetData_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetData.UnloadMeshes))]

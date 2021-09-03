@@ -7,7 +7,7 @@
         public StatisticsDataPacket() { }
         public StatisticsDataPacket(byte[] statisticsBinaryData)
         {
-            this.StatisticsBinaryData = statisticsBinaryData;
+            StatisticsBinaryData = statisticsBinaryData;
         }
     }
 }

@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.Belt
 {
     [RegisterPacketProcessor]
-    class BeltUpdatePutItemOnProcessor : PacketProcessor<BeltUpdatePutItemOnPacket>
+    internal class BeltUpdatePutItemOnProcessor : PacketProcessor<BeltUpdatePutItemOnPacket>
     {
         public override void ProcessPacket(BeltUpdatePutItemOnPacket packet, NebulaConnection conn)
         {

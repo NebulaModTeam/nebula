@@ -8,11 +8,11 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(BuildTool_BlueprintPaste))]
-    class BuildTool_BlueprintPaste_Transpiler
+    internal class BuildTool_BlueprintPaste_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
-        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        private static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             /*
              * Inserts
@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            var jumpOperand = matcher.Instruction.operand;
+            object jumpOperand = matcher.Instruction.operand;
 
             matcher = matcher
                         .MatchBack(false,

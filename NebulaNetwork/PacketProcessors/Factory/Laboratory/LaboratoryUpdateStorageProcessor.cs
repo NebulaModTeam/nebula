@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Laboratory;
 namespace NebulaNetwork.PacketProcessors.Factory.Labratory
 {
     [RegisterPacketProcessor]
-    class LaboratoryUpdateStorageProcessor : PacketProcessor<LaboratoryUpdateStoragePacket>
+    internal class LaboratoryUpdateStorageProcessor : PacketProcessor<LaboratoryUpdateStoragePacket>
     {
         public override void ProcessPacket(LaboratoryUpdateStoragePacket packet, NebulaConnection conn)
         {

@@ -11,14 +11,17 @@ namespace NebulaWorld.Statistics
 {
     public class StatisticsManager : IDisposable
     {
-        sealed class ThreadSafe
+        private sealed class ThreadSafe
         {
             internal readonly Dictionary<ushort, NebulaConnection> Requestors = new Dictionary<ushort, NebulaConnection>();
         }
-        readonly ThreadSafe threadSafe = new ThreadSafe();
 
-        public Locker GetRequestors(out Dictionary<ushort, NebulaConnection> requestors) =>
-            threadSafe.Requestors.GetLocked(out requestors);
+        private readonly ThreadSafe threadSafe = new ThreadSafe();
+
+        public Locker GetRequestors(out Dictionary<ushort, NebulaConnection> requestors)
+        {
+            return threadSafe.Requestors.GetLocked(out requestors);
+        }
 
         private List<StatisticalSnapShot> StatisticalSnapShots;
 
@@ -109,7 +112,7 @@ namespace NebulaWorld.Statistics
             {
                 return;
             }
-            using (GetRequestors(out var requestors))
+            using (GetRequestors(out Dictionary<ushort, NebulaConnection> requestors))
             {
                 if (requestors.Count > 0)
                 {
@@ -121,7 +124,7 @@ namespace NebulaWorld.Statistics
                         updatePacket = new StatisticUpdateDataPacket(writer.CloseAndGetBytes());
                     }
                     //Broadcast the update packet to the people with opened statistic window
-                    foreach (var player in requestors)
+                    foreach (KeyValuePair<ushort, NebulaConnection> player in requestors)
                     {
                         player.Value.SendPacket(updatePacket);
                     }
@@ -141,7 +144,7 @@ namespace NebulaWorld.Statistics
 
         public void RegisterPlayer(NebulaConnection nebulaConnection, ushort playerId)
         {
-            using (GetRequestors(out var requestors))
+            using (GetRequestors(out Dictionary<ushort, NebulaConnection> requestors))
             {
                 requestors.Add(playerId, nebulaConnection);
             }
@@ -155,7 +158,7 @@ namespace NebulaWorld.Statistics
 
         public void UnRegisterPlayer(ushort playerId)
         {
-            using (GetRequestors(out var requestors))
+            using (GetRequestors(out Dictionary<ushort, NebulaConnection> requestors))
             {
                 if (requestors.Remove(playerId) && requestors.Count == 0)
                 {

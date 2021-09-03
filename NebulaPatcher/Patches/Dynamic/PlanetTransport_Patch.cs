@@ -6,7 +6,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetTransport))]
-    class PlanetTransport_Patch
+    internal class PlanetTransport_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetTransport.SetStationStorage))]
@@ -52,10 +52,16 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
         public static void NewStationComponent_BroadcastNewILS_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
-            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost) return;
+            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return;
+            }
 
             // We don't need to do this for PLS
-            if (__result.gid == 0) return;
+            if (__result.gid == 0)
+            {
+                return;
+            }
 
             // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
             // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in

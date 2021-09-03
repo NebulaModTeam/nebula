@@ -64,7 +64,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             // Wait for the entire buffer to be full before starting to interpolate the player position
             if (snapshotBuffer[0].Timestamp == 0)
+            {
                 return;
+            }
 
             double past = (1000 / (double)LocalPlayerMovement.SEND_RATE) * (snapshotBuffer.Length - 1);
             double now = TimeUtils.CurrentUnixTimestampMilliseconds();
@@ -72,14 +74,14 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             for (int i = 0; i < snapshotBuffer.Length - 1; ++i)
             {
-                var t1 = snapshotBuffer[i].Timestamp;
-                var t2 = snapshotBuffer[i + 1].Timestamp;
+                long t1 = snapshotBuffer[i].Timestamp;
+                long t2 = snapshotBuffer[i + 1].Timestamp;
 
                 if (renderTime <= t2 && renderTime >= t1)
                 {
-                    var total = t2 - t1;
-                    var reminder = renderTime - t1;
-                    var ratio = total > 0 ? reminder / total : 1;
+                    long total = t2 - t1;
+                    double reminder = renderTime - t1;
+                    double ratio = total > 0 ? reminder / total : 1;
 
                     // We interpolate to the appropriate position between our 2 known snapshot
                     MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i + 1], (float)ratio);
@@ -97,7 +99,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
         public void UpdatePosition(PlayerMovement movement)
         {
             if (!rootTransform)
+            {
                 return;
+            }
 
             for (int i = 0; i < snapshotBuffer.Length - 1; ++i)
             {
@@ -134,7 +138,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private Vector3 GetRelativePosition(Snapshot snapshot)
         {
             if (GameMain.data == null)
+            {
                 return Vector3.zero;
+            }
 
             // If we are on a local planet and the remote player is on the same local planet, we use the LocalPlanetPosition that is more precise.
             if (GameMain.localPlanet != null && GameMain.localPlanet.id == snapshot.LocalPlanetId)

@@ -21,24 +21,24 @@ namespace NebulaModel.DataStructures
         public MechaData()
         {
             //This is needed for the serialization and deserialization
-            this.Forge = new MechaForge
+            Forge = new MechaForge
             {
                 tasks = new List<ForgeTask>()
             };
-            this.TechBonuses = new PlayerTechBonuses();
+            TechBonuses = new PlayerTechBonuses();
         }
 
         public MechaData(int sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory, StorageComponent reactorStorage, StorageComponent warpStorage, MechaForge forge, int researchHashRate)
         {
-            this.SandCount = sandCount;
-            this.CoreEnergy = coreEnergy;
-            this.ReactorEnergy = reactorEnergy;
-            this.ReactorStorage = reactorStorage;
-            this.WarpStorage = warpStorage;
-            this.Forge = forge;
-            this.ResearchHashRate = researchHashRate;
-            this.Inventory = inventory;
-            this.TechBonuses = new PlayerTechBonuses();
+            SandCount = sandCount;
+            CoreEnergy = coreEnergy;
+            ReactorEnergy = reactorEnergy;
+            ReactorStorage = reactorStorage;
+            WarpStorage = warpStorage;
+            Forge = forge;
+            ResearchHashRate = researchHashRate;
+            Inventory = inventory;
+            TechBonuses = new PlayerTechBonuses();
         }
 
         public void Serialize(INetDataWriter writer)

@@ -7,14 +7,14 @@ namespace NebulaModel.Networking
 {
     public static class BinaryUtils
     {
-        const int BUFFER_SIZE = 8192;
+        private const int BUFFER_SIZE = 8192;
 
         public class Writer : IWriterProvider
         {
-            readonly MemoryStream ms;
-            readonly LZ4EncoderStream ls;
-            readonly BufferedStream bs;
-            readonly BinaryWriter bw;
+            private readonly MemoryStream ms;
+            private readonly LZ4EncoderStream ls;
+            private readonly BufferedStream bs;
+            private readonly BinaryWriter bw;
 
             public BinaryWriter BinaryWriter => bw;
 
@@ -44,10 +44,10 @@ namespace NebulaModel.Networking
 
         public class Reader : IReaderProvider
         {
-            readonly MemoryStream ms;
-            readonly LZ4DecoderStream ls;
-            readonly BufferedStream bs;
-            readonly BinaryReader br;
+            private readonly MemoryStream ms;
+            private readonly LZ4DecoderStream ls;
+            private readonly BufferedStream bs;
+            private readonly BinaryReader br;
 
             public MemoryStream MemoryStream => ms;
             public BinaryReader BinaryReader => br;

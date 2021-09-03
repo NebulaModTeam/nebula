@@ -8,7 +8,7 @@
 
         public StatisticsPlanetDataPacket(int[] planetIds)
         {
-            this.PlanetsIds = planetIds;
+            PlanetsIds = planetIds;
         }
     }
 }

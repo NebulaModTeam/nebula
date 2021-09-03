@@ -12,7 +12,7 @@ namespace NebulaModel.Packets.Logistics
         public ILSArriveStarPlanetRequest() { }
         public ILSArriveStarPlanetRequest(int starId, int planetId)
         {
-            this.StarId = starId;
+            StarId = starId;
         }
     }
 }

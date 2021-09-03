@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIPowerExchangerWindow))]
-    class UIPowerExchangerWindow_Patch
+    internal class UIPowerExchangerWindow_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIPowerExchangerWindow.OnModeButtonClick))]

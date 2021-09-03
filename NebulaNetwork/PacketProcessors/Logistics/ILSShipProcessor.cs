@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class ILSShipProcessor : PacketProcessor<ILSShipData>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
         public ILSShipProcessor()
         {
             playerManager = Multiplayer.Session.Network.PlayerManager;

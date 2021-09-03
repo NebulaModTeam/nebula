@@ -8,9 +8,9 @@ using System.Collections.Generic;
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSphereAddShellProcessor : PacketProcessor<DysonSphereAddShellPacket>
+    internal class DysonSphereAddShellProcessor : PacketProcessor<DysonSphereAddShellPacket>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public DysonSphereAddShellProcessor()
         {
@@ -24,9 +24,13 @@ namespace NebulaNetwork.PacketProcessors.Universe
             {
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
                 else
+                {
                     valid = false;
+                }
             }
 
             if (valid)

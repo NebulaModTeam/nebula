@@ -8,9 +8,9 @@ namespace NebulaPatcher.Patches.Transpilers
 {
     // Transpiler to sync the belt item filter on the ILS/PLS output
     [HarmonyPatch(typeof(UIBeltBuildTip))]
-    class UIBeltBuildTip_Transpiler
+    internal class UIBeltBuildTip_Transpiler
     {
-        delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
+        private delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIBeltBuildTip.SetFilterToEntity))]

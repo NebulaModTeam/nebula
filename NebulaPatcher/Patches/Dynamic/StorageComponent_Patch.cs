@@ -7,7 +7,7 @@ using System;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(StorageComponent))]
-    class StorageComponent_Patch
+    internal class StorageComponent_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(StorageComponent.AddItem), new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) })]

@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(Player))]
-    class Player_Patch
+    internal class Player_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(Player.SetSandCount))]

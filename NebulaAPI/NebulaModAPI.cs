@@ -33,7 +33,10 @@ namespace NebulaAPI
         {
             get
             {
-                if (!NebulaIsInstalled) return false;
+                if (!NebulaIsInstalled)
+                {
+                    return false;
+                }
 
                 return (bool)multiplayer.GetProperty("IsActive").GetValue(null);
             }
@@ -46,7 +49,10 @@ namespace NebulaAPI
         {
             get
             {
-                if (!NebulaIsInstalled) return null;
+                if (!NebulaIsInstalled)
+                {
+                    return null;
+                }
 
                 return (IMultiplayerSession)multiplayer.GetProperty("Session").GetValue(null);
             }
@@ -84,7 +90,7 @@ namespace NebulaAPI
         {
             nebulaIsInstalled = false;
 
-            foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+            foreach (KeyValuePair<string, PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
             {
                 if (pluginInfo.Value.Metadata.GUID == NEBULA_MODID)
                 {
@@ -93,7 +99,10 @@ namespace NebulaAPI
                 }
             }
 
-            if (!nebulaIsInstalled) return;
+            if (!nebulaIsInstalled)
+            {
+                return;
+            }
 
             multiplayer = AccessTools.TypeByName("NebulaWorld.Multiplayer");
 
@@ -123,7 +132,10 @@ namespace NebulaAPI
         /// </summary>
         public static IWriterProvider GetBinaryWriter()
         {
-            if (!NebulaIsInstalled) return null;
+            if (!NebulaIsInstalled)
+            {
+                return null;
+            }
 
             return (IWriterProvider)binaryWriter.GetConstructor(new Type[0]).Invoke(new object[0]);
         }
@@ -133,7 +145,10 @@ namespace NebulaAPI
         /// </summary>
         public static IReaderProvider GetBinaryReader(byte[] bytes)
         {
-            if (!NebulaIsInstalled) return null;
+            if (!NebulaIsInstalled)
+            {
+                return null;
+            }
 
             return (IReaderProvider)binaryReader.GetConstructor(new[] { typeof(byte[]) }).Invoke(new object[] { bytes });
         }

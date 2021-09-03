@@ -6,7 +6,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(DysonSwarm))]
-    class DysonSwarm_Patch
+    internal class DysonSwarm_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(DysonSwarm.NewOrbit))]

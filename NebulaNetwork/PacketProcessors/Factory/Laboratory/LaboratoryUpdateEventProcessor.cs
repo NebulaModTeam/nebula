@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Laboratory;
 namespace NebulaNetwork.PacketProcessors.Factory.Labratory
 {
     [RegisterPacketProcessor]
-    class LaboratoryUpdateEventProcessor : PacketProcessor<LaboratoryUpdateEventPacket>
+    internal class LaboratoryUpdateEventProcessor : PacketProcessor<LaboratoryUpdateEventPacket>
     {
         public override void ProcessPacket(LaboratoryUpdateEventPacket packet, NebulaConnection conn)
         {

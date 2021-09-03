@@ -8,7 +8,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryUnlockTechProcessor : PacketProcessor<GameHistoryUnlockTechPacket>
+    internal class GameHistoryUnlockTechProcessor : PacketProcessor<GameHistoryUnlockTechPacket>
     {
         public override void ProcessPacket(GameHistoryUnlockTechPacket packet, NebulaConnection conn)
         {

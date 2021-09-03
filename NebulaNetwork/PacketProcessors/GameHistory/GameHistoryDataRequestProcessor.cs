@@ -10,7 +10,10 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
     {
         public override void ProcessPacket(GameHistoryDataRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {

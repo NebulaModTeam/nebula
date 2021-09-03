@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSphereAddFrameProcessor : PacketProcessor<DysonSphereAddFramePacket>
+    internal class DysonSphereAddFrameProcessor : PacketProcessor<DysonSphereAddFramePacket>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public DysonSphereAddFrameProcessor()
         {

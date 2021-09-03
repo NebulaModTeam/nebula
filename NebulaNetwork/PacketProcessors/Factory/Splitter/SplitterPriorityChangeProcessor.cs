@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.Splitter
 {
     [RegisterPacketProcessor]
-    class SplitterPriorityChangeProcessor : PacketProcessor<SplitterPriorityChangePacket>
+    internal class SplitterPriorityChangeProcessor : PacketProcessor<SplitterPriorityChangePacket>
     {
         public override void ProcessPacket(SplitterPriorityChangePacket packet, NebulaConnection conn)
         {

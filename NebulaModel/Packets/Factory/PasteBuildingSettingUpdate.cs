@@ -45,22 +45,24 @@
 
         public BuildingParameters GetBuildingSettings()
         {
-            BuildingParameters result = new BuildingParameters();
-            result.type = Type;
-            result.itemId = ItemId;
-            result.modelIndex = ModelIndex;
-            result.yaw = Yaw;
-            result.recipeType = RecipeType;
-            result.recipeId = RecipeId;
-            result.filterId = FilterId;
-            result.mode0 = Mode0;
-            result.mode1 = Mode1;
-            result.mode2 = Mode2;
-            result.mode3 = Mode3;
-            result.parameters = Parameters;
-            result.inserterItemIds = InserterItemIds;
-            result.inserterLengths = InserterLengths;
-            result.inserterFilters = InserterFilters;
+            BuildingParameters result = new BuildingParameters
+            {
+                type = Type,
+                itemId = ItemId,
+                modelIndex = ModelIndex,
+                yaw = Yaw,
+                recipeType = RecipeType,
+                recipeId = RecipeId,
+                filterId = FilterId,
+                mode0 = Mode0,
+                mode1 = Mode1,
+                mode2 = Mode2,
+                mode3 = Mode3,
+                parameters = Parameters,
+                inserterItemIds = InserterItemIds,
+                inserterLengths = InserterLengths,
+                inserterFilters = InserterFilters
+            };
             return result;
         }
     }

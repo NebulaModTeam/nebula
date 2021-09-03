@@ -6,7 +6,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIPowerGeneratorWindow))]
-    class UIPowerGeneratorWindow_Patch
+    internal class UIPowerGeneratorWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnGammaMode1Click))]

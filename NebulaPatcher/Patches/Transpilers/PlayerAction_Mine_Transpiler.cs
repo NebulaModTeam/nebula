@@ -7,15 +7,15 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpilers
 {
     [HarmonyPatch(typeof(PlayerAction_Mine))]
-    class PlayerAction_Mine_Transpiler
+    internal class PlayerAction_Mine_Transpiler
     {
-        delegate int FetchVeinMineAmount(PlayerAction_Mine _this);
+        private delegate int FetchVeinMineAmount(PlayerAction_Mine _this);
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(PlayerAction_Mine.GameTick))]
         public static IEnumerable<CodeInstruction> PlayerActionMine_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Transpilers
             return codeMatcher
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<FetchVeinMineAmount>((FetchVeinMineAmount)((PlayerAction_Mine _this) =>
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<FetchVeinMineAmount>((PlayerAction_Mine _this) =>
                 {
                     // do we need to check for the event here? its very unlikely that we call the GameTick() by hand...
                     if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     }
 
                     return 0;
-                })))
+                }))
                 .Insert(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
         }

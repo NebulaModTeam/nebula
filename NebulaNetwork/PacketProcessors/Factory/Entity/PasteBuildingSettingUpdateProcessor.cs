@@ -8,7 +8,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
     // Processes pasting settings (e.g. item to make in an assembler) onto buildings events
     [RegisterPacketProcessor]
-    class PasteBuildingSettingUpdateProcessor : PacketProcessor<PasteBuildingSettingUpdate>
+    internal class PasteBuildingSettingUpdateProcessor : PacketProcessor<PasteBuildingSettingUpdate>
     {
         public override void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
         {

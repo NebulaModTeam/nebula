@@ -12,10 +12,10 @@ namespace NebulaModel.Packets.Universe
         public DysonSphereAddShellPacket() { }
         public DysonSphereAddShellPacket(int starIndex, int layerId, int protoId, List<int> nodeIds)
         {
-            this.StarIndex = starIndex;
-            this.LayerId = layerId;
-            this.ProtoId = protoId;
-            this.NodeIds = nodeIds.ToArray();
+            StarIndex = starIndex;
+            LayerId = layerId;
+            ProtoId = protoId;
+            NodeIds = nodeIds.ToArray();
         }
     }
 }

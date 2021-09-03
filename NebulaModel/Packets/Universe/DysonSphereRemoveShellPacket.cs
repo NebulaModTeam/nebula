@@ -9,9 +9,9 @@
         public DysonSphereRemoveShellPacket() { }
         public DysonSphereRemoveShellPacket(int starIndex, int layerId, int shellId)
         {
-            this.StarIndex = starIndex;
-            this.LayerId = layerId;
-            this.ShellId = shellId;
+            StarIndex = starIndex;
+            LayerId = layerId;
+            ShellId = shellId;
         }
     }
 }

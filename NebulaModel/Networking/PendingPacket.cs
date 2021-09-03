@@ -7,8 +7,8 @@
 
         public PendingPacket(byte[] data, object userData)
         {
-            this.Data = data;
-            this.UserData = userData;
+            Data = data;
+            UserData = userData;
         }
     }
 }

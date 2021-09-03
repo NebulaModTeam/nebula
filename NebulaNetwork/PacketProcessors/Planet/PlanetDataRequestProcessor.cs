@@ -12,7 +12,10 @@ namespace NebulaNetwork.PacketProcessors.Planet
     {
         public override void ProcessPacket(PlanetDataRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             Dictionary<int, byte[]> planetDataToReturn = new Dictionary<int, byte[]>();
 

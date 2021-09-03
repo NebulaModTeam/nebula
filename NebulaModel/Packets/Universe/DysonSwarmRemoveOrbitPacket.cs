@@ -8,8 +8,8 @@
         public DysonSwarmRemoveOrbitPacket() { }
         public DysonSwarmRemoveOrbitPacket(int starIndex, int orbitId)
         {
-            this.StarIndex = starIndex;
-            this.OrbitId = orbitId;
+            StarIndex = starIndex;
+            OrbitId = orbitId;
         }
     }
 }

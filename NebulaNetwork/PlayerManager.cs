@@ -15,7 +15,7 @@ namespace NebulaNetwork
 {
     public class PlayerManager : IPlayerManager
     {
-        sealed class ThreadSafe
+        private sealed class ThreadSafe
         {
             internal readonly Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers = new Dictionary<INebulaConnection, INebulaPlayer>();
             internal readonly Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers = new Dictionary<INebulaConnection, INebulaPlayer>();
@@ -27,26 +27,34 @@ namespace NebulaNetwork
         private readonly ThreadSafe threadSafe = new ThreadSafe();
         private int highestPlayerID = 0;
 
-        public Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers) =>
-            threadSafe.pendingPlayers.GetLocked(out pendingPlayers);
+        public Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers)
+        {
+            return threadSafe.pendingPlayers.GetLocked(out pendingPlayers);
+        }
 
-        public Locker GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers) =>
-            threadSafe.syncingPlayers.GetLocked(out syncingPlayers);
+        public Locker GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers)
+        {
+            return threadSafe.syncingPlayers.GetLocked(out syncingPlayers);
+        }
 
-        public Locker GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers) =>
-            threadSafe.connectedPlayers.GetLocked(out connectedPlayers);
+        public Locker GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers)
+        {
+            return threadSafe.connectedPlayers.GetLocked(out connectedPlayers);
+        }
 
-        public Locker GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData) =>
-            threadSafe.savedPlayerData.GetLocked(out savedPlayerData);
+        public Locker GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData)
+        {
+            return threadSafe.savedPlayerData.GetLocked(out savedPlayerData);
+        }
 
         public IPlayerData[] GetAllPlayerDataIncludingHost()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
                 int i = 0;
-                var result = new IPlayerData[1 + connectedPlayers.Count];
+                IPlayerData[] result = new IPlayerData[1 + connectedPlayers.Count];
                 result[i++] = Multiplayer.Session.LocalPlayer.Data;
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     result[i++] = kvp.Value.Data;
                 }
@@ -57,7 +65,7 @@ namespace NebulaNetwork
 
         public INebulaPlayer GetPlayer(INebulaConnection conn)
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
                 if (connectedPlayers.TryGetValue(conn, out INebulaPlayer player))
                 {
@@ -70,7 +78,7 @@ namespace NebulaNetwork
 
         public INebulaPlayer GetSyncingPlayer(INebulaConnection conn)
         {
-            using (GetSyncingPlayers(out var syncingPlayers))
+            using (GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
             {
                 if (syncingPlayers.TryGetValue(conn, out INebulaPlayer player))
                 {
@@ -83,9 +91,9 @@ namespace NebulaNetwork
 
         public void SendPacketToAllPlayers<T>(T packet) where T : class, new()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
                     player.SendPacket(packet);
@@ -96,11 +104,11 @@ namespace NebulaNetwork
 
         public void SendPacketToLocalStar<T>(T packet) where T : class, new()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalStarId == GameMain.data.localStar?.id)
                     {
                         player.SendPacket(packet);
@@ -111,11 +119,11 @@ namespace NebulaNetwork
 
         public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId)
                     {
                         player.SendPacket(packet);
@@ -126,11 +134,11 @@ namespace NebulaNetwork
 
         public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalPlanetId == planetId)
                     {
                         player.SendPacket(packet);
@@ -141,11 +149,11 @@ namespace NebulaNetwork
 
         public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalStarId == starId)
                     {
                         player.SendPacket(packet);
@@ -156,11 +164,11 @@ namespace NebulaNetwork
 
         public void SendPacketToStarExcept<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalStarId == starId && player != GetPlayer(exclude))
                     {
                         player.SendPacket(packet);
@@ -171,11 +179,11 @@ namespace NebulaNetwork
 
         public void SendRawPacketToStar(byte[] rawPacket, int starId, INebulaConnection sender)
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalStarId == starId && player.Connection != sender)
                     {
                         ((NebulaPlayer)player).SendRawPacket(rawPacket);
@@ -186,11 +194,11 @@ namespace NebulaNetwork
 
         public void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender)
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalPlanetId == planetId && player.Connection != sender)
                     {
                         ((NebulaPlayer)player).SendRawPacket(rawPacket);
@@ -201,11 +209,11 @@ namespace NebulaNetwork
 
         public void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new()
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    var player = kvp.Value;
+                    INebulaPlayer player = kvp.Value;
                     if (player != sender)
                     {
                         player.SendPacket(packet);
@@ -224,7 +232,7 @@ namespace NebulaNetwork
             PlayerData playerData = new PlayerData(playerId, -1, playerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
 
             INebulaPlayer newPlayer = new NebulaPlayer((NebulaConnection)conn, playerData);
-            using (GetPendingPlayers(out var pendingPlayers))
+            using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
             {
                 pendingPlayers.Add(conn, newPlayer);
             }
@@ -234,14 +242,14 @@ namespace NebulaNetwork
 
         public void PlayerDisconnected(INebulaConnection conn)
         {
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
                 if (connectedPlayers.TryGetValue(conn, out INebulaPlayer player))
                 {
                     SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
                     Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
                     connectedPlayers.Remove(conn);
-                    using (threadSafe.availablePlayerIds.GetLocked(out var availablePlayerIds))
+                    using (threadSafe.availablePlayerIds.GetLocked(out Queue<ushort> availablePlayerIds))
                     {
                         availablePlayerIds.Enqueue(player.Id);
                     }
@@ -273,10 +281,12 @@ namespace NebulaNetwork
 
         public ushort GetNextAvailablePlayerId()
         {
-            using (threadSafe.availablePlayerIds.GetLocked(out var availablePlayerIds))
+            using (threadSafe.availablePlayerIds.GetLocked(out Queue<ushort> availablePlayerIds))
             {
                 if (availablePlayerIds.Count > 0)
+                {
                     return availablePlayerIds.Dequeue();
+                }
             }
 
             return (ushort)Interlocked.Increment(ref highestPlayerID); // this is truncated to ushort.MaxValue
@@ -288,7 +298,7 @@ namespace NebulaNetwork
             {
                 return;
             }
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
                 if (connectedPlayers.TryGetValue(conn, out INebulaPlayer player))
                 {
@@ -301,9 +311,9 @@ namespace NebulaNetwork
         public void SendTechRefundPackagesToClients(int techId)
         {
             //send players their contributions back
-            using (GetConnectedPlayers(out var connectedPlayers))
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer curPlayer = kvp.Value;
                     long techProgress = ((NebulaPlayer)curPlayer).ReleaseResearchProgress();

@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIGame))]
-    class UIGame_Patch
+    internal class UIGame_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGame._OnInit))]

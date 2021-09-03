@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetPhysics))]
-    class PlanetPhysics_Patch
+    internal class PlanetPhysics_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetPhysics.RemoveLinkedColliderData))]
