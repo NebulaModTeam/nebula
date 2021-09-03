@@ -47,7 +47,6 @@ namespace NebulaPatcher.Patches.Transpilers
                                NebulaAPI.IMechaData mechaData = Multiplayer.Session.LocalPlayer.Data.Mecha;
                                if (hashRate != mechaData.ResearchHashRate)
                                {
-                                   NebulaModel.Logger.Log.Info($"Sending hashRate of {hashRate}");
                                    mechaData.ResearchHashRate = hashRate;
                                    Multiplayer.Session.Network.SendPacket(new PlayerMechaData(GameMain.mainPlayer, hashRate));
                                }
