@@ -302,8 +302,11 @@ namespace NebulaNetwork
             {
                 if (connectedPlayers.TryGetValue(conn, out INebulaPlayer player))
                 {
+                    int hashRate = player.Data.Mecha?.ResearchHashRate ?? 0;
                     //Find correct player for data to update
                     player.Data.Mecha = mechaData;
+                    // restore previous hashRate
+                    player.Data.Mecha.ResearchHashRate = hashRate;
                 }
             }
         }
