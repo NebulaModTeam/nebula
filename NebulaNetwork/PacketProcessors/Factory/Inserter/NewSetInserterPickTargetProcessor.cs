@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.Inserter
 {
     [RegisterPacketProcessor]
-    class NewSetInserterPickTargetProcessor : PacketProcessor<NewSetInserterPickTargetPacket>
+    internal class NewSetInserterPickTargetProcessor : PacketProcessor<NewSetInserterPickTargetPacket>
     {
         public override void ProcessPacket(NewSetInserterPickTargetPacket packet, NebulaConnection conn)
         {

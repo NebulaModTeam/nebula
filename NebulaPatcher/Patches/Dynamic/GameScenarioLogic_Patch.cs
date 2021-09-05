@@ -6,7 +6,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameScenarioLogic))]
-    class GameScenarioLogic_Patch
+    internal class GameScenarioLogic_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameScenarioLogic.NotifyOnUnlockTech))]

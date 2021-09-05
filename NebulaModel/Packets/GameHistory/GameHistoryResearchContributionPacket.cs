@@ -9,8 +9,8 @@
 
         public GameHistoryResearchContributionPacket(long hashes, int techId)
         {
-            this.Hashes = hashes;
-            this.TechId = techId;
+            Hashes = hashes;
+            TechId = techId;
         }
     }
 }

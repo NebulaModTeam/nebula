@@ -9,10 +9,10 @@ using NebulaWorld;
  */
 namespace NebulaPatcher.Patches.Dynamic
 {
-    class UIPowerGizmo_OnUpdate_Patch
+    internal class UIPowerGizmo_OnUpdate_Patch
     {
         [HarmonyPatch(typeof(UIPowerGizmo))]
-        class OnUpdatePatch
+        private class OnUpdatePatch
         {
             [HarmonyPrefix]
             [HarmonyPatch(nameof(UIPowerGizmo._OnUpdate))]

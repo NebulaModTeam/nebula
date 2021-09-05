@@ -8,7 +8,7 @@ using System;
 namespace NebulaNetwork.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
-    class PingPacketProcessor : PacketProcessor<PingPacket>
+    internal class PingPacketProcessor : PacketProcessor<PingPacket>
     {
         public override void ProcessPacket(PingPacket packet, NebulaConnection conn)
         {

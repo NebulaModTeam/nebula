@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UILabWindow))]
-    class UILabWindow_Patch
+    internal class UILabWindow_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
@@ -42,7 +42,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 else
                 {
                     //Notify about widthrawing source cubes
-                    if ((int)(labComponent.matrixServed[index] / 3600) > 0)
+                    if (labComponent.matrixServed[index] / 3600 > 0)
                     {
                         Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(0, index, __instance.labId, GameMain.localPlanet?.id ?? -1));
                     }

@@ -8,7 +8,7 @@ using System.Linq;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch]
-    class BuildTool_Common_Patch
+    internal class BuildTool_Common_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CreatePrebuilds))]
@@ -18,8 +18,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool CreatePrebuilds_Prefix(BuildTool __instance)
         {
             if (!Multiplayer.IsActive)
+            {
                 return true;
-
+            }
 
             List<BuildPreview> previews = __instance.buildPreviews;
             if (__instance is BuildTool_BlueprintPaste)

@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIEjectorWindow))]
-    class UIEjectorWindow_Patch
+    internal class UIEjectorWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIEjectorWindow.OnManualServingContentChange))]

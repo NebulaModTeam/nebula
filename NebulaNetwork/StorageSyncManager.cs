@@ -15,9 +15,9 @@ namespace NebulaNetwork
         public static void SendToOtherPlayersOnTheSamePlanet<T>(NebulaConnection originator, T packet, int planetId) where T : class, new()
         {
             //Send to players on the same planet
-            using (((NetworkProvider)Multiplayer.Session.Network).PlayerManager.GetConnectedPlayers(out var connectedPlayers))
+            using (((NetworkProvider)Multiplayer.Session.Network).PlayerManager.GetConnectedPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (System.Collections.Generic.KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     NebulaConnection connection = (NebulaConnection)kvp.Key;
                     INebulaPlayer player = kvp.Value;

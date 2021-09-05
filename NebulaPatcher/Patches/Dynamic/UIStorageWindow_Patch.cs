@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStorageWindow))]
-    class UIStorageWindow_Patch
+    internal class UIStorageWindow_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStorageWindow.OnStorageIdChange))]

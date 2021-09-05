@@ -9,8 +9,8 @@ namespace NebulaModel.Networking
 
         public DelayedPacket(PendingPacket packet, DateTime dueTime)
         {
-            this.Packet = packet;
-            this.DueTime = dueTime;
+            Packet = packet;
+            DueTime = dueTime;
         }
     }
 }

@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlayerAction_Build))]
-    class PlayerAction_Build_Patch
+    internal class PlayerAction_Build_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerAction_Build.DoDismantleObject))]

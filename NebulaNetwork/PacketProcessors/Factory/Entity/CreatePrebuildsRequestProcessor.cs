@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
-    class CreatePrebuildsRequestProcessor : PacketProcessor<CreatePrebuildsRequest>
+    internal class CreatePrebuildsRequestProcessor : PacketProcessor<CreatePrebuildsRequest>
     {
         public override void ProcessPacket(CreatePrebuildsRequest packet, NebulaConnection conn)
         {

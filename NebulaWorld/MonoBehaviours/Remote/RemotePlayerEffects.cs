@@ -35,11 +35,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public float WarpState = 0;
         private bool warpEffectActivated = false;
-
-        Vector4[] warpRotations;
-        Vector3 velocity;
-
-        RemotePlayerAnimation rootAnimation = null;
+        private Vector4[] warpRotations;
+        private Vector3 velocity;
+        private RemotePlayerAnimation rootAnimation = null;
         public void Awake()
         {
             rootTransform = GetComponent<Transform>();
@@ -189,9 +187,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
             // to compute the emission we would need to know the players local star, so default to this for now
             emission.rateOverTime = 120f;
             velocityOverTime.speedModifierMultiplier = 20000f;
-            velocityOverTime.x = (float)lhs.x;
-            velocityOverTime.y = (float)lhs.y;
-            velocityOverTime.z = (float)lhs.z;
+            velocityOverTime.x = lhs.x;
+            velocityOverTime.y = lhs.y;
+            velocityOverTime.z = lhs.z;
             shape.position = lhs * 10000.0f;
             shape.rotation = rootTransform.rotation.eulerAngles;
 
@@ -226,15 +224,14 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private VFAudio driftAudio = null;
         private VFAudio flyAudio0 = null, flyAudio1 = null;
 
-        private string[] solidSoundEvents = new string[4];
-        private string waterSoundEvent = "footsteps-6";
+        private readonly string[] solidSoundEvents = new string[4];
+        private readonly string waterSoundEvent = "footsteps-6";
 
         private float maxAltitude = 0;
         private int lastTriggeredFood = 0;
         private int localPlanetId = -1;
-
-        Collider[] collider;
-        float vegeCollideColdTime = 0;
+        private Collider[] collider;
+        private float vegeCollideColdTime = 0;
 
         public void Awake()
         {
@@ -346,7 +343,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             if (trigger)
             {
                 int normalizedTime = Mathf.FloorToInt(rootAnimation.RunFast.normalizedTime * 2f - 0.02f);
-                float normalizedTimeDiff = (rootAnimation.RunFast.normalizedTime * 2f - 0.02f) - (float)normalizedTime;
+                float normalizedTimeDiff = (rootAnimation.RunFast.normalizedTime * 2f - 0.02f) - normalizedTime;
                 bool timeIsEven = normalizedTime % 2 == 0;
 
                 if (lastTriggeredFood != normalizedTime)
@@ -360,14 +357,13 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     Ray ray = new Ray(dustPos, -dustPosNormalized);
                     float rDist1 = 100f, rDist2 = 100f;
                     float biomo = -1f;
-                    RaycastHit rHit1, rHit2;
 
-                    if (Physics.Raycast(ray, out rHit1, 2f, 512, QueryTriggerInteraction.Collide))
+                    if (Physics.Raycast(ray, out RaycastHit rHit1, 2f, 512, QueryTriggerInteraction.Collide))
                     {
                         rDist1 = rHit1.distance;
                         biomo = rHit1.textureCoord2.x;
                     }
-                    if (Physics.Raycast(ray, out rHit2, 2f, 16, QueryTriggerInteraction.Collide))
+                    if (Physics.Raycast(ray, out RaycastHit rHit2, 2f, 16, QueryTriggerInteraction.Collide))
                     {
                         rDist2 = rHit2.distance + 0.1f;
                     }
@@ -400,11 +396,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 if (!water)
                 {
-                    if ((double)biomo <= 0.8)
+                    if (biomo <= 0.8)
                     {
                         name = solidSoundEvents[ambientDesc.biomoSound0];
                     }
-                    else if ((double)biomo <= 1.8)
+                    else if (biomo <= 1.8)
                     {
                         name = solidSoundEvents[ambientDesc.biomoSound1];
                     }
@@ -539,9 +535,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 Vector3 direction = -rootTransform.position.normalized;
                 float rDist1 = 0f, rDist2 = 0f;
                 bool trigger = false;
-                RaycastHit rHit;
 
-                if (Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 8704, QueryTriggerInteraction.Collide))
+                if (Physics.Raycast(new Ray(origin, direction), out RaycastHit rHit, 30f, 8704, QueryTriggerInteraction.Collide))
                 {
                     rDist1 = rHit.distance;
                 }
@@ -632,7 +627,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         if (cData.objType == EObjectType.Vegetable && cData.objId > 0)
                         {
                             VegeData vData = pFactory.vegePool[cData.objId];
-                            VegeProto vProto = LDB.veges.Select((int)vData.protoId);
+                            VegeProto vProto = LDB.veges.Select(vData.protoId);
                             if (vProto != null && vProto.CollideAudio > 0 && vegeCollideColdTime <= 0)
                             {
                                 VFAudio.Create(vProto.CollideAudio, base.transform, Vector3.zero, true, 0);

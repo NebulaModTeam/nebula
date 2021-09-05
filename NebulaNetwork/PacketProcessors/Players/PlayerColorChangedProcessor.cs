@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     public class PlayerColorChangedProcessor : PacketProcessor<PlayerColorChanged>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerColorChangedProcessor()
         {

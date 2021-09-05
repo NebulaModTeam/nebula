@@ -6,7 +6,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(StationComponent))]
-    class StationComponent_Patch
+    internal class StationComponent_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]

@@ -6,7 +6,7 @@ using NebulaModel.Packets.Statistics;
 namespace NebulaNetwork.PacketProcessors.Statistics
 {
     [RegisterPacketProcessor]
-    class StatisticsPlanetDataProcessor : PacketProcessor<StatisticsPlanetDataPacket>
+    internal class StatisticsPlanetDataProcessor : PacketProcessor<StatisticsPlanetDataPacket>
     {
         public override void ProcessPacket(StatisticsPlanetDataPacket packet, NebulaConnection conn)
         {

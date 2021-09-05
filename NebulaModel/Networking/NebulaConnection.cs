@@ -89,7 +89,7 @@ namespace NebulaModel.Networking
             {
                 return false;
             }
-            return (obj as NebulaConnection).peerEndpoint.Equals(this.peerEndpoint);
+            return (obj as NebulaConnection).peerEndpoint.Equals(peerEndpoint);
         }
 
         public override int GetHashCode()

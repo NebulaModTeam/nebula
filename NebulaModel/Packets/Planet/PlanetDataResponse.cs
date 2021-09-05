@@ -13,12 +13,12 @@ namespace NebulaModel.Packets.Planet
 
         public PlanetDataResponse(Dictionary<int, byte[]> planetData)
         {
-            this.PlanetDataIDs = planetData.Keys.ToArray();
+            PlanetDataIDs = planetData.Keys.ToArray();
 
             // Can't use a jagged array because LNL serializer says no, so flattening and separate offset array it is
             // TODO: Possibly register a type with the serializer instead of doing this manually
-            this.PlanetDataBytes = planetData.Values.SelectMany(x => x).ToArray();
-            this.PlanetDataBytesLengths = planetData.Values.Select(x => x.Length).ToArray();
+            PlanetDataBytes = planetData.Values.SelectMany(x => x).ToArray();
+            PlanetDataBytesLengths = planetData.Values.Select(x => x.Length).ToArray();
         }
     }
 }

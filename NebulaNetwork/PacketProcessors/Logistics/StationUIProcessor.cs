@@ -8,9 +8,9 @@ using System.Collections.Generic;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class StationUIProcessor : PacketProcessor<StationUI>
+    internal class StationUIProcessor : PacketProcessor<StationUI>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
         public StationUIProcessor()
         {
             playerManager = Multiplayer.Session.Network.PlayerManager;
@@ -29,9 +29,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     )
                 {
                     // this is the SendPacketToAllPlayers() logic but we need to set the mimic flag here.
-                    using (playerManager.GetConnectedPlayers(out var connectedPlayers))
+                    using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                     {
-                        foreach (var kvp in connectedPlayers)
+                        foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                         {
                             INebulaPlayer p = kvp.Value;
                             packet.ShouldMimic = ((NebulaConnection)p.Connection) == conn;

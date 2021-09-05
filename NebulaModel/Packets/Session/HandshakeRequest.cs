@@ -22,7 +22,7 @@ namespace NebulaModel.Packets.Session
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 int count = 0;
-                foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                foreach (System.Collections.Generic.KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
                 {
                     if (pluginInfo.Value.Instance is IMultiplayerMod mod)
                     {

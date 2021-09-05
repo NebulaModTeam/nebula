@@ -7,7 +7,7 @@
         public GameHistoryDataResponse() { }
         public GameHistoryDataResponse(byte[] historyBinaryData)
         {
-            this.HistoryBinaryData = historyBinaryData;
+            HistoryBinaryData = historyBinaryData;
         }
     }
 }

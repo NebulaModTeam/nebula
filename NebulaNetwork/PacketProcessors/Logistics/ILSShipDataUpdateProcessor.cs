@@ -10,7 +10,7 @@ using NebulaModel.Packets.Logistics;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSShipDataUpdateProcessor : PacketProcessor<ILSShipDataUpdate>
+    internal class ILSShipDataUpdateProcessor : PacketProcessor<ILSShipDataUpdate>
     {
         public override void ProcessPacket(ILSShipDataUpdate packet, NebulaConnection conn)
         {

@@ -8,11 +8,11 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(BuildTool_Path))]
-    class BuildTool_Path_Transpiler
+    internal class BuildTool_Path_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(BuildTool_Path.CreatePrebuilds))]
-        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        private static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             CodeMatcher matcher = new CodeMatcher(instructions, il)
                 .MatchForward(false,

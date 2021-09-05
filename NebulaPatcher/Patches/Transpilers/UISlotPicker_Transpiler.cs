@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Transpilers
     [HarmonyPatch(typeof(UISlotPicker))]
     public class UISlotPicker_Transpiler
     {
-        delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
+        private delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UISlotPicker.SetFilterToEntity))]

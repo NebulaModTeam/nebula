@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.PowerExchanger;
 namespace NebulaNetwork.PacketProcessors.Factory.PowerExchanger
 {
     [RegisterPacketProcessor]
-    class PowerExchangerChangeModeProcessor : PacketProcessor<PowerExchangerChangeModePacket>
+    internal class PowerExchangerChangeModeProcessor : PacketProcessor<PowerExchangerChangeModePacket>
     {
         public override void ProcessPacket(PowerExchangerChangeModePacket packet, NebulaConnection conn)
         {

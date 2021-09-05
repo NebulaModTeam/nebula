@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRemoteOrderProcessor : PacketProcessor<ILSRemoteOrderData>
+    internal class ILSRemoteOrderProcessor : PacketProcessor<ILSRemoteOrderData>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public ILSRemoteOrderProcessor()
         {
@@ -22,7 +22,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
 
                 // TODO: Don't we need to call Multiplayer.Session.World.OnILSRemoteOrderUpdate() here too ??
             }

@@ -8,8 +8,8 @@
         public DysonSphereData() { }
         public DysonSphereData(int starIndex, byte[] data)
         {
-            this.StarIndex = starIndex;
-            this.BinaryData = data;
+            StarIndex = starIndex;
+            BinaryData = data;
         }
     }
 }

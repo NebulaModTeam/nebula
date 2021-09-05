@@ -8,8 +8,8 @@
         public FactoryData() { }
         public FactoryData(int id, byte[] data)
         {
-            this.PlanetId = id;
-            this.BinaryData = data;
+            PlanetId = id;
+            BinaryData = data;
         }
     }
 }

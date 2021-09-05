@@ -172,7 +172,9 @@ namespace NebulaNetwork
             {
                 // If the client is Quitting by himself, we don't have to inform him of his disconnection.
                 if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
+                {
                     return;
+                }
 
                 // Opens the pause menu on disconnection to prevent NRE when leaving the game
                 if (Multiplayer.Session?.IsGameLoaded ?? false)
@@ -221,11 +223,9 @@ namespace NebulaNetwork
             });
         }
 
-
-
-        static void DisableNagleAlgorithm(WebSocket socket)
+        private static void DisableNagleAlgorithm(WebSocket socket)
         {
-            var tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);
+            TcpClient tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);
             tcpClient.NoDelay = true;
         }
     }

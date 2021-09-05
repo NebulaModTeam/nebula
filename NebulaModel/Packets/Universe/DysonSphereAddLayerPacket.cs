@@ -13,10 +13,10 @@ namespace NebulaModel.Packets.Universe
         public DysonSphereAddLayerPacket() { }
         public DysonSphereAddLayerPacket(int starIndex, float orbitRadius, Quaternion orbitRotation, float orbitAngularSpeed)
         {
-            this.StarIndex = starIndex;
-            this.OrbitRadius = orbitRadius;
-            this.OrbitRotation = new Float4(orbitRotation);
-            this.OrbitAngularSpeed = orbitAngularSpeed;
+            StarIndex = starIndex;
+            OrbitRadius = orbitRadius;
+            OrbitRotation = new Float4(orbitRotation);
+            OrbitAngularSpeed = orbitAngularSpeed;
         }
     }
 }

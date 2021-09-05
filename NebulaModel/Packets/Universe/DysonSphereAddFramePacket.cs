@@ -12,12 +12,12 @@
         public DysonSphereAddFramePacket() { }
         public DysonSphereAddFramePacket(int starIndex, int layerId, int protoId, int nodeAId, int nodeBId, bool euler)
         {
-            this.StarIndex = starIndex;
-            this.LayerId = layerId;
-            this.ProtoId = protoId;
-            this.NodeAId = nodeAId;
-            this.NodeBId = nodeBId;
-            this.Euler = euler;
+            StarIndex = starIndex;
+            LayerId = layerId;
+            ProtoId = protoId;
+            NodeAId = nodeAId;
+            NodeBId = nodeBId;
+            Euler = euler;
         }
     }
 }

@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(FactoryProductionStat))]
-    class FactoryProductionStat_Patch
+    internal class FactoryProductionStat_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(FactoryProductionStat.GameTick))]

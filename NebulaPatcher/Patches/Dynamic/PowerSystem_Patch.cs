@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PowerSystem))]
-    class PowerSystem_Patch
+    internal class PowerSystem_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PowerSystem.GameTick))]

@@ -8,16 +8,19 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Routers
 {
     [RegisterPacketProcessor]
-    class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
+    internal class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
         public StarBroadcastProcessor()
         {
             playerManager = Multiplayer.Session.Network.PlayerManager;
         }
         public override void ProcessPacket(StarBroadcastPacket packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             INebulaPlayer player = playerManager.GetPlayer(conn);
             if (player != null)

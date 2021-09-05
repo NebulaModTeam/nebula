@@ -11,10 +11,10 @@
 
         public InitialState(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier)
         {
-            this.AlgoVersion = algoVersion;
-            this.GalaxySeed = galaxySeed;
-            this.StarCount = starCount;
-            this.ResourceMultiplier = resourceMultiplier;
+            AlgoVersion = algoVersion;
+            GalaxySeed = galaxySeed;
+            StarCount = starCount;
+            ResourceMultiplier = resourceMultiplier;
         }
     }
 }

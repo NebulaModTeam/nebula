@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Assembler;
 namespace NebulaNetwork.PacketProcessors.Factory.Assembler
 {
     [RegisterPacketProcessor]
-    class AssemblerUpdateStorageProcessor : PacketProcessor<AssemblerUpdateStoragePacket>
+    internal class AssemblerUpdateStorageProcessor : PacketProcessor<AssemblerUpdateStoragePacket>
     {
         public override void ProcessPacket(AssemblerUpdateStoragePacket packet, NebulaConnection conn)
         {

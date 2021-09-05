@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(MechaDroneLogic))]
-    class MechaDroneLogic_Patch
+    internal class MechaDroneLogic_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]

@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIMinerWindow))]
-    class UIMinerWindow_Patch
+    internal class UIMinerWindow_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIMinerWindow.OnProductIconClick))]

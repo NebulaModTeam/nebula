@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UITankWindow))]
-    class UITankWindow_Patch
+    internal class UITankWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerDown))]

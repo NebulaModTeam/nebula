@@ -8,11 +8,11 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(PlanetFactory))]
-    class PlanetFactory_Transpiler
+    internal class PlanetFactory_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(PlanetFactory.OnBeltBuilt))]
-        static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
+        private static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
         {
             /*
              * Calls
@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Transpiler
              * After
              * this.factorySystem.SetInserterPickTarget(inserterId, num6, num5 - num7);
             */
-            var codeMatcher = new CodeMatcher(instructions, iLGenerator)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iLGenerator)
                                   .MatchForward(true,
                                     new CodeMatch(i => i.opcode == OpCodes.Callvirt &&
                                                        ((MethodInfo)i.operand).Name == nameof(FactorySystem.SetInserterPickTarget)
@@ -33,9 +33,9 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            var setInserterTargetInsts = codeMatcher.InstructionsWithOffsets(-5, -1); // inserterId, pickTarget, offset
-            var objIdInst = codeMatcher.InstructionAt(-13); // objId
-            var pointPosInsts = codeMatcher.InstructionsWithOffsets(8, 10); // pointPos
+            List<CodeInstruction> setInserterTargetInsts = codeMatcher.InstructionsWithOffsets(-5, -1); // inserterId, pickTarget, offset
+            CodeInstruction objIdInst = codeMatcher.InstructionAt(-13); // objId
+            List<CodeInstruction> pointPosInsts = codeMatcher.InstructionsWithOffsets(8, 10); // pointPos
 
             codeMatcher = codeMatcher
                           .Advance(1)

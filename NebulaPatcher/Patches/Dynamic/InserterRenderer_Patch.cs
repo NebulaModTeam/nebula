@@ -7,7 +7,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(InserterRenderer))]
-    class InserterRenderer_Patch
+    internal class InserterRenderer_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(InserterRenderer), nameof(InserterRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]

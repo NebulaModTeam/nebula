@@ -7,11 +7,14 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
-    class StorageSyncResponseProcessor : PacketProcessor<StorageSyncResponsePacket>
+    internal class StorageSyncResponseProcessor : PacketProcessor<StorageSyncResponsePacket>
     {
         public override void ProcessPacket(StorageSyncResponsePacket packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
             StorageComponent storageComponent = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.storagePool[packet.StorageIndex];
             if (storageComponent != null)
@@ -30,8 +33,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
                 Multiplayer.Session.Storage.ActiveUIStorageGrid.SetStorageData(Multiplayer.Session.Storage.ActiveStorageComponent);
                 Multiplayer.Session.Storage.ActiveUIStorageGrid._Open();
                 Multiplayer.Session.Storage.ActiveUIStorageGrid.OnStorageDataChanged();
-                Multiplayer.Session.Storage.ActiveBansSlider.maxValue = (float)storageComponent.size;
-                Multiplayer.Session.Storage.ActiveBansSlider.value = (float)(storageComponent.size - storageComponent.bans);
+                Multiplayer.Session.Storage.ActiveBansSlider.maxValue = storageComponent.size;
+                Multiplayer.Session.Storage.ActiveBansSlider.value = storageComponent.size - storageComponent.bans;
                 Multiplayer.Session.Storage.ActiveBansValueText.text = Multiplayer.Session.Storage.ActiveBansSlider.value.ToString();
                 GameMain.galaxy.PlanetById(packet.PlanetId).factory.factoryStorage.storagePool[packet.StorageIndex] = storageComponent;
             }

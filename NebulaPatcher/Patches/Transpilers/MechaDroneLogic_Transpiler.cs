@@ -9,11 +9,11 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(MechaDroneLogic))]
-    class MechaDroneLogic_Transpiler
+    internal class MechaDroneLogic_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
-        static IEnumerable<CodeInstruction> UpdateTargets_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
+        private static IEnumerable<CodeInstruction> UpdateTargets_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
             /*
              * Update search for new targets. Do not include targets that are already pending response from server.
@@ -23,7 +23,7 @@ namespace NebulaPatcher.Patches.Transpiler
              * To:
              *   if (!this.serving.Contains(num4) && !Multiplayer.Session.Drones.IsPendingBuildRequest(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
              */
-            var codeMatcher = new CodeMatcher(instructions, iL)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
                 .MatchForward(true,
                     new CodeMatch(i => i.IsLdarg()),
                     new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "serving"),
@@ -38,8 +38,8 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            var num4Instruction = codeMatcher.InstructionAt(-2);
-            var jumpInstruction = codeMatcher.Instruction;
+            CodeInstruction num4Instruction = codeMatcher.InstructionAt(-2);
+            CodeInstruction jumpInstruction = codeMatcher.Instruction;
 
             codeMatcher = codeMatcher
                           .Advance(1)
@@ -72,8 +72,8 @@ namespace NebulaPatcher.Patches.Transpiler
                 return codeMatcher.InstructionEnumeration();
             }
 
-            var aOperand = codeMatcher.Instruction.operand;
-            var jumpOperand = codeMatcher.InstructionAt(4).operand;
+            object aOperand = codeMatcher.Instruction.operand;
+            object jumpOperand = codeMatcher.InstructionAt(4).operand;
 
             codeMatcher = codeMatcher
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, aOperand))
@@ -110,13 +110,13 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             // The index from drones[j]
-            var droneIdInstruction = codeMatcher.InstructionAt(-8);
+            CodeInstruction droneIdInstruction = codeMatcher.InstructionAt(-8);
 
             // num3 from this.serving.Add(num3);
-            var entityIdInstruction = codeMatcher.InstructionAt(-2);
+            CodeInstruction entityIdInstruction = codeMatcher.InstructionAt(-2);
 
             // drones[j].stage = 1;
-            var stageInstruction = new CodeInstruction(OpCodes.Ldc_I4_1);
+            CodeInstruction stageInstruction = new CodeInstruction(OpCodes.Ldc_I4_1);
 
             return codeMatcher
                     .Advance(1)
@@ -138,9 +138,9 @@ namespace NebulaPatcher.Patches.Transpiler
          */
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MechaDroneLogic.UpdateDrones))]
-        static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
+        private static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
         {
-            var codeMatcher = new CodeMatcher(instructions, iLGenerator)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iLGenerator)
                 .MatchForward(true,
                     new CodeMatch(i => i.IsLdloc()),
                     new CodeMatch(i => i.IsLdloc()),
@@ -189,9 +189,9 @@ namespace NebulaPatcher.Patches.Transpiler
         */
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MechaDroneLogic.FindNext))]
-        static IEnumerable<CodeInstruction> FindNext_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
+        private static IEnumerable<CodeInstruction> FindNext_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
-            var codeMatcher = new CodeMatcher(instructions, iL)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
                 .MatchForward(false,
                     new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "serving"),
                     new CodeMatch(i => i.IsLdloc()),
@@ -205,8 +205,8 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            var target = codeMatcher.InstructionAt(1);
-            var jump = codeMatcher.InstructionAt(3).operand;
+            CodeInstruction target = codeMatcher.InstructionAt(1);
+            object jump = codeMatcher.InstructionAt(3).operand;
             return codeMatcher
                    .Advance(4)
                    .InsertAndAdvance(target)

@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStarmap))]
-    class UIStarmap_Patch
+    internal class UIStarmap_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIStarmap._OnLateUpdate))]

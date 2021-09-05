@@ -12,14 +12,14 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIStatisticsWindow.ComputeDisplayEntries))]
-        static IEnumerable<CodeInstruction> ComputeDisplayEntries_Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> ComputeDisplayEntries_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return ReplaceFactoryCondition(instructions);
         }
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIStatisticsWindow.ComputePowerTab))]
-        static IEnumerable<CodeInstruction> ComputePowerTab_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
+        private static IEnumerable<CodeInstruction> ComputePowerTab_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
         {
             /* This is fix for the power statistics.
                Originally, this function is iterating through all factories and manually summing up "energyStored" values from their PowerSystems.
@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 With: Multiplayer.Session.Statistics.UpdateTotalChargedEnergy(factoryIndex);
                    
              * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
-            var matcher = new CodeMatcher(instructions, iLGenerator)
+            CodeMatcher matcher = new CodeMatcher(instructions, iLGenerator)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "gameData"),
@@ -98,7 +98,7 @@ namespace NebulaPatcher.Patches.Transpiler
         {
             //change: if (starData.planets[j].factory != null)
             //to    : if (starData.planets[j].factoryIndex != -1)
-            var matcher = new CodeMatcher(instructions)
+            CodeMatcher matcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(i => i.IsLdloc()),
                     new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "planets"),

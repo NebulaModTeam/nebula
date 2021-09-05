@@ -10,9 +10,9 @@ namespace NebulaModel.DataStructures
 
         public ProductionChangeStruct(bool isProduction, ushort productId, int amount)
         {
-            this.IsProduction = isProduction;
-            this.ProductId = productId;
-            this.Amount = amount;
+            IsProduction = isProduction;
+            ProductId = productId;
+            Amount = amount;
         }
 
         public ProductionChangeStruct(BinaryReader r)

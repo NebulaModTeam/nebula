@@ -6,7 +6,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIAutoSave))]
-    class UIAutoSave_Patch
+    internal class UIAutoSave_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIAutoSave._OnOpen))]
@@ -15,7 +15,11 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             // Hide AutoSave failed message on clients, since client cannot save in multiplayer
             CanvasGroup contentCanvas = __instance.contentCanvas;
-            if (contentCanvas == null) return;
+            if (contentCanvas == null)
+            {
+                return;
+            }
+
             contentCanvas.gameObject.SetActive(!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost);
             Log.Warn($"UIAutoSave active: {contentCanvas.gameObject.activeSelf}");
         }

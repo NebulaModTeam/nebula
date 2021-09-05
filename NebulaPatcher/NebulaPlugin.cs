@@ -17,7 +17,7 @@ namespace NebulaPatcher
     [BepInProcess("DSPGAME.exe")]
     public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
-        void Awake()
+        private void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
 
@@ -34,7 +34,7 @@ namespace NebulaPatcher
             }
         }
 
-        static void Initialize()
+        private static void Initialize()
         {
             InitPatches();
             AddNebulaBootstrapper();
@@ -72,7 +72,7 @@ namespace NebulaPatcher
             }
         }
 
-        static void AddNebulaBootstrapper()
+        private static void AddNebulaBootstrapper()
         {
             Log.Info("Applying Nebula behaviours..");
 

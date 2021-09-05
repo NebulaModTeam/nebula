@@ -175,7 +175,7 @@ namespace NebulaWorld.Logistics
 
                 for (int i = 0; i < ILSMaxShipCount; i++)
                 {
-                    stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)ILSMaxShipCount * (float)i, 0f);
+                    stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / ILSMaxShipCount * i, 0f);
                     stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
                 }
                 for (int j = 0; j < ILSMaxShipCount; j++)

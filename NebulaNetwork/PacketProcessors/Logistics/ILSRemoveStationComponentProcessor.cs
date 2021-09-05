@@ -10,7 +10,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRemoveStationComponentProcessor : PacketProcessor<ILSRemoveStationComponent>
+    internal class ILSRemoveStationComponentProcessor : PacketProcessor<ILSRemoveStationComponent>
     {
         public override void ProcessPacket(ILSRemoveStationComponent packet, NebulaConnection conn)
         {

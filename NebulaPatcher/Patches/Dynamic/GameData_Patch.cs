@@ -11,14 +11,16 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameData))]
-    class GameData_Patch
+    internal class GameData_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameData.Update))]
         public static void Update_Prefix()
         {
             if (!Multiplayer.IsActive || !Multiplayer.Session.IsGameLoaded)
+            {
                 return;
+            }
 
             Multiplayer.Session.World.RenderPlayerNameTagsInGame();
         }

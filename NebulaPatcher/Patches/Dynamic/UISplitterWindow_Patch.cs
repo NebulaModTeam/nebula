@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UISplitterWindow))]
-    class UISplitterWindow_Patch
+    internal class UISplitterWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UISplitterWindow.OnItemPickerReturn))]

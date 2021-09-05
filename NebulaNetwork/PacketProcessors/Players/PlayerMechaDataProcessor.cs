@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
+    internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerMechaDataProcessor()
         {
@@ -18,7 +18,11 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public override void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
+
             playerManager.UpdateMechaData(packet.Data, conn);
         }
     }

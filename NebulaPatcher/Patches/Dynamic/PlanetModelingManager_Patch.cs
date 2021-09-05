@@ -24,7 +24,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Check to make sure it's not already loaded
             if (planet.factoryLoaded || planet.factoryLoading)
+            {
                 return false;
+            }
 
             // They appear to have conveniently left this flag in for us, but they don't use it anywhere
             planet.factoryLoading = true;
@@ -101,7 +103,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     planet.wanted = true;
                     if (planet.loaded || planet.loading)
+                    {
                         continue;
+                    }
 
                     planet.loading = true;
 

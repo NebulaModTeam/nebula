@@ -8,7 +8,7 @@
 
         public TrashSystemResponseDataPacket(byte[] trashSystemData)
         {
-            this.TrashSystemData = trashSystemData;
+            TrashSystemData = trashSystemData;
         }
     }
 }

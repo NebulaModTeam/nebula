@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
 {
     [RegisterPacketProcessor]
-    class PowerTowerUserLoadResponseProcessor : PacketProcessor<PowerTowerUserLoadingResponse>
+    internal class PowerTowerUserLoadResponseProcessor : PacketProcessor<PowerTowerUserLoadingResponse>
     {
         public override void ProcessPacket(PowerTowerUserLoadingResponse packet, NebulaConnection conn)
         {
@@ -25,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
                         {
                             int baseDemand = factory.powerSystem.nodePool[packet.NodeId].workEnergyPerTick - factory.powerSystem.nodePool[packet.NodeId].idleEnergyPerTick;
                             float mult = factory.powerSystem.networkServes[packet.NetId];
-                            Multiplayer.Session.PowerTowers.PlayerChargeAmount += (int)(mult * (float)baseDemand);
+                            Multiplayer.Session.PowerTowers.PlayerChargeAmount += (int)(mult * baseDemand);
                         }
                     }
                 }

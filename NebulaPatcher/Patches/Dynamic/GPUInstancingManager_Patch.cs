@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     // which accesses GameMain.localPlanet which is null in that case which causes a NullReferenceException
     // we need to return the right PlanetData in that case, luckily we make use of PlanetData.factoryLoading while loading the factory
     [HarmonyPatch(typeof(GPUInstancingManager))]
-    class GPUInstancingManager_Patch
+    internal class GPUInstancingManager_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GPUInstancingManager.activePlanet), MethodType.Getter)]

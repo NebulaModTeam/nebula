@@ -8,7 +8,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(DysonSphereLayer))]
-    class DysonSphereLayer_Patch
+    internal class DysonSphereLayer_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(DysonSphereLayer.NewDysonNode))]

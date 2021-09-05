@@ -6,7 +6,7 @@ namespace NebulaWorld
 {
     public class RemotePlayerModel
     {
-        const int PLAYER_PROTO_ID = 1;
+        private const int PLAYER_PROTO_ID = 1;
 
         public string Username { get; }
         public ushort PlayerId { get; }
@@ -71,9 +71,20 @@ namespace NebulaWorld
             Effects = null;
             PlayerInstance.Free();
             PlayerInstance = null;
-            if (StarmapTracker != null) Object.Destroy(StarmapTracker);
-            if (StarmapNameText != null) Object.Destroy(StarmapNameText);
-            if (InGameNameText != null) Object.Destroy(InGameNameText);
+            if (StarmapTracker != null)
+            {
+                Object.Destroy(StarmapTracker);
+            }
+
+            if (StarmapNameText != null)
+            {
+                Object.Destroy(StarmapNameText);
+            }
+
+            if (InGameNameText != null)
+            {
+                Object.Destroy(InGameNameText);
+            }
 
             StarmapTracker = null;
             StarmapNameText = null;
