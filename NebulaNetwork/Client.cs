@@ -172,12 +172,34 @@ namespace NebulaNetwork
             {
                 // If the client is Quitting by himself, we don't have to inform him of his disconnection.
                 if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
+                {
                     return;
+                }
 
                 // Opens the pause menu on disconnection to prevent NRE when leaving the game
                 if (Multiplayer.Session?.IsGameLoaded ?? false)
                 {
                     GameMain.instance._paused = true;
+                }
+
+                if (e.Code == (ushort)DisconnectionReason.ModIsMissing)
+                {
+                    InGamePopup.ShowWarning(
+                        "Mod Mismatch",
+                        $"You are missing mod {e.Reason}",
+                        "OK".Translate(),
+                        Multiplayer.LeaveGame);
+                    return;
+                }
+
+                if (e.Code == (ushort)DisconnectionReason.ModIsMissingOnServer)
+                {
+                    InGamePopup.ShowWarning(
+                        "Mod Mismatch",
+                        $"Server is missing mod {e.Reason}",
+                        "OK".Translate(),
+                        Multiplayer.LeaveGame);
+                    return;
                 }
 
                 if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
@@ -186,7 +208,7 @@ namespace NebulaNetwork
                     InGamePopup.ShowWarning(
                         "Mod Version Mismatch",
                         $"Your Nebula Multiplayer Mod is not the same as the Host version.\nYou:{versions[0]} - Remote:{versions[1]}",
-                        "OK",
+                        "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
                 }
@@ -197,7 +219,7 @@ namespace NebulaNetwork
                     InGamePopup.ShowWarning(
                         "Game Version Mismatch",
                         $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
-                        "OK",
+                        "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
                 }
@@ -215,17 +237,15 @@ namespace NebulaNetwork
                     InGamePopup.ShowWarning(
                         "Server Unavailable",
                         $"Could not reach the server, please try again later.",
-                        "OK",
+                        "OK".Translate(),
                         Multiplayer.LeaveGame);
                 }
             });
         }
 
-
-
-        static void DisableNagleAlgorithm(WebSocket socket)
+        private static void DisableNagleAlgorithm(WebSocket socket)
         {
-            var tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);
+            TcpClient tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);
             tcpClient.NoDelay = true;
         }
     }
