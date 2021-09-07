@@ -2,67 +2,77 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
-using System.Net;
-using WebSocketSharp;
 
 namespace NebulaModel.Networking
 {
     public class NebulaConnection : INebulaConnection
     {
-        private readonly EndPoint peerEndpoint;
-        private readonly WebSocket peerSocket;
+        private readonly Telepathy.Client client;
+        private readonly Telepathy.Server server;
         private readonly NetPacketProcessor packetProcessor;
+        private readonly int connectionId;
+        private readonly string peerAddress;
 
-        public bool IsAlive => peerSocket?.IsAlive ?? false;
-
-        public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NetPacketProcessor packetProcessor)
+        public NebulaConnection(Telepathy.Client client, Telepathy.Server server, NetPacketProcessor packetProcessor, int connectionId = -1)
         {
-            this.peerEndpoint = peerEndpoint;
-            this.peerSocket = peerSocket;
+            this.client = client;
+            this.server = server;
             this.packetProcessor = packetProcessor;
+            this.connectionId = connectionId;
+            peerAddress = server?.GetClientAddress(connectionId) ?? "localhost";
         }
 
         public void SendPacket<T>(T packet) where T : class, new()
         {
-            if (peerSocket.ReadyState == WebSocketState.Open)
+            if (client?.Connected ?? false)
             {
-                peerSocket.Send(packetProcessor.Write(packet));
+                client.Send(new ArraySegment<byte>(packetProcessor.Write(packet)));
+            }
+            else if (server?.Active ?? false)
+            {
+                server.Send(connectionId, new ArraySegment<byte>(packetProcessor.Write(packet)));
             }
             else
             {
-                Log.Warn($"Cannot send packet {packet?.GetType()} to a closed connection {peerEndpoint}");
+                Log.Warn($"Cannot send packet {packet?.GetType()} to closed connection {(connectionId != -1 ? connectionId.ToString() : string.Empty)}");
             }
         }
 
         public void SendRawPacket(byte[] rawData)
         {
-            if (peerSocket.ReadyState == WebSocketState.Open)
+            if (client?.Connected ?? false)
             {
-                peerSocket.Send(rawData);
+                client.Send(new ArraySegment<byte>(rawData));
+            }
+            else if (server?.Active ?? false)
+            {
+                server.Send(connectionId, new ArraySegment<byte>(rawData));
             }
             else
             {
-                Log.Warn($"Cannot send raw packet to a closed connection {peerSocket?.Url}");
+                Log.Warn($"Cannot send raw packet to closed connection {(connectionId != -1 ? connectionId.ToString() : string.Empty)}");
             }
         }
 
         public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
         {
-            if (string.IsNullOrEmpty(reasonString))
-            {
-                peerSocket.Close((ushort)reason);
-            }
-            else
-            {
-                if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= 123)
-                {
-                    peerSocket.Close((ushort)reason, reasonString);
-                }
-                else
-                {
-                    throw new ArgumentException("Reason string cannot take up more than 123 bytes");
-                }
-            }
+            //if (string.IsNullOrEmpty(reasonString))
+            //{
+            //    peerSocket.Close((ushort)reason);
+            //}
+            //else
+            //{
+            //    if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= 123)
+            //    {
+            //        peerSocket.Close((ushort)reason, reasonString);
+            //    }
+            //    else
+            //    {
+            //        throw new ArgumentException("Reason string cannot take up more than 123 bytes");
+            //    }
+            //}
+
+            server.Disconnect(connectionId);
         }
 
         public static bool operator ==(NebulaConnection left, NebulaConnection right)
@@ -89,12 +99,12 @@ namespace NebulaModel.Networking
             {
                 return false;
             }
-            return (obj as NebulaConnection).peerEndpoint.Equals(peerEndpoint);
+            return (obj as NebulaConnection).peerAddress.Equals(peerAddress);
         }
 
         public override int GetHashCode()
         {
-            return peerEndpoint?.GetHashCode() ?? 0;
+            return peerAddress?.GetHashCode() ?? 0;
         }
     }
 }

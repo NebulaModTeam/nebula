@@ -4,6 +4,6 @@
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
-    <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj" />
+    <ProjectReference Include="..\dep\Telepathy\Telepathy\Telepathy.csproj" />
   </ItemGroup>
 </Project>

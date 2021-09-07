@@ -1,18 +1,14 @@
-﻿using HarmonyLib;
-using NebulaAPI;
+﻿using NebulaAPI;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
-using System.Net.Sockets;
+using System;
 using System.Reflection;
 using UnityEngine;
-using WebSocketSharp;
-using WebSocketSharp.Server;
 
 namespace NebulaNetwork
 {
@@ -28,7 +24,7 @@ namespace NebulaNetwork
         private float productionStatisticsUpdateTimer = 0;
         private float dysonLaunchUpateTimer = 0;
 
-        private WebSocketServer socket;
+        private Telepathy.Server server;
 
         private readonly int port;
         private readonly bool loadSaveFile;
@@ -61,10 +57,16 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
-            DisableNagleAlgorithm(socket);
-            socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
-            socket.Start();
+            server = new Telepathy.Server(50 * 1024 * 1024)
+            {
+                OnConnected = OnConnected,
+                OnData = OnMessage,
+                OnDisconnected = OnDisconnected,
+                ReceiveTimeout = 30000,
+                SendTimeout = 30000
+            };
+
+            server.Start(port);
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
@@ -77,9 +79,51 @@ namespace NebulaNetwork
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
+        private void OnConnected(int connectionId)
+        {
+            if (Multiplayer.Session.IsGameLoaded == false)
+            {
+                // Reject any connection that occurs while the host's game is loading.
+                //Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");
+                server.Disconnect(connectionId);
+                return;
+            }
+
+            NebulaModel.Logger.Log.Info($"Client {connectionId} connected");
+            NebulaConnection conn = new NebulaConnection(null, server, PacketProcessor, connectionId);
+            Multiplayer.Session.Network.PlayerManager.PlayerConnected(conn);
+        }
+
+        private void OnMessage(int connectionId, ArraySegment<byte> message)
+        {
+            PacketProcessor.EnqueuePacketForProcessing(message.Array, new NebulaConnection(null, server, PacketProcessor, connectionId));
+        }
+
+        private void OnDisconnected(int connectionId)
+        {
+            // If the reason of a client disconnect is because we are still loading the game,
+            // we don't need to inform the other clients since the disconnected client never
+            // joined the game in the first place.
+            //if (e.Code == (short)DisconnectionReason.HostStillLoading)
+            //{
+            //    return;
+            //}
+
+            NebulaModel.Logger.Log.Info($"Client {connectionId} disconnected");
+            UnityDispatchQueue.RunOnMainThread(() =>
+            {
+                // This is to make sure that we don't try to deal with player disconnection
+                // if it is because we have stopped the server and are not in a multiplayer game anymore.
+                if (Multiplayer.IsActive)
+                {
+                    Multiplayer.Session.Network.PlayerManager.PlayerDisconnected(new NebulaConnection(null, server, PacketProcessor, connectionId));
+                }
+            });
+        }
+
         public override void Stop()
         {
-            socket?.Stop();
+            server?.Stop();
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
@@ -121,6 +165,7 @@ namespace NebulaNetwork
 
         public override void Update()
         {
+            server.Tick(10000);
             gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
             productionStatisticsUpdateTimer += Time.deltaTime;
@@ -155,70 +200,6 @@ namespace NebulaNetwork
             }
 
             PacketProcessor.ProcessPacketQueue();
-        }
-
-        private void DisableNagleAlgorithm(WebSocketServer socketServer)
-        {
-            TcpListener listener = AccessTools.FieldRefAccess<WebSocketServer, TcpListener>("_listener")(socketServer);
-            listener.Server.NoDelay = true;
-        }
-
-        private class WebSocketService : WebSocketBehavior
-        {
-            private readonly IPlayerManager playerManager;
-            private readonly NetPacketProcessor packetProcessor;
-
-            public WebSocketService(IPlayerManager playerManager, NetPacketProcessor packetProcessor)
-            {
-                this.playerManager = playerManager;
-                this.packetProcessor = packetProcessor;
-            }
-
-            protected override void OnOpen()
-            {
-                if (Multiplayer.Session.IsGameLoaded == false)
-                {
-                    // Reject any connection that occurs while the host's game is loading.
-                    Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");
-                    return;
-                }
-
-                NebulaModel.Logger.Log.Info($"Client connected ID: {ID}");
-                NebulaConnection conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor);
-                playerManager.PlayerConnected(conn);
-            }
-
-            protected override void OnMessage(MessageEventArgs e)
-            {
-                packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
-            }
-
-            protected override void OnClose(CloseEventArgs e)
-            {
-                // If the reason of a client disconnect is because we are still loading the game,
-                // we don't need to inform the other clients since the disconnected client never
-                // joined the game in the first place.
-                if (e.Code == (short)DisconnectionReason.HostStillLoading)
-                {
-                    return;
-                }
-
-                NebulaModel.Logger.Log.Info($"Client disconnected: {ID}, reason: {e.Reason}");
-                UnityDispatchQueue.RunOnMainThread(() =>
-                {
-                    // This is to make sure that we don't try to deal with player disconnection
-                    // if it is because we have stopped the server and are not in a multiplayer game anymore.
-                    if (Multiplayer.IsActive)
-                    {
-                        playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
-                    }
-                });
-            }
-
-            protected override void OnError(ErrorEventArgs e)
-            {
-                // TODO: Decide what to do here - does OnClose get called too?
-            }
         }
     }
 }
