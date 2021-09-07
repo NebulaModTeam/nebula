@@ -207,7 +207,7 @@ namespace NebulaNetwork
                     string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
                         "Mod Version Mismatch",
-                        $"Your Nebula Multiplayer Mod is not the same as the Host version.\nYou:{versions[0]} - Remote:{versions[1]}",
+                        $"Your mod {versions[0]} version is not the same as the Host version.\nYou:{versions[1]} - Remote:{versions[2]}",
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
