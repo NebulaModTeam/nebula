@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Session
     [RegisterPacketProcessor]
     public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public HandshakeRequestProcessor()
         {
@@ -23,10 +23,13 @@ namespace NebulaNetwork.PacketProcessors.Session
 
         public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             INebulaPlayer player;
-            using (playerManager.GetPendingPlayers(out var pendingPlayers))
+            using (playerManager.GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
             {
                 if (!pendingPlayers.TryGetValue(conn, out player))
                 {
@@ -50,13 +53,14 @@ namespace NebulaNetwork.PacketProcessors.Session
                     if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
                     {
                         conn.Disconnect(DisconnectionReason.ModIsMissingOnServer, guid);
+                        return;
                     }
 
                     clientMods.Add(guid, version);
                 }
             }
 
-            foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+            foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
             {
                 if (pluginInfo.Value.Instance is IMultiplayerMod mod)
                 {
@@ -68,7 +72,10 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                     string version = clientMods[pluginInfo.Key];
 
-                    if (mod.CheckVersion(mod.Version, version)) continue;
+                    if (mod.CheckVersion(mod.Version, version))
+                    {
+                        continue;
+                    }
 
                     conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Version}");
                     return;
@@ -88,9 +95,9 @@ namespace NebulaNetwork.PacketProcessors.Session
             //TODO: some validation of client cert / generating auth challenge for the client
             // Load old data of the client
             string clientCertHash = CryptoUtils.Hash(packet.ClientCert);
-            using (playerManager.GetSavedPlayerData(out var savedPlayerData))
+            using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
             {
-                if (savedPlayerData.TryGetValue(clientCertHash, out var value))
+                if (savedPlayerData.TryGetValue(clientCertHash, out IPlayerData value))
                 {
                     player.LoadUserData(value);
                 }
@@ -109,16 +116,16 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
-            using (playerManager.GetConnectedPlayers(out var connectedPlayers))
+            using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     kvp.Value.SendPacket(pdata);
                 }
             }
 
             // Add the new player to the list
-            using (playerManager.GetSyncingPlayers(out var syncingPlayers))
+            using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
             {
                 syncingPlayers.Add(conn, player);
             }
@@ -129,7 +136,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             using (BinaryUtils.Writer p = new BinaryUtils.Writer())
             {
                 int count = 0;
-                foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
                 {
                     if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
                     {
@@ -139,7 +146,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
                 }
 
-                var gameDesc = GameMain.data.gameDesc;
+                GameDesc gameDesc = GameMain.data.gameDesc;
                 player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
             }
         }
