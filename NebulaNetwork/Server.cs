@@ -57,15 +57,13 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            server = new Telepathy.Server(50 * 1024 * 1024)
+            server = new Telepathy.Server(500 * 1024 * 1024)
             {
                 OnConnected = OnConnected,
                 OnData = OnMessage,
                 OnDisconnected = OnDisconnected,
                 ReceiveTimeout = 30000,
-                SendTimeout = 30000,
-                ReceiveQueueLimit = 50000,
-                SendQueueLimit = 50000
+                SendTimeout = 30000
             };
 
             server.Start(port);
