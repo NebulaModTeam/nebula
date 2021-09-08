@@ -57,15 +57,15 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            server = new Telepathy.Server(500 * 1024 * 1024)
+            server = new Telepathy.Server(Config.Options.GetMaxMessageSizeInBytes())
             {
                 OnConnected = OnConnected,
                 OnData = OnMessage,
                 OnDisconnected = OnDisconnected,
-                ReceiveTimeout = 30000,
-                SendTimeout = 30000,
-                SendQueueLimit = 100,
-                ReceiveQueueLimit = 100
+                ReceiveTimeout = (int)TimeSpan.FromSeconds(Config.Options.Timeout).TotalMilliseconds,
+                SendTimeout = (int)TimeSpan.FromSeconds(Config.Options.Timeout).TotalMilliseconds,
+                SendQueueLimit = Config.Options.QueueLimit,
+                ReceiveQueueLimit = Config.Options.QueueLimit
             };
 
             server.Start(port);
@@ -167,7 +167,7 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            server.Tick(10000);
+            server.Tick(Config.Options.PacketsPerTick * 10); // multiply by max players
             gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
             productionStatisticsUpdateTimer += Time.deltaTime;
