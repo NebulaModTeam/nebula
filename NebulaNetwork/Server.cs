@@ -96,7 +96,7 @@ namespace NebulaNetwork
 
         private void OnMessage(int connectionId, ArraySegment<byte> message)
         {
-            PacketProcessor.EnqueuePacketForProcessing(message.Array, new NebulaConnection(null, server, PacketProcessor, connectionId));
+            PacketProcessor.ProcessPacket(message.Array, new NebulaConnection(null, server, PacketProcessor, connectionId));
         }
 
         private void OnDisconnected(int connectionId)
@@ -198,8 +198,6 @@ namespace NebulaNetwork
                 dysonLaunchUpateTimer = 0;
                 Multiplayer.Session.Launch.SendBroadcastIfNeeded();
             }
-
-            PacketProcessor.ProcessPacketQueue();
         }
     }
 }

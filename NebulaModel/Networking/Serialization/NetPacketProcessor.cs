@@ -1,7 +1,6 @@
 ﻿using NebulaAPI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace NebulaModel.Networking.Serialization
 {
@@ -20,8 +19,6 @@ namespace NebulaModel.Networking.Serialization
         private readonly NetDataWriter _netDataWriter = new NetDataWriter();
 
         private readonly Random simulationRandom = new Random();
-        private readonly List<DelayedPacket> delayedPackets = new List<DelayedPacket>();
-        private readonly Queue<PendingPacket> pendingPackets = new Queue<PendingPacket>();
 
         public bool SimulateLatency = false;
         public int SimulatedMinLatency = 20;
@@ -37,74 +34,10 @@ namespace NebulaModel.Networking.Serialization
             _netSerializer = new NetSerializer(maxStringLength);
         }
 
-        public void EnqueuePacketForProcessing(byte[] rawData, object userData)
+        public void ProcessPacket(byte[] rawData, object userData)
         {
-#if DEBUG
-            if (SimulateLatency)
-            {
-                lock (delayedPackets)
-                {
-                    PendingPacket packet = new PendingPacket(rawData, userData);
-                    DateTime dueTime = DateTime.UtcNow.AddMilliseconds(simulationRandom.Next(SimulatedMinLatency, SimulatedMaxLatency));
-                    delayedPackets.Add(new DelayedPacket(packet, dueTime));
-                }
-            }
-            else
-            {
-                lock (pendingPackets)
-                {
-                    pendingPackets.Enqueue(new PendingPacket(rawData, userData));
-                }
-            }
-#else
-            lock (pendingPackets)
-            {
-                pendingPackets.Enqueue(new PendingPacket(rawData, userData));
-            }
-#endif
-        }
-
-        public void ProcessPacketQueue()
-        {
-            lock (pendingPackets)
-            {
-                ProcessDelayedPackets();
-
-                while (pendingPackets.Count > 0)
-                {
-                    PendingPacket packet = pendingPackets.Dequeue();
-                    ReadPacket(new NetDataReader(packet.Data), packet.UserData);
-                }
-            }
-        }
-
-        [Conditional("DEBUG")]
-        private void ProcessDelayedPackets()
-        {
-            lock (delayedPackets)
-            {
-                DateTime now = DateTime.UtcNow;
-                int deleteCount = 0;
-
-                for (int i = 0; i < delayedPackets.Count; ++i)
-                {
-                    if (now >= delayedPackets[i].DueTime)
-                    {
-                        pendingPackets.Enqueue(delayedPackets[i].Packet);
-                        deleteCount = i + 1;
-                    }
-                    else
-                    {
-                        // We need to break to avoid messing up the order of the packets.
-                        break;
-                    }
-                }
-
-                if (deleteCount > 0)
-                {
-                    delayedPackets.RemoveRange(0, deleteCount);
-                }
-            }
+            PendingPacket packet = new PendingPacket(rawData, userData);
+            ReadPacket(new NetDataReader(packet.Data), packet.UserData);
         }
 
         //FNV-1 64 bit hash

@@ -126,8 +126,6 @@ namespace NebulaNetwork
         {
             client.Tick(1000);
 
-            PacketProcessor.ProcessPacketQueue();
-
             if (Multiplayer.Session.IsGameLoaded)
             {
                 mechaSynchonizationTimer += Time.deltaTime;
@@ -162,7 +160,7 @@ namespace NebulaNetwork
         {
             if (!Multiplayer.IsLeavingGame)
             {
-                PacketProcessor.EnqueuePacketForProcessing(obj.Array, new NebulaConnection(client, null, PacketProcessor));
+                PacketProcessor.ProcessPacket(obj.Array, new NebulaConnection(client, null, PacketProcessor));
             }
         }
 

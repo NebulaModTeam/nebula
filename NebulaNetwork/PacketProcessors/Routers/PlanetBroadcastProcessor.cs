@@ -28,7 +28,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
                 //Forward packet to other users
                 playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
                 //Forward packet to the host
-                ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
+                ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.ProcessPacket(packet.PacketObject, conn);
             }
         }
     }

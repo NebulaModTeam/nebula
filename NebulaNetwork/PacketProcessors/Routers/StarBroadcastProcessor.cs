@@ -27,7 +27,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
             {
                 //Forward packet to other users
                 playerManager.SendRawPacketToStar(packet.PacketObject, packet.StarId, conn);
-                ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
+                ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.ProcessPacket(packet.PacketObject, conn);
             }
         }
     }
