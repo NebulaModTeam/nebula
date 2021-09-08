@@ -58,7 +58,9 @@ namespace NebulaNetwork
                 OnData = OnMessage,
                 OnDisconnected = OnDisconnected,
                 ReceiveTimeout = 30000,
-                SendTimeout = 30000
+                SendTimeout = 30000,
+                SendQueueLimit = 100,
+                ReceiveQueueLimit = 100
             };
 
             client.Connect(serverEndpoint.Address.ToString(), serverEndpoint.Port);
