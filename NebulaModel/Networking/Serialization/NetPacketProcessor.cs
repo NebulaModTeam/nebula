@@ -203,16 +203,18 @@ namespace NebulaModel.Networking.Serialization
 
         public byte[] Write<T>(T packet) where T : class, new()
         {
-#if DEBUG
-            if (!typeof(T).IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
-            {
-                Logger.Log.Debug($"Packet Sent: {packet.GetType().Name}");
-            }
-#endif
             _netDataWriter.Reset();
             WriteHash<T>(_netDataWriter);
             _netSerializer.Serialize(_netDataWriter, packet);
-            return _netDataWriter.CopyData();
+            byte[] data = _netDataWriter.CopyData();
+
+#if DEBUG
+            if (!typeof(T).IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
+            {
+                Logger.Log.Debug($"Packet Sent: {packet.GetType().Name} Size: {data.Length} bytes");
+            }
+#endif
+            return data;
         }
 
         public byte[] WriteNetSerializable<T>(T packet) where T : INetSerializable
