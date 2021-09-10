@@ -15,8 +15,6 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 
         public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
-            // TODO: MISSING CLIENT -> HOST -> CLIENT CODE 
-
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             PlanetFactory factory = IsHost ? GameMain.data.GetOrCreateFactory(planet) : planet?.factory;
             if (factory != null)
@@ -56,6 +54,11 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
                         }
                     }
                 }
+            }
+
+            if (IsHost)
+            {
+                Multiplayer.Session.Network.SendPacketToStar(packet, planet.star.id);
             }
         }
     }
