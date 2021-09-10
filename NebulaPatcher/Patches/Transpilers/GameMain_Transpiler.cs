@@ -8,46 +8,55 @@ namespace NebulaPatcher.Patches.Transpiler
     [HarmonyPatch(typeof(GameMain))]
     class GameMain_Transpiler
     {
-        //Ignore Pausing in the multiplayer:
+        //Enable Pausing only when Multiplayer.CanPause is true:
         //Change:  if (!this._paused)
-        //To:      if (!this._paused || Multiplayer.IsActive)
+        //To:      if (!(this._paused && Multiplayer.CanPause))
+        //Change:  if (this._fullscreenPaused && !this._fullscreenPausedUnlockOneFrame)
+        //To:      if (this._fullscreenPaused && Multiplayer.CanPause && !this._fullscreenPausedUnlockOneFrame)
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(GameMain.FixedUpdate))]
-        static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> FixedUpdate_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
-            var found = false;
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 6; i < codes.Count; i++)
+            var codeMatcher = new CodeMatcher(instructions, iL)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(Player), "ApplyGamePauseState")),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(GameMain), "_paused")),
+                    new CodeMatch(OpCodes.Brtrue)
+                );
+
+            if (codeMatcher.IsInvalid)
             {
-                if (codes[i].opcode == OpCodes.Callvirt &&
-                    codes[i - 1].opcode == OpCodes.Ldc_I4_1 &&
-                    codes[i - 2].opcode == OpCodes.Br &&
-                    codes[i - 3].opcode == OpCodes.Ldc_I4_0 &&
-                    codes[i - 4].opcode == OpCodes.Br &&
-                    codes[i - 5].opcode == OpCodes.Ceq)
-                {
-                    found = true;
-                    //Define new jump for firct condition
-                    Label targetLabel = gen.DefineLabel();
-                    codes[i + 4].labels.Add(targetLabel);
-
-                    //Add my condition
-                    codes.InsertRange(i + 4, new CodeInstruction[] {
-                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Multiplayer), "get_" + nameof(Multiplayer.IsActive))),
-                            new CodeInstruction(OpCodes.Brfalse_S, codes[i+3].operand)
-                    });
-
-                    //Change jump of first condition
-                    codes[i + 3] = new CodeInstruction(OpCodes.Brfalse_S, targetLabel);
-
-                    break;
-                }
+                NebulaModel.Logger.Log.Error("GameMain.FixedUpdate_Transpiler failed. Mod version not compatible with game version.");
+                return instructions;
             }
 
-            if (!found)
-                NebulaModel.Logger.Log.Error("GameMain FixedUpdate transpiler failed. Mod version not compatible with game version.");
-            return codes;
+            codeMatcher
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Multiplayer), "get_" + nameof(Multiplayer.CanPause))),
+                    new CodeInstruction(OpCodes.And)
+                )
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(GameMain), "_fullscreenPaused"))
+                );
+
+            if (codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("GameMain.FixedUpdate_Transpiler 2 failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+
+            var label = codeMatcher.InstructionAt(1).operand;
+
+            return codeMatcher
+                    .Advance(2)
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Multiplayer), "get_" + nameof(Multiplayer.CanPause))),
+                        new CodeInstruction(OpCodes.Brfalse_S, label)
+                    )
+                    .InstructionEnumeration();
         }
     }
 }

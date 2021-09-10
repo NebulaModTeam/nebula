@@ -138,6 +138,7 @@ namespace NebulaWorld
             if (!IsPlayerJoining)
             {
                 IsPlayerJoining = true;
+                Multiplayer.CanPause = true;
                 GameMain.isFullscreenPaused = true;
                 InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
             }
@@ -148,6 +149,7 @@ namespace NebulaWorld
             IsPlayerJoining = false;
             InGamePopup.FadeOut();
             GameMain.isFullscreenPaused = false;
+            Multiplayer.CanPause = false;
         }
 
         public void SpawnRemotePlayerModel(IPlayerData playerData)
@@ -172,6 +174,10 @@ namespace NebulaWorld
                 {
                     player.Destroy();
                     remotePlayersModels.Remove(playerId);
+                    if (remotePlayersModels.Count == 0)
+                    {
+                        Multiplayer.CanPause = true;
+                    }
                 }
             }
         }
