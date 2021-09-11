@@ -13,13 +13,6 @@ namespace NebulaWorld
 
         public static bool IsInMultiplayerMenu { get; set; }
 
-        public static bool CanPause
-        {
-            get => canPause;
-            set => SetCanPause(value);
-        }
-        
-        private static bool canPause = true;
 
         public static void HostGame(NetworkProvider server)
         {
@@ -32,7 +25,6 @@ namespace NebulaWorld
         public static void JoinGame(NetworkProvider client)
         {
             IsLeavingGame = false;
-            CanPause = false;
 
             Session = new MultiplayerSession(client);
             ((NetworkProvider)Session.Network).Start();
@@ -41,7 +33,6 @@ namespace NebulaWorld
         public static void LeaveGame()
         {
             IsLeavingGame = true;
-            CanPause = true;
 
             bool wasGameLoaded = Session?.IsGameLoaded ?? false;
 
@@ -67,13 +58,6 @@ namespace NebulaWorld
                 Transform multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");
                 multiplayerMenu.gameObject.SetActive(true);
             }
-        }
-
-        private static void SetCanPause(bool status)
-        {
-            canPause = status;
-            //Tell the user if the game is paused or not
-            GameObject.Find("UI Root/Overlay Canvas/In Game/Esc Menu/pause-text").SetActive(status);
         }
     }
 }

@@ -138,7 +138,7 @@ namespace NebulaWorld
             if (!IsPlayerJoining)
             {
                 IsPlayerJoining = true;
-                Multiplayer.CanPause = true;
+                Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
                 InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
             }
@@ -149,7 +149,7 @@ namespace NebulaWorld
             IsPlayerJoining = false;
             InGamePopup.FadeOut();
             GameMain.isFullscreenPaused = false;
-            Multiplayer.CanPause = false;
+            Multiplayer.Session.CanPause = false;
         }
 
         public void SpawnRemotePlayerModel(IPlayerData playerData)
@@ -176,7 +176,7 @@ namespace NebulaWorld
                     remotePlayersModels.Remove(playerId);
                     if (remotePlayersModels.Count == 0)
                     {
-                        Multiplayer.CanPause = true;
+                        Multiplayer.Session.CanPause = true;
                     }
                 }
             }
@@ -603,6 +603,28 @@ namespace NebulaWorld
             {
                 pingIndicator.text = text;
             }
+        }
+
+        public void SetPauseIndicator(bool canPause)
+        {
+            //Tell the user if the game is paused or not
+            var targetObject = GameObject.Find("UI Root/Overlay Canvas/In Game/Esc Menu/pause-text");
+            var pauseText = targetObject?.GetComponent<Text>();
+            var pauseLocalizer = targetObject?.GetComponent<Localizer>();
+            if (pauseText && pauseLocalizer)
+            {
+                if (!canPause)
+                {
+                    pauseText.text = "--  Nebula Multiplayer  --".Translate();
+                    pauseLocalizer.stringKey = "--  Nebula Multiplayer  --".Translate();
+                }
+                else
+                {
+                    pauseText.text = "游戏已暂停".Translate();
+                    pauseLocalizer.stringKey = "游戏已暂停".Translate();
+                }
+            }
+                
         }
     }
 }
