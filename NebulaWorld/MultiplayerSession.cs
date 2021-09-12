@@ -72,8 +72,6 @@ namespace NebulaWorld
 
         public void Dispose()
         {
-            CanPause = true;
-
             Network?.Dispose();
             Network = null;
 

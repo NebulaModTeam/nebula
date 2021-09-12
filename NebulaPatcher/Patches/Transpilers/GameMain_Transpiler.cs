@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(GameMain))]
-    class GameMain_Transpiler
+    internal class GameMain_Transpiler
     {
         //Enable Pausing only when there is no session or  Multiplayer.Session.CanPause is true:
         //Change:  if (!this._paused)
@@ -16,9 +16,9 @@ namespace NebulaPatcher.Patches.Transpiler
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(GameMain.FixedUpdate))]
-        static IEnumerable<CodeInstruction> FixedUpdate_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
+        private static IEnumerable<CodeInstruction> FixedUpdate_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
-            var codeMatcher = new CodeMatcher(instructions, iL)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(Player), "ApplyGamePauseState")),
                     new CodeMatch(OpCodes.Ldarg_0),
@@ -31,13 +31,13 @@ namespace NebulaPatcher.Patches.Transpiler
                 NebulaModel.Logger.Log.Error("GameMain.FixedUpdate_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
-            var skipLabel1 = codeMatcher.Instruction.operand;
+            object skipLabel1 = codeMatcher.Instruction.operand;
             codeMatcher
                 .CreateLabelAt(codeMatcher.Pos + 1, out Label nextLabel1)
                 .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Brfalse_S, nextLabel1), //_pasue == false => enter loop
+                    new CodeInstruction(OpCodes.Brfalse_S, nextLabel1), //_paused== false => enter loop
                     new CodeInstruction(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
-                    new CodeInstruction(OpCodes.Brfalse_S, skipLabel1), //_pasue == true && Multiplayer.Session == null => can pause, skip loop
+                    new CodeInstruction(OpCodes.Brfalse_S, skipLabel1), //_paused== true && Multiplayer.Session == null => can pause, skip loop
                     new CodeInstruction(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
                     new CodeInstruction(OpCodes.Callvirt, AccessTools.DeclaredPropertyGetter(typeof(MultiplayerSession), nameof(MultiplayerSession.CanPause)))
                 )
@@ -53,7 +53,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            var skipLabel2 = codeMatcher.Instruction.operand;
+            object skipLabel2 = codeMatcher.Instruction.operand;
             return codeMatcher
                     .Advance(1)
                     .CreateLabel(out Label nextLabel2) //position of checking _fullscreenPausedUnlockOneFrame
