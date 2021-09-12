@@ -1,5 +1,12 @@
 ## Changelog
 
+0.5.1:
+
+- Fixed cases where a multiplayer session could hang on the player joining screen.
+- Fixed issue where foundations built by clients would not sync to other clients.
+- Fixed issue where the user would not be informed if they were kicked due to a mod mismatch.
+- Enabled pausing in Multiplayer when no clients are connected. (thanks to @starfi5h)
+
 0.5.0:
 
 - Added API that enables other mods to sync over multiplayer! (Big thanks to @kremnev8!)
