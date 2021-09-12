@@ -38,6 +38,16 @@ namespace NebulaWorld
 
 
         public bool IsGameLoaded { get; set; }
+        public bool CanPause
+        {
+            get => canPause;
+            set
+            {
+                canPause = value;
+                World?.SetPauseIndicator(value);
+            }
+        }
+        private bool canPause = true;
 
         public MultiplayerSession(NetworkProvider networkProvider)
         {
