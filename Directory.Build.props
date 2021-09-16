@@ -47,6 +47,7 @@
 
   <ItemGroup Label="BepInEx">
     <PackageReference Include="BepInEx.Core" Version="5.4.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Analyzers" Version="1.0.*" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="Dyson Sphere Program">
