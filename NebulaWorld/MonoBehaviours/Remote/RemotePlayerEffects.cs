@@ -1,11 +1,11 @@
-﻿using NebulaModel.Packets.Players;
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Remote
 {
     public class RemoteWarpEffect : MonoBehaviour
     {
+        // TODO: UPGRADE 0.8.21 need refactor
+        /*
         private Transform rootTransform;
 
         private VFWarpEffect warpEffect = null;
@@ -205,9 +205,13 @@ namespace NebulaWorld.MonoBehaviours.Remote
             astrosMat.SetFloat("_Multiplier", astrosMul * num2);
             nebulasMat.SetFloat("_Multiplier", nebulasMul * num2);
         }
+        */
     }
+
     public class RemotePlayerEffects : MonoBehaviour
     {
+        // TODO: UPGRADE 0.8.21 need refactor
+        /*
         private RemotePlayerAnimation rootAnimation;
         private Transform rootTransform;
         private Transform rootModelTransform;
@@ -796,5 +800,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             localPlanetId = localPlanet;
         }
+        */
     }
 }

@@ -1,5 +1,4 @@
-﻿using NebulaModel.DataStructures;
-using NebulaModel.Packets.Players;
+﻿using NebulaModel.Packets.Players;
 using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Local
@@ -25,27 +24,15 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 time = 0;
 
+                // TODO: UPGRADE 0.8.21 :: check if still needed after refactor
+                /*
                 PlayerController controller = playerAnimator.player.controller;
                 float vertSpeed = Vector3.Dot(base.transform.up, controller.velocity);
                 Vector3 horzVel = controller.velocity - vertSpeed * base.transform.up;
                 float horzSpeed = horzVel.magnitude;
+                */
 
-                Multiplayer.Session.Network.SendPacket(new PlayerAnimationUpdate()
-                {
-                    PlayerId = Multiplayer.Session.LocalPlayer.Id,
-                    Idle = playerAnimator.idle.ToNebula(),
-                    RunSlow = playerAnimator.runSlow.ToNebula(),
-                    RunFast = playerAnimator.runFast.ToNebula(),
-                    Drift = playerAnimator.drift.ToNebula(),
-                    DriftF = playerAnimator.driftF.ToNebula(),
-                    DriftL = playerAnimator.driftL.ToNebula(),
-                    DriftR = playerAnimator.driftR.ToNebula(),
-                    Fly = playerAnimator.fly.ToNebula(),
-                    Sail = playerAnimator.sail.ToNebula(),
-                    Mining0 = playerAnimator.mining0.ToNebula(),
-                    horzSpeed = horzSpeed,
-                    vertSpeed = vertSpeed,
-                });
+                Multiplayer.Session.Network.SendPacket(new PlayerAnimationUpdate(Multiplayer.Session.LocalPlayer.Id, playerAnimator));
             }
         }
     }

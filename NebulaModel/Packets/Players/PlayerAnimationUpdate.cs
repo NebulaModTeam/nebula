@@ -7,23 +7,35 @@ namespace NebulaModel.Packets.Players
     public class PlayerAnimationUpdate
     {
         public ushort PlayerId { get; set; }
+        public float RunWeight { get; set; }
+        public float DriftWeight { get; set; }
+        public float FlyWeight { get; set; }
+        public float SailWeight { get; set; }
+        public float JumpWeight { get; set; }
+        public float JumpNormalizedTime { get; set; }
+        public int IdleAnimIndex { get; set; }
+        public int SailAnimIndex { get; set; }
+        public float MiningWeight { get; set; }
+        public int MiningAnimIndex { get; set; }
+        public float[] SailAnimWeights { get; set; }
 
-        // TODO: They don't use a finite state machine for there animation. But we need to find a way to optimized this packet.
-        // maybe we could only send the variables that are used to changed the animation state.
-        // See: (Game: PlayerAnimator class)
-        public NebulaAnimationState Idle { get; set; }
-        public NebulaAnimationState RunSlow { get; set; }
-        public NebulaAnimationState RunFast { get; set; }
-        public NebulaAnimationState Drift { get; set; }
-        public NebulaAnimationState DriftF { get; set; }
-        public NebulaAnimationState DriftL { get; set; }
-        public NebulaAnimationState DriftR { get; set; }
-        public NebulaAnimationState Fly { get; set; }
-        public NebulaAnimationState Sail { get; set; }
-        public NebulaAnimationState Mining0 { get; set; }
-        // some extra values to compute backpack flame size
-        // i put them here because i update the player fx together with the animation update
-        public float vertSpeed { get; set; }
-        public float horzSpeed { get; set; }
+        public PlayerAnimationUpdate() { }
+
+        public PlayerAnimationUpdate(ushort playerId, PlayerAnimator animator)
+        {
+            PlayerId = playerId;
+
+            RunWeight = animator.runWeight;
+            DriftWeight = animator.driftWeight;
+            FlyWeight = animator.flyWeight;
+            SailWeight = animator.sailWeight;
+            JumpWeight = animator.jumpWeight;
+            JumpNormalizedTime = animator.jumpNormalizedTime;
+            IdleAnimIndex = animator.idleAnimIndex;
+            SailAnimIndex = animator.sailAnimIndex;
+            MiningWeight = animator.miningWeight;
+            MiningAnimIndex = animator.miningAnimIndex;
+            SailAnimWeights = animator.sailAnimWeights;
+        }
     }
 }
