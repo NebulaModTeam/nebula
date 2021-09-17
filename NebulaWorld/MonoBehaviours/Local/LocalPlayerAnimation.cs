@@ -23,15 +23,6 @@ namespace NebulaWorld.MonoBehaviours.Local
             if (time >= BROADCAST_INTERVAL)
             {
                 time = 0;
-
-                // TODO: UPGRADE 0.8.21 :: check if still needed after refactor
-                /*
-                PlayerController controller = playerAnimator.player.controller;
-                float vertSpeed = Vector3.Dot(base.transform.up, controller.velocity);
-                Vector3 horzVel = controller.velocity - vertSpeed * base.transform.up;
-                float horzSpeed = horzVel.magnitude;
-                */
-
                 Multiplayer.Session.Network.SendPacket(new PlayerAnimationUpdate(Multiplayer.Session.LocalPlayer.Id, playerAnimator));
             }
         }

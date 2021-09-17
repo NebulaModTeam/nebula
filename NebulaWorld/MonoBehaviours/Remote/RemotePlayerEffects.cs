@@ -5,9 +5,7 @@ using UnityEngine;
 namespace NebulaWorld.MonoBehaviours.Remote
 {
     public class RemoteWarpEffect : MonoBehaviour
-    {
-        // TODO: UPGRADE 0.8.21 need refactor
-        
+    {        
         private Transform rootTransform;
 
         private VFWarpEffect warpEffect = null;
@@ -212,8 +210,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
     public class RemotePlayerEffects : MonoBehaviour
     {
-        // TODO: UPGRADE 0.8.21 need refactor
-        
         private PlayerAnimator rootAnimation;
         private Transform rootTransform;
         private Transform rootModelTransform;
@@ -684,7 +680,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                             }
                         }
                         StopAllFlyAudio();
-                        /PlayFootsteps();
+                        PlayFootsteps();
                     }
                     for (int i = 0; i < psysr.Length; i++)
                     {
