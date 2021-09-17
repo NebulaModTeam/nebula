@@ -18,6 +18,7 @@ namespace NebulaModel.Packets.Players
 
         public EMovementState MovementState { get; set; }
         public float HorzSpeed { get; set; }
+        public float VertSpeed { get; set; }
         public float Turning { get; set; }
         public float Altitude { get; set; }
 
@@ -35,7 +36,8 @@ namespace NebulaModel.Packets.Players
             MiningAnimIndex = animator.miningAnimIndex;
 
             MovementState = animator.movementState;
-            HorzSpeed = animator.horzSpeed;
+            HorzSpeed = animator.controller.horzSpeed;
+            VertSpeed = animator.controller.vertSpeed;
             Turning = animator.turning;
             Altitude = 1f;
             if (GameMain.localPlanet != null)

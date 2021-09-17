@@ -202,7 +202,7 @@ namespace NebulaWorld
                     player.Animator.UpdateState(packet);
 
                     // TODO: UPGRADE 0.8.21
-                    // player.Effects.UpdateState(packet);
+                    player.Effects.UpdateState(packet);
                 }
             }
         }

@@ -11,9 +11,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void Awake()
         {
-            playerAnimator = GetComponentInChildren<PlayerAnimator>();            
-            playerAnimator.Start();
-            playerAnimator.enabled = false;
+            playerAnimator = GetComponentInChildren<PlayerAnimator>();
         }
 
         public void UpdateState(PlayerAnimationUpdate packet)
