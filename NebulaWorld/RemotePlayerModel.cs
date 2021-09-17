@@ -35,7 +35,6 @@ namespace NebulaWorld
                 Object.Destroy(PlayerTransform.GetComponent<PlayerFootsteps>());
                 Object.Destroy(PlayerTransform.GetComponent<PlayerEffect>());
                 Object.Destroy(PlayerTransform.GetComponent<PlayerAudio>());
-                Object.Destroy(PlayerTransform.GetComponent<PlayerAnimator>());
                 Object.Destroy(PlayerTransform.GetComponent<PlayerController>());
                 PlayerTransform.GetComponent<Rigidbody>().isKinematic = true;
 
