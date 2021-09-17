@@ -201,8 +201,7 @@ namespace NebulaWorld
                 {
                     player.Animator.UpdateState(packet);
 
-                    // TODO: UPGRADE 0.8.21
-                    // player.Effects.UpdateState(packet);
+                    player.Effects.UpdateState(packet);
                 }
             }
         }
@@ -214,8 +213,6 @@ namespace NebulaWorld
                 if (packet.PlayerId == 0) packet.PlayerId = 1; // host sends himself as PlayerId 0 but clients see him as id 1
                 if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
                 {
-                    // TODO: UPGRADE 0.8.21
-                    /*
                     if (packet.WarpCommand)
                     {
                         player.Effects.StartWarp();
@@ -224,7 +221,6 @@ namespace NebulaWorld
                     {
                         player.Effects.StopWarp();
                     }
-                    */
                 }
             }
         }
