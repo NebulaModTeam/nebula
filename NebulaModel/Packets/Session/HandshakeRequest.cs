@@ -6,7 +6,7 @@ namespace NebulaModel.Packets.Session
     public class HandshakeRequest
     {
         public string Username { get; set; }
-        public Float3 MechaColor { get; set; }
+        public Float4[] MechaColors { get; set; }
         public byte[] ModsVersion { get; set; }
         public int ModsCount { get; set; }
         public int GameVersionSig { get; set; }
@@ -14,15 +14,15 @@ namespace NebulaModel.Packets.Session
 
         public HandshakeRequest() { }
 
-        public HandshakeRequest(byte[] clientCert, string username, Float3 mechaColor)
+        public HandshakeRequest(byte[] clientCert, string username, Float4[] mechaColors)
         {
             Username = username;
-            MechaColor = mechaColor;
+            MechaColors = mechaColors;
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 int count = 0;
-                foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                foreach (System.Collections.Generic.KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
                 {
                     if (pluginInfo.Value.Instance is IMultiplayerMod mod)
                     {

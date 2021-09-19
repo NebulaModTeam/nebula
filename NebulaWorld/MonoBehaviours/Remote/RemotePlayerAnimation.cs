@@ -6,43 +6,46 @@ namespace NebulaWorld.MonoBehaviours.Remote
     // TODO: Missing client side interpolation
     public class RemotePlayerAnimation : MonoBehaviour
     {
-        private PlayerAnimator playerAnimator;
+        public PlayerAnimator PlayerAnimator;
+
         private float altitude;
 
         private void Awake()
         {
-            playerAnimator = GetComponentInChildren<PlayerAnimator>();
+            PlayerAnimator = GetComponentInChildren<PlayerAnimator>();
         }
 
         public void UpdateState(PlayerAnimationUpdate packet)
         {
-            if (playerAnimator == null)
+            if (PlayerAnimator == null)
+            {
                 return;
+            }
 
-            playerAnimator.jumpWeight = packet.JumpWeight;
-            playerAnimator.jumpNormalizedTime = packet.JumpNormalizedTime;
-            playerAnimator.idleAnimIndex = packet.IdleAnimIndex;
-            playerAnimator.sailAnimIndex = packet.SailAnimIndex;
-            playerAnimator.miningWeight = packet.MiningWeight;
-            playerAnimator.miningAnimIndex = packet.MiningAnimIndex;
+            PlayerAnimator.jumpWeight = packet.JumpWeight;
+            PlayerAnimator.jumpNormalizedTime = packet.JumpNormalizedTime;
+            PlayerAnimator.idleAnimIndex = packet.IdleAnimIndex;
+            PlayerAnimator.sailAnimIndex = packet.SailAnimIndex;
+            PlayerAnimator.miningWeight = packet.MiningWeight;
+            PlayerAnimator.miningAnimIndex = packet.MiningAnimIndex;
 
-            playerAnimator.movementState = packet.MovementState;
-            playerAnimator.horzSpeed = packet.HorzSpeed;
-            playerAnimator.turning = packet.Turning;
+            PlayerAnimator.movementState = packet.MovementState;
+            PlayerAnimator.horzSpeed = packet.HorzSpeed;
+            PlayerAnimator.turning = packet.Turning;
             altitude = packet.Altitude;
 
             float deltaTime = Time.deltaTime;
-            CalculateMovementStateWeights(playerAnimator, deltaTime);
-            CalculateDirectionWeights(playerAnimator, deltaTime);
+            CalculateMovementStateWeights(PlayerAnimator, deltaTime);
+            CalculateDirectionWeights(PlayerAnimator, deltaTime);
 
-            playerAnimator.AnimateIdleState(deltaTime);
-            playerAnimator.AnimateRunState(deltaTime);
-            playerAnimator.AnimateDriftState(deltaTime);
-            AnimateFlyState(playerAnimator);
-            AnimateSailState(playerAnimator);
+            PlayerAnimator.AnimateIdleState(deltaTime);
+            PlayerAnimator.AnimateRunState(deltaTime);
+            PlayerAnimator.AnimateDriftState(deltaTime);
+            AnimateFlyState(PlayerAnimator);
+            AnimateSailState(PlayerAnimator);
 
-            playerAnimator.AnimateJumpState(deltaTime);
-            playerAnimator.AnimateSkills(deltaTime);
+            PlayerAnimator.AnimateJumpState(deltaTime);
+            PlayerAnimator.AnimateSkills(deltaTime);
             //playerAnimator.AnimateRenderers(deltaTime);
         }
 
@@ -54,8 +57,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
             float num2 = (animator.movementState >= EMovementState.Sail) ? 1f : 0f;
             animator.runWeight = Mathf.MoveTowards(animator.runWeight, target, dt / 0.22f);
             animator.driftWeight = Mathf.MoveTowards(animator.driftWeight, target2, dt / 0.2f);
-            animator.flyWeight = Mathf.MoveTowards(animator.flyWeight, num, dt / (((double)num > 0.5) ? 0.4f : 0.2f));
-            animator.sailWeight = Mathf.MoveTowards(animator.sailWeight, num2, dt / (((double)num2 > 0.5) ? 0.8f : 0.2f));
+            animator.flyWeight = Mathf.MoveTowards(animator.flyWeight, num, dt / ((num > 0.5) ? 0.4f : 0.2f));
+            animator.sailWeight = Mathf.MoveTowards(animator.sailWeight, num2, dt / ((num2 > 0.5) ? 0.8f : 0.2f));
             for (int i = 0; i < animator.sails.Length; i++)
             {
                 animator.sailAnimWeights[i] = Mathf.MoveTowards(animator.sailAnimWeights[i], (i == animator.sailAnimIndex) ? 1f : 0f, dt / 0.3f);

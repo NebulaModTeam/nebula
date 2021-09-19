@@ -9,7 +9,6 @@ using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.Threading;
-using Config = NebulaModel.Config;
 
 namespace NebulaNetwork
 {
@@ -227,9 +226,8 @@ namespace NebulaNetwork
             // Generate new data for the player
             ushort playerId = GetNextAvailablePlayerId();
 
-            Float3 playerColor = new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255);
             PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
-            PlayerData playerData = new PlayerData(playerId, -1, playerColor, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+            PlayerData playerData = new PlayerData(playerId, -1, Config.Options.GetMechaColors(), position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
 
             INebulaPlayer newPlayer = new NebulaPlayer((NebulaConnection)conn, playerData);
             using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))

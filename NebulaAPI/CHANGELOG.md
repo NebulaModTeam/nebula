@@ -1,8 +1,9 @@
 ## Changelog
 
-1.0.1:
+1.1.0:
 
-- Edited description. (No changes to the actual API)
+- Float3 IPlayerData.MechaColor has been changed to Float4[] IPlayerData.MechaColors in line with changes introduced in DSP version 0.8.21.8562.
+- Edited description.
 
 1.0.0:
 

@@ -7,6 +7,7 @@
 - Fixed issue where the user would not be informed if they were kicked due to a mod mismatch.
 - Enabled pausing in Multiplayer when no clients are connected. (thanks to @starfi5h)
 - Now supports DSP version 0.8.21.8562+ (also thanks to @starfi5h!)
+- Mecha color configuration has been removed from the options in favor of the new option in the Mecha panel
 
 0.5.0:
 

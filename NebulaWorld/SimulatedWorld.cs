@@ -20,7 +20,7 @@ namespace NebulaWorld
     /// </summary>
     public class SimulatedWorld : IDisposable
     {
-        sealed class ThreadSafe
+        private sealed class ThreadSafe
         {
             internal readonly Dictionary<ushort, RemotePlayerModel> RemotePlayersModels = new Dictionary<ushort, RemotePlayerModel>();
         }
@@ -31,8 +31,10 @@ namespace NebulaWorld
         private LocalPlayerMovement localPlayerMovement;
         private LocalPlayerAnimation localPlayerAnimation;
 
-        public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels) =>
-            threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);
+        public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels)
+        {
+            return threadSafe.RemotePlayersModels.GetLocked(out remotePlayersModels);
+        }
 
         public bool IsPlayerJoining { get; set; }
 
@@ -43,9 +45,9 @@ namespace NebulaWorld
 
         public void Dispose()
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
-                foreach (var model in remotePlayersModels.Values)
+                foreach (RemotePlayerModel model in remotePlayersModels.Values)
                 {
                     model.Destroy();
                 }
@@ -74,7 +76,7 @@ namespace NebulaWorld
             LocalPlayer player = Multiplayer.Session.LocalPlayer as LocalPlayer;
 
             // Assign our own color
-            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColor);
+            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColors);
 
             // If not a new client, we need to update the player position to put him where he was previously
             if (player.IsClient && !player.IsNewPlayer)
@@ -154,7 +156,7 @@ namespace NebulaWorld
 
         public void SpawnRemotePlayerModel(IPlayerData playerData)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
                 {
@@ -163,12 +165,12 @@ namespace NebulaWorld
                 }
             }
 
-            UpdatePlayerColor(playerData.PlayerId, playerData.MechaColor);
+            UpdatePlayerColor(playerData.PlayerId, playerData.MechaColors);
         }
 
         public void DestroyRemotePlayerModel(ushort playerId)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 if (remotePlayersModels.TryGetValue(playerId, out RemotePlayerModel player))
                 {
@@ -184,7 +186,7 @@ namespace NebulaWorld
 
         public void UpdateRemotePlayerPosition(PlayerMovement packet)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
                 {
@@ -195,7 +197,7 @@ namespace NebulaWorld
 
         public void UpdateRemotePlayerAnimation(PlayerAnimationUpdate packet)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
                 {
@@ -208,9 +210,13 @@ namespace NebulaWorld
 
         public void UpdateRemotePlayerWarpState(PlayerUseWarper packet)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
-                if (packet.PlayerId == 0) packet.PlayerId = 1; // host sends himself as PlayerId 0 but clients see him as id 1
+                if (packet.PlayerId == 0)
+                {
+                    packet.PlayerId = 1; // host sends himself as PlayerId 0 but clients see him as id 1
+                }
+
                 if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
                 {
                     if (packet.WarpCommand)
@@ -227,14 +233,14 @@ namespace NebulaWorld
 
         public void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
                 {
                     //Setup drone of remote player based on the drone data
                     ref MechaDrone drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
                     MechaDroneLogic droneLogic = player.PlayerInstance.mecha.droneLogic;
-                    var tmpFactory = droneLogic.factory;
+                    PlanetFactory tmpFactory = droneLogic.factory;
 
                     droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
 
@@ -267,48 +273,61 @@ namespace NebulaWorld
             }
         }
 
-        public void UpdatePlayerColor(ushort playerId, Float3 color)
+        public void UpdatePlayerColor(ushort playerId, Float4[] colors)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            if (colors == null || colors.Length == 0)
             {
-                Transform transform;
+                return;
+            }
+
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
+            {
+                PlayerAnimator playerAnimator;
                 if (playerId == Multiplayer.Session.LocalPlayer.Id)
                 {
-                    transform = GameMain.data.mainPlayer.transform;
+                    playerAnimator = GameMain.data.mainPlayer.animator;
                 }
                 else if (remotePlayersModels.TryGetValue(playerId, out RemotePlayerModel remotePlayerModel))
                 {
-                    transform = remotePlayerModel.PlayerTransform;
+                    playerAnimator = remotePlayerModel.Animator.PlayerAnimator;
                 }
                 else
                 {
-                    Log.Error("Could not find the transform for player with ID " + playerId);
+                    Log.Error("Could not find the playerAnimator for player with ID " + playerId);
                     return;
                 }
 
-                Log.Info($"Changing color of player {playerId} to {color}");
-
-                // Apply new color to each part of the mecha
-                SkinnedMeshRenderer[] componentsInChildren = transform.gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
-                foreach (Renderer r in componentsInChildren)
+                Log.Info($"Changing color of player {playerId}");
+                for (int i = 0; i < colors.Length; i++)
                 {
-                    if (r.material != null && r.material.name.StartsWith("icarus-armor", System.StringComparison.Ordinal))
-                    {
-                        r.material.SetColor("_Color", color.ToColor());
-                    }
+                    Log.Info($"Color {i}: {colors[i]}");
                 }
+
+                playerAnimator.inst_armor_mat.SetColor("_Color", colors[0].ToColor() / 255);
+                playerAnimator.inst_armor_mat.SetColor("_Color2", colors[1].ToColor() / 255);
+                playerAnimator.inst_armor_mat.SetColor("_Color3", colors[2].ToColor() / 255);
+                playerAnimator.inst_armor_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
+                playerAnimator.inst_armor_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
+                playerAnimator.inst_skelt_mat.SetColor("_Color", colors[0].ToColor() / 255);
+                playerAnimator.inst_skelt_mat.SetColor("_Color2", colors[1].ToColor() / 255);
+                playerAnimator.inst_skelt_mat.SetColor("_Color3", colors[2].ToColor() / 255);
+                playerAnimator.inst_skelt_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
+                playerAnimator.inst_skelt_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
+                playerAnimator.inst_armor_light_mat.SetColor("_EmissionMask", colors[3].ToColor() / 255);
+                playerAnimator.inst_skelt_light_mat.SetColor("_EmissionMask", colors[4].ToColor() / 255);
 
                 // We changed our own color, so we have to let others know
                 if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
-                    Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, color));
+                    GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
+                    Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, colors));
                 }
             }
         }
 
         public int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
                 {
@@ -339,7 +358,7 @@ namespace NebulaWorld
 
         public void OnDronesDraw()
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
                 {
@@ -357,17 +376,17 @@ namespace NebulaWorld
             double tmp = 1e10; //fake energy of remote player, needed to do the Update()
             double tmp2 = 1;
 
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 //Update drones positions based on their targets
-                var prebuildPool = GameMain.localPlanet?.factory?.prebuildPool;
+                PrebuildData[] prebuildPool = GameMain.localPlanet?.factory?.prebuildPool;
 
                 foreach (KeyValuePair<ushort, RemotePlayerModel> remoteModel in remotePlayersModels)
                 {
                     Mecha remoteMecha = remoteModel.Value.MechaInstance;
                     MechaDrone[] drones = remoteMecha.drones;
                     int droneCount = remoteMecha.droneCount;
-                    var remotePosition = remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
+                    Vector3 remotePosition = remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
 
                     for (int i = 0; i < droneCount; i++)
                     {
@@ -394,9 +413,9 @@ namespace NebulaWorld
             Text starmap_playerNameText = starmap.playerNameText;
             Transform starmap_playerTrack = starmap.playerTrack;
 
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
-                foreach (var player in remotePlayersModels)
+                foreach (KeyValuePair<ushort, RemotePlayerModel> player in remotePlayersModels)
                 {
                     RemotePlayerModel playerModel = player.Value;
 
@@ -451,13 +470,13 @@ namespace NebulaWorld
                     if (playerModel.Movement.localPlanetId > 0)
                     {
                         PlanetData planet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
-                        var rotation = planet.runtimeRotation *
+                        Quaternion rotation = planet.runtimeRotation *
                             Quaternion.LookRotation(playerModel.PlayerModelTransform.forward, playerModel.Movement.GetLastPosition().LocalPlanetPosition.ToVector3());
                         starmapTracker.rotation = rotation;
                     }
                     else
                     {
-                        var rotation = Quaternion.LookRotation(playerModel.PlayerModelTransform.forward, playerModel.PlayerTransform.localPosition);
+                        Quaternion rotation = Quaternion.LookRotation(playerModel.PlayerModelTransform.forward, playerModel.PlayerTransform.localPosition);
                         starmapTracker.rotation = rotation;
                     }
 
@@ -473,9 +492,9 @@ namespace NebulaWorld
 
         public void ClearPlayerNameTagsOnStarmap()
         {
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
-                foreach (var player in remotePlayersModels)
+                foreach (KeyValuePair<ushort, RemotePlayerModel> player in remotePlayersModels)
                 {
                     // Destroy the marker and name so they don't linger and cause problems
                     GameObject.Destroy(player.Value.StarmapNameText.gameObject);
@@ -492,9 +511,9 @@ namespace NebulaWorld
         {
             TextMesh uiSailIndicator_targetText = null;
 
-            using (GetRemotePlayersModels(out var remotePlayersModels))
+            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
-                foreach (var player in remotePlayersModels)
+                foreach (KeyValuePair<ushort, RemotePlayerModel> player in remotePlayersModels)
                 {
                     RemotePlayerModel playerModel = player.Value;
 
@@ -544,8 +563,8 @@ namespace NebulaWorld
                     playerNameText.transform.rotation = GameCamera.main.transform.rotation;
 
                     // Resizes the text based on distance from camera for better visual quality
-                    var distanceFromCamera = Vector3.Distance(playerNameText.transform.position, GameCamera.main.transform.position);
-                    var nameTextMesh = playerNameText.GetComponent<TextMesh>();
+                    float distanceFromCamera = Vector3.Distance(playerNameText.transform.position, GameCamera.main.transform.position);
+                    TextMesh nameTextMesh = playerNameText.GetComponent<TextMesh>();
 
                     if (distanceFromCamera > 100f)
                     {
@@ -609,9 +628,9 @@ namespace NebulaWorld
         public void SetPauseIndicator(bool canPause)
         {
             //Tell the user if the game is paused or not
-            var targetObject = GameObject.Find("UI Root/Overlay Canvas/In Game/Esc Menu/pause-text");
-            var pauseText = targetObject?.GetComponent<Text>();
-            var pauseLocalizer = targetObject?.GetComponent<Localizer>();
+            GameObject targetObject = GameObject.Find("UI Root/Overlay Canvas/In Game/Esc Menu/pause-text");
+            Text pauseText = targetObject?.GetComponent<Text>();
+            Localizer pauseLocalizer = targetObject?.GetComponent<Localizer>();
             if (pauseText && pauseLocalizer)
             {
                 if (!canPause)
@@ -625,7 +644,7 @@ namespace NebulaWorld
                     pauseLocalizer.stringKey = "游戏已暂停".Translate();
                 }
             }
-                
+
         }
     }
 }

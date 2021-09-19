@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     public class PlayerColorChangedProcessor : PacketProcessor<PlayerColorChanged>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerColorChangedProcessor()
         {
@@ -25,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
-                    player.Data.MechaColor = packet.Color;
+                    player.Data.MechaColors = packet.Colors;
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 }
                 else
@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                Multiplayer.Session.World.UpdatePlayerColor(packet.PlayerId, packet.Color);
+                Multiplayer.Session.World.UpdatePlayerColor(packet.PlayerId, packet.Colors);
             }
         }
     }
