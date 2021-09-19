@@ -57,6 +57,7 @@ namespace NebulaWorld
 
             UnityEngine.Object.Destroy(localPlayerMovement);
             UnityEngine.Object.Destroy(localPlayerAnimation);
+            SetPauseIndicator(true);
         }
 
         public void SetupInitialPlayerState()

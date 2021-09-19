@@ -46,19 +46,19 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             PlayerAnimator.AnimateJumpState(deltaTime);
             PlayerAnimator.AnimateSkills(deltaTime);
-            //playerAnimator.AnimateRenderers(deltaTime);
+            AnimateRenderers(PlayerAnimator);
         }
-
+        
         private void CalculateMovementStateWeights(PlayerAnimator animator, float dt)
         {
-            float target = (animator.horzSpeed > 0.15f) ? 1f : 0f;
-            float target2 = (animator.movementState >= EMovementState.Drift) ? 1f : 0f;
-            float num = (animator.movementState >= EMovementState.Fly) ? 1f : 0f;
-            float num2 = (animator.movementState >= EMovementState.Sail) ? 1f : 0f;
-            animator.runWeight = Mathf.MoveTowards(animator.runWeight, target, dt / 0.22f);
-            animator.driftWeight = Mathf.MoveTowards(animator.driftWeight, target2, dt / 0.2f);
-            animator.flyWeight = Mathf.MoveTowards(animator.flyWeight, num, dt / ((num > 0.5) ? 0.4f : 0.2f));
-            animator.sailWeight = Mathf.MoveTowards(animator.sailWeight, num2, dt / ((num2 > 0.5) ? 0.8f : 0.2f));
+            float runTarget = (animator.horzSpeed > 0.15f) ? 1f : 0f;
+            float driftTarget = (animator.movementState >= EMovementState.Drift) ? 1f : 0f;
+            float flyTarget = (animator.movementState >= EMovementState.Fly) ? 1f : 0f;
+            float sailTarget = (animator.movementState >= EMovementState.Sail) ? 1f : 0f;
+            animator.runWeight = Mathf.MoveTowards(animator.runWeight, runTarget, dt / 0.22f);
+            animator.driftWeight = Mathf.MoveTowards(animator.driftWeight, driftTarget, dt / 0.2f);
+            animator.flyWeight = Mathf.MoveTowards(animator.flyWeight, flyTarget, dt / ((flyTarget > 0.5) ? 0.4f : 0.2f));
+            animator.sailWeight = Mathf.MoveTowards(animator.sailWeight, sailTarget, dt / ((sailTarget > 0.5) ? 0.8f : 0.2f));
             for (int i = 0; i < animator.sails.Length; i++)
             {
                 animator.sailAnimWeights[i] = Mathf.MoveTowards(animator.sailAnimWeights[i], (i == animator.sailAnimIndex) ? 1f : 0f, dt / 0.3f);
@@ -114,6 +114,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     animator.sails[i].normalizedTime = 0f;
                 }
             }
+        }
+
+        public void AnimateRenderers(PlayerAnimator animator)
+        {
+            animator.inst_armor_mat.SetVector("_InitPositionSet", transform.position);
         }
     }
 }
