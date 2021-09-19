@@ -1,3 +1,11 @@
-author_name = "nebula"
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "nebula"
+containsNsfwContent = false
+
+[publish]
+repository = "https://thunderstore.io"
 communities = ["dyson-sphere-program"]
-has_nsfw_content = false
+categories = []
