@@ -35,7 +35,6 @@ namespace NebulaWorld
                 Object.Destroy(PlayerTransform.GetComponent<PlayerFootsteps>());
                 Object.Destroy(PlayerTransform.GetComponent<PlayerEffect>());
                 Object.Destroy(PlayerTransform.GetComponent<PlayerAudio>());
-                Object.Destroy(PlayerTransform.GetComponent<PlayerAnimator>());
                 Object.Destroy(PlayerTransform.GetComponent<PlayerController>());
                 PlayerTransform.GetComponent<Rigidbody>().isKinematic = true;
 
@@ -43,6 +42,9 @@ namespace NebulaWorld
                 Movement = PlayerTransform.gameObject.AddComponent<RemotePlayerMovement>();
                 Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
                 Effects = PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
+
+                PlayerTransform.GetComponent<PlayerAnimator>().Start();
+                PlayerTransform.GetComponent<PlayerAnimator>().enabled = false;
             }
 
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";

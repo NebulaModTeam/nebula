@@ -1,5 +1,7 @@
 ﻿using NebulaAPI;
 using NebulaModel.DataStructures;
+using Unity;
+using UnityEngine;
 
 namespace NebulaModel.Packets.Players
 {
@@ -7,23 +9,41 @@ namespace NebulaModel.Packets.Players
     public class PlayerAnimationUpdate
     {
         public ushort PlayerId { get; set; }
+        public float JumpWeight { get; set; }
+        public float JumpNormalizedTime { get; set; }
+        public int IdleAnimIndex { get; set; }
+        public int SailAnimIndex { get; set; }
+        public float MiningWeight { get; set; }
+        public int MiningAnimIndex { get; set; }
 
-        // TODO: They don't use a finite state machine for there animation. But we need to find a way to optimized this packet.
-        // maybe we could only send the variables that are used to changed the animation state.
-        // See: (Game: PlayerAnimator class)
-        public NebulaAnimationState Idle { get; set; }
-        public NebulaAnimationState RunSlow { get; set; }
-        public NebulaAnimationState RunFast { get; set; }
-        public NebulaAnimationState Drift { get; set; }
-        public NebulaAnimationState DriftF { get; set; }
-        public NebulaAnimationState DriftL { get; set; }
-        public NebulaAnimationState DriftR { get; set; }
-        public NebulaAnimationState Fly { get; set; }
-        public NebulaAnimationState Sail { get; set; }
-        public NebulaAnimationState Mining0 { get; set; }
-        // some extra values to compute backpack flame size
-        // i put them here because i update the player fx together with the animation update
-        public float vertSpeed { get; set; }
-        public float horzSpeed { get; set; }
+        public EMovementState MovementState { get; set; }
+        public float HorzSpeed { get; set; }
+        public float VertSpeed { get; set; }
+        public float Turning { get; set; }
+        public float Altitude { get; set; }
+
+        public PlayerAnimationUpdate() { }
+
+        public PlayerAnimationUpdate(ushort playerId, PlayerAnimator animator)
+        {
+            PlayerId = playerId;
+
+            JumpWeight = animator.jumpWeight;
+            JumpNormalizedTime = animator.jumpNormalizedTime;
+            IdleAnimIndex = animator.idleAnimIndex;
+            SailAnimIndex = animator.sailAnimIndex;
+            MiningWeight = animator.miningWeight;
+            MiningAnimIndex = animator.miningAnimIndex;
+
+            MovementState = animator.movementState;
+            HorzSpeed = animator.controller.horzSpeed;
+            VertSpeed = animator.controller.vertSpeed;
+            Turning = animator.turning;
+            Altitude = 1f;
+            if (GameMain.localPlanet != null)
+            {
+                Altitude = Mathf.Clamp01((animator.player.position.magnitude - GameMain.localPlanet.realRadius - 7f) * 0.15f);
+            }
+        }
     }
 }

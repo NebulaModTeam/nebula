@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NebulaWorld.MonoBehaviours.Remote
 {
     public class RemoteWarpEffect : MonoBehaviour
-    {
+    {        
         private Transform rootTransform;
 
         private VFWarpEffect warpEffect = null;
@@ -39,11 +39,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
         Vector4[] warpRotations;
         Vector3 velocity;
 
-        RemotePlayerAnimation rootAnimation = null;
+        PlayerAnimator rootAnimation = null;
         public void Awake()
         {
             rootTransform = GetComponent<Transform>();
-            rootAnimation = GetComponent<RemotePlayerAnimation>();
+            rootAnimation = GetComponent<PlayerAnimator>();
 
             warpEffect = Instantiate(Configs.builtin.warpEffectPrefab, GetComponent<Transform>());
             warpEffect.enabled = false;
@@ -124,7 +124,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public void StartWarp()
         {
-            if (!rootAnimation.Sail.enabled || isWarping)
+            if (rootAnimation.sailWeight <= 0.001f || isWarping)
             {
                 return;
             }
@@ -134,7 +134,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public void StopWarp()
         {
-            if (!rootAnimation.Sail.enabled || !isWarping)
+            if (rootAnimation.sailWeight <= 0.001f || !isWarping)
             {
                 return;
             }
@@ -205,16 +205,17 @@ namespace NebulaWorld.MonoBehaviours.Remote
             astrosMat.SetFloat("_Multiplier", astrosMul * num2);
             nebulasMat.SetFloat("_Multiplier", nebulasMul * num2);
         }
+        
     }
+
     public class RemotePlayerEffects : MonoBehaviour
     {
-        private RemotePlayerAnimation rootAnimation;
+        private PlayerAnimator rootAnimation;
         private Transform rootTransform;
         private Transform rootModelTransform;
         private RemoteWarpEffect rootWarp;
 
         private ParticleSystem[] WaterEffect;
-        private ParticleSystem[][] FootSmokeEffect;
         private ParticleSystem[] FootSmallSmoke;
         private ParticleSystem[] FootLargeSmoke;
         private ParticleSystem[] FootEffect;
@@ -238,7 +239,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public void Awake()
         {
-            rootAnimation = GetComponent<RemotePlayerAnimation>();
+            rootAnimation = GetComponentInChildren<PlayerAnimator>();
             rootTransform = GetComponent<Transform>();
             rootModelTransform = rootTransform.Find("Model");
 
@@ -247,13 +248,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
             torchEffect = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/r-clavicle/r-upper-arm/r-forearm/r-torch/vfx-torch/blast").GetComponent<ParticleSystem>();
             FootEffect = new ParticleSystem[2];
             WaterEffect = new ParticleSystem[2];
-            FootSmokeEffect = new ParticleSystem[2][];
-            FootSmokeEffect[0] = new ParticleSystem[2];
-            FootSmokeEffect[1] = new ParticleSystem[2];
             FootSmallSmoke = new ParticleSystem[2];
             FootLargeSmoke = new ParticleSystem[2];
 
-            Transform VFX = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/backpack/VFX").GetComponent<Transform>();
+            
+            Transform VFX = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/backpack/backpack_end/VFX").GetComponent<Transform>();
 
             psys[0] = VFX.GetChild(0).GetComponent<ParticleSystem>();
             psys[1] = VFX.GetChild(1).GetComponent<ParticleSystem>();
@@ -261,18 +260,15 @@ namespace NebulaWorld.MonoBehaviours.Remote
             psysr[0] = VFX.GetChild(0).Find("flames").GetComponent<ParticleSystemRenderer>();
             psysr[1] = VFX.GetChild(1).Find("flames").GetComponent<ParticleSystemRenderer>();
 
-            WaterEffect[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/vfx-footsteps/water").GetComponent<ParticleSystem>();
-            WaterEffect[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/vfx-footsteps/water").GetComponent<ParticleSystem>();
-            FootSmokeEffect[0][0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
-            FootSmokeEffect[0][1] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
-            FootSmokeEffect[1][0] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
-            FootSmokeEffect[1][1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
-            FootEffect[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/vfx-footsteps").GetComponent<ParticleSystem>();
-            FootEffect[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/vfx-footsteps").GetComponent<ParticleSystem>();
-            FootSmallSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
-            FootSmallSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
-            FootLargeSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
-            FootLargeSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
+
+            WaterEffect[0]    = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
+            WaterEffect[1]    = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
+            FootEffect[0]     = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
+            FootEffect[1]     = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
+            FootSmallSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
+            FootSmallSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
+            FootLargeSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
+            FootLargeSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
 
             solidSoundEvents[0] = "footsteps-0";
             solidSoundEvents[1] = "footsteps-1";
@@ -340,13 +336,13 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void PlayFootsteps()
         {
-            float moveWeight = Mathf.Max(1f, Mathf.Pow(rootAnimation.RunSlow.weight + rootAnimation.RunFast.weight, 2f));
-            bool trigger = (rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled) && moveWeight > 0.15f;
+            float moveWeight = Mathf.Max(1f, Mathf.Pow(rootAnimation.run_slow.weight + rootAnimation.run_fast.weight, 2f));
+            bool trigger = (rootAnimation.run_slow.enabled || rootAnimation.run_fast.enabled) && moveWeight > 0.15f;
 
             if (trigger)
             {
-                int normalizedTime = Mathf.FloorToInt(rootAnimation.RunFast.normalizedTime * 2f - 0.02f);
-                float normalizedTimeDiff = (rootAnimation.RunFast.normalizedTime * 2f - 0.02f) - (float)normalizedTime;
+                int normalizedTime = Mathf.FloorToInt(rootAnimation.run_fast.normalizedTime * 2f - 0.02f);
+                float normalizedTimeDiff = (rootAnimation.run_fast.normalizedTime * 2f - 0.02f) - (float)normalizedTime;
                 bool timeIsEven = normalizedTime % 2 == 0;
 
                 if (lastTriggeredFood != normalizedTime)
@@ -439,7 +435,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             }
 
             ParticleSystem waterParticle = (!lr) ? WaterEffect[0] : WaterEffect[1];
-            ParticleSystem[] smokeParticle = (!lr) ? FootSmokeEffect[0] : FootSmokeEffect[1];
+            ParticleSystem[] smokeParticle = (!lr) ? FootSmallSmoke : FootLargeSmoke;
             ParticleSystem footEffect = (!lr) ? FootEffect[0] : FootEffect[1];
             AmbientDesc ambientDesc = GameMain.galaxy.PlanetById(localPlanetId).ambientDesc;
             Color color = Color.clear;
@@ -588,7 +584,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     tmpMaxAltitude = 1000f;
                 }
 
-                if (rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftR.enabled || rootAnimation.DriftL.enabled)
+                if (rootAnimation.runWeight > 0.001f || rootAnimation.driftWeight > 0.001f)
                 {
                     bool ground = IsGrounded();
 
@@ -622,7 +618,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 }
 
                 // NOTE: the pPhys can only be loaded if the player trying to load it has the planet actually loaded (meaning he is on the same planet or near it)
-                if (pPhys != null && pFactory != null && packet.horzSpeed > 5f)
+                if (pPhys != null && pFactory != null && packet.HorzSpeed > 5f)
                 {
                     int number = Physics.OverlapSphereNonAlloc(base.transform.localPosition, 1.8f, collider, 1024, QueryTriggerInteraction.Collide);
                     for (int i = 0; i < number; i++)
@@ -655,8 +651,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public void UpdateState(PlayerAnimationUpdate packet)
         {
-            bool anyMovingAnimationActive = rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled || rootAnimation.Fly.enabled || rootAnimation.Sail.enabled || rootAnimation.Drift.enabled || rootAnimation.DriftF.enabled || rootAnimation.DriftL.enabled || rootAnimation.DriftR.enabled || !IsGrounded();
-            bool anyDriftActive = rootAnimation.Drift.enabled || rootAnimation.DriftR.enabled || rootAnimation.DriftL.enabled || rootAnimation.DriftF.enabled;
+            bool anyMovingAnimationActive = rootAnimation.runWeight > 0.001f || rootAnimation.flyWeight > 0.001f || rootAnimation.sailWeight > 0.001f || rootAnimation.driftWeight > 0.001f || !IsGrounded();
+            bool anyDriftActive = rootAnimation.driftWeight > 0.001f;
             bool fireParticleOkay = psys != null && psysr != null && (psys[0] != null && psys[1] != null && psysr[0] != null && psysr[1] != null);
 
             if (anyMovingAnimationActive)
@@ -664,7 +660,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 UpdateExtraSoundEffects(packet);
                 if (fireParticleOkay)
                 {
-                    if ((!rootAnimation.RunSlow.enabled && !rootAnimation.RunFast.enabled) || anyDriftActive || rootAnimation.Sail.enabled)
+                    if ((!rootAnimation.run_slow.enabled && !rootAnimation.run_fast.enabled) || anyDriftActive || rootAnimation.sailWeight > 0.001f)
                     {
                         for (int i = 0; i < psys.Length; i++)
                         {
@@ -688,20 +684,20 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     }
                     for (int i = 0; i < psysr.Length; i++)
                     {
-                        if (rootAnimation.RunSlow.enabled || rootAnimation.RunFast.enabled)
+                        if (rootAnimation.run_slow.enabled || rootAnimation.run_fast.enabled)
                         {
-                            if (rootAnimation.RunFast.weight != 0)
+                            if (rootAnimation.run_fast.weight != 0)
                             {
                                 // when flying over the planet
-                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.04f);
+                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.04f);
                             }
                             else
                             {
                                 // when "walking" over water and moving in air without button press or while "walking" over water
-                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.03f);
+                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
                             }
                         }
-                        if (rootAnimation.Drift.enabled)
+                        if (rootAnimation.drift_0.enabled)
                         {
                             // when in air without pressing spacebar
                             psysr[i].lengthScale = -3.5f;
@@ -719,10 +715,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
                                 driftAudio = null;
                             }
                         }
-                        if (rootAnimation.Fly.enabled)
+                        if (rootAnimation.fly_0.enabled)
                         {
                             // when pressing spacebar but also when landing (Drift is disabled when landing)
-                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 0.03f);
+                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
                             if (flyAudio0 == null)
                             {
                                 flyAudio0 = VFAudio.Create("fly-atmos", base.transform, Vector3.zero, false);
@@ -737,9 +733,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
                                 flyAudio0 = null;
                             }
                         }
-                        if (rootAnimation.Sail.enabled)
+                        if (rootAnimation.sailWeight > 0.001f)
                         {
-                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.horzSpeed, packet.vertSpeed) * 15f);
+                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 15f);
                             if (flyAudio1 == null)
                             {
                                 flyAudio1 = VFAudio.Create("fly-space", base.transform, Vector3.zero, false);
@@ -772,7 +768,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 }
             }
 
-            if (torchEffect != null && rootAnimation.Mining0.weight > 0.99f)
+            if (torchEffect != null && rootAnimation.miningWeight > 0.99f)
             {
                 if (!torchEffect.isPlaying && miningAudio == null)
                 {
@@ -781,7 +777,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     miningAudio?.Play();
                 }
             }
-            else if (torchEffect != null && rootAnimation.Mining0.weight <= 0.99f)
+            else if (torchEffect != null && rootAnimation.miningWeight <= 0.99f)
             {
                 if (torchEffect.isPlaying)
                 {
@@ -796,5 +792,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             localPlanetId = localPlanet;
         }
+        
     }
 }

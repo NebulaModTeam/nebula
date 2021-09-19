@@ -18,9 +18,9 @@ namespace NebulaNetwork
 {
     public class Server : NetworkProvider
     {
-        const float GAME_STATE_UPDATE_INTERVAL = 1;
-        const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
-        const float STATISTICS_UPDATE_INTERVAL = 1;
+        private const float GAME_STATE_UPDATE_INTERVAL = 1;
+        private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
+        private const float STATISTICS_UPDATE_INTERVAL = 1;
 
         private float gameStateUpdateTimer = 0;
         private float gameResearchHashUpdateTimer = 0;
@@ -69,7 +69,7 @@ namespace NebulaNetwork
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
-                new Float3(Config.Options.MechaColorR / 255, Config.Options.MechaColorG / 255, Config.Options.MechaColorB / 255),
+                Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
@@ -148,7 +148,7 @@ namespace NebulaNetwork
             PacketProcessor.ProcessPacketQueue();
         }
 
-        void DisableNagleAlgorithm(WebSocketServer socketServer)
+        private void DisableNagleAlgorithm(WebSocketServer socketServer)
         {
             TcpListener listener = AccessTools.FieldRefAccess<WebSocketServer, TcpListener>("_listener")(socketServer);
             listener.Server.NoDelay = true;
@@ -190,7 +190,9 @@ namespace NebulaNetwork
                 // we don't need to inform the other clients since the disconnected client never
                 // joined the game in the first place.
                 if (e.Code == (short)DisconnectionReason.HostStillLoading)
+                {
                     return;
+                }
 
                 NebulaModel.Logger.Log.Info($"Client disconnected: {ID}, reason: {e.Reason}");
                 UnityDispatchQueue.RunOnMainThread(() =>

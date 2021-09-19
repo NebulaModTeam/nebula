@@ -1,5 +1,4 @@
-﻿using NebulaModel.DataStructures;
-using NebulaModel.Packets.Players;
+﻿using NebulaModel.Packets.Players;
 using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Remote
@@ -7,73 +6,119 @@ namespace NebulaWorld.MonoBehaviours.Remote
     // TODO: Missing client side interpolation
     public class RemotePlayerAnimation : MonoBehaviour
     {
-        private Animation anim;
+        public PlayerAnimator PlayerAnimator;
 
-        public AnimationState Idle { get; private set; }
-        public AnimationState RunSlow { get; private set; }
-        public AnimationState RunFast { get; private set; }
-        public AnimationState Drift { get; private set; }
-        public AnimationState DriftF { get; private set; }
-        public AnimationState DriftL { get; private set; }
-        public AnimationState DriftR { get; private set; }
-        public AnimationState Fly { get; private set; }
-        public AnimationState Sail { get; private set; }
-        public AnimationState Mining0 { get; private set; }
+        private float altitude;
 
         private void Awake()
         {
-            anim = GetComponentInChildren<Animation>();
-
-            Idle = anim["idle"];
-            RunSlow = anim["run-slow"];
-            RunFast = anim["run-fast"];
-            Drift = anim["drift"];
-            DriftF = anim["drift-f"];
-            DriftL = anim["drift-l"];
-            DriftR = anim["drift-r"];
-            Fly = anim["fly"];
-            Sail = anim["sail"];
-            Mining0 = anim["mining-0"];
-
-            Idle.layer = 0;
-            RunSlow.layer = 1;
-            RunFast.layer = 1;
-            Drift.layer = 2;
-            DriftF.layer = 2;
-            DriftL.layer = 2;
-            DriftR.layer = 2;
-            Fly.layer = 3;
-            Sail.layer = 3;
-            Mining0.layer = 4;
-            Idle.weight = 1f;
-            RunSlow.weight = 0.0f;
-            RunFast.weight = 0.0f;
-            Drift.weight = 0.0f;
-            Fly.weight = 0.0f;
-            Sail.weight = 0.0f;
-            Mining0.weight = 0.0f;
-            Mining0.speed = 0.8f;
+            PlayerAnimator = GetComponentInChildren<PlayerAnimator>();
         }
 
         public void UpdateState(PlayerAnimationUpdate packet)
         {
-            ApplyAnimationState(Idle, packet.Idle);
-            ApplyAnimationState(RunSlow, packet.RunSlow);
-            ApplyAnimationState(RunFast, packet.RunFast);
-            ApplyAnimationState(Drift, packet.Drift);
-            ApplyAnimationState(DriftF, packet.DriftF);
-            ApplyAnimationState(DriftL, packet.DriftL);
-            ApplyAnimationState(DriftR, packet.DriftR);
-            ApplyAnimationState(Fly, packet.Fly);
-            ApplyAnimationState(Sail, packet.Sail);
-            ApplyAnimationState(Mining0, packet.Mining0);
+            if (PlayerAnimator == null)
+            {
+                return;
+            }
+
+            PlayerAnimator.jumpWeight = packet.JumpWeight;
+            PlayerAnimator.jumpNormalizedTime = packet.JumpNormalizedTime;
+            PlayerAnimator.idleAnimIndex = packet.IdleAnimIndex;
+            PlayerAnimator.sailAnimIndex = packet.SailAnimIndex;
+            PlayerAnimator.miningWeight = packet.MiningWeight;
+            PlayerAnimator.miningAnimIndex = packet.MiningAnimIndex;
+
+            PlayerAnimator.movementState = packet.MovementState;
+            PlayerAnimator.horzSpeed = packet.HorzSpeed;
+            PlayerAnimator.turning = packet.Turning;
+            altitude = packet.Altitude;
+
+            float deltaTime = Time.deltaTime;
+            CalculateMovementStateWeights(PlayerAnimator, deltaTime);
+            CalculateDirectionWeights(PlayerAnimator, deltaTime);
+
+            PlayerAnimator.AnimateIdleState(deltaTime);
+            PlayerAnimator.AnimateRunState(deltaTime);
+            PlayerAnimator.AnimateDriftState(deltaTime);
+            AnimateFlyState(PlayerAnimator);
+            AnimateSailState(PlayerAnimator);
+
+            PlayerAnimator.AnimateJumpState(deltaTime);
+            PlayerAnimator.AnimateSkills(deltaTime);
+            AnimateRenderers(PlayerAnimator);
+        }
+        
+        private void CalculateMovementStateWeights(PlayerAnimator animator, float dt)
+        {
+            float runTarget = (animator.horzSpeed > 0.15f) ? 1f : 0f;
+            float driftTarget = (animator.movementState >= EMovementState.Drift) ? 1f : 0f;
+            float flyTarget = (animator.movementState >= EMovementState.Fly) ? 1f : 0f;
+            float sailTarget = (animator.movementState >= EMovementState.Sail) ? 1f : 0f;
+            animator.runWeight = Mathf.MoveTowards(animator.runWeight, runTarget, dt / 0.22f);
+            animator.driftWeight = Mathf.MoveTowards(animator.driftWeight, driftTarget, dt / 0.2f);
+            animator.flyWeight = Mathf.MoveTowards(animator.flyWeight, flyTarget, dt / ((flyTarget > 0.5) ? 0.4f : 0.2f));
+            animator.sailWeight = Mathf.MoveTowards(animator.sailWeight, sailTarget, dt / ((sailTarget > 0.5) ? 0.8f : 0.2f));
+            for (int i = 0; i < animator.sails.Length; i++)
+            {
+                animator.sailAnimWeights[i] = Mathf.MoveTowards(animator.sailAnimWeights[i], (i == animator.sailAnimIndex) ? 1f : 0f, dt / 0.3f);
+            }
         }
 
-        private void ApplyAnimationState(AnimationState animState, NebulaAnimationState newState)
+        private void CalculateDirectionWeights(PlayerAnimator animator, float dt)
         {
-            animState.weight = newState.Weight;
-            animState.speed = newState.Speed;
-            animState.enabled = newState.Enabled;
+            animator.leftWeight = Mathf.InverseLerp(-animator.minTurningAngle, -animator.maxTurningAngle, animator.turning);
+            animator.rightWeight = Mathf.InverseLerp(animator.minTurningAngle, animator.maxTurningAngle, animator.turning);
+            animator.forwardWeight = Mathf.Clamp01(1f - animator.leftWeight - animator.rightWeight);
+            float num = Mathf.Clamp01((animator.horzSpeed - 0.01f) / ((animator.movementState == EMovementState.Drift) ? 5f : 12.5f));
+            animator.forwardWeight *= num;
+            animator.leftWeight *= num;
+            animator.rightWeight *= num;
+            animator.zeroWeight = 1f - animator.forwardWeight - animator.leftWeight - animator.rightWeight;
+        }
+
+        public void AnimateFlyState(PlayerAnimator animator)
+        {
+            bool flag = animator.flyWeight > 0.001f;
+            animator.fly_0.enabled = flag;
+            animator.fly_f.enabled = flag;
+            animator.fly_l.enabled = flag;
+            animator.fly_r.enabled = flag;
+            animator.fly_0.weight = altitude * animator.flyWeight * animator.zeroWeight;
+            animator.fly_f.weight = altitude * animator.flyWeight * animator.forwardWeight;
+            animator.fly_l.weight = altitude * animator.flyWeight * animator.leftWeight;
+            animator.fly_r.weight = altitude * animator.flyWeight * animator.rightWeight;
+            animator.fly_0.speed = 0.44f;
+            animator.fly_f.speed = 0.44f;
+            animator.fly_l.speed = 0.44f;
+            animator.fly_r.speed = 0.44f;
+            if (!flag)
+            {
+                animator.fly_0.normalizedTime = 0f;
+                animator.fly_f.normalizedTime = 0f;
+                animator.fly_l.normalizedTime = 0f;
+                animator.fly_r.normalizedTime = 0f;
+            }
+        }
+
+        public void AnimateSailState(PlayerAnimator animator)
+        {
+            bool flag = animator.sailWeight > 0.001f;
+            for (int i = 0; i < animator.sails.Length; i++)
+            {
+                animator.sails[i].weight = altitude * animator.sailWeight * animator.sailAnimWeights[i];
+                animator.sails[i].enabled = flag;
+                animator.sails[i].speed = 1f;
+                if (!flag)
+                {
+                    animator.sails[i].normalizedTime = 0f;
+                }
+            }
+        }
+
+        public void AnimateRenderers(PlayerAnimator animator)
+        {
+            animator.inst_armor_mat.SetVector("_InitPositionSet", transform.position);
         }
     }
 }

@@ -1,5 +1,14 @@
 ## Changelog
 
+0.6.0:
+
+- Fixed cases where a multiplayer session could hang on the player joining screen.
+- Fixed issue where foundations built by clients would not sync to other clients.
+- Fixed issue where the user would not be informed if they were kicked due to a mod mismatch.
+- Enabled pausing in Multiplayer when no clients are connected. (thanks to @starfi5h)
+- Now supports DSP version 0.8.21.8562+ (also thanks to @starfi5h!)
+- Mecha color configuration has been removed from the options in favor of the new option in the Mecha panel
+
 0.5.0:
 
 - Added API that enables other mods to sync over multiplayer! (Big thanks to @kremnev8!)

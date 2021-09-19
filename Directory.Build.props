@@ -46,12 +46,12 @@
   </ItemGroup>
 
   <ItemGroup Label="BepInEx">
-    <PackageReference Include="BepInEx.Core" Version="5.4.11" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.4.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Analyzers" Version="1.0.*" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="Dyson Sphere Program">
-    <Reference Include="$(PropsheetPath)\Libs\Assembly-CSharp.dll" Private="false" SpecificVersion="true" />
-
+    <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" PrivateAssets="all" />
     <Reference Include="$(PropsheetPath)\Libs\UnityEngine.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(PropsheetPath)\Libs\UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
     <Reference Include="$(PropsheetPath)\Libs\UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />

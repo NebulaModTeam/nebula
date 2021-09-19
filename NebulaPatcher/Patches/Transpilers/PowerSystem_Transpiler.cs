@@ -7,15 +7,15 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpilers
 {
     [HarmonyPatch(typeof(PowerSystem))]
-    class PowerSystem_Transpiler
+    internal class PowerSystem_Transpiler
     {
-        delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
+        private delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(PowerSystem.GameTick))]
         public static IEnumerable<CodeInstruction> PowerSystem_GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            instructions = new CodeMatcher(instructions)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
@@ -26,10 +26,18 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.workEnergyPerTick))),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))))
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))));
+
+            if (codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("PowerSystem_GameTick_Transpiler 1 failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+
+            codeMatcher = codeMatcher
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 58))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
                 .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
                 {
@@ -71,13 +79,21 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.idleEnergyPerTick))),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))))
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))));
+
+            if (codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("PowerSystem_GameTick_Transpiler 2 failed. Mod version not compatible with game version.");
+                return codeMatcher.InstructionEnumeration();
+            }
+
+            return codeMatcher
                 .Repeat(matcher =>
                 {
                     matcher
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 58))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
                         .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
                         {
@@ -109,8 +125,6 @@ namespace NebulaPatcher.Patches.Transpilers
                         }));
                 })
                 .InstructionEnumeration();
-
-            return instructions;
         }
     }
 }

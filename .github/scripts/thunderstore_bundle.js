@@ -135,7 +135,7 @@ function generateManifest() {
 function generateApiManifest() {
   const manifest = {
     name: apiPluginInfo.name,
-    description: "API for other mods to work with the Nebula Multiplayer Mod",
+    description: "API for other mods to work with the Nebula Multiplayer Mod. (Does NOT require Nebula)",
     version_number: apiPluginInfo.version,
     dependencies: [
       BEPINEX_DEPENDENCY
