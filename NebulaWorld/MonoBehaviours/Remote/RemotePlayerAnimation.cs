@@ -57,7 +57,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             PlayerAnimator.AnimateSkills(deltaTime);
             AnimateRenderers(PlayerAnimator);
         }
-        
+
         private void CalculateMovementStateWeights(PlayerAnimator animator, float dt)
         {
             float runTarget = (animator.horzSpeed > 0.15f) ? 1f : 0f;

@@ -9,9 +9,9 @@
         public DysonSphereRemoveNodePacket() { }
         public DysonSphereRemoveNodePacket(int starIndex, int layerId, int nodeId)
         {
-            this.StarIndex = starIndex;
-            this.LayerId = layerId;
-            this.NodeId = nodeId;
+            StarIndex = starIndex;
+            LayerId = layerId;
+            NodeId = nodeId;
         }
     }
 }

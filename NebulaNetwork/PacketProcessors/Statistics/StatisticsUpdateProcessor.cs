@@ -8,7 +8,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Statistics
 {
     [RegisterPacketProcessor]
-    class StatisticsUpdateProcessor : PacketProcessor<StatisticUpdateDataPacket>
+    internal class StatisticsUpdateProcessor : PacketProcessor<StatisticUpdateDataPacket>
     {
         public override void ProcessPacket(StatisticUpdateDataPacket packet, NebulaConnection conn)
         {

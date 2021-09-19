@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStationWindow))]
-    class UIStationWindow_Patch
+    internal class UIStationWindow_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnMaxChargePowerSliderValueChange))]

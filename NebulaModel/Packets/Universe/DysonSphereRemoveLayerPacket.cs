@@ -8,8 +8,8 @@
         public DysonSphereRemoveLayerPacket() { }
         public DysonSphereRemoveLayerPacket(int starIndex, int layerId)
         {
-            this.StarIndex = starIndex;
-            this.LayerId = layerId;
+            StarIndex = starIndex;
+            LayerId = layerId;
         }
     }
 }

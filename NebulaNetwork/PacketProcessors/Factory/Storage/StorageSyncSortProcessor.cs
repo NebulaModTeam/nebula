@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
-    class StorageSyncSortProcessor : PacketProcessor<StorageSyncSortPacket>
+    internal class StorageSyncSortProcessor : PacketProcessor<StorageSyncSortPacket>
     {
         public override void ProcessPacket(StorageSyncSortPacket packet, NebulaConnection conn)
         {

@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(VFInput))]
-    class VFInput_Patch
+    internal class VFInput_Patch
     {
         [HarmonyPatch(nameof(VFInput._buildConfirm), MethodType.Getter)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]

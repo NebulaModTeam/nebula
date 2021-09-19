@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public ILSRequestShipDockProcessor()
         {
@@ -24,7 +24,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
         public override void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             INebulaPlayer player = playerManager.GetPlayer(conn);
 

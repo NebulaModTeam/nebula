@@ -5,7 +5,7 @@ using UnityEngine;
 namespace NebulaWorld.MonoBehaviours.Remote
 {
     public class RemoteWarpEffect : MonoBehaviour
-    {        
+    {
         private Transform rootTransform;
 
         private VFWarpEffect warpEffect = null;
@@ -35,11 +35,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public float WarpState = 0;
         private bool warpEffectActivated = false;
-
-        Vector4[] warpRotations;
-        Vector3 velocity;
-
-        PlayerAnimator rootAnimation = null;
+        private Vector4[] warpRotations;
+        private Vector3 velocity;
+        private PlayerAnimator rootAnimation = null;
         public void Awake()
         {
             rootTransform = GetComponent<Transform>();
@@ -167,12 +165,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 for (int i = 0; i < warpRotations.Length; i++)
                 {
                     warpRotations[i] = playerRot;
-                }                
+                }
                 ToggleEffect(true);
                 //skip "warp-begin" VFAudio for now
             }
             else if (WarpState == 0 && warpEffectActivated)
-            {                
+            {
                 ToggleEffect(false);
                 //skip "warp-end" VFAudio for now
             }
@@ -205,7 +203,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             astrosMat.SetFloat("_Multiplier", astrosMul * num2);
             nebulasMat.SetFloat("_Multiplier", nebulasMul * num2);
         }
-        
+
     }
 
     public class RemotePlayerEffects : MonoBehaviour
@@ -234,9 +232,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private float maxAltitude = 0;
         private int lastTriggeredFoot = 0;
         private bool isGrounded, inWater;
-
-        Collider[] collider;
-        float vegeCollideColdTime = 0;
+        private Collider[] collider;
+        private float vegeCollideColdTime = 0;
 
         public void Awake()
         {
@@ -258,11 +255,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
             psysr[0] = VFX.GetChild(0).Find("flames").GetComponent<ParticleSystemRenderer>();
             psysr[1] = VFX.GetChild(1).Find("flames").GetComponent<ParticleSystemRenderer>();
             torchEffect = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/r-clavicle/r-upper-arm/r-forearm/r-torch/vfx-torch/blast").GetComponent<ParticleSystem>();
-                        
-            WaterEffect[0]    = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
-            WaterEffect[1]    = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
-            FootEffect[0]     = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
-            FootEffect[1]     = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
+
+            WaterEffect[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
+            WaterEffect[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
+            FootEffect[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
+            FootEffect[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
             FootSmallSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
             FootSmallSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
             FootLargeSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
@@ -567,12 +564,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
         {
             bool runActive = rootAnimation.runWeight > 0.001f;
             bool driftActive = rootAnimation.driftWeight > 0.001f;
-            bool flyActive = rootAnimation.flyWeight > 0.001f;            
+            bool flyActive = rootAnimation.flyWeight > 0.001f;
             bool sailActive = rootAnimation.sailWeight > 0.001f;
             isGrounded = (packet.Flags & PlayerAnimationUpdate.EFlags.isGrounded) == PlayerAnimationUpdate.EFlags.isGrounded;
             inWater = (packet.Flags & PlayerAnimationUpdate.EFlags.inWater) == PlayerAnimationUpdate.EFlags.inWater;
 
-            
+
             if (runActive || !isGrounded || maxAltitude > 0)
             {
                 UpdateExtraSoundEffects(packet);
@@ -633,8 +630,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     else
                     {
                         StopAndNullAudio(ref flyAudio1);
-                    }                    
-                }                
+                    }
+                }
             }
             else
             {
@@ -662,7 +659,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 {
                     torchEffect.Stop();
                     StopAndNullAudio(ref miningAudio);
-                }                
+                }
             }
         }
     }

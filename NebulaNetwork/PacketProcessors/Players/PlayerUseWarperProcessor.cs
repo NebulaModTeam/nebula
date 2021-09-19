@@ -8,9 +8,9 @@ namespace NebulaNetwork.PacketProcessors.Players
 {
     // Processes packet sent when player starts or stops warping in order to start or stop the warping effect on said player
     [RegisterPacketProcessor]
-    class PlayerUseWarperProcessor : PacketProcessor<PlayerUseWarper>
+    internal class PlayerUseWarperProcessor : PacketProcessor<PlayerUseWarper>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerUseWarperProcessor()
         {

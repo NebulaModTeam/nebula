@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GalacticTransport))]
-    class GalacticTransport_Patch
+    internal class GalacticTransport_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GalacticTransport.SetForNewGame))]

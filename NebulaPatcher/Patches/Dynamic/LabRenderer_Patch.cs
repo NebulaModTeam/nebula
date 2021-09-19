@@ -7,7 +7,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(LabRenderer))]
-    class LabRenderer_Patch
+    internal class LabRenderer_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(LabRenderer), nameof(LabRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]

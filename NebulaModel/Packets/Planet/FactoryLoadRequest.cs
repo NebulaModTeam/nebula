@@ -7,7 +7,7 @@
         public FactoryLoadRequest() { }
         public FactoryLoadRequest(int planetID)
         {
-            this.PlanetID = planetID;
+            PlanetID = planetID;
         }
     }
 }

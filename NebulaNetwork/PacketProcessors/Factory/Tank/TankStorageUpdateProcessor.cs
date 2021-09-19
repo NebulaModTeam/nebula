@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Tank;
 namespace NebulaNetwork.PacketProcessors.Factory.Tank
 {
     [RegisterPacketProcessor]
-    class TankStorageUpdateProcessor : PacketProcessor<TankStorageUpdatePacket>
+    internal class TankStorageUpdateProcessor : PacketProcessor<TankStorageUpdatePacket>
     {
         public override void ProcessPacket(TankStorageUpdatePacket packet, NebulaConnection conn)
         {

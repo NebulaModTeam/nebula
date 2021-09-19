@@ -13,13 +13,13 @@ namespace NebulaWorld.MonoBehaviours.Local
         private Transform rootTransform;
         private Transform bodyTransform;
 
-        void Awake()
+        private void Awake()
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
         }
 
-        void Update()
+        private void Update()
         {
             time += Time.deltaTime;
 
@@ -27,8 +27,8 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 time = 0;
 
-                var rotation = new Float3(rootTransform.eulerAngles);
-                var bodyRotation = new Float3(bodyTransform.eulerAngles);
+                Float3 rotation = new Float3(rootTransform.eulerAngles);
+                Float3 bodyRotation = new Float3(bodyTransform.eulerAngles);
 
                 Double3 uPosition = new Double3(GameMain.mainPlayer.uPosition.x, GameMain.mainPlayer.uPosition.y, GameMain.mainPlayer.uPosition.z);
                 Multiplayer.Session.Network.SendPacket(new PlayerMovement(Multiplayer.Session.LocalPlayer.Id, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToFloat3(), uPosition, rotation, bodyRotation));

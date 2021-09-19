@@ -7,7 +7,7 @@
         public GameHistoryEnqueueTechPacket() { }
         public GameHistoryEnqueueTechPacket(int techId)
         {
-            this.TechId = techId;
+            TechId = techId;
         }
     }
 }

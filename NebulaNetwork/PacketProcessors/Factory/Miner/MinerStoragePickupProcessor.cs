@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Miner;
 namespace NebulaNetwork.PacketProcessors.Factory.Miner
 {
     [RegisterPacketProcessor]
-    class MinerStoragePickupProcessor : PacketProcessor<MinerStoragePickupPacket>
+    internal class MinerStoragePickupProcessor : PacketProcessor<MinerStoragePickupPacket>
     {
         public override void ProcessPacket(MinerStoragePickupPacket packet, NebulaConnection conn)
         {

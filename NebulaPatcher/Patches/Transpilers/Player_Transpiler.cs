@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch(nameof(Player.nearestFactory), MethodType.Getter)]
         public static IEnumerable<CodeInstruction> Get_nearestFactory_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var matcher = new CodeMatcher(instructions)
+            CodeMatcher matcher = new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldloc_3),
                     new CodeMatch(OpCodes.Ldloc_S),
@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 return instructions;
             }
 
-            var op = matcher.InstructionAt(5).operand;
+            object op = matcher.InstructionAt(5).operand;
 
             return matcher
                 .Advance(-1)
@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch(nameof(Player.Free))]
         public static IEnumerable<CodeInstruction> Free_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var matcher = new CodeMatcher(instructions)
+            CodeMatcher matcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_controller"),
@@ -60,7 +60,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 return instructions;
             }
 
-            var jumpOperand = matcher.InstructionAt(4).operand;
+            object jumpOperand = matcher.InstructionAt(4).operand;
 
             return matcher
                 .SetOperandAndAdvance(jumpOperand)

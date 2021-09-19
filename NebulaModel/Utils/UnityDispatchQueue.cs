@@ -24,7 +24,7 @@ namespace NebulaModel.Utils
             return _instance;
         }
 
-        private Queue<Action> actionsQueue = new Queue<Action>();
+        private readonly Queue<Action> actionsQueue = new Queue<Action>();
 
         public static void RunOnMainThread(Action action)
         {

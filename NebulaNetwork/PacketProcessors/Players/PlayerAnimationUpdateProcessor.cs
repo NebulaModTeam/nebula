@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     public class PlayerAnimationUpdateProcessor : PacketProcessor<PlayerAnimationUpdate>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerAnimationUpdateProcessor()
         {

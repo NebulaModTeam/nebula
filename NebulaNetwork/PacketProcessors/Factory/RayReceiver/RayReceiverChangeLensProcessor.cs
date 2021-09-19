@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.RayReceiver;
 namespace NebulaNetwork.PacketProcessors.Factory.RayReceiver
 {
     [RegisterPacketProcessor]
-    class RayReceiverChangeLensProcessor : PacketProcessor<RayReceiverChangeLensPacket>
+    internal class RayReceiverChangeLensProcessor : PacketProcessor<RayReceiverChangeLensPacket>
     {
         public override void ProcessPacket(RayReceiverChangeLensPacket packet, NebulaConnection conn)
         {

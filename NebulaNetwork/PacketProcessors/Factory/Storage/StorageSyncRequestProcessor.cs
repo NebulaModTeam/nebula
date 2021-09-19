@@ -6,11 +6,14 @@ using NebulaModel.Packets.Factory;
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
-    class StorageSyncRequestProcessor : PacketProcessor<StorageSyncRequestPacket>
+    internal class StorageSyncRequestProcessor : PacketProcessor<StorageSyncRequestPacket>
     {
         public override void ProcessPacket(StorageSyncRequestPacket packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             if (GameMain.galaxy.PlanetById(packet.PlanetId) != null)
             {

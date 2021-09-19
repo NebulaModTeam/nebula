@@ -7,7 +7,7 @@ namespace NebulaModel.Packets
     {
         public override void ProcessPacket(T packet, INebulaConnection conn)
         {
-            this.ProcessPacket(packet, (NebulaConnection)conn);
+            ProcessPacket(packet, (NebulaConnection)conn);
         }
 
         public abstract void ProcessPacket(T packet, NebulaConnection conn);

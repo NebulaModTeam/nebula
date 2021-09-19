@@ -8,7 +8,7 @@
 
         public GameHistoryRemoveTechPacket(int techId)
         {
-            this.TechId = techId;
+            TechId = techId;
         }
     }
 }

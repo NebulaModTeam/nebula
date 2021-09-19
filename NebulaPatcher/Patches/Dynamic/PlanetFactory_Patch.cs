@@ -9,14 +9,16 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetFactory))]
-    class PlanetFactory_patch
+    internal class PlanetFactory_patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlanetFactory.AddPrebuildData))]
         public static void AddPrebuildData_Postfix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
         {
             if (!Multiplayer.IsActive)
+            {
                 return;
+            }
 
             // If the host game called the method, we need to compute the PrebuildId ourself
             if (Multiplayer.Session.LocalPlayer.IsHost)
@@ -30,7 +32,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool BuildFinally_Prefix(PlanetFactory __instance, Player player, int prebuildId)
         {
             if (!Multiplayer.IsActive)
+            {
                 return true;
+            }
 
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
@@ -64,7 +68,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
         {
             if (!Multiplayer.IsActive)
+            {
                 return true;
+            }
 
             if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {

@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameLoader))]
-    class GameLoader_Patch
+    internal class GameLoader_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameLoader.FixedUpdate))]

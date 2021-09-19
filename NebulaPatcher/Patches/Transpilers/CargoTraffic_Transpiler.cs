@@ -14,13 +14,13 @@ namespace NebulaPatcher.Patches.Transpiler
      *      int itemId = cargoPath.TryPickItem(i - 4 - 1, 12);
     */
     [HarmonyPatch(typeof(CargoTraffic))]
-    class CargoTraffic_Transpiler
+    internal class CargoTraffic_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
-        static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
+        private static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
-            var codeMatcher = new CodeMatcher(instructions, iL)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == nameof(CargoPath.TryPickItem))
                     );
@@ -31,10 +31,10 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            var itemId = codeMatcher.InstructionAt(3);
-            var count = codeMatcher.InstructionAt(4);
-            var beltId = new CodeInstruction(OpCodes.Ldarg_2);
-            var segId = codeMatcher.InstructionAt(-6);
+            CodeInstruction itemId = codeMatcher.InstructionAt(3);
+            CodeInstruction count = codeMatcher.InstructionAt(4);
+            CodeInstruction beltId = new CodeInstruction(OpCodes.Ldarg_2);
+            CodeInstruction segId = codeMatcher.InstructionAt(-6);
 
             return codeMatcher
                     .Advance(2)
@@ -55,9 +55,9 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(CargoTraffic), nameof(CargoTraffic.CreateRenderingBatches))]
         [HarmonyPatch(typeof(CargoTraffic), nameof(CargoTraffic.AlterBeltConnections))]
-        static IEnumerable<CodeInstruction> IsPlanetPhysicsColliderDirty_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        private static IEnumerable<CodeInstruction> IsPlanetPhysicsColliderDirty_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            var codeMatcher = new CodeMatcher(instructions, il)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, il)
                    .MatchForward(false,
                    new CodeMatch(OpCodes.Ldarg_0),
                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && i.operand?.ToString() == "PlanetData planet"),

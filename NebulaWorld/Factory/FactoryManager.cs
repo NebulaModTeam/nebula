@@ -12,18 +12,22 @@ namespace NebulaWorld.Factory
 {
     public class FactoryManager : IFactoryManager
     {
-        sealed class ThreadSafe
+        private sealed class ThreadSafe
         {
             internal readonly Dictionary<PrebuildOwnerKey, ushort> PrebuildRequests = new Dictionary<PrebuildOwnerKey, ushort>();
             internal readonly Dictionary<int, Timer> PlanetTimers = new Dictionary<int, Timer>();
         }
         private readonly ThreadSafe threadSafe = new ThreadSafe();
 
-        Locker GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests) =>
-            threadSafe.PrebuildRequests.GetLocked(out prebuildRequests);
+        private Locker GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests)
+        {
+            return threadSafe.PrebuildRequests.GetLocked(out prebuildRequests);
+        }
 
-        Locker GetPlanetTimers(out Dictionary<int, Timer> planetTimers) =>
-            threadSafe.PlanetTimers.GetLocked(out planetTimers);
+        private Locker GetPlanetTimers(out Dictionary<int, Timer> planetTimers)
+        {
+            return threadSafe.PlanetTimers.GetLocked(out planetTimers);
+        }
 
         private readonly ToggleSwitch isIncomingRequest = new ToggleSwitch();
         public IToggle IsIncomingRequest => isIncomingRequest;
@@ -44,7 +48,7 @@ namespace NebulaWorld.Factory
 
         public void AddPlanetTimer(int planetId)
         {
-            using (GetPlanetTimers(out var planetTimers))
+            using (GetPlanetTimers(out Dictionary<int, Timer> planetTimers))
             {
                 // We don't want to load or unload the planet we are currently on
                 if (planetId == GameMain.localPlanet?.id)
@@ -61,7 +65,7 @@ namespace NebulaWorld.Factory
                     // Create a new 10 second timer for this planet
                     planetTimers.Add(planetId, new Timer(TimeSpan.FromSeconds(10).TotalMilliseconds));
 
-                    var planetTimer = planetTimers[planetId];
+                    Timer planetTimer = planetTimers[planetId];
                     planetTimer.Elapsed += (sender, e) => PlanetTimer_Elapsed(planetId);
                     planetTimer.AutoReset = false;
                     planetTimer.Start();
@@ -86,7 +90,7 @@ namespace NebulaWorld.Factory
 
         private bool RemovePlanetTimer(int planetId)
         {
-            using (GetPlanetTimers(out var planetTimers))
+            using (GetPlanetTimers(out Dictionary<int, Timer> planetTimers))
             {
                 planetTimers[planetId].Stop();
                 planetTimers[planetId].Dispose();
@@ -158,7 +162,7 @@ namespace NebulaWorld.Factory
             //Load existing prebuilds to the dictionary so it will be ready to build
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
-                using (GetPrebuildRequests(out var prebuildRequests))
+                using (GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests))
                 {
                     foreach (PlanetFactory factory in GameMain.data.factories)
                     {
@@ -179,20 +183,26 @@ namespace NebulaWorld.Factory
 
         public void SetPrebuildRequest(int planetId, int prebuildId, ushort playerId)
         {
-            using (GetPrebuildRequests(out var prebuildRequests))
+            using (GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests))
+            {
                 prebuildRequests[new PrebuildOwnerKey(planetId, prebuildId)] = playerId;
+            }
         }
 
         public bool RemovePrebuildRequest(int planetId, int prebuildId)
         {
-            using (GetPrebuildRequests(out var prebuildRequests))
+            using (GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests))
+            {
                 return prebuildRequests.Remove(new PrebuildOwnerKey(planetId, prebuildId));
+            }
         }
 
         public bool ContainsPrebuildRequest(int planetId, int prebuildId)
         {
-            using (GetPrebuildRequests(out var prebuildRequests))
+            using (GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests))
+            {
                 return prebuildRequests.ContainsKey(new PrebuildOwnerKey(planetId, prebuildId));
+            }
         }
 
         public int GetNextPrebuildId(int planetId)

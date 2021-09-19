@@ -8,9 +8,9 @@
         public ILSRemoveStationComponent() { }
         public ILSRemoveStationComponent(int stationId, int planetId, int stationGId)
         {
-            this.StationId = stationId;
-            this.PlanetId = planetId;
-            this.StationGId = stationGId;
+            StationId = stationId;
+            PlanetId = planetId;
+            StationGId = stationGId;
         }
     }
 }

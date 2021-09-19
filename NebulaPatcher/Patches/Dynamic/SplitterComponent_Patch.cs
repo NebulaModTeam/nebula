@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(SplitterComponent))]
-    class SplitterComponent_Patch
+    internal class SplitterComponent_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(SplitterComponent.SetPriority))]

@@ -54,7 +54,7 @@ namespace NebulaModel.Networking.Serialization
             protected TProperty[] ReadArrayHelper(TClass inf, NetDataReader r)
             {
                 ushort count = r.GetUShort();
-                var arr = GetterArr(inf);
+                TProperty[] arr = GetterArr(inf);
                 arr = arr == null || arr.Length != count ? new TProperty[count] : arr;
                 SetterArr(inf, arr);
                 return arr;
@@ -62,7 +62,7 @@ namespace NebulaModel.Networking.Serialization
 
             protected TProperty[] WriteArrayHelper(TClass inf, NetDataWriter w)
             {
-                var arr = GetterArr(inf);
+                TProperty[] arr = GetterArr(inf);
                 w.Put((ushort)arr.Length);
                 return arr;
             }
@@ -70,7 +70,7 @@ namespace NebulaModel.Networking.Serialization
             protected List<TProperty> ReadListHelper(TClass inf, NetDataReader r, out int len)
             {
                 len = r.GetUShort();
-                var list = GetterList(inf);
+                List<TProperty> list = GetterList(inf);
                 if (list == null)
                 {
                     list = new List<TProperty>(len);
@@ -81,7 +81,7 @@ namespace NebulaModel.Networking.Serialization
 
             protected List<TProperty> WriteListHelper(TClass inf, NetDataWriter w, out int len)
             {
-                var list = GetterList(inf);
+                List<TProperty> list = GetterList(inf);
                 if (list == null)
                 {
                     len = 0;
@@ -121,29 +121,32 @@ namespace NebulaModel.Networking.Serialization
 
             public override void Read(TClass inf, NetDataReader r)
             {
-                TProperty elem;
-                ElementRead(r, out elem);
+                ElementRead(r, out TProperty elem);
                 Setter(inf, elem);
             }
 
             public override void Write(TClass inf, NetDataWriter w)
             {
-                var elem = Getter(inf);
+                TProperty elem = Getter(inf);
                 ElementWrite(w, ref elem);
             }
 
             public override void ReadArray(TClass inf, NetDataReader r)
             {
-                var arr = ReadArrayHelper(inf, r);
+                TProperty[] arr = ReadArrayHelper(inf, r);
                 for (int i = 0; i < arr.Length; i++)
+                {
                     ElementRead(r, out arr[i]);
+                }
             }
 
             public override void WriteArray(TClass inf, NetDataWriter w)
             {
-                var arr = WriteArrayHelper(inf, w);
+                TProperty[] arr = WriteArrayHelper(inf, w);
                 for (int i = 0; i < arr.Length; i++)
+                {
                     ElementWrite(w, ref arr[i]);
+                }
             }
         }
 
@@ -163,42 +166,52 @@ namespace NebulaModel.Networking.Serialization
 
             public override void ReadList(TClass inf, NetDataReader r)
             {
-                int len;
-                var list = ReadListHelper(inf, r, out len);
+                List<TProperty> list = ReadListHelper(inf, r, out int len);
                 int listCount = list.Count;
                 for (int i = 0; i < len; i++)
                 {
                     if (i < listCount)
+                    {
                         list[i] = _reader(r);
+                    }
                     else
+                    {
                         list.Add(_reader(r));
+                    }
                 }
                 if (len < listCount)
+                {
                     list.RemoveRange(len, listCount - len);
+                }
             }
 
             public override void WriteList(TClass inf, NetDataWriter w)
             {
-                int len;
-                var list = WriteListHelper(inf, w, out len);
+                List<TProperty> list = WriteListHelper(inf, w, out int len);
                 for (int i = 0; i < len; i++)
+                {
                     _writer(w, list[i]);
+                }
             }
 
             public override void ReadArray(TClass inf, NetDataReader r)
             {
-                var arr = ReadArrayHelper(inf, r);
+                TProperty[] arr = ReadArrayHelper(inf, r);
                 int len = arr.Length;
                 for (int i = 0; i < len; i++)
+                {
                     arr[i] = _reader(r);
+                }
             }
 
             public override void WriteArray(TClass inf, NetDataWriter w)
             {
-                var arr = WriteArrayHelper(inf, w);
+                TProperty[] arr = WriteArrayHelper(inf, w);
                 int len = arr.Length;
                 for (int i = 0; i < len; i++)
+                {
                     _writer(w, arr[i]);
+                }
             }
         }
 
@@ -220,44 +233,54 @@ namespace NebulaModel.Networking.Serialization
 
             public override void ReadList(TClass inf, NetDataReader r)
             {
-                int len;
-                var list = ReadListHelper(inf, r, out len);
+                List<TProperty> list = ReadListHelper(inf, r, out int len);
                 int listCount = list.Count;
                 for (int i = 0; i < len; i++)
                 {
-                    var itm = default(TProperty);
+                    TProperty itm = default(TProperty);
                     itm.Deserialize(r);
                     if (i < listCount)
+                    {
                         list[i] = itm;
+                    }
                     else
+                    {
                         list.Add(itm);
+                    }
                 }
                 if (len < listCount)
+                {
                     list.RemoveRange(len, listCount - len);
+                }
             }
 
             public override void WriteList(TClass inf, NetDataWriter w)
             {
-                int len;
-                var list = WriteListHelper(inf, w, out len);
+                List<TProperty> list = WriteListHelper(inf, w, out int len);
                 for (int i = 0; i < len; i++)
+                {
                     list[i].Serialize(w);
+                }
             }
 
             public override void ReadArray(TClass inf, NetDataReader r)
             {
-                var arr = ReadArrayHelper(inf, r);
+                TProperty[] arr = ReadArrayHelper(inf, r);
                 int len = arr.Length;
                 for (int i = 0; i < len; i++)
+                {
                     arr[i].Deserialize(r);
+                }
             }
 
             public override void WriteArray(TClass inf, NetDataWriter w)
             {
-                var arr = WriteArrayHelper(inf, w);
+                TProperty[] arr = WriteArrayHelper(inf, w);
                 int len = arr.Length;
                 for (int i = 0; i < len; i++)
+                {
                     arr[i].Serialize(w);
+                }
             }
         }
 
@@ -268,22 +291,23 @@ namespace NebulaModel.Networking.Serialization
 
             public override void Read(TClass inf, NetDataReader r)
             {
-                var p = _constructor();
+                TProperty p = _constructor();
                 p.Deserialize(r);
                 Setter(inf, p);
             }
 
             public override void Write(TClass inf, NetDataWriter w)
             {
-                var p = Getter(inf);
+                TProperty p = Getter(inf);
                 if (p != null)
+                {
                     p.Serialize(w);
+                }
             }
 
             public override void ReadList(TClass inf, NetDataReader r)
             {
-                int len;
-                var list = ReadListHelper(inf, r, out len);
+                List<TProperty> list = ReadListHelper(inf, r, out int len);
                 int listCount = list.Count;
                 for (int i = 0; i < len; i++)
                 {
@@ -293,26 +317,29 @@ namespace NebulaModel.Networking.Serialization
                     }
                     else
                     {
-                        var itm = _constructor();
+                        TProperty itm = _constructor();
                         itm.Deserialize(r);
                         list.Add(itm);
                     }
                 }
                 if (len < listCount)
+                {
                     list.RemoveRange(len, listCount - len);
+                }
             }
 
             public override void WriteList(TClass inf, NetDataWriter w)
             {
-                int len;
-                var list = WriteListHelper(inf, w, out len);
+                List<TProperty> list = WriteListHelper(inf, w, out int len);
                 for (int i = 0; i < len; i++)
+                {
                     list[i].Serialize(w);
+                }
             }
 
             public override void ReadArray(TClass inf, NetDataReader r)
             {
-                var arr = ReadArrayHelper(inf, r);
+                TProperty[] arr = ReadArrayHelper(inf, r);
                 int len = arr.Length;
                 for (int i = 0; i < len; i++)
                 {
@@ -323,10 +350,12 @@ namespace NebulaModel.Networking.Serialization
 
             public override void WriteArray(TClass inf, NetDataWriter w)
             {
-                var arr = WriteArrayHelper(inf, w);
+                TProperty[] arr = WriteArrayHelper(inf, w);
                 int len = arr.Length;
                 for (int i = 0; i < len; i++)
+                {
                     arr[i].Serialize(w);
+                }
             }
         }
 
@@ -480,13 +509,19 @@ namespace NebulaModel.Networking.Serialization
             {
                 for (int i = 0; i < _membersCount; i++)
                 {
-                    var s = _serializers[i];
+                    FastCall<T> s = _serializers[i];
                     if (s.Type == CallType.Basic)
+                    {
                         s.Write(obj, writer);
+                    }
                     else if (s.Type == CallType.Array)
+                    {
                         s.WriteArray(obj, writer);
+                    }
                     else
+                    {
                         s.WriteList(obj, writer);
+                    }
                 }
             }
 
@@ -494,13 +529,19 @@ namespace NebulaModel.Networking.Serialization
             {
                 for (int i = 0; i < _membersCount; i++)
                 {
-                    var s = _serializers[i];
+                    FastCall<T> s = _serializers[i];
                     if (s.Type == CallType.Basic)
+                    {
                         s.Read(obj, reader);
+                    }
                     else if (s.Type == CallType.Array)
+                    {
                         s.ReadArray(obj, reader);
+                    }
                     else
+                    {
                         s.ReadList(obj, reader);
+                    }
                 }
             }
         }
@@ -579,22 +620,24 @@ namespace NebulaModel.Networking.Serialization
         private ClassInfo<T> RegisterInternal<T>()
         {
             if (ClassInfo<T>.Instance != null)
+            {
                 return ClassInfo<T>.Instance;
+            }
 
             Type t = typeof(T);
-            var props = t.GetProperties(
+            PropertyInfo[] props = t.GetProperties(
                 BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.GetProperty |
                 BindingFlags.SetProperty);
-            var serializers = new List<FastCall<T>>();
+            List<FastCall<T>> serializers = new List<FastCall<T>>();
             for (int i = 0; i < props.Length; i++)
             {
-                var property = props[i];
-                var propertyType = property.PropertyType;
+                PropertyInfo property = props[i];
+                Type propertyType = property.PropertyType;
 
-                var elementType = propertyType.IsArray ? propertyType.GetElementType() : propertyType;
-                var callType = propertyType.IsArray ? CallType.Array : CallType.Basic;
+                Type elementType = propertyType.IsArray ? propertyType.GetElementType() : propertyType;
+                CallType callType = propertyType.IsArray ? CallType.Array : CallType.Basic;
 
                 if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
@@ -607,56 +650,93 @@ namespace NebulaModel.Networking.Serialization
                 /*if (Attribute.IsDefined(property, typeof(IgnoreDataMemberAttribute)))
                     continue;*/
 
-                var getMethod = property.GetGetMethod();
-                var setMethod = property.GetSetMethod();
+                MethodInfo getMethod = property.GetGetMethod();
+                MethodInfo setMethod = property.GetSetMethod();
                 if (getMethod == null || setMethod == null)
+                {
                     continue;
+                }
 
                 FastCall<T> serialzer = null;
                 if (propertyType.IsEnum)
                 {
-                    var underlyingType = Enum.GetUnderlyingType(propertyType);
+                    Type underlyingType = Enum.GetUnderlyingType(propertyType);
                     if (underlyingType == typeof(byte))
+                    {
                         serialzer = new EnumByteSerializer<T>(property, propertyType);
+                    }
                     else if (underlyingType == typeof(int))
+                    {
                         serialzer = new EnumIntSerializer<T>(property, propertyType);
+                    }
                     else
+                    {
                         throw new InvalidTypeException("Not supported enum underlying type: " + underlyingType.Name);
+                    }
                 }
                 else if (elementType == typeof(string))
+                {
                     serialzer = new StringSerializer<T>(_maxStringLength);
+                }
                 else if (elementType == typeof(bool))
+                {
                     serialzer = new BoolSerializer<T>();
+                }
                 else if (elementType == typeof(byte))
+                {
                     serialzer = new ByteSerializer<T>();
+                }
                 else if (elementType == typeof(sbyte))
+                {
                     serialzer = new SByteSerializer<T>();
+                }
                 else if (elementType == typeof(short))
+                {
                     serialzer = new ShortSerializer<T>();
+                }
                 else if (elementType == typeof(ushort))
+                {
                     serialzer = new UShortSerializer<T>();
+                }
                 else if (elementType == typeof(int))
+                {
                     serialzer = new IntSerializer<T>();
+                }
                 else if (elementType == typeof(uint))
+                {
                     serialzer = new UIntSerializer<T>();
+                }
                 else if (elementType == typeof(long))
+                {
                     serialzer = new LongSerializer<T>();
+                }
                 else if (elementType == typeof(ulong))
+                {
                     serialzer = new ULongSerializer<T>();
+                }
                 else if (elementType == typeof(float))
+                {
                     serialzer = new FloatSerializer<T>();
+                }
                 else if (elementType == typeof(double))
+                {
                     serialzer = new DoubleSerializer<T>();
+                }
                 else if (elementType == typeof(char))
+                {
                     serialzer = new CharSerializer<T>();
+                }
                 else if (elementType == typeof(IPEndPoint))
+                {
                     serialzer = new IPEndPointSerializer<T>();
+                }
                 else
                 {
-                    CustomType customType;
-                    _registeredTypes.TryGetValue(elementType, out customType);
+                    _registeredTypes.TryGetValue(elementType, out CustomType customType);
                     if (customType != null)
+                    {
                         serialzer = customType.Get<T>();
+                    }
                 }
 
                 if (serialzer != null)
@@ -687,8 +767,8 @@ namespace NebulaModel.Networking.Serialization
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
         public T Deserialize<T>(NetDataReader reader) where T : class, new()
         {
-            var info = RegisterInternal<T>();
-            var result = new T();
+            ClassInfo<T> info = RegisterInternal<T>();
+            T result = new T();
             try
             {
                 info.Read(result, reader);
@@ -709,7 +789,7 @@ namespace NebulaModel.Networking.Serialization
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
         public bool Deserialize<T>(NetDataReader reader, T target) where T : class, new()
         {
-            var info = RegisterInternal<T>();
+            ClassInfo<T> info = RegisterInternal<T>();
             try
             {
                 info.Read(target, reader);
@@ -740,7 +820,10 @@ namespace NebulaModel.Networking.Serialization
         public byte[] Serialize<T>(T obj) where T : class, new()
         {
             if (_writer == null)
+            {
                 _writer = new NetDataWriter();
+            }
+
             _writer.Reset();
             Serialize(_writer, obj);
             return _writer.CopyData();

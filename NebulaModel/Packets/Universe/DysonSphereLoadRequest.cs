@@ -6,7 +6,7 @@
         public DysonSphereLoadRequest() { }
         public DysonSphereLoadRequest(int starIndex)
         {
-            this.StarIndex = starIndex;
+            StarIndex = starIndex;
         }
     }
 }

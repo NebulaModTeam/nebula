@@ -13,7 +13,7 @@ namespace NebulaModel.Networking
 
         public static void RegisterAllPacketNestedTypesInAssembly(Assembly assembly, NetPacketProcessor packetProcessor)
         {
-            var nestedTypes = AssembliesUtils.GetTypesWithAttributeInAssembly<RegisterNestedTypeAttribute>(assembly);
+            System.Collections.Generic.IEnumerable<Type> nestedTypes = AssembliesUtils.GetTypesWithAttributeInAssembly<RegisterNestedTypeAttribute>(assembly);
             foreach (Type type in nestedTypes)
             {
                 Log.Info($"Registering Nested Type: {type.Name}");
@@ -25,8 +25,8 @@ namespace NebulaModel.Networking
                         .MakeGenericMethod(type);
 
                     MethodInfo delegateMethod = packetProcessor.GetType().GetMethod(nameof(NetPacketProcessor.CreateNestedClassInstance)).MakeGenericMethod(type);
-                    var funcType = typeof(Func<>).MakeGenericType(type);
-                    var callback = Delegate.CreateDelegate(funcType, packetProcessor, delegateMethod);
+                    Type funcType = typeof(Func<>).MakeGenericType(type);
+                    Delegate callback = Delegate.CreateDelegate(funcType, packetProcessor, delegateMethod);
                     registerMethod.Invoke(packetProcessor, new object[] { callback });
                 }
                 else if (type.IsValueType)
@@ -46,7 +46,7 @@ namespace NebulaModel.Networking
         {
             while (toCheck != null && toCheck != typeof(object))
             {
-                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+                Type cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (generic == cur)
                 {
                     return true;
@@ -58,7 +58,7 @@ namespace NebulaModel.Networking
 
         public static void RegisterAllPacketProcessorsInAssembly(Assembly assembly, NetPacketProcessor packetProcessor, bool isMasterClient)
         {
-            var processors = assembly.GetTypes()
+            System.Collections.Generic.IEnumerable<Type> processors = assembly.GetTypes()
                 .Where(t => t.GetCustomAttributes(typeof(RegisterPacketProcessorAttribute), true).Length > 0);
 
             MethodInfo method = packetProcessor.GetType().GetMethods()

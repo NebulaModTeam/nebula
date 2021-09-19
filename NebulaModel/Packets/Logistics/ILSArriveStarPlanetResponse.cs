@@ -31,18 +31,18 @@ namespace NebulaModel.Packets.Logistics
                                         int[] localLogic,
                                         int[] remoteLogic)
         {
-            this.StationGId = stationGId;
-            this.PlanetId = planetId;
-            this.Planet = planet;
-            this.StorageLength = storageLength;
-            this.StorageIdx = storageIdx;
-            this.ItemId = itemId;
-            this.Count = count;
-            this.LocalOrder = localOrder;
-            this.RemoteOrder = remoteOrder;
-            this.Max = max;
-            this.LocalLogic = localLogic;
-            this.RemoteLogic = remoteLogic;
+            StationGId = stationGId;
+            PlanetId = planetId;
+            Planet = planet;
+            StorageLength = storageLength;
+            StorageIdx = storageIdx;
+            ItemId = itemId;
+            Count = count;
+            LocalOrder = localOrder;
+            RemoteOrder = remoteOrder;
+            Max = max;
+            LocalLogic = localLogic;
+            RemoteLogic = remoteLogic;
         }
     }
 }

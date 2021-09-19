@@ -6,7 +6,7 @@ using NebulaModel.Packets.Universe;
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSphereAddSailBulletProcessor : PacketProcessor<DysonSphereBulletCorrectionPacket>
+    internal class DysonSphereAddSailBulletProcessor : PacketProcessor<DysonSphereBulletCorrectionPacket>
     {
         public override void ProcessPacket(DysonSphereBulletCorrectionPacket packet, NebulaConnection conn)
         {

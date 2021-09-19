@@ -28,11 +28,11 @@ namespace NebulaWorld.Universe
             {
                 return false;
             }
-            if ((ulong)node1 >= (ulong)((long)dsl.nodeCursor))
+            if ((ulong)node1 >= (ulong)dsl.nodeCursor)
             {
                 return false;
             }
-            if ((ulong)node2 >= (ulong)((long)dsl.nodeCursor))
+            if ((ulong)node2 >= (ulong)dsl.nodeCursor)
             {
                 return false;
             }

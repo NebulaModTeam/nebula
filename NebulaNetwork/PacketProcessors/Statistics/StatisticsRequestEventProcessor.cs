@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Statistics
 {
     [RegisterPacketProcessor]
-    class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
+    internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public StatisticsRequestEventProcessor()
         {
@@ -18,7 +18,10 @@ namespace NebulaNetwork.PacketProcessors.Statistics
 
         public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             INebulaPlayer player = playerManager.GetPlayer(conn);
             if (player != null)

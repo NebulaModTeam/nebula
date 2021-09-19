@@ -13,11 +13,14 @@ using UnityEngine;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSResponseShipDockProcessor : PacketProcessor<ILSShipDock>
+    internal class ILSResponseShipDockProcessor : PacketProcessor<ILSShipDock>
     {
         public override void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
             // a fake entry should already have been created
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];
@@ -27,7 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
             for (int i = 0; i < Multiplayer.Session.Ships.ILSMaxShipCount; i++)
             {
-                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)Multiplayer.Session.Ships.ILSMaxShipCount * (float)i, 0f);
+                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / Multiplayer.Session.Ships.ILSMaxShipCount * i, 0f);
                 stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
             }
             for (int j = 0; j < Multiplayer.Session.Ships.ILSMaxShipCount; j++)

@@ -5,7 +5,7 @@ namespace NebulaPatcher.Logger
 {
     public class BepInExLogger : ILogger
     {
-        ManualLogSource logger;
+        private readonly ManualLogSource logger;
 
         public BepInExLogger(ManualLogSource logger)
         {

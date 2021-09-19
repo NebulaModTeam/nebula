@@ -9,8 +9,8 @@
 
         public GameHistoryTechRefundPacket(int techId, long contributed)
         {
-            this.TechIdContributed = techId;
-            this.TechHashedContributed = contributed;
+            TechIdContributed = techId;
+            TechHashedContributed = contributed;
         }
     }
 }

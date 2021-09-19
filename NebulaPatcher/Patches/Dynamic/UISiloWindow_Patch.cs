@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UISiloWindow))]
-    class UISiloWindow_Patch
+    internal class UISiloWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UISiloWindow.OnManualServingContentChange))]

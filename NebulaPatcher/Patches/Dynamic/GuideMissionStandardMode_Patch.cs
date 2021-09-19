@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GuideMissionStandardMode))]
-    class GuideMissionStandardMode_Patch
+    internal class GuideMissionStandardMode_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GuideMissionStandardMode.Skip))]

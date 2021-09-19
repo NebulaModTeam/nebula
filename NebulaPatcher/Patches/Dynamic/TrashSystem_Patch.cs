@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(TrashSystem))]
-    class TrashSystem_Patch
+    internal class TrashSystem_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(TrashSystem.SetForNewGame))]
