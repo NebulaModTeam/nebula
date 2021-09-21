@@ -11,16 +11,22 @@ namespace NebulaModel.Packets.Players
         public ushort PlayerId { get; set; }
         public float JumpWeight { get; set; }
         public float JumpNormalizedTime { get; set; }
-        public int IdleAnimIndex { get; set; }
-        public int SailAnimIndex { get; set; }
+        public byte IdleAnimIndex { get; set; }
+        public byte SailAnimIndex { get; set; }        
+        public byte MiningAnimIndex { get; set; }
         public float MiningWeight { get; set; }
-        public int MiningAnimIndex { get; set; }
 
         public EMovementState MovementState { get; set; }
         public float HorzSpeed { get; set; }
         public float VertSpeed { get; set; }
         public float Turning { get; set; }
-        public float Altitude { get; set; }
+        public EFlags Flags { get; set; }
+
+        public enum EFlags : byte
+        {
+            isGrounded = 1,
+            inWater = 2,
+        }
 
         public PlayerAnimationUpdate() { }
 
@@ -30,20 +36,22 @@ namespace NebulaModel.Packets.Players
 
             JumpWeight = animator.jumpWeight;
             JumpNormalizedTime = animator.jumpNormalizedTime;
-            IdleAnimIndex = animator.idleAnimIndex;
-            SailAnimIndex = animator.sailAnimIndex;
-            MiningWeight = animator.miningWeight;
-            MiningAnimIndex = animator.miningAnimIndex;
+            //Compress AnimIndex, assume their values are less than 256
+            IdleAnimIndex = (byte)animator.idleAnimIndex;
+            SailAnimIndex = (byte)animator.sailAnimIndex;
+            MiningAnimIndex = (byte)animator.miningAnimIndex;
+            MiningWeight = animator.miningWeight;            
 
             MovementState = animator.movementState;
             HorzSpeed = animator.controller.horzSpeed;
             VertSpeed = animator.controller.vertSpeed;
             Turning = animator.turning;
-            Altitude = 1f;
-            if (GameMain.localPlanet != null)
-            {
-                Altitude = Mathf.Clamp01((animator.player.position.magnitude - GameMain.localPlanet.realRadius - 7f) * 0.15f);
-            }
+
+            Flags = 0;
+            if (animator.controller.actionWalk.isGrounded)
+                Flags |= EFlags.isGrounded;
+            if (animator.controller.actionDrift.inWater)
+                Flags |= EFlags.inWater;
         }
     }
 }

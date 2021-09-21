@@ -35,14 +35,13 @@ namespace NebulaWorld.MonoBehaviours.Remote
         // This will make sure player movement is still smooth in high latency cases and even if there are dropped packets.
         private readonly Snapshot[] snapshotBuffer = new Snapshot[BUFFERED_SNAPSHOT_COUNT];
 
-        private void Start()
+        private void Awake()
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
 
             localPlanetId = -1;
             absolutePosition = Vector3.zero;
-
 #if DEBUG
             positionDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             GameObject.Destroy(positionDebugger.GetComponent<SphereCollider>());

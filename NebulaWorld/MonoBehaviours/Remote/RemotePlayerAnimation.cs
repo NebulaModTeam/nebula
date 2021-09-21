@@ -7,12 +7,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
     public class RemotePlayerAnimation : MonoBehaviour
     {
         public PlayerAnimator PlayerAnimator;
-
-        private float altitude;
-
+        private RemotePlayerMovement rootMovement;
+        private float altitudeFactor;
         private void Awake()
         {
-            PlayerAnimator = GetComponentInChildren<PlayerAnimator>();
+            PlayerAnimator = GetComponent<PlayerAnimator>();
+            rootMovement = GetComponent<RemotePlayerMovement>();
         }
 
         public void UpdateState(PlayerAnimationUpdate packet)
@@ -32,13 +32,22 @@ namespace NebulaWorld.MonoBehaviours.Remote
             PlayerAnimator.movementState = packet.MovementState;
             PlayerAnimator.horzSpeed = packet.HorzSpeed;
             PlayerAnimator.turning = packet.Turning;
-            altitude = packet.Altitude;
+            PlanetData localPlanet = GameMain.galaxy.PlanetById(rootMovement.localPlanetId);
+            altitudeFactor = (localPlanet == null) ? 1f : Mathf.Clamp01((transform.position.magnitude - localPlanet.realRadius - 7f) * 0.15f);
 
             float deltaTime = Time.deltaTime;
             CalculateMovementStateWeights(PlayerAnimator, deltaTime);
-            CalculateDirectionWeights(PlayerAnimator, deltaTime);
+            CalculateDirectionWeights(PlayerAnimator);
 
             PlayerAnimator.AnimateIdleState(deltaTime);
+            if (PlayerAnimator.idleAnimIndex == 0)
+            {
+                for (int i = 1; i < PlayerAnimator.idles.Length; i++)
+                {
+                    PlayerAnimator.idles[i].weight = 0;
+                    PlayerAnimator.idles[i].normalizedTime = 0f;
+                }
+            }
             PlayerAnimator.AnimateRunState(deltaTime);
             PlayerAnimator.AnimateDriftState(deltaTime);
             AnimateFlyState(PlayerAnimator);
@@ -65,7 +74,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             }
         }
 
-        private void CalculateDirectionWeights(PlayerAnimator animator, float dt)
+        private void CalculateDirectionWeights(PlayerAnimator animator)
         {
             animator.leftWeight = Mathf.InverseLerp(-animator.minTurningAngle, -animator.maxTurningAngle, animator.turning);
             animator.rightWeight = Mathf.InverseLerp(animator.minTurningAngle, animator.maxTurningAngle, animator.turning);
@@ -84,10 +93,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
             animator.fly_f.enabled = flag;
             animator.fly_l.enabled = flag;
             animator.fly_r.enabled = flag;
-            animator.fly_0.weight = altitude * animator.flyWeight * animator.zeroWeight;
-            animator.fly_f.weight = altitude * animator.flyWeight * animator.forwardWeight;
-            animator.fly_l.weight = altitude * animator.flyWeight * animator.leftWeight;
-            animator.fly_r.weight = altitude * animator.flyWeight * animator.rightWeight;
+            animator.fly_0.weight = altitudeFactor * animator.flyWeight * animator.zeroWeight;
+            animator.fly_f.weight = altitudeFactor * animator.flyWeight * animator.forwardWeight;
+            animator.fly_l.weight = altitudeFactor * animator.flyWeight * animator.leftWeight;
+            animator.fly_r.weight = altitudeFactor * animator.flyWeight * animator.rightWeight;
             animator.fly_0.speed = 0.44f;
             animator.fly_f.speed = 0.44f;
             animator.fly_l.speed = 0.44f;
@@ -106,7 +115,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             bool flag = animator.sailWeight > 0.001f;
             for (int i = 0; i < animator.sails.Length; i++)
             {
-                animator.sails[i].weight = altitude * animator.sailWeight * animator.sailAnimWeights[i];
+                animator.sails[i].weight = altitudeFactor * animator.sailWeight * animator.sailAnimWeights[i];
                 animator.sails[i].enabled = flag;
                 animator.sails[i].speed = 1f;
                 if (!flag)

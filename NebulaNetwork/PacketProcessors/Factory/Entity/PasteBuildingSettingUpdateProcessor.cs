@@ -18,7 +18,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                 BuildingParameters.clipboard = packet.GetBuildingSettings();
                 using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    GameMain.galaxy.PlanetById(packet.PlanetId).factory.PasteBuildingSetting(packet.ObjectId);
+                    // skip audio and realtimetip update
+                    BuildingParameters.clipboard.PasteToFactoryObject(packet.ObjectId, GameMain.galaxy.PlanetById(packet.PlanetId).factory);
                 }
                 BuildingParameters.clipboard = backup;
             }
