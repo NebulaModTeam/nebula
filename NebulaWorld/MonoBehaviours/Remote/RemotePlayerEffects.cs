@@ -167,14 +167,14 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 for (int i = 0; i < warpRotations.Length; i++)
                 {
                     warpRotations[i] = playerRot;
-                }
-                VFAudio.Create("warp-begin", base.transform, Vector3.zero, true, 0);
+                }                
                 ToggleEffect(true);
+                //skip "warp-begin" VFAudio for now
             }
             else if (WarpState == 0 && warpEffectActivated)
-            {
-                VFAudio.Create("warp-end", base.transform, Vector3.zero, true, 0);
+            {                
                 ToggleEffect(false);
+                //skip "warp-end" VFAudio for now
             }
 
             Array.Copy(warpRotations, 0, warpRotations, 1, warpRotations.Length - 1);
@@ -189,9 +189,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
             // to compute the emission we would need to know the players local star, so default to this for now
             emission.rateOverTime = 120f;
             velocityOverTime.speedModifierMultiplier = 20000f;
-            velocityOverTime.x = (float)lhs.x;
-            velocityOverTime.y = (float)lhs.y;
-            velocityOverTime.z = (float)lhs.z;
+            velocityOverTime.x = lhs.x;
+            velocityOverTime.y = lhs.y;
+            velocityOverTime.z = lhs.z;
             shape.position = lhs * 10000.0f;
             shape.rotation = rootTransform.rotation.eulerAngles;
 
@@ -213,6 +213,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private PlayerAnimator rootAnimation;
         private Transform rootTransform;
         private Transform rootModelTransform;
+        private RemotePlayerMovement rootMovement;
         private RemoteWarpEffect rootWarp;
 
         private ParticleSystem[] WaterEffect;
@@ -227,40 +228,37 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private VFAudio driftAudio = null;
         private VFAudio flyAudio0 = null, flyAudio1 = null;
 
-        private string[] solidSoundEvents = new string[4];
-        private string waterSoundEvent = "footsteps-6";
+        private readonly string[] solidSoundEvents = new string[4] { "footsteps-0", "footsteps-1", "footsteps-2", "footsteps-3" };
+        private readonly string waterSoundEvent = "footsteps-6";
 
         private float maxAltitude = 0;
-        private int lastTriggeredFood = 0;
-        private int localPlanetId = -1;
+        private int lastTriggeredFoot = 0;
+        private bool isGrounded, inWater;
 
         Collider[] collider;
         float vegeCollideColdTime = 0;
 
         public void Awake()
         {
-            rootAnimation = GetComponentInChildren<PlayerAnimator>();
+            rootAnimation = GetComponent<PlayerAnimator>();
             rootTransform = GetComponent<Transform>();
             rootModelTransform = rootTransform.Find("Model");
+            rootMovement = GetComponent<RemotePlayerMovement>();
 
             psys = new ParticleSystem[2];
             psysr = new ParticleSystemRenderer[2];
-            torchEffect = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/r-clavicle/r-upper-arm/r-forearm/r-torch/vfx-torch/blast").GetComponent<ParticleSystem>();
             FootEffect = new ParticleSystem[2];
             WaterEffect = new ParticleSystem[2];
             FootSmallSmoke = new ParticleSystem[2];
             FootLargeSmoke = new ParticleSystem[2];
 
-            
             Transform VFX = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/backpack/backpack_end/VFX").GetComponent<Transform>();
-
             psys[0] = VFX.GetChild(0).GetComponent<ParticleSystem>();
             psys[1] = VFX.GetChild(1).GetComponent<ParticleSystem>();
-
             psysr[0] = VFX.GetChild(0).Find("flames").GetComponent<ParticleSystemRenderer>();
             psysr[1] = VFX.GetChild(1).Find("flames").GetComponent<ParticleSystemRenderer>();
-
-
+            torchEffect = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/r-clavicle/r-upper-arm/r-forearm/r-torch/vfx-torch/blast").GetComponent<ParticleSystem>();
+                        
             WaterEffect[0]    = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
             WaterEffect[1]    = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
             FootEffect[0]     = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
@@ -270,25 +268,29 @@ namespace NebulaWorld.MonoBehaviours.Remote
             FootLargeSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
             FootLargeSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
 
-            solidSoundEvents[0] = "footsteps-0";
-            solidSoundEvents[1] = "footsteps-1";
-            solidSoundEvents[2] = "footsteps-2";
-            solidSoundEvents[3] = "footsteps-3";
-
             collider = new Collider[16];
 
             rootTransform.gameObject.AddComponent<RemoteWarpEffect>();
             rootWarp = rootTransform.gameObject.GetComponent<RemoteWarpEffect>();
-
+#if DEBUG
+            Assert.True(psys != null && psysr != null && psys[0] != null && psys[1] != null && psysr[0] != null && psysr[1] != null && torchEffect != null);
+            Assert.True(WaterEffect[0] != null && WaterEffect[1] != null && FootEffect[0] != null && FootEffect[1] != null);
+            Assert.True(FootSmallSmoke[0] != null && FootSmallSmoke[1] != null && FootLargeSmoke[0] != null && FootLargeSmoke[1] != null);
+#endif
         }
 
         public void OnDestroy()
         {
             StopAllFlyAudio();
-            if (miningAudio != null)
+            StopAndNullAudio(ref miningAudio);
+        }
+
+        public void StopAndNullAudio(ref VFAudio vfAudio)
+        {
+            if (vfAudio != null)
             {
-                miningAudio.Stop();
-                miningAudio = null;
+                vfAudio.Stop();
+                vfAudio = null;
             }
         }
 
@@ -304,34 +306,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void StopAllFlyAudio()
         {
-            if (driftAudio != null)
-            {
-                driftAudio.Stop();
-                driftAudio = null;
-            }
-            if (flyAudio0 != null)
-            {
-                flyAudio0.Stop();
-                flyAudio0 = null;
-            }
-            if (flyAudio1 != null)
-            {
-                flyAudio1.Stop();
-                flyAudio1 = null;
-            }
-        }
-
-        private bool IsGrounded()
-        {
-            Vector3 pos = rootTransform.position + rootTransform.position.normalized * 0.15f;
-            if (Physics.CheckSphere(pos, 0.35f, 15873))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            StopAndNullAudio(ref driftAudio);
+            StopAndNullAudio(ref flyAudio0);
+            StopAndNullAudio(ref flyAudio1);
         }
 
         private void PlayFootsteps()
@@ -342,12 +319,12 @@ namespace NebulaWorld.MonoBehaviours.Remote
             if (trigger)
             {
                 int normalizedTime = Mathf.FloorToInt(rootAnimation.run_fast.normalizedTime * 2f - 0.02f);
-                float normalizedTimeDiff = (rootAnimation.run_fast.normalizedTime * 2f - 0.02f) - (float)normalizedTime;
+                float normalizedTimeDiff = (rootAnimation.run_fast.normalizedTime * 2f - 0.02f) - normalizedTime;
                 bool timeIsEven = normalizedTime % 2 == 0;
 
-                if (lastTriggeredFood != normalizedTime)
+                if (lastTriggeredFoot != normalizedTime)
                 {
-                    lastTriggeredFood = normalizedTime;
+                    lastTriggeredFoot = normalizedTime;
 
                     Vector3 dustPos = ((!timeIsEven) ? FootEffect[1] : FootEffect[0]).transform.position;
                     Vector3 dustPosNormalized = dustPos.normalized;
@@ -356,19 +333,18 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     Ray ray = new Ray(dustPos, -dustPosNormalized);
                     float rDist1 = 100f, rDist2 = 100f;
                     float biomo = -1f;
-                    RaycastHit rHit1, rHit2;
 
-                    if (Physics.Raycast(ray, out rHit1, 2f, 512, QueryTriggerInteraction.Collide))
+                    if (Physics.Raycast(ray, out RaycastHit rHit1, 2f, 512, QueryTriggerInteraction.Collide))
                     {
                         rDist1 = rHit1.distance;
                         biomo = rHit1.textureCoord2.x;
                     }
-                    if (Physics.Raycast(ray, out rHit2, 2f, 16, QueryTriggerInteraction.Collide))
+                    if (Physics.Raycast(ray, out RaycastHit rHit2, 2f, 16, QueryTriggerInteraction.Collide))
                     {
                         rDist2 = rHit2.distance + 0.1f;
                     }
 
-                    if (normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFood || normalizedTime < 2))
+                    if (normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFoot || normalizedTime < 2))
                     {
                         PlayFootstepSound(moveWeight, biomo, rDist2 < rDist1);
                     }
@@ -382,54 +358,48 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void PlayFootstepSound(float vol, float biomo, bool water)
         {
-            if (localPlanetId < 0)
+            if (rootMovement.localPlanetId < 0)
             {
-                // wait for update that should happen soon
-                // its updated by localPlanetSyncProcessor.cs
+                // wait for update in RemotePlayerMovement
                 return;
             }
 
-            AmbientDesc ambientDesc = GameMain.galaxy.PlanetById(localPlanetId).ambientDesc;
-            string audioName = string.Empty;
-
-            try
+            AmbientDesc ambientDesc = GameMain.galaxy.PlanetById(rootMovement.localPlanetId).ambientDesc;
+            string audioName;
+            if (!water)
             {
-                if (!water)
+                if (biomo <= 0.8)
                 {
-                    if ((double)biomo <= 0.8)
-                    {
-                        name = solidSoundEvents[ambientDesc.biomoSound0];
-                    }
-                    else if ((double)biomo <= 1.8)
-                    {
-                        name = solidSoundEvents[ambientDesc.biomoSound1];
-                    }
-                    else
-                    {
-                        name = solidSoundEvents[ambientDesc.biomoSound2];
-                    }
-                    if (CheckPlayerInReform())
-                    {
-                        name = solidSoundEvents[3];
-                    }
+                    audioName = solidSoundEvents[ambientDesc.biomoSound0];
+                }
+                else if (biomo <= 1.8)
+                {
+                    audioName = solidSoundEvents[ambientDesc.biomoSound1];
                 }
                 else
                 {
-                    name = waterSoundEvent;
+                    audioName = solidSoundEvents[ambientDesc.biomoSound2];
+                }
+                if (CheckPlayerInReform())
+                {
+                    audioName = solidSoundEvents[3];
                 }
             }
-            catch
+            else
             {
-                name = string.Empty;
+                audioName = waterSoundEvent;
             }
-            VFAudio audio = VFAudio.Create(name, base.transform, Vector3.zero, false, 0);
-            audio.volumeMultiplier = vol;
-            audio.Play();
+            VFAudio audio = VFAudio.Create(audioName, transform, Vector3.zero, false, 0);
+            if (audio != null)
+            {
+                // skip setting audio.volumeMultiplier = vol, it makes footsteps too loud
+                audio.Play();
+            }
         }
 
         private void PlayFootstepEffect(bool lr, float biomo, bool water)
         {
-            if (CheckPlayerInReform() || localPlanetId < 0)
+            if (CheckPlayerInReform() || rootMovement.localPlanetId < 0)
             {
                 return;
             }
@@ -437,7 +407,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             ParticleSystem waterParticle = (!lr) ? WaterEffect[0] : WaterEffect[1];
             ParticleSystem[] smokeParticle = (!lr) ? FootSmallSmoke : FootLargeSmoke;
             ParticleSystem footEffect = (!lr) ? FootEffect[0] : FootEffect[1];
-            AmbientDesc ambientDesc = GameMain.galaxy.PlanetById(localPlanetId).ambientDesc;
+            AmbientDesc ambientDesc = GameMain.galaxy.PlanetById(rootMovement.localPlanetId).ambientDesc;
             Color color = Color.clear;
             float dustStrength = 1f;
 
@@ -491,108 +461,57 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private bool CheckPlayerInReform()
         {
-            PlanetData localPlanet = GameMain.galaxy.PlanetById(localPlanetId);
             bool result = false;
-            if (localPlanet != null)
+            try
             {
-                PlanetFactory factory = localPlanet.factory;
-                if (factory != null)
+                PlanetData localPlanet = GameMain.galaxy.PlanetById(rootMovement.localPlanetId);
+                PlatformSystem platformSystem = localPlanet?.factory?.platformSystem;
+                if (platformSystem?.reformData != null)
                 {
-                    PlatformSystem platformSystem = factory.platformSystem;
-                    if (platformSystem.reformData != null)
+                    int reformIndexForPosition = platformSystem.GetReformIndexForPosition(rootTransform.position);
+                    if (reformIndexForPosition > -1)
                     {
-                        int reformIndexForPosition = platformSystem.GetReformIndexForPosition(rootTransform.position);
-                        if (reformIndexForPosition > -1)
-                        {
-                            int reformType = platformSystem.GetReformType(reformIndexForPosition);
-                            result = platformSystem.IsTerrainMapping(reformType);
-                        }
-                        else
-                        {
-                            result = true;
-                        }
+                        int reformType = platformSystem.GetReformType(reformIndexForPosition);
+                        result = platformSystem.IsTerrainMapping(reformType);
                     }
                     else
                     {
-                        result = false;
+                        result = true;
                     }
                 }
+            }
+            catch
+            {
             }
             return result;
-        }
-
-        private bool DriftDetermineInWater(PlanetData pData)
-        {
-            if (localPlanetId < 0)
-            {
-                return false;
-            }
-
-            if (pData != null)
-            {
-                float currAltitude = Mathf.Max(rootTransform.position.magnitude, pData.realRadius * 0.9f) - pData.realRadius;
-                Vector3 origin = rootTransform.position + rootTransform.position.normalized * 10f;
-                Vector3 direction = -rootTransform.position.normalized;
-                float rDist1 = 0f, rDist2 = 0f;
-                bool trigger = false;
-                RaycastHit rHit;
-
-                if (Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 8704, QueryTriggerInteraction.Collide))
-                {
-                    rDist1 = rHit.distance;
-                }
-                else
-                {
-                    trigger = true;
-                }
-                if (Physics.Raycast(new Ray(origin, direction), out rHit, 30f, 16, QueryTriggerInteraction.Collide))
-                {
-                    rDist2 = rHit.distance;
-                }
-                else
-                {
-                    trigger = true;
-                }
-
-                if (!trigger && currAltitude > -2.3f + pData.waterHeight)
-                {
-                    if (rDist1 - rDist2 > 0.7f && currAltitude < -0.6f)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
         // collision with vegetation, landing sound effect
         private void UpdateExtraSoundEffects(PlayerAnimationUpdate packet)
         {
-            if (localPlanetId < 0)
+            if (rootMovement.localPlanetId < 0)
             {
                 return;
             }
 
-            if (localPlanetId > 0)
+            if (rootMovement.localPlanetId > 0)
             {
-                PlanetData pData = GameMain.galaxy.PlanetById(localPlanetId);
-                PlanetPhysics pPhys = (pData != null) ? pData.physics : null;
-                PlanetFactory pFactory = (pData != null) ? pData.factory : null;
+                PlanetData pData = GameMain.galaxy.PlanetById(rootMovement.localPlanetId);
+                PlanetPhysics pPhys = pData?.physics;
+                PlanetFactory pFactory = pData?.factory;
                 float tmpMaxAltitude = rootTransform.localPosition.magnitude - pData.realRadius;
                 if (tmpMaxAltitude > 1000f)
                 {
                     tmpMaxAltitude = 1000f;
                 }
 
-                if (rootAnimation.runWeight > 0.001f || rootAnimation.driftWeight > 0.001f)
+                if (rootAnimation.movementState < EMovementState.Fly)
                 {
-                    bool ground = IsGrounded();
-
-                    if (DriftDetermineInWater(pData))
+                    if (inWater)
                     {
                         if (maxAltitude > 1f && pData.waterItemId > 0)
                         {
-                            VFAudio audio = VFAudio.Create("landing-water", base.transform, Vector3.zero, false, 0);
+                            VFAudio audio = VFAudio.Create("landing-water", transform, Vector3.zero, false, 0);
                             audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 5f + 0.5f);
                             audio.Play();
                             PlayFootstepEffect(true, 0f, true);
@@ -600,14 +519,17 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         }
                         maxAltitude = 0f;
                     }
-                    if (ground && maxAltitude > 3f)
+                    if (isGrounded)
                     {
-                        VFAudio audio = VFAudio.Create("landing", base.transform, Vector3.zero, false, 0);
-                        audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 25f + 0.5f);
-                        audio.Play();
+                        if (maxAltitude > 3f)
+                        {
+                            VFAudio audio = VFAudio.Create("landing", transform, Vector3.zero, false, 0);
+                            audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 25f + 0.5f);
+                            audio.Play();
+                        }
                         maxAltitude = 0f;
                     }
-                    if (!ground && tmpMaxAltitude > maxAltitude)
+                    if (!isGrounded && tmpMaxAltitude > maxAltitude)
                     {
                         maxAltitude = tmpMaxAltitude;
                     }
@@ -620,7 +542,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 // NOTE: the pPhys can only be loaded if the player trying to load it has the planet actually loaded (meaning he is on the same planet or near it)
                 if (pPhys != null && pFactory != null && packet.HorzSpeed > 5f)
                 {
-                    int number = Physics.OverlapSphereNonAlloc(base.transform.localPosition, 1.8f, collider, 1024, QueryTriggerInteraction.Collide);
+                    int number = Physics.OverlapSphereNonAlloc(transform.localPosition, 1.8f, collider, 1024, QueryTriggerInteraction.Collide);
                     for (int i = 0; i < number; i++)
                     {
                         int colId = pPhys.nearColliderLogic.FindColliderId(collider[i]);
@@ -628,153 +550,110 @@ namespace NebulaWorld.MonoBehaviours.Remote
                         if (cData.objType == EObjectType.Vegetable && cData.objId > 0)
                         {
                             VegeData vData = pFactory.vegePool[cData.objId];
-                            VegeProto vProto = LDB.veges.Select((int)vData.protoId);
+                            VegeProto vProto = LDB.veges.Select(vData.protoId);
                             if (vProto != null && vProto.CollideAudio > 0 && vegeCollideColdTime <= 0)
                             {
-                                VFAudio.Create(vProto.CollideAudio, base.transform, Vector3.zero, true, 0);
+                                VFAudio.Create(vProto.CollideAudio, transform, Vector3.zero, true, 0);
                                 vegeCollideColdTime = UnityEngine.Random.value * 0.23f + 0.1f;
                             }
                         }
                     }
                 }
             }
-
-            if (vegeCollideColdTime > 0)
-            {
-                vegeCollideColdTime -= Time.deltaTime * 2;
-            }
-            else
-            {
-                vegeCollideColdTime = 0;
-            }
+            vegeCollideColdTime = (vegeCollideColdTime > 0) ? vegeCollideColdTime - Time.deltaTime * 2 : 0;
         }
 
         public void UpdateState(PlayerAnimationUpdate packet)
         {
-            bool anyMovingAnimationActive = rootAnimation.runWeight > 0.001f || rootAnimation.flyWeight > 0.001f || rootAnimation.sailWeight > 0.001f || rootAnimation.driftWeight > 0.001f || !IsGrounded();
-            bool anyDriftActive = rootAnimation.driftWeight > 0.001f;
-            bool fireParticleOkay = psys != null && psysr != null && (psys[0] != null && psys[1] != null && psysr[0] != null && psysr[1] != null);
+            bool runActive = rootAnimation.runWeight > 0.001f;
+            bool driftActive = rootAnimation.driftWeight > 0.001f;
+            bool flyActive = rootAnimation.flyWeight > 0.001f;            
+            bool sailActive = rootAnimation.sailWeight > 0.001f;
+            isGrounded = (packet.Flags & PlayerAnimationUpdate.EFlags.isGrounded) == PlayerAnimationUpdate.EFlags.isGrounded;
+            inWater = (packet.Flags & PlayerAnimationUpdate.EFlags.inWater) == PlayerAnimationUpdate.EFlags.inWater;
 
-            if (anyMovingAnimationActive)
+            
+            if (runActive || !isGrounded || maxAltitude > 0)
             {
                 UpdateExtraSoundEffects(packet);
-                if (fireParticleOkay)
+            }
+            if (runActive && isGrounded)
+            {
+                PlayFootsteps();
+            }
+            if (driftActive || flyActive || sailActive || !isGrounded)
+            {
+                for (int i = 0; i < psys.Length; i++)
                 {
-                    if ((!rootAnimation.run_slow.enabled && !rootAnimation.run_fast.enabled) || anyDriftActive || rootAnimation.sailWeight > 0.001f)
+                    if (!psys[i].isPlaying)
                     {
-                        for (int i = 0; i < psys.Length; i++)
+                        psys[i].Play();
+                    }
+                }
+                for (int i = 0; i < psysr.Length; i++)
+                {
+                    if (runActive)
+                    {
+                        if (rootAnimation.run_fast.weight != 0)
                         {
-                            if (!psys[i].isPlaying)
-                            {
-                                psys[i].Play();
-                            }
+                            // when flying over the planet
+                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.04f);
                         }
+                        else
+                        {
+                            // when "walking" over water and moving in air without button press or while "walking" over water
+                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
+                        }
+                    }
+                    if (driftActive)
+                    {
+                        // when in air without pressing spacebar
+                        psysr[i].lengthScale = -3.5f;
+                        driftAudio = (driftAudio != null) ? driftAudio : VFAudio.Create("drift", transform, Vector3.zero, true);
                     }
                     else
                     {
-                        for (int j = 0; j < psys.Length; j++)
-                        {
-                            if (psys[j].isPlaying)
-                            {
-                                psys[j].Stop();
-                            }
-                        }
-                        StopAllFlyAudio();
-                        PlayFootsteps();
+                        StopAndNullAudio(ref driftAudio);
                     }
-                    for (int i = 0; i < psysr.Length; i++)
+                    if (flyActive)
                     {
-                        if (rootAnimation.run_slow.enabled || rootAnimation.run_fast.enabled)
-                        {
-                            if (rootAnimation.run_fast.weight != 0)
-                            {
-                                // when flying over the planet
-                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.04f);
-                            }
-                            else
-                            {
-                                // when "walking" over water and moving in air without button press or while "walking" over water
-                                psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
-                            }
-                        }
-                        if (rootAnimation.drift_0.enabled)
-                        {
-                            // when in air without pressing spacebar
-                            psysr[i].lengthScale = -3.5f;
-                            if (driftAudio == null)
-                            {
-                                driftAudio = VFAudio.Create("drift", base.transform, Vector3.zero, false);
-                                driftAudio?.Play();
-                            }
-                        }
-                        else
-                        {
-                            if (driftAudio != null)
-                            {
-                                driftAudio.Stop();
-                                driftAudio = null;
-                            }
-                        }
-                        if (rootAnimation.fly_0.enabled)
-                        {
-                            // when pressing spacebar but also when landing (Drift is disabled when landing)
-                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
-                            if (flyAudio0 == null)
-                            {
-                                flyAudio0 = VFAudio.Create("fly-atmos", base.transform, Vector3.zero, false);
-                                flyAudio0.Play();
-                            }
-                        }
-                        else
-                        {
-                            if (flyAudio0 != null)
-                            {
-                                flyAudio0.Stop();
-                                flyAudio0 = null;
-                            }
-                        }
-                        if (rootAnimation.sailWeight > 0.001f)
-                        {
-                            psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 15f);
-                            if (flyAudio1 == null)
-                            {
-                                flyAudio1 = VFAudio.Create("fly-space", base.transform, Vector3.zero, false);
-                                flyAudio1.Play();
-                            }
-                        }
-                        else
-                        {
-                            if (flyAudio1 != null)
-                            {
-                                flyAudio1.Stop();
-                                flyAudio1 = null;
-                            }
-                        }
+                        // when pressing spacebar but also when landing (Drift is disabled when landing)
+                        psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
+                        flyAudio0 = (flyAudio0 != null) ? flyAudio0 : VFAudio.Create("fly-atmos", transform, Vector3.zero, true);
                     }
-                }
+                    else
+                    {
+                        StopAndNullAudio(ref flyAudio0);
+                    }
+                    if (sailActive)
+                    {
+                        psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 15f);
+                        flyAudio1 = (flyAudio1 != null) ? flyAudio1 : VFAudio.Create("fly-space", transform, Vector3.zero, true);
+                    }
+                    else
+                    {
+                        StopAndNullAudio(ref flyAudio1);
+                    }                    
+                }                
             }
             else
             {
-                if (fireParticleOkay)
+                for (int i = 0; i < psys.Length; i++)
                 {
-                    for (int i = 0; i < psys.Length; i++)
+                    if (psys[i].isPlaying)
                     {
-                        if (psys[i].isPlaying)
-                        {
-                            psys[i].Stop();
-                        }
+                        psys[i].Stop();
                     }
-                    StopAllFlyAudio();
                 }
+                StopAllFlyAudio();
             }
 
             if (torchEffect != null && rootAnimation.miningWeight > 0.99f)
             {
-                if (!torchEffect.isPlaying && miningAudio == null)
+                if (!torchEffect.isPlaying)
                 {
                     torchEffect.Play();
-                    miningAudio = VFAudio.Create("mecha-mining", base.transform, Vector3.zero, false);
-                    miningAudio?.Play();
+                    miningAudio = VFAudio.Create("mecha-mining", transform, Vector3.zero, true);
                 }
             }
             else if (torchEffect != null && rootAnimation.miningWeight <= 0.99f)
@@ -782,16 +661,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 if (torchEffect.isPlaying)
                 {
                     torchEffect.Stop();
-                    miningAudio?.Stop();
-                    miningAudio = null;
-                }
+                    StopAndNullAudio(ref miningAudio);
+                }                
             }
         }
-
-        public void UpdatePlanet(int localPlanet)
-        {
-            localPlanetId = localPlanet;
-        }
-        
     }
 }
