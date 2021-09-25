@@ -51,8 +51,8 @@
   </ItemGroup>
 
   <ItemGroup Label="Dyson Sphere Program">
-    <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" PrivateAssets="all" />
-    <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" PrivateAssets="all" />
+    <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" PrivateAssets="all" ExcludeAssets="runtime" />
     <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
   </ItemGroup>
 </Project>
