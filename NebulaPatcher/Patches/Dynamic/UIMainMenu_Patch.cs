@@ -14,7 +14,7 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIMainMenu))]
-    class UIMainMenu_Patch
+    internal class UIMainMenu_Patch
     {
         private static RectTransform mainMenuButtonGroup;
         private static RectTransform multiplayerButton;
@@ -153,11 +153,11 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerMenu.Find("resource-multiplier").gameObject.SetActive(false);
             multiplayerMenu.Find("right-group").gameObject.SetActive(false);
 
-            var topTitle = multiplayerMenu.Find("top-title");
+            Transform topTitle = multiplayerMenu.Find("top-title");
             topTitle.GetComponent<Localizer>().enabled = false;
             topTitle.GetComponent<Text>().text = "Multiplayer";
 
-            var hostIpField = multiplayerMenu.Find("galaxy-seed");
+            Transform hostIpField = multiplayerMenu.Find("galaxy-seed");
             hostIpField.GetComponent<Localizer>().enabled = false;
             hostIpField.GetComponent<Text>().text = "Host IP Address";
             hostIPAdressInput = hostIpField.GetComponentInChildren<InputField>();
@@ -184,7 +184,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnJoinGameButtonClick()
         {
             // Remove whitespaces from connection string
-            var s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
+            string s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
 
             // Taken from .net IPEndPoint
             IPEndPoint result = null;
@@ -216,8 +216,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
-            var isIP = false;
-            var p = 0;
+            bool isIP = false;
+            int p = 0;
             if (result != null)
             {
                 if (result.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
@@ -233,13 +233,17 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             else
             {
-                var tmpP = s.Split(':');
+                string[] tmpP = s.Split(':');
                 if (tmpP.Length == 2)
                 {
-                    if (!System.Int32.TryParse(tmpP[1], out p))
+                    if (!int.TryParse(tmpP[1], out p))
+                    {
                         p = 0;
+                    }
                     else
+                    {
                         s = tmpP[0];
+                    }
                 }
             }
 

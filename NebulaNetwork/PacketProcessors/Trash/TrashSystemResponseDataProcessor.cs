@@ -6,11 +6,14 @@ using NebulaModel.Packets.Trash;
 namespace NebulaNetwork.PacketProcessors.Trash
 {
     [RegisterPacketProcessor]
-    class TrashSystemResponseDataProcessor : PacketProcessor<TrashSystemResponseDataPacket>
+    internal class TrashSystemResponseDataProcessor : PacketProcessor<TrashSystemResponseDataPacket>
     {
         public override void ProcessPacket(TrashSystemResponseDataPacket packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.TrashSystemData))
             {

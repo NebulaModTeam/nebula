@@ -10,9 +10,9 @@
 
         public GameHistoryResearchUpdatePacket(int techId, long hashUploaded, long hashNeeded)
         {
-            this.TechId = techId;
-            this.HashUploaded = hashUploaded;
-            this.HashNeeded = hashNeeded;
+            TechId = techId;
+            HashUploaded = hashUploaded;
+            HashNeeded = hashNeeded;
         }
     }
 }

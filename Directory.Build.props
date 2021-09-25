@@ -52,15 +52,7 @@
 
   <ItemGroup Label="Dyson Sphere Program">
     <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" PrivateAssets="all" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.AnimationModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.CoreModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.IMGUIModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.ParticleSystemModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.PhysicsModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.TextRenderingModule.dll" Private="false" SpecificVersion="true" />
+    <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" PrivateAssets="all" />
     <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UIElementsModule.dll" Private="false" SpecificVersion="true" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UIModule.dll" Private="false" SpecificVersion="true" />
   </ItemGroup>
 </Project>

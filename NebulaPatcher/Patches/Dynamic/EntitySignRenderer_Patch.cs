@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(EntitySignRenderer))]
-    class EntitySignRenderer_Patch
+    internal class EntitySignRenderer_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(EntitySignRenderer.Init))]

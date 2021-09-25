@@ -1,7 +1,4 @@
 ﻿using NebulaAPI;
-using NebulaModel.DataStructures;
-using Unity;
-using UnityEngine;
 
 namespace NebulaModel.Packets.Players
 {
@@ -12,7 +9,7 @@ namespace NebulaModel.Packets.Players
         public float JumpWeight { get; set; }
         public float JumpNormalizedTime { get; set; }
         public byte IdleAnimIndex { get; set; }
-        public byte SailAnimIndex { get; set; }        
+        public byte SailAnimIndex { get; set; }
         public byte MiningAnimIndex { get; set; }
         public float MiningWeight { get; set; }
 
@@ -40,7 +37,7 @@ namespace NebulaModel.Packets.Players
             IdleAnimIndex = (byte)animator.idleAnimIndex;
             SailAnimIndex = (byte)animator.sailAnimIndex;
             MiningAnimIndex = (byte)animator.miningAnimIndex;
-            MiningWeight = animator.miningWeight;            
+            MiningWeight = animator.miningWeight;
 
             MovementState = animator.movementState;
             HorzSpeed = animator.controller.horzSpeed;
@@ -49,9 +46,14 @@ namespace NebulaModel.Packets.Players
 
             Flags = 0;
             if (animator.controller.actionWalk.isGrounded)
+            {
                 Flags |= EFlags.isGrounded;
+            }
+
             if (animator.controller.actionDrift.inWater)
+            {
                 Flags |= EFlags.inWater;
+            }
         }
     }
 }

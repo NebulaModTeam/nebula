@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PowerSystemRenderer))]
-    class PowerSystemRenderer_Patch
+    internal class PowerSystemRenderer_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PowerSystemRenderer.Init))]

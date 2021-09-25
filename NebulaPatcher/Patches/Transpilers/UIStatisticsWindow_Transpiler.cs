@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIStatisticsWindow.RefreshAstroBox))]
-        static IEnumerable<CodeInstruction> RefreshAstroBox_Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> RefreshAstroBox_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             //Change: this.gameData.factoryCount 
             //To:     GetFactoryCount()
@@ -57,7 +57,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIStatisticsWindow.ComputeDisplayEntries))]
-        static IEnumerable<CodeInstruction> ComputeDisplayEntries_Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> ComputeDisplayEntries_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             //Change: this.gameData.factoryCount
             //To:     GetFactoryCount()
@@ -96,7 +96,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIStatisticsWindow.ComputePowerTab))]
-        static IEnumerable<CodeInstruction> ComputePowerTab_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
+        private static IEnumerable<CodeInstruction> ComputePowerTab_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
         {
             /* This is fix for the power statistics.
                Originally, this function is iterating through all factories and manually summing up "energyStored" values from their PowerSystems.
@@ -171,7 +171,7 @@ namespace NebulaPatcher.Patches.Transpiler
 
         }
 
-        static IEnumerable<CodeInstruction> ReplaceFactoryCount(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> ReplaceFactoryCount(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions)
                 .MatchForward(false,
@@ -186,7 +186,7 @@ namespace NebulaPatcher.Patches.Transpiler
                .InstructionEnumeration();
         }
 
-        static int GetFactoryCount()
+        private static int GetFactoryCount()
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
@@ -195,7 +195,7 @@ namespace NebulaPatcher.Patches.Transpiler
             return Multiplayer.Session.Statistics.FactoryCount;
         }
 
-        static PlanetData GetPlanetData(int factoryId)
+        private static PlanetData GetPlanetData(int factoryId)
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
@@ -204,7 +204,7 @@ namespace NebulaPatcher.Patches.Transpiler
             return Multiplayer.Session.Statistics.GetPlanetData(factoryId);
         }
 
-        static int GetFactoryIndex(PlanetData planet)
+        private static int GetFactoryIndex(PlanetData planet)
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {

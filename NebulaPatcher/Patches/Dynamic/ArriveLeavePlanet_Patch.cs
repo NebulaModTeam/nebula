@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameData))]
-    class ArrivePlanet_Patch
+    internal class ArrivePlanet_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameData.ArrivePlanet))]

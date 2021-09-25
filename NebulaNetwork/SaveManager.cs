@@ -18,7 +18,7 @@ namespace NebulaNetwork
             IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
             NetDataWriter netDataWriter = new NetDataWriter();
 
-            using (playerManager.GetSavedPlayerData(out var savedPlayerData))
+            using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
             {
                 netDataWriter.Put(savedPlayerData.Count + 1);
                 //Add data about all players
@@ -43,7 +43,7 @@ namespace NebulaNetwork
             }
         }
 
-        static void HandleAutoSave()
+        private static void HandleAutoSave()
         {
             string str1 = GameConfig.gameSaveFolder + GameSave.AutoSaveTmp + FILE_EXTENSION;
             string str2 = GameConfig.gameSaveFolder + GameSave.AutoSave0 + FILE_EXTENSION;
@@ -54,13 +54,25 @@ namespace NebulaNetwork
             if (File.Exists(str1))
             {
                 if (File.Exists(str5))
+                {
                     File.Delete(str5);
+                }
+
                 if (File.Exists(str4))
+                {
                     File.Move(str4, str5);
+                }
+
                 if (File.Exists(str3))
+                {
                     File.Move(str3, str4);
+                }
+
                 if (File.Exists(str2))
+                {
                     File.Move(str2, str3);
+                }
+
                 File.Move(str1, str2);
             }
         }
@@ -79,7 +91,7 @@ namespace NebulaNetwork
             NetDataReader netDataReader = new NetDataReader(source);
             int playerNum = netDataReader.GetInt();
 
-            using (playerManager.GetSavedPlayerData(out var savedPlayerData))
+            using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
             {
                 for (int i = 0; i < playerNum; i++)
                 {

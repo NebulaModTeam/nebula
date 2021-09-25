@@ -4,20 +4,26 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(FactoryStorage))]
-    class FactoryStorage_Patch
+    internal class FactoryStorage_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static void GameTick_Prefix()
         {
-            if (Multiplayer.IsActive) Multiplayer.Session.Storage.IsHumanInput = false;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.IsHumanInput = false;
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(FactoryStorage.GameTick))]
         public static void GameTick_Postfix()
         {
-            if (Multiplayer.IsActive) Multiplayer.Session.Storage.IsHumanInput = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.IsHumanInput = true;
+            }
         }
     }
 }

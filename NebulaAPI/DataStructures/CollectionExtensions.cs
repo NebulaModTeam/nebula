@@ -20,7 +20,7 @@ namespace NebulaAPI
 
     public readonly struct Locker : IDisposable
     {
-        readonly object lockObject;
+        private readonly object lockObject;
 
         public Locker(object lockObject)
         {

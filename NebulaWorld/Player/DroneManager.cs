@@ -105,9 +105,9 @@ namespace NebulaWorld.Player
             }
 
             float myDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
-            using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+            using (Multiplayer.Session.World.GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
-                foreach (var model in remotePlayersModels.Values)
+                foreach (RemotePlayerModel model in remotePlayersModels.Values)
                 {
                     //Check only players on the same planet
                     if (model.Movement.GetLastPosition().LocalPlanetId != GameMain.mainPlayer.planetId)

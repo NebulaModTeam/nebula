@@ -8,7 +8,7 @@
 
         public TrashSystemTrashRemovedPacket(int trashId)
         {
-            this.TrashId = trashId;
+            TrashId = trashId;
         }
     }
 }

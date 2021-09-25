@@ -83,7 +83,7 @@ namespace NebulaModel.Networking.Serialization
         {
             lock (delayedPackets)
             {
-                var now = DateTime.UtcNow;
+                DateTime now = DateTime.UtcNow;
                 int deleteCount = 0;
 
                 for (int i = 0; i < delayedPackets.Count; ++i)
@@ -111,11 +111,13 @@ namespace NebulaModel.Networking.Serialization
         protected virtual ulong GetHash<T>()
         {
             if (HashCache<T>.Initialized)
+            {
                 return HashCache<T>.Id;
+            }
 
             ulong hash = 14695981039346656037UL; //offset
             string typeName = typeof(T).FullName;
-            for (var i = 0; i < typeName.Length; i++)
+            for (int i = 0; i < typeName.Length; i++)
             {
                 hash ^= typeName[i];
                 hash *= 1099511628211UL; //prime
@@ -127,7 +129,7 @@ namespace NebulaModel.Networking.Serialization
 
         protected virtual SubscribeDelegate GetCallbackFromData(NetDataReader reader)
         {
-            var hash = reader.GetULong();
+            ulong hash = reader.GetULong();
             if (!_callbacks.TryGetValue(hash, out SubscribeDelegate action))
             {
                 Logger.Log.Warn($"Unknown packet hash: {hash}");
@@ -135,7 +137,7 @@ namespace NebulaModel.Networking.Serialization
             }
 
 #if DEBUG
-            if (_callbacksDebugInfo.TryGetValue(hash, out var packetType))
+            if (_callbacksDebugInfo.TryGetValue(hash, out Type packetType))
             {
                 if (!packetType.IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
                 {
@@ -197,7 +199,9 @@ namespace NebulaModel.Networking.Serialization
         public void ReadAllPackets(NetDataReader reader)
         {
             while (reader.AvailableBytes > 0)
+            {
                 ReadPacket(reader);
+            }
         }
 
         /// <summary>
@@ -209,7 +213,9 @@ namespace NebulaModel.Networking.Serialization
         public void ReadAllPackets(NetDataReader reader, object userData)
         {
             while (reader.AvailableBytes > 0)
+            {
                 ReadPacket(reader, userData);
+            }
         }
 
         /// <summary>
@@ -306,7 +312,7 @@ namespace NebulaModel.Networking.Serialization
             _netSerializer.Register<T>();
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
-                var reference = packetConstructor();
+                T reference = packetConstructor();
                 _netSerializer.Deserialize(reader, reference);
                 onReceive(reference);
             };
@@ -323,7 +329,7 @@ namespace NebulaModel.Networking.Serialization
             _netSerializer.Register<T>();
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
-                var reference = packetConstructor();
+                T reference = packetConstructor();
                 _netSerializer.Deserialize(reader, reference);
                 onReceive(reference, (TUserData)userData);
             };
@@ -338,7 +344,7 @@ namespace NebulaModel.Networking.Serialization
         public void SubscribeReusable<T>(Action<T> onReceive) where T : class, new()
         {
             _netSerializer.Register<T>();
-            var reference = new T();
+            T reference = new T();
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
                 _netSerializer.Deserialize(reader, reference);
@@ -355,7 +361,7 @@ namespace NebulaModel.Networking.Serialization
         public void SubscribeReusable<T, TUserData>(Action<T, TUserData> onReceive) where T : class, new()
         {
             _netSerializer.Register<T>();
-            var reference = new T();
+            T reference = new T();
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
                 _netSerializer.Deserialize(reader, reference);
@@ -373,7 +379,7 @@ namespace NebulaModel.Networking.Serialization
         {
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
-                var pkt = packetConstructor();
+                T pkt = packetConstructor();
                 pkt.Deserialize(reader);
                 onReceive(pkt, (TUserData)userData);
             };
@@ -385,7 +391,7 @@ namespace NebulaModel.Networking.Serialization
         {
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
-                var pkt = packetConstructor();
+                T pkt = packetConstructor();
                 pkt.Deserialize(reader);
                 onReceive(pkt);
             };
@@ -394,7 +400,7 @@ namespace NebulaModel.Networking.Serialization
         public void SubscribeNetSerializable<T, TUserData>(
             Action<T, TUserData> onReceive) where T : INetSerializable, new()
         {
-            var reference = new T();
+            T reference = new T();
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
                 reference.Deserialize(reader);
@@ -405,7 +411,7 @@ namespace NebulaModel.Networking.Serialization
         public void SubscribeNetSerializable<T>(
             Action<T> onReceive) where T : INetSerializable, new()
         {
-            var reference = new T();
+            T reference = new T();
             _callbacks[GetHash<T>()] = (reader, userData) =>
             {
                 reference.Deserialize(reader);

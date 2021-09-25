@@ -12,9 +12,9 @@ namespace NebulaModel.Packets.Universe
         public DysonSwarmAddOrbitPacket() { }
         public DysonSwarmAddOrbitPacket(int starIndex, float radius, Quaternion rotation)
         {
-            this.StarIndex = starIndex;
-            this.Radius = radius;
-            this.Rotation = new Float4(rotation);
+            StarIndex = starIndex;
+            Radius = radius;
+            Rotation = new Float4(rotation);
         }
     }
 }

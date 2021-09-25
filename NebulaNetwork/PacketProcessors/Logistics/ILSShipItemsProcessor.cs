@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSShipItemsProcessor : PacketProcessor<ILSShipItems>
+    internal class ILSShipItemsProcessor : PacketProcessor<ILSShipItems>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
         public ILSShipItemsProcessor()
         {
             playerManager = Multiplayer.Session.Network.PlayerManager;

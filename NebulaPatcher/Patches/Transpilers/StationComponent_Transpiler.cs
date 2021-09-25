@@ -15,13 +15,19 @@ namespace NebulaPatcher.Patches.Transpilers
     public class StationComponent_Transpiler
     {
         // desc of function to inject into InternalTickRemote after an addItem() call
-        delegate int ShipFunc(StationComponent stationComponent, ref ShipData shipData);
-        delegate int RemOrderFunc(StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair);
-        delegate int RemOrderFunc2(StationComponent stationComponent, int index);
-        delegate int RemOrderFunc3(StationComponent stationComponent, StationComponent[] gStationPool, int n);
-        delegate int CheckgStationPool(ref ShipData shipData);
-        delegate int TakeItem(StationComponent stationComponent, int storageIndex, int amount);
-        delegate int EnergyCost(StationComponent stationComponent, long cost);
+        private delegate int ShipFunc(StationComponent stationComponent, ref ShipData shipData);
+
+        private delegate int RemOrderFunc(StationComponent stationComponent, ref SupplyDemandPair supplyDemandPair);
+
+        private delegate int RemOrderFunc2(StationComponent stationComponent, int index);
+
+        private delegate int RemOrderFunc3(StationComponent stationComponent, StationComponent[] gStationPool, int n);
+
+        private delegate int CheckgStationPool(ref ShipData shipData);
+
+        private delegate int TakeItem(StationComponent stationComponent, int storageIndex, int amount);
+
+        private delegate int EnergyCost(StationComponent stationComponent, long cost);
 
         private static int TakeItemCounter = 0;
         private static int RemOrderCounter = 0;

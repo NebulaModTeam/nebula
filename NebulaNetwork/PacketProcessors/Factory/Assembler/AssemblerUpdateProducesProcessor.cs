@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Assembler;
 namespace NebulaNetwork.PacketProcessors.Factory.Assembler
 {
     [RegisterPacketProcessor]
-    class AssemblerUpdateProducesProcessor : PacketProcessor<AssemblerUpdateProducesPacket>
+    internal class AssemblerUpdateProducesProcessor : PacketProcessor<AssemblerUpdateProducesPacket>
     {
         public override void ProcessPacket(AssemblerUpdateProducesPacket packet, NebulaConnection conn)
         {

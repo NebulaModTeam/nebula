@@ -4,7 +4,7 @@ using HarmonyLib;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameHistoryData))]
-    class Debug_GameHistoryData_Patch
+    internal class Debug_GameHistoryData_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameHistoryData.EnqueueTech))]
@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
     }
 
     [HarmonyPatch(typeof(Mecha))]
-    class Debug_Mecha_Patch
+    internal class Debug_Mecha_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(Mecha.UseWarper))]
@@ -68,7 +68,7 @@ namespace NebulaPatcher.Patches.Dynamic
     }
 
     [HarmonyPatch(typeof(MechaForge))]
-    class Debug_MechaForge_Patch
+    internal class Debug_MechaForge_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(MechaForge.TryAddTask))]
@@ -92,7 +92,7 @@ namespace NebulaPatcher.Patches.Dynamic
     }
 
     [HarmonyPatch(typeof(UIAdvisorTip))]
-    class Debug_UIAdvisorTip_Patch
+    internal class Debug_UIAdvisorTip_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIAdvisorTip.PlayAdvisorTip))]
@@ -110,7 +110,7 @@ namespace NebulaPatcher.Patches.Dynamic
     }
 
     [HarmonyPatch(typeof(UITutorialTip))]
-    class Debug_UITutorialTip_Patch
+    internal class Debug_UITutorialTip_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UITutorialTip.PopupTutorialTip))]

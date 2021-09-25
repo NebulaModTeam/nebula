@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UILoadGameWindow))]
-    class UILoadGameWindow_Patch
+    internal class UILoadGameWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UILoadGameWindow.DoLoadSelectedGame))]

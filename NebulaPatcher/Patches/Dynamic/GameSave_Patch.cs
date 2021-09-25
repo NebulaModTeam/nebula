@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameSave))]
-    class GameSave_Patch
+    internal class GameSave_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameSave.SaveCurrentGame))]

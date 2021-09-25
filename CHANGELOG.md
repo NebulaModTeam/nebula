@@ -1,5 +1,11 @@
 ## Changelog
 
+0.6.1:
+
+- Fixed statistics syncing (thanks to @starfi5h)
+- Fixed audio playing for all players when pasting building settings and warping (thanks to @starfi5h)
+- Added syncing for footstep and landing sounds (thanks to @starfi5h)
+
 0.6.0:
 
 - Fixed cases where a multiplayer session could hang on the player joining screen.

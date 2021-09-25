@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStationStorage))]
-    class UIStationStorage_Patch
+    internal class UIStationStorage_Patch
     {
         /*
          * host behaves normally and sends update to clients which then apply the changes

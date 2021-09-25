@@ -6,7 +6,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(CargoTraffic))]
-    class CargoTraffic_Patch
+    internal class CargoTraffic_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]

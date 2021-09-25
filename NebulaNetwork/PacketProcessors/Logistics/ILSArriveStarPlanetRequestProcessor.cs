@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveStarPlanetRequest>
+    internal class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveStarPlanetRequest>
     {
         private readonly IPlayerManager playerManager;
 
@@ -23,7 +23,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
         public override void ProcessPacket(ILSArriveStarPlanetRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             INebulaPlayer player = playerManager.GetPlayer(conn);
             if (player == null)

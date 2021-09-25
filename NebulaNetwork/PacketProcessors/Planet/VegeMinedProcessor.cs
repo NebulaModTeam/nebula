@@ -9,7 +9,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
 {
     // Processes events for mining vegetation or veins
     [RegisterPacketProcessor]
-    class VegeMinedProcessor : PacketProcessor<VegeMinedPacket>
+    internal class VegeMinedProcessor : PacketProcessor<VegeMinedPacket>
     {
         public override void ProcessPacket(VegeMinedPacket packet, NebulaConnection conn)
         {
@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                         else
                         {
                             VegeData vegeData = factory.GetVegeData(packet.VegeId);
-                            VegeProto vegeProto = LDB.veges.Select((int)vegeData.protoId);
+                            VegeProto vegeProto = LDB.veges.Select(vegeData.protoId);
 
                             factory.RemoveVegeWithComponents(packet.VegeId);
 
@@ -56,7 +56,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                         // must be a vein/oil patch (i think the game treats them same now as oil patches can run out too)
                         factory.veinPool[packet.VegeId].amount = packet.Amount;
                         factory.planet.veinAmounts[(int)veinData.type] -= 1L;
-                        veinGroups[(int)groupIndex].amount = veinGroups[(int)groupIndex].amount - 1L;
+                        veinGroups[groupIndex].amount = veinGroups[groupIndex].amount - 1L;
                     }
                     else
                     {

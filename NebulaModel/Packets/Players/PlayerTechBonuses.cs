@@ -35,64 +35,64 @@ namespace NebulaModel.Packets.Players
 
         public PlayerTechBonuses(Mecha source)
         {
-            this.coreEnergyCap = source.coreEnergyCap;
-            this.corePowerGen = source.corePowerGen;
-            this.reactorPowerGen = source.reactorPowerGen;
-            this.walkPower = source.walkPower;
-            this.jumpEnergy = source.jumpEnergy;
-            this.thrustPowerPerAcc = source.thrustPowerPerAcc;
-            this.warpKeepingPowerPerSpeed = source.warpKeepingPowerPerSpeed;
-            this.warpStartPowerPerSpeed = source.warpStartPowerPerSpeed;
-            this.miningPower = source.miningPower;
-            this.replicatePower = source.replicatePower;
-            this.researchPower = source.researchPower;
-            this.droneEjectEnergy = source.droneEjectEnergy;
-            this.droneEnergyPerMeter = source.droneEnergyPerMeter;
-            this.coreLevel = source.coreLevel;
-            this.thrusterLevel = source.thrusterLevel;
-            this.miningSpeed = source.miningSpeed;
-            this.replicateSpeed = source.replicateSpeed;
-            this.walkSpeed = source.walkSpeed;
-            this.jumpSpeed = source.jumpSpeed;
-            this.maxSailSpeed = source.maxSailSpeed;
-            this.maxWarpSpeed = source.maxWarpSpeed;
-            this.buildArea = source.buildArea;
-            this.droneCount = source.droneCount;
-            this.droneSpeed = source.droneSpeed;
-            this.droneMovement = source.droneMovement;
-            this.inventorySize = source.player.package.size;
+            coreEnergyCap = source.coreEnergyCap;
+            corePowerGen = source.corePowerGen;
+            reactorPowerGen = source.reactorPowerGen;
+            walkPower = source.walkPower;
+            jumpEnergy = source.jumpEnergy;
+            thrustPowerPerAcc = source.thrustPowerPerAcc;
+            warpKeepingPowerPerSpeed = source.warpKeepingPowerPerSpeed;
+            warpStartPowerPerSpeed = source.warpStartPowerPerSpeed;
+            miningPower = source.miningPower;
+            replicatePower = source.replicatePower;
+            researchPower = source.researchPower;
+            droneEjectEnergy = source.droneEjectEnergy;
+            droneEnergyPerMeter = source.droneEnergyPerMeter;
+            coreLevel = source.coreLevel;
+            thrusterLevel = source.thrusterLevel;
+            miningSpeed = source.miningSpeed;
+            replicateSpeed = source.replicateSpeed;
+            walkSpeed = source.walkSpeed;
+            jumpSpeed = source.jumpSpeed;
+            maxSailSpeed = source.maxSailSpeed;
+            maxWarpSpeed = source.maxWarpSpeed;
+            buildArea = source.buildArea;
+            droneCount = source.droneCount;
+            droneSpeed = source.droneSpeed;
+            droneMovement = source.droneMovement;
+            inventorySize = source.player.package.size;
         }
 
         public void UpdateMech(Mecha destination)
         {
-            destination.coreEnergyCap = this.coreEnergyCap;
-            destination.corePowerGen = this.corePowerGen;
-            destination.reactorPowerGen = this.reactorPowerGen;
-            destination.walkPower = this.walkPower;
-            destination.jumpEnergy = this.jumpEnergy;
-            destination.thrustPowerPerAcc = this.thrustPowerPerAcc;
-            destination.warpKeepingPowerPerSpeed = this.warpKeepingPowerPerSpeed;
-            destination.warpStartPowerPerSpeed = this.warpStartPowerPerSpeed;
-            destination.miningPower = this.miningPower;
-            destination.replicatePower = this.replicatePower;
-            destination.researchPower = this.researchPower;
-            destination.droneEjectEnergy = this.droneEjectEnergy;
-            destination.droneEnergyPerMeter = this.droneEnergyPerMeter;
-            destination.coreLevel = this.coreLevel;
-            destination.thrusterLevel = this.thrusterLevel;
-            destination.miningSpeed = this.miningSpeed;
-            destination.replicateSpeed = this.replicateSpeed;
-            destination.walkSpeed = this.walkSpeed;
-            destination.jumpSpeed = this.jumpSpeed;
-            destination.maxSailSpeed = this.maxSailSpeed;
-            destination.maxWarpSpeed = this.maxWarpSpeed;
-            destination.buildArea = this.buildArea;
-            destination.droneCount = this.droneCount;
-            destination.droneSpeed = this.droneSpeed;
-            destination.droneMovement = this.droneMovement;
-            if (this.inventorySize > destination.player.package.size)
+            destination.coreEnergyCap = coreEnergyCap;
+            destination.corePowerGen = corePowerGen;
+            destination.reactorPowerGen = reactorPowerGen;
+            destination.walkPower = walkPower;
+            destination.jumpEnergy = jumpEnergy;
+            destination.thrustPowerPerAcc = thrustPowerPerAcc;
+            destination.warpKeepingPowerPerSpeed = warpKeepingPowerPerSpeed;
+            destination.warpStartPowerPerSpeed = warpStartPowerPerSpeed;
+            destination.miningPower = miningPower;
+            destination.replicatePower = replicatePower;
+            destination.researchPower = researchPower;
+            destination.droneEjectEnergy = droneEjectEnergy;
+            destination.droneEnergyPerMeter = droneEnergyPerMeter;
+            destination.coreLevel = coreLevel;
+            destination.thrusterLevel = thrusterLevel;
+            destination.miningSpeed = miningSpeed;
+            destination.replicateSpeed = replicateSpeed;
+            destination.walkSpeed = walkSpeed;
+            destination.jumpSpeed = jumpSpeed;
+            destination.maxSailSpeed = maxSailSpeed;
+            destination.maxWarpSpeed = maxWarpSpeed;
+            destination.buildArea = buildArea;
+            destination.droneCount = droneCount;
+            destination.droneSpeed = droneSpeed;
+            destination.droneMovement = droneMovement;
+            if (inventorySize > destination.player.package.size)
             {
-                destination.player.package.SetSize(this.inventorySize);
+                destination.player.package.SetSize(inventorySize);
             }
         }
 

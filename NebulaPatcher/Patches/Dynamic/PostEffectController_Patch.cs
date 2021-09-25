@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PostEffectController))]
-    class PostEffectController_Patch
+    internal class PostEffectController_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PostEffectController.Start))]

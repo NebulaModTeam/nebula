@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNotificationPacket>
+    internal class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNotificationPacket>
     {
-        private IPlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public GameHistoryNotificationProcessor()
         {
@@ -24,9 +24,13 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             {
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
                 else
+                {
                     valid = false;
+                }
             }
 
             if (valid)

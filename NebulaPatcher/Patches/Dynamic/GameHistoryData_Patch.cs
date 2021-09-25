@@ -6,7 +6,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameHistoryData))]
-    class GameHistoryData_Patch
+    internal class GameHistoryData_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameHistoryData.SetForNewGame))]

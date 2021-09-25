@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PARTNER))]
-    class PARTNER_Patch
+    internal class PARTNER_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PARTNER.UploadClusterGenerationToGalaxyServer))]

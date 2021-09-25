@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpilers
 {
     [HarmonyPatch(typeof(PlayerMove_Sail))]
-    class PlayerMove_Sail_Transpiler
+    internal class PlayerMove_Sail_Transpiler
     {
 
         [HarmonyTranspiler]
@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Transpilers
         public static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             // Send PlayerUseWarper(bool) whenever warpCommand is toggled between true or false
-            var codeMatcher = new CodeMatcher(instructions)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "warpCommand")
                 );
@@ -31,7 +31,7 @@ namespace NebulaPatcher.Patches.Transpilers
             return codeMatcher
                 .Repeat(matcher =>
                 {
-                    var warpCommand = matcher.InstructionAt(-1).opcode == OpCodes.Ldc_I4_1;
+                    bool warpCommand = matcher.InstructionAt(-1).opcode == OpCodes.Ldc_I4_1;
                     matcher
                         .Advance(1)
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>

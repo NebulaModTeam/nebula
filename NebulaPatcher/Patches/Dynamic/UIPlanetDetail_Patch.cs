@@ -6,7 +6,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIPlanetDetail))]
-    class UIPlanetDetail_Patch
+    internal class UIPlanetDetail_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIPlanetDetail.OnNameInputEndEdit))]

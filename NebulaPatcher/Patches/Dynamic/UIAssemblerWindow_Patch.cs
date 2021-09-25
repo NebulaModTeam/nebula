@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIAssemblerWindow))]
-    class UIAssemblerWindow_Patch
+    internal class UIAssemblerWindow_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIAssemblerWindow.OnRecipeResetClick))]

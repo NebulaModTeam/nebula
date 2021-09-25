@@ -272,7 +272,7 @@ function uploadToTStore() {
       `"${DIST_TSTORE_CLI_EXE_PATH}" publish --file "${TSTORE_API_ARCHIVE_PATH}" --token "${process.env.TSTORE_TOKEN}" --use-session-auth`
     );
   } catch (error) {
-    console.error(`Thunderstore upload failed for ${TSTORE_API_ARCHIVE_PATH}`);
+    console.error(`Thunderstore upload failed for ${TSTORE_API_ARCHIVE_PATH} with error ${error}`);
   }
 
   try {
@@ -280,7 +280,7 @@ function uploadToTStore() {
       `"${DIST_TSTORE_CLI_EXE_PATH}" publish --file "${TSTORE_ARCHIVE_PATH}" --token "${process.env.TSTORE_TOKEN}" --use-session-auth`
     );
   } catch (error) {
-    console.error(`Thunderstore upload failed for ${TSTORE_ARCHIVE_PATH}`);
+    console.error(`Thunderstore upload failed for ${TSTORE_ARCHIVE_PATH} with error ${error}`);
   }
 }
 

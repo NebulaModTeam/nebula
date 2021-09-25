@@ -22,7 +22,10 @@ namespace NebulaWorld.Logistics
             Connections = new List<NebulaConnection>();
         }
 
-        public override string ToString() => $"{PlanetId}.{StationId}.{StationGId}";
+        public override string ToString()
+        {
+            return $"{PlanetId}.{StationId}.{StationGId}";
+        }
 
         public static string GetKey(int planetId, int stationId, int statgionGId)
         {
@@ -140,7 +143,7 @@ namespace NebulaWorld.Logistics
                     PowerConsumerComponent[] consumerPool = planet.factory.powerSystem.consumerPool;
                     if (consumerPool.Length > stationComponent.pcId)
                     {
-                        consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(50000.0 * (double)packet.SettingValue + 0.5);
+                        consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(50000.0 * packet.SettingValue + 0.5);
                     }
                 }
 
@@ -173,7 +176,7 @@ namespace NebulaWorld.Logistics
 
             if (packet.SettingIndex == StationUI.EUISettings.MaxTripDrones)
             {
-                stationComponent.tripRangeDrones = Math.Cos((double)packet.SettingValue / 180.0 * 3.141592653589793);
+                stationComponent.tripRangeDrones = Math.Cos(packet.SettingValue / 180.0 * 3.141592653589793);
             }
 
             if (packet.SettingIndex == StationUI.EUISettings.MaxTripVessel)
@@ -272,7 +275,10 @@ namespace NebulaWorld.Logistics
             PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
 
             // If we can't find planet or the factory for said planet, we can just skip this
-            if (planet?.factory?.transport == null) return;
+            if (planet?.factory?.transport == null)
+            {
+                return;
+            }
 
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             StationComponent[] stationPool = planet?.factory?.transport?.stationPool;
@@ -286,7 +292,10 @@ namespace NebulaWorld.Logistics
                 return;
             }
 
-            if (stationWindow == null) return;
+            if (stationWindow == null)
+            {
+                return;
+            }
 
             int _stationId = stationWindow._stationId;
 
@@ -425,7 +434,10 @@ namespace NebulaWorld.Logistics
             PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
 
             // If we can't find planet or the factory for said planet, we can just skip this
-            if (planet?.factory?.transport == null) return;
+            if (planet?.factory?.transport == null)
+            {
+                return;
+            }
 
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             StationComponent[] stationPool = planet?.factory?.transport?.stationPool;

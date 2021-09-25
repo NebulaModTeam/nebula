@@ -7,11 +7,14 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class StationSubscribeUIUpdatesProcessor : PacketProcessor<StationSubscribeUIUpdates>
+    internal class StationSubscribeUIUpdatesProcessor : PacketProcessor<StationSubscribeUIUpdates>
     {
         public override void ProcessPacket(StationSubscribeUIUpdates packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             if (packet.Subscribe)
             {

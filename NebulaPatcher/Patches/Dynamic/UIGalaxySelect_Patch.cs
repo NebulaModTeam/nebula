@@ -7,7 +7,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIGalaxySelect))]
-    class UIGalaxySelect_Patch
+    internal class UIGalaxySelect_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIGalaxySelect.EnterGame))]

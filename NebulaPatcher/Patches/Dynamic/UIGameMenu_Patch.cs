@@ -5,7 +5,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIGameMenu))]
-    class UIGameMenu_Patch
+    internal class UIGameMenu_Patch
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGameMenu.OnDfGuideButtonClick))]

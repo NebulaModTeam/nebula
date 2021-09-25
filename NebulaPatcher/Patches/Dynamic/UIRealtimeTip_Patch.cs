@@ -6,7 +6,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIRealtimeTip))]
-    class UIRealtimeTip_Patch
+    internal class UIRealtimeTip_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(bool), typeof(int) })]

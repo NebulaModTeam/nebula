@@ -11,7 +11,10 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
     {
         public override void ProcessPacket(PowerTowerUserLoadingRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
 

@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Ejector;
 namespace NebulaNetwork.PacketProcessors.Factory.Ejector
 {
     [RegisterPacketProcessor]
-    class EjectorOrbitUpdateProcessor : PacketProcessor<EjectorOrbitUpdatePacket>
+    internal class EjectorOrbitUpdateProcessor : PacketProcessor<EjectorOrbitUpdatePacket>
     {
         public override void ProcessPacket(EjectorOrbitUpdatePacket packet, NebulaConnection conn)
         {

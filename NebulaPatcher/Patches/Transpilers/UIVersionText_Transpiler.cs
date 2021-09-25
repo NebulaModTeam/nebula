@@ -8,13 +8,13 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpilers
 {
     [HarmonyPatch(typeof(UIVersionText))]
-    class UIVersionText_Transpiler
+    internal class UIVersionText_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIVersionText.Refresh))]
         public static IEnumerable<CodeInstruction> Refresh_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
-            var codeMatcher = new CodeMatcher(instructions, iL)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "userName")
                     );

@@ -9,11 +9,14 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryResearchContributionProcessor : PacketProcessor<GameHistoryResearchContributionPacket>
+    internal class GameHistoryResearchContributionProcessor : PacketProcessor<GameHistoryResearchContributionPacket>
     {
         public override void ProcessPacket(GameHistoryResearchContributionPacket packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             //Check if client is contributing to the correct Tech Research
             if (packet.TechId == GameMain.history.currentTech)

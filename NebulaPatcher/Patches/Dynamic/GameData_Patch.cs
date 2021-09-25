@@ -11,14 +11,16 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameData))]
-    class GameData_Patch
+    internal class GameData_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameData.Update))]
         public static void Update_Prefix()
         {
             if (!Multiplayer.IsActive || !Multiplayer.Session.IsGameLoaded)
+            {
                 return;
+            }
 
             Multiplayer.Session.World.RenderPlayerNameTagsInGame();
         }
@@ -52,7 +54,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     factoryIndex = GameMain.data.factoryCount++;
                     planet.factoryIndex = factoryIndex;
-                    __instance.factories[factoryIndex] = new PlanetFactory();                    
+                    __instance.factories[factoryIndex] = new PlanetFactory();
                     __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
                     planet.factory = __instance.factories[factoryIndex];
                 }

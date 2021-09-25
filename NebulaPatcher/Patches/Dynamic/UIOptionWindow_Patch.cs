@@ -13,21 +13,19 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIOptionWindow))]
-    class UIOptionWindow_Patch
+    internal class UIOptionWindow_Patch
     {
-        static RectTransform multiplayerTab;
+        private static RectTransform multiplayerTab;
 
         // Templates
-        static RectTransform checkboxTemplate;
-        static RectTransform comboBoxTemplate;
-        static RectTransform sliderTemplate;
-        static RectTransform inputTemplate;
-
-        static RectTransform multiplayerContent;
-        static int multiplayerTabIndex;
-        static Dictionary<string, System.Action> tempToUICallbacks;
-
-        static MultiplayerOptions tempMultiplayerOptions = new MultiplayerOptions();
+        private static RectTransform checkboxTemplate;
+        private static RectTransform comboBoxTemplate;
+        private static RectTransform sliderTemplate;
+        private static RectTransform inputTemplate;
+        private static RectTransform multiplayerContent;
+        private static int multiplayerTabIndex;
+        private static Dictionary<string, System.Action> tempToUICallbacks;
+        private static MultiplayerOptions tempMultiplayerOptions = new MultiplayerOptions();
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIOptionWindow._OnCreate))]
@@ -142,9 +140,9 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void TempOptionToUI_Postfix()
         {
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
-            foreach (var prop in properties)
+            foreach (PropertyInfo prop in properties)
             {
-                if (tempToUICallbacks.TryGetValue(prop.Name, out var callback))
+                if (tempToUICallbacks.TryGetValue(prop.Name, out System.Action callback))
                 {
                     callback();
                 }
@@ -156,7 +154,7 @@ namespace NebulaPatcher.Patches.Dynamic
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
             Vector2 anchorPosition = new Vector2(30, -20);
 
-            foreach (var prop in properties)
+            foreach (PropertyInfo prop in properties)
             {
                 DisplayNameAttribute displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
                 if (displayAttr != null)
@@ -243,15 +241,23 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     try
                     {
-                        var converter = TypeDescriptor.GetConverter(prop.PropertyType);
+                        TypeConverter converter = TypeDescriptor.GetConverter(prop.PropertyType);
                         System.IComparable value = (System.IComparable)converter.ConvertFromString(str);
 
                         if (rangeAttr != null)
                         {
                             System.IComparable min = (System.IComparable)System.Convert.ChangeType(rangeAttr.Min, prop.PropertyType);
                             System.IComparable max = (System.IComparable)System.Convert.ChangeType(rangeAttr.Max, prop.PropertyType);
-                            if (value.CompareTo(min) < 0) value = min;
-                            if (value.CompareTo(max) > 0) value = max;
+                            if (value.CompareTo(min) < 0)
+                            {
+                                value = min;
+                            }
+
+                            if (value.CompareTo(max) > 0)
+                            {
+                                value = max;
+                            }
+
                             input.text = value.ToString();
                         }
 

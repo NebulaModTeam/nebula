@@ -13,7 +13,7 @@ using UnityEngine;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSync>
+    internal class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSync>
     {
         public override void ProcessPacket(ILSgStationPoolSync packet, NebulaConnection conn)
         {
@@ -44,7 +44,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 // theese are the individual landing places for the ships on the station's disk at the top
                 for (int j = 0; j < Multiplayer.Session.Ships.ILSMaxShipCount; j++)
                 {
-                    gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / (float)Multiplayer.Session.Ships.ILSMaxShipCount * (float)j, 0f);
+                    gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / Multiplayer.Session.Ships.ILSMaxShipCount * j, 0f);
                     gStationPool[packet.stationGId[i]].shipDiskPos[j] = gStationPool[packet.stationGId[i]].shipDiskRot[j] * new Vector3(0f, 0f, 11.5f);
                 }
                 for (int j = 0; j < Multiplayer.Session.Ships.ILSMaxShipCount; j++)

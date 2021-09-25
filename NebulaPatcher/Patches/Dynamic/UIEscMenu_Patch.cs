@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIEscMenu))]
-    class UIEscMenu_Patch
+    internal class UIEscMenu_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIEscMenu._OnOpen))]
