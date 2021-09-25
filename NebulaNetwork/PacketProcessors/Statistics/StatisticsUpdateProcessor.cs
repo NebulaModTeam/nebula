@@ -17,16 +17,11 @@ namespace NebulaNetwork.PacketProcessors.Statistics
             {
                 using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.StatisticsBinaryData))
                 {
+                    bool itemChanged = false;
                     ref FactoryProductionStat[] productionStats = ref GameMain.statistics.production.factoryStatPool;
                     int numOfSnapshots = reader.BinaryReader.ReadInt32();
                     for (int i = 0; i < numOfSnapshots; i++)
                     {
-                        //Clear all current statistical data
-                        for (int a = 0; a < GameMain.statistics.production.factoryStatPool.Length; a++)
-                        {
-                            GameMain.statistics.production.factoryStatPool[a]?.ClearRegisters();
-                        }
-
                         //Load new snapshot
                         snapshot = new StatisticalSnapShot(reader.BinaryReader);
                         for (int factoryId = 0; factoryId < snapshot.ProductionChangesPerFactory.Length; factoryId++)
@@ -36,15 +31,19 @@ namespace NebulaNetwork.PacketProcessors.Statistics
                                 productionStats[factoryId] = new FactoryProductionStat();
                                 productionStats[factoryId].Init();
                             }
+                            //Clear current statistical data
+                            productionStats[factoryId].PrepareTick();
+
                             for (int changeId = 0; changeId < snapshot.ProductionChangesPerFactory[factoryId].Count; changeId++)
                             {
-                                if (snapshot.ProductionChangesPerFactory[factoryId][changeId].IsProduction)
+                                StatisticalSnapShot.ProductionChangeStruct productionChange = snapshot.ProductionChangesPerFactory[factoryId][changeId];
+                                if (productionChange.IsProduction)
                                 {
-                                    productionStats[factoryId].productRegister[snapshot.ProductionChangesPerFactory[factoryId][changeId].ProductId] += snapshot.ProductionChangesPerFactory[factoryId][changeId].Amount;
+                                    productionStats[factoryId].productRegister[productionChange.ProductId] += productionChange.Amount;
                                 }
                                 else
                                 {
-                                    productionStats[factoryId].consumeRegister[snapshot.ProductionChangesPerFactory[factoryId][changeId].ProductId] += snapshot.ProductionChangesPerFactory[factoryId][changeId].Amount;
+                                    productionStats[factoryId].consumeRegister[productionChange.ProductId] += productionChange.Amount;
                                 }
                             }
                             //Import power system statistics
@@ -58,8 +57,17 @@ namespace NebulaNetwork.PacketProcessors.Statistics
 
                             //Import Research statistics
                             productionStats[factoryId].hashRegister = snapshot.HashRegister[factoryId];
+
+                            //Processs changed registers. FactoryProductionStat.AfterTick() is empty currently so we ignore it.
+                            productionStats[factoryId].GameTick(snapshot.CapturedGameTick);
+                            itemChanged |= productionStats[factoryId].itemChanged;
                         }
-                        GameMain.statistics.production.GameTick(snapshot.CapturedGameTick);
+                    }
+                    //Trigger GameMain.statistics.production.onItemChange() event when itemChanged is true
+                    if (itemChanged)
+                    {
+                        UIRoot.instance.uiGame.statWindow.OnItemChange();
+                        NebulaModel.Logger.Log.Debug("StatisticsUpdateProcessor: itemChanged");
                     }
                 }
             }

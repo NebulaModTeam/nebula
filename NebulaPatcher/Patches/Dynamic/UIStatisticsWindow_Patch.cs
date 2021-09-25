@@ -30,5 +30,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.Network.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowClosed));
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIStatisticsWindow.AddStatGroup))]
+        public static bool AddStatGroup_Prefix(int __0, ProductionStatistics ___productionStat)
+        {
+            //Skip when StatisticsDataPacket hasn't arrived yet
+            return (__0 >= 0 && ___productionStat.factoryStatPool[__0] != null);
+        }
     }
 }

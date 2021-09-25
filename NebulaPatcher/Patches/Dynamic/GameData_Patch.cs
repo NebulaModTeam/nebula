@@ -46,20 +46,28 @@ namespace NebulaPatcher.Patches.Dynamic
 
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(factoryBytes))
             {
-                int factoryIndex = GameMain.data.factoryCount++;
+                int factoryIndex;
                 // Import the factory from the given bytes, which will have been gotten or created on the host by the original function
-                __instance.factories[factoryIndex] = new PlanetFactory();
-
                 if (planet.factory == null)
                 {
+                    factoryIndex = GameMain.data.factoryCount++;
+                    planet.factoryIndex = factoryIndex;
+                    __instance.factories[factoryIndex] = new PlanetFactory();                    
                     __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
                     planet.factory = __instance.factories[factoryIndex];
-                    planet.factoryIndex = factoryIndex;
                 }
                 else
                 {
-                    __instance.factories[planet.factoryIndex].Import(planet.factoryIndex, __instance, reader.BinaryReader);
-                    planet.factory = __instance.factories[planet.factoryIndex];
+                    factoryIndex = planet.factoryIndex;
+                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    planet.factory = __instance.factories[factoryIndex];
+                }
+                // Initial FactoryProductionStat for other in-game stats checking functions
+                if (GameMain.statistics.production.factoryStatPool[factoryIndex] == null)
+                {
+                    GameMain.statistics.production.factoryStatPool[factoryIndex] = new FactoryProductionStat();
+                    GameMain.statistics.production.factoryStatPool[factoryIndex].Init();
+                    //Skip the part of setting firstCreateIds
                 }
             }
 

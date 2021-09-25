@@ -11,10 +11,87 @@ namespace NebulaPatcher.Patches.Transpiler
     public static class UIStatisticsWindow_Transpiler
     {
         [HarmonyTranspiler]
+        [HarmonyPatch(nameof(UIStatisticsWindow.RefreshAstroBox))]
+        static IEnumerable<CodeInstruction> RefreshAstroBox_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            //Change: this.gameData.factoryCount 
+            //To:     GetFactoryCount()
+            //Change: this.gameData.factories[i].planetId
+            //To:     GetPlanetData(i).id
+            //Change: this.gameData.factories[i].planet
+            //To:     GetPlanetData(i)
+            try
+            {
+                instructions = ReplaceFactoryCount(instructions);
+
+                CodeMatcher matcher = new CodeMatcher(instructions)
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Callvirt, AccessTools.DeclaredPropertyGetter(typeof(PlanetFactory), nameof(PlanetFactory.planetId)))
+                    )
+                    .Advance(-5);
+                OpCode factoryIndexOp = matcher.InstructionAt(3).opcode;
+                matcher.SetAndAdvance(factoryIndexOp, null)
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(UIStatisticsWindow_Transpiler.GetPlanetData))),
+                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.id)))
+                    )
+                    .RemoveInstructions(5)
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Callvirt, AccessTools.DeclaredPropertyGetter(typeof(PlanetFactory), nameof(PlanetFactory.planet)))
+                    )
+                    .Advance(-5);
+                factoryIndexOp = matcher.InstructionAt(3).opcode;
+                matcher.SetAndAdvance(factoryIndexOp, null)
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(UIStatisticsWindow_Transpiler.GetPlanetData)))
+                    )
+                    .RemoveInstructions(5);
+                return matcher.InstructionEnumeration();
+            }
+            catch
+            {
+                NebulaModel.Logger.Log.Error("RefreshAstroBox_Transpiler failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+        }
+
+        [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIStatisticsWindow.ComputeDisplayEntries))]
         static IEnumerable<CodeInstruction> ComputeDisplayEntries_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            return ReplaceFactoryCondition(instructions);
+            //Change: this.gameData.factoryCount
+            //To:     GetFactoryCount()
+            //Change: planetData.factoryIndex
+            //To:     GetFactoryIndex(planetData)
+            //Change: if (starData.planets[j].factory != null)
+            //To:     if (GetFactoryIndex(starData.planets[j]) != -1)
+            try
+            {
+                instructions = ReplaceFactoryCount(instructions);
+                instructions = new CodeMatcher(instructions)
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.factoryIndex)))
+                    )
+                    .Repeat(matcher => matcher
+                        .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(UIStatisticsWindow_Transpiler.GetFactoryIndex)))
+                    )
+                    .InstructionEnumeration();
+
+                return new CodeMatcher(instructions)
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.factory))),
+                        new CodeMatch(OpCodes.Brfalse)
+                    )
+                    .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(UIStatisticsWindow_Transpiler.GetFactoryIndex)))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_M1))
+                    .SetOpcodeAndAdvance(OpCodes.Beq_S)
+                    .InstructionEnumeration();
+            }
+            catch
+            {
+                NebulaModel.Logger.Log.Error("ComputeDisplayEntries_Transpiler failed. Mod version not compatible with game version.");
+                return instructions;
+            }
         }
 
         [HarmonyTranspiler]
@@ -37,7 +114,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 With: Multiplayer.Session.Statistics.UpdateTotalChargedEnergy(factoryIndex);
                    
              * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
-            var matcher = new CodeMatcher(instructions, iLGenerator)
+            CodeMatcher matcher = new CodeMatcher(instructions, iLGenerator)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "gameData"),
@@ -94,32 +171,46 @@ namespace NebulaPatcher.Patches.Transpiler
 
         }
 
-        public static IEnumerable<CodeInstruction> ReplaceFactoryCondition(IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> ReplaceFactoryCount(IEnumerable<CodeInstruction> instructions)
         {
-            //change: if (starData.planets[j].factory != null)
-            //to    : if (starData.planets[j].factoryIndex != -1)
-            var matcher = new CodeMatcher(instructions)
-                .MatchForward(true,
-                    new CodeMatch(i => i.IsLdloc()),
-                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "planets"),
-                    new CodeMatch(i => i.IsLdloc()),
-                    new CodeMatch(OpCodes.Ldelem_Ref),
-                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "factory"),
-                    new CodeMatch(OpCodes.Brfalse)
-                );
+            return new CodeMatcher(instructions)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.gameData))),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(GameData), nameof(GameData.factoryCount)))
+                )
+                .Repeat(matcher => matcher
+                    .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(UIStatisticsWindow_Transpiler.GetFactoryCount)))
+                    .RemoveInstructions(2)
+                )
+               .InstructionEnumeration();
+        }
 
-            if (matcher.IsInvalid)
+        static int GetFactoryCount()
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
-                NebulaModel.Logger.Log.Error("UIStatisticsWindow_Transpiler.ReplaceFactoryCondition failed. Mod version not compatible with game version.");
-                return instructions;
+                return GameMain.data.factoryCount;
             }
+            return Multiplayer.Session.Statistics.FactoryCount;
+        }
 
-            return matcher
-                    .Advance(-1)
-                    .SetOperandAndAdvance(typeof(PlanetData).GetField("factoryIndex", BindingFlags.Public | BindingFlags.Instance))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_M1))
-                    .SetInstruction(new CodeInstruction(OpCodes.Beq, matcher.Instruction.operand))
-                    .InstructionEnumeration();
+        static PlanetData GetPlanetData(int factoryId)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return GameMain.data.factories[factoryId].planet;
+            }
+            return Multiplayer.Session.Statistics.GetPlanetData(factoryId);
+        }
+
+        static int GetFactoryIndex(PlanetData planet)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return planet.factoryIndex;
+            }
+            return Multiplayer.Session.Statistics.GetFactoryIndex(planet);
         }
     }
 }
