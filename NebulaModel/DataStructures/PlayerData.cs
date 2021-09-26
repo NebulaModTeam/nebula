@@ -5,7 +5,6 @@ namespace NebulaModel.DataStructures
     [RegisterNestedType]
     public class PlayerData : IPlayerData
     {
-        public const ushort REVISION = 3;
         public string Username { get; set; }
         public ushort PlayerId { get; set; }
         public int LocalPlanetId { get; set; }
@@ -16,7 +15,6 @@ namespace NebulaModel.DataStructures
         public Float3 BodyRotation { get; set; }
         public IMechaData Mecha { get; set; }
         public int LocalStarId { get; set; }
-        public ushort Revision { get; set; } = REVISION;
 
         public PlayerData() { }
         public PlayerData(ushort playerId, int localPlanetId, Float4[] mechaColors, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
