@@ -26,6 +26,7 @@ namespace NebulaNetwork
                 {
                     string hash = data.Key;
                     netDataWriter.Put(hash);
+                    netDataWriter.Put(PlayerData.REVISION);
                     data.Value.Serialize(netDataWriter);
                 }
             }
@@ -96,6 +97,21 @@ namespace NebulaNetwork
                 for (int i = 0; i < playerNum; i++)
                 {
                     string hash = netDataReader.GetString();
+
+                    try
+                    {
+                        ushort revision = netDataReader.GetUShort();
+                        if (revision != PlayerData.REVISION)
+                        {
+                            throw new System.Exception();
+                        }
+                    }
+                    catch (System.Exception)
+                    {
+                        NebulaModel.Logger.Log.Warn("Skipping PlayerData from unsupported Nebula version...");
+                        break;
+                    }
+
                     PlayerData playerData = netDataReader.Get<PlayerData>();
                     if (!savedPlayerData.ContainsKey(hash))
                     {
