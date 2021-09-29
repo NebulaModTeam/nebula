@@ -1,5 +1,11 @@
 ## Changelog
 
+0.6.2:
+
+- Fixed error when loading saves that were created before 0.6.0. WARNING: All previous client inventory and position data will be lost!
+- Improved compatibility with GigaStations mod (thanks to @kremnev8)
+- Removed extraneous dlls that were mistakenly included in the previous release
+
 0.6.1:
 
 - Fixed statistics syncing (thanks to @starfi5h)
