@@ -11,12 +11,14 @@ namespace NebulaNetwork
     public class SaveManager
     {
         private const string FILE_EXTENSION = ".server";
+        private const ushort REVISION = 3;
 
         public static void SaveServerData(string saveName)
         {
             string path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
             IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
             NetDataWriter netDataWriter = new NetDataWriter();
+            netDataWriter.Put(REVISION);
 
             using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
             {
@@ -89,6 +91,20 @@ namespace NebulaNetwork
 
             byte[] source = File.ReadAllBytes(path);
             NetDataReader netDataReader = new NetDataReader(source);
+            try
+            {
+                ushort revision = netDataReader.GetUShort();
+                if (revision != REVISION)
+                {
+                    throw new System.Exception();
+                }
+            }
+            catch (System.Exception)
+            {
+                NebulaModel.Logger.Log.Warn("Skipping server data from unsupported Nebula version...");
+                return;
+            }
+
             int playerNum = netDataReader.GetInt();
 
             using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
@@ -96,6 +112,7 @@ namespace NebulaNetwork
                 for (int i = 0; i < playerNum; i++)
                 {
                     string hash = netDataReader.GetString();
+
                     PlayerData playerData = netDataReader.Get<PlayerData>();
                     if (!savedPlayerData.ContainsKey(hash))
                     {
