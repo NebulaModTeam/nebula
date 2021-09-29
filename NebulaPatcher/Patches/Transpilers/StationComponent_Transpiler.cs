@@ -898,10 +898,10 @@ namespace NebulaPatcher.Patches.Transpilers
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
 
-                // find begin of ship movement computation, c# 428 IL 2075
-                int origShipUpdateCodeBeginPos = new CodeMatcher(instructions)
+                // find begin of ship movement computation, c# 436 IL 2090
+                int origShipUpdateCodeBeginPos = new CodeMatcher(instructions, il)
                     .MatchForward(false,
-                        new CodeMatch(OpCodes.Ldarg_3),
+                        new CodeMatch(i => i.IsLdarg()),
                         new CodeMatch(OpCodes.Ldc_R4),
                         new CodeMatch(OpCodes.Div),
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Sqrt"),
@@ -928,7 +928,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
                 instructions = matcher.InstructionEnumeration();
 
-                // remove c# 470 - 493 IL 2201 - 2353 (which is just after the first addItem() call)
+                // remove c# 478 - 501 IL 2215 - 2367 (which is just after the first addItem() call)
                 int origTempBlockIndexStart = new CodeMatcher(instructions)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
@@ -954,11 +954,10 @@ namespace NebulaPatcher.Patches.Transpilers
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"),
                         new CodeMatch(OpCodes.Pop),
+                        new CodeMatch(i => i.IsLdarg()),
                         new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldc_I4_0),
-                        new CodeMatch(OpCodes.Stfld),
-                        new CodeMatch(OpCodes.Ldarg_0))
-                    .Pos - 3; // to also remove 'shipData.itemCount = 0;'
+                        new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "planetA"))
+                    .Pos - 3;
                 origTempBlockIndexEnd = new CodeMatcher(instructions)
                     .Advance(origTempBlockIndexStart)
                     .MatchForward(false,
@@ -1028,7 +1027,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 instructions = matcher.InstructionEnumeration();
 
                 // remove c# 928 - 932 (adding warper from station to ship)
-                //matcher3.Start();
                 CodeMatcher matcher3 = new CodeMatcher(instructions, il);
                 int indexStart = matcher3.MatchForward(false,
                     new CodeMatch(OpCodes.Ldarg_S),
