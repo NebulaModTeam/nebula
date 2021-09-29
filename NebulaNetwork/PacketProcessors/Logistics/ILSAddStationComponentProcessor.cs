@@ -29,7 +29,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 {
                     // If we're not on the same planet as the new station was create on, we need to create a 
                     // "fake" station that we can put into the GalacticTransport.stationPool instead of a real on
-                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId, packet.PlanetId, true);
+                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId, packet.PlanetId, packet.MaxShipCount);
                 }
             }
         }

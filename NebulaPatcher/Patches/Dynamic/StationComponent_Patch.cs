@@ -64,7 +64,13 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
-                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[__instance.workShipCount - 1].planetA, __instance.workShipDatas[__instance.workShipCount - 1].planetB, __instance.workShipDatas[__instance.workShipCount - 1].itemId, __instance.workShipDatas[__instance.workShipCount - 1].itemCount, __instance.gid, __instance.workShipDatas[__instance.workShipCount - 1].otherGId, index, __instance.workShipDatas[__instance.workShipCount - 1].warperCnt, __instance.warperCount);
+                int otherGId = __instance.workShipDatas[__instance.workShipCount - 1].otherGId;
+                int otherShipCount = GameMain.data.galacticTransport.stationPool[otherGId].workShipDatas.Length;
+                
+                ILSShipData packet = new ILSShipData(true, 
+                    __instance.workShipDatas[__instance.workShipCount - 1],
+                    __instance.gid, __instance.workDroneDatas.Length,  otherGId, otherShipCount, index,
+                    __instance.warperCount);
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }

@@ -39,7 +39,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 if (packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
                 {
-                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i]);
+                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i], packet.StationMaxShips[i]);
                 }
 
                 StationComponent stationComponent = gStationPool[packet.StationGId[i]];

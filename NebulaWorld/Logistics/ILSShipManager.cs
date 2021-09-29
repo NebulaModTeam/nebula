@@ -16,8 +16,6 @@ namespace NebulaWorld.Logistics
         public int ItemSlotStationId = 0;
         public int ItemSlotStationGId = 0;
 
-        public readonly int ILSMaxShipCount = 10;
-
         public ILSShipManager()
         {
         }
@@ -39,11 +37,11 @@ namespace NebulaWorld.Logistics
             {
                 if (GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
                 {
-                    CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
+                    CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetAStationMaxShipCount);
                 }
                 else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
                 {
-                    CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
+                    CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetAStationMaxShipCount);
                 }
                 else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
                 {
@@ -51,11 +49,11 @@ namespace NebulaWorld.Logistics
                 }
                 if (GameMain.data.galacticTransport.stationCapacity <= packet.planetBStationGID)
                 {
-                    CreateFakeStationComponent(packet.planetBStationGID, packet.planetB);
+                    CreateFakeStationComponent(packet.planetBStationGID, packet.planetB, packet.planetBStationMaxShipCount);
                 }
                 else if (GameMain.data.galacticTransport.stationPool[packet.planetBStationGID] == null)
                 {
-                    CreateFakeStationComponent(packet.planetBStationGID, packet.planetB);
+                    CreateFakeStationComponent(packet.planetBStationGID, packet.planetB, packet.planetBStationMaxShipCount);
                 }
                 else if (GameMain.data.galacticTransport.stationPool[packet.planetBStationGID].shipDockPos == Vector3.zero)
                 {
@@ -82,9 +80,9 @@ namespace NebulaWorld.Logistics
                 {
                     stationComponent.idleShipCount = 0;
                 }
-                if (stationComponent.workShipCount > ILSMaxShipCount)
+                if (stationComponent.workShipCount > packet.planetAStationMaxShipCount)
                 {
-                    stationComponent.workShipCount = ILSMaxShipCount;
+                    stationComponent.workShipCount = packet.planetAStationMaxShipCount;
                 }
                 stationComponent.IdleShipGetToWork(packet.origShipIndex);
 
@@ -116,11 +114,11 @@ namespace NebulaWorld.Logistics
 
             if (GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
             {
-                CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
+                CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetAStationMaxShipCount);
             }
             else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
             {
-                CreateFakeStationComponent(packet.planetAStationGID, packet.planetA);
+                CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetBStationMaxShipCount);
             }
             else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
             {
@@ -135,9 +133,9 @@ namespace NebulaWorld.Logistics
             {
                 stationComponent.idleShipCount = 0;
             }
-            if (stationComponent.workShipCount > ILSMaxShipCount)
+            if (stationComponent.workShipCount > packet.planetAStationMaxShipCount)
             {
-                stationComponent.workShipCount = ILSMaxShipCount;
+                stationComponent.workShipCount = packet.planetAStationMaxShipCount;
             }
             stationComponent.WorkShipBackToIdle(packet.origShipIndex);
         }
@@ -147,7 +145,7 @@ namespace NebulaWorld.Logistics
          * The information is needed in StationComponent.InternalTickRemote(), but we use a reverse patched version of that
          * which is stripped down to the ship movement and rendering part.
          */
-        public void CreateFakeStationComponent(int GId, int planetId, bool computeDisk = true)
+        public void CreateFakeStationComponent(int GId, int planetId, int maxShipCount, bool computeDisk = true)
         {
             // it may be needed to make additional room for the new ILS
             while (GameMain.data.galacticTransport.stationCapacity <= GId)
@@ -161,24 +159,24 @@ namespace NebulaWorld.Logistics
             stationComponent.isStellar = true;
             stationComponent.gid = GId;
             stationComponent.planetId = planetId;
-            stationComponent.workShipDatas = new ShipData[ILSMaxShipCount];
-            stationComponent.shipRenderers = new ShipRenderingData[ILSMaxShipCount];
-            stationComponent.shipUIRenderers = new ShipUIRenderingData[ILSMaxShipCount];
+            stationComponent.workShipDatas = new ShipData[maxShipCount];
+            stationComponent.shipRenderers = new ShipRenderingData[maxShipCount];
+            stationComponent.shipUIRenderers = new ShipUIRenderingData[maxShipCount];
             stationComponent.workShipCount = 0;
             stationComponent.idleShipCount = 0;
             stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
             stationComponent.shipDockRot = Quaternion.identity; // gets updated later by server packet
             if (computeDisk)
             {
-                stationComponent.shipDiskPos = new Vector3[ILSMaxShipCount];
-                stationComponent.shipDiskRot = new Quaternion[ILSMaxShipCount];
+                stationComponent.shipDiskPos = new Vector3[maxShipCount];
+                stationComponent.shipDiskRot = new Quaternion[maxShipCount];
 
-                for (int i = 0; i < ILSMaxShipCount; i++)
+                for (int i = 0; i < maxShipCount; i++)
                 {
-                    stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / ILSMaxShipCount * i, 0f);
+                    stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / maxShipCount * i, 0f);
                     stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
                 }
-                for (int j = 0; j < ILSMaxShipCount; j++)
+                for (int j = 0; j < maxShipCount; j++)
                 {
                     stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
                     stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
