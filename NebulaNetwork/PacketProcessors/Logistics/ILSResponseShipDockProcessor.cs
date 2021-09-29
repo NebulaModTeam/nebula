@@ -28,12 +28,12 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             stationComponent.shipDockPos = packet.shipDockPos.ToVector3();
             stationComponent.shipDockRot = packet.shipDockRot.ToQuaternion();
 
-            for (int i = 0; i < Multiplayer.Session.Ships.ILSMaxShipCount; i++)
+            for (int i = 0; i < stationComponent.workShipDatas.Length; i++)
             {
-                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / Multiplayer.Session.Ships.ILSMaxShipCount * i, 0f);
+                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / stationComponent.workShipDatas.Length * i, 0f);
                 stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
             }
-            for (int j = 0; j < Multiplayer.Session.Ships.ILSMaxShipCount; j++)
+            for (int j = 0; j < stationComponent.workShipDatas.Length; j++)
             {
                 stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
                 stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];

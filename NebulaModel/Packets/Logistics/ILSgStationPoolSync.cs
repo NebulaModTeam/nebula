@@ -7,6 +7,8 @@ namespace NebulaModel.Packets.Logistics
     public class ILSgStationPoolSync
     {
         public int[] stationGId { get; set; }
+        
+        public int[] stationMaxShipCount { get; set; }
         public int[] stationId { get; set; }
         public Float3[] DockPos { get; set; }
         public Float4[] DockRot { get; set; }
@@ -15,7 +17,6 @@ namespace NebulaModel.Packets.Logistics
         public int[] idleShipCount { get; set; }
         public ulong[] workShipIndices { get; set; }
         public ulong[] idleShipIndices { get; set; }
-        public int[] shipStationGId { get; set; }
         public int[] shipStage { get; set; }
         public int[] shipDirection { get; set; }
         public float[] shipWarpState { get; set; }
@@ -37,6 +38,7 @@ namespace NebulaModel.Packets.Logistics
 
         public ILSgStationPoolSync() { }
         public ILSgStationPoolSync(int[] stationGId,
+                                    int[] stationMaxShipCount,
                                     int[] stationId,
                                     Float3[] DockPos,
                                     Float4[] DockRot,
@@ -45,7 +47,6 @@ namespace NebulaModel.Packets.Logistics
                                     int[] idleShipCount,
                                     ulong[] workShipIndices,
                                     ulong[] idleShipIndices,
-                                    int[] shipStationGId,
                                     int[] shipStage,
                                     int[] shipDirection,
                                     float[] shipWarpState,
@@ -66,6 +67,7 @@ namespace NebulaModel.Packets.Logistics
                                     Float4[] shipPRotTemp)
         {
             this.stationGId = stationGId;
+            this.stationMaxShipCount = stationMaxShipCount;
             this.stationId = stationId;
             this.DockPos = DockPos;
             this.DockRot = DockRot;
@@ -74,7 +76,6 @@ namespace NebulaModel.Packets.Logistics
             this.idleShipCount = idleShipCount;
             this.workShipIndices = workShipIndices;
             this.idleShipIndices = idleShipIndices;
-            this.shipStationGId = shipStationGId;
             this.shipStage = shipStage;
             this.shipDirection = shipDirection;
             this.shipWarpState = shipWarpState;

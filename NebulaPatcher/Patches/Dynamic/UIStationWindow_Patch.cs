@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using UnityEngine.EventSystems;
@@ -158,11 +159,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     return false;
                 }
                 StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+                ItemProto stationItem = LDB.items.Select(__instance.factory.entityPool[stationComponent.entityId].protoId);
+                
                 int toAdd;
                 if (player.inhandItemCount > 0)
                 {
                     int droneAmount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
-                    int spaceLeft = 50 - droneAmount;
+                    int spaceLeft = stationItem.prefabDesc.stationMaxDroneCount - droneAmount;
                     if (spaceLeft < 0)
                     {
                         spaceLeft = 0;
@@ -203,11 +206,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     return false;
                 }
                 StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+                ItemProto stationItem = LDB.items.Select(__instance.factory.entityPool[stationComponent.entityId].protoId);
+                
                 int toAdd;
                 if (player.inhandItemCount > 0)
                 {
                     int shipAmount = stationComponent.idleShipCount + stationComponent.workShipCount;
-                    int spaceLeft = 10 - shipAmount;
+                    int spaceLeft = stationItem.prefabDesc.stationMaxShipCount - shipAmount;
                     if (spaceLeft < 0)
                     {
                         spaceLeft = 0;
@@ -248,10 +253,11 @@ namespace NebulaPatcher.Patches.Dynamic
                     return false;
                 }
                 StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+                
                 int toAdd;
                 if (player.inhandItemCount > 0)
                 {
-                    int spaceLeft = 50 - stationComponent.warperCount;
+                    int spaceLeft = stationComponent.warperMaxCount - stationComponent.warperCount;
                     if (spaceLeft < 0)
                     {
                         spaceLeft = 0;

@@ -36,6 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             if (player != null)
             {
                 List<int> stationGId = new List<int>();
+                List<int> stationMaxShips = new List<int>();
                 List<int> storageLength = new List<int>();
                 int arraySize = 0;
                 int offset = 0;
@@ -46,6 +47,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         if (stationComponent != null && GameMain.galaxy.PlanetById(stationComponent.planetId)?.star.id == packet.StarId)
                         {
                             stationGId.Add(stationComponent.gid);
+                            stationMaxShips.Add(stationComponent.workShipDatas.Length);
                             storageLength.Add(stationComponent.storage.Length);
                         }
                     }
@@ -60,6 +62,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                             if (stationComponent != null)
                             {
                                 stationGId.Add(stationComponent.gid);
+                                stationMaxShips.Add(stationComponent.workShipDatas.Length);
                                 storageLength.Add(stationComponent.storage.Length);
                             }
                         }
@@ -115,6 +118,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     }
 
                     player.SendPacket(new ILSArriveStarPlanetResponse(stationGId.ToArray(),
+                                                                stationMaxShips.ToArray(),
                                                                 planetId,
                                                                 (packet.PlanetId == 0) ? 0 : packet.PlanetId,
                                                                 storageLength.ToArray(),

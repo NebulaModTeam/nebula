@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+using System.Collections.Generic;
 
 /*
  * Whenever a client connects we sync the current state of all ILS and ships to them
@@ -49,6 +50,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 }
 
                 int[] stationGId = new int[countILS];
+                int[] stationMaxShipCount = new int[countILS];
                 int[] stationId = new int[countILS];
                 Float3[] DockPos = new Float3[countILS];
                 Float4[] DockRot = new Float4[countILS];
@@ -57,32 +59,32 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 int[] idleShipCount = new int[countILS];
                 ulong[] workShipIndices = new ulong[countILS];
                 ulong[] idleShipIndices = new ulong[countILS];
-
-                int[] shipStationGId = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipStage = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipDirection = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                float[] shipWarpState = new float[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipWarperCnt = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipItemID = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipItemCount = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipPlanetA = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipPlanetB = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipOtherGId = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                float[] shipT = new float[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                int[] shipIndex = new int[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                Double3[] shipPos = new Double3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                Float4[] shipRot = new Float4[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                Float3[] shipVel = new Float3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                float[] shipSpeed = new float[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                Float3[] shipAngularVel = new Float3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                Double3[] shipPPosTemp = new Double3[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
-                Float4[] shipPRotTemp = new Float4[countILS * Multiplayer.Session.Ships.ILSMaxShipCount];
+                
+                List<int> shipStage = new List<int>();
+                List<int> shipDirection = new List<int>();
+                List<float> shipWarpState = new List<float>();
+                List<int> shipWarperCnt = new List<int>();
+                List<int> shipItemID = new List<int>();
+                List<int> shipItemCount = new List<int>();
+                List<int> shipPlanetA = new List<int>();
+                List<int> shipPlanetB = new List<int>();
+                List<int> shipOtherGId = new List<int>();
+                List<float> shipT = new List<float>();
+                List<int> shipIndex = new List<int>();
+                List<Double3> shipPos = new List<Double3>();
+                List<Float4> shipRot = new List<Float4>();
+                List<Float3> shipVel = new List<Float3>();
+                List<float> shipSpeed = new List<float>();
+                List<Float3> shipAngularVel = new List<Float3>();
+                List<Double3> shipPPosTemp = new List<Double3>();
+                List<Float4> shipPRotTemp = new List<Float4>();
 
                 foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
                     if (stationComponent != null)
                     {
                         stationGId[iter] = stationComponent.gid;
+                        stationMaxShipCount[iter] = stationComponent.workShipDatas.Length;
                         stationId[iter] = stationComponent.id;
                         DockPos[iter] = new Float3(stationComponent.shipDockPos);
                         DockRot[iter] = new Float4(stationComponent.shipDockRot);
@@ -93,30 +95,28 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         idleShipIndices[iter] = stationComponent.idleShipIndices;
 
                         // ShipData is never null
-                        for (int j = 0; j < Multiplayer.Session.Ships.ILSMaxShipCount; j++)
+                        for (int j = 0; j < stationComponent.workShipDatas.Length; j++)
                         {
                             ShipData shipData = stationComponent.workShipDatas[j];
-                            int index = iter * Multiplayer.Session.Ships.ILSMaxShipCount + j;
 
-                            shipStationGId[index] = stationComponent.gid;
-                            shipStage[index] = shipData.stage;
-                            shipDirection[index] = shipData.direction;
-                            shipWarpState[index] = shipData.warpState;
-                            shipWarperCnt[index] = shipData.warperCnt;
-                            shipItemID[index] = shipData.itemId;
-                            shipItemCount[index] = shipData.itemCount;
-                            shipPlanetA[index] = shipData.planetA;
-                            shipPlanetB[index] = shipData.planetB;
-                            shipOtherGId[index] = shipData.otherGId;
-                            shipT[index] = shipData.t;
-                            shipIndex[index] = shipData.shipIndex;
-                            shipPos[index] = new Double3(shipData.uPos.x, shipData.uPos.y, shipData.uPos.z);
-                            shipRot[index] = new Float4(shipData.uRot);
-                            shipVel[index] = new Float3(shipData.uVel);
-                            shipSpeed[index] = shipData.uSpeed;
-                            shipAngularVel[index] = new Float3(shipData.uAngularVel);
-                            shipPPosTemp[index] = new Double3(shipData.pPosTemp.x, shipData.pPosTemp.y, shipData.pPosTemp.z);
-                            shipPRotTemp[index] = new Float4(shipData.pRotTemp);
+                            shipStage.Add(shipData.stage);
+                            shipDirection.Add(shipData.direction);
+                            shipWarpState.Add(shipData.warpState);
+                            shipWarperCnt.Add(shipData.warperCnt);
+                            shipItemID.Add(shipData.itemId);
+                            shipItemCount.Add(shipData.itemCount);
+                            shipPlanetA.Add(shipData.planetA);
+                            shipPlanetB.Add(shipData.planetB);
+                            shipOtherGId.Add(shipData.otherGId);
+                            shipT.Add(shipData.t);
+                            shipIndex.Add(shipData.shipIndex);
+                            shipPos.Add(new Double3(shipData.uPos.x, shipData.uPos.y, shipData.uPos.z));
+                            shipRot.Add(new Float4(shipData.uRot));
+                            shipVel.Add(new Float3(shipData.uVel));
+                            shipSpeed.Add(shipData.uSpeed);
+                            shipAngularVel.Add(new Float3(shipData.uAngularVel));
+                            shipPPosTemp.Add(new Double3(shipData.pPosTemp.x, shipData.pPosTemp.y, shipData.pPosTemp.z));
+                            shipPRotTemp.Add(new Float4(shipData.pRotTemp));
                         }
 
                         iter++;
@@ -125,6 +125,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
                 ILSgStationPoolSync packet2 = new ILSgStationPoolSync(
                     stationGId,
+                    stationMaxShipCount,
                     stationId,
                     DockPos,
                     DockRot,
@@ -133,25 +134,24 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     idleShipCount,
                     workShipIndices,
                     idleShipIndices,
-                    shipStationGId,
-                    shipStage,
-                    shipDirection,
-                    shipWarpState,
-                    shipWarperCnt,
-                    shipItemID,
-                    shipItemCount,
-                    shipPlanetA,
-                    shipPlanetB,
-                    shipOtherGId,
-                    shipT,
-                    shipIndex,
-                    shipPos,
-                    shipRot,
-                    shipVel,
-                    shipSpeed,
-                    shipAngularVel,
-                    shipPPosTemp,
-                    shipPRotTemp);
+                    shipStage.ToArray(),
+                    shipDirection.ToArray(),
+                    shipWarpState.ToArray(),
+                    shipWarperCnt.ToArray(),
+                    shipItemID.ToArray(),
+                    shipItemCount.ToArray(),
+                    shipPlanetA.ToArray(),
+                    shipPlanetB.ToArray(),
+                    shipOtherGId.ToArray(),
+                    shipT.ToArray(),
+                    shipIndex.ToArray(),
+                    shipPos.ToArray(),
+                    shipRot.ToArray(),
+                    shipVel.ToArray(),
+                    shipSpeed.ToArray(),
+                    shipAngularVel.ToArray(),
+                    shipPPosTemp.ToArray(),
+                    shipPRotTemp.ToArray());
                 player.SendPacket(packet2);
             }
         }
