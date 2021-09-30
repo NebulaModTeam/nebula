@@ -1,5 +1,9 @@
 ## Changelog
 
+0.6.3:
+
+- Fixed more errors caused by loading saves made on earlier Nebula versions
+
 0.6.2:
 
 - Fixed error when loading saves that were created before 0.6.0. **WARNING: All previous client inventory and position data will be lost!**
