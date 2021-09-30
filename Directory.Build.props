@@ -37,22 +37,18 @@
   
   <!-- Shared Items -->
   <ItemGroup Label="NuGets">
-    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.11.0" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.205" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.*" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Label="NuGetsMain" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.12" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.*" />
   </ItemGroup>
 
-  <ItemGroup Label="BepInEx">
-    <PackageReference Include="BepInEx.Core" Version="5.4.*" PrivateAssets="all" />
-    <PackageReference Include="BepInEx.Analyzers" Version="1.0.*" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup Label="Dyson Sphere Program">
-    <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" PrivateAssets="all" ExcludeAssets="runtime" />
-    <Reference Include="$(PropsheetPath)\Libs\UnityEngine.UI.dll" Private="false" SpecificVersion="true" />
+  <ItemGroup Label="Core">
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+    <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" />
+    <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" IncludeAssets="compile" />
   </ItemGroup>
 </Project>
