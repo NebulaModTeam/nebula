@@ -11,13 +11,14 @@ namespace NebulaNetwork
     public class SaveManager
     {
         private const string FILE_EXTENSION = ".server";
-        private const ushort REVISION = 3;
+        private const ushort REVISION = 4;
 
         public static void SaveServerData(string saveName)
         {
             string path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
             IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
             NetDataWriter netDataWriter = new NetDataWriter();
+            netDataWriter.Put("REV");
             netDataWriter.Put(REVISION);
 
             using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
@@ -81,53 +82,52 @@ namespace NebulaNetwork
 
         public static void LoadServerData()
         {
+            string path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
+
+            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+            if (!File.Exists(path) || playerManager == null)
+            {
+                return;
+            }
+
+            byte[] source = File.ReadAllBytes(path);
+            NetDataReader netDataReader = new NetDataReader(source);
             try
             {
-                string path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
-
-                IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-                if (!File.Exists(path) || playerManager == null)
+                string revString = netDataReader.GetString();
+                if (revString != "REV")
                 {
-                    return;
+                    throw new System.Exception();
                 }
 
-                byte[] source = File.ReadAllBytes(path);
-                NetDataReader netDataReader = new NetDataReader(source);
-                try
+                ushort revision = netDataReader.GetUShort();
+                if (revision != REVISION)
                 {
-                    ushort revision = netDataReader.GetUShort();
-                    if (revision != REVISION)
-                    {
-                        throw new System.Exception();
-                    }
-                }
-                catch (System.Exception)
-                {
-                    NebulaModel.Logger.Log.Warn("Skipping server data from unsupported Nebula version...");
-                    return;
-                }
-
-                int playerNum = netDataReader.GetInt();
-
-                using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
-                {
-                    for (int i = 0; i < playerNum; i++)
-                    {
-                        string hash = netDataReader.GetString();
-
-                        PlayerData playerData = netDataReader.Get<PlayerData>();
-                        if (!savedPlayerData.ContainsKey(hash))
-                        {
-                            savedPlayerData.Add(hash, playerData);
-                        }
-                    }
+                    throw new System.Exception();
                 }
             }
             catch (System.Exception)
             {
-                NebulaModel.Logger.Log.Warn("Skipping server data as it is either corrupted or from an unsupported Nebula version...");
+                NebulaModel.Logger.Log.Warn("Skipping server data from unsupported Nebula version...");
                 return;
             }
+
+            int playerNum = netDataReader.GetInt();
+
+            using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
+            {
+                for (int i = 0; i < playerNum; i++)
+                {
+                    string hash = netDataReader.GetString();
+
+                    PlayerData playerData = netDataReader.Get<PlayerData>();
+                    if (!savedPlayerData.ContainsKey(hash))
+                    {
+                        savedPlayerData.Add(hash, playerData);
+                    }
+                }
+            }
+
         }
     }
 }
