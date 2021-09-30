@@ -2,7 +2,7 @@
 
 0.6.3:
 
-- Fixed more errors caused by loading saves made on earlier Nebula versions
+- Fixed instance where error would trigger by loading saves made on earlier Nebula versions. **WARNING: All previous client inventory and position data will be lost!** (should be for the last time!)
 
 0.6.2:
 
