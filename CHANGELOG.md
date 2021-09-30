@@ -2,9 +2,10 @@
 
 0.6.2:
 
-- Fixed error when loading saves that were created before 0.6.0. WARNING: All previous client inventory and position data will be lost!
+- Fixed error when loading saves that were created before 0.6.0. **WARNING: All previous client inventory and position data will be lost!**
 - Improved compatibility with GigaStations mod (thanks to @kremnev8)
 - Removed extraneous dlls that were mistakenly included in the previous release
+- Now supports DSP version 0.8.22.8915+ (thanks to @starfi5h!)
 
 0.6.1:
 
