@@ -892,12 +892,10 @@ namespace NebulaPatcher.Patches.Transpilers
 
         [HarmonyReversePatch]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
-        public static void ILSUpdateShipPos(StationComponent stationComponent, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
+        public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
-
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
-
                 // find begin of ship movement computation, c# 436 IL 2090
                 int origShipUpdateCodeBeginPos = new CodeMatcher(instructions, il)
                     .MatchForward(false,
@@ -1055,7 +1053,6 @@ namespace NebulaPatcher.Patches.Transpilers
 
                 return instructions;
             }
-
             _ = Transpiler(null, null);
         }
     }
