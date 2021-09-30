@@ -894,10 +894,12 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
+
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
                 // find begin of ship movement computation, c# 436 IL 2090
-                int origShipUpdateCodeBeginPos = new CodeMatcher(instructions, il)
+                CodeMatcher matcher = new CodeMatcher(instructions);
+                int origShipUpdateCodeBeginPos = matcher
                     .MatchForward(false,
                         new CodeMatch(i => i.IsLdarg()),
                         new CodeMatch(OpCodes.Ldc_R4),
@@ -910,67 +912,44 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldc_R4),
                         new CodeMatch(OpCodes.Ble_Un))
                     .Pos;
-
                 // cut out only that part of original function, but keep the first 5 IL lines (they create the 'bool flag' which is needed)
-                CodeMatcher matcher = new CodeMatcher(instructions);
-                for (int i = 0; i < matcher.Length; i++)
-                {
-                    if (matcher.Pos < origShipUpdateCodeBeginPos && matcher.Pos > 5)
-                    {
-                        matcher.SetAndAdvance(OpCodes.Nop, null);
-                    }
-                    else
-                    {
-                        matcher.Advance(1);
-                    }
-                }
-                instructions = matcher.InstructionEnumeration();
-
-                // remove c# 478 - 501 IL 2215 - 2367 (which is just after the first addItem() call)
-                int origTempBlockIndexStart = new CodeMatcher(instructions)
-                    .MatchForward(true,
-                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
-                        new CodeMatch(OpCodes.Pop))
-                    .Pos;
-                int origTempBlockIndexEnd = new CodeMatcher(instructions)
-                    .MatchForward(true,
-                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
-                    .MatchForward(false,
-                        new CodeMatch(OpCodes.Br))
-                    .Pos;
-
-                matcher.Start()
-                    .Advance(origTempBlockIndexStart + 1);
-                for (; matcher.Pos < origTempBlockIndexEnd;)
+                for (matcher.Start().Advance(6); matcher.Pos < origShipUpdateCodeBeginPos;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                instructions = matcher.InstructionEnumeration();
 
-                // remove c# 937 - 1014 IL 4548 - 4921 (TODO: and fetch data from server)
-                origTempBlockIndexStart = new CodeMatcher(instructions)
+                // remove c# 478 - 501 IL 2215 - 2367 (which is just after the first addItem() call)
+                int indexStart = matcher.Start()
                     .MatchForward(true,
-                        new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"),
-                        new CodeMatch(OpCodes.Pop),
-                        new CodeMatch(i => i.IsLdarg()),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "planetA"))
-                    .Pos - 3;
-                origTempBlockIndexEnd = new CodeMatcher(instructions)
-                    .Advance(origTempBlockIndexStart)
+                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
+                        new CodeMatch(OpCodes.Pop))
+                    .Pos + 1;
+                int indexEnd = matcher
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Br))
                     .Pos;
+                for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
+                {
+                    matcher.SetAndAdvance(OpCodes.Nop, null);
+                }
 
-                matcher.Start()
-                    .Advance(origTempBlockIndexStart);
-                for (; matcher.Pos < origTempBlockIndexEnd;)
+                // remove c# 937 - 1014 IL 4548 - 4921 (TODO: and fetch data from server)
+                indexStart = matcher.Start()
+                    .MatchForward(true,
+                        new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"),
+                        new CodeMatch(OpCodes.Pop))
+                    .Pos + 1;
+                indexEnd = matcher
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Br))
+                    .Pos;
+                for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
 
                 // remove addItem() calls
-                instructions = new CodeMatcher(instructions)
+                matcher.Start()
                     .MatchForward(false,
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
                     .SetAndAdvance(OpCodes.Pop, null)
@@ -978,11 +957,10 @@ namespace NebulaPatcher.Patches.Transpilers
                     .MatchForward(false,
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"))
                     .SetAndAdvance(OpCodes.Pop, null)
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
-                    .InstructionEnumeration();
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Pop));
 
                 // remove c# 1019 - 1049 IL 4923 - 5069 (TODO: and fetch data from server) (NOTE: this does also remove the TakeItem() call)
-                origTempBlockIndexStart = new CodeMatcher(instructions)
+                indexStart = matcher.Start()
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldfld),
@@ -994,8 +972,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldloca_S),
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
                     .Pos + 1; // to exclude the Br opcode from vanishing
-                origTempBlockIndexEnd = new CodeMatcher(instructions)
-                    .Advance(origTempBlockIndexStart)
+                indexEnd = matcher
                     .MatchForward(true,
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldelema),
@@ -1007,14 +984,10 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Stind_I4))
                     .Advance(1)
                     .Pos;
-
-                matcher = new CodeMatcher(instructions)
-                    .Advance(origTempBlockIndexStart);
-                for (; matcher.Pos < origTempBlockIndexEnd;)
+                for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                instructions = matcher.InstructionEnumeration();
 
                 // remove weird code thats left over after cut out from above
                 matcher.Advance(2);
@@ -1022,11 +995,10 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                instructions = matcher.InstructionEnumeration();
 
                 // remove c# 928 - 932 (adding warper from station to ship)
-                CodeMatcher matcher3 = new CodeMatcher(instructions, il);
-                int indexStart = matcher3.MatchForward(false,
+                indexStart = matcher.Start()
+                    .MatchForward(false,
                     new CodeMatch(OpCodes.Ldarg_S),
                     new CodeMatch(OpCodes.Stloc_S),
                     new CodeMatch(OpCodes.Ldc_I4_0),
@@ -1034,7 +1006,8 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldloca_S))
                     .Pos;
-                int indexEnd = matcher3.MatchForward(true,
+                indexEnd = matcher.Start()
+                    .MatchForward(true,
                     new CodeMatch(OpCodes.Stind_I4),
                     new CodeMatch(OpCodes.Leave),
                     new CodeMatch(OpCodes.Ldloc_S),
@@ -1043,16 +1016,14 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Call),
                     new CodeMatch(OpCodes.Endfinally))
                     .Pos;
-                matcher3.Start();
-                matcher3.Advance(indexStart);
-                for (; matcher3.Pos < indexEnd;)
+                for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
                 {
-                    matcher3.SetAndAdvance(OpCodes.Nop, null);
+                    matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                instructions = matcher3.InstructionEnumeration();
 
-                return instructions;
+                return matcher.InstructionEnumeration();
             }
+
             _ = Transpiler(null, null);
         }
     }
