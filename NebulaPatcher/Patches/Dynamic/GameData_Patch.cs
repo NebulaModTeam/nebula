@@ -180,9 +180,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (Multiplayer.IsActive)
                 {
                     Multiplayer.Session.StationsUI.DecreaseCooldown();
+                    Multiplayer.Session.Launch.CollectProjectile();
                 }
                 return;
             }
+            Multiplayer.Session.Launch.LaunchProjectile();
             // call StationComponent::InternalTickRemote() from here, see StationComponent_Patch.cs for info
             int timeGene = (int)(time % 60L);
             if (timeGene < 0)
