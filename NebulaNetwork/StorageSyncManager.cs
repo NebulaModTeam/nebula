@@ -1,4 +1,7 @@
-﻿using NebulaModel.Networking;
+﻿using NebulaAPI;
+using NebulaModel;
+using NebulaModel.Networking;
+using NebulaWorld;
 
 namespace NebulaNetwork
 {
@@ -12,12 +15,12 @@ namespace NebulaNetwork
         public static void SendToOtherPlayersOnTheSamePlanet<T>(NebulaConnection originator, T packet, int planetId) where T : class, new()
         {
             //Send to players on the same planet
-            using (MultiplayerHostSession.Instance.PlayerManager.GetConnectedPlayers(out var connectedPlayers))
+            using (((NetworkProvider)Multiplayer.Session.Network).PlayerManager.GetConnectedPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                foreach (var kvp in connectedPlayers)
+                foreach (System.Collections.Generic.KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    NebulaConnection connection = kvp.Key;
-                    Player player = kvp.Value;
+                    NebulaConnection connection = (NebulaConnection)kvp.Key;
+                    INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalPlanetId == planetId && connection != originator)
                     {
                         connection.SendPacket(packet);

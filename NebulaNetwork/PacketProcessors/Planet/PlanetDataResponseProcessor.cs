@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -12,7 +12,10 @@ namespace NebulaNetwork.PacketProcessors.Planet
     {
         public override void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
             // We have to track the offset we are currently at in the flattened jagged array as we decode
             int currentOffset = 0;

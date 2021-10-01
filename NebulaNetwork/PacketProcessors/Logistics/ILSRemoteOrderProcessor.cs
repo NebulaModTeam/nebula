@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -7,29 +7,32 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRemoteOrderProcessor : PacketProcessor<ILSRemoteOrderData>
+    internal class ILSRemoteOrderProcessor : PacketProcessor<ILSRemoteOrderData>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public ILSRemoteOrderProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(ILSRemoteOrderData packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
 
-                // TODO: Don't we need to call SimulatedWorld.OnILSRemoteOrderUpdate() here too ??
+                // TODO: Don't we need to call Multiplayer.Session.World.OnILSRemoteOrderUpdate() here too ??
             }
 
             if (IsClient)
             {
-                SimulatedWorld.OnILSRemoteOrderUpdate(packet);
+                // TODO: Don't we need a using(incomingPacket.On())
+                Multiplayer.Session.Ships.UpdateRemoteOrder(packet);
             }
         }
     }

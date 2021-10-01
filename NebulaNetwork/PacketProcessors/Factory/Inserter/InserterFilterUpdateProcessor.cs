@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Inserter;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Inserter;
 namespace NebulaNetwork.PacketProcessors.Factory.Inserter
 {
     [RegisterPacketProcessor]
-    class InserterFilterUpdateProcessor : PacketProcessor<InserterFilterUpdatePacket>
+    internal class InserterFilterUpdateProcessor : PacketProcessor<InserterFilterUpdatePacket>
     {
         public override void ProcessPacket(InserterFilterUpdatePacket packet, NebulaConnection conn)
         {

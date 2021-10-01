@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.RayReceiver;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.RayReceiver;
 namespace NebulaNetwork.PacketProcessors.Factory.RayReceiver
 {
     [RegisterPacketProcessor]
-    class RayReceiverChangeModeProcessor : PacketProcessor<RayReceiverChangeModePacket>
+    internal class RayReceiverChangeModeProcessor : PacketProcessor<RayReceiverChangeModePacket>
     {
         public override void ProcessPacket(RayReceiverChangeModePacket packet, NebulaConnection conn)
         {

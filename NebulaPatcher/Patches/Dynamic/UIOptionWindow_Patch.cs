@@ -13,62 +13,61 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIOptionWindow))]
-    class UIOptionWindow_Patch
+    internal class UIOptionWindow_Patch
     {
-        static RectTransform multiplayerTab;
+        private static RectTransform multiplayerTab;
 
         // Templates
-        static RectTransform checkboxTemplate;
-        static RectTransform comboBoxTemplate;
-        static RectTransform sliderTemplate;
-        static RectTransform inputTemplate;
-
-        static RectTransform multiplayerContent;
-        static int multiplayerTabIndex;
-        static Dictionary<string, System.Action> tempToUICallbacks;
-
-        static MultiplayerOptions tempMultiplayerOptions = new MultiplayerOptions();
+        private static RectTransform checkboxTemplate;
+        private static RectTransform comboBoxTemplate;
+        private static RectTransform sliderTemplate;
+        private static RectTransform inputTemplate;
+        private static RectTransform multiplayerContent;
+        private static int multiplayerTabIndex;
+        private static Dictionary<string, System.Action> tempToUICallbacks;
+        private static MultiplayerOptions tempMultiplayerOptions = new MultiplayerOptions();
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnCreate")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnCreate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnCreate_Postfix(UIOptionWindow __instance)
         {
             tempToUICallbacks = new Dictionary<string, System.Action>();
             tempMultiplayerOptions = new MultiplayerOptions();
 
             // Add multiplayer tab button
-            UIButton[] tabButtons = AccessTools.Field(__instance.GetType(), "tabButtons").GetValue(__instance) as UIButton[];
+            UIButton[] tabButtons = __instance.tabButtons;
             multiplayerTabIndex = tabButtons.Length;
             RectTransform lastTab = tabButtons[tabButtons.Length - 1].GetComponent<RectTransform>();
             RectTransform beforeLastTab = tabButtons[tabButtons.Length - 2].GetComponent<RectTransform>();
             float tabOffset = lastTab.anchoredPosition.x - beforeLastTab.anchoredPosition.x;
             multiplayerTab = Object.Instantiate(lastTab, lastTab.parent, true);
             multiplayerTab.anchoredPosition = new Vector2(lastTab.anchoredPosition.x + tabOffset, lastTab.anchoredPosition.y);
-            UIButton[] newTabButtons = CollectionExtensions.AddToArray(tabButtons, multiplayerTab.GetComponent<UIButton>());
-            AccessTools.Field(__instance.GetType(), "tabButtons").SetValue(__instance, newTabButtons);
+            UIButton[] newTabButtons = tabButtons.AddToArray(multiplayerTab.GetComponent<UIButton>());
+            __instance.tabButtons = newTabButtons;
 
             // Update multiplayer tab text
             Text tabText = multiplayerTab.GetComponentInChildren<Text>();
             tabText.GetComponent<Localizer>().enabled = false;
             tabText.text = "Multiplayer";
-            Text[] tabTexts = AccessTools.Field(__instance.GetType(), "tabTexts").GetValue(__instance) as Text[];
-            Text[] newTabTexts = CollectionExtensions.AddToArray(tabTexts, tabText);
-            AccessTools.Field(__instance.GetType(), "tabTexts").SetValue(__instance, newTabTexts);
+            Text[] tabTexts = __instance.tabTexts;
+            Text[] newTabTexts = tabTexts.AddToArray(tabText);
+            __instance.tabTexts = newTabTexts;
 
             // Add multiplayer tab content
-            Tweener[] tabTweeners = AccessTools.Field(__instance.GetType(), "tabTweeners").GetValue(__instance) as Tweener[];
+            Tweener[] tabTweeners = __instance.tabTweeners;
             RectTransform contentTemplate = tabTweeners[0].GetComponent<RectTransform>();
             multiplayerContent = Object.Instantiate(contentTemplate, contentTemplate.parent, true);
             multiplayerContent.name = "multiplayer-content";
 
-            Tweener[] newContents = CollectionExtensions.AddToArray(tabTweeners, multiplayerContent.GetComponent<Tweener>());
-            AccessTools.Field(__instance.GetType(), "tabTweeners").SetValue(__instance, newContents);
-            UIButton[] revertButtons = AccessTools.Field(__instance.GetType(), "revertButtons").GetValue(__instance) as UIButton[];
+            Tweener[] newContents = tabTweeners.AddToArray(multiplayerContent.GetComponent<Tweener>());
+            __instance.tabTweeners = newContents;
+            UIButton[] revertButtons = __instance.revertButtons;
             RectTransform revertButton = multiplayerContent.Find("revert-button").GetComponent<RectTransform>();
-            UIButton[] newRevertButtons = CollectionExtensions.AddToArray(revertButtons, revertButton.GetComponent<UIButton>());
-            AccessTools.Field(__instance.GetType(), "revertButtons").SetValue(__instance, newRevertButtons);
+            UIButton[] newRevertButtons = revertButtons.AddToArray(revertButton.GetComponent<UIButton>());
+            __instance.revertButtons = newRevertButtons;
 
-            // Find control templates
+            // Remove unwanted GameObject
             foreach (RectTransform child in multiplayerContent)
             {
                 if (child != revertButton)
@@ -77,11 +76,21 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
+            // Add ScrollView
+            RectTransform list = Object.Instantiate(tabTweeners[3].transform.Find("list").GetComponent<RectTransform>(), multiplayerContent);
+            list.offsetMax = Vector2.zero;
+            RectTransform listContent = list.Find("scroll-view/viewport/content").GetComponent<RectTransform>();
+            foreach (RectTransform child in listContent)
+            {
+                Object.Destroy(child.gameObject);
+            }
+
+            // Find control templates
             checkboxTemplate = contentTemplate.Find("fullscreen").GetComponent<RectTransform>();
             comboBoxTemplate = contentTemplate.Find("resolution").GetComponent<RectTransform>();
             sliderTemplate = contentTemplate.Find("dofblur").GetComponent<RectTransform>();
 
-            inputTemplate = Object.Instantiate(checkboxTemplate, multiplayerContent, false);
+            inputTemplate = Object.Instantiate(checkboxTemplate, listContent, false);
             Object.Destroy(inputTemplate.Find("CheckBox").gameObject);
             RectTransform inputField = Object.Instantiate(UIRoot.instance.saveGameWindow.transform.Find("input-filename/InputField").GetComponent<RectTransform>(), inputTemplate, false);
             Vector2 fieldPosition = checkboxTemplate.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
@@ -89,25 +98,27 @@ namespace NebulaPatcher.Patches.Dynamic
             inputField.sizeDelta = new Vector2(inputField.sizeDelta.x, 35);
             inputTemplate.gameObject.SetActive(false);
 
-            AddMultiplayerOptionsProperties(multiplayerContent);
+            AddMultiplayerOptionsProperties(listContent);
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnDestroy")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnDestroy))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnDestroy_Postfix()
         {
             tempToUICallbacks?.Clear();
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIOptionWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Prefix()
         {
             tempMultiplayerOptions = (MultiplayerOptions)Config.Options.Clone();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("ApplyOptions")]
+        [HarmonyPatch(nameof(UIOptionWindow.ApplyOptions))]
         public static void ApplyOptions()
         {
             Config.Options = tempMultiplayerOptions;
@@ -115,7 +126,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnRevertButtonClick")]
+        [HarmonyPatch(nameof(UIOptionWindow.OnRevertButtonClick))]
         public static void OnRevertButtonClick_Prefix(int idx)
         {
             if (idx == multiplayerTabIndex)
@@ -125,13 +136,13 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("TempOptionToUI")]
+        [HarmonyPatch(nameof(UIOptionWindow.TempOptionToUI))]
         public static void TempOptionToUI_Postfix()
         {
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
-            foreach (var prop in properties)
+            foreach (PropertyInfo prop in properties)
             {
-                if (tempToUICallbacks.TryGetValue(prop.Name, out var callback))
+                if (tempToUICallbacks.TryGetValue(prop.Name, out System.Action callback))
                 {
                     callback();
                 }
@@ -143,26 +154,26 @@ namespace NebulaPatcher.Patches.Dynamic
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
             Vector2 anchorPosition = new Vector2(30, -20);
 
-            foreach (var prop in properties)
+            foreach (PropertyInfo prop in properties)
             {
                 DisplayNameAttribute displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
                 if (displayAttr != null)
                 {
                     if (prop.PropertyType == typeof(bool))
                     {
-                        CreateBooleanControl(displayAttr, prop, anchorPosition);
+                        CreateBooleanControl(displayAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) || prop.PropertyType == typeof(ushort))
                     {
-                        CreateNumberControl(displayAttr, prop, anchorPosition);
+                        CreateNumberControl(displayAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType == typeof(string))
                     {
-                        CreateStringControl(displayAttr, prop, anchorPosition);
+                        CreateStringControl(displayAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType.IsEnum)
                     {
-                        CreateEnumControl(displayAttr, prop, anchorPosition);
+                        CreateEnumControl(displayAttr, prop, anchorPosition, container);
                     }
                     else
                     {
@@ -173,11 +184,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     anchorPosition = new Vector2(anchorPosition.x, anchorPosition.y - 40);
                 }
             }
+
+            container.sizeDelta = new Vector2(container.sizeDelta.x, -anchorPosition.y + 40);
         }
 
-        private static void CreateBooleanControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateBooleanControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
-            RectTransform element = Object.Instantiate(checkboxTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(checkboxTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
             UIToggle toggle = element.GetComponentInChildren<UIToggle>();
             toggle.toggle.onValueChanged.RemoveAllListeners();
@@ -189,12 +202,12 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateNumberControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateNumberControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
             UIRangeAttribute rangeAttr = prop.GetCustomAttribute<UIRangeAttribute>();
             bool sliderControl = rangeAttr != null && rangeAttr.Slider;
 
-            RectTransform element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
 
             bool isFloatingPoint = prop.PropertyType == typeof(float) || prop.PropertyType == typeof(double);
@@ -228,15 +241,23 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     try
                     {
-                        var converter = TypeDescriptor.GetConverter(prop.PropertyType);
+                        TypeConverter converter = TypeDescriptor.GetConverter(prop.PropertyType);
                         System.IComparable value = (System.IComparable)converter.ConvertFromString(str);
 
                         if (rangeAttr != null)
                         {
                             System.IComparable min = (System.IComparable)System.Convert.ChangeType(rangeAttr.Min, prop.PropertyType);
                             System.IComparable max = (System.IComparable)System.Convert.ChangeType(rangeAttr.Max, prop.PropertyType);
-                            if (value.CompareTo(min) < 0) value = min;
-                            if (value.CompareTo(max) > 0) value = max;
+                            if (value.CompareTo(min) < 0)
+                            {
+                                value = min;
+                            }
+
+                            if (value.CompareTo(max) > 0)
+                            {
+                                value = max;
+                            }
+
                             input.text = value.ToString();
                         }
 
@@ -256,9 +277,9 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        private static void CreateStringControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateStringControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
-            RectTransform element = Object.Instantiate(inputTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(inputTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
 
             InputField input = element.GetComponentInChildren<InputField>();
@@ -271,9 +292,9 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateEnumControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition)
+        private static void CreateEnumControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
-            RectTransform element = Object.Instantiate(comboBoxTemplate, multiplayerContent, false);
+            RectTransform element = Object.Instantiate(comboBoxTemplate, container, false);
             SetupUIElement(element, control, prop, anchorPosition);
             UIComboBox combo = element.GetComponentInChildren<UIComboBox>();
             combo.Items = System.Enum.GetNames(prop.PropertyType).ToList();

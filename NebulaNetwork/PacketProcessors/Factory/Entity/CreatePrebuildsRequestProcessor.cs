@@ -1,19 +1,19 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
     [RegisterPacketProcessor]
-    class CreatePrebuildsRequestProcessor : PacketProcessor<CreatePrebuildsRequest>
+    internal class CreatePrebuildsRequestProcessor : PacketProcessor<CreatePrebuildsRequest>
     {
         public override void ProcessPacket(CreatePrebuildsRequest packet, NebulaConnection conn)
         {
-            using (FactoryManager.IsIncomingRequest.On())
+            using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
-                BuildToolManager.CreatePrebuildsRequest(packet);
+                Multiplayer.Session.BuildTools.CreatePrebuildsRequest(packet);
             }
         }
     }

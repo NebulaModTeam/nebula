@@ -9,9 +9,9 @@
         public DysonSphereRemoveFramePacket() { }
         public DysonSphereRemoveFramePacket(int starIndex, int layerId, int frameId)
         {
-            this.StarIndex = starIndex;
-            this.LayerId = layerId;
-            this.FrameId = frameId;
+            StarIndex = starIndex;
+            LayerId = layerId;
+            FrameId = frameId;
         }
     }
 }

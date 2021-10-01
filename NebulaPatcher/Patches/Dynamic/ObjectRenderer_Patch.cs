@@ -1,13 +1,13 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaWorld;
-using NebulaWorld.Factory;
 using System;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(ObjectRenderer))]
-    class ObjectRenderer_Patch
+    internal class ObjectRenderer_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ObjectRenderer), nameof(ObjectRenderer.AddInst), new Type[] { typeof(int), typeof(Vector3), typeof(Quaternion), typeof(bool) })]
@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -23,14 +23,14 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AlterInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
         [HarmonyPrefix]
         [HarmonyPatch(nameof(ObjectRenderer.AlterInst), new Type[] { typeof(int), typeof(int), typeof(Vector3), typeof(bool) })]
         public static bool AlterInst_Prefix2()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
 
         [HarmonyPrefix]
@@ -38,7 +38,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RemoveInst_Prefix()
         {
             //Do not call renderer, if user is not on the planet as the request
-            return !SimulatedWorld.Initialized || FactoryManager.TargetPlanet == FactoryManager.PLANET_NONE || GameMain.mainPlayer.planetId == FactoryManager.TargetPlanet;
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
         }
     }
 }

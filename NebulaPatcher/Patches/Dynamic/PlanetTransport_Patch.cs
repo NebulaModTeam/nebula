@@ -2,28 +2,27 @@
 using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PlanetTransport))]
-    class PlanetTransport_Patch
+    internal class PlanetTransport_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetTransport.SetStationStorage))]
         public static bool SetStationStorage_Postfix(PlanetTransport __instance, int stationId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, Player player)
         {
-            if (SimulatedWorld.Initialized && !ILSShipManager.PatchLockILS)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
                 StationComponent stationComponent = __instance.stationPool[stationId];
 
                 if (stationComponent != null)
                 {
                     StationUI packet = new StationUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
-                    LocalPlayer.SendPacket(packet);
+                    Multiplayer.Session.Network.SendPacket(packet);
                 }
 
-                if (LocalPlayer.IsMasterClient)
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     return true;
                 }
@@ -38,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
         public static void NewStationComponent_AddPlanetId_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -53,16 +52,22 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
         public static void NewStationComponent_BroadcastNewILS_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
         {
-            if (!SimulatedWorld.Initialized || !LocalPlayer.IsMasterClient) return;
+            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return;
+            }
 
             // We don't need to do this for PLS
-            if (__result.gid == 0) return;
+            if (__result.gid == 0)
+            {
+                return;
+            }
 
             // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
             // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
             // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
             Log.Info($"Sending packet about new station component to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
-            LocalPlayer.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid));
+            Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid, _desc.stationMaxShipCount));
         }
 
 
@@ -70,7 +75,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.Import))]
         public static void Import_Postfix(PlanetTransport __instance)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return;
             }
@@ -92,7 +97,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
         public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id)
         {
-            return !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient || ILSShipManager.PatchLockILS;
+            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Ships.PatchLockILS;
         }
 
         /*
@@ -102,11 +107,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
         public static void RemoveStationComponent_Postfix(PlanetTransport __instance, int id)
         {
-            if (!SimulatedWorld.Initialized || !LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
-            LocalPlayer.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, __instance.stationPool[id].gid));
+            Multiplayer.Session.Network.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, __instance.stationPool[id].gid));
         }
     }
 }

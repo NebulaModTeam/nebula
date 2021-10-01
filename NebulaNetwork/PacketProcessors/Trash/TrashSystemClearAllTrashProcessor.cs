@@ -1,19 +1,19 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
-using NebulaWorld.Trash;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Trash
 {
     [RegisterPacketProcessor]
-    class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemClearAllTrashPacket>
+    internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemClearAllTrashPacket>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public TrashSystemClearAllTrashProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
@@ -21,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);
@@ -34,7 +34,7 @@ namespace NebulaNetwork.PacketProcessors.Trash
 
             if (valid)
             {
-                using (TrashManager.ClearAllTrashFromOtherPlayers.On())
+                using (Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers.On())
                 {
                     GameMain.data.trashSystem.ClearAllTrash();
                 }

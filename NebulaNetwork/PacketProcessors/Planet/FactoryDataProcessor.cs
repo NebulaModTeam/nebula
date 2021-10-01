@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
@@ -11,9 +11,12 @@ namespace NebulaNetwork.PacketProcessors.Planet
     {
         public override void ProcessPacket(FactoryData packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
-            LocalPlayer.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
+            Multiplayer.Session.Planets.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
 
             lock (PlanetModelingManager.fctPlanetReqList)
             {

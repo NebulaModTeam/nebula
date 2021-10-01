@@ -8,13 +8,13 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpilers
 {
     [HarmonyPatch(typeof(UIVersionText))]
-    class UIVersionText_Transpiler
+    internal class UIVersionText_Transpiler
     {
         [HarmonyTranspiler]
-        [HarmonyPatch("Refresh")]
+        [HarmonyPatch(nameof(UIVersionText.Refresh))]
         public static IEnumerable<CodeInstruction> Refresh_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
-            var codeMatcher = new CodeMatcher(instructions, iL)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
                     .MatchForward(true,
                         new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "userName")
                     );
@@ -29,9 +29,9 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(1)
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<string, string>>((text) =>
                 {
-                    if (SimulatedWorld.Initialized)
+                    if (Multiplayer.IsActive)
                     {
-                        text = $"{PluginInfo.PLUGIN_SHORT_NAME} {PluginInfo.PLUGIN_VERSION_WITH_SHORT_SHA}\r\n{text}";
+                        text = $"{PluginInfo.PLUGIN_SHORT_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}\r\n{text}";
                     }
                     return text;
                 }))

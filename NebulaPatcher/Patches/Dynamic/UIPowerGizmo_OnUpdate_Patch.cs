@@ -9,16 +9,17 @@ using NebulaWorld;
  */
 namespace NebulaPatcher.Patches.Dynamic
 {
-    class UIPowerGizmo_OnUpdate_Patch
+    internal class UIPowerGizmo_OnUpdate_Patch
     {
         [HarmonyPatch(typeof(UIPowerGizmo))]
-        class OnUpdatePatch
+        private class OnUpdatePatch
         {
             [HarmonyPrefix]
-            [HarmonyPatch("_OnUpdate")]
+            [HarmonyPatch(nameof(UIPowerGizmo._OnUpdate))]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
             public static bool _OnUpdate_Prefix()
             {
-                return !SimulatedWorld.Initialized || GameMain.localPlanet?.factory != null;
+                return !Multiplayer.IsActive || GameMain.localPlanet?.factory != null;
             }
         }
     }

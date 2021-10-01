@@ -1,28 +1,27 @@
 ﻿using HarmonyLib;
-using NebulaModel.DataStructures;
+using NebulaAPI;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using NebulaWorld.Universe;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(DysonSphereLayer))]
-    class DysonSphereLayer_Patch
+    internal class DysonSphereLayer_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(DysonSphereLayer.NewDysonNode))]
         public static bool NewDysonNode_Prefix(DysonSphereLayer __instance, int __result, int protoId, Vector3 pos)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
             //Notify others that user added node to the dyson plan
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereAddNodePacket(__instance.starData.index, __instance.id, protoId, new Float3(pos)));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddNodePacket(__instance.starData.index, __instance.id, protoId, new Float3(pos)));
             }
             return true;
         }
@@ -31,14 +30,14 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.NewDysonFrame))]
         public static bool NewDysonFrame_Prefix(DysonSphereLayer __instance, int __result, int protoId, int nodeAId, int nodeBId, bool euler)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
             //Notify others that user added frame to the dyson plan
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereAddFramePacket(__instance.starData.index, __instance.id, protoId, nodeAId, nodeBId, euler));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddFramePacket(__instance.starData.index, __instance.id, protoId, nodeAId, nodeBId, euler));
             }
             return true;
         }
@@ -47,14 +46,14 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonFrame))]
         public static bool RemoveDysonFrame_Prefix(DysonSphereLayer __instance, int frameId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
             //Notify others that user removed frame from the dyson plan
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereRemoveFramePacket(__instance.starData.index, __instance.id, frameId));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveFramePacket(__instance.starData.index, __instance.id, frameId));
             }
             return true;
         }
@@ -63,14 +62,14 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonNode))]
         public static bool RemoveDysonNode_Prefix(DysonSphereLayer __instance, int nodeId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
             //Notify others that user removed node from the dyson plan
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereRemoveNodePacket(__instance.starData.index, __instance.id, nodeId));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveNodePacket(__instance.starData.index, __instance.id, nodeId));
             }
             return true;
         }
@@ -79,14 +78,14 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.NewDysonShell))]
         public static bool NewDysonShell_Prefix(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
             //Notify others that user removed node from the dyson plan
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereAddShellPacket(__instance.starData.index, __instance.id, protoId, nodeIds));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereAddShellPacket(__instance.starData.index, __instance.id, protoId, nodeIds));
             }
             return true;
         }
@@ -95,14 +94,14 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonShell))]
         public static bool RemoveDysonShell_Prefix(DysonSphereLayer __instance, int shellId)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
             //Notify others that user removed node from the dyson plan
-            if (!DysonSphereManager.IsIncomingRequest)
+            if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest)
             {
-                LocalPlayer.SendPacket(new DysonSphereRemoveShellPacket(__instance.starData.index, __instance.id, shellId));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveShellPacket(__instance.starData.index, __instance.id, shellId));
             }
             return true;
         }

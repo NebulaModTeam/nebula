@@ -1,8 +1,7 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
-using NebulaWorld.Statistics;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
@@ -11,7 +10,10 @@ namespace NebulaNetwork.PacketProcessors.Planet
     {
         public override void ProcessPacket(FactoryLoadRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetID);
             PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
@@ -21,7 +23,6 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 factory.Export(writer.BinaryWriter);
                 conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
             }
-            conn.SendPacket(StatisticsManager.instance.GetFactoryPlanetIds());
         }
     }
 }

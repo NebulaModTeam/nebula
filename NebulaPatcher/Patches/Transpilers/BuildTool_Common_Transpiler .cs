@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch]
-    class BuildTool_Common_Transpiler
+    internal class BuildTool_Common_Transpiler
     {
         /*
          * Replaces
@@ -21,9 +21,9 @@ namespace NebulaPatcher.Patches.Transpiler
         [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CreatePrebuilds))]
         [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.CreatePrebuilds))]
         [HarmonyPatch(typeof(BuildTool_Inserter), nameof(BuildTool_Inserter.CreatePrebuilds))]
-        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(i => i.IsLdarg()),
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_player"),
@@ -36,7 +36,7 @@ namespace NebulaPatcher.Patches.Transpiler
             }
 
             // num = 1; from within the if statement
-            var numInstruction = codeMatcher.InstructionAt(11);
+            CodeInstruction numInstruction = codeMatcher.InstructionAt(11);
 
             return codeMatcher
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_1))

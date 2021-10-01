@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.Universe;
@@ -16,14 +17,16 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RequestLoadPlanetFactory_Prefix(PlanetData planet)
         {
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
 
             // Check to make sure it's not already loaded
             if (planet.factoryLoaded || planet.factoryLoading)
+            {
                 return false;
+            }
 
             // They appear to have conveniently left this flag in for us, but they don't use it anywhere
             planet.factoryLoading = true;
@@ -33,14 +36,16 @@ namespace NebulaPatcher.Patches.Dynamic
             // we only need to request the full factory if we never received it before
             if (planet.factory != null)
             {
-                AccessTools.Field(typeof(PlanetModelingManager), "currentFactingPlanet").SetValue(null, planet);
-                AccessTools.Field(typeof(PlanetModelingManager), "currentFactingStage").SetValue(null, 0);
+                PlanetModelingManager.currentFactingPlanet = planet;
+                PlanetModelingManager.currentFactingStage = 0;
                 return false;
             }
 
             // Request factory
             Log.Info($"Requested factory for planet {planet.name} (ID: {planet.id}) from host");
-            LocalPlayer.SendPacket(new FactoryLoadRequest(planet.id));
+            Multiplayer.Session.Network.SendPacket(new FactoryLoadRequest(planet.id));
+
+            NebulaModAPI.OnPlanetLoadRequest?.Invoke(planet.id);
 
             // Skip running the actual method
             return false;
@@ -54,7 +59,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // RequestLoadStar takes care of these instead currently
 
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -69,7 +74,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool RequestLoadStar_Prefix(StarData star)
         {
             // Run the original method if this is the master client or in single player games
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
@@ -80,8 +85,11 @@ namespace NebulaPatcher.Patches.Dynamic
             if (GameMain.data.dysonSpheres[star.index] == null)
             {
                 Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
-                LocalPlayer.SendPacket(new DysonSphereLoadRequest(star.index));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(star.index));
             }
+
+            NebulaModAPI.OnStarLoadRequest?.Invoke(star.index);
+
             return false;
         }
 
@@ -95,7 +103,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     planet.wanted = true;
                     if (planet.loaded || planet.loading)
+                    {
                         continue;
+                    }
 
                     planet.loading = true;
 
@@ -105,7 +115,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if (planetsToRequest.Any())
                 {
-                    LocalPlayer.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
+                    Multiplayer.Session.Network.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
                 }
             }
         }

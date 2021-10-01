@@ -1,13 +1,13 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
-    class StorageSyncSortProcessor : PacketProcessor<StorageSyncSortPacket>
+    internal class StorageSyncSortProcessor : PacketProcessor<StorageSyncSortPacket>
     {
         public override void ProcessPacket(StorageSyncSortPacket packet, NebulaConnection conn)
         {
@@ -20,7 +20,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
 
             if (storage != null)
             {
-                using (StorageManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Storage.IsIncomingRequest.On())
                 {
                     storage.Sort();
                 }

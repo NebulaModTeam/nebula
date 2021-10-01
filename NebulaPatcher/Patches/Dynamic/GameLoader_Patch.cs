@@ -1,23 +1,18 @@
 ﻿using HarmonyLib;
-using NebulaNetwork;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameLoader))]
-    class GameLoader_Patch
+    internal class GameLoader_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("FixedUpdate")]
+        [HarmonyPatch(nameof(GameLoader.FixedUpdate))]
         public static void FixedUpdate_Postfix(int ___frame)
         {
-            if (___frame >= 11 && SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive && ___frame >= 11)
             {
-                SimulatedWorld.OnGameLoadCompleted();
-                if (!LocalPlayer.IsMasterClient)
-                {
-                    MultiplayerClientSession.Instance.DisplayPingIndicator();
-                }
+                Multiplayer.Session.OnGameLoadCompleted();
             }
         }
     }

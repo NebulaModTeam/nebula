@@ -1,5 +1,4 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 
 namespace NebulaModel.Packets.Players
 {
@@ -7,23 +6,54 @@ namespace NebulaModel.Packets.Players
     public class PlayerAnimationUpdate
     {
         public ushort PlayerId { get; set; }
+        public float JumpWeight { get; set; }
+        public float JumpNormalizedTime { get; set; }
+        public byte IdleAnimIndex { get; set; }
+        public byte SailAnimIndex { get; set; }
+        public byte MiningAnimIndex { get; set; }
+        public float MiningWeight { get; set; }
 
-        // TODO: They don't use a finite state machine for there animation. But we need to find a way to optimized this packet.
-        // maybe we could only send the variables that are used to changed the animation state.
-        // See: (Game: PlayerAnimator class)
-        public NebulaAnimationState Idle { get; set; }
-        public NebulaAnimationState RunSlow { get; set; }
-        public NebulaAnimationState RunFast { get; set; }
-        public NebulaAnimationState Drift { get; set; }
-        public NebulaAnimationState DriftF { get; set; }
-        public NebulaAnimationState DriftL { get; set; }
-        public NebulaAnimationState DriftR { get; set; }
-        public NebulaAnimationState Fly { get; set; }
-        public NebulaAnimationState Sail { get; set; }
-        public NebulaAnimationState Mining0 { get; set; }
-        // some extra values to compute backpack flame size
-        // i put them here because i update the player fx together with the animation update
-        public float vertSpeed { get; set; }
-        public float horzSpeed { get; set; }
+        public EMovementState MovementState { get; set; }
+        public float HorzSpeed { get; set; }
+        public float VertSpeed { get; set; }
+        public float Turning { get; set; }
+        public EFlags Flags { get; set; }
+
+        public enum EFlags : byte
+        {
+            isGrounded = 1,
+            inWater = 2,
+        }
+
+        public PlayerAnimationUpdate() { }
+
+        public PlayerAnimationUpdate(ushort playerId, PlayerAnimator animator)
+        {
+            PlayerId = playerId;
+
+            JumpWeight = animator.jumpWeight;
+            JumpNormalizedTime = animator.jumpNormalizedTime;
+            //Compress AnimIndex, assume their values are less than 256
+            IdleAnimIndex = (byte)animator.idleAnimIndex;
+            SailAnimIndex = (byte)animator.sailAnimIndex;
+            MiningAnimIndex = (byte)animator.miningAnimIndex;
+            MiningWeight = animator.miningWeight;
+
+            MovementState = animator.movementState;
+            HorzSpeed = animator.controller.horzSpeed;
+            VertSpeed = animator.controller.vertSpeed;
+            Turning = animator.turning;
+
+            Flags = 0;
+            if (animator.controller.actionWalk.isGrounded)
+            {
+                Flags |= EFlags.isGrounded;
+            }
+
+            if (animator.controller.actionDrift.inWater)
+            {
+                Flags |= EFlags.inWater;
+            }
+        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using NebulaWorld.Logistics;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
@@ -9,12 +8,12 @@ namespace NebulaPatcher.Patches.Transpilers
 {
     // Transpiler to sync the belt item filter on the ILS/PLS output
     [HarmonyPatch(typeof(UIBeltBuildTip))]
-    class UIBeltBuildTip_Transpiler
+    internal class UIBeltBuildTip_Transpiler
     {
-        delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
+        private delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
 
         [HarmonyTranspiler]
-        [HarmonyPatch("SetFilterToEntity")]
+        [HarmonyPatch(nameof(UIBeltBuildTip.SetFilterToEntity))]
         public static IEnumerable<CodeInstruction> SetFilterToEntity_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             instructions = new CodeMatcher(instructions)
@@ -30,28 +29,29 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2),
                                     new CodeInstruction(OpCodes.Ldarg_0),
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), "outputSlotId")),
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.outputSlotId))),
                                     new CodeInstruction(OpCodes.Ldarg_0),
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), "selectedIndex")))
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.selectedIndex))))
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
                 {
-                    if (!SimulatedWorld.Initialized)
-                    {
-                        return 0;
-                    }
-                    if (ILSShipManager.ItemSlotStationId == stationComponent.id &&
-                        ILSShipManager.ItemSlotStationGId == stationComponent.gid &&
-                        ILSShipManager.ItemSlotLastSlotId == outputSlotId &&
-                        ILSShipManager.ItemSlotLastSelectedIndex == selectedIndex)
+                    if (!Multiplayer.IsActive)
                     {
                         return 0;
                     }
 
-                    LocalPlayer.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
-                    ILSShipManager.ItemSlotStationId = stationComponent.id;
-                    ILSShipManager.ItemSlotStationGId = stationComponent.gid;
-                    ILSShipManager.ItemSlotLastSlotId = outputSlotId;
-                    ILSShipManager.ItemSlotLastSelectedIndex = selectedIndex;
+                    if (Multiplayer.Session.Ships.ItemSlotStationId == stationComponent.id &&
+                        Multiplayer.Session.Ships.ItemSlotStationGId == stationComponent.gid &&
+                        Multiplayer.Session.Ships.ItemSlotLastSlotId == outputSlotId &&
+                        Multiplayer.Session.Ships.ItemSlotLastSelectedIndex == selectedIndex)
+                    {
+                        return 0;
+                    }
+
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
+                    Multiplayer.Session.Ships.ItemSlotStationId = stationComponent.id;
+                    Multiplayer.Session.Ships.ItemSlotStationGId = stationComponent.gid;
+                    Multiplayer.Session.Ships.ItemSlotLastSlotId = outputSlotId;
+                    Multiplayer.Session.Ships.ItemSlotLastSelectedIndex = selectedIndex;
                     return 0;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Pop))

@@ -1,8 +1,8 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld.Logistics;
+using NebulaWorld;
 
 /*
  * If client knows the planets factory we call the removal there, if not we call it on the gStationPool if possible
@@ -10,14 +10,14 @@ using NebulaWorld.Logistics;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSRemoveStationComponentProcessor : PacketProcessor<ILSRemoveStationComponent>
+    internal class ILSRemoveStationComponentProcessor : PacketProcessor<ILSRemoveStationComponent>
     {
         public override void ProcessPacket(ILSRemoveStationComponent packet, NebulaConnection conn)
         {
             PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
             if (pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
             {
-                using (ILSShipManager.PatchLockILS.On())
+                using (Multiplayer.Session.Ships.PatchLockILS.On())
                 {
                     pData.factory.transport.RemoveStationComponent(packet.StationId);
                 }
@@ -27,7 +27,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
                 if (packet.StationGId < gStationPool.Length)
                 {
-                    using (ILSShipManager.PatchLockILS.On())
+                    using (Multiplayer.Session.Ships.PatchLockILS.On())
                     {
                         GameMain.data.galacticTransport.RemoveStationComponent(packet.StationGId);
                     }

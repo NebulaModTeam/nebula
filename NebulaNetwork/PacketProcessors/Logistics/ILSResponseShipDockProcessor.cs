@@ -1,9 +1,8 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld.Logistics;
+using NebulaWorld;
 using UnityEngine;
 
 /*
@@ -14,24 +13,27 @@ using UnityEngine;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSResponseShipDockProcessor : PacketProcessor<ILSShipDock>
+    internal class ILSResponseShipDockProcessor : PacketProcessor<ILSShipDock>
     {
         public override void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
             // a fake entry should already have been created
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGId];
 
-            stationComponent.shipDockPos = DataStructureExtensions.ToVector3(packet.shipDockPos);
-            stationComponent.shipDockRot = DataStructureExtensions.ToQuaternion(packet.shipDockRot);
+            stationComponent.shipDockPos = packet.shipDockPos.ToVector3();
+            stationComponent.shipDockRot = packet.shipDockRot.ToQuaternion();
 
-            for (int i = 0; i < ILSShipManager.ILSMaxShipCount; i++)
+            for (int i = 0; i < stationComponent.workShipDatas.Length; i++)
             {
-                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / (float)ILSShipManager.ILSMaxShipCount * (float)i, 0f);
+                stationComponent.shipDiskRot[i] = Quaternion.Euler(0f, 360f / stationComponent.workShipDatas.Length * i, 0f);
                 stationComponent.shipDiskPos[i] = stationComponent.shipDiskRot[i] * new Vector3(0f, 0f, 11.5f);
             }
-            for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
+            for (int j = 0; j < stationComponent.workShipDatas.Length; j++)
             {
                 stationComponent.shipDiskRot[j] = stationComponent.shipDockRot * stationComponent.shipDiskRot[j];
                 stationComponent.shipDiskPos[j] = stationComponent.shipDockPos + stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
@@ -49,10 +51,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 {
                     stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];
 
-                    stationComponent.workShipDatas[packet.shipIndex[i]].uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
-                    stationComponent.workShipDatas[packet.shipIndex[i]].uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
-                    stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
-                    stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
+                    stationComponent.workShipDatas[packet.shipIndex[i]].uPos = packet.shipPos[i].ToVectorLF3();
+                    stationComponent.workShipDatas[packet.shipIndex[i]].uRot = packet.shipRot[i].ToQuaternion();
+                    stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = packet.shipPPosTemp[i].ToVectorLF3();
+                    stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = packet.shipPRotTemp[i].ToQuaternion();
                 }
             }
         }

@@ -1,19 +1,19 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
-using NebulaWorld.GameDataHistory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNotificationPacket>
+    internal class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNotificationPacket>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public GameHistoryNotificationProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
@@ -22,16 +22,20 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
 
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
                 else
+                {
                     valid = false;
+                }
             }
 
             if (valid)
             {
-                using (GameDataHistoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.History.IsIncomingRequest.On())
                 {
                     switch (packet.Event)
                     {

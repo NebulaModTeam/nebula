@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -9,7 +9,7 @@ using NebulaModel.Packets.Logistics;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSShipUpdateWarperCntProcessor : PacketProcessor<ILSShipUpdateWarperCnt>
+    internal class ILSShipUpdateWarperCntProcessor : PacketProcessor<ILSShipUpdateWarperCnt>
     {
         public override void ProcessPacket(ILSShipUpdateWarperCnt packet, NebulaConnection conn)
         {

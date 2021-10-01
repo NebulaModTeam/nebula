@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Assembler;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Assembler;
 namespace NebulaNetwork.PacketProcessors.Factory.Assembler
 {
     [RegisterPacketProcessor]
-    class AssemblerRecipeEventProcessor : PacketProcessor<AssemblerRecipeEventPacket>
+    internal class AssemblerRecipeEventProcessor : PacketProcessor<AssemblerRecipeEventPacket>
     {
         public override void ProcessPacket(AssemblerRecipeEventPacket packet, NebulaConnection conn)
         {

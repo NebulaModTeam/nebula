@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.PowerGenerator;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.PowerGenerator;
 namespace NebulaNetwork.PacketProcessors.Factory.PowerGenerator
 {
     [RegisterPacketProcessor]
-    class PowerGeneratorFuelUpdateProcessor : PacketProcessor<PowerGeneratorFuelUpdatePacket>
+    internal class PowerGeneratorFuelUpdateProcessor : PacketProcessor<PowerGeneratorFuelUpdatePacket>
     {
         public override void ProcessPacket(PowerGeneratorFuelUpdatePacket packet, NebulaConnection conn)
         {

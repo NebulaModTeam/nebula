@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Tank;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Tank;
 namespace NebulaNetwork.PacketProcessors.Factory.Tank
 {
     [RegisterPacketProcessor]
-    class TankInputOutputSwitchProcessor : PacketProcessor<TankInputOutputSwitchPacket>
+    internal class TankInputOutputSwitchProcessor : PacketProcessor<TankInputOutputSwitchPacket>
     {
         public override void ProcessPacket(TankInputOutputSwitchPacket packet, NebulaConnection conn)
         {

@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-
-namespace NebulaPatcher
+﻿namespace NebulaPatcher
 {
     /// <summary>
     /// The main metadata of the plugin.
@@ -35,10 +31,8 @@ namespace NebulaPatcher
         /// Version of the plugin. Must be in form <major>.<minor>.<build>.<revision>.
         /// Major and minor versions are mandatory, but build and revision can be left unspecified.
         /// </summary>
-        public const string PLUGIN_VERSION = "0.3.1";
+        public const string PLUGIN_VERSION = ThisAssembly.AssemblyFileVersion;
 
-        public static string PLUGIN_SHORT_SHA = new string(FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion.Split('+')[1].Take(7).ToArray());
-
-        public static string PLUGIN_VERSION_WITH_SHORT_SHA = $"v{PLUGIN_VERSION}-{PLUGIN_SHORT_SHA}";
+        public const string PLUGIN_DISPLAY_VERSION = ThisAssembly.IsPublicRelease ? ThisAssembly.AssemblyVersion : ThisAssembly.AssemblyInformationalVersion;
     }
 }

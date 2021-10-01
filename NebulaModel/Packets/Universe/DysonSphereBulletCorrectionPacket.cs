@@ -1,4 +1,4 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using UnityEngine;
 
 namespace NebulaModel.Packets.Universe
@@ -14,10 +14,10 @@ namespace NebulaModel.Packets.Universe
 
         public DysonSphereBulletCorrectionPacket(int starIndex, int bulletId, Vector3 uEndVel, Vector3 uEnd)
         {
-            this.StarIndex = starIndex;
-            this.BulletId = bulletId;
-            this.UEndVel = new Float3(uEndVel);
-            this.UEnd = new Float3(uEnd);
+            StarIndex = starIndex;
+            BulletId = bulletId;
+            UEndVel = new Float3(uEndVel);
+            UEnd = new Float3(uEnd);
         }
     }
 }

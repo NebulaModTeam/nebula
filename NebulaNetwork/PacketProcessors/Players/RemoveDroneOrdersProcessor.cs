@@ -3,7 +3,7 @@ using NebulaModel.Packets;
 
 namespace NebulaNetwork.PacketProcessors.Players
 {
-    class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPacket>
+    internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPacket>
     {
         public override void ProcessPacket(RemoveDroneOrdersPacket packet, NebulaConnection conn)
         {

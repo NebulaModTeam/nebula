@@ -1,4 +1,4 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using UnityEngine;
 
 namespace NebulaModel.Packets.Logistics

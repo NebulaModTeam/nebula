@@ -1,51 +1,59 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
-using NebulaWorld.Factory;
 using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStorageWindow))]
-    class UIStorageWindow_Patch
+    internal class UIStorageWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnStorageIdChange")]
+        [HarmonyPatch(nameof(UIStorageWindow.OnStorageIdChange))]
         public static bool OnStorageIdChange_Prefix(UIStorageWindow __instance)
         {
-            if (SimulatedWorld.Initialized && !LocalPlayer.IsMasterClient && StorageManager.WindowOpened)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Storage.WindowOpened)
             {
-                UIStorageGrid storageUI = (UIStorageGrid)AccessTools.Field(typeof(UIStorageWindow), "storageUI").GetValue(__instance);
-                StorageManager.ActiveUIStorageGrid = storageUI;
-                Text titleText = (Text)AccessTools.Field(typeof(UIStorageWindow), "titleText").GetValue(__instance);
-                StorageManager.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
-                StorageManager.ActiveWindowTitle = titleText;
-                StorageManager.ActiveBansSlider = (Slider)AccessTools.Field(typeof(UIStorageWindow), "bansSlider").GetValue(__instance);
-                StorageManager.ActiveBansValueText = (Text)AccessTools.Field(typeof(UIStorageWindow), "bansValueText").GetValue(__instance);
+                UIStorageGrid storageUI = __instance.storageUI;
+                Multiplayer.Session.Storage.ActiveUIStorageGrid = storageUI;
+                Text titleText = __instance.titleText;
+                Multiplayer.Session.Storage.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
+                Multiplayer.Session.Storage.ActiveWindowTitle = titleText;
+                Multiplayer.Session.Storage.ActiveBansSlider = __instance.bansSlider;
+                Multiplayer.Session.Storage.ActiveBansValueText = __instance.bansValueText;
                 titleText.text = "Loading...";
                 storageUI._Free();
                 storageUI._Open();
                 storageUI.OnStorageDataChanged();
-                LocalPlayer.SendPacket(new StorageSyncRequestPacket(GameMain.data.localPlanet.id, __instance.storageId));
+                Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(GameMain.data.localPlanet.id, __instance.storageId));
                 return false;
             }
             return true;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIStorageWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnOpen_Prefix()
         {
-            StorageManager.WindowOpened = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.WindowOpened = true;
+            }
+
             return true;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
+        [HarmonyPatch(nameof(UIStorageWindow._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Prefix()
         {
-            StorageManager.WindowOpened = false;
-            StorageManager.ActiveStorageComponent = null;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Storage.WindowOpened = false;
+                Multiplayer.Session.Storage.ActiveStorageComponent = null;
+            }
         }
     }
 }

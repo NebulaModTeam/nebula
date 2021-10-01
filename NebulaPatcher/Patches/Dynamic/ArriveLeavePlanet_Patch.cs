@@ -4,7 +4,7 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(GameData))]
-    class ArrivePlanet_Patch
+    internal class ArrivePlanet_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameData.ArrivePlanet))]
@@ -14,7 +14,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // due to that we have a time window between the vanilla ArrivePlanet() setting the localPlanet and planetId values and
             // our code loading the factory data.
             // this results in weird planet jumps, so we need to delay this until the factory data is loaded into the game.
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // if we are the server continue with vanilla logic
                 return true;
@@ -22,7 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // it is very painfull to patch the skip prologue functionality
             // so i apply the patched logic only after that.
-            if (!SimulatedWorld.IsGameLoaded)
+            if (!Multiplayer.Session.IsGameLoaded)
             {
                 return true;
             }
@@ -58,20 +58,21 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        public static bool RefreshMissingMeshes = false;
-
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameData.ArrivePlanet))]
         public static void ArrivePlanet_Postfix(GameData __instance, PlanetData planet)
         {
-            RefreshMissingMeshes = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.PlanetRefreshMissingMeshes = true;
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance)
         {
-            if (SimulatedWorld.Initialized && RefreshMissingMeshes && __instance.localPlanet != null)
+            if (Multiplayer.IsActive && Multiplayer.Session.PlanetRefreshMissingMeshes && __instance.localPlanet != null)
             {
                 PlanetData planetData = __instance.localPlanet;
 
@@ -84,7 +85,7 @@ namespace NebulaPatcher.Patches.Dynamic
                             planetData.meshColliders[i].sharedMesh = planetData.meshes[i];
                         }
                     }
-                    RefreshMissingMeshes = false;
+                    Multiplayer.Session.PlanetRefreshMissingMeshes = false;
                 }
             }
         }

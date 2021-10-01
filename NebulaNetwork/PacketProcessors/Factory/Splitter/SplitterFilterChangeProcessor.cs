@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Splitter;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Splitter;
 namespace NebulaNetwork.PacketProcessors.Factory.Splitter
 {
     [RegisterPacketProcessor]
-    class SplitterFilterChangeProcessor : PacketProcessor<SplitterFilterChangePacket>
+    internal class SplitterFilterChangeProcessor : PacketProcessor<SplitterFilterChangePacket>
     {
         public override void ProcessPacket(SplitterFilterChangePacket packet, NebulaConnection conn)
         {

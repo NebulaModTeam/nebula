@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Silo;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Silo;
 namespace NebulaNetwork.PacketProcessors.Factory.Silo
 {
     [RegisterPacketProcessor]
-    class SiloStorageUpdateProcessor : PacketProcessor<SiloStorageUpdatePacket>
+    internal class SiloStorageUpdateProcessor : PacketProcessor<SiloStorageUpdatePacket>
     {
         public override void ProcessPacket(SiloStorageUpdatePacket packet, NebulaConnection conn)
         {

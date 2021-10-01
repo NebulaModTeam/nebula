@@ -1,19 +1,19 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
-using NebulaWorld.Universe;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSwarmRemoveOrbitProcessor : PacketProcessor<DysonSwarmRemoveOrbitPacket>
+    internal class DysonSwarmRemoveOrbitProcessor : PacketProcessor<DysonSwarmRemoveOrbitPacket>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public DysonSwarmRemoveOrbitProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
@@ -21,16 +21,20 @@ namespace NebulaNetwork.PacketProcessors.Universe
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
                 else
+                {
                     valid = false;
+                }
             }
 
             if (valid)
             {
-                using (DysonSphereManager.IncomingDysonSwarmPacket.On())
+                using (Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket.On())
                 {
                     GameMain.data.dysonSpheres[packet.StarIndex]?.swarm?.RemoveOrbit(packet.OrbitId);
                 }

@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -9,11 +9,11 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     public class PlayerAnimationUpdateProcessor : PacketProcessor<PlayerAnimationUpdate>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerAnimationUpdateProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerAnimationUpdate packet, NebulaConnection conn)
@@ -22,7 +22,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     packet.PlayerId = player.Id;
@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                SimulatedWorld.UpdateRemotePlayerAnimation(packet);
+                Multiplayer.Session.World.UpdateRemotePlayerAnimation(packet);
             }
         }
     }

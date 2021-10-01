@@ -1,13 +1,13 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Storage
 {
     [RegisterPacketProcessor]
-    class StorageSyncSetBansProcessor : PacketProcessor<StorageSyncSetBansPacket>
+    internal class StorageSyncSetBansProcessor : PacketProcessor<StorageSyncSetBansPacket>
     {
         public override void ProcessPacket(StorageSyncSetBansPacket packet, NebulaConnection conn)
         {
@@ -20,7 +20,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
 
             if (storage != null)
             {
-                using (StorageManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Storage.IsIncomingRequest.On())
                 {
                     storage.SetBans(packet.Bans);
                 }

@@ -1,5 +1,4 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.Networking.Serialization;
+﻿using NebulaAPI;
 
 namespace NebulaModel.Packets.Belt
 {
@@ -32,7 +31,7 @@ namespace NebulaModel.Packets.Belt
             BeltId = beltId;
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(ItemId);
             writer.Put(Count);
@@ -40,7 +39,7 @@ namespace NebulaModel.Packets.Belt
             writer.Put(SegId);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             ItemId = reader.GetInt();
             Count = reader.GetInt();

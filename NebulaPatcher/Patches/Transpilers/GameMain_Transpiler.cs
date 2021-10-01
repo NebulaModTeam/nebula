@@ -6,48 +6,65 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(GameMain))]
-    class GameMain_Transpiler
+    internal class GameMain_Transpiler
     {
-        //Ignore Pausing in the multiplayer:
+        //Enable Pausing only when there is no session or  Multiplayer.Session.CanPause is true:
         //Change:  if (!this._paused)
-        //To:      if (!this._paused || SimulatedWorld.Initialized)
+        //To:      if (!(this._paused && (Multiplayer.Session == null || Multiplayer.Session.CanPause)))
+        //Change:  if (this._fullscreenPaused && !this._fullscreenPausedUnlockOneFrame)
+        //To:      if (this._fullscreenPaused && (Multiplayer.Session == null || Multiplayer.Session.CanPause) && !this._fullscreenPausedUnlockOneFrame)
 
         [HarmonyTranspiler]
-        [HarmonyPatch("FixedUpdate")]
-        static IEnumerable<CodeInstruction> PickupBeltItems_Transpiler(ILGenerator gen, IEnumerable<CodeInstruction> instructions)
+        [HarmonyPatch(nameof(GameMain.FixedUpdate))]
+        private static IEnumerable<CodeInstruction> FixedUpdate_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
         {
-            var found = false;
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 6; i < codes.Count; i++)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(Player), "ApplyGamePauseState")),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(GameMain), "_paused")),
+                    new CodeMatch(OpCodes.Brtrue)
+                );
+
+            if (codeMatcher.IsInvalid)
             {
-                if (codes[i].opcode == OpCodes.Callvirt &&
-                    codes[i - 1].opcode == OpCodes.Ldc_I4_1 &&
-                    codes[i - 2].opcode == OpCodes.Br &&
-                    codes[i - 3].opcode == OpCodes.Ldc_I4_0 &&
-                    codes[i - 4].opcode == OpCodes.Br &&
-                    codes[i - 5].opcode == OpCodes.Ceq)
-                {
-                    found = true;
-                    //Define new jump for firct condition
-                    Label targetLabel = gen.DefineLabel();
-                    codes[i + 4].labels.Add(targetLabel);
+                NebulaModel.Logger.Log.Error("GameMain.FixedUpdate_Transpiler failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+            object skipLabel1 = codeMatcher.Instruction.operand;
+            codeMatcher
+                .CreateLabelAt(codeMatcher.Pos + 1, out Label nextLabel1)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Brfalse_S, nextLabel1), //_paused== false => enter loop
+                    new CodeInstruction(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
+                    new CodeInstruction(OpCodes.Brfalse_S, skipLabel1), //_paused== true && Multiplayer.Session == null => can pause, skip loop
+                    new CodeInstruction(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
+                    new CodeInstruction(OpCodes.Callvirt, AccessTools.DeclaredPropertyGetter(typeof(MultiplayerSession), nameof(MultiplayerSession.CanPause)))
+                )
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(GameMain), "_fullscreenPaused")),
+                    new CodeMatch(OpCodes.Brfalse)
+                );
 
-                    //Add my condition
-                    codes.InsertRange(i + 4, new CodeInstruction[] {
-                            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SimulatedWorld), "get_Initialized")),
-                            new CodeInstruction(OpCodes.Brfalse_S, codes[i+3].operand)
-                    });
-
-                    //Change jump of first condition
-                    codes[i + 3] = new CodeInstruction(OpCodes.Brfalse_S, targetLabel);
-
-                    break;
-                }
+            if (codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Error("GameMain.FixedUpdate_Transpiler 2 failed. Mod version not compatible with game version.");
+                return instructions;
             }
 
-            if (!found)
-                NebulaModel.Logger.Log.Error("GameMain FixedUpdate transpiler failed. Mod version not compatible with game version.");
-            return codes;
+            object skipLabel2 = codeMatcher.Instruction.operand;
+            return codeMatcher
+                    .Advance(1)
+                    .CreateLabel(out Label nextLabel2) //position of checking _fullscreenPausedUnlockOneFrame
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
+                        new CodeInstruction(OpCodes.Brfalse_S, nextLabel2), //_fullscreenPaused && Multiplayer.Session == null => can pause, jump to next check
+                        new CodeInstruction(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
+                        new CodeInstruction(OpCodes.Callvirt, AccessTools.DeclaredPropertyGetter(typeof(MultiplayerSession), nameof(MultiplayerSession.CanPause))),
+                        new CodeInstruction(OpCodes.Brfalse_S, skipLabel2) //_fullscreenPaused && Multiplayer.Session.CanPause == fasle => can't pause, skip
+                    )
+                    .InstructionEnumeration();
         }
     }
 }

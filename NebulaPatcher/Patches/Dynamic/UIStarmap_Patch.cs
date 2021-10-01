@@ -4,25 +4,27 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStarmap))]
-    class UIStarmap_Patch
+    internal class UIStarmap_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("_OnLateUpdate")]
-        public static void OnLateUpdate_Postfix(UIStarmap __instance)
+        [HarmonyPatch(nameof(UIStarmap._OnLateUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnLateUpdate_Postfix(UIStarmap __instance)
         {
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                SimulatedWorld.RenderPlayerNameTagsOnStarmap(__instance);
+                Multiplayer.Session.World.RenderPlayerNameTagsOnStarmap(__instance);
             }
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnClose")]
-        public static void OnClose_Postfix(UIStarmap __instance)
+        [HarmonyPatch(nameof(UIStarmap._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnClose_Postfix()
         {
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                SimulatedWorld.ClearPlayerNameTagsOnStarmap();
+                Multiplayer.Session.World.ClearPlayerNameTagsOnStarmap();
             }
         }
     }

@@ -1,20 +1,19 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
-using NebulaWorld.Factory;
 using System;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIRealtimeTip))]
-    class UIRealtimeTip_Patch
+    internal class UIRealtimeTip_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(bool), typeof(int) })]
         public static bool Popup_Prefix()
         {
             //Do not show popups if they are triggered remotely
-            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest);
+            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -22,7 +21,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix2()
         {
             //Do not show popups if they are triggered remotely
-            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest);
+            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
 
         [HarmonyPrefix]
@@ -30,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool Popup_Prefix3()
         {
             //Do not show popups if they are triggered remotely
-            return !SimulatedWorld.Initialized || (!FactoryManager.IsIncomingRequest);
+            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -7,7 +6,7 @@ using NebulaModel.Packets.Universe;
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    class DysonSphereAddSailBulletProcessor : PacketProcessor<DysonSphereBulletCorrectionPacket>
+    internal class DysonSphereAddSailBulletProcessor : PacketProcessor<DysonSphereBulletCorrectionPacket>
     {
         public override void ProcessPacket(DysonSphereBulletCorrectionPacket packet, NebulaConnection conn)
         {
@@ -16,8 +15,8 @@ namespace NebulaNetwork.PacketProcessors.Universe
             {
                 //Update destination values for the bullet
                 SailBullet bullet = GameMain.data.dysonSpheres[packet.StarIndex].swarm.bulletPool[packet.BulletId];
-                bullet.uEnd = DataStructureExtensions.ToVector3(packet.UEnd);
-                bullet.uEndVel = DataStructureExtensions.ToVector3(packet.UEndVel);
+                bullet.uEnd = packet.UEnd.ToVector3();
+                bullet.uEndVel = packet.UEndVel.ToVector3();
             }
             else
             {

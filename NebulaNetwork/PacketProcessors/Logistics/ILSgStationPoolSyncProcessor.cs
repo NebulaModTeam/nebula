@@ -1,9 +1,8 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld.Logistics;
+using NebulaWorld;
 using UnityEngine;
 
 /*
@@ -14,21 +13,23 @@ using UnityEngine;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSync>
+    internal class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSync>
     {
         public override void ProcessPacket(ILSgStationPoolSync packet, NebulaConnection conn)
         {
             GalacticTransport gTransport = GameMain.data.galacticTransport;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
 
+            int arrayStartPos = 0;
+
             for (int i = 0; i < packet.stationGId.Length; i++)
             {
-                ILSShipManager.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i], false); // handles array resizing
+                Multiplayer.Session.Ships.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i], packet.stationMaxShipCount[i], false); // handles array resizing
                 gStationPool = GameMain.data.galacticTransport.stationPool; // dont remove or you get an ArrayOutOfBounds
 
-                gStationPool[packet.stationGId[i]].shipDockPos = DataStructureExtensions.ToVector3(packet.DockPos[i]);
+                gStationPool[packet.stationGId[i]].shipDockPos = packet.DockPos[i].ToVector3();
 
-                gStationPool[packet.stationGId[i]].shipDockRot = DataStructureExtensions.ToQuaternion(packet.DockRot[i]);
+                gStationPool[packet.stationGId[i]].shipDockRot = packet.DockRot[i].ToQuaternion();
 
                 gStationPool[packet.stationGId[i]].id = packet.stationId[i];
                 gStationPool[packet.stationGId[i]].planetId = packet.planetId[i];
@@ -36,51 +37,52 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 gStationPool[packet.stationGId[i]].idleShipCount = packet.idleShipCount[i];
                 gStationPool[packet.stationGId[i]].workShipIndices = packet.workShipIndices[i];
                 gStationPool[packet.stationGId[i]].idleShipIndices = packet.idleShipIndices[i];
-                gStationPool[packet.stationGId[i]].shipRenderers = new ShipRenderingData[ILSShipManager.ILSMaxShipCount];
-                gStationPool[packet.stationGId[i]].shipUIRenderers = new ShipUIRenderingData[ILSShipManager.ILSMaxShipCount];
+                gStationPool[packet.stationGId[i]].shipRenderers = new ShipRenderingData[packet.stationMaxShipCount[i]];
+                gStationPool[packet.stationGId[i]].shipUIRenderers = new ShipUIRenderingData[packet.stationMaxShipCount[i]];
 
-                gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[ILSShipManager.ILSMaxShipCount];
-                gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[ILSShipManager.ILSMaxShipCount];
+                gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[packet.stationMaxShipCount[i]];
+                gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[packet.stationMaxShipCount[i]];
 
-                // theese are the individual landing places for the ships on the station's disk at the top
-                for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
+                // these are the individual landing places for the ships on the station's disk at the top
+                for (int j = 0; j < packet.stationMaxShipCount[i]; j++)
                 {
-                    gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / (float)ILSShipManager.ILSMaxShipCount * (float)j, 0f);
+                    gStationPool[packet.stationGId[i]].shipDiskRot[j] = Quaternion.Euler(0f, 360f / packet.stationMaxShipCount[i] * j, 0f);
                     gStationPool[packet.stationGId[i]].shipDiskPos[j] = gStationPool[packet.stationGId[i]].shipDiskRot[j] * new Vector3(0f, 0f, 11.5f);
                 }
-                for (int j = 0; j < ILSShipManager.ILSMaxShipCount; j++)
+                for (int j = 0; j < packet.stationMaxShipCount[i]; j++)
                 {
                     gStationPool[packet.stationGId[i]].shipDiskRot[j] = gStationPool[packet.stationGId[i]].shipDockRot * gStationPool[packet.stationGId[i]].shipDiskRot[j];
                     gStationPool[packet.stationGId[i]].shipDiskPos[j] = gStationPool[packet.stationGId[i]].shipDockPos + gStationPool[packet.stationGId[i]].shipDockRot * gStationPool[packet.stationGId[i]].shipDiskPos[j];
                 }
-            }
+                
+                for (int j = 0; j < packet.stationMaxShipCount[i]; j++)
+                {
+                    int index = arrayStartPos + j;
+                    ShipData shipData = gStationPool[packet.stationGId[i]].workShipDatas[j];
+                    shipData.stage = packet.shipStage[index];
+                    shipData.direction = packet.shipDirection[index];
+                    shipData.warpState = packet.shipWarpState[index];
+                    shipData.warperCnt = packet.shipWarperCnt[index];
+                    shipData.itemId = packet.shipItemID[index];
+                    shipData.itemCount = packet.shipItemCount[index];
+                    shipData.planetA = packet.shipPlanetA[index];
+                    shipData.planetB = packet.shipPlanetB[index];
+                    shipData.otherGId = packet.shipOtherGId[index];
+                    shipData.t = packet.shipT[index];
+                    shipData.shipIndex = packet.shipIndex[index];
 
-            // thanks Baldy for the fix :D
-            // nearly lost all my hairs because of it
-            for (int i = 0; i < packet.shipStationGId.Length; i++)
-            {
-                ShipData shipData = gStationPool[packet.shipStationGId[i]].workShipDatas[i % ILSShipManager.ILSMaxShipCount];
-                shipData.stage = packet.shipStage[i];
-                shipData.direction = packet.shipDirection[i];
-                shipData.warpState = packet.shipWarpState[i];
-                shipData.warperCnt = packet.shipWarperCnt[i];
-                shipData.itemId = packet.shipItemID[i];
-                shipData.itemCount = packet.shipItemCount[i];
-                shipData.planetA = packet.shipPlanetA[i];
-                shipData.planetB = packet.shipPlanetB[i];
-                shipData.otherGId = packet.shipOtherGId[i];
-                shipData.t = packet.shipT[i];
-                shipData.shipIndex = packet.shipIndex[i];
+                    shipData.uPos = packet.shipPos[index].ToVectorLF3();
+                    shipData.uRot = packet.shipRot[index].ToQuaternion();
+                    shipData.uVel = packet.shipVel[index].ToVector3();
+                    shipData.uSpeed = packet.shipSpeed[index];
+                    shipData.uAngularVel = packet.shipAngularVel[index].ToVector3();
+                    shipData.pPosTemp = packet.shipPPosTemp[index].ToVectorLF3();
+                    shipData.pRotTemp = packet.shipRot[index].ToQuaternion();
 
-                shipData.uPos = DataStructureExtensions.ToVectorLF3(packet.shipPos[i]);
-                shipData.uRot = DataStructureExtensions.ToQuaternion(packet.shipRot[i]);
-                shipData.uVel = DataStructureExtensions.ToVector3(packet.shipVel[i]);
-                shipData.uSpeed = packet.shipSpeed[i];
-                shipData.uAngularVel = DataStructureExtensions.ToVector3(packet.shipAngularVel[i]);
-                shipData.pPosTemp = DataStructureExtensions.ToVectorLF3(packet.shipPPosTemp[i]);
-                shipData.pRotTemp = DataStructureExtensions.ToQuaternion(packet.shipPRotTemp[i]);
+                    gStationPool[packet.stationGId[i]].workShipDatas[j] = shipData;
+                }
 
-                gStationPool[packet.shipStationGId[i]].workShipDatas[i % ILSShipManager.ILSMaxShipCount] = shipData;
+                arrayStartPos += packet.stationMaxShipCount[i];
             }
 
             gTransport.Arragement();

@@ -1,20 +1,19 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
-using NebulaWorld.Player;
 
 namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
+    internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public NewDroneOrderProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
@@ -23,23 +22,25 @@ namespace NebulaNetwork.PacketProcessors.Players
             if (IsHost)
             {
                 if (GameMain.mainPlayer.planetId != packet.PlanetId)
+                {
                     return;
+                }
 
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     if (packet.Stage == 1 || packet.Stage == 2)
                     {
-                        DroneManager.AddPlayerDronePlan(player.Id, packet.EntityId);
+                        Multiplayer.Session.Drones.AddPlayerDronePlan(player.Id, packet.EntityId);
                     }
                     else if (packet.Stage == 3)
                     {
-                        DroneManager.RemovePlayerDronePlan(player.Id, packet.EntityId);
+                        Multiplayer.Session.Drones.RemovePlayerDronePlan(player.Id, packet.EntityId);
                     }
                 }
             }
 
-            SimulatedWorld.UpdateRemotePlayerDrone(packet);
+            Multiplayer.Session.World.UpdateRemotePlayerDrone(packet);
         }
     }
 }

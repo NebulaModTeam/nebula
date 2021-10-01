@@ -1,23 +1,34 @@
-﻿using System;
+﻿using NebulaAPI;
+using System;
 using System.Threading;
 
 namespace NebulaModel.DataStructures
 {
-    public sealed class ToggleSwitch
+    public sealed class ToggleSwitch : IToggle
     {
-        int onCount;
+        private int onCount;
 
         public bool Value => onCount > 0;
 
-        public static implicit operator bool(ToggleSwitch toggle) => toggle.Value;
+        public static implicit operator bool(ToggleSwitch toggle)
+        {
+            return toggle.Value;
+        }
 
-        public Toggle On(bool conditional) => new Toggle(this, conditional ? 1 : 0);
-        public Toggle On() => new Toggle(this, 1);
+        public Toggle On(bool conditional)
+        {
+            return new Toggle(this, conditional ? 1 : 0);
+        }
+
+        public IDisposable On()
+        {
+            return new Toggle(this, 1);
+        }
 
         public readonly struct Toggle : IDisposable
         {
-            readonly ToggleSwitch value;
-            readonly int count;
+            private readonly ToggleSwitch value;
+            private readonly int count;
 
             public Toggle(ToggleSwitch value, int count)
             {

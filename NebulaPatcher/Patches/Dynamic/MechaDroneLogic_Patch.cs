@@ -1,19 +1,18 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
-using NebulaWorld.Player;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(MechaDroneLogic))]
-    class MechaDroneLogic_Patch
+    internal class MechaDroneLogic_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("UpdateTargets")]
+        [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
         public static void UpdateTargets_Prefix()
         {
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                DroneManager.ClearCachedPositions();
+                Multiplayer.Session.Drones.ClearCachedPositions();
             }
         }
     }

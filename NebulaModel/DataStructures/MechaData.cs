@@ -1,5 +1,4 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.Networking.Serialization;
+﻿using NebulaAPI;
 using NebulaModel.Packets.Players;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,7 @@ using System.IO;
 namespace NebulaModel.DataStructures
 {
     [RegisterNestedType]
-    public class MechaData : INetSerializable
+    public class MechaData : IMechaData
     {
         public int SandCount { get; set; }
         public double CoreEnergy { get; set; }
@@ -21,24 +20,26 @@ namespace NebulaModel.DataStructures
         public MechaData()
         {
             //This is needed for the serialization and deserialization
-            this.Forge = new MechaForge();
-            this.Forge.tasks = new List<ForgeTask>();
-            this.TechBonuses = new PlayerTechBonuses();
+            Forge = new MechaForge
+            {
+                tasks = new List<ForgeTask>()
+            };
+            TechBonuses = new PlayerTechBonuses();
         }
 
         public MechaData(int sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory, StorageComponent reactorStorage, StorageComponent warpStorage, MechaForge forge)
         {
-            this.SandCount = sandCount;
-            this.CoreEnergy = coreEnergy;
-            this.ReactorEnergy = reactorEnergy;
-            this.ReactorStorage = reactorStorage;
-            this.WarpStorage = warpStorage;
-            this.Forge = forge;
-            this.Inventory = inventory;
-            this.TechBonuses = new PlayerTechBonuses();
+            SandCount = sandCount;
+            CoreEnergy = coreEnergy;
+            ReactorEnergy = reactorEnergy;
+            ReactorStorage = reactorStorage;
+            WarpStorage = warpStorage;
+            Forge = forge;
+            Inventory = inventory;
+            TechBonuses = new PlayerTechBonuses();
         }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             TechBonuses.Serialize(writer);
             writer.Put(SandCount);
@@ -63,15 +64,17 @@ namespace NebulaModel.DataStructures
             }
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             TechBonuses = new PlayerTechBonuses();
             Inventory = new StorageComponent(4);
             ReactorStorage = new StorageComponent(4);
             WarpStorage = new StorageComponent(1);
-            Forge = new MechaForge();
-            Forge.tasks = new List<ForgeTask>();
-            Forge.extraItems = new ItemPack();
+            Forge = new MechaForge
+            {
+                tasks = new List<ForgeTask>(),
+                extraItems = new ItemPack()
+            };
             TechBonuses.Deserialize(reader);
             SandCount = reader.GetInt();
             CoreEnergy = reader.GetDouble();

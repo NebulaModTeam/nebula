@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -15,7 +15,10 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     {
         public override void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             StationComponent stationComponent = null;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;

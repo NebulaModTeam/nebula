@@ -1,29 +1,29 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
-using NebulaWorld.GameDataHistory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
     [RegisterPacketProcessor]
-    class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqueueTechPacket>
+    internal class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqueueTechPacket>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public GameHistoryEnqueueTechProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(GameHistoryEnqueueTechPacket packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
-                    using (GameDataHistoryManager.IsIncomingRequest.On())
+                    using (Multiplayer.Session.History.IsIncomingRequest.On())
                     {
                         GameMain.history.EnqueueTech(packet.TechId);
                     }
@@ -32,7 +32,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             }
             else
             {
-                using (GameDataHistoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.History.IsIncomingRequest.On())
                 {
                     GameMain.history.EnqueueTech(packet.TechId);
                 }

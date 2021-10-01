@@ -2,8 +2,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PacketProcessors\" />
+    <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
   </ItemGroup>
 </Project>

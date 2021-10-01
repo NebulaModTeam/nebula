@@ -1,27 +1,38 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets.Universe;
+using System;
 using System.Collections.Generic;
 
 namespace NebulaWorld.Universe
 {
-    public static class DysonSphereManager
+    public class DysonSphereManager : IDisposable
     {
-        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
-        public static readonly ToggleSwitch IncomingDysonSwarmPacket = new ToggleSwitch();
+        public readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
+        public readonly ToggleSwitch IncomingDysonSwarmPacket = new ToggleSwitch();
 
-        public static List<DysonSphereAddFramePacket> QueuedAddFramePackets = new List<DysonSphereAddFramePacket>();
+        public List<DysonSphereAddFramePacket> QueuedAddFramePackets = new List<DysonSphereAddFramePacket>();
 
-        public static bool CanCreateFrame(int node1, int node2, DysonSphereLayer dsl)
+        public DysonSphereManager()
+        {
+            QueuedAddFramePackets = new List<DysonSphereAddFramePacket>();
+        }
+
+        public void Dispose()
+        {
+            QueuedAddFramePackets = null;
+        }
+
+        public bool CanCreateFrame(int node1, int node2, DysonSphereLayer dsl)
         {
             if (dsl == null)
             {
                 return false;
             }
-            if ((ulong)node1 >= (ulong)((long)dsl.nodeCursor))
+            if ((ulong)node1 >= (ulong)dsl.nodeCursor)
             {
                 return false;
             }
-            if ((ulong)node2 >= (ulong)((long)dsl.nodeCursor))
+            if ((ulong)node2 >= (ulong)dsl.nodeCursor)
             {
                 return false;
             }
@@ -32,12 +43,12 @@ namespace NebulaWorld.Universe
             return true;
         }
 
-        public static bool CanRemoveFrame(int frameId, DysonSphereLayer dsl)
+        public bool CanRemoveFrame(int frameId, DysonSphereLayer dsl)
         {
             return dsl != null && dsl.framePool[frameId] != null && dsl.framePool[frameId].nodeA.frames != null && dsl.framePool[frameId].nodeB.frames != null;
         }
 
-        public static bool CanRemoveShell(int shellId, DysonSphereLayer dsl)
+        public bool CanRemoveShell(int shellId, DysonSphereLayer dsl)
         {
             if (dsl?.shellPool[shellId]?.nodes != null)
             {

@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel;
 using NebulaModel.Logger;
-using NebulaPatcher.MonoBehaviours;
+using NebulaNetwork;
 using NebulaWorld;
 using System.Collections;
 using System.Globalization;
@@ -14,7 +14,7 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIMainMenu))]
-    class UIMainMenu_Patch
+    internal class UIMainMenu_Patch
     {
         private static RectTransform mainMenuButtonGroup;
         private static RectTransform multiplayerButton;
@@ -24,10 +24,11 @@ namespace NebulaPatcher.Patches.Dynamic
         private static InputField hostIPAdressInput;
 
         [HarmonyPostfix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIMainMenu._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Postfix()
         {
-            SimulatedWorld.ExitingMultiplayerSession = false;
+            Multiplayer.IsLeavingGame = false;
 
             GameObject overlayCanvas = GameObject.Find("Overlay Canvas");
             if (overlayCanvas == null)
@@ -67,7 +68,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnMultiplayerButtonClick()
         {
-            MainMenuManager.IsInMultiplayerMenu = true;
+            Multiplayer.IsInMultiplayerMenu = true;
             mainMenuButtonGroup.gameObject.SetActive(false);
             multiplayerSubMenu.gameObject.SetActive(true);
         }
@@ -111,7 +112,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnMultiplayerBackButtonClick()
         {
-            MainMenuManager.IsInMultiplayerMenu = false;
+            Multiplayer.IsInMultiplayerMenu = false;
             multiplayerSubMenu.gameObject.SetActive(false);
             mainMenuButtonGroup.gameObject.SetActive(true);
         }
@@ -152,11 +153,11 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerMenu.Find("resource-multiplier").gameObject.SetActive(false);
             multiplayerMenu.Find("right-group").gameObject.SetActive(false);
 
-            var topTitle = multiplayerMenu.Find("top-title");
+            Transform topTitle = multiplayerMenu.Find("top-title");
             topTitle.GetComponent<Localizer>().enabled = false;
             topTitle.GetComponent<Text>().text = "Multiplayer";
 
-            var hostIpField = multiplayerMenu.Find("galaxy-seed");
+            Transform hostIpField = multiplayerMenu.Find("galaxy-seed");
             hostIpField.GetComponent<Localizer>().enabled = false;
             hostIpField.GetComponent<Text>().text = "Host IP Address";
             hostIPAdressInput = hostIpField.GetComponentInChildren<InputField>();
@@ -183,7 +184,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnJoinGameButtonClick()
         {
             // Remove whitespaces from connection string
-            var s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
+            string s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
 
             // Taken from .net IPEndPoint
             IPEndPoint result = null;
@@ -215,8 +216,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
-            var isIP = false;
-            var p = 0;
+            bool isIP = false;
+            int p = 0;
             if (result != null)
             {
                 if (result.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
@@ -232,13 +233,17 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             else
             {
-                var tmpP = s.Split(':');
+                string[] tmpP = s.Split(':');
                 if (tmpP.Length == 2)
                 {
-                    if (!System.Int32.TryParse(tmpP[1], out p))
+                    if (!int.TryParse(tmpP[1], out p))
+                    {
                         p = 0;
+                    }
                     else
+                    {
                         s = tmpP[0];
+                    }
                 }
             }
 
@@ -276,22 +281,19 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
         {
-            NebulaNetwork.MultiplayerClientSession session = NebulaBootstrapper.Instance.CreateMultiplayerClientSession();
-
             if (isIP)
             {
-                session.ConnectToIp(new IPEndPoint(IPAddress.Parse(connectionString), serverPort));
+                Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort)));
                 return true;
             }
 
             //trying to resolve as uri
-            if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out var serverUri))
+            if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out _))
             {
-                session.ConnectToUrl(connectionString, serverPort);
+                Multiplayer.JoinGame(new Client(connectionString, serverPort));
                 return true;
             }
 
-            session.DestroySession();
             return false;
         }
     }

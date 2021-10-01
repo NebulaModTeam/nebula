@@ -1,20 +1,19 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
-using NebulaWorld.Universe;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
     public class DysonSphereAddLayerProcessor : PacketProcessor<DysonSphereAddLayerPacket>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public DysonSphereAddLayerProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(DysonSphereAddLayerPacket packet, NebulaConnection conn)
@@ -22,18 +21,22 @@ namespace NebulaNetwork.PacketProcessors.Universe
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
+                {
                     playerManager.SendPacketToOtherPlayers(packet, player);
+                }
                 else
+                {
                     valid = false;
+                }
             }
 
             if (valid)
             {
-                using (DysonSphereManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
                 {
-                    GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, DataStructureExtensions.ToQuaternion(packet.OrbitRotation), packet.OrbitAngularSpeed);
+                    GameMain.data.dysonSpheres[packet.StarIndex]?.AddLayer(packet.OrbitRadius, packet.OrbitRotation.ToQuaternion(), packet.OrbitAngularSpeed);
                 }
             }
         }

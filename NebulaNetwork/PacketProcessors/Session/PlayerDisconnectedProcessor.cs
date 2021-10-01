@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.Session
     {
         public override void ProcessPacket(PlayerDisconnected packet, NebulaConnection conn)
         {
-            SimulatedWorld.DestroyRemotePlayerModel(packet.PlayerId);
+            Multiplayer.Session.World.DestroyRemotePlayerModel(packet.PlayerId);
         }
     }
 }

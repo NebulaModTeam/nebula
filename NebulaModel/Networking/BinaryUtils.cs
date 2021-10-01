@@ -1,4 +1,5 @@
 ﻿using K4os.Compression.LZ4.Streams;
+using NebulaAPI;
 using System;
 using System.IO;
 
@@ -6,14 +7,14 @@ namespace NebulaModel.Networking
 {
     public static class BinaryUtils
     {
-        const int BUFFER_SIZE = 8192;
+        private const int BUFFER_SIZE = 8192;
 
-        public class Writer : IDisposable
+        public class Writer : IWriterProvider
         {
-            MemoryStream ms;
-            LZ4EncoderStream ls;
-            BufferedStream bs;
-            BinaryWriter bw;
+            private readonly MemoryStream ms;
+            private readonly LZ4EncoderStream ls;
+            private readonly BufferedStream bs;
+            private readonly BinaryWriter bw;
 
             public BinaryWriter BinaryWriter => bw;
 
@@ -31,21 +32,22 @@ namespace NebulaModel.Networking
                 bs?.Dispose();
                 ls?.Dispose();
                 ms?.Dispose();
+                GC.SuppressFinalize(this);
             }
 
             public byte[] CloseAndGetBytes()
             {
                 bw?.Close();
-                return ms?.ToArray() ?? new byte[0];
+                return ms?.ToArray() ?? Array.Empty<byte>();
             }
         }
 
-        public class Reader : IDisposable
+        public class Reader : IReaderProvider
         {
-            MemoryStream ms;
-            LZ4DecoderStream ls;
-            BufferedStream bs;
-            BinaryReader br;
+            private readonly MemoryStream ms;
+            private readonly LZ4DecoderStream ls;
+            private readonly BufferedStream bs;
+            private readonly BinaryReader br;
 
             public MemoryStream MemoryStream => ms;
             public BinaryReader BinaryReader => br;
@@ -64,6 +66,7 @@ namespace NebulaModel.Networking
                 bs?.Dispose();
                 ls?.Dispose();
                 ms?.Dispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

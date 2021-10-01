@@ -6,6 +6,8 @@ namespace NebulaModel.Packets.Logistics
     public class ILSArriveStarPlanetResponse
     {
         public int[] StationGId { get; set; }
+        
+        public int[] StationMaxShips { get; set; }
         public int[] PlanetId { get; set; }
         public int Planet { get; set; }
         public int[] StorageLength { get; set; }
@@ -19,6 +21,7 @@ namespace NebulaModel.Packets.Logistics
         public int[] RemoteLogic { get; set; }
         public ILSArriveStarPlanetResponse() { }
         public ILSArriveStarPlanetResponse(int[] stationGId,
+                                        int[] stationMaxShips,
                                         int[] planetId,
                                         int planet,
                                         int[] storageLength,
@@ -31,18 +34,19 @@ namespace NebulaModel.Packets.Logistics
                                         int[] localLogic,
                                         int[] remoteLogic)
         {
-            this.StationGId = stationGId;
-            this.PlanetId = planetId;
-            this.Planet = planet;
-            this.StorageLength = storageLength;
-            this.StorageIdx = storageIdx;
-            this.ItemId = itemId;
-            this.Count = count;
-            this.LocalOrder = localOrder;
-            this.RemoteOrder = remoteOrder;
-            this.Max = max;
-            this.LocalLogic = localLogic;
-            this.RemoteLogic = remoteLogic;
+            StationGId = stationGId;
+            StationMaxShips = stationMaxShips;
+            PlanetId = planetId;
+            Planet = planet;
+            StorageLength = storageLength;
+            StorageIdx = storageIdx;
+            ItemId = itemId;
+            Count = count;
+            LocalOrder = localOrder;
+            RemoteOrder = remoteOrder;
+            Max = max;
+            LocalLogic = localLogic;
+            RemoteLogic = remoteLogic;
         }
     }
 }

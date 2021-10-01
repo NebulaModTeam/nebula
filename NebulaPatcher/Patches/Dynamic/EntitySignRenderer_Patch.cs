@@ -5,19 +5,19 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(EntitySignRenderer))]
-    class EntitySignRenderer_Patch
+    internal class EntitySignRenderer_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("Init")]
+        [HarmonyPatch(nameof(EntitySignRenderer.Init))]
         public static void Init_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showIcon") = Config.Options.BuildingIconEnabled;
-            AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showSign") = Config.Options.BuildingWarningEnabled;
+            EntitySignRenderer.showIcon = Config.Options.BuildingIconEnabled;
+            EntitySignRenderer.showSign = Config.Options.BuildingWarningEnabled;
         }
     }
 }

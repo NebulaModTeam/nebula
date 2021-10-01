@@ -5,18 +5,18 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PostEffectController))]
-    class PostEffectController_Patch
+    internal class PostEffectController_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("Start")]
-        public static void Start_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(PostEffectController.Start))]
+        public static void Start_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight") = Config.Options.GuidingLightEnabled;
+            PostEffectController.headlight = Config.Options.GuidingLightEnabled;
         }
     }
 }

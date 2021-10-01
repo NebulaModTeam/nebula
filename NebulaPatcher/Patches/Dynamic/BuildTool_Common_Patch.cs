@@ -1,14 +1,14 @@
 ﻿using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
-using NebulaWorld.Factory;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch]
-    class BuildTool_Common_Patch
+    internal class BuildTool_Common_Patch
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CreatePrebuilds))]
@@ -17,9 +17,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
         public static bool CreatePrebuilds_Prefix(BuildTool __instance)
         {
-            if (!SimulatedWorld.Initialized)
+            if (!Multiplayer.IsActive)
+            {
                 return true;
-
+            }
 
             List<BuildPreview> previews = __instance.buildPreviews;
             if (__instance is BuildTool_BlueprintPaste)
@@ -29,16 +30,16 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // Host will just broadcast event to other players
-            if (LocalPlayer.IsMasterClient)
+            if (Multiplayer.Session.LocalPlayer.IsHost)
             {
-                int planetId = FactoryManager.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
-                LocalPlayer.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
+                int planetId = Multiplayer.Session.Factories.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
+                Multiplayer.Session.Network.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
             }
 
             //If client builds, he need to first send request to the host and wait for reply
-            if (!LocalPlayer.IsMasterClient && !FactoryManager.IsIncomingRequest)
+            if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                LocalPlayer.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, FactoryManager.PacketAuthor == FactoryManager.AUTHOR_NONE ? LocalPlayer.PlayerId : FactoryManager.PacketAuthor, __instance.GetType().ToString()));
+                Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()));
                 return false;
             }
             return true;
@@ -51,7 +52,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
         public static bool CheckBuildConditions(ref bool __result)
         {
-            if (FactoryManager.IsIncomingRequest)
+            if (Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
                 __result = true;
                 return false;

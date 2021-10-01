@@ -6,50 +6,50 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIPowerGeneratorWindow))]
-    class UIPowerGeneratorWindow_Patch
+    internal class UIPowerGeneratorWindow_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnGammaMode1Click")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnGammaMode1Click))]
         public static void OnGammaMode1Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "electricity"
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Electricity, GameMain.localPlanet?.id ?? -1));
             }
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnGammaMode2Click")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnGammaMode2Click))]
         public static void OnGammaMode2Click_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about change of ray receiver to mode "produce photons"
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId, RayReceiverMode.Photon, GameMain.localPlanet?.id ?? -1));
             }
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnCataButtonClick")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnCataButtonClick))]
         public static void OnCataButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about changing amount of gravitational lens
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.id ?? -1));
             }
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnFuelButtonClick")]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnFuelButtonClick))]
         public static void OnFuelButtonClick_Postfix(UIPowerGeneratorWindow __instance)
         {
             //Notify about changing amount of fuel in power plant
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
                 PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-                LocalPlayer.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

@@ -1,20 +1,18 @@
-﻿using System;
+﻿using NebulaAPI;
+using System;
 using System.Net;
 using System.Text;
 
 namespace NebulaModel.Networking.Serialization
 {
-    public class NetDataWriter
+    public class NetDataWriter : INetDataWriter
     {
         protected byte[] _data;
         protected int _position;
         private const int InitialSize = 64;
         private readonly bool _autoResize;
 
-        public int Capacity
-        {
-            get { return _data.Length; }
-        }
+        public int Capacity => _data.Length;
 
         public NetDataWriter() : this(true, InitialSize)
         {
@@ -39,7 +37,7 @@ namespace NebulaModel.Networking.Serialization
         {
             if (copy)
             {
-                var netDataWriter = new NetDataWriter(true, bytes.Length);
+                NetDataWriter netDataWriter = new NetDataWriter(true, bytes.Length);
                 netDataWriter.Put(bytes);
                 return netDataWriter;
             }
@@ -54,14 +52,14 @@ namespace NebulaModel.Networking.Serialization
         /// <param name="length">Length of array</param>
         public static NetDataWriter FromBytes(byte[] bytes, int offset, int length)
         {
-            var netDataWriter = new NetDataWriter(true, bytes.Length);
+            NetDataWriter netDataWriter = new NetDataWriter(true, bytes.Length);
             netDataWriter.Put(bytes, offset, length);
             return netDataWriter;
         }
 
         public static NetDataWriter FromString(string value)
         {
-            var netDataWriter = new NetDataWriter();
+            NetDataWriter netDataWriter = new NetDataWriter();
             netDataWriter.Put(value);
             return netDataWriter;
         }
@@ -72,7 +70,10 @@ namespace NebulaModel.Networking.Serialization
             if (len < newSize)
             {
                 while (len < newSize)
+                {
                     len *= 2;
+                }
+
                 Array.Resize(ref _data, len);
             }
         }
@@ -95,15 +96,9 @@ namespace NebulaModel.Networking.Serialization
             return resultData;
         }
 
-        public byte[] Data
-        {
-            get { return _data; }
-        }
+        public byte[] Data => _data;
 
-        public int Length
-        {
-            get { return _position; }
-        }
+        public int Length => _position;
 
         /// <summary>
         /// Sets position of NetDataWriter to rewrite previous values
@@ -120,7 +115,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(float value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 4);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 4;
         }
@@ -128,7 +126,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(double value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 8);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 8;
         }
@@ -136,7 +137,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(long value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 8);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 8;
         }
@@ -144,7 +148,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(ulong value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 8);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 8;
         }
@@ -152,7 +159,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(int value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 4);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 4;
         }
@@ -160,7 +170,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(uint value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 4);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 4;
         }
@@ -168,7 +181,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(char value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 2);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 2;
         }
@@ -176,7 +192,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(ushort value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 2);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 2;
         }
@@ -184,7 +203,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(short value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 2);
+            }
+
             FastBitConverter.GetBytes(_data, _position, value);
             _position += 2;
         }
@@ -192,7 +214,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(sbyte value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 1);
+            }
+
             _data[_position] = (byte)value;
             _position++;
         }
@@ -200,7 +225,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(byte value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 1);
+            }
+
             _data[_position] = value;
             _position++;
         }
@@ -208,7 +236,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(byte[] data, int offset, int length)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + length);
+            }
+
             Buffer.BlockCopy(data, offset, _data, _position, length);
             _position += length;
         }
@@ -216,7 +247,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(byte[] data)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + data.Length);
+            }
+
             Buffer.BlockCopy(data, 0, _data, _position, data.Length);
             _position += data.Length;
         }
@@ -224,7 +258,10 @@ namespace NebulaModel.Networking.Serialization
         public void PutSBytesWithLength(sbyte[] data, int offset, int length)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + length + 4);
+            }
+
             FastBitConverter.GetBytes(_data, _position, length);
             Buffer.BlockCopy(data, offset, _data, _position + 4, length);
             _position += length + 4;
@@ -233,7 +270,10 @@ namespace NebulaModel.Networking.Serialization
         public void PutSBytesWithLength(sbyte[] data)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + data.Length + 4);
+            }
+
             FastBitConverter.GetBytes(_data, _position, data.Length);
             Buffer.BlockCopy(data, 0, _data, _position + 4, data.Length);
             _position += data.Length + 4;
@@ -242,7 +282,10 @@ namespace NebulaModel.Networking.Serialization
         public void PutBytesWithLength(byte[] data, int offset, int length)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + length + 4);
+            }
+
             FastBitConverter.GetBytes(_data, _position, length);
             Buffer.BlockCopy(data, offset, _data, _position + 4, length);
             _position += length + 4;
@@ -251,7 +294,10 @@ namespace NebulaModel.Networking.Serialization
         public void PutBytesWithLength(byte[] data)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + data.Length + 4);
+            }
+
             FastBitConverter.GetBytes(_data, _position, data.Length);
             Buffer.BlockCopy(data, 0, _data, _position + 4, data.Length);
             _position += data.Length + 4;
@@ -260,7 +306,10 @@ namespace NebulaModel.Networking.Serialization
         public void Put(bool value)
         {
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + 1);
+            }
+
             _data[_position] = (byte)(value ? 1 : 0);
             _position++;
         }
@@ -270,10 +319,16 @@ namespace NebulaModel.Networking.Serialization
             ushort length = arr == null ? (ushort)0 : (ushort)arr.Length;
             sz *= length;
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + sz + 2);
+            }
+
             FastBitConverter.GetBytes(_data, _position, length);
             if (arr != null)
+            {
                 Buffer.BlockCopy(arr, 0, _data, _position + 2, sz);
+            }
+
             _position += sz + 2;
         }
 
@@ -327,7 +382,9 @@ namespace NebulaModel.Networking.Serialization
             ushort len = value == null ? (ushort)0 : (ushort)value.Length;
             Put(len);
             for (int i = 0; i < len; i++)
+            {
                 Put(value[i]);
+            }
         }
 
         public void PutArray(string[] value, int maxLength)
@@ -335,7 +392,9 @@ namespace NebulaModel.Networking.Serialization
             ushort len = value == null ? (ushort)0 : (ushort)value.Length;
             Put(len);
             for (int i = 0; i < len; i++)
+            {
                 Put(value[i], maxLength);
+            }
         }
 
         public void Put(IPEndPoint endPoint)
@@ -355,7 +414,10 @@ namespace NebulaModel.Networking.Serialization
             //put bytes count
             int bytesCount = Encoding.UTF8.GetByteCount(value);
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + bytesCount + 4);
+            }
+
             Put(bytesCount);
 
             //put string
@@ -375,7 +437,9 @@ namespace NebulaModel.Networking.Serialization
             //calculate max count
             int bytesCount = Encoding.UTF8.GetByteCount(value);
             if (_autoResize)
+            {
                 ResizeIfNeed(_position + bytesCount + 4);
+            }
 
             //put bytes count
             Put(bytesCount);

@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Ejector;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.Ejector;
 namespace NebulaNetwork.PacketProcessors.Factory.Ejector
 {
     [RegisterPacketProcessor]
-    class EjectorStorageUpdateProcessor : PacketProcessor<EjectorStorageUpdatePacket>
+    internal class EjectorStorageUpdateProcessor : PacketProcessor<EjectorStorageUpdatePacket>
     {
         public override void ProcessPacket(EjectorStorageUpdatePacket packet, NebulaConnection conn)
         {

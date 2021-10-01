@@ -9,15 +9,15 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpilers
 {
     [HarmonyPatch(typeof(PlayerMove_Sail))]
-    class PlayerMove_Sail_Transpiler
+    internal class PlayerMove_Sail_Transpiler
     {
 
         [HarmonyTranspiler]
-        [HarmonyPatch("GameTick")]
+        [HarmonyPatch(nameof(PlayerMove_Sail.GameTick))]
         public static IEnumerable<CodeInstruction> GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             // Send PlayerUseWarper(bool) whenever warpCommand is toggled between true or false
-            var codeMatcher = new CodeMatcher(instructions)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "warpCommand")
                 );
@@ -31,31 +31,26 @@ namespace NebulaPatcher.Patches.Transpilers
             return codeMatcher
                 .Repeat(matcher =>
                 {
-                    var warpCommand = matcher.InstructionAt(-1).opcode == OpCodes.Ldc_I4_1;
+                    bool warpCommand = matcher.InstructionAt(-1).opcode == OpCodes.Ldc_I4_1;
                     matcher
                         .Advance(1)
                         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action>(() =>
                         {
-                            // send to host / clients
-                            if (!SimulatedWorld.Initialized)
+                            if (Multiplayer.IsActive)
                             {
-                                return;
-                            }
-
-                            if (LocalPlayer.IsMasterClient)
-                            {
-                                PlayerUseWarper packet = new PlayerUseWarper(warpCommand)
+                                if (Multiplayer.Session.LocalPlayer.IsHost)
                                 {
-                                    PlayerId = LocalPlayer.PlayerId
-                                };
-                                LocalPlayer.SendPacket(packet);
+                                    PlayerUseWarper packet = new PlayerUseWarper(warpCommand)
+                                    {
+                                        PlayerId = Multiplayer.Session.LocalPlayer.Id
+                                    };
+                                    Multiplayer.Session.Network.SendPacket(packet);
+                                }
+                                else
+                                {
+                                    Multiplayer.Session.Network.SendPacket(new PlayerUseWarper(warpCommand));
+                                }
                             }
-                            else
-                            {
-                                LocalPlayer.SendPacket(new PlayerUseWarper(warpCommand));
-                            }
-
-                            return;
                         }));
                 })
                 .InstructionEnumeration();

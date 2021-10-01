@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -9,11 +9,11 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     public class PlayerMovementProcessor : PacketProcessor<PlayerMovement>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerMovementProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
@@ -21,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     player.Data.LocalPlanetId = packet.LocalPlanetId;
@@ -40,7 +40,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                SimulatedWorld.UpdateRemotePlayerPosition(packet);
+                Multiplayer.Session.World.UpdateRemotePlayerPosition(packet);
             }
         }
     }

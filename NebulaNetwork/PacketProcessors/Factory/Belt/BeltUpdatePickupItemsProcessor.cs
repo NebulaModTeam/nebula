@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Belt;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Belt;
 namespace NebulaNetwork.PacketProcessors.Factory.Belt
 {
     [RegisterPacketProcessor]
-    class BeltUpdatePickupItemsProcessor : PacketProcessor<BeltUpdatePickupItemsPacket>
+    internal class BeltUpdatePickupItemsProcessor : PacketProcessor<BeltUpdatePickupItemsPacket>
     {
         public override void ProcessPacket(BeltUpdatePickupItemsPacket packet, NebulaConnection conn)
         {

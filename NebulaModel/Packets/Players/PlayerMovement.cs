@@ -1,5 +1,4 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 
 namespace NebulaModel.Packets.Players
 {

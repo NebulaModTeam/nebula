@@ -7,7 +7,7 @@
         public GameHistoryUnlockTechPacket() { }
         public GameHistoryUnlockTechPacket(int techId)
         {
-            this.TechId = techId;
+            TechId = techId;
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.PowerTower;
 using NebulaWorld;
-using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
 {
@@ -12,24 +11,27 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerTower
     {
         public override void ProcessPacket(PowerTowerUserLoadingRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-            
+
             if (factory?.powerSystem != null)
             {
                 PowerNetwork pNet = factory.powerSystem.netPool[packet.NetId];
 
                 if (packet.Charging)
                 {
-                    PowerTowerManager.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
+                    Multiplayer.Session.PowerTowers.AddExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId, packet.PowerAmount);
                 }
                 else
                 {
-                    PowerTowerManager.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
+                    Multiplayer.Session.PowerTowers.RemExtraDemand(packet.PlanetId, packet.NetId, packet.NodeId);
                 }
 
-                LocalPlayer.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
+                Multiplayer.Session.Network.SendPacketToStar(new PowerTowerUserLoadingResponse(packet.PlanetId,
                         packet.NetId,
                         packet.NodeId,
                         packet.PowerAmount,

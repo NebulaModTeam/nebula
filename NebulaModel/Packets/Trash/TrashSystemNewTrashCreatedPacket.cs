@@ -1,4 +1,4 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 
 namespace NebulaModel.Packets.Trash
 {
@@ -48,28 +48,32 @@ namespace NebulaModel.Packets.Trash
 
         public TrashObject GetTrashObject()
         {
-            TrashObject result = new TrashObject();
-            result.rPos = RPos.ToVector3();
-            result.rRot = RRot.ToQuaternion();
-            result.item = Item;
-            result.count = Count;
-            result.expire = Expire;
+            TrashObject result = new TrashObject
+            {
+                rPos = RPos.ToVector3(),
+                rRot = RRot.ToQuaternion(),
+                item = Item,
+                count = Count,
+                expire = Expire
+            };
             return result;
         }
 
         public TrashData GetTrashData()
         {
-            TrashData result = new TrashData();
-            result.lPos = LPos.ToVector3();
-            result.uPos = new VectorLF3(UPos.x, UPos.y, UPos.z);
-            result.lRot = LRot.ToQuaternion();
-            result.uRot = URot.ToQuaternion();
-            result.uVel = new VectorLF3(UVel.x, UVel.y, UVel.z);
-            result.uAgl = UAgl.ToVector3();
-            result.landPlanetId = LandPlanetId;
-            result.nearPlanetId = NearPlanetId;
-            result.nearStarId = NearStarId;
-            result.nearStarGravity = NearStarGravity;
+            TrashData result = new TrashData
+            {
+                lPos = LPos.ToVector3(),
+                uPos = new VectorLF3(UPos.x, UPos.y, UPos.z),
+                lRot = LRot.ToQuaternion(),
+                uRot = URot.ToQuaternion(),
+                uVel = new VectorLF3(UVel.x, UVel.y, UVel.z),
+                uAgl = UAgl.ToVector3(),
+                landPlanetId = LandPlanetId,
+                nearPlanetId = NearPlanetId,
+                nearStarId = NearStarId,
+                nearStarGravity = NearStarGravity
+            };
             return result;
         }
     }

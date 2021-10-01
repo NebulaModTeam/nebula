@@ -1,14 +1,14 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
     // Processes pasting settings (e.g. item to make in an assembler) onto buildings events
     [RegisterPacketProcessor]
-    class PasteBuildingSettingUpdateProcessor : PacketProcessor<PasteBuildingSettingUpdate>
+    internal class PasteBuildingSettingUpdateProcessor : PacketProcessor<PasteBuildingSettingUpdate>
     {
         public override void ProcessPacket(PasteBuildingSettingUpdate packet, NebulaConnection conn)
         {
@@ -16,9 +16,10 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
             {
                 BuildingParameters backup = BuildingParameters.clipboard;
                 BuildingParameters.clipboard = packet.GetBuildingSettings();
-                using (FactoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    GameMain.galaxy.PlanetById(packet.PlanetId).factory.PasteBuildingSetting(packet.ObjectId);
+                    // skip audio and realtimetip update
+                    BuildingParameters.clipboard.PasteToFactoryObject(packet.ObjectId, GameMain.galaxy.PlanetById(packet.PlanetId).factory);
                 }
                 BuildingParameters.clipboard = backup;
             }

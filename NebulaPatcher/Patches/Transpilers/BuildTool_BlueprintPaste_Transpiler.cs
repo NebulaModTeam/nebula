@@ -8,17 +8,17 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(BuildTool_BlueprintPaste))]
-    class BuildTool_BlueprintPaste_Transpiler
+    internal class BuildTool_BlueprintPaste_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
-        static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        private static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             /*
              * Inserts
-             *  if(!SimulatedWorld.Initialized)
+             *  if(!Multiplayer.IsActive)
              * Before trying to take items, so that all prebuilds are assumed to require items while in MP
-            */ 
+            */
             CodeMatcher matcher = new CodeMatcher(instructions, il)
                 .MatchForward(true,
                     new CodeMatch(i => i.IsLdloc()), // count
@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            var jumpOperand = matcher.Instruction.operand;
+            object jumpOperand = matcher.Instruction.operand;
 
             matcher = matcher
                         .MatchBack(false,
@@ -52,7 +52,7 @@ namespace NebulaPatcher.Patches.Transpiler
             return matcher
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
                     {
-                        return SimulatedWorld.Initialized;
+                        return Multiplayer.IsActive;
                     }))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jumpOperand))
                     .InstructionEnumeration();

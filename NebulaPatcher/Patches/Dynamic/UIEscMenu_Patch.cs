@@ -6,30 +6,31 @@ using UnityEngine.UI;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIEscMenu))]
-    class UIEscMenu_Patch
+    internal class UIEscMenu_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("_OnOpen")]
+        [HarmonyPatch(nameof(UIEscMenu._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Prefix(UIEscMenu __instance)
         {
             // Disable save game button if you are a client in a multiplayer session
-            Button saveGameWindowButton = AccessTools.Field(typeof(UIEscMenu), "button2").GetValue(__instance) as Button;
-            SetButtonEnableState(saveGameWindowButton, !SimulatedWorld.Initialized || LocalPlayer.IsMasterClient);
+            Button saveGameWindowButton = __instance.button2;
+            SetButtonEnableState(saveGameWindowButton, !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost);
 
             // Disable load game button if in a multiplayer session
-            Button loadGameWindowButton = AccessTools.Field(typeof(UIEscMenu), "button3").GetValue(__instance) as Button;
-            SetButtonEnableState(loadGameWindowButton, !SimulatedWorld.Initialized);
+            Button loadGameWindowButton = __instance.button3;
+            SetButtonEnableState(loadGameWindowButton, !Multiplayer.IsActive);
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnButton5Click")]
+        [HarmonyPatch(nameof(UIEscMenu.OnButton5Click))]
         public static void OnButton5Click_Prefix()
         {
             QuitGame();
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnButton6Click")]
+        [HarmonyPatch(nameof(UIEscMenu.OnButton6Click))]
         public static void OnButton6Click_Prefix()
         {
             QuitGame();
@@ -37,9 +38,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void QuitGame()
         {
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.LeaveGame();
+                Multiplayer.LeaveGame();
             }
         }
         private static void SetButtonEnableState(Button button, bool enable)

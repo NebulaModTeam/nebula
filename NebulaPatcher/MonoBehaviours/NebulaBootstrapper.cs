@@ -1,5 +1,4 @@
-﻿using NebulaNetwork;
-using NebulaModel.Logger;
+﻿using NebulaWorld;
 using UnityEngine;
 
 namespace NebulaPatcher.MonoBehaviours
@@ -13,33 +12,16 @@ namespace NebulaPatcher.MonoBehaviours
             DontDestroyOnLoad(gameObject);
             Instance = this;
 
-#if DEBUG
-            EnableDeveloperFeatures();
-#endif
-        }
-
-        private void EnableDeveloperFeatures()
-        {
-            Log.Info("Enabling developer console.");
-            // DevConsole.disableConsole = false;
+            // This makes sure that even if the game is minimized, it will still receive and send packets
             Application.runInBackground = true;
-            Log.Info($"Unity run in background set to \"{Application.runInBackground}\"");
         }
 
-        public MultiplayerHostSession CreateMultiplayerHostSession()
+        private void Update()
         {
-            GameObject go = new GameObject();
-            go.transform.SetParent(transform);
-            go.name = "Nebula - Multiplayer Host Session";
-            return go.AddComponent<MultiplayerHostSession>();
-        }
-
-        public MultiplayerClientSession CreateMultiplayerClientSession()
-        {
-            GameObject go = new GameObject();
-            go.transform.SetParent(transform);
-            go.name = "Nebula - Multiplayer Client Session";
-            return go.AddComponent<MultiplayerClientSession>();
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Network.Update();
+            }
         }
     }
 }

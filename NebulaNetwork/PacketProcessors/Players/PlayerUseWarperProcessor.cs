@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -8,13 +8,13 @@ namespace NebulaNetwork.PacketProcessors.Players
 {
     // Processes packet sent when player starts or stops warping in order to start or stop the warping effect on said player
     [RegisterPacketProcessor]
-    class PlayerUseWarperProcessor : PacketProcessor<PlayerUseWarper>
+    internal class PlayerUseWarperProcessor : PacketProcessor<PlayerUseWarper>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerUseWarperProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerUseWarper packet, NebulaConnection conn)
@@ -22,7 +22,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             bool valid = true;
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     packet.PlayerId = player.Id;
@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                SimulatedWorld.UpdateRemotePlayerWarpState(packet);
+                Multiplayer.Session.World.UpdateRemotePlayerWarpState(packet);
             }
         }
     }

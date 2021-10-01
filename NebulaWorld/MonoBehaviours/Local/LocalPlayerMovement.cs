@@ -1,4 +1,4 @@
-﻿using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 
@@ -13,13 +13,13 @@ namespace NebulaWorld.MonoBehaviours.Local
         private Transform rootTransform;
         private Transform bodyTransform;
 
-        void Awake()
+        private void Awake()
         {
             rootTransform = GetComponent<Transform>();
             bodyTransform = rootTransform.Find("Model");
         }
 
-        void Update()
+        private void Update()
         {
             time += Time.deltaTime;
 
@@ -27,18 +27,19 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 time = 0;
 
-                var rotation = new Float3(rootTransform.eulerAngles);
-                var bodyRotation = new Float3(bodyTransform.eulerAngles);
+                Float3 rotation = new Float3(rootTransform.eulerAngles);
+                Float3 bodyRotation = new Float3(bodyTransform.eulerAngles);
 
                 Double3 uPosition = new Double3(GameMain.mainPlayer.uPosition.x, GameMain.mainPlayer.uPosition.y, GameMain.mainPlayer.uPosition.z);
-                LocalPlayer.SendPacket(new PlayerMovement(LocalPlayer.PlayerId, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToFloat3(), uPosition, rotation, bodyRotation));
+                Multiplayer.Session.Network.SendPacket(new PlayerMovement(Multiplayer.Session.LocalPlayer.Id, GameMain.localPlanet?.id ?? -1, rootTransform.position.ToFloat3(), uPosition, rotation, bodyRotation));
 
-                LocalPlayer.Data.BodyRotation = bodyRotation;
-                LocalPlayer.Data.LocalPlanetId = GameMain.localPlanet?.id ?? -1;
-                LocalPlayer.Data.LocalPlanetPosition = rootTransform.position.ToFloat3();
-                LocalPlayer.Data.LocalStarId = GameMain.localStar?.id ?? -1;
-                LocalPlayer.Data.Rotation = rotation;
-                LocalPlayer.Data.UPosition = uPosition;
+                IPlayerData playerData = Multiplayer.Session.LocalPlayer.Data;
+                playerData.BodyRotation = bodyRotation;
+                playerData.LocalPlanetId = GameMain.localPlanet?.id ?? -1;
+                playerData.LocalPlanetPosition = rootTransform.position.ToFloat3();
+                playerData.LocalStarId = GameMain.localStar?.id ?? -1;
+                playerData.Rotation = rotation;
+                playerData.UPosition = uPosition;
             }
         }
     }

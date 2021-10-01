@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
-using NebulaWorld.Factory;
+using NebulaWorld;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -7,71 +8,85 @@ using System.Reflection.Emit;
 namespace NebulaPatcher.Patches.Transpiler
 {
     [HarmonyPatch(typeof(PlanetFactory))]
-    class PlanetFactory_Transpiler
+    internal class PlanetFactory_Transpiler
     {
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(PlanetFactory.OnBeltBuilt))]
-        static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
         {
-            var found = false;
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 0; i < codes.Count; i++)
+            /*
+             * Calls
+             * Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
+             * After
+             * this.factorySystem.SetInserterPickTarget(inserterId, num6, num5 - num7);
+            */
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, iLGenerator)
+                                  .MatchForward(true,
+                                    new CodeMatch(i => i.opcode == OpCodes.Callvirt &&
+                                                       ((MethodInfo)i.operand).Name == nameof(FactorySystem.SetInserterPickTarget)
+                                                 )
+                                  );
+
+            if (codeMatcher.IsInvalid)
             {
-                if (codes[i].opcode == OpCodes.Callvirt && ((MethodInfo)codes[i].operand).Name == "SetInserterPickTarget" &&
-                    codes[i - 1].opcode == OpCodes.Sub &&
-                    codes[i - 2].opcode == OpCodes.Ldloc_S &&
-                    codes[i - 3].opcode == OpCodes.Ldloc_S)
-                {
-                    found = true;
-                    codes.InsertRange(i + 1, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Ldloc_S, 9),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 21),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 10),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 22),
-                                    new CodeInstruction(OpCodes.Sub),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 4),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
-                                    new CodeInstruction(OpCodes.Ldelem, typeof(UnityEngine.Vector3)),
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "OnNewSetInserterPickTarget")),
-                                    });
-                    break;
-                }
+                NebulaModel.Logger.Log.Error("PlanetFactory_Transpiler.OnBeltBuilt 1 failed. Mod version not compatible with game version.");
+                return instructions;
             }
 
-            if (!found)
-                NebulaModel.Logger.Log.Error("OnBeltBuilt transpiler 1 failed. Mod version not compatible with game version.");
+            List<CodeInstruction> setInserterTargetInsts = codeMatcher.InstructionsWithOffsets(-5, -1); // inserterId, pickTarget, offset
+            CodeInstruction objIdInst = codeMatcher.InstructionAt(-13); // objId
+            List<CodeInstruction> pointPosInsts = codeMatcher.InstructionsWithOffsets(8, 10); // pointPos
 
-            found = false;
+            codeMatcher = codeMatcher
+                          .Advance(1)
+                          .InsertAndAdvance(setInserterTargetInsts.ToArray())
+                          .InsertAndAdvance(objIdInst)
+                          .InsertAndAdvance(pointPosInsts.ToArray())
+                          .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, UnityEngine.Vector3>>((inserterId, pickTarget, offset, objId, pointPos) =>
+                          {
+                              if (Multiplayer.IsActive)
+                              {
+                                  Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
+                              }
+                          }));
 
-            for (int i = 0; i < codes.Count; i++)
+            /*
+             * Calls
+             * Multiplayer.Session.Factories.OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset, pointPos);
+             * After
+             * this.factorySystem.SetInserterInsertTarget(inserterId, num9, num5 - num10);
+            */
+            codeMatcher = codeMatcher
+                          .MatchForward(true,
+                          new CodeMatch(i => i.opcode == OpCodes.Callvirt &&
+                                              ((MethodInfo)i.operand).Name == nameof(FactorySystem.SetInserterInsertTarget)
+                                          )
+                          );
+
+            if (codeMatcher.IsInvalid)
             {
-                if (codes[i].opcode == OpCodes.Callvirt && ((MethodInfo)codes[i].operand).Name == "SetInserterPickTarget" &&
-                    codes[i - 1].opcode == OpCodes.Sub &&
-                    codes[i - 2].opcode == OpCodes.Ldloc_S &&
-                    codes[i - 3].opcode == OpCodes.Ldloc_S)
-                {
-                    found = true;
-                    codes.InsertRange(i + 1, new CodeInstruction[] {
-                                    new CodeInstruction(OpCodes.Ldloc_S, 9),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 30),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 10),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 31),
-                                    new CodeInstruction(OpCodes.Sub),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 4),
-                                    new CodeInstruction(OpCodes.Ldloc_S, 16),
-                                    new CodeInstruction(OpCodes.Ldelem, typeof(UnityEngine.Vector3)),
-                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FactoryManager), "OnNewSetInserterInsertTarget")),
-                                    });
-                    break;
-                }
+                NebulaModel.Logger.Log.Error("PlanetFactory_Transpiler.OnBeltBuilt 2 failed. Mod version not compatible with game version.");
+                return codeMatcher.InstructionEnumeration();
             }
 
-            if (!found)
-                NebulaModel.Logger.Log.Error("OnBeltBuilt transpiler 2 failed. Mod version not compatible with game version.");
+            setInserterTargetInsts = codeMatcher.InstructionsWithOffsets(-5, -1); // inserterId, pickTarget, offset
+            objIdInst = codeMatcher.InstructionAt(-13); // objId
+            pointPosInsts = codeMatcher.InstructionsWithOffsets(9, 11); // pointPos
 
-            return codes;
+            codeMatcher = codeMatcher
+                          .Advance(1)
+                          .InsertAndAdvance(setInserterTargetInsts.ToArray())
+                          .InsertAndAdvance(objIdInst)
+                          .InsertAndAdvance(pointPosInsts.ToArray())
+                          .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, UnityEngine.Vector3>>((inserterId, pickTarget, offset, objId, pointPos) =>
+                          {
+                              if (Multiplayer.IsActive)
+                              {
+                                  Multiplayer.Session.Factories.OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset, pointPos);
+                              }
+                          }));
+
+            return codeMatcher.InstructionEnumeration();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.PowerExchanger;
@@ -6,7 +6,7 @@ using NebulaModel.Packets.Factory.PowerExchanger;
 namespace NebulaNetwork.PacketProcessors.Factory.PowerExchanger
 {
     [RegisterPacketProcessor]
-    class PowerExchangerStorageUpdateProcessor : PacketProcessor<PowerExchangerStorageUpdatePacket>
+    internal class PowerExchangerStorageUpdateProcessor : PacketProcessor<PowerExchangerStorageUpdatePacket>
     {
         public override void ProcessPacket(PowerExchangerStorageUpdatePacket packet, NebulaConnection conn)
         {

@@ -5,27 +5,27 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIInserterWindow))]
-    class UIInserterWindow_Patch
+    internal class UIInserterWindow_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("OnResetFilterButtonClick")]
+        [HarmonyPatch(nameof(UIInserterWindow.OnResetFilterButtonClick))]
         public static void OnResetFilterButtonClick_Prefix(UIInserterWindow __instance)
         {
             //Notify about reseting inserter's filter
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, 0, GameMain.localPlanet?.id ?? -1));
             }
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnItemPickerReturn")]
+        [HarmonyPatch(nameof(UIInserterWindow.OnItemPickerReturn))]
         public static void OnItemPickerReturn_Prefix(UIInserterWindow __instance, ItemProto item)
         {
             //Notify about changing filter item
-            if (SimulatedWorld.Initialized)
+            if (Multiplayer.IsActive)
             {
-                LocalPlayer.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -10,7 +10,10 @@ namespace NebulaNetwork.PacketProcessors.Universe
     {
         public override void ProcessPacket(DysonSphereLoadRequest packet, NebulaConnection conn)
         {
-            if (IsClient) return;
+            if (IsClient)
+            {
+                return;
+            }
 
             DysonSphere dysonSphere = GameMain.data.CreateDysonSphere(packet.StarIndex);
 

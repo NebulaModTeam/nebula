@@ -1,29 +1,28 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
     public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public SyncCompleteProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance != null ? MultiplayerHostSession.Instance.PlayerManager : null;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(SyncComplete packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                Player player = playerManager.GetSyncingPlayer(conn);
+                INebulaPlayer player = playerManager.GetSyncingPlayer(conn);
                 if (player == null)
                 {
                     Log.Warn("Received a SyncComplete packet, but no player is joining.");
@@ -33,13 +32,13 @@ namespace NebulaNetwork.PacketProcessors.Session
                 // Should these be locked together?
 
                 int syncingCount;
-                using (playerManager.GetSyncingPlayers(out var syncingPlayers))
+                using (playerManager.GetSyncingPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
                 {
                     bool removed = syncingPlayers.Remove(player.Connection);
                     syncingCount = syncingPlayers.Count;
                 }
 
-                using (playerManager.GetConnectedPlayers(out var connectedPlayers))
+                using (playerManager.GetConnectedPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                 {
                     connectedPlayers.Add(player.Connection, player);
                 }
@@ -49,40 +48,40 @@ namespace NebulaNetwork.PacketProcessors.Session
                 {
                     if (!string.IsNullOrEmpty(s.overrideName))
                     {
-                        player.SendPacket(new NameInputPacket(s.overrideName, s.id, FactoryManager.PLANET_NONE, LocalPlayer.PlayerId));
+                        player.SendPacket(new NameInputPacket(s.overrideName, s.id, NebulaModAPI.PLANET_NONE, Multiplayer.Session.LocalPlayer.Id));
                     }
 
                     foreach (PlanetData p in s.planets)
                     {
                         if (!string.IsNullOrEmpty(p.overrideName))
                         {
-                            player.SendPacket(new NameInputPacket(p.overrideName, FactoryManager.STAR_NONE, p.id, LocalPlayer.PlayerId));
+                            player.SendPacket(new NameInputPacket(p.overrideName, NebulaModAPI.STAR_NONE, p.id, Multiplayer.Session.LocalPlayer.Id));
                         }
                     }
                 }
 
                 // Since the player is now connected, we can safely spawn his player model
-                SimulatedWorld.SpawnRemotePlayerModel(player.Data);
+                Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
 
                 if (syncingCount == 0)
                 {
-                    var inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
+                    IPlayerData[] inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
                     playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
-                    SimulatedWorld.OnAllPlayersSyncCompleted();
+                    Multiplayer.Session.World.OnAllPlayersSyncCompleted();
                 }
             }
             else // IsClient
             {
                 // Everyone is now connected, we can safely spawn the player model of all the other players that are currently connected
-                foreach (var playerData in packet.AllPlayers)
+                foreach (NebulaModel.DataStructures.PlayerData playerData in packet.AllPlayers)
                 {
-                    if (playerData.PlayerId != LocalPlayer.PlayerId)
+                    if (playerData.PlayerId != Multiplayer.Session.LocalPlayer.Id)
                     {
-                        SimulatedWorld.SpawnRemotePlayerModel(playerData);
+                        Multiplayer.Session.World.SpawnRemotePlayerModel(playerData);
                     }
                 }
 
-                SimulatedWorld.OnAllPlayersSyncCompleted();
+                Multiplayer.Session.World.OnAllPlayersSyncCompleted();
             }
         }
     }

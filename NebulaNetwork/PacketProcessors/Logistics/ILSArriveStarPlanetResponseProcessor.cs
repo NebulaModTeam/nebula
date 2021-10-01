@@ -1,17 +1,20 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld.Logistics;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    class ILSArriveStarPlanetResponseProcessor : PacketProcessor<ILSArriveStarPlanetResponse>
+    internal class ILSArriveStarPlanetResponseProcessor : PacketProcessor<ILSArriveStarPlanetResponse>
     {
         public override void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
         {
-            if (IsHost) return;
+            if (IsHost)
+            {
+                return;
+            }
 
             StationComponent[] gStationPool = null;
             if (packet.Planet == 0) // arrive at solar system
@@ -36,7 +39,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 if (packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
                 {
-                    ILSShipManager.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i]);
+                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i], packet.StationMaxShips[i]);
                 }
 
                 StationComponent stationComponent = gStationPool[packet.StationGId[i]];

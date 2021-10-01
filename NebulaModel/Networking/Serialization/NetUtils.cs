@@ -30,19 +30,24 @@ namespace NebulaModel.Networking.Serialization
         public static IPAddress ResolveAddress(string hostStr)
         {
             if (hostStr == "localhost")
+            {
                 return IPAddress.Loopback;
+            }
 
-            IPAddress ipAddress;
-            if (!IPAddress.TryParse(hostStr, out ipAddress))
+            if (!IPAddress.TryParse(hostStr, out IPAddress ipAddress))
             {
                 // We can assume true because the version of unity is new enough (2018.4)
                 //if (NetSocket.IPv6Support)
                 ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetworkV6);
                 if (ipAddress == null)
+                {
                     ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetwork);
+                }
             }
             if (ipAddress == null)
+            {
                 throw new ArgumentException("Invalid address: " + hostStr);
+            }
 
             return ipAddress;
         }
@@ -67,7 +72,7 @@ namespace NebulaModel.Networking.Serialization
             hostTask.GetAwaiter().GetResult();
             var host = hostTask.Result;
 #else
-            var host = Dns.GetHostEntry(hostStr);
+            IPHostEntry host = Dns.GetHostEntry(hostStr);
 #endif
             return host.AddressList;
         }
@@ -100,20 +105,26 @@ namespace NebulaModel.Networking.Serialization
                     //Skip loopback and disabled network interfaces
                     if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
                         ni.OperationalStatus != OperationalStatus.Up)
+                    {
                         continue;
+                    }
 
-                    var ipProps = ni.GetIPProperties();
+                    IPInterfaceProperties ipProps = ni.GetIPProperties();
 
                     //Skip address without gateway
                     if (ipProps.GatewayAddresses.Count == 0)
+                    {
                         continue;
+                    }
 
                     foreach (UnicastIPAddressInformation ip in ipProps.UnicastAddresses)
                     {
-                        var address = ip.Address;
+                        IPAddress address = ip.Address;
                         if ((ipv4 && address.AddressFamily == AddressFamily.InterNetwork) ||
                             (ipv6 && address.AddressFamily == AddressFamily.InterNetworkV6))
+                        {
                             targetList.Add(address.ToString());
+                        }
                     }
                 }
             }
@@ -130,15 +141,22 @@ namespace NebulaModel.Networking.Serialization
                 {
                     if ((ipv4 && ip.AddressFamily == AddressFamily.InterNetwork) ||
                        (ipv6 && ip.AddressFamily == AddressFamily.InterNetworkV6))
+                    {
                         targetList.Add(ip.ToString());
+                    }
                 }
             }
             if (targetList.Count == 0)
             {
                 if (ipv4)
+                {
                     targetList.Add("127.0.0.1");
+                }
+
                 if (ipv6)
+                {
                     targetList.Add("::1");
+                }
             }
         }
 

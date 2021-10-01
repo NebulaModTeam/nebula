@@ -1,28 +1,24 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
-using NebulaWorld.Factory;
+using NebulaWorld;
 using System;
 using UnityEngine;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Foundation
 {
     [RegisterPacketProcessor]
-    class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
+    internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
     {
-        Vector3[] reformPoints = new Vector3[100];
+        private readonly Vector3[] reformPoints = new Vector3[100];
 
         public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
-            // TODO: MISSING CLIENT -> HOST -> CLIENT CODE 
-
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             PlanetFactory factory = IsHost ? GameMain.data.GetOrCreateFactory(planet) : planet?.factory;
             if (factory != null)
             {
-                Vector3 reformCenterPoint = new Vector3();
                 Array.Clear(reformPoints, 0, reformPoints.Length);
 
                 //Check if some mandatory variables are missing
@@ -31,14 +27,14 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
                     factory.platformSystem.InitReformData();
                 }
 
-                FactoryManager.TargetPlanet = packet.PlanetId;
-                FactoryManager.AddPlanetTimer(packet.PlanetId);
-                FactoryManager.TargetPlanet = FactoryManager.PLANET_NONE;
+                Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+                Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
+                Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
 
                 //Perform terrain operation
-                int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out reformCenterPoint);
+                int reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize, packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem, out Vector3 reformCenterPoint);
                 factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, 3f, 1f);
-                using (FactoryManager.IsIncomingRequest.On())
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
                     factory.FlattenTerrainReform(reformCenterPoint, packet.Radius, packet.ReformSize, packet.VeinBuried, 3f);
                 }
@@ -58,6 +54,11 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
                         }
                     }
                 }
+            }
+
+            if (IsHost)
+            {
+                Multiplayer.Session.Network.SendPacketToStar(packet, planet.star.id);
             }
         }
     }

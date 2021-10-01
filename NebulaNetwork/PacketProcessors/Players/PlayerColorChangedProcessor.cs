@@ -1,4 +1,4 @@
-﻿using NebulaModel.Attributes;
+﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -9,11 +9,11 @@ namespace NebulaNetwork.PacketProcessors.Players
     [RegisterPacketProcessor]
     public class PlayerColorChangedProcessor : PacketProcessor<PlayerColorChanged>
     {
-        private PlayerManager playerManager;
+        private readonly IPlayerManager playerManager;
 
         public PlayerColorChangedProcessor()
         {
-            playerManager = MultiplayerHostSession.Instance?.PlayerManager;
+            playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
         public override void ProcessPacket(PlayerColorChanged packet, NebulaConnection conn)
@@ -22,10 +22,10 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (IsHost)
             {
-                Player player = playerManager.GetPlayer(conn);
+                INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
-                    player.Data.MechaColor = packet.Color;
+                    player.Data.MechaColors = packet.Colors;
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 }
                 else
@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                SimulatedWorld.UpdatePlayerColor(packet.PlayerId, packet.Color);
+                Multiplayer.Session.World.UpdatePlayerColor(packet.PlayerId, packet.Colors);
             }
         }
     }

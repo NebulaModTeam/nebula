@@ -1,21 +1,17 @@
 ﻿using HarmonyLib;
 using NebulaModel;
-using NebulaModel.Logger;
-using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using NebulaWorld.Factory;
-using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIGameMenu))]
-    class UIGameMenu_Patch
+    internal class UIGameMenu_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfGuideButtonClick")]
+        [HarmonyPatch(nameof(UIGameMenu.OnDfGuideButtonClick))]
         public static void OnDfGuideButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
@@ -25,62 +21,62 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfIconButtonClick")]
-        public static void OnDfIconButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfIconButtonClick))]
+        public static void OnDfIconButtonClick_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            Config.Options.BuildingIconEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showIcon");
+            Config.Options.BuildingIconEnabled = EntitySignRenderer.showIcon;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfLightButtonClick")]
-        public static void OnDfLightButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfLightButtonClick))]
+        public static void OnDfLightButtonClick_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            Config.Options.GuidingLightEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PowerSystemRenderer), "powerGraphOn");
+            Config.Options.GuidingLightEnabled = PowerSystemRenderer.powerGraphOn;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfPowerButtonClick")]
-        public static void OnDfPowerButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfPowerButtonClick))]
+        public static void OnDfPowerButtonClick_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            Config.Options.PowerGridEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(PostEffectController), "headlight");
+            Config.Options.PowerGridEnabled = PostEffectController.headlight;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfSignButtonClick")]
-        public static void OnDfSignButtonClick_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(UIGameMenu.OnDfSignButtonClick))]
+        public static void OnDfSignButtonClick_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            Config.Options.BuildingWarningEnabled = (bool)AccessTools.StaticFieldRefAccess<bool>(typeof(EntitySignRenderer), "showSign");
+            Config.Options.BuildingWarningEnabled = EntitySignRenderer.showSign;
             Config.SaveOptions();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("OnDfVeinButtonClick")]
+        [HarmonyPatch(nameof(UIGameMenu.OnDfVeinButtonClick))]
         public static void OnDfVeinButtonClick_Postfix(UIGameMenu __instance)
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }

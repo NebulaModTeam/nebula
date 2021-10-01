@@ -1,55 +1,32 @@
-﻿using System;
+﻿using NebulaAPI;
+using System;
 using System.Net;
 using System.Text;
 
 namespace NebulaModel.Networking.Serialization
 {
-    public class NetDataReader
+    public class NetDataReader : INetDataReader
     {
         protected byte[] _data;
         protected int _position;
         protected int _dataSize;
         private int _offset;
 
-        public byte[] RawData
-        {
-            get { return _data; }
-        }
+        public byte[] RawData => _data;
 
-        public int RawDataSize
-        {
-            get { return _dataSize; }
-        }
+        public int RawDataSize => _dataSize;
 
-        public int UserDataOffset
-        {
-            get { return _offset; }
-        }
+        public int UserDataOffset => _offset;
 
-        public int UserDataSize
-        {
-            get { return _dataSize - _offset; }
-        }
+        public int UserDataSize => _dataSize - _offset;
 
-        public bool IsNull
-        {
-            get { return _data == null; }
-        }
+        public bool IsNull => _data == null;
 
-        public int Position
-        {
-            get { return _position; }
-        }
+        public int Position => _position;
 
-        public bool EndOfData
-        {
-            get { return _position == _dataSize; }
-        }
+        public bool EndOfData => _position == _dataSize;
 
-        public int AvailableBytes
-        {
-            get { return _dataSize - _position; }
-        }
+        public int AvailableBytes => _dataSize - _position;
 
         public void SkipBytes(int count)
         {
@@ -130,7 +107,7 @@ namespace NebulaModel.Networking.Serialization
 
         public sbyte GetSByte()
         {
-            var b = (sbyte)_data[_position];
+            sbyte b = (sbyte)_data[_position];
             _position++;
             return b;
         }
@@ -139,7 +116,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new bool[size];
+            bool[] arr = new bool[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size);
             _position += size;
             return arr;
@@ -149,7 +126,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new ushort[size];
+            ushort[] arr = new ushort[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 2);
             _position += size * 2;
             return arr;
@@ -159,7 +136,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new short[size];
+            short[] arr = new short[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 2);
             _position += size * 2;
             return arr;
@@ -169,7 +146,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new long[size];
+            long[] arr = new long[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
             _position += size * 8;
             return arr;
@@ -179,7 +156,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new ulong[size];
+            ulong[] arr = new ulong[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
             _position += size * 8;
             return arr;
@@ -189,7 +166,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new int[size];
+            int[] arr = new int[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
             _position += size * 4;
             return arr;
@@ -199,7 +176,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new uint[size];
+            uint[] arr = new uint[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
             _position += size * 4;
             return arr;
@@ -209,7 +186,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new float[size];
+            float[] arr = new float[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
             _position += size * 4;
             return arr;
@@ -219,7 +196,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new double[size];
+            double[] arr = new double[size];
             Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
             _position += size * 8;
             return arr;
@@ -229,7 +206,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new string[size];
+            string[] arr = new string[size];
             for (int i = 0; i < size; i++)
             {
                 arr[i] = GetString();
@@ -241,7 +218,7 @@ namespace NebulaModel.Networking.Serialization
         {
             ushort size = BitConverter.ToUInt16(_data, _position);
             _position += 2;
-            var arr = new string[size];
+            string[] arr = new string[size];
             for (int i = 0; i < size; i++)
             {
                 arr[i] = GetString(maxStringLength);
@@ -360,7 +337,7 @@ namespace NebulaModel.Networking.Serialization
 
         public T Get<T>() where T : INetSerializable, new()
         {
-            var obj = new T();
+            T obj = new T();
             obj.Deserialize(this);
             return obj;
         }
@@ -634,7 +611,7 @@ namespace NebulaModel.Networking.Serialization
         {
             if (AvailableBytes >= 4)
             {
-                var bytesCount = PeekInt();
+                int bytesCount = PeekInt();
                 if (AvailableBytes >= bytesCount + 4)
                 {
                     result = GetString();
@@ -647,8 +624,7 @@ namespace NebulaModel.Networking.Serialization
 
         public bool TryGetStringArray(out string[] result)
         {
-            ushort size;
-            if (!TryGetUShort(out size))
+            if (!TryGetUShort(out ushort size))
             {
                 result = null;
                 return false;
@@ -671,7 +647,7 @@ namespace NebulaModel.Networking.Serialization
         {
             if (AvailableBytes >= 4)
             {
-                var length = PeekInt();
+                int length = PeekInt();
                 if (length >= 0 && AvailableBytes >= length + 4)
                 {
                     result = GetBytesWithLength();

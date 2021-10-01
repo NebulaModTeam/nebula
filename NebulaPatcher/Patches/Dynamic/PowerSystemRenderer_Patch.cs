@@ -5,18 +5,18 @@ using NebulaWorld;
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(PowerSystemRenderer))]
-    class PowerSystemRenderer_Patch
+    internal class PowerSystemRenderer_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch("Init")]
-        public static void Init_Postfix(UIGameMenu __instance)
+        [HarmonyPatch(nameof(PowerSystemRenderer.Init))]
+        public static void Init_Postfix()
         {
-            if (!SimulatedWorld.Initialized || LocalPlayer.IsMasterClient)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            AccessTools.StaticFieldRefAccess<bool>(typeof(PowerSystemRenderer), "powerGraphOn") = Config.Options.PowerGridEnabled;
+            PowerSystemRenderer.powerGraphOn = Config.Options.PowerGridEnabled;
         }
     }
 }

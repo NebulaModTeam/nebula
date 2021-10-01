@@ -1,9 +1,19 @@
 ﻿using NebulaModel.DataStructures;
+using System;
 
 namespace NebulaWorld.GameDataHistory
 {
-    public static class GameDataHistoryManager
+    public class GameDataHistoryManager : IDisposable
     {
-        public static readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
+        public readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
+
+        public GameDataHistoryManager()
+        {
+        }
+
+
+        public void Dispose()
+        {
+        }
     }
 }

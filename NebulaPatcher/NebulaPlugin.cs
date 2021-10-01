@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
@@ -13,11 +14,10 @@ using UnityEngine;
 namespace NebulaPatcher
 {
     [BepInPlugin(PluginInfo.PLUGIN_ID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("dsp.galactic-scale.2", BepInDependency.DependencyFlags.SoftDependency)] // to load after GS2
     [BepInProcess("DSPGAME.exe")]
-    public class NebulaPlugin : BaseUnityPlugin
+    public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
-        void Awake()
+        private void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
 
@@ -34,19 +34,19 @@ namespace NebulaPatcher
             }
         }
 
-        void Initialize()
+        private static void Initialize()
         {
             InitPatches();
             AddNebulaBootstrapper();
         }
 
-        private void InitPatches()
+        private static void InitPatches()
         {
             Log.Info("Patching Dyson Sphere Program...");
 
             try
             {
-                Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_VERSION_WITH_SHORT_SHA}");
+                Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}");
 #if DEBUG
                 if (Directory.Exists("./mmdump"))
                 {
@@ -72,15 +72,23 @@ namespace NebulaPatcher
             }
         }
 
-        void AddNebulaBootstrapper()
+        private static void AddNebulaBootstrapper()
         {
             Log.Info("Applying Nebula behaviours..");
 
-            GameObject nebulaRoot = new GameObject();
-            nebulaRoot.name = "Nebula Multiplayer Mod";
+            GameObject nebulaRoot = new GameObject
+            {
+                name = "Nebula Multiplayer Mod"
+            };
             nebulaRoot.AddComponent<NebulaBootstrapper>();
 
             Log.Info("Behaviours applied.");
+        }
+
+        public string Version => NebulaModel.Config.ModVersion;
+        public bool CheckVersion(string hostVersion, string clientVersion)
+        {
+            return hostVersion.Equals(clientVersion);
         }
     }
 }

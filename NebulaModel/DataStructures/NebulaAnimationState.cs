@@ -1,5 +1,4 @@
-﻿using NebulaModel.Attributes;
-using NebulaModel.Networking.Serialization;
+﻿using NebulaAPI;
 
 namespace NebulaModel.DataStructures
 {
@@ -10,14 +9,14 @@ namespace NebulaModel.DataStructures
         public float Speed { get; set; }
         public bool Enabled { get; set; }
 
-        public void Serialize(NetDataWriter writer)
+        public void Serialize(INetDataWriter writer)
         {
             writer.Put(Weight);
             writer.Put(Speed);
             writer.Put(Enabled);
         }
 
-        public void Deserialize(NetDataReader reader)
+        public void Deserialize(INetDataReader reader)
         {
             Weight = reader.GetFloat();
             Speed = reader.GetFloat();
