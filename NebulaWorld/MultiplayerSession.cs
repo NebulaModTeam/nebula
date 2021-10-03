@@ -31,6 +31,7 @@ namespace NebulaWorld
         public StatisticsManager Statistics { get; private set; }
         public TrashManager Trashes { get; private set; }
         public DysonSphereManager DysonSpheres { get; private set; }
+        public LaunchManager Launch { get; private set; }
 
         // Some Patch Flags
         public bool IsTankWindowPointerPress { get; set; }
@@ -68,6 +69,7 @@ namespace NebulaWorld
             Statistics = new StatisticsManager();
             Trashes = new TrashManager();
             DysonSpheres = new DysonSphereManager();
+            Launch = new LaunchManager();
         }
 
         public void Dispose()
@@ -119,6 +121,9 @@ namespace NebulaWorld
 
             DysonSpheres?.Dispose();
             DysonSpheres = null;
+
+            Launch?.Dispose();
+            Launch = null;
         }
 
         public void OnGameLoadCompleted()
