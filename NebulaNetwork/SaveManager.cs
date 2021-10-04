@@ -11,13 +11,14 @@ namespace NebulaNetwork
     public class SaveManager
     {
         private const string FILE_EXTENSION = ".server";
-        private const ushort REVISION = 3;
+        private const ushort REVISION = 4;
 
         public static void SaveServerData(string saveName)
         {
             string path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
             IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
             NetDataWriter netDataWriter = new NetDataWriter();
+            netDataWriter.Put("REV");
             netDataWriter.Put(REVISION);
 
             using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
@@ -93,6 +94,12 @@ namespace NebulaNetwork
             NetDataReader netDataReader = new NetDataReader(source);
             try
             {
+                string revString = netDataReader.GetString();
+                if (revString != "REV")
+                {
+                    throw new System.Exception();
+                }
+
                 ushort revision = netDataReader.GetUShort();
                 if (revision != REVISION)
                 {

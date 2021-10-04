@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -21,6 +22,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             {
                 dysonSphere.Export(writer.BinaryWriter);
                 conn.SendPacket(new DysonSphereData(packet.StarIndex, writer.CloseAndGetBytes()));
+                Multiplayer.Session.Launch.RegisterPlayer(conn, packet.StarIndex);
             }
         }
     }
