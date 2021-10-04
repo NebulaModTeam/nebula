@@ -100,8 +100,15 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 else
                 {
+                    // triggers data request to server
                     planet.LoadFactory();
                     planet.onFactoryLoaded += __instance.OnActivePlanetFactoryLoaded;
+                    // lets player walk on empty planet without awkward graphic glitches
+                    if(planet.physics == null)
+                    {
+                        planet.physics = new PlanetPhysics(planet);
+                        planet.physics.Init();
+                    }
                 }
             }
             planet.onLoaded -= __instance.OnActivePlanetLoaded;
@@ -122,9 +129,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     InitLandingPlace(__instance, planet);
                 }
-                // now set localPlanet and planetId
-                GameMain.data.localPlanet = planet;
-                __instance.mainPlayer.planetId = planet.id;
+
+                // now that we have the factory loaded update it in the planets physics
+                planet.physics.raycastLogic.factory = planet.factory;
 
                 planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
             }
@@ -138,6 +145,21 @@ namespace NebulaPatcher.Patches.Dynamic
             // galacticTransport.shipRenderer.Draw() can then render ships
             GameMain.data.galacticTransport.Arragement();
             return false;
+        }
+
+        // this fixes werid planet movements while loading factory data from server
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameData.LateUpdate))]
+        public static void LateUpdate_Postfix()
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                int currentFactingStage = (int)AccessTools.Field(typeof(PlanetModelingManager), "currentFactingStage").GetValue(null);
+                if (GameMain.data.localPlanet != null && GameMain.data.localPlanet.factoryLoading && GameMain.data.localPlanet.physics != null)
+                {
+                    GameMain.data.localPlanet.physics.LateUpdate();
+                }
+            }
         }
 
         [HarmonyPostfix]
