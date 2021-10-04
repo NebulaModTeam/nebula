@@ -1,11 +1,12 @@
 ## Changelog
 
-0.6.3:
+0.7.0:
 
-- Fixed instance where error would trigger by loading saves made on earlier Nebula versions. **WARNING: All previous client inventory and position data will be lost!** (should be for the last time!)
-- Fixed error that was triggered by the client loading a planet after traveling to a different planetary system
-- Fixed error that was triggered by the client warping outside of a planetary system
+- @phantomgamers: Fixed instance where error would trigger by loading saves made on earlier Nebula versions. **WARNING: All previous client inventory and position data will be lost!** (should be for the last time!)
+- @phantomgamers: Fixed error that was triggered by the client loading a planet after traveling to a different planetary system
+- @phantomgamers: Fixed error that was triggered by the client warping outside of a planetary system
 - @starfi5h: Added syncing of solar sails and rockets when client does not have the planet they originated from loaded.
+- @sp00ktober: Implemented smooth loading of factories for clients (fixed clients phasing through planet when flying too fast)
 
 0.6.2:
 
