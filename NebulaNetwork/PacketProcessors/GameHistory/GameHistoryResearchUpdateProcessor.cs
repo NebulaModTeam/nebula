@@ -12,9 +12,11 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
         {
             GameHistoryData data = GameMain.data.history;
             if (packet.TechId != data.currentTech)
-            {
-                //Wait for the authoritative packet to enqueue new tech first
-                return;
+            {                
+                NebulaModel.Logger.Log.Warn($"CurrentTech mismatch! Server:{packet.TechId} Local:{data.currentTech}");
+                //Replace currentTech to match with server
+                data.currentTech = packet.TechId;
+                data.techQueue[0] = packet.TechId;
             }
             TechState state = data.techStates[data.currentTech];
             state.hashUploaded = packet.HashUploaded;

@@ -21,11 +21,14 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             //Check if client is contributing to the correct Tech Research
             if (packet.TechId == GameMain.history.currentTech)
             {
-                Log.Info($"ProcessPacket researchContribution: got package for same tech");
                 GameMain.history.AddTechHash(packet.Hashes);
                 IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
                 ((NebulaPlayer)playerManager.GetPlayer(conn)).UpdateResearchProgress(packet.TechId, packet.Hashes);
                 Log.Debug($"ProcessPacket researchContribution: playerid by: {playerManager.GetPlayer(conn).Id} - hashes {packet.Hashes}");
+            }
+            else
+            {
+                Log.Info($"ProcessPacket researchContribution: got package for different tech ({packet.TechId})");
             }
         }
     }
