@@ -30,7 +30,13 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                 pab.noneTool.factory = planet.factory;
 
                 Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
+
+                // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
+                PlanetData pData = GameMain.gpuiManager.specifyPlanet;
+
+                GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
                 pab.DoDismantleObject(packet.ObjId);
+                GameMain.gpuiManager.specifyPlanet = pData;
 
                 pab.factory = tmpFactory;
                 pab.noneTool.factory = tmpFactory;
