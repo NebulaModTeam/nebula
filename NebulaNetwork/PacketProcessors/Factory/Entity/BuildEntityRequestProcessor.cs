@@ -34,7 +34,13 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
 
                     //Remove building from drone queue
                     GameMain.mainPlayer.mecha.droneLogic.serving.Remove(-packet.PrebuildId);
+
+                    // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
+                    PlanetData pData = GameMain.gpuiManager.specifyPlanet;
+
+                    GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
                     planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
+                    GameMain.gpuiManager.specifyPlanet = pData;
 
                     if (IsClient)
                     {
