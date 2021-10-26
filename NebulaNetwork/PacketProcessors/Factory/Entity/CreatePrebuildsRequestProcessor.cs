@@ -13,7 +13,12 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
         {
             using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
+                // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
+                PlanetData pData = GameMain.gpuiManager.specifyPlanet;
+
+                GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
                 Multiplayer.Session.BuildTools.CreatePrebuildsRequest(packet);
+                GameMain.gpuiManager.specifyPlanet = pData;
             }
         }
     }

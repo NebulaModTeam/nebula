@@ -38,9 +38,12 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     if(ePool[i].pos == vPos && ePool[i].rot == qRot)
                     {
                         // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
+                        PlanetData pData = GameMain.gpuiManager.specifyPlanet;
+
                         GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
                         planet.factory.UpgradeFinally(GameMain.mainPlayer, i, itemProto);
-                        GameMain.gpuiManager.specifyPlanet = null;
+                        GameMain.gpuiManager.specifyPlanet = pData;
+
                         break;
                     }
                 }
