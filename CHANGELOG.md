@@ -1,5 +1,10 @@
 ## Changelog
 
+0.7.1:
+
+- @starfi5h: Fixed research desync issues
+- @sp00ktober: Fixed error when client upgrades buildings on different planet from the host.
+
 0.7.0:
 
 - @phantomgamers: Fixed instance where error would trigger by loading saves made on earlier Nebula versions. **WARNING: All previous client inventory and position data will be lost!** (should be for the last time!)
