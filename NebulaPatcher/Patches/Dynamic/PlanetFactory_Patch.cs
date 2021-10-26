@@ -74,7 +74,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
+                EntityData eData = __instance.entityPool[objId];
+
+                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, new Float3(eData.pos.x, eData.pos.y, eData.pos.z), new Float4(eData.rot.x, eData.rot.y, eData.rot.z, eData.rot.w), replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
             }
 
             return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;
