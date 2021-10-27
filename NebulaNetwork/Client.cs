@@ -9,6 +9,7 @@ using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -157,6 +158,8 @@ namespace NebulaNetwork
                 OnMessage(messages[i]);
             }
 
+            serverConnection?.Update();
+
             PacketProcessor.ProcessPacketQueue();
 
             if (Multiplayer.Session.IsGameLoaded)
@@ -181,14 +184,23 @@ namespace NebulaNetwork
         {
             if (!Multiplayer.IsLeavingGame)
             {
-                ConnectionInfo info = new ConnectionInfo();
-                sockets.GetConnectionInfo(message.connection, ref info);
-                EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.address.GetIP()), info.address.port);
-
                 byte[] rawData = new byte[message.length];
                 message.CopyTo(rawData);
 
-                PacketProcessor.EnqueuePacketForProcessing(rawData, new NebulaConnection(sockets, connection, serverEndpoint, PacketProcessor));
+                byte[] payload = rawData.Skip(1).ToArray();
+
+                if (rawData[0] == 0)
+                {
+                    PacketProcessor.EnqueuePacketForProcessing(payload, serverConnection);
+                }
+                else
+                {
+                    var data = serverConnection.ProcessFragment(payload);
+                    if(data != null)
+                    {
+                        PacketProcessor.EnqueuePacketForProcessing(data, serverConnection);
+                    }
+                }
             }
         }
 

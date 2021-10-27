@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
 using System.IO;
@@ -57,6 +58,11 @@ namespace NebulaModel
             utils = new NetworkingUtils();
 
             sockets.SetManualPollMode(true);
+
+            utils.SetDebugCallback(DebugType.Everything, (DebugType type, string message) =>
+            {
+                Log.Info(message);
+            });
 
             // Set high speeds
             Configuration configSendRateMax = new Configuration();

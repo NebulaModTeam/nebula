@@ -8,6 +8,8 @@ using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -32,6 +34,8 @@ namespace NebulaNetwork
         private readonly bool loadSaveFile;
         private uint listenSocket;
         private uint pollGroup;
+
+        private Dictionary<uint, NebulaConnection> connections = new Dictionary<uint, NebulaConnection>();
 
         public Server(int port, bool loadSaveFile = false) : base(new PlayerManager())
         {
@@ -208,6 +212,11 @@ public override void Stop()
                 OnMessage(messages[i]);
             }
 
+            foreach(var kvp in connections)
+            {
+                kvp.Value.Update();
+            }
+
             PacketProcessor.ProcessPacketQueue();
         }
 
@@ -216,6 +225,9 @@ public override void Stop()
             NebulaModel.Logger.Log.Info($"Client connected ID: {info.connection}");
             EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.connectionInfo.address.GetIP()), info.connectionInfo.address.port);
             NebulaConnection conn = new NebulaConnection(sockets, info.connection, endPoint, PacketProcessor);
+
+            connections.Add(info.connection, conn);
+
             PlayerManager.PlayerConnected(conn);
         }
 
@@ -225,14 +237,36 @@ public override void Stop()
             sockets.GetConnectionInfo(message.connection, ref info);
             EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.address.GetIP()), info.address.port);
 
-            byte[] rawData = new byte[message.length];
-            message.CopyTo(rawData);
+            NebulaConnection connection;
+            if(connections.TryGetValue(message.connection, out connection))
+            {
+                byte[] rawData = new byte[message.length];
+                message.CopyTo(rawData);
 
-            PacketProcessor.EnqueuePacketForProcessing(rawData, new NebulaConnection(sockets, message.connection, endPoint, PacketProcessor));
+                byte[] payload = rawData.Skip(1).ToArray();
+
+                if (rawData[0] == 0)
+                {
+                    PacketProcessor.EnqueuePacketForProcessing(payload, connection);
+                }
+                else
+                {
+                    var data = connection.ProcessFragment(payload);
+                    if(data != null)
+                    {
+                        PacketProcessor.EnqueuePacketForProcessing(data, connection);
+                    }
+                }
+            }
         }
 
         protected void OnClose(ref StatusInfo info)
         {
+            NebulaConnection connection = null;
+            connections.TryGetValue(info.connection, out connection);
+
+            connections.Remove(info.connection);
+
             // If the reason of a client disconnect is because we are still loading the game,
             // we don't need to inform the other clients since the disconnected client never
             // joined the game in the first place.
@@ -241,17 +275,15 @@ public override void Stop()
                 return;
             }
 
-            var connection = info.connection;
-            EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.connectionInfo.address.GetIP()), info.connectionInfo.address.port);
 
             NebulaModel.Logger.Log.Info($"Client disconnected: {info.connection}, reason: {info.connectionInfo.endDebug}");
             UnityDispatchQueue.RunOnMainThread(() =>
             {
                 // This is to make sure that we don't try to deal with player disconnection
                 // if it is because we have stopped the server and are not in a multiplayer game anymore.
-                if (Multiplayer.IsActive)
+                if (Multiplayer.IsActive && connection != null)
                 {
-                    PlayerManager.PlayerDisconnected(new NebulaConnection(sockets, connection, endPoint, PacketProcessor));
+                    PlayerManager.PlayerDisconnected(connection);
                 }
             });
         }
