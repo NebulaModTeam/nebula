@@ -28,25 +28,6 @@ namespace NebulaModel
             }
         }
 
-        private static string AssemblyDirectory
-        {
-            get
-            {
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
-                string path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
-            }
-        }
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        static extern bool SetDefaultDllDirectories(uint DirectoryFlags);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern int AddDllDirectory(string NewDirectory);
-
-        const uint LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000;
-
         private void InitializeValveSockets()
         {
             Library.Initialize();
