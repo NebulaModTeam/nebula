@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="..\dep\valve.sockets\ValveSockets.csproj" />
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
-    <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj" />
   </ItemGroup>
 </Project>

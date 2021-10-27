@@ -3,20 +3,31 @@ using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
 using System.Net;
-using WebSocketSharp;
+using Valve.Sockets;
 
 namespace NebulaModel.Networking
 {
     public class NebulaConnection : INebulaConnection
     {
+        private readonly NetworkingSockets sockets;
         private readonly EndPoint peerEndpoint;
-        private readonly WebSocket peerSocket;
+        private readonly uint peerSocket;
         private readonly NetPacketProcessor packetProcessor;
 
-        public bool IsAlive => peerSocket?.IsAlive ?? false;
-
-        public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NetPacketProcessor packetProcessor)
+        public bool IsAlive
         {
+            get
+            {
+                ConnectionStatus status = new ConnectionStatus();
+                sockets.GetQuickConnectionStatus(peerSocket, ref status);
+
+                return status.state == ConnectionState.Connected;
+            }
+        }
+
+        public NebulaConnection(NetworkingSockets sockets, uint peerSocket, EndPoint peerEndpoint, NetPacketProcessor packetProcessor)
+        {
+            this.sockets = sockets;
             this.peerEndpoint = peerEndpoint;
             this.peerSocket = peerSocket;
             this.packetProcessor = packetProcessor;
@@ -24,9 +35,9 @@ namespace NebulaModel.Networking
 
         public void SendPacket<T>(T packet) where T : class, new()
         {
-            if (peerSocket.ReadyState == WebSocketState.Open)
+            if (IsAlive)
             {
-                peerSocket.Send(packetProcessor.Write(packet));
+                sockets.SendMessageToConnection(peerSocket, packetProcessor.Write(packet));
             }
             else
             {
@@ -36,13 +47,13 @@ namespace NebulaModel.Networking
 
         public void SendRawPacket(byte[] rawData)
         {
-            if (peerSocket.ReadyState == WebSocketState.Open)
+            if (IsAlive)
             {
-                peerSocket.Send(rawData);
+                sockets.SendMessageToConnection(peerSocket, rawData);
             }
             else
             {
-                Log.Warn($"Cannot send raw packet to a closed connection {peerSocket?.Url}");
+                Log.Warn($"Cannot send raw packet to a closed connection {peerEndpoint}");
             }
         }
 
@@ -50,13 +61,13 @@ namespace NebulaModel.Networking
         {
             if (string.IsNullOrEmpty(reasonString))
             {
-                peerSocket.Close((ushort)reason);
+                sockets.CloseConnection(peerSocket, (int)reason, "", true);
             }
             else
             {
-                if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= 123)
+                if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= Library.maxCloseMessageLength)
                 {
-                    peerSocket.Close((ushort)reason, reasonString);
+                    sockets.CloseConnection(peerSocket, (int)reason, reasonString, true);
                 }
                 else
                 {

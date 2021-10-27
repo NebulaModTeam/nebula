@@ -8,11 +8,12 @@ using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
-using WebSocketSharp;
+using Valve.Sockets;
 
 namespace NebulaNetwork
 {
@@ -21,7 +22,8 @@ namespace NebulaNetwork
         private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private readonly IPEndPoint serverEndpoint;
-        private WebSocket clientSocket;
+        private Address serverAddress;
+        private uint connection;
         private NebulaConnection serverConnection;
 
         private float mechaSynchonizationTimer = 0f;
@@ -35,7 +37,6 @@ namespace NebulaNetwork
         public Client(IPEndPoint endpoint) : base(null)
         {
             serverEndpoint = endpoint;
-
         }
 
         public override void Start()
@@ -55,12 +56,32 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            clientSocket = new WebSocket($"ws://{serverEndpoint}/socket");
-            clientSocket.OnOpen += ClientSocket_OnOpen;
-            clientSocket.OnClose += ClientSocket_OnClose;
-            clientSocket.OnMessage += ClientSocket_OnMessage;
+            StatusCallback status = (ref StatusInfo info) =>
+            {
+                switch (info.connectionInfo.state)
+                {
+                    case ConnectionState.None:
+                        break;
 
-            clientSocket.Connect();
+                    case ConnectionState.Connected:
+                        OnOpen(ref info);
+                        Log.Info("Client connected to server - ID: " + connection);
+                        break;
+
+                    case ConnectionState.ClosedByPeer:
+                    case ConnectionState.ProblemDetectedLocally:
+                        sockets.CloseConnection(connection);
+                        Log.Info("Client disconnected from server");
+                        break;
+                }
+            };
+            utils.SetStatusCallback(status);
+
+            serverAddress = new Address();
+            serverAddress.SetAddress(serverEndpoint.Address.ToString(), (ushort)serverEndpoint.Port);
+
+            connection = sockets.Connect(ref serverAddress);
+            
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
 
@@ -76,7 +97,7 @@ namespace NebulaNetwork
 
         public override void Stop()
         {
-            clientSocket?.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
+            sockets?.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
@@ -121,6 +142,17 @@ namespace NebulaNetwork
 
         public override void Update()
         {
+            sockets?.Poll(0);
+            sockets?.RunCallbacks();
+
+            NetworkingMessage[] messages = new NetworkingMessage[100];
+
+            var count = sockets?.ReceiveMessagesOnConnection(connection, messages, 100);
+            for (int i = 0; i < count.GetValueOrDefault(0); ++i)
+            {
+                OnMessage(messages[i]);
+            }
+
             PacketProcessor.ProcessPacketQueue();
 
             if (Multiplayer.Session.IsGameLoaded)
@@ -141,20 +173,25 @@ namespace NebulaNetwork
             }
         }
 
-        private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
+        private void OnMessage(NetworkingMessage message)
         {
             if (!Multiplayer.IsLeavingGame)
             {
-                PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
+                ConnectionInfo info = new ConnectionInfo();
+                sockets.GetConnectionInfo(message.connection, ref info);
+                EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.address.GetIP()), info.address.port);
+
+                byte[] rawData = new byte[message.length];
+                message.CopyTo(rawData);
+
+                PacketProcessor.EnqueuePacketForProcessing(rawData, new NebulaConnection(sockets, connection, serverEndpoint, PacketProcessor));
             }
         }
 
-        private void ClientSocket_OnOpen(object sender, System.EventArgs e)
+        private void OnOpen(ref StatusInfo info)
         {
-            DisableNagleAlgorithm(clientSocket);
-
             Log.Info($"Server connection established");
-            serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
+            serverConnection = new NebulaConnection(sockets, connection, serverEndpoint, PacketProcessor);
 
             //TODO: Maybe some challenge-response authentication mechanism?
 
@@ -164,14 +201,18 @@ namespace NebulaNetwork
                 Config.Options.GetMechaColors()));
         }
 
-        private void ClientSocket_OnClose(object sender, CloseEventArgs e)
+        private void OnClose(ref StatusInfo info)
         {
             serverConnection = null;
+
+            var endReason = info.connectionInfo.endReason;
+            var endDebug = info.connectionInfo.endDebug;
+            var connection = info.connection;
 
             UnityDispatchQueue.RunOnMainThread(() =>
             {
                 // If the client is Quitting by himself, we don't have to inform him of his disconnection.
-                if (e.Code == (ushort)DisconnectionReason.ClientRequestedDisconnect)
+                if (endReason == (int)DisconnectionReason.ClientRequestedDisconnect)
                 {
                     return;
                 }
@@ -182,29 +223,29 @@ namespace NebulaNetwork
                     GameMain.instance._paused = true;
                 }
 
-                if (e.Code == (ushort)DisconnectionReason.ModIsMissing)
+                if (endReason == (int)DisconnectionReason.ModIsMissing)
                 {
                     InGamePopup.ShowWarning(
                         "Mod Mismatch",
-                        $"You are missing mod {e.Reason}",
+                        $"You are missing mod {endDebug}",
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
                 }
 
-                if (e.Code == (ushort)DisconnectionReason.ModIsMissingOnServer)
+                if (endReason == (int)DisconnectionReason.ModIsMissingOnServer)
                 {
                     InGamePopup.ShowWarning(
                         "Mod Mismatch",
-                        $"Server is missing mod {e.Reason}",
+                        $"Server is missing mod {endDebug}",
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
                 }
 
-                if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
+                if (endReason == (int)DisconnectionReason.ModVersionMismatch)
                 {
-                    string[] versions = e.Reason.Split(';');
+                    string[] versions = endDebug.Split(';');
                     InGamePopup.ShowWarning(
                         "Mod Version Mismatch",
                         $"Your mod {versions[0]} version is not the same as the Host version.\nYou:{versions[1]} - Remote:{versions[2]}",
@@ -213,9 +254,9 @@ namespace NebulaNetwork
                     return;
                 }
 
-                if (e.Code == (ushort)DisconnectionReason.GameVersionMismatch)
+                if (endReason == (int)DisconnectionReason.GameVersionMismatch)
                 {
-                    string[] versions = e.Reason.Split(';');
+                    string[] versions = endDebug.Split(';');
                     InGamePopup.ShowWarning(
                         "Game Version Mismatch",
                         $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
@@ -228,7 +269,7 @@ namespace NebulaNetwork
                 {
                     InGamePopup.ShowWarning(
                         "Connection Lost",
-                        $"You have been disconnected from the server.\n{e.Reason}",
+                        $"You have been disconnected from the server.\n{endDebug}",
                         "Quit",
                         Multiplayer.LeaveGame);
                 }
@@ -241,12 +282,6 @@ namespace NebulaNetwork
                         Multiplayer.LeaveGame);
                 }
             });
-        }
-
-        private static void DisableNagleAlgorithm(WebSocket socket)
-        {
-            TcpClient tcpClient = AccessTools.FieldRefAccess<WebSocket, TcpClient>("_tcpClient")(socket);
-            tcpClient.NoDelay = true;
         }
     }
 }
