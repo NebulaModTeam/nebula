@@ -49,9 +49,6 @@ namespace NebulaModel
 
         private void InitializeValveSockets()
         {
-            SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
-            AddDllDirectory(AssemblyDirectory);
-
             Library.Initialize();
 
             sockets = new NetworkingSockets();
