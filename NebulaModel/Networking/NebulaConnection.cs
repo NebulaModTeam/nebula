@@ -3,6 +3,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Valve.Sockets;
 
@@ -50,7 +51,7 @@ namespace NebulaModel.Networking
         {
             while(sendQueue.Count > 0)
             {
-                if (SendRawPacket(sendQueue.Dequeue()) == false)
+                if (SendImmediateRawPacket(sendQueue.Dequeue()) == false)
                     break;
             }
         }
@@ -83,7 +84,7 @@ namespace NebulaModel.Networking
                     var result = sockets.SendMessageToConnection(peerSocket, data);
                     if (result == Result.LimitExceeded)
                     {
-                        sendQueue.Enqueue(rawData);
+                        sendQueue.Enqueue(data);
                     }
                     else if (result != Result.OK)
                     {
@@ -132,7 +133,7 @@ namespace NebulaModel.Networking
                 writer.Put((uint)index);
 
                 var dataToSend = rawData.Length - index;
-                var dataChunk = dataToSend > KMaxPacketSize ? KMaxPacketSize : dataToSend;
+                var dataChunk = dataToSend > KMaxFragmentSize ? KMaxFragmentSize : dataToSend;
 
                 writer.PutBytesWithLength(rawData, index, dataChunk);
 
@@ -140,7 +141,27 @@ namespace NebulaModel.Networking
             }
         }
 
-        public byte[] ProcessFragment(byte[] payload)
+        public byte[] Receive(byte[] rawData)
+        {
+            byte[] payload = rawData.Skip(1).ToArray();
+
+            if (rawData[0] == 0)
+            {
+                return payload;
+            }
+            else
+            {
+                var data = ProcessFragment(payload);
+                if (data != null)
+                {
+                    return data;
+                }
+            }
+
+            return null;
+        }
+
+        private byte[] ProcessFragment(byte[] payload)
         {
             NetDataReader reader = new NetDataReader(payload);
             var fragId = reader.GetUInt();
@@ -191,6 +212,8 @@ namespace NebulaModel.Networking
         {
             return Equals(left, right);
         }
+
+        
 
         public static bool operator !=(NebulaConnection left, NebulaConnection right)
         {

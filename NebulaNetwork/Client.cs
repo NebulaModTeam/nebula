@@ -187,19 +187,10 @@ namespace NebulaNetwork
                 byte[] rawData = new byte[message.length];
                 message.CopyTo(rawData);
 
-                byte[] payload = rawData.Skip(1).ToArray();
-
-                if (rawData[0] == 0)
+                var data = serverConnection.Receive(rawData);
+                if (data != null)
                 {
-                    PacketProcessor.EnqueuePacketForProcessing(payload, serverConnection);
-                }
-                else
-                {
-                    var data = serverConnection.ProcessFragment(payload);
-                    if(data != null)
-                    {
-                        PacketProcessor.EnqueuePacketForProcessing(data, serverConnection);
-                    }
+                    PacketProcessor.EnqueuePacketForProcessing(data, serverConnection);
                 }
             }
         }

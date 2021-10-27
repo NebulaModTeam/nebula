@@ -124,7 +124,7 @@ namespace NebulaNetwork
             }
         }
 
-public override void Stop()
+        public override void Stop()
         {
             //TODO: forcibly close all connections
 
@@ -243,19 +243,10 @@ public override void Stop()
                 byte[] rawData = new byte[message.length];
                 message.CopyTo(rawData);
 
-                byte[] payload = rawData.Skip(1).ToArray();
-
-                if (rawData[0] == 0)
+                var data = connection.Receive(rawData);
+                if(data != null)
                 {
-                    PacketProcessor.EnqueuePacketForProcessing(payload, connection);
-                }
-                else
-                {
-                    var data = connection.ProcessFragment(payload);
-                    if(data != null)
-                    {
-                        PacketProcessor.EnqueuePacketForProcessing(data, connection);
-                    }
+                    PacketProcessor.EnqueuePacketForProcessing(data, connection);
                 }
             }
         }
