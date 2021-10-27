@@ -58,22 +58,7 @@ namespace NebulaNetwork
 
             StatusCallback status = (ref StatusInfo info) =>
             {
-                switch (info.connectionInfo.state)
-                {
-                    case ConnectionState.None:
-                        break;
-
-                    case ConnectionState.Connected:
-                        OnOpen(ref info);
-                        Log.Info("Client connected to server - ID: " + connection);
-                        break;
-
-                    case ConnectionState.ClosedByPeer:
-                    case ConnectionState.ProblemDetectedLocally:
-                        sockets.CloseConnection(connection);
-                        Log.Info("Client disconnected from server");
-                        break;
-                }
+                ((Client)Multiplayer.Session.Network).OnEvent(ref info);
             };
             utils.SetStatusCallback(status);
 
@@ -95,7 +80,26 @@ namespace NebulaNetwork
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
-        public override void Stop()
+        private void OnEvent(ref StatusInfo info)
+        {
+            switch (info.connectionInfo.state)
+            {
+                case ConnectionState.None:
+                    break;
+
+                case ConnectionState.Connected:
+                    OnOpen(ref info);
+                    Log.Info("Client connected to server - ID: " + connection);
+                    break;
+
+                case ConnectionState.ClosedByPeer:
+                case ConnectionState.ProblemDetectedLocally:
+                    sockets.CloseConnection(connection);
+                    Log.Info("Client disconnected from server");
+                    break;
+            }
+        }
+    public override void Stop()
         {
             sockets?.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
 

@@ -68,33 +68,7 @@ namespace NebulaNetwork
 
             StatusCallback status = (ref StatusInfo info) =>
             {
-                switch (info.connectionInfo.state)
-                {
-                    case ConnectionState.None:
-                        break;
-
-                    case ConnectionState.Connecting:
-                        if (Multiplayer.Session.IsGameLoaded == false)
-                        {
-                            sockets.CloseConnection(info.connection, (int)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.", true);
-                        }
-                        else
-                        {
-                            sockets.AcceptConnection(info.connection);
-                            sockets.SetConnectionPollGroup(pollGroup, info.connection);
-                        }                        
-                        break;
-
-                    case ConnectionState.Connected:
-                        ((Server)Multiplayer.Session.Network).OnOpen(ref info, processor, manager);
-                        break;
-
-                    case ConnectionState.ClosedByPeer:
-                    case ConnectionState.ProblemDetectedLocally:
-                        sockets.CloseConnection(info.connection);
-                        ((Server)Multiplayer.Session.Network).OnClose(ref info, processor, manager);
-                        break;
-                }
+                ((Server)Multiplayer.Session.Network).OnEvent(ref info);
             };
 
             Address address = new Address();
@@ -115,7 +89,38 @@ namespace NebulaNetwork
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
-        public override void Stop()
+        protected void OnEvent(ref StatusInfo info)
+        {
+            switch (info.connectionInfo.state)
+            {
+                case ConnectionState.None:
+                    break;
+
+                case ConnectionState.Connecting:
+                    if (Multiplayer.Session.IsGameLoaded == false)
+                    {
+                        sockets.CloseConnection(info.connection, (int)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.", true);
+                    }
+                    else
+                    {
+                        sockets.AcceptConnection(info.connection);
+                        sockets.SetConnectionPollGroup(pollGroup, info.connection);
+                    }
+                    break;
+
+                case ConnectionState.Connected:
+                    OnOpen(ref info);
+                    break;
+
+                case ConnectionState.ClosedByPeer:
+                case ConnectionState.ProblemDetectedLocally:
+                    sockets.CloseConnection(info.connection);
+                    OnClose(ref info);
+                    break;
+            }
+        }
+
+public override void Stop()
         {
             //TODO: forcibly close all connections
 
@@ -206,12 +211,12 @@ namespace NebulaNetwork
             PacketProcessor.ProcessPacketQueue();
         }
 
-        protected void OnOpen(ref StatusInfo info, NetPacketProcessor processor, IPlayerManager manager)
+        protected void OnOpen(ref StatusInfo info)
         {
-            //NebulaModel.Logger.Log.Info($"Client connected ID: {info.connection}");
-            //EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.connectionInfo.address.GetIP()), info.connectionInfo.address.port);
-            //NebulaConnection conn = new NebulaConnection(sockets, info.connection, endPoint, processor);
-            //manager.PlayerConnected(conn);
+            NebulaModel.Logger.Log.Info($"Client connected ID: {info.connection}");
+            EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.connectionInfo.address.GetIP()), info.connectionInfo.address.port);
+            NebulaConnection conn = new NebulaConnection(sockets, info.connection, endPoint, PacketProcessor);
+            PlayerManager.PlayerConnected(conn);
         }
 
         protected void OnMessage(NetworkingMessage message)
@@ -226,7 +231,7 @@ namespace NebulaNetwork
             PacketProcessor.EnqueuePacketForProcessing(rawData, new NebulaConnection(sockets, message.connection, endPoint, PacketProcessor));
         }
 
-        protected void OnClose(ref StatusInfo info, NetPacketProcessor processor, IPlayerManager manager)
+        protected void OnClose(ref StatusInfo info)
         {
             // If the reason of a client disconnect is because we are still loading the game,
             // we don't need to inform the other clients since the disconnected client never
@@ -246,7 +251,7 @@ namespace NebulaNetwork
                 // if it is because we have stopped the server and are not in a multiplayer game anymore.
                 if (Multiplayer.IsActive)
                 {
-                    manager.PlayerDisconnected(new NebulaConnection(sockets, connection, endPoint, processor));
+                    PlayerManager.PlayerDisconnected(new NebulaConnection(sockets, connection, endPoint, PacketProcessor));
                 }
             });
         }
