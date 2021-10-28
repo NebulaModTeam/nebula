@@ -8,10 +8,7 @@ using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
-using System;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
 using Valve.Sockets;
@@ -60,7 +57,7 @@ namespace NebulaNetwork
             serverAddress = new Address();
             serverAddress.SetAddress(serverEndpoint.Address.ToString(), (ushort)serverEndpoint.Port);
 
-            connection = sockets.Connect(ref serverAddress);
+            connection = Sockets.Connect(ref serverAddress);
 
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
@@ -89,7 +86,7 @@ namespace NebulaNetwork
 
                 case ConnectionState.ClosedByPeer:
                 case ConnectionState.ProblemDetectedLocally:
-                    sockets.CloseConnection(info.connection);
+                    Sockets.CloseConnection(info.connection);
                     if (info.connection == connection)
                         OnClose(ref info);
                     break;
@@ -98,11 +95,11 @@ namespace NebulaNetwork
 
         public override void Stop()
         {
-            sockets?.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
+            Sockets?.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
 
-            provider = null;
+            Provider = null;
         }
 
         public override void Dispose()
@@ -145,12 +142,12 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            sockets?.Poll(0);
-            sockets?.RunCallbacks();
+            Sockets?.Poll(0);
+            Sockets?.RunCallbacks();
 
             NetworkingMessage[] messages = new NetworkingMessage[100];
 
-            var count = sockets?.ReceiveMessagesOnConnection(connection, messages, 100);
+            var count = Sockets?.ReceiveMessagesOnConnection(connection, messages, 100);
             for (int i = 0; i < count.GetValueOrDefault(0); ++i)
             {
                 OnMessage(messages[i]);
@@ -173,7 +170,7 @@ namespace NebulaNetwork
                 if (pingTimer >= 1f)
                 {
                     ConnectionStatus status = new ConnectionStatus();
-                    sockets.GetQuickConnectionStatus(connection, ref status);
+                    Sockets.GetQuickConnectionStatus(connection, ref status);
 
                     Multiplayer.Session.World.UpdatePingIndicator($"Ping: {status.ping}ms");
                     pingTimer = 0f;
@@ -199,7 +196,7 @@ namespace NebulaNetwork
         private void OnOpen(ref StatusInfo info)
         {
             Log.Info($"Server connection established");
-            serverConnection = new NebulaConnection(sockets, connection, serverEndpoint, PacketProcessor);
+            serverConnection = new NebulaConnection(Sockets, connection, serverEndpoint, PacketProcessor);
 
             //TODO: Maybe some challenge-response authentication mechanism?
 

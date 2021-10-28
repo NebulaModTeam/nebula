@@ -1,17 +1,13 @@
-﻿using HarmonyLib;
-using NebulaAPI;
+﻿using NebulaAPI;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
 using Valve.Sockets;
@@ -65,7 +61,7 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            pollGroup = sockets.CreatePollGroup();
+            pollGroup = Sockets.CreatePollGroup();
 
             var processor = PacketProcessor;
             var manager = PlayerManager;
@@ -73,7 +69,7 @@ namespace NebulaNetwork
             Address address = new Address();
             address.SetAddress("::0", (ushort)port);
 
-            listenSocket = sockets.CreateListenSocket(ref address);
+            listenSocket = Sockets.CreateListenSocket(ref address);
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
@@ -96,12 +92,12 @@ namespace NebulaNetwork
                 case ConnectionState.Connecting:
                     if (Multiplayer.Session.IsGameLoaded == false)
                     {
-                        sockets.CloseConnection(info.connection, (int)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.", true);
+                        Sockets.CloseConnection(info.connection, (int)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.", true);
                     }
                     else
                     {
-                        sockets.AcceptConnection(info.connection);
-                        sockets.SetConnectionPollGroup(pollGroup, info.connection);
+                        Sockets.AcceptConnection(info.connection);
+                        Sockets.SetConnectionPollGroup(pollGroup, info.connection);
                     }
                     break;
 
@@ -111,7 +107,7 @@ namespace NebulaNetwork
 
                 case ConnectionState.ClosedByPeer:
                 case ConnectionState.ProblemDetectedLocally:
-                    sockets.CloseConnection(info.connection);
+                    Sockets.CloseConnection(info.connection);
                     OnClose(ref info);
                     break;
             }
@@ -121,15 +117,17 @@ namespace NebulaNetwork
         {
             foreach (var kvp in connections)
             {
-                sockets?.CloseConnection(kvp.Key);
+                Sockets?.CloseConnection(kvp.Key);
             }
 
-            sockets?.CloseListenSocket(listenSocket);
-            sockets?.DestroyPollGroup(pollGroup);
+            Sockets?.CloseListenSocket(listenSocket);
+            Sockets?.DestroyPollGroup(pollGroup);
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
 
-            provider = null;
+            connections.Clear();
+
+            Provider = null;
         }
 
         public override void Dispose()
@@ -202,12 +200,12 @@ namespace NebulaNetwork
                 Multiplayer.Session.Launch.SendBroadcastIfNeeded();
             }
 
-            sockets.Poll(0);
-            sockets.RunCallbacks();
+            Sockets.Poll(0);
+            Sockets.RunCallbacks();
 
             NetworkingMessage[] messages = new NetworkingMessage[100];
 
-            var count = sockets.ReceiveMessagesOnPollGroup(pollGroup, messages, 100);
+            var count = Sockets.ReceiveMessagesOnPollGroup(pollGroup, messages, 100);
             for(int i = 0; i < count; ++i)
             {
                 OnMessage(messages[i]);
@@ -225,7 +223,7 @@ namespace NebulaNetwork
         {
             NebulaModel.Logger.Log.Info($"Client connected ID: {info.connection}");
             EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.connectionInfo.address.GetIP()), info.connectionInfo.address.port);
-            NebulaConnection conn = new NebulaConnection(sockets, info.connection, endPoint, PacketProcessor);
+            NebulaConnection conn = new NebulaConnection(Sockets, info.connection, endPoint, PacketProcessor);
 
             connections.Add(info.connection, conn);
 
@@ -235,7 +233,7 @@ namespace NebulaNetwork
         protected void OnMessage(NetworkingMessage message)
         {
             ConnectionInfo info = new ConnectionInfo();
-            sockets.GetConnectionInfo(message.connection, ref info);
+            Sockets.GetConnectionInfo(message.connection, ref info);
             EndPoint endPoint = new IPEndPoint(IPAddress.Parse(info.address.GetIP()), info.address.port);
 
             NebulaConnection connection;

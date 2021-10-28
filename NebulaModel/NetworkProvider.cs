@@ -12,16 +12,18 @@ namespace NebulaModel
 
         public IPlayerManager PlayerManager { get; }
 
-        protected static NetworkingSockets sockets = null;
-        protected static NetworkingUtils utils = null;
-        protected static NetworkProvider provider = null;
+        protected static NetworkingSockets Sockets { get; private set; }
+        
+        protected static NetworkingUtils Utils { get; private set; }
+        
+        protected static NetworkProvider Provider { get; set; }
 
         protected NetworkProvider(IPlayerManager playerManager)
         {
-            provider = this;
+            Provider = this;
             PacketProcessor = new NetPacketProcessor();
             PlayerManager = playerManager;
-            if (sockets == null)
+            if (Sockets == null)
             {
                 InitializeValveSockets();
             }
@@ -31,21 +33,21 @@ namespace NebulaModel
         {
             Library.Initialize();
 
-            sockets = new NetworkingSockets();
-            utils = new NetworkingUtils();
+            Sockets = new NetworkingSockets();
+            Utils = new NetworkingUtils();
 
-            sockets.SetManualPollMode(true);
+            Sockets.SetManualPollMode(true);
 
-            utils.SetDebugCallback(DebugType.Everything, (DebugType type, string message) =>
+            Utils.SetDebugCallback(DebugType.Everything, (DebugType type, string message) =>
             {
                 Log.Info(message);
             });
 
             // We have to store a static instance to the current NetworkProvider as this callback comes from native code and 
             // therefore has to be a flat cdecl call, it cannot capture anything or have any context
-            utils.SetStatusCallback((ref StatusInfo info) =>
+            Utils.SetStatusCallback((ref StatusInfo info) =>
             {
-                provider?.OnEvent(ref info);
+                Provider?.OnEvent(ref info);
             });
 
             // Set high speeds
@@ -64,9 +66,9 @@ namespace NebulaModel
             configSendBuffer.dataType = ConfigurationDataType.Int32;
             configSendBuffer.value = ConfigurationValue.SendBufferSize;
 
-            utils.SetConfigurationValue(configSendRateMax, ConfigurationScope.Global, new IntPtr());
-            utils.SetConfigurationValue(configSendRateMin, ConfigurationScope.Global, new IntPtr());
-            utils.SetConfigurationValue(configSendBuffer, ConfigurationScope.Global, new IntPtr());
+            Utils.SetConfigurationValue(configSendRateMax, ConfigurationScope.Global, new IntPtr());
+            Utils.SetConfigurationValue(configSendRateMin, ConfigurationScope.Global, new IntPtr());
+            Utils.SetConfigurationValue(configSendBuffer, ConfigurationScope.Global, new IntPtr());
         }
 
         protected abstract void OnEvent(ref StatusInfo info);
