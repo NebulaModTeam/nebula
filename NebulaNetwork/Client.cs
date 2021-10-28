@@ -101,6 +101,8 @@ namespace NebulaNetwork
             sockets?.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
+
+            provider = null;
         }
 
         public override void Dispose()

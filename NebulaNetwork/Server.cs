@@ -128,6 +128,8 @@ namespace NebulaNetwork
             sockets?.DestroyPollGroup(pollGroup);
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
+
+            provider = null;
         }
 
         public override void Dispose()

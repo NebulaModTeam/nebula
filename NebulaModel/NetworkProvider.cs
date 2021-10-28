@@ -27,12 +27,6 @@ namespace NebulaModel
             }
         }
 
-        ~NetworkProvider()
-        {
-            if(provider == this)
-                provider = null;
-        }
-
         private void InitializeValveSockets()
         {
             Library.Initialize();
@@ -47,9 +41,11 @@ namespace NebulaModel
                 Log.Info(message);
             });
 
+            // We have to store a static instance to the current NetworkProvider as this callback comes from native code and 
+            // therefore has to be a flat cdecl call, it cannot capture anything or have any context
             utils.SetStatusCallback((ref StatusInfo info) =>
             {
-                provider.OnEvent(ref info);
+                provider?.OnEvent(ref info);
             });
 
             // Set high speeds
