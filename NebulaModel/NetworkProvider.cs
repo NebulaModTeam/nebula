@@ -2,9 +2,6 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Valve.Sockets;
 
 namespace NebulaModel
@@ -17,15 +14,23 @@ namespace NebulaModel
 
         protected static NetworkingSockets sockets = null;
         protected static NetworkingUtils utils = null;
+        protected static NetworkProvider provider = null;
 
         protected NetworkProvider(IPlayerManager playerManager)
         {
+            provider = this;
             PacketProcessor = new NetPacketProcessor();
             PlayerManager = playerManager;
             if (sockets == null)
             {
                 InitializeValveSockets();
             }
+        }
+
+        ~NetworkProvider()
+        {
+            if(provider == this)
+                provider = null;
         }
 
         private void InitializeValveSockets()
@@ -40,6 +45,11 @@ namespace NebulaModel
             utils.SetDebugCallback(DebugType.Everything, (DebugType type, string message) =>
             {
                 Log.Info(message);
+            });
+
+            utils.SetStatusCallback((ref StatusInfo info) =>
+            {
+                provider.OnEvent(ref info);
             });
 
             // Set high speeds
@@ -62,6 +72,8 @@ namespace NebulaModel
             utils.SetConfigurationValue(configSendRateMin, ConfigurationScope.Global, new IntPtr());
             utils.SetConfigurationValue(configSendBuffer, ConfigurationScope.Global, new IntPtr());
         }
+
+        protected abstract void OnEvent(ref StatusInfo info);
 
         public abstract void Start();
 

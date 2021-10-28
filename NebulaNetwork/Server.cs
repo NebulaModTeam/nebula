@@ -70,17 +70,10 @@ namespace NebulaNetwork
             var processor = PacketProcessor;
             var manager = PlayerManager;
 
-            StatusCallback status = (ref StatusInfo info) =>
-            {
-                ((Server)Multiplayer.Session.Network).OnEvent(ref info);
-            };
-
             Address address = new Address();
             address.SetAddress("::0", (ushort)port);
 
             listenSocket = sockets.CreateListenSocket(ref address);
-
-            utils.SetStatusCallback(status);
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
@@ -93,7 +86,7 @@ namespace NebulaNetwork
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
-        protected void OnEvent(ref StatusInfo info)
+        protected override void OnEvent(ref StatusInfo info)
         {
             switch (info.connectionInfo.state)
             {
@@ -126,7 +119,12 @@ namespace NebulaNetwork
 
         public override void Stop()
         {
-            //TODO: forcibly close all connections
+            foreach (var kvp in connections)
+            {
+                sockets?.CloseConnection(kvp.Key);
+            }
+
+            sockets?.CloseListenSocket(listenSocket);
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
