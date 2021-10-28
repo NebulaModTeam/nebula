@@ -125,6 +125,7 @@ namespace NebulaNetwork
             }
 
             sockets?.CloseListenSocket(listenSocket);
+            sockets?.DestroyPollGroup(pollGroup);
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
