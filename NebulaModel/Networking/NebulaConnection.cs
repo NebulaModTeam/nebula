@@ -60,7 +60,7 @@ namespace NebulaModel.Networking
         {
             if (IsAlive)
             {
-                var netAttribute = typeof(T).GetCustomAttributes(typeof(NetworkOptionsAttribute), false).FirstOrDefault(null) as NetworkOptionsAttribute;
+                var netAttribute = typeof(T).GetCustomAttributes(typeof(NetworkOptionsAttribute), false).FirstOrDefault() as NetworkOptionsAttribute;
 
                 // By default we send everything as reliable data
                 SendFlags sendFlags = SendFlags.Reliable;
