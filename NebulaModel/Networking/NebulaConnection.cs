@@ -49,10 +49,10 @@ namespace NebulaModel.Networking
 
         public void Update()
         {
-            while(sendQueue.Count > 0)
+            // Try to send the first packet, if we did, remove it
+            while(sendQueue.Count > 0 && SendImmediateRawPacket(sendQueue.Peek()) == Result.OK)
             {
-                if (SendImmediateRawPacket(sendQueue.Dequeue()) == false)
-                    break;
+                sendQueue.Dequeue();
             }
         }
 
@@ -94,7 +94,12 @@ namespace NebulaModel.Networking
                     byte[] data = new byte[rawData.Length + 1];
                     data[0] = 0;
                     Array.Copy(rawData, 0, data, 1, rawData.Length);
-                    var result = sockets.SendMessageToConnection(peerSocket, data, sendFlags);
+
+                    Result result = Result.LimitExceeded;
+
+                    // If we are trying to send a reliable packet and we have packets queued, queue the packet to preserve send order
+                    if (sendQueue.Count == 0 || sendFlags != SendFlags.Reliable)
+                        result = sockets.SendMessageToConnection(peerSocket, data, sendFlags);
 
                     // If the underlying send queue is full and we are not dealing with an unreliable packet, queue it for resend
                     if (result == Result.LimitExceeded && sendFlags != SendFlags.Unreliable)
@@ -117,22 +122,23 @@ namespace NebulaModel.Networking
             return false;
         }
 
-        private bool SendImmediateRawPacket(byte[] rawData)
+        private Result SendImmediateRawPacket(byte[] rawData)
         {
             var result = sockets.SendMessageToConnection(peerSocket, rawData, SendFlags.Reliable);
 
             // All immediate sends are reliable so queue them if we couldn't send them right now
             if (result == Result.LimitExceeded)
             {
-                sendQueue.Enqueue(rawData);
+                return Result.LimitExceeded;
             }
             else if (result != Result.OK)
             {
                 Log.Error($"Cannot send raw data because of error {result}");
             }
             else
-                return true;
-            return false;
+                return Result.OK;
+
+            return Result.Fail;
         }
 
         private void FragmentPacket(byte[] rawData)
@@ -156,7 +162,9 @@ namespace NebulaModel.Networking
                 writer.PutBytesWithLength(rawData, index, dataChunk);
 
                 // Try to send fragments as they are processed, if we fail to send it will be queued for later send
-                SendImmediateRawPacket(writer.CopyData());
+                var data = writer.CopyData();
+                if (SendImmediateRawPacket(data) == Result.LimitExceeded)
+                    sendQueue.Enqueue(data);
             }
         }
 
