@@ -11,7 +11,7 @@ namespace NebulaModel.Networking
 {
     public class NebulaConnection : INebulaConnection
     {
-        private class Fragment
+        private class FragmentedPayload
         {
             public int Remaining;
             public byte[] Data;
@@ -22,7 +22,7 @@ namespace NebulaModel.Networking
         private readonly uint peerSocket;
         private readonly NetPacketProcessor packetProcessor;
         private readonly Queue<byte[]> sendQueue = new Queue<byte[]>();
-        private Dictionary<uint, Fragment> fragments = new Dictionary<uint, Fragment>();
+        private Dictionary<uint, FragmentedPayload> fragmentedPayloads = new Dictionary<uint, FragmentedPayload>();
         private uint nextFragmentId = 0;
 
         private const int KMaxPacketSize = Library.maxMessageSize - 1;
@@ -60,7 +60,16 @@ namespace NebulaModel.Networking
         {
             if (IsAlive)
             {
-                SendRawPacket(packetProcessor.Write(packet));
+                var netAttribute = typeof(T).GetCustomAttributes(typeof(NetworkOptionsAttribute), false).First() as NetworkOptionsAttribute;
+
+                // By default we send everything as reliable data
+                SendFlags sendFlags = SendFlags.Reliable;
+
+                // Packets can also specify explicitly if they are reliable or not
+                if (netAttribute != null && netAttribute.Reliable == false)
+                    sendFlags = SendFlags.Unreliable;
+
+                SendRawPacket(packetProcessor.Write(packet), sendFlags);
             }
             else
             {
@@ -68,21 +77,27 @@ namespace NebulaModel.Networking
             }
         }
 
-        public bool SendRawPacket(byte[] rawData)
+        public bool SendRawPacket(byte[] rawData, SendFlags sendFlags = SendFlags.Reliable)
         {
             if (IsAlive)
             {
+                // Valve's net lib has restrictions on packet size much larger than this (512KB) 
+                // but we fragment into smaller pieces to prevent blocking other packets from going
+                // through
                 if (rawData.Length >= KMaxPacketSize)
                 {
                     FragmentPacket(rawData);
                 }
                 else
                 {
+                    // We prefix the data with a 0 byte as this is not a fragment
                     byte[] data = new byte[rawData.Length + 1];
                     data[0] = 0;
                     Array.Copy(rawData, 0, data, 1, rawData.Length);
-                    var result = sockets.SendMessageToConnection(peerSocket, data);
-                    if (result == Result.LimitExceeded)
+                    var result = sockets.SendMessageToConnection(peerSocket, data, sendFlags);
+
+                    // If the underlying send queue is full and we are not dealing with an unreliable packet, queue it for resend
+                    if (result == Result.LimitExceeded && sendFlags != SendFlags.Unreliable)
                     {
                         sendQueue.Enqueue(data);
                     }
@@ -104,7 +119,9 @@ namespace NebulaModel.Networking
 
         private bool SendImmediateRawPacket(byte[] rawData)
         {
-            var result = sockets.SendMessageToConnection(peerSocket, rawData);
+            var result = sockets.SendMessageToConnection(peerSocket, rawData, SendFlags.Reliable);
+
+            // All immediate sends are reliable so queue them if we couldn't send them right now
             if (result == Result.LimitExceeded)
             {
                 sendQueue.Enqueue(rawData);
@@ -127,6 +144,7 @@ namespace NebulaModel.Networking
             {
                 writer.Reset();
 
+                // We prefix the data with a 1 byte as this is a fragment
                 writer.Put((byte)1);
                 writer.Put(fragmentId);
                 writer.Put((int)rawData.Length);
@@ -137,6 +155,7 @@ namespace NebulaModel.Networking
 
                 writer.PutBytesWithLength(rawData, index, dataChunk);
 
+                // Try to send fragments as they are processed, if we fail to send it will be queued for later send
                 SendImmediateRawPacket(writer.CopyData());
             }
         }
@@ -145,13 +164,16 @@ namespace NebulaModel.Networking
         {
             byte[] payload = rawData.Skip(1).ToArray();
 
+            // Not a fragment, return the data for processing
             if (rawData[0] == 0)
             {
                 return payload;
             }
+            // Fragment, use it to reconstruct the packet
             else
             {
                 var data = ProcessFragment(payload);
+                // If the processed fragment was the last missing piece, we get the full packet, return it for processing
                 if (data != null)
                 {
                     return data;
@@ -164,29 +186,31 @@ namespace NebulaModel.Networking
         private byte[] ProcessFragment(byte[] payload)
         {
             NetDataReader reader = new NetDataReader(payload);
-            var fragId = reader.GetUInt();
+            var fragmentId = reader.GetUInt();
             var totalLength = reader.GetInt();
             var offset = reader.GetUInt();
             var data = reader.GetBytesWithLength();
 
-            Fragment frag;
-            if(!fragments.TryGetValue(fragId, out frag))
+            FragmentedPayload fragmentedPayload;
+            if(!fragmentedPayloads.TryGetValue(fragmentId, out fragmentedPayload))
             {
-                frag = new Fragment();
-                frag.Data = new byte[totalLength];
-                frag.Remaining = totalLength;
-                fragments.Add(fragId, frag);
+                // This fragment is for a packet we do not know yet, create it
+                fragmentedPayload = new FragmentedPayload();
+                fragmentedPayload.Data = new byte[totalLength];
+                fragmentedPayload.Remaining = totalLength;
+                fragmentedPayloads.Add(fragmentId, fragmentedPayload);
             }
 
-            frag.Remaining -= data.Length;
-            Array.Copy(data, 0, frag.Data, offset, data.Length);
+            fragmentedPayload.Remaining -= data.Length;
+            Array.Copy(data, 0, fragmentedPayload.Data, offset, data.Length);
 
-            if (frag.Remaining > 0)
+            // We have filled all the gaps, return the data
+            if (fragmentedPayload.Remaining > 0)
                 return null;
 
-            fragments.Remove(fragId);
+            fragmentedPayloads.Remove(fragmentId);
 
-            return frag.Data;
+            return fragmentedPayload.Data;
         }
 
         public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
