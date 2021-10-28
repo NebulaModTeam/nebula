@@ -929,7 +929,7 @@ namespace Valve.Sockets
 
         private static void LoadDependencies()
         {
-            var assemblyPath = Path.GetDirectoryName(typeof(Native).Assembly.Location);
+            var assemblyPath = Path.Combine(Path.GetDirectoryName(typeof(Native).Assembly.Location), "GameNetworkingSockets-prebuilt");
 
             var nativeDllPath = Path.Combine(assemblyPath, "libcrypto-1_1-x64.dll");
             if (LoadLibrary(nativeDllPath) == IntPtr.Zero)
@@ -957,7 +957,8 @@ namespace Valve.Sockets
                     nativeLibrary,
                     new List<DynDllMapping>{
                         nativeLibrary,
-                        Path.Combine(root, nativeLibrary)
+                        Path.Combine(root, nativeLibrary),
+                        Path.Combine(root, "GameNetworkingSockets-prebuilt", nativeLibrary)
                     } 
                 },
             };
