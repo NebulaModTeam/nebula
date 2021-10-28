@@ -1033,7 +1033,7 @@ namespace Valve.Sockets
         internal delegate Result SteamAPI_ISteamNetworkingSockets_SendMessageToConnection_Delegate(IntPtr sockets, Connection connection, IntPtr data, uint length, SendFlags flags, IntPtr outMessageNumber);
 
         [DynDllImport(libraryName: nativeLibrary, EntryPoints = new string[] { "SteamAPI_ISteamNetworkingSockets_SendMessageToConnection" })]
-        internal static SteamAPI_ISteamNetworkingSockets_SendMessageToConnection_Delegate2 SteamAPI_ISteamNetworkingSockets_SendMessageToConnection2; // TODO: fix
+        internal static SteamAPI_ISteamNetworkingSockets_SendMessageToConnection_Delegate2 SteamAPI_ISteamNetworkingSockets_SendMessageToConnection2;
         internal delegate Result SteamAPI_ISteamNetworkingSockets_SendMessageToConnection_Delegate2(IntPtr sockets, Connection connection, byte[] data, uint length, SendFlags flags, IntPtr outMessageNumber);
 
         [DynDllImport(nativeLibrary)]
@@ -1141,7 +1141,7 @@ namespace Valve.Sockets
         internal delegate void SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction_Delegate(IntPtr utils, DebugType detailLevel, IntPtr callback);
 
         [DynDllImport(libraryName: nativeLibrary, EntryPoints = new string[] { "SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction" })]
-        internal static SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction_Delegate2 SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction2;// TODO: fix
+        internal static SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction_Delegate2 SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction2;
         internal delegate void SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction_Delegate2(IntPtr utils, DebugType detailLevel, DebugCallback callback);
 
         [DynDllImport(nativeLibrary)]
