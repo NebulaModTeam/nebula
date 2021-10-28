@@ -203,15 +203,14 @@ namespace NebulaNetwork
             Sockets.Poll(0);
             Sockets.RunCallbacks();
 
-            NetworkingMessage[] messages = new NetworkingMessage[100];
-
-            var count = Sockets.ReceiveMessagesOnPollGroup(pollGroup, messages, 100);
-            for(int i = 0; i < count; ++i)
+            void message(in NetworkingMessage netMessage)
             {
-                OnMessage(messages[i]);
+                OnMessage(netMessage);
             }
 
-            foreach(var kvp in connections)
+            Sockets.ReceiveMessagesOnPollGroup(pollGroup, message, 100);
+
+            foreach (var kvp in connections)
             {
                 kvp.Value.Update();
             }

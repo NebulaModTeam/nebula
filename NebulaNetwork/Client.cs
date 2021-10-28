@@ -145,13 +145,12 @@ namespace NebulaNetwork
             Sockets?.Poll(0);
             Sockets?.RunCallbacks();
 
-            NetworkingMessage[] messages = new NetworkingMessage[100];
-
-            var count = Sockets?.ReceiveMessagesOnConnection(connection, messages, 100);
-            for (int i = 0; i < count.GetValueOrDefault(0); ++i)
+            void message(in NetworkingMessage netMessage)
             {
-                OnMessage(messages[i]);
+                OnMessage(netMessage);
             }
+
+            Sockets?.ReceiveMessagesOnConnection(connection, message, 100);
 
             serverConnection?.Update();
 
