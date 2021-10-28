@@ -174,7 +174,10 @@ namespace NebulaNetwork
                 pingTimer += Time.deltaTime;
                 if (pingTimer >= 1f)
                 {
-                    SendPacket(new PingPacket());
+                    ConnectionStatus status = new ConnectionStatus();
+                    sockets.GetQuickConnectionStatus(connection, ref status);
+
+                    Multiplayer.Session.World.UpdatePingIndicator($"Ping: {status.ping}ms");
                     pingTimer = 0f;
                 }
             }
