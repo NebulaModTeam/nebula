@@ -65,9 +65,6 @@ namespace NebulaNetwork
             {
                 pollGroup = Sockets.CreatePollGroup();
 
-                var processor = PacketProcessor;
-                var manager = PlayerManager;
-
                 Address address = new Address();
                 address.SetAddress("::0", (ushort)port);
 
