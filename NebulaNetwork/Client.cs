@@ -105,7 +105,6 @@ namespace NebulaNetwork
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
 
-            NetworkProvider.Worker?.Abort();
             Provider = null;
         }
 

@@ -130,7 +130,6 @@ namespace NebulaNetwork
 
             connections.Clear();
 
-            NetworkProvider.Worker?.Abort();
             Provider = null;
         }
 
