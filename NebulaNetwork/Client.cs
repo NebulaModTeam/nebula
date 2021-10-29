@@ -57,7 +57,10 @@ namespace NebulaNetwork
             serverAddress = new Address();
             serverAddress.SetAddress(serverEndpoint.Address.ToString(), (ushort)serverEndpoint.Port);
 
-            connection = Sockets.Connect(ref serverAddress);
+            lock (Sockets)
+            {
+                connection = Sockets.Connect(ref serverAddress);
+            }
 
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
@@ -95,7 +98,10 @@ namespace NebulaNetwork
 
         public override void Stop()
         {
-            Sockets?.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
+            lock (Sockets)
+            {
+                Sockets.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
+            }
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
 
@@ -142,15 +148,17 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            Sockets?.Poll(0);
-            Sockets?.RunCallbacks();
-
-            void message(in NetworkingMessage netMessage)
+            lock (Sockets)
             {
-                OnMessage(netMessage);
-            }
+                Sockets.RunCallbacks();
 
-            Sockets?.ReceiveMessagesOnConnection(connection, message, 100);
+                void message(in NetworkingMessage netMessage)
+                {
+                    OnMessage(netMessage);
+                }
+
+                Sockets.ReceiveMessagesOnConnection(connection, message, 100);
+            }
 
             serverConnection?.Update();
 
@@ -169,7 +177,10 @@ namespace NebulaNetwork
                 if (pingTimer >= 1f)
                 {
                     ConnectionStatus status = new ConnectionStatus();
-                    Sockets.GetQuickConnectionStatus(connection, ref status);
+                    lock (Sockets)
+                    {
+                        Sockets.GetQuickConnectionStatus(connection, ref status);
+                    }
 
                     Multiplayer.Session.World.UpdatePingIndicator($"Ping: {status.ping}ms");
                     pingTimer = 0f;

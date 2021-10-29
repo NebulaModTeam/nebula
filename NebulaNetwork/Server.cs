@@ -61,15 +61,18 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            pollGroup = Sockets.CreatePollGroup();
+            lock (Sockets)
+            {
+                pollGroup = Sockets.CreatePollGroup();
 
-            var processor = PacketProcessor;
-            var manager = PlayerManager;
+                var processor = PacketProcessor;
+                var manager = PlayerManager;
 
-            Address address = new Address();
-            address.SetAddress("::0", (ushort)port);
+                Address address = new Address();
+                address.SetAddress("::0", (ushort)port);
 
-            listenSocket = Sockets.CreateListenSocket(ref address);
+                listenSocket = Sockets.CreateListenSocket(ref address);
+            }
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
@@ -115,13 +118,16 @@ namespace NebulaNetwork
 
         public override void Stop()
         {
-            foreach (var kvp in connections)
+            lock (Sockets)
             {
-                Sockets?.CloseConnection(kvp.Key);
-            }
+                foreach (var kvp in connections)
+                {
+                    Sockets.CloseConnection(kvp.Key);
+                }
 
-            Sockets?.CloseListenSocket(listenSocket);
-            Sockets?.DestroyPollGroup(pollGroup);
+                Sockets.CloseListenSocket(listenSocket);
+                Sockets.DestroyPollGroup(pollGroup);
+            }
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
 
@@ -200,15 +206,17 @@ namespace NebulaNetwork
                 Multiplayer.Session.Launch.SendBroadcastIfNeeded();
             }
 
-            Sockets.Poll(0);
-            Sockets.RunCallbacks();
-
-            void message(in NetworkingMessage netMessage)
+            lock (Sockets)
             {
-                OnMessage(netMessage);
-            }
+                Sockets.RunCallbacks();
 
-            Sockets.ReceiveMessagesOnPollGroup(pollGroup, message, 100);
+                void message(in NetworkingMessage netMessage)
+                {
+                    OnMessage(netMessage);
+                }
+
+                Sockets.ReceiveMessagesOnPollGroup(pollGroup, message, 100);
+            }
 
             foreach (var kvp in connections)
             {

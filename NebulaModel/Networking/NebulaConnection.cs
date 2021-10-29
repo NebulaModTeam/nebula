@@ -33,7 +33,10 @@ namespace NebulaModel.Networking
             get
             {
                 ConnectionStatus status = new ConnectionStatus();
-                sockets.GetQuickConnectionStatus(peerSocket, ref status);
+                lock (sockets)
+                {
+                    sockets.GetQuickConnectionStatus(peerSocket, ref status);
+                }
 
                 return status.state == ConnectionState.Connected;
             }
@@ -99,7 +102,12 @@ namespace NebulaModel.Networking
 
                     // If we are trying to send a reliable packet and we have packets queued, queue the packet to preserve send order
                     if (sendQueue.Count == 0 || sendFlags != SendFlags.Reliable)
-                        result = sockets.SendMessageToConnection(peerSocket, data, sendFlags);
+                    {
+                        lock (sockets)
+                        {
+                            result = sockets.SendMessageToConnection(peerSocket, data, sendFlags);
+                        }
+                    }
 
                     // If the underlying send queue is full and we are not dealing with an unreliable packet, queue it for resend
                     if (result == Result.LimitExceeded && sendFlags != SendFlags.Unreliable)
@@ -124,7 +132,11 @@ namespace NebulaModel.Networking
 
         private Result SendImmediateRawPacket(byte[] rawData)
         {
-            var result = sockets.SendMessageToConnection(peerSocket, rawData, SendFlags.Reliable);
+            Result result = Result.Fail;
+            lock (sockets)
+            {
+                result = sockets.SendMessageToConnection(peerSocket, rawData, SendFlags.Reliable);
+            }
 
             // All immediate sends are reliable so queue them if we couldn't send them right now
             if (result == Result.LimitExceeded)
@@ -223,19 +235,22 @@ namespace NebulaModel.Networking
 
         public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
         {
-            if (string.IsNullOrEmpty(reasonString))
+            lock (sockets)
             {
-                sockets.CloseConnection(peerSocket, (int)reason, "", true);
-            }
-            else
-            {
-                if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= Library.maxCloseMessageLength)
+                if (string.IsNullOrEmpty(reasonString))
                 {
-                    sockets.CloseConnection(peerSocket, (int)reason, reasonString, true);
+                    sockets.CloseConnection(peerSocket, (int)reason, "", true);
                 }
                 else
                 {
-                    throw new ArgumentException("Reason string cannot take up more than 123 bytes");
+                    if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= Library.maxCloseMessageLength)
+                    {
+                        sockets.CloseConnection(peerSocket, (int)reason, reasonString, true);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Reason string cannot take up more than 123 bytes");
+                    }
                 }
             }
         }

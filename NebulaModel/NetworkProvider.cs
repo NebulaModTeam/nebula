@@ -2,6 +2,7 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
+using System.Threading;
 using Valve.Sockets;
 
 namespace NebulaModel
@@ -18,18 +19,9 @@ namespace NebulaModel
         
         protected static NetworkProvider Provider { get; set; }
 
-        protected NetworkProvider(IPlayerManager playerManager)
-        {
-            Provider = this;
-            PacketProcessor = new NetPacketProcessor();
-            PlayerManager = playerManager;
-            if (Sockets == null)
-            {
-                InitializeValveSockets();
-            }
-        }
+        protected static Thread Worker { get; private set; }
 
-        private void InitializeValveSockets()
+        static NetworkProvider()
         {
             Library.Initialize();
 
@@ -69,6 +61,28 @@ namespace NebulaModel
             Utils.SetConfigurationValue(configSendRateMax, ConfigurationScope.Global, new IntPtr());
             Utils.SetConfigurationValue(configSendRateMin, ConfigurationScope.Global, new IntPtr());
             Utils.SetConfigurationValue(configSendBuffer, ConfigurationScope.Global, new IntPtr());
+
+            Worker = new Thread(Poll) { Name = "Nebula Networking Worker" };
+            Worker.Start();
+        }
+
+        private static void Poll()
+        {
+            while(true)
+            {
+                lock(Sockets)
+                {
+                    Sockets.Poll(0);
+                }
+                Thread.Sleep(1);
+            }
+        }
+
+        protected NetworkProvider(IPlayerManager playerManager)
+        {
+            Provider = this;
+            PacketProcessor = new NetPacketProcessor();
+            PlayerManager = playerManager;
         }
 
         protected abstract void OnEvent(ref StatusInfo info);
