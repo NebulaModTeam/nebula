@@ -79,7 +79,7 @@ namespace NebulaModel
                         Sockets.Poll(0);
                     }
                 }
-                Thread.Sleep(1);
+                Thread.Sleep(ShouldPoll ? 1 : 100);
             }
         }
 
