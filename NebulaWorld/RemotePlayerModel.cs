@@ -50,6 +50,7 @@ namespace NebulaWorld
             PlayerTransform.gameObject.name = $"Remote Player ({playerId})";
 
             PlayerInstance = new global::Player();
+            PlayerInstance.transform = PlayerTransform;
             MechaInstance = new Mecha();
             PlayerInstance.mecha = MechaInstance;
             MechaInstance.Init(PlayerInstance);
@@ -58,6 +59,11 @@ namespace NebulaWorld
             MechaInstance.droneRenderer.mat_0 = new Material(Configs.builtin.mechaDroneMat.shader);
             Material mat = MechaInstance.droneRenderer.mat_0;
             mat.CopyPropertiesFromMaterial(Configs.builtin.mechaDroneMat);
+
+            //Fix MechaArmorModel
+            PlayerInstance.mechaArmorModel = PlayerTransform.GetComponentInChildren<MechaArmorModel>();
+            PlayerInstance.mechaArmorModel.player = PlayerInstance;
+            PlayerInstance.mechaArmorModel.mecha = MechaInstance;
 
             PlayerId = playerId;
             Username = username;
