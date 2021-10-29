@@ -57,6 +57,8 @@ namespace NebulaNetwork
             serverAddress = new Address();
             serverAddress.SetAddress(serverEndpoint.Address.ToString(), (ushort)serverEndpoint.Port);
 
+            ShouldPoll = true;
+
             lock (Sockets)
             {
                 connection = Sockets.Connect(ref serverAddress);
@@ -105,6 +107,7 @@ namespace NebulaNetwork
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
 
+            ShouldPoll = false;
             Provider = null;
         }
 

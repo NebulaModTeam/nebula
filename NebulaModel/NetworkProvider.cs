@@ -21,6 +21,8 @@ namespace NebulaModel
 
         protected static Thread Worker { get; private set; }
 
+        protected static bool ShouldPoll { get; set; } = false;
+
         static NetworkProvider()
         {
             Library.Initialize();
@@ -70,9 +72,12 @@ namespace NebulaModel
         {
             while(true)
             {
-                lock(Sockets)
+                if(ShouldPoll)
                 {
-                    Sockets.Poll(0);
+                    lock (Sockets)
+                    {
+                        Sockets.Poll(0);
+                    }
                 }
                 Thread.Sleep(1);
             }

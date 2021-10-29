@@ -61,6 +61,8 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
+            ShouldPoll = true;
+
             lock (Sockets)
             {
                 pollGroup = Sockets.CreatePollGroup();
@@ -130,6 +132,7 @@ namespace NebulaNetwork
 
             connections.Clear();
 
+            ShouldPoll = false;
             Provider = null;
         }
 
