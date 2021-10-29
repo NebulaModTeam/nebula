@@ -4,6 +4,7 @@
 
 - @starfi5h: Fixed research desync issues
 - @sp00ktober: Fixed error when client upgrades buildings on different planet from the host.
+- @PhantomGamers: Fixed compatibility with DSP 0.8.22.9331+
 
 0.7.0:
 
