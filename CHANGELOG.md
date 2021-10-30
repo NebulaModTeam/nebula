@@ -1,5 +1,9 @@
 ## Changelog
 
+0.7.2:
+
+- @sp00ktober: Fixed issue where the host would render buildings placed by players on other planets on his current planet.
+
 0.7.1:
 
 - @starfi5h: Fixed research desync issues
