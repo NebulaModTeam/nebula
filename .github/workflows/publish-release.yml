@@ -71,7 +71,7 @@ jobs:
       # Bundle
       - name: Bundle build for thunderstore and github
         env:
-          TSTORE_TOKEN: ${{ secrets.TSTORE_TOKEN }}
+          TCLI_AUTH_TOKEN: ${{ secrets.TS_SERVICE_ACCOUNT_TOKEN }}
         run: node .github\scripts\thunderstore_bundle.js
 
       - name: Prepare Release
