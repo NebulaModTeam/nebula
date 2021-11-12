@@ -72,11 +72,40 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
+            if(objId == 0 || replace_item_proto == null)
+            {
+                return false;
+            }
+
             if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                EntityData eData = __instance.entityPool[objId];
+                bool isPrebuild = false;
+                Vector3 pos;
+                Quaternion rot;
 
-                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, new Float3(eData.pos.x, eData.pos.y, eData.pos.z), new Float4(eData.rot.x, eData.rot.y, eData.rot.z, eData.rot.w), replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
+                if(objId > 0)
+                {
+                    // real entity
+                    EntityData eData = __instance.entityPool[objId];
+                    pos = eData.pos;
+                    rot = eData.rot;
+                }
+                else if(-objId > 0)
+                {
+                    // blueprint build preview
+                    PrebuildData pData = __instance.prebuildPool[-objId];
+                    pos = pData.pos;
+                    rot = pData.rot;
+                    isPrebuild = true;
+                }
+                else
+                {
+                    // this should never happen
+                    Log.Warn("Unexpected upgrade behavior! You should not see this.");
+                    return false;
+                }
+
+                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, new Float3(pos.x, pos.y, pos.z), new Float4(rot.x, rot.y, rot.z, rot.w), replace_item_proto.ID, isPrebuild, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
             }
 
             return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;

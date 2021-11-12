@@ -31,17 +31,32 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
 
                 Quaternion qRot = new Quaternion(packet.rot.x, packet.rot.y, packet.rot.z, packet.rot.w);
                 Vector3 vPos = new Vector3(packet.pos.x, packet.pos.y, packet.pos.z);
-                EntityData[] ePool = planet.factory.entityPool;
+
+                
 
                 for (int i = 1; i < planet.factory.entityCursor; i++)
                 {
-                    if(ePool[i].pos == vPos && ePool[i].rot == qRot)
+                    Quaternion poolRot;
+                    Vector3 poolPos;
+
+                    if (packet.IsPrebuild)
+                    {
+                        poolRot = planet.factory.prebuildPool[i].rot;
+                        poolPos = planet.factory.prebuildPool[i].pos;
+                    }
+                    else
+                    {
+                        poolRot = planet.factory.entityPool[i].rot;
+                        poolPos = planet.factory.entityPool[i].pos;
+                    }
+
+                    if (poolPos == vPos && poolRot == qRot)
                     {
                         // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
                         PlanetData pData = GameMain.gpuiManager.specifyPlanet;
 
                         GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
-                        planet.factory.UpgradeFinally(GameMain.mainPlayer, i, itemProto);
+                        planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.IsPrebuild ? -i : i, itemProto);
                         GameMain.gpuiManager.specifyPlanet = pData;
 
                         break;
