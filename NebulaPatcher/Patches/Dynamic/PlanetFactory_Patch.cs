@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return true;
             }
 
-            if(objId == 0 || replace_item_proto == null)
+            if (objId == 0 || replace_item_proto == null)
             {
                 return false;
             }
@@ -83,26 +83,20 @@ namespace NebulaPatcher.Patches.Dynamic
                 Vector3 pos;
                 Quaternion rot;
 
-                if(objId > 0)
+                if (objId > 0)
                 {
                     // real entity
                     EntityData eData = __instance.entityPool[objId];
                     pos = eData.pos;
                     rot = eData.rot;
                 }
-                else if(-objId > 0)
+                else
                 {
                     // blueprint build preview
                     PrebuildData pData = __instance.prebuildPool[-objId];
                     pos = pData.pos;
                     rot = pData.rot;
                     isPrebuild = true;
-                }
-                else
-                {
-                    // this should never happen
-                    Log.Warn("Unexpected upgrade behavior! You should not see this.");
-                    return false;
                 }
 
                 Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, new Float3(pos.x, pos.y, pos.z), new Float4(rot.x, rot.y, rot.z, rot.w), replace_item_proto.ID, isPrebuild, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));

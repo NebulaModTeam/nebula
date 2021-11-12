@@ -32,40 +32,44 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                 Quaternion qRot = new Quaternion(packet.rot.x, packet.rot.y, packet.rot.z, packet.rot.w);
                 Vector3 vPos = new Vector3(packet.pos.x, packet.pos.y, packet.pos.z);
 
-                
-
-                for (int i = 1; i < (packet.IsPrebuild ? planet.factory.prebuildCursor : planet.factory.entityCursor); i++)
+                if (packet.IsPrebuild)
                 {
-                    Quaternion poolRot;
-                    Vector3 poolPos;
-
-                    if (packet.IsPrebuild)
+                    for (int i = 1; i < planet.factory.prebuildCursor; i++)
                     {
-                        poolRot = planet.factory.prebuildPool[i].rot;
-                        poolPos = planet.factory.prebuildPool[i].pos;
+                        PrebuildData pbData = planet.factory.prebuildPool[i];
+                        if (pbData.pos == vPos && pbData.rot == qRot)
+                        {
+                            DoUpgrade(planet, -i, itemProto);
+                            break;
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    for (int i = 1; i < planet.factory.entityCursor; i++)
                     {
-                        poolRot = planet.factory.entityPool[i].rot;
-                        poolPos = planet.factory.entityPool[i].pos;
-                    }
-
-                    if (poolPos == vPos && poolRot == qRot)
-                    {
-                        // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
-                        PlanetData pData = GameMain.gpuiManager.specifyPlanet;
-
-                        GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
-                        planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.IsPrebuild ? -i : i, itemProto);
-                        GameMain.gpuiManager.specifyPlanet = pData;
-
-                        break;
+                        EntityData pbData = planet.factory.entityPool[i];
+                        if (pbData.pos == vPos && pbData.rot == qRot)
+                        {
+                            DoUpgrade(planet, i, itemProto);
+                            break;
+                        }
                     }
                 }
 
                 Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
                 Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
+        }
+
+        private static void DoUpgrade(PlanetData planet, int objId, ItemProto itemProto)
+        {
+            // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
+            PlanetData pData = GameMain.gpuiManager.specifyPlanet;
+
+            GameMain.gpuiManager.specifyPlanet = planet;
+            planet.factory.UpgradeFinally(GameMain.mainPlayer, objId, itemProto);
+            GameMain.gpuiManager.specifyPlanet = pData;
         }
     }
 }
