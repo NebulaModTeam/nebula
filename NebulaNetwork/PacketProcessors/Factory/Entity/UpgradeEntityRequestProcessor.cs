@@ -48,8 +48,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                 {
                     for (int i = 1; i < planet.factory.entityCursor; i++)
                     {
-                        EntityData pbData = planet.factory.entityPool[i];
-                        if (pbData.pos == vPos && pbData.rot == qRot)
+                        EntityData eData = planet.factory.entityPool[i];
+                        if (eData.pos == vPos && eData.rot == qRot)
                         {
                             DoUpgrade(planet, i, itemProto);
                             break;
