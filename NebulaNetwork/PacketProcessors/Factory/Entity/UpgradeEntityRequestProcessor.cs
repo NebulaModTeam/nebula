@@ -34,7 +34,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
 
                 
 
-                for (int i = 1; i < planet.factory.entityCursor; i++)
+                for (int i = 1; i < (packet.IsPrebuild ? planet.factory.prebuildCursor : planet.factory.entityCursor); i++)
                 {
                     Quaternion poolRot;
                     Vector3 poolPos;
