@@ -1,5 +1,10 @@
 ## Changelog
 
+0.7.3:
+
+- @PhantomGamers: Fixed error when upgrading blueprint previews.
+- @sp00ktober: Added hotfix to prevent error caused by ILS ships
+
 0.7.2:
 
 - @sp00ktober: Fixed issue where the host would render buildings placed by players on other planets on his current planet.
