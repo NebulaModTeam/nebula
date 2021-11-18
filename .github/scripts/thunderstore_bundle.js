@@ -51,7 +51,7 @@ const GH_ARCHIVE_PATH = join(
 const MOD_ICON_PATH = "thunderstore_icon.png";
 const README_PATH = "README.md";
 const CHANGELOG_PATH = "CHANGELOG.md";
-const BEPINEX_DEPENDENCY = "xiaoye97-BepInEx-5.4.11";
+const BEPINEX_DEPENDENCY = "xiaoye97-BepInEx-5.4.17";
 
 async function main() {
   if (!existsSync(DIST_NEBULA_FOLDER)) {

@@ -30,7 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                             if (veinProto != null)
                             {
                                 VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
-                                VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true);
+                                VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true, 0, -1, -1L);
                             }
                         }
                         else
@@ -43,7 +43,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                             if (vegeProto != null)
                             {
                                 VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
-                                VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true);
+                                VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true, 0, -1, -1L);
                             }
                         }
                     }
