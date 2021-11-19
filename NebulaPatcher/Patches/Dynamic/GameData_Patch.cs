@@ -278,6 +278,11 @@ namespace NebulaPatcher.Patches.Dynamic
                             }
                         }
                     }
+                    // we need to reset the warning system to avoid nre for clients when they leave the solar system. this is related to the new traffic monitor
+                    // as we also free factory data this should be fine.
+                    // warnings should be triggered by some other syncing mechanic issued by the host (or find a better solution for this if you are not so tired as i am now)
+                    GameMain.data.warningSystem.Free();
+                    GameMain.data.warningSystem.Init(GameMain.data);
                 }
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
             }
