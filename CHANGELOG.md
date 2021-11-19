@@ -1,5 +1,9 @@
 ## Changelog
 
+0.7.4:
+
+- @sp00ktober: adjusted mod to be compatible with game version 0.8.23
+
 0.7.3:
 
 - @PhantomGamers: Fixed error when upgrading blueprint previews.
