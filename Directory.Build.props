@@ -29,6 +29,7 @@
 
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
   </PropertyGroup>
 
   <PropertyGroup Label="API Properties" Condition=" '$(MSBuildProjectName)' == 'NebulaAPI' " >
