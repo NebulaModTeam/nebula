@@ -363,7 +363,7 @@ namespace Valve.Sockets
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct ConnectionStatus
+    public struct ConnectionRealTimeStatus
     {
         public ConnectionState state;
         public int ping;
@@ -379,6 +379,18 @@ namespace Valve.Sockets
         public int sentUnackedReliable;
         public Microseconds queueTime;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+        private uint[] reserved;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ConnectionRealTimeLaneStatus
+    {
+        public int pendingUnreliable;
+        public int pendingReliable;
+        public int sentUnackedReliable;
+        public int _reservePad1;
+        public Microseconds queueTime;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
         private uint[] reserved;
     }
 
@@ -593,9 +605,9 @@ namespace Valve.Sockets
             return Native.SteamAPI_ISteamNetworkingSockets_GetConnectionInfo(nativeSockets, connection, ref info);
         }
 
-        public bool GetQuickConnectionStatus(Connection connection, ref ConnectionStatus status)
+        public bool GetConnectionRealTimeStatus(Connection connection, ref ConnectionRealTimeStatus realTimeStatus, int nLanes, ref ConnectionRealTimeLaneStatus pLanes)
         {
-            return Native.SteamAPI_ISteamNetworkingSockets_GetQuickConnectionStatus(nativeSockets, connection, ref status);
+            return Native.SteamAPI_ISteamNetworkingSockets_GetConnectionRealTimeStatus(nativeSockets, connection, ref realTimeStatus, nLanes, ref pLanes);
         }
 
         public int GetDetailedConnectionStatus(Connection connection, StringBuilder status, int statusLength)
@@ -776,14 +788,6 @@ namespace Valve.Sockets
             }
         }
 
-        public ConfigurationValue FirstConfigurationValue
-        {
-            get
-            {
-                return Native.SteamAPI_ISteamNetworkingUtils_GetFirstConfigValue(nativeUtils);
-            }
-        }
-
         public bool SetStatusCallback(StatusCallback callback)
         {
             return Native.SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_SteamNetConnectionStatusChanged2(nativeUtils, callback);
@@ -931,13 +935,17 @@ namespace Valve.Sockets
         {
             var assemblyPath = Path.Combine(Path.GetDirectoryName(typeof(Native).Assembly.Location), "GameNetworkingSockets-prebuilt");
 
-            var nativeDllPath = Path.Combine(assemblyPath, "libcrypto-1_1-x64.dll");
-            if (LoadLibrary(nativeDllPath) == IntPtr.Zero)
-                throw new IOException($"Failed to load {nativeDllPath}, verify that the file exists and is not corrupted.");
+            string[] nativeDlls =
+            {
+                "libcrypto-1_1-x64.dll", "libprotobuf.dll", "libssl-1_1-x64.dll", "abseil_dll.dll"
+            };
 
-            nativeDllPath = Path.Combine(assemblyPath, "libprotobuf.dll");
-            if (LoadLibrary(nativeDllPath) == IntPtr.Zero)
-                throw new IOException($"Failed to load {nativeDllPath}, verify that the file exists and is not corrupted.");
+            foreach (string dll in nativeDlls)
+            {
+                string nativeDllPath = Path.Combine(assemblyPath, dll);
+                if (LoadLibrary(nativeDllPath) == IntPtr.Zero)
+                    throw new IOException($"Failed to load {nativeDllPath}, verify that the file exists and is not corrupted.");
+            }
         }
 
         static Native()
@@ -1050,8 +1058,8 @@ namespace Valve.Sockets
         internal delegate bool SteamAPI_ISteamNetworkingSockets_GetConnectionInfo_Delegate(IntPtr sockets, Connection connection, ref ConnectionInfo info);
 
         [DynDllImport(nativeLibrary)]
-        internal static SteamAPI_ISteamNetworkingSockets_GetQuickConnectionStatus_Delegate SteamAPI_ISteamNetworkingSockets_GetQuickConnectionStatus;
-        internal delegate bool SteamAPI_ISteamNetworkingSockets_GetQuickConnectionStatus_Delegate(IntPtr sockets, Connection connection, ref ConnectionStatus status);
+        internal static SteamAPI_ISteamNetworkingSockets_GetConnectionRealTimeStatus_Delegate SteamAPI_ISteamNetworkingSockets_GetConnectionRealTimeStatus;
+        internal delegate bool SteamAPI_ISteamNetworkingSockets_GetConnectionRealTimeStatus_Delegate(IntPtr sockets, Connection connection, ref ConnectionRealTimeStatus realTimeStatus, int nLanes, ref ConnectionRealTimeLaneStatus pLanes);
 
         [DynDllImport(nativeLibrary)]
         internal static SteamAPI_ISteamNetworkingSockets_GetDetailedConnectionStatus_Delegate SteamAPI_ISteamNetworkingSockets_GetDetailedConnectionStatus;
@@ -1156,10 +1164,6 @@ namespace Valve.Sockets
         [DynDllImport(nativeLibrary)]
         internal static SteamAPI_ISteamNetworkingUtils_GetConfigValue_Delegate SteamAPI_ISteamNetworkingUtils_GetConfigValue;
         internal delegate ConfigurationValueResult SteamAPI_ISteamNetworkingUtils_GetConfigValue_Delegate(IntPtr utils, ConfigurationValue configurationValue, ConfigurationScope configurationScope, IntPtr scopeObject, ref ConfigurationDataType dataType, ref IntPtr result, ref IntPtr resultLength);
-
-        [DynDllImport(nativeLibrary)]
-        internal static SteamAPI_ISteamNetworkingUtils_GetFirstConfigValue_Delegate SteamAPI_ISteamNetworkingUtils_GetFirstConfigValue;
-        internal delegate ConfigurationValue SteamAPI_ISteamNetworkingUtils_GetFirstConfigValue_Delegate(IntPtr utils);
 
         [DynDllImport(nativeLibrary)]
         internal static SteamAPI_SteamNetworkingMessage_t_Release_Delegate SteamAPI_SteamNetworkingMessage_t_Release;

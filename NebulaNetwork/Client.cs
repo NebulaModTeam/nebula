@@ -179,13 +179,14 @@ namespace NebulaNetwork
                 pingTimer += Time.deltaTime;
                 if (pingTimer >= 1f)
                 {
-                    ConnectionStatus status = new ConnectionStatus();
+                    ConnectionRealTimeStatus realTimeStatus = new ConnectionRealTimeStatus();
+                    ConnectionRealTimeLaneStatus realTimeLaneStatus = new ConnectionRealTimeLaneStatus();
                     lock (Sockets)
                     {
-                        Sockets.GetQuickConnectionStatus(connection, ref status);
+                        Sockets.GetConnectionRealTimeStatus(connection, ref realTimeStatus, 1, ref realTimeLaneStatus);
                     }
 
-                    Multiplayer.Session.World.UpdatePingIndicator($"Ping: {status.ping}ms");
+                    Multiplayer.Session.World.UpdatePingIndicator($"Ping: {realTimeStatus.ping}ms");
                     pingTimer = 0f;
                 }
             }

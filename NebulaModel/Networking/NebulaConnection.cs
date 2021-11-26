@@ -32,13 +32,14 @@ namespace NebulaModel.Networking
         {
             get
             {
-                ConnectionStatus status = new ConnectionStatus();
+                ConnectionRealTimeStatus realTimeStatus = new ConnectionRealTimeStatus();
+                ConnectionRealTimeLaneStatus realTimeLaneStatus = new ConnectionRealTimeLaneStatus();
                 lock (sockets)
                 {
-                    sockets.GetQuickConnectionStatus(peerSocket, ref status);
+                    sockets.GetConnectionRealTimeStatus(peerSocket, ref realTimeStatus, 1, ref realTimeLaneStatus);
                 }
 
-                return status.state == ConnectionState.Connected;
+                return realTimeStatus.state == ConnectionState.Connected;
             }
         }
 
