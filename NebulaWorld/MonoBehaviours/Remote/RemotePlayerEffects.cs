@@ -256,14 +256,14 @@ namespace NebulaWorld.MonoBehaviours.Remote
             psysr[1] = VFX.GetChild(1).Find("flames").GetComponent<ParticleSystemRenderer>();
             torchEffect = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/r-clavicle/r-upper-arm/r-forearm/r-torch/vfx-torch/blast").GetComponent<ParticleSystem>();
 
-            WaterEffect[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
-            WaterEffect[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/water").GetComponent<ParticleSystem>();
-            FootEffect[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
-            FootEffect[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps").GetComponent<ParticleSystem>();
-            FootSmallSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
-            FootSmallSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/smoke").GetComponent<ParticleSystem>();
-            FootLargeSmoke[0] = rootModelTransform.Find("bip/pelvis/l-thigh/l-calf/l-ankle/l-foot/l-foot_end/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
-            FootLargeSmoke[1] = rootModelTransform.Find("bip/pelvis/r-thigh/r-calf/r-ankle/r-foot/r-foot_end/vfx-footsteps/smoke-2").GetComponent<ParticleSystem>();
+            WaterEffect[0] = rootTransform.Find("VFX").Find("vfx-l-footsteps/water").GetComponent<ParticleSystem>();
+            WaterEffect[1] = rootTransform.Find("VFX").Find("vfx-r-footsteps/water").GetComponent<ParticleSystem>();
+            FootEffect[0] = rootTransform.Find("VFX").Find("vfx-l-footsteps").GetComponent<ParticleSystem>();
+            FootEffect[1] = rootTransform.Find("VFX").Find("vfx-r-footsteps").GetComponent<ParticleSystem>();
+            FootSmallSmoke[0] = rootTransform.Find("VFX").Find("vfx-l-footsteps/smoke").GetComponent<ParticleSystem>();
+            FootSmallSmoke[1] = rootTransform.Find("VFX").Find("vfx-r-footsteps/smoke").GetComponent<ParticleSystem>();
+            FootLargeSmoke[0] = rootTransform.Find("VFX").Find("vfx-l-footsteps/smoke-2").GetComponent<ParticleSystem>();
+            FootLargeSmoke[1] = rootTransform.Find("VFX").Find("vfx-r-footsteps/smoke-2").GetComponent<ParticleSystem>();
 
             collider = new Collider[16];
 
@@ -386,7 +386,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 audioName = waterSoundEvent;
             }
-            VFAudio audio = VFAudio.Create(audioName, transform, Vector3.zero, false, 0);
+            VFAudio audio = VFAudio.Create(audioName, transform, Vector3.zero, false, 8, -1, -1L);
             if (audio != null)
             {
                 // skip setting audio.volumeMultiplier = vol, it makes footsteps too loud
@@ -508,7 +508,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     {
                         if (maxAltitude > 1f && pData.waterItemId > 0)
                         {
-                            VFAudio audio = VFAudio.Create("landing-water", transform, Vector3.zero, false, 0);
+                            VFAudio audio = VFAudio.Create("landing-water", transform, Vector3.zero, false, 0, -1, -1L);
                             audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 5f + 0.5f);
                             audio.Play();
                             PlayFootstepEffect(true, 0f, true);
@@ -520,7 +520,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     {
                         if (maxAltitude > 3f)
                         {
-                            VFAudio audio = VFAudio.Create("landing", transform, Vector3.zero, false, 0);
+                            VFAudio audio = VFAudio.Create("landing", transform, Vector3.zero, false, 0, -1, -1L);
                             audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 25f + 0.5f);
                             audio.Play();
                         }
@@ -606,7 +606,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     {
                         // when in air without pressing spacebar
                         psysr[i].lengthScale = -3.5f;
-                        driftAudio = (driftAudio != null) ? driftAudio : VFAudio.Create("drift", transform, Vector3.zero, true);
+                        driftAudio = (driftAudio != null) ? driftAudio : VFAudio.Create("drift", transform, Vector3.zero, true, 0, -1, -1L);
                     }
                     else
                     {
@@ -616,7 +616,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     {
                         // when pressing spacebar but also when landing (Drift is disabled when landing)
                         psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
-                        flyAudio0 = (flyAudio0 != null) ? flyAudio0 : VFAudio.Create("fly-atmos", transform, Vector3.zero, true);
+                        flyAudio0 = (flyAudio0 != null) ? flyAudio0 : VFAudio.Create("fly-atmos", transform, Vector3.zero, true, 0, -1, -1L);
                     }
                     else
                     {
@@ -625,7 +625,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     if (sailActive)
                     {
                         psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 15f);
-                        flyAudio1 = (flyAudio1 != null) ? flyAudio1 : VFAudio.Create("fly-space", transform, Vector3.zero, true);
+                        flyAudio1 = (flyAudio1 != null) ? flyAudio1 : VFAudio.Create("fly-space", transform, Vector3.zero, true, 0, -1, -1L);
                     }
                     else
                     {
@@ -650,7 +650,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 if (!torchEffect.isPlaying)
                 {
                     torchEffect.Play();
-                    miningAudio = VFAudio.Create("mecha-mining", transform, Vector3.zero, true);
+                    miningAudio = VFAudio.Create("mecha-mining", transform, Vector3.zero, true, 0, -1, -1L);
                 }
             }
             else if (torchEffect != null && rootAnimation.miningWeight <= 0.99f)

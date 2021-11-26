@@ -129,13 +129,13 @@ namespace NebulaWorld.Logistics
             Array.Copy(stationComponent.workShipDatas, packet.origShipIndex + 1, stationComponent.workShipDatas, packet.origShipIndex, stationComponent.workShipDatas.Length - packet.origShipIndex - 1);
             stationComponent.workShipCount--;
             stationComponent.idleShipCount++;
-            if (stationComponent.idleShipCount < 0)
+            if (stationComponent.idleShipCount > packet.planetAStationMaxShipCount)
             {
-                stationComponent.idleShipCount = 0;
+                stationComponent.idleShipCount = packet.planetAStationMaxShipCount;
             }
-            if (stationComponent.workShipCount > packet.planetAStationMaxShipCount)
+            if (stationComponent.workShipCount < 0)
             {
-                stationComponent.workShipCount = packet.planetAStationMaxShipCount;
+                stationComponent.workShipCount = 0;
             }
             stationComponent.WorkShipBackToIdle(packet.origShipIndex);
         }
