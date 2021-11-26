@@ -29,6 +29,7 @@
 
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
   </PropertyGroup>
 
   <PropertyGroup Label="API Properties" Condition=" '$(MSBuildProjectName)' == 'NebulaAPI' " >
@@ -50,5 +51,9 @@
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
     <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" />
     <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" IncludeAssets="compile" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>
 </Project>
