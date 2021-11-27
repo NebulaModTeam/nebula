@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 <PropertyGroup>
-    <PackageId>NebulaMultiplayerModApi</PackageId>
+    <PackageId>DysonSphereProgram.Modding.NebulaMultiplayerModApi</PackageId>
     <Authors>Nebula Mod Team</Authors>
     <Description>API for other mods to work with the Nebula Multiplayer Mod for Dyson Sphere Program.</Description>
     <PackageProjectUrl>https://github.com/hubastard/nebula</PackageProjectUrl>
