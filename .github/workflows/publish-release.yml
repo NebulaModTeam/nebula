@@ -51,10 +51,6 @@ jobs:
       - name: Add remote build identifier
         run: New-Item -Name .remoteBuild -ItemType File -force
 
-      # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-      - name: Setup MSBuild.exe
-        uses: microsoft/setup-msbuild@v1.0.2
-
       # Add dotnet to the PATH: https://github.com/actions/setup-dotnet
       - name: Setup dotnet.exe
         uses: actions/setup-dotnet@v1
@@ -63,10 +59,9 @@ jobs:
       - run: |
              dotnet tool install --tool-path . nbgv
 
-
       # Build it
       - name: Build the application
-        run: msbuild $env:SOLUTION_NAME /p:Configuration=Release /p:PublicRelease=true
+        run: dotnet build $env:SOLUTION_NAME /p:Configuration=Release /p:PublicRelease=true
 
       # Bundle
       - name: Bundle build for thunderstore and github
