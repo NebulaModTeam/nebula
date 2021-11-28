@@ -30,8 +30,6 @@ namespace NebulaModel
             Sockets = new NetworkingSockets();
             Utils = new NetworkingUtils();
 
-            Sockets.SetManualPollMode(true);
-
             Utils.SetDebugCallback(DebugType.Everything, (DebugType type, string message) =>
             {
                 Log.Info(message);
@@ -56,31 +54,13 @@ namespace NebulaModel
             configSendRateMin.value = ConfigurationValue.SendRateMin;
 
             Configuration configSendBuffer = new Configuration();
-            configSendBuffer.data.Int32 = 0x100000;
+            configSendBuffer.data.Int32 = 0x1000000;
             configSendBuffer.dataType = ConfigurationDataType.Int32;
             configSendBuffer.value = ConfigurationValue.SendBufferSize;
 
             Utils.SetConfigurationValue(configSendRateMax, ConfigurationScope.Global, new IntPtr());
             Utils.SetConfigurationValue(configSendRateMin, ConfigurationScope.Global, new IntPtr());
             Utils.SetConfigurationValue(configSendBuffer, ConfigurationScope.Global, new IntPtr());
-
-            Worker = new Thread(Poll) { Name = "Nebula Networking Worker" };
-            Worker.Start();
-        }
-
-        private static void Poll()
-        {
-            while(true)
-            {
-                if(ShouldPoll)
-                {
-                    lock (Sockets)
-                    {
-                        Sockets.Poll(0);
-                    }
-                }
-                Thread.Sleep(ShouldPoll ? 1 : 100);
-            }
         }
 
         protected NetworkProvider(IPlayerManager playerManager)

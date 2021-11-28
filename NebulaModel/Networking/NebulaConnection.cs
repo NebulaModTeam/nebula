@@ -25,7 +25,7 @@ namespace NebulaModel.Networking
         private Dictionary<uint, FragmentedPayload> fragmentedPayloads = new Dictionary<uint, FragmentedPayload>();
         private uint nextFragmentId = 0;
 
-        private const int KMaxPacketSize = Library.maxMessageSize - 1;
+        private const int KMaxPacketSize = Library.maxMessageSize / 2;
         private const int KMaxFragmentSize = 1 << 16;
 
         public bool IsAlive
