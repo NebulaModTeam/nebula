@@ -70,6 +70,11 @@ namespace NebulaWorld
             mechaArmorModel._OnCreate();
             mechaArmorModel._OnInit();
 
+            for(int i = 0; i < PlayerModelTransform.childCount; i++)
+            {
+                PlayerModelTransform.GetChild(i).gameObject.SetActive(true);
+            }
+
             PlayerId = playerId;
             Username = username;
         }
