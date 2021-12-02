@@ -1,5 +1,10 @@
 ## Changelog
 
+0.7.5:
+
+- @sp00ktober: Fixed error caused by warning system introduced in previous update
+- @PhantomGamers: Fixed compatibility with DSP 0.8.23.9989
+
 0.7.4:
 
 - @sp00ktober: adjusted mod to be compatible with game version 0.8.23
