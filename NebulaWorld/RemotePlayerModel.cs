@@ -51,6 +51,7 @@ namespace NebulaWorld
 
             PlayerInstance = new global::Player();
             PlayerInstance.transform = PlayerTransform;
+            Animator.PlayerAnimator.player = PlayerInstance;
             MechaInstance = new Mecha();
             PlayerInstance.mecha = MechaInstance;
             MechaInstance.Init(PlayerInstance);
@@ -61,9 +62,13 @@ namespace NebulaWorld
             mat.CopyPropertiesFromMaterial(Configs.builtin.mechaDroneMat);
 
             //Fix MechaArmorModel
-            PlayerInstance.mechaArmorModel = PlayerTransform.GetComponentInChildren<MechaArmorModel>();
-            PlayerInstance.mechaArmorModel.player = PlayerInstance;
-            PlayerInstance.mechaArmorModel.mecha = MechaInstance;
+            PlayerInstance.mechaArmorModel = PlayerModelTransform.GetComponent<MechaArmorModel>();
+            MechaArmorModel mechaArmorModel = PlayerInstance.mechaArmorModel;
+            mechaArmorModel.data = PlayerInstance;
+            mechaArmorModel.player = PlayerInstance;
+            mechaArmorModel.mecha = MechaInstance;
+            mechaArmorModel._OnCreate();
+            mechaArmorModel._OnInit();
 
             PlayerId = playerId;
             Username = username;
