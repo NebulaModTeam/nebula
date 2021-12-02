@@ -1,5 +1,9 @@
 ## Changelog
 
+1.1.2:
+
+- Bump version for nuget package.
+
 1.1.1:
 
 - Removed extraneous dll that was mistakenly included in the previous release
