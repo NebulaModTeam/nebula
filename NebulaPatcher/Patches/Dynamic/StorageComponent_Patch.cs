@@ -50,7 +50,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StorageComponent.SetBans))]
         public static void SetBans_Postfix(StorageComponent __instance, int _bans)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest && GameMain.data.localPlanet != null)
             {
                 HandleUserInteraction(__instance, new StorageSyncSetBansPacket(__instance.id, GameMain.data.localPlanet.id, _bans));
             }
