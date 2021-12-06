@@ -268,6 +268,9 @@ namespace NebulaWorld.Logistics
                 UIStationStorage[] stationStorageUI = stationWindow.storageUIs;
                 if (stationStorageUI != null && stationStorageUI.Length > storageIndex)
                 {
+                    //Fixes a bug where the game thinks you're still in a container while exiting the planet, hopefully
+                    if (GameMain.localPlanet?.id == null) return;
+                    
                     stationStorageUI[storageIndex].RefreshValues();
                 }
             }
