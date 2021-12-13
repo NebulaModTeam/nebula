@@ -3,7 +3,7 @@ using NebulaModel.Networking;
 
 namespace NebulaModel.Packets.Session
 {
-    public class HandshakeRequest
+    public class LobbyRequest
     {
         public string Username { get; set; }
         public Float4[] MechaColors { get; set; }
@@ -11,10 +11,8 @@ namespace NebulaModel.Packets.Session
         public int ModsCount { get; set; }
         public int GameVersionSig { get; set; }
         public byte[] ClientCert { get; set; }
-
-        public HandshakeRequest() { }
-
-        public HandshakeRequest(byte[] clientCert, string username, Float4[] mechaColors)
+        public LobbyRequest() { }
+        public LobbyRequest(byte[] clientCert, string username, Float4[] mechaColors)
         {
             Username = username;
             MechaColors = mechaColors;

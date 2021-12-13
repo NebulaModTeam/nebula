@@ -9,9 +9,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
-    public class HandshakeResponseProcessor : PacketProcessor<HandshakeResponse>
+    class LobbyResponseProcessor: PacketProcessor<LobbyResponse>
     {
-        public override void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
+        public override void ProcessPacket(LobbyResponse packet, NebulaConnection conn)
         {
             using (BinaryUtils.Reader p = new BinaryUtils.Reader(packet.ModsSettings))
             {
@@ -26,16 +26,14 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
             }
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
-            ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(packet.LocalPlayerData, packet.IsNewPlayer);
 
-            Multiplayer.Session.IsInLobby = false;
-            Multiplayer.ShouldReturnToJoinMenu = false;
+            UIRoot.instance.galaxySelect._Open();
+            UIRoot.instance.uiMainMenu._Close();
 
             GameDesc gameDesc = new GameDesc();
-            gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
-            DSPGame.StartGameSkipPrologue(gameDesc);
-
-            InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
+            gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
+            UIRoot.instance.galaxySelect.gameDesc = gameDesc;
+            UIRoot.instance.galaxySelect.SetStarmapGalaxy();
         }
     }
 }

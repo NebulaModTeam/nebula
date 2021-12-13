@@ -39,6 +39,7 @@ namespace NebulaWorld
 
 
         public bool IsGameLoaded { get; set; }
+        public bool IsInLobby { get; set; }
         public bool CanPause
         {
             get => canPause;

@@ -12,16 +12,15 @@ using System.Collections.Generic;
 namespace NebulaNetwork.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
-    public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
+    public class LobbyRequestProcessor: PacketProcessor<LobbyRequest>
     {
         private readonly IPlayerManager playerManager;
-
-        public HandshakeRequestProcessor()
+        public LobbyRequestProcessor()
         {
             playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
-        public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
+        public override void ProcessPacket(LobbyRequest packet, NebulaConnection conn)
         {
             if (IsClient)
             {
@@ -34,7 +33,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 if (!pendingPlayers.TryGetValue(conn, out player))
                 {
                     conn.Disconnect(DisconnectionReason.InvalidData);
-                    Log.Warn("WARNING: Player tried to handshake without being in the pending list");
+                    Log.Warn("WARNING: Player tried to enter lobby without being in the pending list");
                     return;
                 }
 
@@ -88,8 +87,6 @@ namespace NebulaNetwork.PacketProcessors.Session
                 return;
             }
 
-            Multiplayer.Session.World.OnPlayerJoining();
-
             bool isNewUser = false;
 
             //TODO: some validation of client cert / generating auth challenge for the client
@@ -114,40 +111,74 @@ namespace NebulaNetwork.PacketProcessors.Session
             // Add the Mecha Color to the player data
             player.Data.MechaColors = packet.MechaColors;
 
-            // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
-            PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
-            using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
-            {
-                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
-                {
-                    kvp.Value.SendPacket(pdata);
-                }
-            }
-
             // Add the new player to the list
             using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
             {
                 syncingPlayers.Add(conn, player);
             }
 
-            //Add current tech bonuses to the connecting player based on the Host's mecha
-            ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
-
-            using (BinaryUtils.Writer p = new BinaryUtils.Writer())
+            // if user is known and host is ingame dont put him into lobby but let him join the game
+            if (!isNewUser && Multiplayer.Session.IsGameLoaded)
             {
-                int count = 0;
-                foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                Multiplayer.Session.World.OnPlayerJoining();
+
+                // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
+                PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
+                using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                 {
-                    if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
+                    foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                     {
-                        p.BinaryWriter.Write(pluginInfo.Key);
-                        mod.Export(p.BinaryWriter);
-                        count++;
+                        kvp.Value.SendPacket(pdata);
                     }
                 }
 
-                GameDesc gameDesc = GameMain.data.gameDesc;
-                player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
+                //Add current tech bonuses to the connecting player based on the Host's mecha
+                ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
+
+                using (BinaryUtils.Writer p = new BinaryUtils.Writer())
+                {
+                    int count = 0;
+                    foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                    {
+                        if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
+                        {
+                            p.BinaryWriter.Write(pluginInfo.Key);
+                            mod.Export(p.BinaryWriter);
+                            count++;
+                        }
+                    }
+
+                    GameDesc gameDesc = GameMain.data.gameDesc;
+                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
+                }
+            }
+            else
+            {
+                UIGalaxySelect galaxySelect = UIRoot.instance.galaxySelect;
+
+                using (BinaryUtils.Writer p = new BinaryUtils.Writer())
+                {
+                    int count = 0;
+                    foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                    {
+                        if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
+                        {
+                            p.BinaryWriter.Write(pluginInfo.Key);
+                            mod.Export(p.BinaryWriter);
+                            count++;
+                        }
+                    }
+
+                    if (Multiplayer.Session.IsGameLoaded)
+                    {
+                        GameDesc gameDesc = GameMain.data.gameDesc;
+                        player.SendPacket(new LobbyResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, p.CloseAndGetBytes(), count));
+                    }
+                    else
+                    {
+                        player.SendPacket(new LobbyResponse(galaxySelect.gameDesc.galaxyAlgo, galaxySelect.gameDesc.galaxySeed, galaxySelect.gameDesc.starCount, galaxySelect.gameDesc.resourceMultiplier, p.CloseAndGetBytes(), count));
+                    }
+                }
             }
         }
     }

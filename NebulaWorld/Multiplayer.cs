@@ -10,6 +10,7 @@ namespace NebulaWorld
         public static bool IsActive => Session != null;
 
         public static bool IsLeavingGame { get; set; }
+        public static bool ShouldReturnToJoinMenu { get; set; }
 
         public static bool IsInMultiplayerMenu { get; set; }
 
@@ -52,7 +53,7 @@ namespace NebulaWorld
                     DSPGame.EndGame();
                 }
             }
-            else
+            else if(ShouldReturnToJoinMenu)
             {
                 GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
                 Transform multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");

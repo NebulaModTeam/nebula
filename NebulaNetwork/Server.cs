@@ -176,7 +176,7 @@ namespace NebulaNetwork
 
             protected override void OnOpen()
             {
-                if (Multiplayer.Session.IsGameLoaded == false)
+                if (Multiplayer.Session.IsGameLoaded == false && Multiplayer.Session.IsInLobby == false)
                 {
                     // Reject any connection that occurs while the host's game is loading.
                     Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");
