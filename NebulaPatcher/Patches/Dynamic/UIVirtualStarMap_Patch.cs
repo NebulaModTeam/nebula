@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
+using NebulaPatcher.Patches.Transpilers;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -10,10 +10,10 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
         public static bool _OnLateUpdate_Prefix(UIVirtualStarmap __instance)
         {
-            // we set this in the transpiler once entered the solarsystem details, so prevent the normal call here
-            if(__instance.clickText != "")
+            // reset the spam protector if no press is recognized to enable solar system details again.
+            if (!VFInput.rtsConfirm.pressing)
             {
-                //return false;
+                UIVirtualStarmap_Transpiler.pressSpamProtector = false;
             }
             return true;
         }

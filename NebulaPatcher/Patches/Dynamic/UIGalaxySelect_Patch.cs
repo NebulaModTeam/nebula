@@ -25,6 +25,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = false;
                 galaxySelectRect.Find("random-button").gameObject.SetActive(false);
             }
+            if (Multiplayer.IsActive)
+            {
+                // prepare PlanetModelingManager for the use of its compute thread as we need that for the planet details view in the lobby
+                PlanetModelingManager.PrepareWorks();
+            }
         }
 
         [HarmonyPrefix]
@@ -89,6 +94,18 @@ namespace NebulaPatcher.Patches.Dynamic
                         entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed, __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier));
                     }
                 }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIGalaxySelect._OnUpdate))]
+        public static void _OnUpdate_Postfix()
+        {
+            if (Multiplayer.IsInMultiplayerMenu)
+            {
+                // as we need to load and generate planets for the detail view in the lobby, update the loading process here
+                PlanetModelingManager.ModelingPlanetCoroutine();
+                UIRoot.instance.uiGame.planetDetail._OnUpdate();
             }
         }
     }
