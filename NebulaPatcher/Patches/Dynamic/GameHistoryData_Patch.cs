@@ -148,18 +148,5 @@ namespace NebulaPatcher.Patches.Dynamic
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
             return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
-        public static void RemoveTechInQueue_Prefix(int index, out int __state)
-        {
-            __state = GameMain.history.techQueue[index];
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                //we need to know which itemtypes are currently needed for refunds, so trigger refund before cancelling own research
-                Multiplayer.Session.Network.PlayerManager.SendTechRefundPackagesToClients(__state);
-            }
-            Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
-        }
     }
 }
