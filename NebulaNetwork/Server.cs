@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.GameStates;
+using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Net.Sockets;
@@ -22,11 +23,13 @@ namespace NebulaNetwork
         private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         private const float STATISTICS_UPDATE_INTERVAL = 1;
         private const float LAUNCH_UPDATE_INTERVAL = 2;
+        private const float DYSONSPHERE_UPDATE_INTERVAL = 5;
 
         private float gameStateUpdateTimer = 0;
         private float gameResearchHashUpdateTimer = 0;
         private float productionStatisticsUpdateTimer = 0;
-        private float dysonLaunchUpateTimer = 0;
+        private float dysonLaunchUpateTimer = 1;
+        private float dysonSphereUpdateTimer = 0;
 
         private WebSocketServer socket;
 
@@ -125,6 +128,7 @@ namespace NebulaNetwork
             gameResearchHashUpdateTimer += Time.deltaTime;
             productionStatisticsUpdateTimer += Time.deltaTime;
             dysonLaunchUpateTimer += Time.deltaTime;
+            dysonSphereUpdateTimer += Time.deltaTime;            
 
             if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
             {
@@ -152,6 +156,19 @@ namespace NebulaNetwork
             {
                 dysonLaunchUpateTimer = 0;
                 Multiplayer.Session.Launch.SendBroadcastIfNeeded();
+            }
+
+            if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
+            {
+                dysonSphereUpdateTimer = 0;
+                DysonSphere[] dysonSpheres = GameMain.data.dysonSpheres;
+                for (int i = 0; i < dysonSpheres.Length; i++)
+                {
+                    if (dysonSpheres[i] != null)
+                    {
+                        SendPacketToStar(new DysonSphereStatusPacket(dysonSpheres[i]), dysonSpheres[i].starData.id);
+                    }
+                }
             }
 
             PacketProcessor.ProcessPacketQueue();
