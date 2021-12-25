@@ -322,7 +322,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.DetermineLocalPlanet))]
         public static bool DetermineLocalPlanet_Prefix(GameData __instance, ref bool __result)
         {
-            if(UIVirtualStarmap_Transpiler.customBirthPlanet != -1 && !Multiplayer.Session.IsGameLoaded)
+            if(UIVirtualStarmap_Transpiler.customBirthPlanet != -1 && (Multiplayer.IsActive && !Multiplayer.Session.IsGameLoaded))
             {
                 __result = false;
                 return false;

@@ -14,6 +14,7 @@ namespace NebulaPatcher.Patches.Transpilers
     {
         private delegate void ShowSolarsystemDetails(UIVirtualStarmap starmap, int starIndex);
         private delegate bool IsBirthStar(UIVirtualStarmap starmap, int starIndex);
+        private delegate bool IsBirthStar2(StarData starData, UIVirtualStarmap starmap);
         private delegate void TrackPlayerClick(UIVirtualStarmap starmap, int starIndex);
 
         public static bool pressSpamProtector = false;
@@ -421,7 +422,7 @@ namespace NebulaPatcher.Patches.Transpilers
             {
                 text = text + starData.spectr.ToString() + "型恒星".Translate();
             }
-            if (starData.index == 0)
+            if (starData.index == ((customBirthStar != -1) ? customBirthStar - 1 : starmap._galaxyData.birthStarId - 1))
             {
                 text = "即将登陆".Translate() + "\r\n" + text;
             }
@@ -438,6 +439,32 @@ namespace NebulaPatcher.Patches.Transpilers
             starmap.starPool[0].textContent = text;
 
             starmap.starPool[0].nameText.gameObject.SetActive(true);
+        }
+
+        // mark correct star with the '>> Mission start <<' text
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(UIVirtualStarmap.OnGalaxyDataReset))]
+        public static IEnumerable<CodeInstruction> OnGalaxyDataReset_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            CodeMatcher matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Translate"),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Concat"),
+                    new CodeMatch(OpCodes.Stloc_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StarData), "index")),
+                    new CodeMatch(OpCodes.Brtrue))
+                .Advance(-1)
+                .SetAndAdvance(OpCodes.Ldarg_0, null)
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<IsBirthStar2>((starData, starmap) =>
+                {
+                    if(starData == null || starmap == null)
+                    {
+                        return true;
+                    }
+                    return starData.index != ((customBirthStar != -1) ? customBirthStar - 1 : starmap._galaxyData.birthStarId - 1);
+                }));
+            return matcher.InstructionEnumeration();
         }
     }
 }
