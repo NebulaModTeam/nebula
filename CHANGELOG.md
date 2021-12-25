@@ -1,5 +1,11 @@
 ## Changelog
 
+0.7.6:
+
+- @starfi5h: Added syncing of ray receiver output
+- @starfi5h: Fixed lighting of remote players
+- @starfi5h: Fixed clients receiving duplicate items when cancelling manual research
+
 0.7.5:
 
 - @sp00ktober: Fixed error caused by warning system introduced in previous update
