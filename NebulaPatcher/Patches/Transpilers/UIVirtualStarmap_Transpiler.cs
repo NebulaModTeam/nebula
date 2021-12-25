@@ -18,6 +18,9 @@ namespace NebulaPatcher.Patches.Transpilers
 
         public static bool pressSpamProtector = false;
         private static float orbitScaler = 5f;
+
+        public static int customBirthStar = -1;
+        public static int customBirthPlanet = -1;
         /*
         if (flag2 && flag)
 		{
@@ -80,6 +83,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     {
                         return;
                     }
+                    pressSpamProtector = true;
 
                     if (Multiplayer.Session != null && Multiplayer.Session.IsInLobby && starmap.clickText == "")
                     {
@@ -90,7 +94,6 @@ namespace NebulaPatcher.Patches.Transpilers
                     {
                         string[] split = starmap.clickText.Split(' ');
                         int starId = 0;
-                        int planetId = 0;
 
                         starId = Convert.ToInt32(split[0]);
 
@@ -104,6 +107,27 @@ namespace NebulaPatcher.Patches.Transpilers
                         if(pData == null)
                         {
                             return;
+                        }
+
+                        if(UIRoot.instance.uiGame.planetDetail.planet != null && UIRoot.instance.uiGame.planetDetail.planet.id == pData.id)
+                        {
+                            // clicked on planet and details already visible, so set as new birth planet
+                            starmap._galaxyData.birthStarId = starId;
+                            starmap._galaxyData.birthPlanetId = pData.id;
+
+                            GameMain.data.galaxy.birthStarId = starId;
+                            GameMain.data.galaxy.birthPlanetId = pData.id;
+
+                            pData.GenBirthPoints();
+
+                            customBirthStar = starData.id;
+                            customBirthPlanet = pData.id;
+
+                            GameMain.data.ArrivePlanet(pData); // indirectly calls ArriveStar()
+                            GameMain.data.mainPlayer.SetAfterGameDataReady();
+                            GameMain.data.history.SetAfterGameDataReady();
+
+                            Debug.Log("set birth planet");
                         }
 
                         starmap.clickText = split[0] + " " + starIndex.ToString();
@@ -152,7 +176,7 @@ namespace NebulaPatcher.Patches.Transpilers
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 5))
             .Insert(HarmonyLib.Transpilers.EmitDelegate<IsBirthStar>((UIVirtualStarmap starmap, int starIndex) =>
             {
-                return starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthStarId;
+                return starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthStarId && starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthPlanetId;
             }));
 
             // listen for general mouse clicks to deselect planet / solar system
@@ -243,6 +267,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 StarData dummyStarData = new StarData();
                 dummyStarData.position = pPos;
                 dummyStarData.color = starData.color;
+                dummyStarData.id = pData.id;
 
                 Vector3 scale = Vector3.one * scaleFactor * (pData.realRadius / 100);
                 if(scale.x > 3 || scale.y > 3 || scale.z > 3)
@@ -263,7 +288,6 @@ namespace NebulaPatcher.Patches.Transpilers
                 starmap.starPool[i + 1].textContent = pData.displayName + " (" + pData.typeString + ")";
 
                 starmap.starPool[i + 1].nameText.gameObject.SetActive(true);
-                // if birth planet add renderer to it
 
                 // add orbit renderer
                 starmap.connPool[i].active = true;

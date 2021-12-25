@@ -28,6 +28,12 @@ namespace NebulaPatcher.Patches.Dynamic
                 return false;
             }
 
+            // if client is still in lobby we dont need the factory data at all, so dont request it.
+            if (Multiplayer.Session.IsInLobby)
+            {
+                return false;
+            }
+
             // They appear to have conveniently left this flag in for us, but they don't use it anywhere
             planet.factoryLoading = true;
 

@@ -2,6 +2,7 @@
 using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Session;
+using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,6 +41,12 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 Multiplayer.Session.IsInLobby = false;
 
+                if(UIVirtualStarmap_Transpiler.customBirthPlanet != -1)
+                {
+                    Debug.Log((GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) == null) ? "null" : "not null");
+                    GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet)?.UnloadFactory();
+                }
+
                 if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                 {
                     GameDesc gameDesc = __instance.gameDesc;
@@ -65,6 +72,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.ShouldReturnToJoinMenu = false;
                 Multiplayer.Session.IsInLobby = false;
                 Multiplayer.LeaveGame();
+
+                UIVirtualStarmap_Transpiler.customBirthStar = -1;
+                UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
             }
 
             // cant check anymore if we are in multiplayer or not, so just do this without check. will not do any harm C:

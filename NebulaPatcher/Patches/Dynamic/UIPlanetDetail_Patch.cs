@@ -2,7 +2,6 @@
 using NebulaAPI;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
-using System;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
