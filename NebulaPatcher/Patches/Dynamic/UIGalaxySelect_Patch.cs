@@ -13,6 +13,8 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIGalaxySelect))]
     internal class UIGalaxySelect_Patch
     {
+        private static int MainMenuStarID = -1;
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGalaxySelect._OnOpen))]
         public static void _OnOpen_Postfix(UIGalaxySelect __instance)
@@ -30,6 +32,11 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 // prepare PlanetModelingManager for the use of its compute thread as we need that for the planet details view in the lobby
                 PlanetModelingManager.PrepareWorks();
+                // store current star id because entering the solar system details view messes up the main menu background system.
+                if(MainMenuStarID == -1)
+                {
+                    MainMenuStarID = GameMain.localStar.id;
+                }
             }
         }
 
@@ -49,6 +56,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
                 {
+                    UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
+
                     GameDesc gameDesc = __instance.gameDesc;
                     DSPGame.StartGameSkipPrologue(gameDesc);
                 }
@@ -75,6 +84,15 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 UIVirtualStarmap_Transpiler.customBirthStar = -1;
                 UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+
+                // restore main menu if needed.
+                if(GameMain.localStar.id != MainMenuStarID && MainMenuStarID != -1)
+                {
+                    GameMain.data.ArriveStar(GameMain.data.galaxy.StarById(MainMenuStarID));
+                }
+
+                // close planet detail view
+                UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
             }
 
             // cant check anymore if we are in multiplayer or not, so just do this without check. will not do any harm C:

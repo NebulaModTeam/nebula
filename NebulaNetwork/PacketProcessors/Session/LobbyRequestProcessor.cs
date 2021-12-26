@@ -100,7 +100,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
                 else
                 {
-                    savedPlayerData.Add(clientCertHash, player.Data);
+                    // store player data once he fully loaded into the game (SyncCompleteProcessor)
                     isNewUser = true;
                 }
             }

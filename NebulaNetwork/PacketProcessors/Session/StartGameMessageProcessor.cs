@@ -63,6 +63,8 @@ namespace NebulaNetwork.PacketProcessors.Session
             {
                 ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(packet.LocalPlayerData, true);
 
+                UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
+
                 GameDesc gameDesc = UIRoot.instance.galaxySelect.gameDesc;
                 gameDesc.SetForNewGame(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, 1, gameDesc.resourceMultiplier);
                 DSPGame.StartGameSkipPrologue(gameDesc);

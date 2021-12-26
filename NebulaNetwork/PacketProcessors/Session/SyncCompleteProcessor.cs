@@ -4,7 +4,9 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Universe;
+using NebulaModel.Utils;
 using NebulaWorld;
+using System.Collections.Generic;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -27,6 +29,16 @@ namespace NebulaNetwork.PacketProcessors.Session
                 {
                     Log.Warn("Received a SyncComplete packet, but no player is joining.");
                     return;
+                }
+
+                // store the player now, not when he enters the lobby. that would cause weird teleportations when clients reenter the lobby without ever having loaded into the game
+                string clientCertHash = CryptoUtils.Hash(packet.ClientCert);
+                using (playerManager.GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData))
+                {
+                    if (!savedPlayerData.TryGetValue(clientCertHash, out IPlayerData value))
+                    {
+                        savedPlayerData.Add(clientCertHash, player.Data);
+                    }
                 }
 
                 // Should these be locked together?
