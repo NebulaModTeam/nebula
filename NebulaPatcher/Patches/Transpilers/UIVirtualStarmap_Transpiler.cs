@@ -110,7 +110,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             return;
                         }
 
-                        if(UIRoot.instance.uiGame.planetDetail.planet != null && UIRoot.instance.uiGame.planetDetail.planet.id == pData.id)
+                        if(UIRoot.instance.uiGame.planetDetail.planet != null && UIRoot.instance.uiGame.planetDetail.planet.id == pData.id && pData.type != EPlanetType.Gas)
                         {
                             // clicked on planet and details already visible, so set as new birth planet
                             starmap._galaxyData.birthStarId = starId;
@@ -123,10 +123,6 @@ namespace NebulaPatcher.Patches.Transpilers
 
                             customBirthStar = starData.id;
                             customBirthPlanet = pData.id;
-
-                            GameMain.data.ArrivePlanet(pData); // indirectly calls ArriveStar()
-                            GameMain.data.mainPlayer.SetAfterGameDataReady();
-                            GameMain.data.history.SetAfterGameDataReady();
 
                             Debug.Log("set birth planet");
                         }

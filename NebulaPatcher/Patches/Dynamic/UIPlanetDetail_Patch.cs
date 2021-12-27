@@ -41,6 +41,14 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.trslBg.gameObject.SetActive(true);
             __instance.imgBg.gameObject.SetActive(true);
 
+            for(int i = 0; i < __instance.entries.Count; i++)
+            {
+                if((i < 6 || i > 9) && !__instance.entries[i].valueString.Contains("-") && (!__instance.entries[i].valueString.Equals("0") && __instance.entries[i].valueString.Contains(",")))
+                {
+                    __instance.entries[i].valueString = "exists";
+                }
+            }
+
             return false;
         }
 

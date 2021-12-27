@@ -106,6 +106,15 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIGalaxySelect.Rerand))]
+        public static bool Rerand_Prefix()
+        {
+            UIVirtualStarmap_Transpiler.customBirthStar = -1;
+            UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+            return true;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGalaxySelect.SetStarmapGalaxy))]
         //[HarmonyPatch(nameof(UIGalaxySelect.OnStarCountSliderValueChange))]
