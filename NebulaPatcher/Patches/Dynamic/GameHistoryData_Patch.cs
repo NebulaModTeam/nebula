@@ -148,5 +148,12 @@ namespace NebulaPatcher.Patches.Dynamic
             //Wait for the authoritative packet for unlocking tech features in multiplayer for clients
             return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
+        public static void RemoveTechInQueue_Prefix(int index, out int __state)
+        {
+            __state = GameMain.history.techQueue[index];
+        }
     }
 }

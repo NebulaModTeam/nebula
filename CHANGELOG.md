@@ -1,5 +1,9 @@
 ## Changelog
 
+0.7.7:
+
+- @starfi5h, @PhantomGamers: Fixed issue where research removed by clients would not be synced.
+
 0.7.6:
 
 - @starfi5h: Added syncing of ray receiver output
