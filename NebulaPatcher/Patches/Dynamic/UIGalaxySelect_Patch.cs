@@ -115,10 +115,21 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIGalaxySelect.SetStarmapGalaxy))]
+        public static bool SetStarmapGalaxy_Prefix()
+        {
+            if(Multiplayer.IsInMultiplayerMenu && Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                UIVirtualStarmap_Transpiler.customBirthStar = -1;
+                UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+            }
+            return true;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGalaxySelect.SetStarmapGalaxy))]
-        //[HarmonyPatch(nameof(UIGalaxySelect.OnStarCountSliderValueChange))]
-        public static void OnGalaxyStructureChanged_Postfix(UIGalaxySelect __instance)
+        public static void SetStarmapGalaxy_Postfix(UIGalaxySelect __instance)
         {
             if(Multiplayer.IsInMultiplayerMenu && Multiplayer.Session.LocalPlayer.IsHost)
             {

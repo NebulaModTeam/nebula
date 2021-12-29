@@ -10,6 +10,11 @@ namespace NebulaNetwork.PacketProcessors.Session
     {
         public override void ProcessPacket(LobbyUpdateValues packet, NebulaConnection conn)
         {
+            if (IsHost)
+            {
+                return;
+            }
+
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
 
