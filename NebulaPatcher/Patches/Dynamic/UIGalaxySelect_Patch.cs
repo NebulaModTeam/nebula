@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Session;
 using NebulaPatcher.Patches.Transpilers;
@@ -30,6 +31,20 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             if (Multiplayer.IsActive)
             {
+                // show lobby hints if needed
+                if (Config.Options.ShowLobbyHints)
+                {
+                    InGamePopup.ShowInfo("The Lobby",
+                        "We changed the start of a new multiplayer game a bit and want to give you a quick overview of the new feature.\n\n" +
+                        "Clients can now join while the host is in the galaxy selection screen, and they will also land there if it is their first time connecting to the currently hosted save.\n\n" +
+                        "You can now click on any star to bring up the solar system preview. From there you can click on any planet to bring up its details.\n" +
+                        "Note that when using GalacticScale 2 this process can take a bit longer.\n\n" +
+                        "By clicking a planet while having its detail panel open you will set it as your birth planet.\n\n" +
+                        "By clicking into the space you will go one detail level up.\n\n" +
+                        "We hope you enjoy this new feature!",
+                        "Okay, cool :)",
+                        CloseLobbyInfo);
+                }
                 // prepare PlanetModelingManager for the use of its compute thread as we need that for the planet details view in the lobby
                 PlanetModelingManager.PrepareWorks();
                 // store current star id because entering the solar system details view messes up the main menu background system.
@@ -155,6 +170,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 PlanetModelingManager.ModelingPlanetCoroutine();
                 UIRoot.instance.uiGame.planetDetail._OnUpdate();
             }
+        }
+
+        private static void CloseLobbyInfo()
+        {
+            InGamePopup.FadeOut();
+            Config.Options.ShowLobbyHints = false;
+            Config.SaveOptions();
         }
     }
 }
