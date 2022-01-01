@@ -40,7 +40,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         "You can now click on any star to bring up the solar system preview. From there you can click on any planet to bring up its details.\n" +
                         "Note that when using GalacticScale 2 this process can take a bit longer.\n\n" +
                         "By clicking a planet while having its detail panel open you will set it as your birth planet.\n\n" +
-                        "By clicking into the space you will go one detail level up.\n\n" +
+                        "By clicking into outer space you will go one detail level up.\n\n" +
                         "We hope you enjoy this new feature!",
                         "Okay, cool :)",
                         CloseLobbyInfo);
