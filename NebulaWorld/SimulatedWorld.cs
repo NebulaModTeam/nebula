@@ -4,6 +4,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
+using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Remote;
@@ -122,7 +123,8 @@ namespace NebulaWorld
                 DisplayPingIndicator();
 
                 // Notify the server that we are done loading the game
-                Multiplayer.Session.Network.SendPacket(new SyncComplete());
+                byte[] clientCert = CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert());
+                Multiplayer.Session.Network.SendPacket(new SyncComplete(clientCert));
 
                 // Subscribe for the local star events
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
