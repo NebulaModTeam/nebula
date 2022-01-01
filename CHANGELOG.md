@@ -1,5 +1,9 @@
 ## Changelog
 
+0.7.8:
+
+- @sp00ktober: Added Lobby feature where you can preview solar systems and choose your birth planet.
+
 0.7.7:
 
 - @starfi5h, @PhantomGamers: Fixed issue where research removed by clients would not be synced.
