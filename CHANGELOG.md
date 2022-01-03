@@ -1,5 +1,11 @@
 ## Changelog
 
+0.7.9:
+
+- @sp00ktober: gracefully tell older nebula versions that there is a mod version missmatch.
+- @sp00ktober: fix planet detail ui stuck in lobby mode while in game.
+- @starfish: fix jaggy remote player movement
+
 0.7.8:
 
 - @sp00ktober: Added Lobby feature where you can preview solar systems and choose your birth planet.

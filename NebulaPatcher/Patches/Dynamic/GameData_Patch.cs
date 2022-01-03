@@ -6,6 +6,7 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
