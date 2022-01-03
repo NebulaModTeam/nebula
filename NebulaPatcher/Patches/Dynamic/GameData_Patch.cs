@@ -161,24 +161,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     GameMain.data.localPlanet.physics.LateUpdate();
                 }
             }
-
-            if (Multiplayer.IsActive)
-            {
-                Dictionary<ushort, RemotePlayerModel> remotePlayersModels;
-                Multiplayer.Session.World.GetRemotePlayersModels(out remotePlayersModels);
-
-                foreach(KeyValuePair<ushort, RemotePlayerModel> keyvalue in remotePlayersModels)
-                {
-                    Transform model = keyvalue.Value.PlayerModelTransform;
-                    Transform bip = model.Find("bip");
-                    Transform pelvis = bip?.Find("pelvis");
-
-                    if(pelvis != null)
-                    {
-                        pelvis.localPosition = new Vector3(0, 0, 0);
-                    }
-                }
-            }
         }
 
         [HarmonyPostfix]

@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIPlanetDetail))]
     internal class UIPlanetDetail_Patch
     {
-        private static int backupUniverseObserveLevel = -1;
+        private static int BackupUniverseObserveLevel = -1;
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIPlanetDetail.OnNameInputEndEdit))]
@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail._OnUpdate))]
         public static bool _OnUpdate_Prefix(UIPlanetDetail __instance)
         {
-            if(UIRoot.instance.galaxySelect == null || UIRoot.instance.galaxySelect.starmap == null || UIRoot.instance.galaxySelect.starmap.clickText == "")
+            if(UIRoot.instance.galaxySelect == null || UIRoot.instance.galaxySelect.starmap == null || (Multiplayer.Session != null && !Multiplayer.Session.IsInLobby) || Multiplayer.Session == null)
             {
                 return true;
             }
@@ -60,7 +60,8 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(UIRoot.instance.galaxySelect.starmap.clickText != "")
             {
-                backupUniverseObserveLevel = GameMain.history.universeObserveLevel;
+                Debug.Log("Setting to level 3");
+                BackupUniverseObserveLevel = GameMain.history.universeObserveLevel;
                 GameMain.history.universeObserveLevel = 3;
             }
             return true;
@@ -71,10 +72,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
         public static void OnPlanetDataSet_Postfix(UIPlanetDetail __instance)
         {
-            if(backupUniverseObserveLevel != -1)
+            if(BackupUniverseObserveLevel != -1)
             {
-                GameMain.history.universeObserveLevel = backupUniverseObserveLevel;
-                backupUniverseObserveLevel = -1;
+                Debug.Log("setting back to " + BackupUniverseObserveLevel);
+                GameMain.history.universeObserveLevel = BackupUniverseObserveLevel;
+                BackupUniverseObserveLevel = -1;
             }
         }
     }

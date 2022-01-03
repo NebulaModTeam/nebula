@@ -131,5 +131,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
             animator.player.mechaArmorModel.inst_part_ar_mat.SetVector("_InitPositionSet", transform.position);
             animator.player.mechaArmorModel.inst_part_sk_mat.SetVector("_InitPositionSet", transform.position);
         }
+
+        private void LateUpdate()
+        {
+            // fixes weird player movement
+            PlayerAnimator.bipBone.localPosition -= PlayerAnimator.motorBone.localPosition;
+        }
     }
 }
