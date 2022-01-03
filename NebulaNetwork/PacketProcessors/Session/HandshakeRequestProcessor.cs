@@ -41,7 +41,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 pendingPlayers.Remove(conn);
             }
 
-            conn.Disconnect(DisconnectionReason.ModVersionMismatch);
+            conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"Nebula;0.7.7 or earlier;0.7.8 or greater");
         }
     }
 }
