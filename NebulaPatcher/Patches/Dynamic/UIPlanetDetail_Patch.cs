@@ -60,7 +60,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(UIRoot.instance.galaxySelect.starmap.clickText != "")
             {
-                Debug.Log("Setting to level 3");
                 BackupUniverseObserveLevel = GameMain.history.universeObserveLevel;
                 GameMain.history.universeObserveLevel = 3;
             }
@@ -74,7 +73,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(BackupUniverseObserveLevel != -1)
             {
-                Debug.Log("setting back to " + BackupUniverseObserveLevel);
                 GameMain.history.universeObserveLevel = BackupUniverseObserveLevel;
                 BackupUniverseObserveLevel = -1;
             }
