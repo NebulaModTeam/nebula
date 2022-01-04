@@ -164,7 +164,8 @@ namespace NebulaNetwork
                 DysonSphere[] dysonSpheres = GameMain.data.dysonSpheres;
                 for (int i = 0; i < dysonSpheres.Length; i++)
                 {
-                    if (dysonSpheres[i] != null)
+                    DysonSphere dysonSphere = dysonSpheres[i];
+                    if (dysonSphere != null && (dysonSphere.energyReqCurrentTick + dysonSphere.energyGenCurrentTick > 0))
                     {
                         SendPacketToStar(new DysonSphereStatusPacket(dysonSpheres[i]), dysonSpheres[i].starData.id);
                     }

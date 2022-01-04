@@ -154,6 +154,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void RemoveTechInQueue_Prefix(int index, out int __state)
         {
             __state = GameMain.history.techQueue[index];
+            Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }
     }
 }
