@@ -167,7 +167,7 @@ namespace NebulaNetwork
                     DysonSphere dysonSphere = dysonSpheres[i];
                     if (dysonSphere != null && (dysonSphere.energyReqCurrentTick + dysonSphere.energyGenCurrentTick > 0))
                     {
-                        SendPacketToStar(new DysonSphereStatusPacket(dysonSpheres[i]), dysonSpheres[i].starData.id);
+                        SendPacketToStar(new DysonSphereStatusPacket(dysonSphere), dysonSphere.starData.id);
                     }
                 }
             }
