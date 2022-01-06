@@ -10,16 +10,19 @@ namespace NebulaNetwork.PacketProcessors.Session
     [RegisterPacketProcessor]
     internal class PingPacketProcessor : PacketProcessor<PingPacket>
     {
+        private int averageRTT;
+
         public override void ProcessPacket(PingPacket packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                conn.SendPacket(new PingPacket());
+                conn.SendPacket(packet);
             }
             else
             {
                 int rtt = (int)(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - packet.SentTimestamp);
-                Multiplayer.Session.World.UpdatePingIndicator($"Ping: {rtt}ms");
+                averageRTT = (int)(averageRTT * 0.7 + rtt * 0.3);
+                Multiplayer.Session.World.UpdatePingIndicator($"Ping: {averageRTT}ms");
             }
         }
     }
