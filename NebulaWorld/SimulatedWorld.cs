@@ -259,7 +259,7 @@ namespace NebulaWorld
                     {
                         drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                     }
-                    drone.target = GameMain.mainPlayer.mecha.droneLogic._obj_hpos(packet.EntityId);
+                    drone.target = droneLogic._obj_hpos(packet.EntityId);
                     drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + UnityEngine.Random.insideUnitSphere) * 1.5f;
                     drone.forward = drone.initialVector;
                     drone.progress = 0f;
