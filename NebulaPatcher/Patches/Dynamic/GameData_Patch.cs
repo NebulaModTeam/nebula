@@ -6,6 +6,7 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -166,7 +167,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.SetForNewGame))]
         public static void SetForNewGame_Postfix(GameData __instance)
         {
-            //Set starting star and planet to request from the server
+            //Set starting star and planet to request from the server, except when client has set custom starting planet.
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
                 if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
@@ -174,7 +175,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     PlanetData planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
                     __instance.ArrivePlanet(planet);
                 }
-                else
+                else if(UIVirtualStarmap_Transpiler.customBirthPlanet == -1)
                 {
                     StarData nearestStar = null;
                     PlanetData nearestPlanet = null;
@@ -189,6 +190,11 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
 
                     __instance.ArriveStar(nearestStar);
+                }
+                else
+                {
+                    PlanetData planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet);
+                    __instance.ArrivePlanet(planet);
                 }
             }
         }
@@ -226,9 +232,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
             foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
             {
-                if (stationComponent != null && stationComponent.isStellar)
+                if (stationComponent != null && stationComponent.isStellar && !Multiplayer.Session.IsInLobby)
                 {
-                    //Debug.Log("enter " + stationComponent.gid + " (" + GameMain.galaxy.PlanetById(stationComponent.planetId).displayName + ")");
                     StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
                 }
             }
@@ -284,7 +289,10 @@ namespace NebulaPatcher.Patches.Dynamic
                     GameMain.data.warningSystem.Free();
                     GameMain.data.warningSystem.Init(GameMain.data);
                 }
-                Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
+                if (!Multiplayer.Session.IsInLobby)
+                {
+                    Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
+                }
             }
         }
 
@@ -293,7 +301,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void ArriveStar_Prefix(StarData star)
         {
             //Client should unload all factories once they leave the star system
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && star != null)
+            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.IsInLobby && star != null)
             {
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
                 Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));
@@ -309,6 +317,18 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(GameData.DetermineLocalPlanet))]
+        public static bool DetermineLocalPlanet_Prefix(GameData __instance, ref bool __result)
+        {
+            if(UIVirtualStarmap_Transpiler.customBirthPlanet != -1 && (Multiplayer.IsActive && !Multiplayer.Session.IsGameLoaded))
+            {
+                __result = false;
+                return false;
+            }
+            return true;
         }
     }
 }

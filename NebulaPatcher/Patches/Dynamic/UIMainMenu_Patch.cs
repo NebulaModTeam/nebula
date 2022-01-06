@@ -94,6 +94,11 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnMultiplayerNewGameButtonClick()
         {
+            Log.Info($"Listening server on port {Config.Options.HostPort}");
+            Multiplayer.HostGame(new Server(Config.Options.HostPort));
+
+            Multiplayer.Session.IsInLobby = true;
+
             UIRoot.instance.galaxySelect._Open();
             UIRoot.instance.uiMainMenu._Close();
         }
@@ -105,6 +110,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnMultiplayerJoinGameButtonClick()
         {
+            Multiplayer.ShouldReturnToJoinMenu = true;
+
             UIRoot.instance.CloseMainMenuUI();
             multiplayerMenu.gameObject.SetActive(true);
             hostIPAdressInput.characterLimit = 53;
@@ -113,6 +120,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnMultiplayerBackButtonClick()
         {
             Multiplayer.IsInMultiplayerMenu = false;
+            Multiplayer.ShouldReturnToJoinMenu = true;
             multiplayerSubMenu.gameObject.SetActive(false);
             mainMenuButtonGroup.gameObject.SetActive(true);
         }
@@ -284,6 +292,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (isIP)
             {
                 Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort)));
+                Multiplayer.Session.IsInLobby = true;
                 return true;
             }
 
@@ -291,6 +300,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out _))
             {
                 Multiplayer.JoinGame(new Client(connectionString, serverPort));
+                Multiplayer.Session.IsInLobby = true;
                 return true;
             }
 

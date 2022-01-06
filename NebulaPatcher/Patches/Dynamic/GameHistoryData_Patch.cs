@@ -154,11 +154,6 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void RemoveTechInQueue_Prefix(int index, out int __state)
         {
             __state = GameMain.history.techQueue[index];
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                //we need to know which itemtypes are currently needed for refunds, so trigger refund before cancelling own research
-                Multiplayer.Session.Network.PlayerManager.SendTechRefundPackagesToClients(__state);
-            }
             Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
         }
     }

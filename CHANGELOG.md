@@ -1,5 +1,30 @@
 ## Changelog
 
+0.7.9:
+
+- @sp00ktober: gracefully tell older nebula versions that there is a mod version missmatch.
+- @sp00ktober: fix planet detail ui stuck in lobby mode while in game.
+- @starfish: fix jaggy remote player movement
+
+0.7.8:
+
+- @sp00ktober: Added Lobby feature where you can preview solar systems and choose your birth planet.
+
+0.7.7:
+
+- @starfi5h, @PhantomGamers: Fixed issue where research removed by clients would not be synced.
+
+0.7.6:
+
+- @starfi5h: Added syncing of ray receiver output
+- @starfi5h: Fixed lighting of remote players
+- @starfi5h: Fixed clients receiving duplicate items when cancelling manual research
+
+0.7.5:
+
+- @sp00ktober: Fixed error caused by warning system introduced in previous update
+- @PhantomGamers: Fixed compatibility with DSP 0.8.23.9989
+
 0.7.4:
 
 - @sp00ktober: adjusted mod to be compatible with game version 0.8.23

@@ -8,16 +8,27 @@ namespace NebulaWorld.MonoBehaviours.Remote
     {
         public PlayerAnimator PlayerAnimator;
         private RemotePlayerMovement rootMovement;
+        private RemotePlayerEffects remotePlayerEffects;
         private float altitudeFactor;
+        private readonly PlayerAnimationUpdate[] packetBuffer = new PlayerAnimationUpdate[3];
+
         private void Awake()
         {
             PlayerAnimator = GetComponent<PlayerAnimator>();
             rootMovement = GetComponent<RemotePlayerMovement>();
+            remotePlayerEffects = GetComponent<RemotePlayerEffects>();
         }
 
         public void UpdateState(PlayerAnimationUpdate packet)
         {
-            if (PlayerAnimator == null)
+            // Delay for 200 ms
+            for (int i = 0; i < packetBuffer.Length - 1; ++i)
+            {
+                packetBuffer[i] = packetBuffer[i + 1];
+            }
+            packetBuffer[packetBuffer.Length - 1] = packet;
+            packet = packetBuffer[0];
+            if (packet == null || PlayerAnimator == null)
             {
                 return;
             }
@@ -56,6 +67,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
             PlayerAnimator.AnimateJumpState(deltaTime);
             PlayerAnimator.AnimateSkills(deltaTime);
             AnimateRenderers(PlayerAnimator);
+
+            remotePlayerEffects.UpdateState(packet);
         }
 
         private void CalculateMovementStateWeights(PlayerAnimator animator, float dt)
@@ -127,7 +140,15 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         public void AnimateRenderers(PlayerAnimator animator)
         {
-            animator.inst_armor_mat.SetVector("_InitPositionSet", transform.position);
+            animator.player.mechaArmorModel.inst_armor_mat.SetVector("_InitPositionSet", transform.position);
+            animator.player.mechaArmorModel.inst_part_ar_mat.SetVector("_InitPositionSet", transform.position);
+            animator.player.mechaArmorModel.inst_part_sk_mat.SetVector("_InitPositionSet", transform.position);
+        }
+
+        private void LateUpdate()
+        {
+            // fixes weird player movement
+            PlayerAnimator.bipBone.localPosition -= PlayerAnimator.motorBone.localPosition;
         }
     }
 }

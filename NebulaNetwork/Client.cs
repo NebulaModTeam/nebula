@@ -214,7 +214,7 @@ namespace NebulaNetwork
 
             //TODO: Maybe some challenge-response authentication mechanism?
 
-            SendPacket(new HandshakeRequest(
+            SendPacket(new LobbyRequest(
                 CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
                 Config.Options.GetMechaColors()));
@@ -284,13 +284,19 @@ namespace NebulaNetwork
                     return;
                 }
 
-                if (Multiplayer.Session.IsGameLoaded)
+                if (Multiplayer.Session.IsGameLoaded || Multiplayer.Session.IsInLobby)
                 {
                     InGamePopup.ShowWarning(
                         "Connection Lost",
                         $"You have been disconnected from the server.\n{endDebug}",
                         "Quit",
                         Multiplayer.LeaveGame);
+                    if (Multiplayer.Session.IsInLobby)
+                    {
+                        Multiplayer.ShouldReturnToJoinMenu = false;
+                        Multiplayer.Session.IsInLobby = false;
+                        UIRoot.instance.galaxySelect.CancelSelect();
+                    }
                 }
                 else
                 {

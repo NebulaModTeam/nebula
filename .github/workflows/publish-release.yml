@@ -107,7 +107,6 @@ jobs:
 
        # Publish to NuGet
       - name: Publish to NuGet
-        shell: bash
         run: |
           dotnet pack .\NebulaAPI\NebulaAPI.csproj -c Release -o "." -p:OutDir="bin/net472/Release/" -p:PublicRelease=true
           dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate
