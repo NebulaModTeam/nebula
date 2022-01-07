@@ -20,7 +20,6 @@ namespace NebulaWorld
         public SimulatedWorld World { get; private set; }
         public IFactoryManager Factories { get; private set; }
         public StorageManager Storage { get; private set; }
-        public PowerTowerManager PowerTowers { get; private set; }
         public BeltManager Belts { get; private set; }
         public BuildToolManager BuildTools { get; private set; }
         public DroneManager Drones { get; private set; }
@@ -59,7 +58,6 @@ namespace NebulaWorld
             World = new SimulatedWorld();
             Factories = new FactoryManager();
             Storage = new StorageManager();
-            PowerTowers = new PowerTowerManager();
             Belts = new BeltManager();
             BuildTools = new BuildToolManager();
             Drones = new DroneManager();
@@ -89,9 +87,6 @@ namespace NebulaWorld
 
             Storage?.Dispose();
             Storage = null;
-
-            PowerTowers?.Dispose();
-            PowerTowers = null;
 
             Belts?.Dispose();
             Belts = null;
