@@ -16,12 +16,12 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
             }
 
             // is there a better way? There must be
-            string[] energyCapacity = new string[packet.PlanetIDs.Length];
-            string[] energyRequired = new string[packet.PlanetIDs.Length];
-            string[] energyServed = new string[packet.PlanetIDs.Length];
-            string[] energyAccumulated = new string[packet.PlanetIDs.Length];
-            string[] energyExchanged = new string[packet.PlanetIDs.Length];
-            string[] consumerRatio = new string[packet.PlanetIDs.Length];
+            long[][] energyCapacity = new long[packet.PlanetIDs.Length][];
+            long[][] energyRequired = new long[packet.PlanetIDs.Length][];
+            long[][] energyServed = new long[packet.PlanetIDs.Length][];
+            long[][] energyAccumulated = new long[packet.PlanetIDs.Length][];
+            long[][] energyExchanged = new long[packet.PlanetIDs.Length][];
+            double[][] consumerRatio = new double[packet.PlanetIDs.Length][];
             long[] powerGenRegister = new long[packet.PlanetIDs.Length];
             long[] powerConRegister = new long[packet.PlanetIDs.Length];
             long[] powerDisRegister = new long[packet.PlanetIDs.Length];
@@ -34,26 +34,21 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                 global::PowerSystem pSys = pData.factory?.powerSystem;
                 if (pSys != null)
                 {
+                    energyCapacity[i] = new long[pSys.netCursor];
+                    energyRequired[i] = new long[pSys.netCursor];
+                    energyServed[i] = new long[pSys.netCursor];
+                    energyAccumulated[i] = new long[pSys.netCursor];
+                    energyExchanged[i] = new long[pSys.netCursor];
+                    consumerRatio[i] = new double[pSys.netCursor];
+
                     for(int j = 0; j < pSys.netCursor; j++)
                     {
-                        if(j == 0)
-                        {
-                            energyCapacity[i] = pSys.netPool[j].energyCapacity.ToString();
-                            energyRequired[i] = pSys.netPool[j].energyRequired.ToString();
-                            energyServed[i] = pSys.netPool[j].energyServed.ToString();
-                            energyAccumulated[i] = pSys.netPool[j].energyAccumulated.ToString();
-                            energyExchanged[i] = pSys.netPool[j].energyExchanged.ToString();
-                            consumerRatio[i] = pSys.netPool[j].consumerRatio.ToString();
-                        }
-                        else
-                        {
-                            energyCapacity[i] += ";" + pSys.netPool[j].energyCapacity.ToString();
-                            energyRequired[i] += ";" + pSys.netPool[j].energyRequired.ToString();
-                            energyServed[i] += ";" + pSys.netPool[j].energyServed.ToString();
-                            energyAccumulated[i] += ";" + pSys.netPool[j].energyAccumulated.ToString();
-                            energyExchanged[i] += ";" + pSys.netPool[j].energyExchanged.ToString();
-                            consumerRatio[i] += ";" + pSys.netPool[j].consumerRatio.ToString();
-                        }
+                        energyCapacity[i][j] = pSys.netPool[j].energyCapacity;
+                        energyRequired[i][j] = pSys.netPool[j].energyRequired;
+                        energyServed[i][j] = pSys.netPool[j].energyServed;
+                        energyAccumulated[i][j] = pSys.netPool[j].energyAccumulated;
+                        energyExchanged[i][j] = pSys.netPool[j].energyExchanged;
+                        consumerRatio[i][j] = pSys.netPool[j].consumerRatio;
                     }
 
                     FactoryProductionStat stats = GameMain.statistics.production.factoryStatPool[pData.factory.index];

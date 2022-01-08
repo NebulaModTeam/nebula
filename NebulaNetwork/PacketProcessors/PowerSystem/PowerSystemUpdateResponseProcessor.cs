@@ -25,46 +25,33 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
 
                     if(pSys != null && pIndex < packet.EnergyCapacity.Length)
                     {
-                        string[] energyCapacity = packet.EnergyCapacity[pIndex].Split(';');
-                        string[] energyRequired = packet.EnergyRequired[pIndex].Split(';');
-                        string[] energyServed = packet.EnergyServed[pIndex].Split(';');
-                        string[] energyAccumulated = packet.EnergyAccumulated[pIndex].Split(';');
-                        string[] energyExchanged = packet.EnergyExchanged[pIndex].Split(';');
-                        string[] consumerRatio = packet.ConsumerRatio[pIndex].Split(';');
-
-                        if(pSys.netCursor != energyCapacity.Length)
+                        if(pSys.netCursor != packet.EnergyCapacity[pIndex].Length)
                         {
                             return;
                         }
 
                         for(int j = 0; j < pSys.netCursor; j++)
                         {
-                            long capacity, required, served, accumulated, exchanged, ratio;
-
-                            energyCapacity[j].ToLong(out capacity);
-                            energyRequired[j].ToLong(out required);
-                            energyServed[j].ToLong(out served);
-                            energyAccumulated[j].ToLong(out accumulated);
-                            energyExchanged[j].ToLong(out exchanged);
-                            consumerRatio[j].ToLong(out ratio);
-
-                            pSys.netPool[j].energyCapacity = capacity;
-                            pSys.netPool[j].energyRequired = required;
-                            pSys.netPool[j].energyServed = served;
-                            pSys.netPool[j].energyAccumulated = accumulated;
-                            pSys.netPool[j].energyExchanged = exchanged;
-                            pSys.netPool[j].consumerRatio = ratio;
+                            pSys.netPool[j].energyCapacity = packet.EnergyCapacity[pIndex][j];
+                            pSys.netPool[j].energyRequired = packet.EnergyRequired[pIndex][j];
+                            pSys.netPool[j].energyServed = packet.EnergyServed[pIndex][j];
+                            pSys.netPool[j].energyAccumulated = packet.EnergyAccumulated[pIndex][j];
+                            pSys.netPool[j].energyExchanged = packet.EnergyExchanged[pIndex][j];
+                            pSys.netPool[j].consumerRatio = packet.ConsumerRatio[pIndex][j];
                         }
                     }
 
                     FactoryProductionStat stats = GameMain.statistics.production.factoryStatPool[pData.factory.index];
-                    lock (stats)
+                    if(pIndex < packet.PowerGenRegister.Length)
                     {
-                        stats.powerGenRegister = packet.PowerGenRegister[pIndex];
-                        stats.powerConRegister = packet.PowerConRegister[pIndex];
-                        stats.powerDisRegister = packet.PowerDisRegister[pIndex];
-                        stats.powerChaRegister = packet.PowerChaRegister[pIndex];
-                        stats.energyConsumption = packet.EnergyConsumption[pIndex];
+                        lock (stats)
+                        {
+                            stats.powerGenRegister = packet.PowerGenRegister[pIndex];
+                            stats.powerConRegister = packet.PowerConRegister[pIndex];
+                            stats.powerDisRegister = packet.PowerDisRegister[pIndex];
+                            stats.powerChaRegister = packet.PowerChaRegister[pIndex];
+                            stats.energyConsumption = packet.EnergyConsumption[pIndex];
+                        }
                     }
 
                     pIndex++;
@@ -73,3 +60,4 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
         }
     }
 }
+
