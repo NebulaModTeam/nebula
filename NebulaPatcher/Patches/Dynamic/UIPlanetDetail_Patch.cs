@@ -58,7 +58,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
         public static bool OnPlanetDataSet_Prefix(UIPlanetDetail __instance)
         {
-            if(UIRoot.instance.galaxySelect.starmap.clickText != "")
+            if(Multiplayer.Session != null && Multiplayer.Session.IsInLobby)
             {
                 BackupUniverseObserveLevel = GameMain.history.universeObserveLevel;
                 GameMain.history.universeObserveLevel = 3;
@@ -71,7 +71,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
         public static void OnPlanetDataSet_Postfix(UIPlanetDetail __instance)
         {
-            if(BackupUniverseObserveLevel != -1)
+            if(BackupUniverseObserveLevel != -1 && Multiplayer.Session != null && Multiplayer.Session.IsInLobby)
             {
                 GameMain.history.universeObserveLevel = BackupUniverseObserveLevel;
                 BackupUniverseObserveLevel = -1;
