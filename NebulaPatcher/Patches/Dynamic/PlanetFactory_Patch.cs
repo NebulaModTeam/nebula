@@ -172,5 +172,30 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.EnableEntityWarning))]
+        public static void EnableEntityWarning_Postfix(PlanetFactory __instance, int entityId)
+        {
+            if (Multiplayer.IsActive && entityId > 0 && __instance.entityPool[entityId].id == entityId)
+            {
+                if (Multiplayer.Session.LocalPlayer.IsClient)
+                {
+                    //Becasue WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
+                    __instance.entityPool[entityId].warningId = 1;
+                }
+                Multiplayer.Session.Network.SendPacketToLocalStar(new EntityWarningSwitchPacket(__instance.planetId, entityId, true));
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.DisableEntityWarning))]
+        public static void DisableEntityWarning_Postfix(PlanetFactory __instance, int entityId)
+        {
+            if (Multiplayer.IsActive && entityId > 0 && __instance.entityPool[entityId].id == entityId)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new EntityWarningSwitchPacket(__instance.planetId, entityId, false));
+            }
+        }
     }
 }
