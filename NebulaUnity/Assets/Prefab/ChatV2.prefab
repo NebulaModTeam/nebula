@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: d4e0afe6ca99a3148a62850a7e37b853, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.59607846}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -219,7 +219,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4092147421265152491}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -429,7 +429,7 @@ GameObject:
   - component: {fileID: 4169119813845149490}
   - component: {fileID: 5815365627301682883}
   - component: {fileID: 3134722661935503575}
-  - component: {fileID: 8074614560145874708}
+  - component: {fileID: 4323574421575409796}
   m_Layer: 5
   m_Name: Notifier
   m_TagString: Untagged
@@ -453,8 +453,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8.2, y: 129.1}
-  m_SizeDelta: {x: 762.4, y: 19.2}
+  m_AnchoredPosition: {x: -370, y: 128.65}
+  m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5815365627301682883
 CanvasRenderer:
@@ -493,7 +493,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   delegates: []
---- !u!114 &8074614560145874708
+--- !u!114 &4323574421575409796
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -505,13 +505,13 @@ MonoBehaviour:
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: d4e0afe6ca99a3148a62850a7e37b853, type: 2}
-  m_Color: {r: 1, g: 0.05275344, b: 0, a: 0.44705883}
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: dd63d257108642a45abf785b64bb9dbc, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -665,7 +665,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3527980105942565041}
   - component: {fileID: 524049609516045720}
-  - component: {fileID: 8998933000914005416}
+  - component: {fileID: 6665394241589292905}
   m_Layer: 5
   m_Name: ChatV2
   m_TagString: Untagged
@@ -706,7 +706,7 @@ MonoBehaviour:
   m_Script: {fileID: -751281974, guid: 3600edaccfdc38fa8e66dcb6d9df841b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &8998933000914005416
+--- !u!114 &6665394241589292905
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -715,7 +715,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3527980105942574080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1117216528, guid: dac69a4bd01bfbe4d90981417222522f, type: 3}
+  m_Script: {fileID: 1117216528, guid: 11588a503ea44864b879e5226f1b2aa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   chatBox: {fileID: 3579535350594813808}
@@ -727,7 +727,7 @@ MonoBehaviour:
   chatWindow: {fileID: 6249457066909910904}
   messages: []
   playerMessage: {r: 1, g: 1, b: 1, a: 1}
-  info: {r: 0.8396226, g: 0.61371857, b: 0.13861692, a: 1}
+  info: {r: 1, g: 0.9529412, b: 0, a: 1}
 --- !u!1 &4493651037485801358
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,7 +873,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -0.000061035156, y: 0.000076293945}
+  m_AnchoredPosition: {x: -0.000061035156, y: 0}
   m_SizeDelta: {x: -3, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &3838301613670048568

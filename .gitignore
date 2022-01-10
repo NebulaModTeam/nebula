@@ -378,3 +378,5 @@ nbgv.exe
 
 # Assemblies copied into Unity project
 NebulaUnity/Assets/Assemblies
+# Generated assets
+NebulaUnity/Assets/StreamingAssets/AssetBundles

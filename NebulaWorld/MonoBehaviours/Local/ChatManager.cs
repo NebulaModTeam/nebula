@@ -27,12 +27,13 @@ namespace NebulaWorld.MonoBehaviours.Local
                     {
                         Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.PlayerMessage,
                             chatBox.text, DateTime.Now, GetUserName()));
+                        SendMessageToChat($"[{DateTime.Now:HH:mm}] [{GetUserName()}] : {chatBox.text}", ChatMessageType.PlayerMessage);
                     }
                     else
                     {
                         Log.Debug($"Chat message is only sent locally");
                     }
-                    SendMessageToChat($"[{DateTime.Now:HH:mm}] [{GetUserName()}] : {chatBox.text}", ChatMessageType.PlayerMessage);
+
                     chatBox.text = "";
                 }
                 else
@@ -102,12 +103,13 @@ namespace NebulaWorld.MonoBehaviours.Local
             return color;
         }
 
-        public void Toggle()
+        public void Toggle(bool forceClosed = false)
         {
+            bool desiredStatus = !forceClosed && !chatWindow.activeSelf;
             // ignore backtick if typing message
             if (Input.GetKeyDown(KeyCode.BackQuote) && chatBox.isFocused)
                 return;
-            chatWindow.SetActive(!chatWindow.activeSelf);
+            chatWindow.SetActive(desiredStatus);
             if (chatWindow.activeSelf)
             {
                 // when the window is activated we assume user wants to type right away
