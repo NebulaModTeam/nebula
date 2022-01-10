@@ -3,12 +3,13 @@ using NebulaModel.Packets.Warning;
 using System;
 using System.IO;
 using System.Collections.Concurrent;
-
+using NebulaModel.DataStructures;
 
 namespace NebulaWorld.Warning
 {
     public class WarningManager : IDisposable
     {
+        public readonly ToggleSwitch IsIncomingMonitorPacket = new ToggleSwitch();
         public int TickSignal { get; set; }
         public int TickData { get; set; }
         public long LastRequestTime { get; set; }
