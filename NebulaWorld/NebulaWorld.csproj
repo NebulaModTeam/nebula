@@ -8,5 +8,5 @@
     <Content Include="Assets\ncht">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-</ItemGroup>
+  </ItemGroup>
 </Project>

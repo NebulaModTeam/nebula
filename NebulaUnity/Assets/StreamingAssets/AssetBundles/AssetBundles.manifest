@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 3337281599
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: ncht
+      Dependencies: {}
+    Info_1:
+      Name: pui
+      Dependencies: {}
