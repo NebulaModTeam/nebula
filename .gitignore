@@ -375,3 +375,8 @@ nbgv.exe
 
 # CI build indicator
 .remoteBuild
+
+# Assemblies copied into Unity project
+NebulaUnity/Assets/Assemblies
+# Generated assets
+NebulaUnity/Assets/StreamingAssets/AssetBundles

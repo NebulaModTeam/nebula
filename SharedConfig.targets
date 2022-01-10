@@ -24,4 +24,15 @@
   <Target Name="TestDSPGameFolder"
           DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid"
           Condition="!Exists('$(DSPGameDir)') And !Exists('$(PropSheetPath).remoteBuild')" />
+
+  <ItemGroup>
+    <ProjectAssembliesForUnityProject Include="$(TargetDir)\*.dll"/>
+  </ItemGroup>
+  <Target Name="CopyAssembliesToUnityProject"
+          AfterTargets="Build">
+    <Message Text="Executing CopyAssembliesToUnityProject task $(ProjectName)" Importance="high"/>
+    <Copy
+          SourceFiles="@(ProjectAssembliesForUnityProject)"
+          DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
+  </Target>
 </Project>

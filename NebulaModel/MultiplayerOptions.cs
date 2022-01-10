@@ -21,6 +21,9 @@ namespace NebulaModel
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
 
+        [DisplayName("Auto Open Chat")]
+        public bool AutoOpenChat { get; set; } = true;
+
         public string LastIP { get; set; } = string.Empty;
 
         public string MechaColors { get; set; } = "209 151 76 255;184 90 72 255;94 92 92 255;123 234 255 255;229 155 94 255;255 243 235 255;255 248 245 255;255 255 255 255;";
