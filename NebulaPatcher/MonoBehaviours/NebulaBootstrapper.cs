@@ -22,6 +22,11 @@ namespace NebulaPatcher.MonoBehaviours
             {
                 Multiplayer.Session.Network.Update();
             }
+            // TODO: make this bindable
+            if (Input.GetKeyDown("`"))
+            {
+                InGameChatAssetLoader.ChatManager()?.Toggle();
+            }
         }
     }
 }
