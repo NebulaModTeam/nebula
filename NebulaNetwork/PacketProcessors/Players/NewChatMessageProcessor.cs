@@ -27,19 +27,10 @@ namespace NebulaNetwork.PacketProcessors.Players
                 return;
             }
 
-            INebulaPlayer player = Multiplayer.Session.Network.PlayerManager?.GetPlayer(conn);
-            if (player != null)
+            if (IsHost)
             {
-                packet.UserName = player.Data.Username;
-                packet.SentAt = DateTime.Now.ToBinary();
-                if (IsHost)
-                {
-                    Multiplayer.Session.Network.PlayerManager.SendPacketToOtherPlayers(packet, player);
-                }
-            }
-            else
-            {
-                Log.Warn($"failed load to player sending packet");
+                INebulaPlayer player = Multiplayer.Session.Network.PlayerManager?.GetPlayer(conn);
+                Multiplayer.Session.Network.PlayerManager?.SendPacketToOtherPlayers(packet, player);
             }
 
             DateTime sentAt = packet.SentAt == 0 ? DateTime.Now : DateTime.FromBinary(packet.SentAt);

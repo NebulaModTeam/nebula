@@ -1,4 +1,6 @@
-﻿namespace NebulaModel.Packets.Players
+﻿using System;
+
+namespace NebulaModel.Packets.Players
 {
     public enum ChatMessageType
     {
@@ -11,17 +13,17 @@
     {
         public ChatMessageType MessageType { get; set; }
         public string MessageText { get; set; }
-
-        // these two don't get set until the message has gone to the host to be distributed back out
         public long SentAt { get; set; }
         public string UserName { get; set; }
 
         public NewChatMessagePacket() { }
 
-        public NewChatMessagePacket(ChatMessageType messageType, string messageText)
+        public NewChatMessagePacket(ChatMessageType messageType, string messageText, DateTime sentAt, string userName)
         {
             MessageType = messageType;
             MessageText = messageText;
+            SentAt = sentAt.ToBinary();
+            UserName = userName;
         }
     }
 }

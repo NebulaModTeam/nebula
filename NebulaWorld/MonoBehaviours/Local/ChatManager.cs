@@ -26,13 +26,13 @@ namespace NebulaWorld.MonoBehaviours.Local
                     if (Multiplayer.IsActive)
                     {
                         Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.PlayerMessage,
-                            chatBox.text));
-                        SendMessageToChat($"[{DateTime.Now:HH:mm}] : {chatBox.text}", ChatMessageType.PlayerMessage);
+                            chatBox.text, DateTime.Now, GetUserName()));
                     }
                     else
                     {
                         Log.Debug($"Chat message is only sent locally");
                     }
+                    SendMessageToChat($"[{DateTime.Now:HH:mm}] [{GetUserName()}] : {chatBox.text}", ChatMessageType.PlayerMessage);
                     chatBox.text = "";
                 }
                 else
@@ -40,16 +40,14 @@ namespace NebulaWorld.MonoBehaviours.Local
                     if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
                         chatBox.ActivateInputField();
                 }
-                if (!chatBox.isFocused)
-                {
-                    if (Input.GetKeyDown(KeyCode.Space))
-                    {
-                        SendMessageToChat($"[{DateTime.Now:HH:mm}] [system] : Space key pressed", ChatMessageType.SystemMessage);
-                    }
-                }
             }
 
             SendPlanetInfoMessage();
+        }
+
+        private static string GetUserName()
+        {
+            return Multiplayer.Session.LocalPlayer.Data.Username;
         }
 
         private void SendPlanetInfoMessage()
@@ -60,9 +58,9 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 return;
             }
-            var locationStr = GameMain.localPlanet == null ? "In Space" : GameMain.localPlanet.displayName;
+            string locationStr = GameMain.localPlanet == null ? "In Space" : GameMain.localPlanet.displayName;
             Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemMessage,
-                $"Connected, current location {locationStr}"));
+                $"Connected, current location {locationStr}", DateTime.Now, GetUserName()));
             _sentLocation = true;
         }
 
@@ -88,7 +86,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
         }
 
-        Color MessageTypeColor(ChatMessageType messageType)
+        private Color MessageTypeColor(ChatMessageType messageType)
         {
             Color color = Color.white;
             switch (messageType)
@@ -107,7 +105,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         public void Toggle()
         {
             // ignore backtick if typing message
-            if (Input.GetKeyDown("`") && chatBox.isFocused)
+            if (Input.GetKeyDown(KeyCode.BackQuote) && chatBox.isFocused)
                 return;
             chatWindow.SetActive(!chatWindow.activeSelf);
             if (chatWindow.activeSelf)
