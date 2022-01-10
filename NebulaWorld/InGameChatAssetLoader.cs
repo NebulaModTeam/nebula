@@ -27,7 +27,7 @@ namespace NebulaWorld
                     Log.Warn($"plugin folder is null, unable to load chat");
                     return null;
                 }
-                var fullAssetPath = Path.Combine(pluginfolder, "Assets", "ncht");
+                var fullAssetPath = Path.Combine(pluginfolder, "Assets", "nebulabundle");
                 assetBundle = AssetBundle.LoadFromFile(fullAssetPath);
             }
 

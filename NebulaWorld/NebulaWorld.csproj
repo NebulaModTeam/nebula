@@ -5,7 +5,7 @@
     <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\ncht">
+    <Content Include="Assets\nebulabundle">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
