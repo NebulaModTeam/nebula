@@ -14,17 +14,12 @@ namespace NebulaWorld.MonoBehaviours.Local
         public InputField chatBox;
         public int maxMessages = 25;
         public GameObject chatPanel, textObject, notifier, chatWindow;
-        private Text notifierText;
+        public Text newChatNotificationText;
         [SerializeField] private List<Message> messages = new List<Message>();
         public Color playerMessage, info;
         private int _attemptsToGetLocationCountDown = 25;
         private bool _sentLocation;
         private Queue<QueuedMessage> _queuedMessages = new Queue<QueuedMessage>(5);
-
-        private void Awake()
-        {
-            notifierText = notifier.GetComponent<Text>();
-        }
 
         void Update()
         {
@@ -44,12 +39,9 @@ namespace NebulaWorld.MonoBehaviours.Local
                             chatBox.text, DateTime.Now, GetUserName()));
                         SendMessageToChat($"[{DateTime.Now:HH:mm}] [{GetUserName()}] : {chatBox.text}", ChatMessageType.PlayerMessage);
                     }
-                    else
-                    {
-                        Log.Debug($"Chat message is only sent locally");
-                    }
-
                     chatBox.text = "";
+                    // bring cursor back to message area so they can keep typing
+                    chatBox.ActivateInputField();
                 }
                 else
                 {
@@ -58,7 +50,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 }
             }
 
-            SendPlanetInfoMessage();
+            SendPostConnectionPlanetInfoMessage();
             if (_queuedMessages.Count > 0)
             {
                 QueuedMessage queuedMessage = _queuedMessages.Dequeue();
@@ -71,7 +63,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             return Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "Unknown";
         }
 
-        private void SendPlanetInfoMessage()
+        private void SendPostConnectionPlanetInfoMessage()
         {
             if (_sentLocation || !Multiplayer.IsActive || Multiplayer.Session.IsInLobby || Multiplayer.IsInMultiplayerMenu)
                 return;
@@ -82,7 +74,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
             string locationStr = GameMain.localPlanet == null ? "In Space" : GameMain.localPlanet.displayName;
             Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemMessage,
-                $"Connected, current location {locationStr}", DateTime.Now, GetUserName()));
+                $"connected ({locationStr})", DateTime.Now, GetUserName()));
             _sentLocation = true;
         }
 
@@ -119,10 +111,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 else
                 {
                     notifier.SetActive(true);
-                    if (notifierText != null)
-                    {
-                        notifierText.text = newMsg.text;
-                    }
+                    newChatNotificationText.text = newMsg.text;
                 }
             }
         }
@@ -138,6 +127,9 @@ namespace NebulaWorld.MonoBehaviours.Local
                 case ChatMessageType.SystemMessage:
                     color = info;
                     break;
+                default:
+                    Log.Warn($"Requested color for unexpected chat message type {messageType}");
+                    break;
             }
 
             return color;
@@ -145,7 +137,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public void Toggle(bool forceClosed = false)
         {
-            bool desiredStatus = forceClosed ? false : !chatWindow.activeSelf;
+            bool desiredStatus = !forceClosed && !chatWindow.activeSelf;
             chatWindow.SetActive(desiredStatus);
             if (chatWindow.activeSelf)
             {
