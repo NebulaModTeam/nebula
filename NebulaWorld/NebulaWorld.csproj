@@ -9,7 +9,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="*-*" IncludeAssets="compile" PrivateAssets="all"/>
-  </ItemGroup>
 </Project>
