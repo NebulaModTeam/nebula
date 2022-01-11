@@ -1,5 +1,8 @@
-﻿namespace NebulaModel.Packets.Universe
+﻿using NebulaAPI;
+
+namespace NebulaModel.Packets.Universe
 {
+    [HidePacketInDebugLogs]
     public class DysonSphereStatusPacket
     {
         public int StarIndex { get; set; }

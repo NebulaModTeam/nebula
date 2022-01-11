@@ -40,8 +40,8 @@ namespace NebulaWorld
 
                 // Add remote player components
                 Movement = PlayerTransform.gameObject.AddComponent<RemotePlayerMovement>();
-                Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
                 Effects = PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
+                Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
 
                 PlayerTransform.GetComponent<PlayerAnimator>().Start();
                 PlayerTransform.GetComponent<PlayerAnimator>().enabled = false;

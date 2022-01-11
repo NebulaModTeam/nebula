@@ -1,7 +1,7 @@
 ﻿using NebulaAPI;
 using NebulaModel.Packets.Players;
-using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours.Local;
+using System;
 using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Remote
@@ -9,6 +9,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
     public class RemotePlayerMovement : MonoBehaviour
     {
         private const int BUFFERED_SNAPSHOT_COUNT = 4;
+        private const double INTERPOLATION_TIME = (1000 / (double)LocalPlayerMovement.SEND_RATE) * (BUFFERED_SNAPSHOT_COUNT - 1);
 
         public struct Snapshot
         {
@@ -67,9 +68,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 return;
             }
 
-            double past = (1000 / (double)LocalPlayerMovement.SEND_RATE) * (snapshotBuffer.Length - 1);
-            double now = TimeUtils.CurrentUnixTimestampMilliseconds();
-            double renderTime = now - past;
+            double renderTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - INTERPOLATION_TIME;
 
             for (int i = 0; i < snapshotBuffer.Length - 1; ++i)
             {
@@ -109,7 +108,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             snapshotBuffer[snapshotBuffer.Length - 1] = new Snapshot()
             {
-                Timestamp = TimeUtils.CurrentUnixTimestampMilliseconds(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 LocalPlanetId = movement.LocalPlanetId,
                 LocalPlanetPosition = movement.LocalPlanetPosition,
                 UPosition = movement.UPosition,

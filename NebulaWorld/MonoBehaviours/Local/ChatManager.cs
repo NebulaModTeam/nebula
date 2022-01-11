@@ -18,6 +18,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         public Color playerMessage, info;
         private int _attemptsToGetLocationCountDown = 25;
         private bool _sentLocation;
+        private Queue<QueuedMessage> _queuedMessages = new Queue<QueuedMessage>(5);
 
         void Update()
         {
@@ -26,6 +27,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 Log.Info("Chat window keybind triggered");
                 Toggle();
             }
+
             if (chatBox.text != "")
             {
                 if (Input.GetKeyDown(KeyCode.Return))
@@ -51,6 +53,11 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
 
             SendPlanetInfoMessage();
+            if (_queuedMessages.Count > 0)
+            {
+                QueuedMessage queuedMessage = _queuedMessages.Dequeue();
+                SendMessageToChat(queuedMessage.MessageText, queuedMessage.ChatMessageType);
+            }
         }
 
         private static string GetUserName()
@@ -73,7 +80,15 @@ namespace NebulaWorld.MonoBehaviours.Local
             _sentLocation = true;
         }
 
-        public void SendMessageToChat(string text, ChatMessageType messageType)
+        // Queue a message to appear in chat window
+        public void QueueChatMessage(string text, ChatMessageType messageType)
+        {
+            _queuedMessages.Enqueue(new QueuedMessage { MessageText = text, ChatMessageType = messageType });
+        }
+
+
+        // This one is private, outsiders should call QueueChatMessage
+        private void SendMessageToChat(string text, ChatMessageType messageType)
         {
             if (messages.Count > maxMessages)
             {
@@ -140,5 +155,11 @@ namespace NebulaWorld.MonoBehaviours.Local
         public string text;
         public Text textObject;
         public ChatMessageType messageType;
+    }
+
+    internal class QueuedMessage
+    {
+        public string MessageText;
+        public ChatMessageType ChatMessageType;
     }
 }
