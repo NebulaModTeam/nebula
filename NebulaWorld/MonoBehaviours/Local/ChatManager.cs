@@ -14,11 +14,17 @@ namespace NebulaWorld.MonoBehaviours.Local
         public InputField chatBox;
         public int maxMessages = 25;
         public GameObject chatPanel, textObject, notifier, chatWindow;
+        private Text notifierText;
         [SerializeField] private List<Message> messages = new List<Message>();
         public Color playerMessage, info;
         private int _attemptsToGetLocationCountDown = 25;
         private bool _sentLocation;
         private Queue<QueuedMessage> _queuedMessages = new Queue<QueuedMessage>(5);
+
+        private void Awake()
+        {
+            notifierText = notifier.GetComponent<Text>();
+        }
 
         void Update()
         {
@@ -113,6 +119,10 @@ namespace NebulaWorld.MonoBehaviours.Local
                 else
                 {
                     notifier.SetActive(true);
+                    if (notifierText != null)
+                    {
+                        notifierText.text = newMsg.text;
+                    }
                 }
             }
         }
