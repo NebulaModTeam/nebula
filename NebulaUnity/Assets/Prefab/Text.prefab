@@ -64,15 +64,15 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 6c2a5d1da58c91b4494850800c1152ea, type: 3}
-    m_FontSize: 18
+    m_Font: {fileID: 12800000, guid: 20f3656dfae46ea4eb4a6eea788350c5, type: 3}
+    m_FontSize: 16
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
-    m_MaxSize: 18
+    m_MaxSize: 20
     m_Alignment: 3
     m_AlignByGeometry: 0
-    m_RichText: 1
+    m_RichText: 0
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1

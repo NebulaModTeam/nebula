@@ -219,7 +219,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4092147421265152491}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.9999998
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -259,9 +259,9 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -17, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &8527865725534094078
 MonoBehaviour:
@@ -708,7 +708,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 299.6, y: 400.4}
+  m_AnchoredPosition: {x: 302, y: 405}
   m_SizeDelta: {x: 677.2, y: 413.9}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &524049609516045720
@@ -759,7 +759,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dragTrigger: {fileID: 1014374440056224419}
   dragTrans: {fileID: 3527980105942565041}
-  refTrans: {fileID: 3527980105942565041}
+  refTrans: {fileID: 3715785313665036751}
   dragThreshold: 4
   damping: 0.166
   spring: 0.5
@@ -818,7 +818,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3715785313665036751
 RectTransform:
   m_ObjectHideFlags: 0
@@ -838,8 +838,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 67.29999}
-  m_SizeDelta: {x: 578.8, y: -134.6}
+  m_AnchoredPosition: {x: 4.78, y: 65.39}
+  m_SizeDelta: {x: 588.37, y: -130.77}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9062475091614487887
 CanvasRenderer:
@@ -924,7 +924,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -0.000061035156, y: -0.000015258789}
+  m_AnchoredPosition: {x: -0.000061035156, y: 0}
   m_SizeDelta: {x: -3, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &3838301613670048568
@@ -996,8 +996,8 @@ RectTransform:
   m_Father: {fileID: 8882942286957942682}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.000000059604645}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1178,14 +1178,14 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 20f3656dfae46ea4eb4a6eea788350c5, type: 3}
-    m_FontSize: 10
+    m_FontSize: 16
     m_FontStyle: 2
-    m_BestFit: 1
+    m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 100
-    m_Alignment: 0
+    m_Alignment: 3
     m_AlignByGeometry: 0
-    m_RichText: 1
+    m_RichText: 0
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1

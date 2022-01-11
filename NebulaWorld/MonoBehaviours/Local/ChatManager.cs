@@ -68,12 +68,12 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         private static string GetUserName()
         {
-            return Multiplayer.Session.LocalPlayer.Data.Username;
+            return Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "Unknown";
         }
 
         private void SendPlanetInfoMessage()
         {
-            if (_sentLocation)
+            if (_sentLocation || !Multiplayer.IsActive || Multiplayer.Session.IsInLobby || Multiplayer.IsInMultiplayerMenu)
                 return;
             if (GameMain.localPlanet == null && _attemptsToGetLocationCountDown-- > 0)
             {
