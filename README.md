@@ -21,7 +21,7 @@ This mod has an API, that makes it easier for other mod developers to make their
 
 ## Chat 
 
-The chat window can opened/closed using the '`' key
+The chat window can opened/closed using Alt + Backtick (configurable in game settings under Control). Also in settings (under Multiplayer) is an option to disable the chat window from automatically opening when a message is received.
 
 ## What is the current status?
 

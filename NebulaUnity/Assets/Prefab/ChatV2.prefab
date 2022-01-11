@@ -346,7 +346,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 389.6, y: 121.3}
+  m_AnchoredPosition: {x: 289.50015, y: 122.84999}
   m_SizeDelta: {x: 19.8, y: 21.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2846414687842461106
@@ -491,6 +491,17 @@ MonoBehaviour:
             m_FloatArgument: 0
             m_StringArgument: 
             m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 6249457066909910904}
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
           m_CallState: 2
   delegates: []
 --- !u!114 &4323574421575409796
@@ -691,8 +702,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 350, y: 0}
-  m_SizeDelta: {x: -1059.9, y: 401.6}
+  m_AnchoredPosition: {x: 183.7, y: 47}
+  m_SizeDelta: {x: -1037.4, y: 401.6}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &524049609516045720
 MonoBehaviour:
@@ -801,8 +812,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 20.2, y: 6.399994}
-  m_SizeDelta: {x: 800.4, y: -137.1}
+  m_AnchoredPosition: {x: -80.6, y: 5.100006}
+  m_SizeDelta: {x: 598.8, y: -134.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9062475091614487887
 CanvasRenderer:

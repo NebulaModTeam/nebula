@@ -1,4 +1,5 @@
-﻿using NebulaWorld;
+﻿using CommonAPI.Systems;
+using NebulaWorld;
 using UnityEngine;
 
 namespace NebulaPatcher.MonoBehaviours
@@ -15,7 +16,7 @@ namespace NebulaPatcher.MonoBehaviours
             // This makes sure that even if the game is minimized, it will still receive and send packets
             Application.runInBackground = true;
             // make sure chat window starts out closed
-            InGameChatAssetLoader.ChatManager()?.Toggle(true);
+            InGameChatAssetLoader.ChatManager()?.Toggle(forceClosed: true);
         }
 
         private void Update()
@@ -23,11 +24,6 @@ namespace NebulaPatcher.MonoBehaviours
             if (Multiplayer.IsActive)
             {
                 Multiplayer.Session.Network.Update();
-                // TODO: make this bindable
-                if (Input.GetKeyDown("`"))
-                {
-                    InGameChatAssetLoader.ChatManager()?.Toggle();
-                }
             }
         }
     }

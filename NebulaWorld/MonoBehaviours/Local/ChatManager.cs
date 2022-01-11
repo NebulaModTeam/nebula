@@ -1,4 +1,6 @@
-﻿using NebulaModel.Logger;
+﻿using CommonAPI.Systems;
+using NebulaModel;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using System;
 using System.Collections.Generic;
@@ -19,6 +21,11 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         void Update()
         {
+            if (CustomKeyBindSystem.GetKeyBind("NebulaChatWindow").keyValue)
+            {
+                Log.Info("Chat window keybind triggered");
+                Toggle();
+            }
             if (chatBox.text != "")
             {
                 if (Input.GetKeyDown(KeyCode.Return))
@@ -59,6 +66,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 return;
             }
+
             string locationStr = GameMain.localPlanet == null ? "In Space" : GameMain.localPlanet.displayName;
             Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemMessage,
                 $"Connected, current location {locationStr}", DateTime.Now, GetUserName()));
@@ -83,7 +91,14 @@ namespace NebulaWorld.MonoBehaviours.Local
             // alert user of new chat if panel closed
             if (!chatWindow.activeSelf)
             {
-                notifier.SetActive(true);
+                if (Config.Options.AutoOpenChat)
+                {
+                    Toggle();
+                }
+                else
+                {
+                    notifier.SetActive(true);
+                }
             }
         }
 
@@ -105,10 +120,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public void Toggle(bool forceClosed = false)
         {
-            bool desiredStatus = !forceClosed && !chatWindow.activeSelf;
-            // ignore backtick if typing message
-            if (Input.GetKeyDown(KeyCode.BackQuote) && chatBox.isFocused)
-                return;
+            bool desiredStatus = forceClosed ? false : !chatWindow.activeSelf;
             chatWindow.SetActive(desiredStatus);
             if (chatWindow.activeSelf)
             {

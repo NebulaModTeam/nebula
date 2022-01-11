@@ -5,5 +5,6 @@
     <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
     <ProjectReference Include="..\NebulaNetwork\NebulaNetwork.csproj" />
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
+    <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="*-*" IncludeAssets="compile" PrivateAssets="all"/>
   </ItemGroup>
 </Project>
