@@ -11,6 +11,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 {
     public class ChatManager : MonoBehaviour
     {
+        private const long NOTIFICATION_DURATION_TICKS = TimeSpan.TicksPerMinute * 1; 
         public InputField chatBox;
         public int maxMessages = 25;
         public GameObject chatPanel, textObject, notifier, chatWindow;
@@ -20,6 +21,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         private int _attemptsToGetLocationCountDown = 25;
         private bool _sentLocation;
         private Queue<QueuedMessage> _queuedMessages = new Queue<QueuedMessage>(5);
+        private long notifierEndTime;
 
         void Update()
         {
@@ -55,6 +57,17 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 QueuedMessage queuedMessage = _queuedMessages.Dequeue();
                 SendMessageToChat(queuedMessage.MessageText, queuedMessage.ChatMessageType);
+            }
+
+            HideExpiredNotification();
+        }
+
+        private void HideExpiredNotification()
+        {
+            if (notifier.activeSelf && notifierEndTime < DateTime.Now.Ticks)
+            {
+                Log.Debug($"Hiding new chat notification after {NOTIFICATION_DURATION_TICKS} ticks");
+                notifier.SetActive(false);
             }
         }
 
@@ -112,6 +125,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 {
                     notifier.SetActive(true);
                     newChatNotificationText.text = newMsg.text;
+                    notifierEndTime = DateTime.Now.Ticks + NOTIFICATION_DURATION_TICKS;
                 }
             }
         }
