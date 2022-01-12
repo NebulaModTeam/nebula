@@ -16,7 +16,7 @@ namespace NebulaPatcher.MonoBehaviours
             // This makes sure that even if the game is minimized, it will still receive and send packets
             Application.runInBackground = true;
             // make sure chat window starts out closed
-            InGameChatAssetLoader.ChatManager()?.Toggle(forceClosed: true);
+            //InGameChatAssetLoader.ChatManager()?.Toggle(forceClosed: true);
         }
 
         private void Update()

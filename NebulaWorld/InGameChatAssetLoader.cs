@@ -9,7 +9,7 @@ namespace NebulaWorld
     public static class InGameChatAssetLoader
     {
         private static ChatManager chatManager;
-        private static AssetBundle assetBundle;
+        public static AssetBundle assetBundle;
 
         public static ChatManager ChatManager()
         {

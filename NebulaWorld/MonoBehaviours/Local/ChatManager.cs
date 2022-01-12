@@ -2,8 +2,10 @@
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
+using NebulaWorld.Chat;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +13,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 {
     public class ChatManager : MonoBehaviour
     {
-        public InputField chatBox;
+        public TMP_InputField chatBox;
         public int maxMessages = 25;
         public GameObject chatPanel, textObject, notifier, chatWindow;
         [SerializeField] private List<Message> messages = new List<Message>();
@@ -19,6 +21,11 @@ namespace NebulaWorld.MonoBehaviours.Local
         private int _attemptsToGetLocationCountDown = 25;
         private bool _sentLocation;
         private Queue<QueuedMessage> _queuedMessages = new Queue<QueuedMessage>(5);
+
+        private void OnEnable()
+        {
+            Toggle(true);
+        }
 
         void Update()
         {
@@ -98,7 +105,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
             var newMsg = new Message { text = text };
             GameObject nextText = Instantiate(textObject, chatPanel.transform);
-            newMsg.textObject = nextText.GetComponent<Text>();
+            newMsg.textObject = nextText.GetComponent<TMP_Text>();
             newMsg.textObject.text = newMsg.text;
             newMsg.textObject.color = MessageTypeColor(messageType);
             Log.Info($"Adding message: {messageType} {newMsg.text}");
@@ -135,7 +142,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public void Toggle(bool forceClosed = false)
         {
-            bool desiredStatus = forceClosed ? false : !chatWindow.activeSelf;
+            bool desiredStatus = !forceClosed && !chatWindow.activeSelf;
             chatWindow.SetActive(desiredStatus);
             if (chatWindow.activeSelf)
             {
@@ -143,6 +150,22 @@ namespace NebulaWorld.MonoBehaviours.Local
                 chatBox.ActivateInputField();
                 notifier.SetActive(false);
             }
+        }
+
+        public void InsertSprite()
+        {
+            Vector2 pos =  new Vector2(-300, 238);
+            UISignalPicker.Popup(pos, singalId =>
+            {
+                if (singalId <= 0) return;
+                
+                uint spriteIndex = ChatRichTextManager.signalSpriteIndex[singalId];
+                if (spriteIndex >= ChatRichTextManager.iconsSpriteAsset.spriteCharacterTable.Count) return;
+
+                TMP_SpriteCharacter character = ChatRichTextManager.iconsSpriteAsset.spriteCharacterTable[(int)spriteIndex];
+                string richText = $"<sprite name=\"{character.name}\">";
+                chatBox.text = chatBox.text.Insert(chatBox.stringPosition, richText);
+            });
         }
     }
 
@@ -153,7 +176,7 @@ namespace NebulaWorld.MonoBehaviours.Local
     public class Message
     {
         public string text;
-        public Text textObject;
+        public TMP_Text textObject;
         public ChatMessageType messageType;
     }
 
