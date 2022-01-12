@@ -8,6 +8,7 @@ This folder contains a Unity project that can be used to build custom UI element
 1. Open the Unity project using the Unity Editor.
 2. You should see ThunderKit settings window, press Locate Game button and select where DSP is installed.
 3. In your context menu select Window->Nebula->Install Packages and wait for opened window to close.
+   Note that this step may seem to hang but usually if you wait a few seconds it will move to next step. There are 5 total packages that will be installed 
 4. Build the main project
    `dotnet build`
 5. Copy project DLLs into Unity project 
