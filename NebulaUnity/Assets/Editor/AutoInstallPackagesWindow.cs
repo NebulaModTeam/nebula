@@ -48,7 +48,7 @@ public class AutoInstallPackagesWindow : EditorWindow
             Vector2 mousePos = GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
             position = new Rect(mousePos.x, mousePos.y, position.width, position.height);
             initPosition = true;
-        }
+        }   
 
         GUILayout.Label("Installing needed Packages, please wait.");
         
