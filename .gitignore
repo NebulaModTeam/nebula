@@ -380,3 +380,5 @@ nbgv.exe
 NebulaUnity/Assets/Assemblies
 # Generated assets
 NebulaUnity/Assets/StreamingAssets/AssetBundles
+NebulaUnity/Assets/Plugins/Editor/JetBrains
+NebulaUnity/Assets/Plugins/Editor/JetBrains.meta
