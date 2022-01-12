@@ -11,7 +11,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void PowerSystem_GameTick_Prefix(long time, ref bool isActive)
         {
             //Enable signType update on remote planet every 64 tick
-            isActive |= (time & 63) == 0;
+            if ((time & 63) == 0 && Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                isActive |= true;
+            }
         }
 
         [HarmonyPostfix]
