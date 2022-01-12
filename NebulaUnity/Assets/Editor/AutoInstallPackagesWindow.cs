@@ -20,6 +20,8 @@ public class AutoInstallPackagesWindow : EditorWindow
 
     public bool shouldClose;
     public bool initPosition = false;
+    public bool currentlyInstalling = false;
+    public string installName;
 
     [MenuItem("Window/Nebula/Install Packages")]
     private static void Init()
@@ -38,7 +40,16 @@ public class AutoInstallPackagesWindow : EditorWindow
 
     private void OnEnable()
     {
+        currentlyInstalling = false;
         Task.Delay(2000).Wait();
+        PackageSourceSettings settings = ThunderKitSetting.GetOrCreateSettings<PackageSourceSettings>();
+        shouldClose = InstallNextPackage(settings);
+    }
+
+    private void Update()
+    {
+        if (currentlyInstalling || EditorApplication.isCompiling) return;
+
         PackageSourceSettings settings = ThunderKitSetting.GetOrCreateSettings<PackageSourceSettings>();
         shouldClose = InstallNextPackage(settings);
     }
@@ -53,6 +64,11 @@ public class AutoInstallPackagesWindow : EditorWindow
         }
 
         GUILayout.Label("Installing needed Packages, please wait.");
+        
+        if(currentlyInstalling)
+            GUILayout.Label($"Installing {installName}");
+        if (EditorApplication.isCompiling)
+            GUILayout.Label("Waiting for compilation!");
 
         if (shouldClose)
         {
@@ -61,7 +77,7 @@ public class AutoInstallPackagesWindow : EditorWindow
         }
     }
 
-    private static bool InstallNextPackage(PackageSourceSettings settings)
+    private bool InstallNextPackage(PackageSourceSettings settings)
     {
         foreach (string packageString in Packages)
         {
@@ -74,7 +90,10 @@ public class AutoInstallPackagesWindow : EditorWindow
                         source.Packages.First(package => package.Author.Equals(packageData[0]) && package.PackageName.Equals(packageData[1]));
                     if (!neededPackage.Installed)
                     {
-                        Debug.Log($"Installing {neededPackage.Author}-{neededPackage.PackageName}");
+                        currentlyInstalling = true;
+                        installName = $"{neededPackage.Author}-{neededPackage.PackageName}";
+                        Debug.Log($"Installing {installName}");
+                        
                         Task task = neededPackage.Source.InstallPackage(neededPackage, packageData[2]);
                         task.Wait();
                         return false;
