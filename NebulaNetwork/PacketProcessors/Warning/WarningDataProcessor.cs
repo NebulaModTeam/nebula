@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Warning
             Multiplayer.Session.Warning.TickData = packet.Tick;
             using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.BinaryData))
             {
-                Multiplayer.Session.Warning.ImporBinaryData(reader.BinaryReader, packet.ActiveWarningCount);
+                Multiplayer.Session.Warning.ImportBinaryData(reader.BinaryReader, packet.ActiveWarningCount);
             }
         }
     }

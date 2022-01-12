@@ -137,7 +137,7 @@ namespace NebulaWorld.Warning
             return activeWarningCount;
         }
 
-        public void ImporBinaryData(BinaryReader br, int activeWarningCount)
+        public void ImportBinaryData(BinaryReader br, int activeWarningCount)
         {
             ws = GameMain.data.warningSystem;
             while (activeWarningCount > ws.warningCapacity)
