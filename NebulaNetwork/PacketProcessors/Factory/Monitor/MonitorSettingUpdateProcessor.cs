@@ -105,7 +105,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Monitor
                     }
                 }
             }
-            else
+            else if (pool != null)
             {
                 Log.Warn($"MonitorSettingUpdatePacket: Can't find monitor ({packet.PlanetId}, {packet.MonitorId})");
             }

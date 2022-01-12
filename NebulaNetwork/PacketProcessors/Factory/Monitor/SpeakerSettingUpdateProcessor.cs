@@ -80,7 +80,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Monitor
                     }
                 }
             }
-            else
+            else if (pool != null)
             {
                 Log.Warn($"SpeakerSettingUpdatePacket: Can't find speaker ({packet.PlanetId}, {packet.SpeakerId})");
             }

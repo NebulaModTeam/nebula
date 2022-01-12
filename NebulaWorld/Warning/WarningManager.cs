@@ -120,7 +120,8 @@ namespace NebulaWorld.Warning
         {
             int activeWarningCount = 0;   
             WarningData[] warningPool = ws.warningPool;
-            for (int i = 0; i < ws.warningCursor; i++)
+            //index start from 1 in warningPool
+            for (int i = 1; i < ws.warningCursor; i++)
             {
                 WarningData data = warningPool[i];
                 if (data.id == i && data.state > 0)
@@ -140,16 +141,20 @@ namespace NebulaWorld.Warning
         public void ImportBinaryData(BinaryReader br, int activeWarningCount)
         {
             ws = GameMain.data.warningSystem;
-            while (activeWarningCount > ws.warningCapacity)
+            int newCapacity = ws.warningCapacity;
+            while (activeWarningCount + 1 > newCapacity)
 			{
-                ws.warningCapacity *= 2;
+                newCapacity *= 2;
 			}
-            ws.SetWarningCapacity(ws.warningCapacity);
-            ws.warningCursor = activeWarningCount;
+            if (newCapacity > ws.warningCapacity)
+            {
+                ws.SetWarningCapacity(newCapacity);
+            }
+            ws.warningCursor = activeWarningCount + 1;
 
-            //Import warning pool
             WarningData[] warningPool = GameMain.data.warningSystem.warningPool;
-            for (int i = 0; i < activeWarningCount; i++)
+            //index start from 1 in warningPool
+            for (int i = 1; i <= activeWarningCount; i++)
             {
                 warningPool[i].id = i;
                 warningPool[i].state = 1;
