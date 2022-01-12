@@ -66,7 +66,7 @@ public class AutoInstallPackagesWindow : EditorWindow
                         return false;
                     }
                 }
-                catch (InvalidOperationException e) { }
+                catch (Exception ignored) { }
             }
         }
 

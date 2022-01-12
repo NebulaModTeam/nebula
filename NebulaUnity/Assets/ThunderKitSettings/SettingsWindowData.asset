@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13a56dfcde6dc7841a8bb1cbf89fc366, type: 3}
   m_Name: SettingsWindowData
   m_EditorClassIdentifier: 
-  FirstLoad: 0
+  FirstLoad: 1
   ShowOnStartup: 1
