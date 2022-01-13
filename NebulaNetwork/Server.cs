@@ -24,12 +24,14 @@ namespace NebulaNetwork
         private const float STATISTICS_UPDATE_INTERVAL = 1;
         private const float LAUNCH_UPDATE_INTERVAL = 2;
         private const float DYSONSPHERE_UPDATE_INTERVAL = 5;
+        private const float WARNING_UPDATE_INTERVAL = 1;
 
         private float gameStateUpdateTimer = 0;
         private float gameResearchHashUpdateTimer = 0;
         private float productionStatisticsUpdateTimer = 0;
         private float dysonLaunchUpateTimer = 1;
         private float dysonSphereUpdateTimer = 0;
+        private float warningUpdateTimer = 0;
 
         private WebSocketServer socket;
 
@@ -128,7 +130,8 @@ namespace NebulaNetwork
             gameResearchHashUpdateTimer += Time.deltaTime;
             productionStatisticsUpdateTimer += Time.deltaTime;
             dysonLaunchUpateTimer += Time.deltaTime;
-            dysonSphereUpdateTimer += Time.deltaTime;            
+            dysonSphereUpdateTimer += Time.deltaTime;
+            warningUpdateTimer += Time.deltaTime;
 
             if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
             {
@@ -170,6 +173,12 @@ namespace NebulaNetwork
                         SendPacketToStar(new DysonSphereStatusPacket(dysonSphere), dysonSphere.starData.id);
                     }
                 }
+            }
+
+            if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
+            {
+                warningUpdateTimer = 0;
+                Multiplayer.Session.Warning.SendBroadcastIfNeeded();
             }
 
             PacketProcessor.ProcessPacketQueue();

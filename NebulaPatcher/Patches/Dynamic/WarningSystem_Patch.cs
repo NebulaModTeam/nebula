@@ -1,22 +1,38 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Warning;
+using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(WarningSystem))]
-    class WarningSystem_Patch
+    internal class WarningSystem_Patch
     {
-        /*
-         * Until we have a proper syncing of this system we avoid index out of bounds by skipping the method if needed.
-         */
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(WarningSystem), nameof(WarningSystem.NewWarningData))]
         [HarmonyPatch(typeof(WarningSystem), nameof(WarningSystem.RemoveWarningData))]
-        public static bool RemoveWarningData_Prefix(WarningSystem __instance, int id)
+        [HarmonyPatch(typeof(WarningSystem), nameof(WarningSystem.WarningLogic))]
+        public static bool AlterWarningData_Prefix()
         {
-            if(id > __instance.warningCursor)
+            //Let warningPool only be updated by packet
+            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(WarningSystem), nameof(WarningSystem.CalcFocusDetail))]
+        public static void CalcFocusDetail_Prefix(int __0)
+        {
+            if (__0 == 0 || !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
-                return false;
+                return;
             }
-            return true;
+            if (Multiplayer.Session.Warning.TickSignal != Multiplayer.Session.Warning.TickData)
+            {
+                if (GameMain.gameTick - Multiplayer.Session.Warning.LastRequestTime > 240)
+                {
+                    Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Data));
+                    Multiplayer.Session.Warning.LastRequestTime = GameMain.gameTick;
+                }
+            }
         }
     }
 }
