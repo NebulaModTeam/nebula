@@ -1,5 +1,10 @@
 ## Changelog
 
+0.8.0:
+
+- @starfish: Added WarningSystem syncing
+- @PhantomGamers: Fixed case of NRE when arriving on another planet
+
 0.7.9:
 
 - @sp00ktober: gracefully tell older nebula versions that there is a mod version missmatch.

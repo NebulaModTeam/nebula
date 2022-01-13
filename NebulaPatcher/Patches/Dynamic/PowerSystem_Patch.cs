@@ -6,6 +6,17 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(PowerSystem))]
     internal class PowerSystem_Patch
     {
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PowerSystem.GameTick))]
+        public static void PowerSystem_GameTick_Prefix(long time, ref bool isActive)
+        {
+            //Enable signType update on remote planet every 64 tick
+            if ((time & 63) == 0 && Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                isActive |= true;
+            }
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PowerSystem.GameTick))]
         public static void PowerSystem_GameTick_Postfix(PowerSystem __instance, long time, bool isActive, bool isMultithreadMode)
