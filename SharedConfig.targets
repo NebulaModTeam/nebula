@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectAssembliesForUnityProject Include="$(TargetDir)\*.dll"/>
+	<ProjectAssembliesMetaFilesFolder Include="..\NebulaUnity\AssemblyMeta\*.meta"/>
   </ItemGroup>
   <Target Name="CopyAssembliesToUnityProject"
           AfterTargets="Build">
@@ -35,4 +36,17 @@
           SourceFiles="@(ProjectAssembliesForUnityProject)"
           DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
   </Target>
+  
+  <Target Name="CopyMetaFilesToUnityProject"
+          AfterTargets="Build">
+    <Copy
+          SourceFiles="@(ProjectAssembliesMetaFilesFolder)"
+          DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
+  </Target>
+  
+  <Target Name="BeforeBuild">
+    <Copy
+          SourceFiles="..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle"
+          DestinationFolder="..\NebulaWorld\Assets\" />
+  </Target>  
 </Project>
