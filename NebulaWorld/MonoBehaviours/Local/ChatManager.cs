@@ -13,14 +13,17 @@ namespace NebulaWorld.MonoBehaviours.Local
 {
     public class ChatManager : MonoBehaviour
     {
+        private const long NOTIFICATION_DURATION_TICKS = TimeSpan.TicksPerMinute * 1;
         public TMP_InputField chatBox;
         public int maxMessages = 25;
         public GameObject chatPanel, textObject, notifier, chatWindow;
+        public TMP_Text newChatNotificationText;
         [SerializeField] private List<Message> messages = new List<Message>();
         public Color playerMessage, info;
         private int _attemptsToGetLocationCountDown = 25;
         private bool _sentLocation;
         private Queue<QueuedMessage> _queuedMessages = new Queue<QueuedMessage>(5);
+        private long notifierEndTime;
 
         private void OnEnable()
         {
@@ -45,12 +48,9 @@ namespace NebulaWorld.MonoBehaviours.Local
                             chatBox.text, DateTime.Now, GetUserName()));
                         SendMessageToChat($"[{DateTime.Now:HH:mm}] [{GetUserName()}] : {chatBox.text}", ChatMessageType.PlayerMessage);
                     }
-                    else
-                    {
-                        Log.Debug($"Chat message is only sent locally");
-                    }
-
                     chatBox.text = "";
+                    // bring cursor back to message area so they can keep typing
+                    chatBox.ActivateInputField();
                 }
                 else
                 {
@@ -59,22 +59,33 @@ namespace NebulaWorld.MonoBehaviours.Local
                 }
             }
 
-            SendPlanetInfoMessage();
+            SendPostConnectionPlanetInfoMessage();
             if (_queuedMessages.Count > 0)
             {
                 QueuedMessage queuedMessage = _queuedMessages.Dequeue();
                 SendMessageToChat(queuedMessage.MessageText, queuedMessage.ChatMessageType);
             }
+
+            HideExpiredNotification();
+        }
+
+        private void HideExpiredNotification()
+        {
+            if (notifier.activeSelf && notifierEndTime < DateTime.Now.Ticks)
+            {
+                Log.Debug($"Hiding new chat notification after {NOTIFICATION_DURATION_TICKS} ticks");
+                notifier.SetActive(false);
+            }
         }
 
         private static string GetUserName()
         {
-            return Multiplayer.Session.LocalPlayer.Data.Username;
+            return Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "Unknown";
         }
 
-        private void SendPlanetInfoMessage()
+        private void SendPostConnectionPlanetInfoMessage()
         {
-            if (_sentLocation)
+            if (_sentLocation || !Multiplayer.IsActive || Multiplayer.Session.IsInLobby || Multiplayer.IsInMultiplayerMenu)
                 return;
             if (GameMain.localPlanet == null && _attemptsToGetLocationCountDown-- > 0)
             {
@@ -83,7 +94,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
             string locationStr = GameMain.localPlanet == null ? "In Space" : GameMain.localPlanet.displayName;
             Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemMessage,
-                $"Connected, current location {locationStr}", DateTime.Now, GetUserName()));
+                $"connected ({locationStr})", DateTime.Now, GetUserName()));
             _sentLocation = true;
         }
 
@@ -120,6 +131,8 @@ namespace NebulaWorld.MonoBehaviours.Local
                 else
                 {
                     notifier.SetActive(true);
+                    newChatNotificationText.text = newMsg.text;
+                    notifierEndTime = DateTime.Now.Ticks + NOTIFICATION_DURATION_TICKS;
                 }
             }
         }
@@ -134,6 +147,9 @@ namespace NebulaWorld.MonoBehaviours.Local
                     break;
                 case ChatMessageType.SystemMessage:
                     color = info;
+                    break;
+                default:
+                    Log.Warn($"Requested color for unexpected chat message type {messageType}");
                     break;
             }
 

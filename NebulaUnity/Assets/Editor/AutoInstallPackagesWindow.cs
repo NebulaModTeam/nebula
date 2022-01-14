@@ -9,17 +9,20 @@ using PackageSource = ThunderKit.Core.Data.PackageSource;
 
 public class AutoInstallPackagesWindow : EditorWindow
 {
-    public static string[] Packages = {
-        "xiaoye97-BepInEx-5.4.17",
-        "xiaoye97-LDBTool-1.8.0",
-        "CommonAPI-DSPModSave-1.1.3",
-        "CommonAPI-CommonAPI-1.2.2",
+    public static string[] Packages =
+    {
+        "xiaoye97-BepInEx-5.4.17", 
+        "xiaoye97-LDBTool-1.8.0", 
+        "CommonAPI-DSPModSave-1.1.3", 
+        "CommonAPI-CommonAPI-1.2.2", 
         "CommonAPI-DSPEditorKit-1.0.1"
     };
 
     public bool shouldClose;
     public bool initPosition = false;
-    
+    public bool currentlyInstalling = false;
+    public string installName;
+
     [MenuItem("Window/Nebula/Install Packages")]
     private static void Init()
     {
@@ -30,17 +33,27 @@ public class AutoInstallPackagesWindow : EditorWindow
 
     private static void PackageSource_SourceInitialized(object sender, EventArgs e)
     {
+		Task.Delay(3000).Wait();
         AutoInstallPackagesWindow window = GetWindowWithRect<AutoInstallPackagesWindow>(new Rect(0, 0, 300, 120), false, "Installing Packages");
         window.Show();
     }
 
     private void OnEnable()
     {
+        currentlyInstalling = false;
         Task.Delay(2000).Wait();
         PackageSourceSettings settings = ThunderKitSetting.GetOrCreateSettings<PackageSourceSettings>();
         shouldClose = InstallNextPackage(settings);
     }
-    
+
+    private void Update()
+    {
+        if (currentlyInstalling || EditorApplication.isCompiling) return;
+
+        PackageSourceSettings settings = ThunderKitSetting.GetOrCreateSettings<PackageSourceSettings>();
+        shouldClose = InstallNextPackage(settings);
+    }
+
     private void OnGUI()
     {
         if (!initPosition)
@@ -52,6 +65,11 @@ public class AutoInstallPackagesWindow : EditorWindow
 
         GUILayout.Label("Installing needed Packages, please wait.");
         
+        if(currentlyInstalling)
+            GUILayout.Label($"Installing {installName}");
+        if (EditorApplication.isCompiling)
+            GUILayout.Label("Waiting for compilation!");
+
         if (shouldClose)
         {
             Debug.Log("Done!");
@@ -59,26 +77,29 @@ public class AutoInstallPackagesWindow : EditorWindow
         }
     }
 
-    private static bool InstallNextPackage(PackageSourceSettings settings)
+    private bool InstallNextPackage(PackageSourceSettings settings)
     {
-        foreach (PackageSource source in settings.PackageSources)
+        foreach (string packageString in Packages)
         {
-            foreach (string packageString in Packages)
+            string[] packageData = packageString.Split('-');
+            foreach (PackageSource source in settings.PackageSources)
             {
-                string[] packageData = packageString.Split('-');
                 try
                 {
                     PackageGroup neededPackage =
                         source.Packages.First(package => package.Author.Equals(packageData[0]) && package.PackageName.Equals(packageData[1]));
                     if (!neededPackage.Installed)
                     {
-                        Debug.Log($"Installing {neededPackage.Author}-{neededPackage.PackageName}");
+                        currentlyInstalling = true;
+                        installName = $"{neededPackage.Author}-{neededPackage.PackageName}";
+                        Debug.Log($"Installing {installName}");
+                        
                         Task task = neededPackage.Source.InstallPackage(neededPackage, packageData[2]);
                         task.Wait();
                         return false;
                     }
                 }
-                catch (InvalidOperationException e) { }
+                catch (InvalidOperationException) { }
             }
         }
 
