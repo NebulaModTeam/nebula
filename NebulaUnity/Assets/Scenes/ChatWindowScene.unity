@@ -475,7 +475,7 @@ PrefabInstance:
     - target: {fileID: 2921197164647086451, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000030517578
+      value: -0.000030517578
       objectReference: {fileID: 0}
     - target: {fileID: 4092147421265152491, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
@@ -517,6 +517,51 @@ PrefabInstance:
       propertyPath: m_TargetGraphic
       value: 
       objectReference: {fileID: 1862957525}
+    - target: {fileID: 7156096781188197911, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_text
+      value: "\u200B"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710270816384389445, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_textInfo.characterCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710270816384389445, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_textInfo.spaceCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710270816384389445, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_textInfo.wordCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710270816384389445, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710270816384389445, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710270816384389445, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_textInfo.materialCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 501568538560514373, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 501568538560514373, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c47833b2cfc3dc441a4faffd34d532a9, type: 3}
 --- !u!114 &1862957525 stripped
