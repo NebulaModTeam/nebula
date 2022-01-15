@@ -9,8 +9,6 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIPlanetDetail))]
     internal class UIPlanetDetail_Patch
     {
-        private static int BackupUniverseObserveLevel = -1;
-
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIPlanetDetail.OnNameInputEndEdit))]
         public static void OnNameInputEndEdit_Postfix(UIPlanetDetail __instance)
@@ -58,9 +56,8 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
         public static bool OnPlanetDataSet_Prefix(UIPlanetDetail __instance)
         {
-            if(UIRoot.instance.galaxySelect.starmap.clickText != "")
+            if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {
-                BackupUniverseObserveLevel = GameMain.history.universeObserveLevel;
                 GameMain.history.universeObserveLevel = 3;
             }
             return true;
@@ -71,11 +68,26 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
         public static void OnPlanetDataSet_Postfix(UIPlanetDetail __instance)
         {
-            if(BackupUniverseObserveLevel != -1)
+            if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {
-                GameMain.history.universeObserveLevel = BackupUniverseObserveLevel;
-                BackupUniverseObserveLevel = -1;
+                GameMain.history.universeObserveLevel = GetUniverseObserveLevel();
             }
+        }
+
+        private static int GetUniverseObserveLevel()
+        {
+            int level = 0;
+            // the tech ids of the 4 tiers of Universe Exploration from https://dsp-wiki.com/Upgrades
+            for (int i = 4104; i >= 4101; i--)
+            {
+                if(GameMain.history.TechUnlocked(i))
+                {
+                    // set level to last digit of tech id - 1
+                    level = (i % 10) - 1;
+                    break;
+                }
+            }
+            return level;
         }
     }
 }
