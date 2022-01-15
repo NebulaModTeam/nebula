@@ -651,5 +651,21 @@ namespace NebulaWorld
             }
 
         }
+
+        public static int GetUniverseObserveLevel()
+        {
+            int level = 0;
+            // the tech ids of the 4 tiers of Universe Exploration from https://dsp-wiki.com/Upgrades
+            for (int i = 4104; i >= 4101; i--)
+            {
+                if (GameMain.history.TechUnlocked(i))
+                {
+                    // set level to last digit of tech id
+                    level = (i % 10);
+                    break;
+                }
+            }
+            return level;
+        }
     }
 }

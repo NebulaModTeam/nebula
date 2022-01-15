@@ -140,6 +140,11 @@ namespace NebulaWorld
                 Log.Info("Game load completed");
                 IsGameLoaded = true;
 
+                if (Multiplayer.Session.LocalPlayer.IsHost)
+                {
+                    GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
+                }
+
                 if (Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
                 {
                     Multiplayer.Session.World.SetupInitialPlayerState();
