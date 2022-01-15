@@ -521,6 +521,32 @@ namespace NebulaModel.Networking.Serialization
             }
         }
 
+        private class Bool2ArraySerializer<T> : FastCallSpecific<T, bool[][]>
+        {
+            public override void Read(T inf, NetDataReader r)
+            {
+                ushort size = r.GetUShort();
+                bool[][] arr = new bool[size][];
+
+                for (int i = 0; i < size; i++)
+                {
+                    arr[i] = r.GetBoolArray();
+                }
+
+                Setter(inf, arr);
+            }
+            public override void Write(T inf, NetDataWriter w)
+            {
+                ushort len = Getter(inf) == null ? (ushort)0 : (ushort)Getter(inf).Length;
+
+                w.Put(len);
+                for (int i = 0; i < len; i++)
+                {
+                    w.PutArray(Getter(inf)[i]);
+                }
+            }
+        }
+
         private class EnumByteSerializer<T> : FastCall<T>
         {
             protected readonly PropertyInfo Property;
@@ -690,7 +716,7 @@ namespace NebulaModel.Networking.Serialization
 
                 Type elementType = propertyType.IsArray ? propertyType.GetElementType() : propertyType;
                 // todo: find a better way to handle 2d arrays in the Init() method
-                CallType callType = (propertyType.IsArray && elementType != typeof(long[]) && elementType != typeof(double[])) ? CallType.Array : CallType.Basic;
+                CallType callType = (propertyType.IsArray && elementType != typeof(long[]) && elementType != typeof(double[]) && elementType != typeof(bool[])) ? CallType.Array : CallType.Basic;
 
                 if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
@@ -790,6 +816,10 @@ namespace NebulaModel.Networking.Serialization
                 else if(elementType == typeof(double[])) // handles double[][]
                 {
                     serializer = new Double2ArraySerializer<T>();
+                }
+                else if(elementType == typeof(bool[])) // handles bool[][]
+                {
+                    serializer = new Bool2ArraySerializer<T>();
                 }
                 else
                 {

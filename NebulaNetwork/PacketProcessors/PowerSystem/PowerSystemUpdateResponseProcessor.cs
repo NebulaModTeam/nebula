@@ -1,7 +1,10 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.PowerSystem;
+using NebulaWorld.Factory;
+using System.Collections.Generic;
 
 namespace NebulaNetwork.PacketProcessors.PowerSystem
 {
@@ -16,33 +19,79 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
             }
 
             int pIndex = 0;
-            for(int i = 0; i < GameMain.localStar.planetCount; i++)
+
+            for(int i = 0; i < GameMain.localStar?.planetCount; i++)
             {
                 if(GameMain.localStar.planets[i]?.factory != null)
                 {
                     PlanetData pData = GameMain.localStar.planets[i];
                     global::PowerSystem pSys = pData.factory?.powerSystem;
 
-                    if(pSys != null && pIndex < packet.EnergyCapacity.Length)
+                    Log.Warn($"cl: {packet.ConsumerRatio.Length} ps on {pData.displayName} is {pSys != null} and factory is {pData.factory != null} ({i})");
+
+                    if (pSys != null && pIndex < packet.ConsumerRatio.Length)
                     {
-                        if(pSys.netCursor != packet.EnergyCapacity[pIndex].Length)
+                        if(pSys.netCursor != packet.ConsumerRatio[pIndex].Length)
                         {
+                            Log.Warn($"nc: {pSys.netCursor} len: {packet.ConsumerRatio[pIndex].Length}");
                             return;
                         }
 
-                        for(int j = 0; j < pSys.netCursor; j++)
+                        Log.Warn($"nc: {pSys.netCursor}");
+
+                        // netPool starts at index 1 but our array starts at index 0 :/
+                        for (int j = 0; j < pSys.netCursor - 1; j++)
                         {
-                            pSys.netPool[j].energyCapacity = packet.EnergyCapacity[pIndex][j];
-                            pSys.netPool[j].energyRequired = packet.EnergyRequired[pIndex][j];
-                            pSys.netPool[j].energyServed = packet.EnergyServed[pIndex][j];
-                            pSys.netPool[j].energyAccumulated = packet.EnergyAccumulated[pIndex][j];
-                            pSys.netPool[j].energyExchanged = packet.EnergyExchanged[pIndex][j];
-                            pSys.netPool[j].consumerRatio = packet.ConsumerRatio[pIndex][j];
+                            //pSys.netPool[j].energyCapacity = packet.EnergyCapacity[pIndex][j];
+                            //pSys.netPool[j].energyRequired = packet.EnergyRequired[pIndex][j];
+                            //pSys.netPool[j].energyServed = packet.EnergyServed[pIndex][j];
+                            //pSys.netPool[j].energyAccumulated = packet.EnergyAccumulated[pIndex][j];
+                            //pSys.netPool[j].energyExchanged = packet.EnergyExchanged[pIndex][j];
+                            pSys.netPool[j + 1].consumerRatio = packet.ConsumerRatio[pIndex][j];
+                            pSys.netPool[j + 1].generaterRatio = packet.GeneratorRatio[pIndex][j];
+                            if (packet.CopyValues[pIndex][j])
+                            {
+                                pSys.networkServes[j] = (float)packet.ConsumerRatio[pIndex][j];
+                                pSys.networkGenerates[j] = (float)packet.GeneratorRatio[pIndex][j];
+                            }
+                            else
+                            {
+                                pSys.networkServes[j] = 0f;
+                                pSys.networkGenerates[j] = 0f;
+                            }
+
+                            for(int k = 0; k < pSys.netPool[j + 1].generators.Count; k++)
+                            {
+                                pSys.genPool[pSys.netPool[j + 1].generators[k]].generateCurrentTick = packet.GenerateCurrentTick[pIndex][j];
+                            }
+
+                            if (PowerSystemManager.PowerSystemAnimationCache.TryGetValue(pData.id, out var list)){
+                                if(list.Count > 0 && j < list.Count)
+                                {
+                                    Log.Info($"adding {packet.TogglePower[pIndex][j]} to cache");
+                                    list[j] = packet.TogglePower[pIndex][j] ? 1 : 0;
+                                }
+                                else
+                                {
+                                    Log.Info("new list entry");
+                                    list.Add(packet.TogglePower[pIndex][j] ? 1 : 0);
+                                }
+                            }
+                            else
+                            {
+                                List<long> newList = new List<long>();
+                                newList.Add(packet.TogglePower[pIndex][j] ? 1 : 0);
+
+                                PowerSystemManager.PowerSystemAnimationCache.TryAdd(pData.id, newList);
+                            }
                         }
+
+                        pIndex++;
                     }
 
+                    /*
                     FactoryProductionStat stats = GameMain.statistics.production.factoryStatPool[pData.factory.index];
-                    if(pIndex < packet.PowerGenRegister.Length)
+                    if(i < packet.PowerGenRegister.Length)
                     {
                         lock (stats)
                         {
@@ -53,8 +102,7 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                             stats.energyConsumption = packet.EnergyConsumption[pIndex];
                         }
                     }
-
-                    pIndex++;
+                    */
                 }
             }
         }

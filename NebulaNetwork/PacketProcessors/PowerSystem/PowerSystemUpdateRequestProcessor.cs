@@ -1,7 +1,9 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.PowerSystem;
+using NebulaWorld.Factory;
 
 namespace NebulaNetwork.PacketProcessors.PowerSystem
 {
@@ -16,12 +18,16 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
             }
 
             // is there a better way? There must be
-            long[][] energyCapacity = new long[packet.PlanetIDs.Length][];
-            long[][] energyRequired = new long[packet.PlanetIDs.Length][];
-            long[][] energyServed = new long[packet.PlanetIDs.Length][];
-            long[][] energyAccumulated = new long[packet.PlanetIDs.Length][];
-            long[][] energyExchanged = new long[packet.PlanetIDs.Length][];
+            //long[][] energyCapacity = new long[packet.PlanetIDs.Length][];
+            //long[][] energyRequired = new long[packet.PlanetIDs.Length][];
+            //long[][] energyServed = new long[packet.PlanetIDs.Length][];
+            //long[][] energyAccumulated = new long[packet.PlanetIDs.Length][];
+            //long[][] energyExchanged = new long[packet.PlanetIDs.Length][];
             double[][] consumerRatio = new double[packet.PlanetIDs.Length][];
+            double[][] generatorRatio = new double[packet.PlanetIDs.Length][];
+            bool[][] copyValues = new bool[packet.PlanetIDs.Length][];
+            long[][] generateCurrentTick = new long[packet.PlanetIDs.Length][];
+            bool[][] togglePower = new bool[packet.PlanetIDs.Length][];
             long[] powerGenRegister = new long[packet.PlanetIDs.Length];
             long[] powerConRegister = new long[packet.PlanetIDs.Length];
             long[] powerDisRegister = new long[packet.PlanetIDs.Length];
@@ -31,24 +37,57 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
             for(int i = 0; i < packet.PlanetIDs.Length; i++)
             {
                 PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetIDs[i]);
-                global::PowerSystem pSys = pData.factory?.powerSystem;
+                global::PowerSystem pSys = pData?.factory?.powerSystem;
                 if (pSys != null)
                 {
-                    energyCapacity[i] = new long[pSys.netCursor];
-                    energyRequired[i] = new long[pSys.netCursor];
-                    energyServed[i] = new long[pSys.netCursor];
-                    energyAccumulated[i] = new long[pSys.netCursor];
-                    energyExchanged[i] = new long[pSys.netCursor];
+                    //energyCapacity[i] = new long[pSys.netCursor];
+                    //energyRequired[i] = new long[pSys.netCursor];
+                    //energyServed[i] = new long[pSys.netCursor];
+                    //energyAccumulated[i] = new long[pSys.netCursor];
+                    //energyExchanged[i] = new long[pSys.netCursor];
                     consumerRatio[i] = new double[pSys.netCursor];
+                    generatorRatio[i] = new double[pSys.netCursor];
+                    copyValues[i] = new bool[pSys.netCursor];
+                    generateCurrentTick[i] = new long[pSys.netCursor];
+                    togglePower[i] = new bool[pSys.netCursor];
 
-                    for(int j = 0; j < pSys.netCursor; j++)
+                    // netPool starts at index 1 but our array starts at index 0 :/
+                    for(int j = 0; j < pSys.netCursor - 1; j++)
                     {
-                        energyCapacity[i][j] = pSys.netPool[j].energyCapacity;
-                        energyRequired[i][j] = pSys.netPool[j].energyRequired;
-                        energyServed[i][j] = pSys.netPool[j].energyServed;
-                        energyAccumulated[i][j] = pSys.netPool[j].energyAccumulated;
-                        energyExchanged[i][j] = pSys.netPool[j].energyExchanged;
-                        consumerRatio[i][j] = pSys.netPool[j].consumerRatio;
+                        //energyCapacity[i][j] = pSys.netPool[j].energyCapacity;
+                        //energyRequired[i][j] = pSys.netPool[j].energyRequired;
+                        //energyServed[i][j] = pSys.netPool[j].energyServed;
+                        //energyAccumulated[i][j] = pSys.netPool[j].energyAccumulated;
+                        //energyExchanged[i][j] = pSys.netPool[j].energyExchanged;
+                        consumerRatio[i][j] = pSys.netPool[j + 1].consumerRatio;
+                        generatorRatio[i][j] = pSys.netPool[j + 1].generaterRatio;
+
+                        if(pSys.netPool[j + 1].generators.Count > 0)
+                        {
+                            generateCurrentTick[i][j] = pSys.genPool[pSys.netPool[j + 1].generators[0]].generateCurrentTick;
+                        }
+                        else
+                        {
+                            generateCurrentTick[i][j] = 0;
+                        }
+
+                        if (PowerSystemManager.PowerSystemAnimationCache.TryGetValue(pData.id, out var list))
+                        {
+                            togglePower[i][j] = j < list.Count && list[j] > 0;
+                        }
+                        else
+                        {
+                            togglePower[i][j] = false;
+                        }
+
+                        if((float)pSys.netPool[j + 1].consumerRatio == pSys.networkServes[j])
+                        {
+                            copyValues[i][j] = true;
+                        }
+                        else
+                        {
+                            copyValues[i][j] = false;
+                        }
                     }
 
                     FactoryProductionStat stats = GameMain.statistics.production.factoryStatPool[pData.factory.index];
@@ -63,7 +102,7 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                 }
             }
 
-            conn.SendPacket(new PowerSystemUpdateResponse(energyCapacity, energyRequired, energyServed, energyAccumulated, energyExchanged, consumerRatio, powerGenRegister, powerConRegister, powerDisRegister, powerChaRegister, energyConsumption));
+            conn.SendPacket(new PowerSystemUpdateResponse(consumerRatio, generatorRatio, copyValues, generateCurrentTick, togglePower, powerGenRegister, powerConRegister, powerDisRegister, powerChaRegister, energyConsumption));
         }
     }
 }
