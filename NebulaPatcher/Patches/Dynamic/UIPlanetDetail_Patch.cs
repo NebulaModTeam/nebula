@@ -9,8 +9,6 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIPlanetDetail))]
     internal class UIPlanetDetail_Patch
     {
-        private static int BackupUniverseObserveLevel = -1;
-
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIPlanetDetail.OnNameInputEndEdit))]
         public static void OnNameInputEndEdit_Postfix(UIPlanetDetail __instance)
@@ -58,9 +56,8 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
         public static bool OnPlanetDataSet_Prefix(UIPlanetDetail __instance)
         {
-            if(BackupUniverseObserveLevel == -1 && Multiplayer.Session != null && Multiplayer.Session.IsInLobby)
+            if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {
-                BackupUniverseObserveLevel = GameMain.history.universeObserveLevel;
                 GameMain.history.universeObserveLevel = 4;
             }
             return true;
@@ -71,10 +68,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
         public static void OnPlanetDataSet_Postfix(UIPlanetDetail __instance)
         {
-            if(BackupUniverseObserveLevel != -1 && Multiplayer.Session != null && Multiplayer.Session.IsInLobby)
+            if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {
-                GameMain.history.universeObserveLevel = BackupUniverseObserveLevel;
-                BackupUniverseObserveLevel = -1;
+                GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
             }
         }
     }

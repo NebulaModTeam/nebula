@@ -4,6 +4,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
+using NebulaModel.Packets.Warning;
 using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
@@ -128,6 +129,9 @@ namespace NebulaWorld
 
                 // Subscribe for the local star events
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+
+                // Request latest warning signal
+                Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Signal));
 
                 // Hide the "Joining Game" popup
                 InGamePopup.FadeOut();
@@ -646,6 +650,22 @@ namespace NebulaWorld
                 }
             }
 
+        }
+
+        public static int GetUniverseObserveLevel()
+        {
+            int level = 0;
+            // the tech ids of the 4 tiers of Universe Exploration from https://dsp-wiki.com/Upgrades
+            for (int i = 4104; i >= 4101; i--)
+            {
+                if (GameMain.history.TechUnlocked(i))
+                {
+                    // set level to last digit of tech id
+                    level = (i % 10);
+                    break;
+                }
+            }
+            return level;
         }
     }
 }

@@ -17,8 +17,14 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PowerSystem.GameTick))]
-        public static bool PowerSystem_GameTick_Prefix(PowerSystem __instance, long time, bool isActive, bool isMultithreadMode)
+        public static bool PowerSystem_GameTick_Prefix(PowerSystem __instance, long time, ref bool isActive, bool isMultithreadMode)
         {
+            //Enable signType update on remote planet every 64 tick
+            if ((time & 63) == 0 && Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                isActive |= true;
+            }
+
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
             {
                 // if player is not in a solar system he has no factories loaded, thus nothing to sync here
