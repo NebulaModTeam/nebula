@@ -27,7 +27,7 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
             double[][] generatorRatio = new double[packet.PlanetIDs.Length][];
             bool[][] copyValues = new bool[packet.PlanetIDs.Length][];
             long[][] generateCurrentTick = new long[packet.PlanetIDs.Length][];
-            bool[][] togglePower = new bool[packet.PlanetIDs.Length][];
+            long[][] num35 = new long[packet.PlanetIDs.Length][];
             long[] powerGenRegister = new long[packet.PlanetIDs.Length];
             long[] powerConRegister = new long[packet.PlanetIDs.Length];
             long[] powerDisRegister = new long[packet.PlanetIDs.Length];
@@ -49,7 +49,7 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                     generatorRatio[i] = new double[pSys.netCursor];
                     copyValues[i] = new bool[pSys.netCursor];
                     generateCurrentTick[i] = new long[pSys.netCursor];
-                    togglePower[i] = new bool[pSys.netCursor];
+                    num35[i] = new long[pSys.netCursor];
 
                     // netPool starts at index 1 but our array starts at index 0 :/
                     for(int j = 0; j < pSys.netCursor - 1; j++)
@@ -73,11 +73,7 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
 
                         if (PowerSystemManager.PowerSystemAnimationCache.TryGetValue(pData.id, out var list))
                         {
-                            togglePower[i][j] = j < list.Count && list[j] > 0;
-                        }
-                        else
-                        {
-                            togglePower[i][j] = false;
+                            num35[i][j] = j < list.Count ? list[j] : 0;
                         }
 
                         if((float)pSys.netPool[j + 1].consumerRatio == pSys.networkServes[j])
@@ -102,7 +98,7 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                 }
             }
 
-            conn.SendPacket(new PowerSystemUpdateResponse(consumerRatio, generatorRatio, copyValues, generateCurrentTick, togglePower, powerGenRegister, powerConRegister, powerDisRegister, powerChaRegister, energyConsumption));
+            conn.SendPacket(new PowerSystemUpdateResponse(consumerRatio, generatorRatio, copyValues, generateCurrentTick, num35, powerGenRegister, powerConRegister, powerDisRegister, powerChaRegister, energyConsumption));
         }
     }
 }

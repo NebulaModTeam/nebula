@@ -12,7 +12,7 @@
         public double[][] GeneratorRatio { get; set; }
         public bool[][] CopyValues { get; set; }
         public long[][] GenerateCurrentTick { get; set; }
-        public bool[][] TogglePower { get; set; }
+        public long[][] Num35 { get; set; }
         public long[] PowerGenRegister { get; set; }
         public long[] PowerConRegister { get; set; }
         public long[] PowerDisRegister { get; set; }
@@ -28,7 +28,7 @@
                                         double[][] generatorRatio,
                                         bool[][] copyValues,
                                         long[][] generateCurrentTick,
-                                        bool[][] togglePower,
+                                        long[][] num35,
                                         long[] powerGenRegister,
                                         long[] powerConRegister,
                                         long[] powerDisRegister,
@@ -44,7 +44,7 @@
             GeneratorRatio = generatorRatio;
             CopyValues = copyValues;
             GenerateCurrentTick = generateCurrentTick;
-            TogglePower = togglePower;
+            Num35 = num35;
             PowerGenRegister = powerGenRegister;
             PowerConRegister = powerConRegister;
             PowerDisRegister = powerDisRegister;

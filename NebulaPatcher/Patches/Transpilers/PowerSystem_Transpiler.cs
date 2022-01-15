@@ -83,7 +83,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     if (PowerSystemManager.PowerSystemAnimationCache.TryGetValue(pSys.planet.id, out var list))
                     {
                         // netIndex starts at 1
-                        if(list.Count > 0 && netIndex - 1 < list.Count)
+                        if(netIndex - 1 < list.Count)
                         {
                             list[netIndex - 1] = num35;
                         }

@@ -60,27 +60,29 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                                 pSys.networkGenerates[j] = 0f;
                             }
 
+                            /*
                             for(int k = 0; k < pSys.netPool[j + 1].generators.Count; k++)
                             {
                                 pSys.genPool[pSys.netPool[j + 1].generators[k]].generateCurrentTick = packet.GenerateCurrentTick[pIndex][j];
                             }
-
+                            */
+                            
                             if (PowerSystemManager.PowerSystemAnimationCache.TryGetValue(pData.id, out var list)){
-                                if(list.Count > 0 && j < list.Count)
+                                if (j < list.Count)
                                 {
-                                    Log.Info($"adding {packet.TogglePower[pIndex][j]} to cache");
-                                    list[j] = packet.TogglePower[pIndex][j] ? 1 : 0;
+                                    Log.Info($"adding {packet.Num35[pIndex][j]} to cache");
+                                    list[j] = packet.Num35[pIndex][j];
                                 }
                                 else
                                 {
                                     Log.Info("new list entry");
-                                    list.Add(packet.TogglePower[pIndex][j] ? 1 : 0);
+                                    list.Add(packet.Num35[pIndex][j]);
                                 }
                             }
                             else
                             {
                                 List<long> newList = new List<long>();
-                                newList.Add(packet.TogglePower[pIndex][j] ? 1 : 0);
+                                newList.Add(packet.Num35[pIndex][j]);
 
                                 PowerSystemManager.PowerSystemAnimationCache.TryAdd(pData.id, newList);
                             }
