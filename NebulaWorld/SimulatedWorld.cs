@@ -660,8 +660,8 @@ namespace NebulaWorld
             {
                 if (GameMain.history.TechUnlocked(i))
                 {
-                    // set level to last digit of tech id - 1
-                    level = (i % 10) - 1;
+                    // set level to last digit of tech id
+                    level = (i % 10);
                     break;
                 }
             }

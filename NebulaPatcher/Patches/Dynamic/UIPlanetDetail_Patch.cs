@@ -58,7 +58,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {
-                GameMain.history.universeObserveLevel = 3;
+                GameMain.history.universeObserveLevel = 4;
             }
             return true;
         }

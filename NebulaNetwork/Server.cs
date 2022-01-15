@@ -79,8 +79,6 @@ namespace NebulaNetwork
                 Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
-
-            GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
