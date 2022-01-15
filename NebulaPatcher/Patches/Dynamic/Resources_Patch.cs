@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (path.Contains("TMP Settings"))
             {
-                var asset = InGameChatAssetLoader.assetBundle.LoadAsset<TMP_Settings>("Assets/Resources/TextMeshPro/TMP Settings.asset");
+                var asset = AssetLoader.AssetBundle.LoadAsset<TMP_Settings>("Assets/Resources/TextMeshPro/TMP Settings.asset");
                 if (asset != null)
                 {
                     __result = asset;
@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 Log.Warn("Failed to load TMP Settings!");
             }else if (path.StartsWith("TextMeshPro"))
             {
-                var asset = InGameChatAssetLoader.assetBundle.LoadAsset($"Assets/Resources/{path}");
+                var asset = AssetLoader.AssetBundle.LoadAsset($"Assets/Resources/{path}");
                 if (asset != null)
                 {
                     __result = asset;

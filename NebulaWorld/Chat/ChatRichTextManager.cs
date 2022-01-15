@@ -134,8 +134,7 @@ namespace NebulaWorld.Chat
         
         private static void AddDefaultMaterial(TMP_SpriteAsset spriteAsset)
         {
-            InGameChatAssetLoader.ChatManager();
-            Shader shader = InGameChatAssetLoader.assetBundle.LoadAsset<Shader>("Assets/Resources/TextMeshPro/Shaders/TMP_Sprite.shader");
+            Shader shader = AssetLoader.AssetBundle.LoadAsset<Shader>("Assets/Resources/TextMeshPro/Shaders/TMP_Sprite.shader");
             Material material = new Material(shader);
             material.SetTexture(ShaderUtilities.ID_MainTex, spriteAsset.spriteSheet);
 
