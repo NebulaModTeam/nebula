@@ -70,24 +70,8 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {
-                GameMain.history.universeObserveLevel = GetUniverseObserveLevel();
+                GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
             }
-        }
-
-        private static int GetUniverseObserveLevel()
-        {
-            int level = 0;
-            // the tech ids of the 4 tiers of Universe Exploration from https://dsp-wiki.com/Upgrades
-            for (int i = 4104; i >= 4101; i--)
-            {
-                if(GameMain.history.TechUnlocked(i))
-                {
-                    // set level to last digit of tech id - 1
-                    level = (i % 10) - 1;
-                    break;
-                }
-            }
-            return level;
         }
     }
 }
