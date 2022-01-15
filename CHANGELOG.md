@@ -1,9 +1,10 @@
 ## Changelog
 
-0.8.0:
+0.7.10:
 
 - @starfish: Added WarningSystem syncing
 - @PhantomGamers: Fixed case of NRE when arriving on another planet
+- @PhantomGamers: Fixed issue where Universe Exploration tech would break while in a multiplayer game
 
 0.7.9:
 
