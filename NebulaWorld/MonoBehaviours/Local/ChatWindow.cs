@@ -112,6 +112,10 @@ namespace NebulaWorld.MonoBehaviours.Local
                 // when the window is activated we assume user wants to type right away
                 chatBox.ActivateInputField();
             }
+            else
+            {
+                ChatLinkHandler.CloseTips();
+            }
         }
         
         public void InsertSprite()

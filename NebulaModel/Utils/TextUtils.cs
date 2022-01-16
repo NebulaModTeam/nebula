@@ -24,6 +24,14 @@ namespace NebulaModel.Utils
                 lastIndex = match.Index;
                 
                 string tagName = match.Groups[1].Value;
+
+                if (tagName == "sprite")
+                {
+                    string newTagString = FormatIconTags(match.Value);
+                    sanitized += newTagString;
+                    lastIndex = match.Index + match.Length;
+                }
+
                 if (AllowedTags.Contains(tagName) || AllowedTags.Contains(tagName.Substring(1))) continue;
                 
                 lastIndex = match.Index + match.Length;
@@ -36,7 +44,21 @@ namespace NebulaModel.Utils
             
             return sanitized;
         }
-        
+
+        public static string FormatIconTags(string input)
+        {
+            Regex regex = new Regex(@"<sprite name=""?(\w+)""?>");
+            MatchCollection matches = regex.Matches(input);
+            
+            if (matches.Count == 0) return input;
+
+            string signalIdStr = matches[0].Groups[1].Value;
+            int signalId = int.Parse(signalIdStr);
+
+            return $"<link=\"signal {signalId}\">[<sprite name=\"{signalId}\"> <color=\"green\">{ProtoUtils.GetSignalDisplayName(signalId)}</color>]</link>";
+        }
+
+
         public static void Insert(this TMP_InputField field, string str)
         {
             if (field.m_ReadOnly) return;
@@ -46,7 +68,7 @@ namespace NebulaModel.Utils
             // Can't go past the character limit
             if (field.characterLimit > 0 && field.text.Length >= field.characterLimit) return;
 
-            field.m_Text = field.text.Insert(field.m_StringPosition, str);
+            field.text = field.text.Insert(field.m_StringPosition, str);
 
             field.stringSelectPositionInternal = field.stringPositionInternal += str.Length;
 
