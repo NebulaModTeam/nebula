@@ -31,8 +31,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
-                    string message = TextUtils.SanitizeText(chatBox.text);
-                    string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {message}";
+                    string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {chatBox.text}";
                     
                     QueueOutgoingMessage(formattedMessage, 0);
                     SendMessageToChat(formattedMessage, 0);
@@ -62,6 +61,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public void SendMessageToChat(string text, int messageType)
         {
+            text = TextUtils.SanitizeText(text);
             if (messages.Count > MAX_MESSAGES)
             {
                 Destroy(messages[0].textObject.gameObject);
@@ -121,14 +121,9 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 if (singalId <= 0) return;
                 
-                uint spriteIndex = ChatRichTextManager.signalSpriteIndex[singalId];
-                if (spriteIndex >= ChatRichTextManager.iconsSpriteAsset.spriteCharacterTable.Count) return;
-                
-                Log.Info($"Selected signal ID: {singalId}, sprite index: {spriteIndex}");
-
-                TMP_SpriteCharacter character = ChatRichTextManager.iconsSpriteAsset.spriteCharacterTable[(int)spriteIndex];
-                string richText = $"<sprite name=\"{character.name}\">";
+                string richText = $"<sprite name=\"{singalId}\">";
                 chatBox.Insert(richText);
+                chatBox.ActivateInputField();
             });
         }
 

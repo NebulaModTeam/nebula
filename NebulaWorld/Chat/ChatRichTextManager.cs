@@ -44,13 +44,7 @@ namespace NebulaWorld.Chat
                 if (item.ID <= 0 || item.ID >= iconSet.itemIconIndex.Length) continue;
 
                 uint spriteIndex = iconSet.itemIconIndex[item.ID];
-                string spriteName = item.Name.Translate(Language.enUS);
-                spriteName = spriteName.ToLower()
-                    .Replace(' ', '-')
-                    .Replace("mk.iv", "4")
-                    .Replace("mk.iii", "3")
-                    .Replace("mk.ii", "2")
-                    .Replace("mk.i", "1");
+                string spriteName = item.ID.ToString();
 
 
                 AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
@@ -64,13 +58,7 @@ namespace NebulaWorld.Chat
                 if (!recipe.hasIcon) continue;
                 
                 uint spriteIndex = iconSet.recipeIconIndex[recipe.ID];
-                string spriteName = recipe.Name.Translate(Language.enUS);
-                spriteName = spriteName.ToLower()
-                    .Replace(' ', '-')
-                    .Replace("mk.iv", "4")
-                    .Replace("mk.iii", "3")
-                    .Replace("mk.ii", "2")
-                    .Replace("mk.i", "1");
+                string spriteName = (recipe.ID + 20000).ToString();
 
 
                 AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
@@ -84,8 +72,7 @@ namespace NebulaWorld.Chat
                 if (!tech.Published) continue;
 
                 uint spriteIndex = iconSet.techIconIndex[tech.ID];
-                string spriteName = tech.Name.Translate(Language.enUS);
-                spriteName = spriteName.ToLower().Replace(' ', '-');
+                string spriteName = (tech.ID + 40000).ToString();
 
                 AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
                 signalSpriteIndex[tech.ID + 40000] = lastSpriteIndex;
@@ -97,8 +84,7 @@ namespace NebulaWorld.Chat
                 if (signal.ID <= 0 || signal.ID >= iconSet.signalIconIndex.Length) continue;
 
                 uint spriteIndex = iconSet.signalIconIndex[signal.ID];
-                string spriteName = signal.Name.Translate(Language.enUS);
-                spriteName = spriteName.ToLower().Replace(' ', '-');
+                string spriteName = signal.ID.ToString();
 
                 AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
                 signalSpriteIndex[signal.ID] = lastSpriteIndex;
