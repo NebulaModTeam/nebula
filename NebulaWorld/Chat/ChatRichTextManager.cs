@@ -37,76 +37,76 @@ namespace NebulaWorld.Chat
         private static void PopulateSpriteTables(IconSet iconSet, ref List<TMP_SpriteCharacter> spriteCharacterTable,
             ref List<TMP_SpriteGlyph> spriteGlyphTable)
         {
-            ItemProto[] items = LDB.items.dataArray;
-            for (int i = 0; i < items.Length; i++)
+            uint lastSpriteIndex = 0;
+            
+            foreach (ItemProto item in LDB.items.dataArray)
             {
-                if (items[i].ID > 0 && items[i].ID < iconSet.itemIconIndex.Length)
-                {
-                    uint spriteIndex = iconSet.itemIconIndex[items[i].ID];
-                    string spriteName = items[i].Name.Translate(Language.enUS);
-                    spriteName = spriteName.ToLower()
-                        .Replace(' ', '-')
-                        .Replace("mk.iv", "4")
-                        .Replace("mk.iii", "3")
-                        .Replace("mk.ii", "2")
-                        .Replace("mk.i", "1");
+                if (item.ID <= 0 || item.ID >= iconSet.itemIconIndex.Length) continue;
+
+                uint spriteIndex = iconSet.itemIconIndex[item.ID];
+                string spriteName = item.Name.Translate(Language.enUS);
+                spriteName = spriteName.ToLower()
+                    .Replace(' ', '-')
+                    .Replace("mk.iv", "4")
+                    .Replace("mk.iii", "3")
+                    .Replace("mk.ii", "2")
+                    .Replace("mk.i", "1");
 
 
-                    AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, i, spriteName);
-                    signalSpriteIndex[items[i].ID] = (uint)i;
-                }
+                AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
+                signalSpriteIndex[item.ID] = lastSpriteIndex;
+                lastSpriteIndex++;
             }
 
-            RecipeProto[] recipes = LDB.recipes.dataArray;
-            for (int i = 0; i < recipes.Length; i++)
+            foreach (RecipeProto recipe in LDB.recipes.dataArray)
             {
-                if (recipes[i].ID > 0 && recipes[i].ID < iconSet.recipeIconIndex.Length)
-                {
-                    uint spriteIndex = iconSet.recipeIconIndex[recipes[i].ID];
-                    string spriteName = recipes[i].Name.Translate(Language.enUS);
-                    spriteName = spriteName.ToLower()
-                        .Replace(' ', '-')
-                        .Replace("mk.iv", "4")
-                        .Replace("mk.iii", "3")
-                        .Replace("mk.ii", "2")
-                        .Replace("mk.i", "1");
+                if (recipe.ID <= 0 || recipe.ID >= iconSet.recipeIconIndex.Length) continue;
+                if (!recipe.hasIcon) continue;
+                
+                uint spriteIndex = iconSet.recipeIconIndex[recipe.ID];
+                string spriteName = recipe.Name.Translate(Language.enUS);
+                spriteName = spriteName.ToLower()
+                    .Replace(' ', '-')
+                    .Replace("mk.iv", "4")
+                    .Replace("mk.iii", "3")
+                    .Replace("mk.ii", "2")
+                    .Replace("mk.i", "1");
 
 
-                    AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, i, spriteName);
-                    signalSpriteIndex[recipes[i].ID + 20000] = (uint)i;
-                }
+                AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
+                signalSpriteIndex[recipe.ID + 20000] = lastSpriteIndex;
+                lastSpriteIndex++;
             }
 
-            TechProto[] technologies = LDB.techs.dataArray;
-            for (int i = 0; i < technologies.Length; i++)
+            foreach (TechProto tech in LDB.techs.dataArray)
             {
-                if (technologies[i].ID > 0 && technologies[i].ID < iconSet.techIconIndex.Length)
-                {
-                    uint spriteIndex = iconSet.techIconIndex[technologies[i].ID];
-                    string spriteName = technologies[i].Name.Translate(Language.enUS);
-                    spriteName = spriteName.ToLower().Replace(' ', '-');
+                if (tech.ID <= 0 || tech.ID >= iconSet.techIconIndex.Length) continue;
+                if (!tech.Published) continue;
 
-                    AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, i, spriteName);
-                    signalSpriteIndex[technologies[i].ID + 40000] = (uint)i;
-                }
+                uint spriteIndex = iconSet.techIconIndex[tech.ID];
+                string spriteName = tech.Name.Translate(Language.enUS);
+                spriteName = spriteName.ToLower().Replace(' ', '-');
+
+                AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
+                signalSpriteIndex[tech.ID + 40000] = lastSpriteIndex;
+                lastSpriteIndex++;
             }
 
-            SignalProto[] signals = LDB.signals.dataArray;
-            for (int i = 0; i < signals.Length; i++)
+            foreach (SignalProto signal in LDB.signals.dataArray)
             {
-                if (signals[i].ID > 0 && signals[i].ID < iconSet.signalIconIndex.Length)
-                {
-                    uint spriteIndex = iconSet.signalIconIndex[signals[i].ID];
-                    string spriteName = signals[i].Name.Translate(Language.enUS);
-                    spriteName = spriteName.ToLower().Replace(' ', '-');
+                if (signal.ID <= 0 || signal.ID >= iconSet.signalIconIndex.Length) continue;
 
-                    AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, i, spriteName);
-                    signalSpriteIndex[signals[i].ID] = (uint)i;
-                }
+                uint spriteIndex = iconSet.signalIconIndex[signal.ID];
+                string spriteName = signal.Name.Translate(Language.enUS);
+                spriteName = spriteName.ToLower().Replace(' ', '-');
+
+                AddSprite(ref spriteCharacterTable, ref spriteGlyphTable, spriteIndex, lastSpriteIndex, spriteName);
+                signalSpriteIndex[signal.ID] = lastSpriteIndex;
+                lastSpriteIndex++;
             }
         }
 
-        private static void AddSprite(ref List<TMP_SpriteCharacter> spriteCharacterTable, ref List<TMP_SpriteGlyph> spriteGlyphTable, uint spriteIndex, int i, string spriteName)
+        private static void AddSprite(ref List<TMP_SpriteCharacter> spriteCharacterTable, ref List<TMP_SpriteGlyph> spriteGlyphTable, uint spriteIndex, uint i, string spriteName)
         {
             int x = (int) (spriteIndex % 25U);
             int y = (int) (spriteIndex / 25U);
@@ -114,7 +114,7 @@ namespace NebulaWorld.Chat
 
             TMP_SpriteGlyph spriteGlyph = new TMP_SpriteGlyph
             {
-                index = (uint) i,
+                index = i,
                 metrics = new GlyphMetrics(rect.width, rect.height, 0, 70, rect.width),
                 glyphRect = new GlyphRect(rect),
                 scale = 1.0f

@@ -1,4 +1,5 @@
-﻿using NebulaModel.Utils;
+﻿using NebulaModel.Logger;
+using NebulaModel.Utils;
 using NebulaWorld.Chat;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         void Update()
         {
+            if (!chatWindow.activeSelf) return;
+            
             if (chatBox.text != "")
             {
                 if (Input.GetKeyDown(KeyCode.Return))
@@ -120,10 +123,12 @@ namespace NebulaWorld.MonoBehaviours.Local
                 
                 uint spriteIndex = ChatRichTextManager.signalSpriteIndex[singalId];
                 if (spriteIndex >= ChatRichTextManager.iconsSpriteAsset.spriteCharacterTable.Count) return;
+                
+                Log.Info($"Selected signal ID: {singalId}, sprite index: {spriteIndex}");
 
                 TMP_SpriteCharacter character = ChatRichTextManager.iconsSpriteAsset.spriteCharacterTable[(int)spriteIndex];
                 string richText = $"<sprite name=\"{character.name}\">";
-                chatBox.text = chatBox.text.Insert(chatBox.stringPosition, richText);
+                chatBox.Insert(richText);
             });
         }
 

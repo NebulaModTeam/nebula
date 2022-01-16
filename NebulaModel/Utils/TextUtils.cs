@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
+using TMPro;
 
 namespace NebulaModel.Utils
 {
-    public class TextUtils
+    public static class TextUtils
     {
         public static readonly string[] AllowedTags = {"b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"};
         
@@ -34,6 +35,23 @@ namespace NebulaModel.Utils
             }
             
             return sanitized;
+        }
+        
+        public static void Insert(this TMP_InputField field, string str)
+        {
+            if (field.m_ReadOnly) return;
+
+            field.Delete();
+
+            // Can't go past the character limit
+            if (field.characterLimit > 0 && field.text.Length >= field.characterLimit) return;
+
+            field.m_Text = field.text.Insert(field.m_StringPosition, str);
+
+            field.stringSelectPositionInternal = field.stringPositionInternal += str.Length;
+
+            field.UpdateTouchKeyboardFromEditChanges();
+            field.SendOnValueChanged();
         }
     }
 }
