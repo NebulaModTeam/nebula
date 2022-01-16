@@ -32,7 +32,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     return false;
                 }
 
-                UpdateAnimations(__instance, time);
+                UpdateAnimations(__instance, time, isActive);
 
                 timePassed += Time.deltaTime;
 
@@ -57,7 +57,7 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
-        private static void UpdateAnimations(PowerSystem pSys, long time)
+        private static void UpdateAnimations(PowerSystem pSys, long time, bool isActive)
         {
             if(GameMain.localPlanet == null || GameMain.localPlanet.factory == null)
             {
@@ -83,10 +83,17 @@ namespace NebulaPatcher.Patches.Dynamic
             int[] consumeRegister = factoryProductionStat == null ? new int[0] : factoryProductionStat.consumeRegister;
             Vector3 normalized = pSys.factory.planet.runtimeLocalSunDirection.normalized;
 
+            SignData[] entitySignPool = pSys.factory.entitySignPool;
+
             foreach (PowerNetwork pNet in GameMain.localPlanet.factory.powerSystem.netPool)
             {
                 if(pNet == null || animCache == null)
                 {
+                    if(pNet != null && animCache == null)
+                    {
+                        // still update signs even if there is no power source on this planet
+                        UpdateSignPool(pSys, entitySignPool, pNet, ref isActive);
+                    }
                     continue;
                 }
 
@@ -171,6 +178,44 @@ namespace NebulaPatcher.Patches.Dynamic
                             power = 0.2f;
                         }
                         entityAnimPool[eID].Step2(((entityAnimPool[eID].power > 0.1f || (generateCurrentTick > 0L && pSys.genPool[compIndex].capacityCurrentTick > 30L))) ? 1U : 0U, stepTime, power, speed);
+                    }
+                }
+
+                UpdateSignPool(pSys, entitySignPool, pNet, ref isActive);
+            }
+        }
+
+        private static void UpdateSignPool(PowerSystem pSys, SignData[] entitySignPool, PowerNetwork pNet, ref bool isActive)
+        {
+            if (isActive)
+            {
+                List<int> consumers = pNet.consumers;
+                if (pNet.id == 0)
+                {
+                    for (int i = 0; i < pNet.consumers.Count; i++)
+                    {
+                        entitySignPool[pSys.consumerPool[consumers[i]].entityId].signType = 1U;
+                    }
+                }
+                else if (pNet.consumerRatio < 0.10000000149011612)
+                {
+                    for (int i = 0; i < pNet.consumers.Count; i++)
+                    {
+                        entitySignPool[pSys.consumerPool[consumers[i]].entityId].signType = 2U;
+                    }
+                }
+                else if (pNet.consumerRatio < 0.5)
+                {
+                    for (int i = 0; i < pNet.consumers.Count; i++)
+                    {
+                        entitySignPool[pSys.consumerPool[consumers[i]].entityId].signType = 3U;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < pNet.consumers.Count; i++)
+                    {
+                        entitySignPool[pSys.consumerPool[consumers[i]].entityId].signType = 0U;
                     }
                 }
             }
