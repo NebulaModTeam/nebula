@@ -32,7 +32,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     return false;
                 }
 
-                ComputeFuelUsage(__instance);
                 UpdateAnimations(__instance, time);
 
                 timePassed += Time.deltaTime;
@@ -56,56 +55,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 return false;
             }
             return true;
-        }
-
-        private static void ComputeFuelUsage(PowerSystem pSys)
-        {
-            int[] consumeRegister = GameMain.statistics.production.factoryStatPool[pSys.factory.index].consumeRegister;
-            Vector3 normalized = pSys.factory.planet.runtimeLocalSunDirection.normalized;
-
-            List<long> animCache = null;
-            if (!PowerSystemManager.PowerSystemAnimationCache.TryGetValue(pSys.planet.id, out animCache))
-            {
-                // just too much spam
-                //Log.Warn($"Could not get PowerSystem animation cache, animations will be broken for planet {pSys.planet.displayName}!");
-            }
-
-            foreach (PowerNetwork pNet in pSys.netPool)
-            {
-                // pNets start at index 1
-                if(pNet != null && animCache != null && pNet.id > 0 && pNet.id - 1 < animCache.Count)
-                {
-                    //Log.Info($"{pNet.id} / {pSys.netCursor} | {animCache.Count}");
-                    long num35 = animCache[pNet.id - 1];
-
-                    for (int i = 0; i < pNet.generators.Count; i++)
-                    {
-                        int cIndex = pNet.generators[i];
-                        long generateCurrentTick = 0L;
-                        bool isPoweredByFuel = !pSys.genPool[cIndex].wind && !pSys.genPool[cIndex].photovoltaic && !pSys.genPool[cIndex].gamma;
-
-                        PrepareUpdateFuelComputation(pSys, ref pSys.genPool[cIndex], normalized);
-                        if (isPoweredByFuel)
-                        {
-                            pSys.genPool[cIndex].currentStrength = (float)((num35 > 0L && pSys.genPool[cIndex].capacityCurrentTick > 0L) ? 1 : 0);
-                        }
-                        if(num35 > 0L && pSys.genPool[cIndex].productId == 0)
-                        {
-                            long energy = (long)(pNet.generaterRatio * (double)pSys.genPool[cIndex].capacityCurrentTick + 0.99999);
-                            generateCurrentTick = ((num35 < energy) ? num35 : energy);
-                            if(generateCurrentTick > 0L)
-                            {
-                                num35 -= generateCurrentTick;
-                                if (isPoweredByFuel)
-                                {
-                                    pSys.genPool[cIndex].GenEnergyByFuel(generateCurrentTick, consumeRegister);
-                                }
-                                pSys.genPool[cIndex].generateCurrentTick = generateCurrentTick; // wey we can compute num46 from num35!!
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         private static void UpdateAnimations(PowerSystem pSys, long time)
@@ -132,30 +81,57 @@ namespace NebulaPatcher.Patches.Dynamic
             bool useCata = time % 10L == 0L;
             int[] productRegister = factoryProductionStat == null ? new int[0] : factoryProductionStat.productRegister;
             int[] consumeRegister = factoryProductionStat == null ? new int[0] : factoryProductionStat.consumeRegister;
+            Vector3 normalized = pSys.factory.planet.runtimeLocalSunDirection.normalized;
 
-            foreach(PowerNetwork pNet in GameMain.localPlanet.factory.powerSystem.netPool)
+            foreach (PowerNetwork pNet in GameMain.localPlanet.factory.powerSystem.netPool)
             {
                 if(pNet == null || animCache == null)
                 {
                     continue;
                 }
 
-                for(int i = 0; i < pNet.generators.Count && pNet.id - 1 < animCache.Count; i++)
+                for (int i = 0; i < pNet.generators.Count && pNet.id - 1 < animCache.Count; i++)
                 {
-                    // num35 taken from powerToggle (int the PowerSystemUpdateResponse packet) as it determines if num46 (generateCurrentTick) is 0 or computed based on the power net.
-                    int eID = pSys.genPool[pNet.generators[i]].entityId;
-                    long generateCurrentTick = animCache[pNet.id - 1] > 0 ? pSys.genPool[pNet.generators[i]].generateCurrentTick : 0;
+                    int compIndex = pNet.generators[i];
+                    int eID = pSys.genPool[compIndex].entityId;
+
+                    long num35 = animCache[pNet.id - 1];
+
+                    bool isPoweredByFuel = !pSys.genPool[compIndex].wind && !pSys.genPool[compIndex].photovoltaic && !pSys.genPool[compIndex].gamma;
+                    long generateCurrentTick = num35 > 0 ? pSys.genPool[compIndex].generateCurrentTick : 0;
                     //Log.Info($"{generateCurrentTick} in net {pNet.id} while cache is {animCache == null} and has {animCache?.Count} entries");
 
-                    if (pSys.genPool[pNet.generators[i]].wind)
+                    // first compute fuel usage and energy left in facility. Also compute generateCurrentTick as its different for each facility but based on num35 which we sync in the animCache.
+                    PrepareUpdateFuelComputation(pSys, ref pSys.genPool[compIndex], normalized);
+                    if (isPoweredByFuel)
+                    {
+                        pSys.genPool[compIndex].currentStrength = (float)((num35 > 0L && pSys.genPool[compIndex].capacityCurrentTick > 0L) ? 1 : 0);
+                    }
+                    if (num35 > 0L && pSys.genPool[compIndex].productId == 0)
+                    {
+                        long energy = (long)(pNet.generaterRatio * (double)pSys.genPool[compIndex].capacityCurrentTick + 0.99999);
+                        generateCurrentTick = ((num35 < energy) ? num35 : energy);
+                        if (generateCurrentTick > 0L)
+                        {
+                            num35 -= generateCurrentTick;
+                            if (isPoweredByFuel)
+                            {
+                                pSys.genPool[compIndex].GenEnergyByFuel(generateCurrentTick, consumeRegister);
+                            }
+                            pSys.genPool[compIndex].generateCurrentTick = generateCurrentTick; // wey we can compute num46 from num35!!
+                        }
+                    }
+
+                    // then update animation status based on the current energy
+                    if (pSys.genPool[compIndex].wind)
                     {
                         // state is always enabled on wind as it seems, but with 0 windStrength it does not move anyways
                         speed = 0.7f;
                         entityAnimPool[eID].Step2(1U, stepTime, GameMain.localPlanet.windStrength, speed);
                     }
-                    else if (pSys.genPool[pNet.generators[i]].gamma && factoryProductionStat != null)
+                    else if (pSys.genPool[compIndex].gamma && factoryProductionStat != null)
                     {
-                        pSys.genPool[pNet.generators[i]].GameTick_Gamma(useIonLayer, useCata, pSys.factory, productRegister, consumeRegister);
+                        pSys.genPool[compIndex].GameTick_Gamma(useIonLayer, useCata, pSys.factory, productRegister, consumeRegister);
                         entityAnimPool[eID].time += stepTime;
 
                         if(entityAnimPool[eID].time > 1f)
@@ -163,14 +139,14 @@ namespace NebulaPatcher.Patches.Dynamic
                             entityAnimPool[eID].time -= 1f;
                         }
 
-                        entityAnimPool[eID].power = (float)((double)pSys.genPool[pNet.generators[i]].capacityCurrentTick / (double)pSys.genPool[pNet.generators[i]].genEnergyPerTick);
-                        entityAnimPool[eID].state = ((pSys.genPool[pNet.generators[i]].productId > 0) ? 2U : 0U) + ((pSys.genPool[pNet.generators[i]].catalystPoint > 0) ? 1U : 0U);
-                        entityAnimPool[eID].working_length = entityAnimPool[eID].working_length * 0.99f + ((pSys.genPool[pNet.generators[i]].catalystPoint > 0) ? 0.01f : 0f);
+                        entityAnimPool[eID].power = (float)((double)pSys.genPool[compIndex].capacityCurrentTick / (double)pSys.genPool[compIndex].genEnergyPerTick);
+                        entityAnimPool[eID].state = ((pSys.genPool[compIndex].productId > 0) ? 2U : 0U) + ((pSys.genPool[compIndex].catalystPoint > 0) ? 1U : 0U);
+                        entityAnimPool[eID].working_length = entityAnimPool[eID].working_length * 0.99f + ((pSys.genPool[compIndex].catalystPoint > 0) ? 0.01f : 0f);
                     }
                     else if(pSys.genPool[pNet.generators[i]].fuelMask > 1)
                     {
-                        // updating power with approximate value, but its only used for animations client side so it should be fine
-                        float power = (float)((double)entityAnimPool[eID].power * 0.98 + 0.02 * (double)((generateCurrentTick > 0L) ? 1 : 0));
+                        // capacityCurrentTick is > 30 when there is still fuel energy inside the facility (check needed to turn off animations when fuel runs out)
+                        float power = (float)((double)entityAnimPool[eID].power * 0.98 + 0.02 * (double)((generateCurrentTick > 0L && pSys.genPool[compIndex].capacityCurrentTick > 30L) ? 1 : 0));
                         if(power > 0L)
                         {
                             speed = 2f;
@@ -184,8 +160,8 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                     else
                     {
-                        // updating power with approximate value, but its only used for animations client side so it should be fine
-                        float power = (float)((double)entityAnimPool[eID].power * 0.98 + 0.02 * (double)generateCurrentTick / (double)pSys.genPool[pNet.generators[i]].genEnergyPerTick);
+                        // capacityCurrentTick is > 30 when there is still fuel energy inside the facility (check needed to turn off animations when fuel runs out)
+                        float power = (float)((double)entityAnimPool[eID].power * 0.98 + 0.02 * (double)generateCurrentTick / (double)pSys.genPool[compIndex].genEnergyPerTick);
                         if (power > 0L)
                         {
                             speed = 2f;
@@ -194,13 +170,13 @@ namespace NebulaPatcher.Patches.Dynamic
                         {
                             power = 0.2f;
                         }
-                        entityAnimPool[eID].Step2(((entityAnimPool[eID].power > 0.1f || generateCurrentTick > 0L)) ? 1U : 0U, stepTime, power, speed);
+                        entityAnimPool[eID].Step2(((entityAnimPool[eID].power > 0.1f || (generateCurrentTick > 0L && pSys.genPool[compIndex].capacityCurrentTick > 30L))) ? 1U : 0U, stepTime, power, speed);
                     }
                 }
             }
         }
 
-        // return num12
+        // compute capacityCurrentTick
         private static void PrepareUpdateFuelComputation(PowerSystem pSys, ref PowerGeneratorComponent pComp, Vector3 normalized)
         {
             if (pComp.wind)
