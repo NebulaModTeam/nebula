@@ -76,7 +76,7 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                             num35[i][j] = j < list.Count ? list[j] : 0;
                         }
 
-                        if((float)pSys.netPool[j + 1].consumerRatio == pSys.networkServes[j])
+                        if((float)pSys.netPool[j + 1].consumerRatio == pSys.networkServes[j + 1])
                         {
                             copyValues[i][j] = true;
                         }

@@ -51,13 +51,13 @@ namespace NebulaNetwork.PacketProcessors.PowerSystem
                             pSys.netPool[j + 1].generaterRatio = packet.GeneratorRatio[pIndex][j];
                             if (packet.CopyValues[pIndex][j])
                             {
-                                pSys.networkServes[j] = (float)packet.ConsumerRatio[pIndex][j];
-                                pSys.networkGenerates[j] = (float)packet.GeneratorRatio[pIndex][j];
+                                pSys.networkServes[j + 1] = (float)packet.ConsumerRatio[pIndex][j];
+                                pSys.networkGenerates[j + 1] = (float)packet.GeneratorRatio[pIndex][j];
                             }
                             else
                             {
-                                pSys.networkServes[j] = 0f;
-                                pSys.networkGenerates[j] = 0f;
+                                pSys.networkServes[j + 1] = 0f;
+                                pSys.networkGenerates[j + 1] = 0f;
                             }
 
                             /*
