@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3514781575614278447}
   - component: {fileID: 4913518115931805612}
   - component: {fileID: 3238518656307793080}
+  - component: {fileID: 6160237943958230092}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -105,6 +106,20 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &6160237943958230092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 132892396436886665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates: []
+  delegates: []
 --- !u!1 &539530626773356374
 GameObject:
   m_ObjectHideFlags: 0
@@ -534,7 +549,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5812330229923076275
 RectTransform:
   m_ObjectHideFlags: 0
@@ -575,7 +590,7 @@ MonoBehaviour:
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 1
 --- !u!114 &131181080228422077
 MonoBehaviour:
@@ -888,7 +903,6 @@ GameObject:
   - component: {fileID: 3527980105942565041}
   - component: {fileID: 6005627739334278740}
   - component: {fileID: 2527788249416509448}
-  - component: {fileID: 5974143233858370882}
   m_Layer: 5
   m_Name: ChatV2
   m_TagString: Untagged
@@ -950,27 +964,13 @@ MonoBehaviour:
   m_Script: {fileID: -1670768919, guid: 06dd3d5416bf43ea368cc39ff96e6d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dragTrigger: {fileID: 5974143233858370882}
+  dragTrigger: {fileID: 6160237943958230092}
   dragTrans: {fileID: 3527980105942565041}
-  refTrans: {fileID: 0}
+  refTrans: {fileID: 4710401390210384327}
   dragThreshold: 4
   damping: 0.2
   spring: 0.5
   pointerIn: 0
---- !u!114 &5974143233858370882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3527980105942574080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Delegates: []
-  delegates: []
 --- !u!1 &4493651037485801358
 GameObject:
   m_ObjectHideFlags: 0

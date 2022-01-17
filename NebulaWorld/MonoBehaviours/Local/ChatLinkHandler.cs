@@ -85,13 +85,17 @@ namespace NebulaWorld.MonoBehaviours.Local
         {
             if (signalId < 1000 || signalId > 20000)
             {
-                Destroy(tip.gameObject);
+                if (tip != null)
+                {
+                    Destroy(tip.gameObject);
+                }
                 return;
             }
 
-            TMP_TextUtilities.ScreenPointToWorldPointInRectangle(transform, Input.mousePosition, camera, out Vector3 mousePosition);
-            Vector3 textPosition = ((RectTransform)transform).position;
-            Vector2 offset = mousePosition - textPosition;
+            RectTransform rect = (RectTransform)transform;
+            
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, Input.mousePosition,camera, out Vector2 offset);
+            offset -= new Vector2(rect.sizeDelta.x / 2, 0);
             
             UIItemTip uiitemTip = tip as UIItemTip;
             if (uiitemTip == null)
