@@ -10,39 +10,42 @@ namespace NebulaPatcher.Patches.Dynamic
     internal class StorageComponent_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(StorageComponent.AddItem), new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) })]
-        public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length)
+        [HarmonyPatch(nameof(StorageComponent.AddItem))]
+        public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length, int inc, out int remainInc)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
             if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest && Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet != null)
             {
-                HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItem2, itemId, count, startIndex, length));
+                HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItem2, itemId, count, startIndex, length, inc));
             }
+            remainInc = inc; // this is what the game does anyways so it should not change the functionality of the method
             return true;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(StorageComponent.AddItemStacked))]
-        public static bool AddItemStacked_Prefix(StorageComponent __instance, int itemId, int count)
+        public static bool AddItemStacked_Prefix(StorageComponent __instance, int itemId, int count, int inc, out int remainInc)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
             if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest && Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet != null)
             {
-                HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItemStacked, itemId, count));
+                HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItemStacked, itemId, count, inc));
             }
+            remainInc = inc; // this is what the game does anyways so it should not change the functionality of the method
             return true;
 
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(StorageComponent.TakeItemFromGrid))]
-        public static bool TakeItemFromGrid_Prefix(StorageComponent __instance, int gridIndex, ref int itemId, ref int count)
+        public static bool TakeItemFromGrid_Prefix(StorageComponent __instance, int gridIndex, ref int itemId, ref int count, out int inc)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
             if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest && Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet != null)
             {
-                HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.TakeItemFromGrid, gridIndex, itemId, count));
+                HandleUserInteraction(__instance, new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.TakeItemFromGrid, gridIndex, itemId, count, 0));
             }
+            inc = 0; // this is what the game does anyways so it should not change the functionality of the method
             return true;
         }
 

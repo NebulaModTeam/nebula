@@ -44,6 +44,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(Mecha.SetForNewGame))]
         public static void SetForNewGame_Postfix(Mecha __instance)
         {
+            int dummyOut;
             __instance.coreEnergyCap = 30000000000;
             __instance.coreEnergy = 30000000000;
             __instance.corePowerGen = 5000000;
@@ -53,17 +54,17 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.maxSailSpeed = 2000f;
             __instance.maxWarpSpeed = 1000000f;
             __instance.walkSpeed = 25f;
-            __instance.player.package.AddItemStacked(1803, 40); //add antimatter
-            __instance.player.package.AddItemStacked(1501, 600); //add sails
-            __instance.player.package.AddItemStacked(1503, 60); //add rockets
-            __instance.player.package.AddItemStacked(2312, 10); //add launching silo
-            __instance.player.package.AddItemStacked(2210, 10); //add artifical sun
-            __instance.player.package.AddItemStacked(2311, 20); //add railgun
-            __instance.player.package.AddItemStacked(2001, 600); //add MK3 belts
-            __instance.player.package.AddItemStacked(2002, 600); //add MK3 belts
-            __instance.player.package.AddItemStacked(2003, 600); //add MK3 belts
-            __instance.player.package.AddItemStacked(2013, 100); //add MK3 inserters
-            __instance.player.package.AddItemStacked(2212, 20); //add satelite sub-station
+            __instance.player.package.AddItemStacked(1803, 40, 1, out dummyOut); //add antimatter
+            __instance.player.package.AddItemStacked(1501, 600, 1, out dummyOut); //add sails
+            __instance.player.package.AddItemStacked(1503, 60, 1, out dummyOut); //add rockets
+            __instance.player.package.AddItemStacked(2312, 10, 1, out dummyOut); //add launching silo
+            __instance.player.package.AddItemStacked(2210, 10, 1, out dummyOut); //add artifical sun
+            __instance.player.package.AddItemStacked(2311, 20, 1, out dummyOut); //add railgun
+            __instance.player.package.AddItemStacked(2001, 600, 1, out dummyOut); //add MK3 belts
+            __instance.player.package.AddItemStacked(2002, 600, 1, out dummyOut); //add MK3 belts
+            __instance.player.package.AddItemStacked(2003, 600, 1, out dummyOut); //add MK3 belts
+            __instance.player.package.AddItemStacked(2013, 100, 1, out dummyOut); //add MK3 inserters
+            __instance.player.package.AddItemStacked(2212, 20, 1, out dummyOut); //add satelite sub-station
         }
     }
 
@@ -82,9 +83,10 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool AddTaskIterate_Prefix(MechaForge __instance, ForgeTask __result, int recipeId, int count)
         {
             ForgeTask recipe = new ForgeTask(recipeId, count);
+            int dummyOut;
             for (int i = 0; i < recipe.productIds.Length; i++)
             {
-                GameMain.mainPlayer.package.AddItemStacked(recipe.productIds[i], count);
+                GameMain.mainPlayer.package.AddItemStacked(recipe.productIds[i], count, 1, out dummyOut);
             }
             __result = null;
             return false;

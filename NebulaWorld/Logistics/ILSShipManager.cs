@@ -226,22 +226,22 @@ namespace NebulaWorld.Logistics
          */
         public void AddTakeItem(ILSShipItems packet)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.stationGID)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.StationGID)
             {
                 return;
             }
 
-            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.stationGID];
-            if (stationComponent != null && stationComponent.gid == packet.stationGID && stationComponent.storage != null)
+            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGID];
+            if (stationComponent != null && stationComponent.gid == packet.StationGID && stationComponent.storage != null)
             {
-                if (packet.addItem)
+                if (packet.AddItem)
                 {
-                    stationComponent.AddItem(packet.itemId, packet.itemCount);
+                    stationComponent.AddItem(packet.ItemId, packet.ItemCount, packet.Inc);
                     for (int i = 0; i < stationComponent.storage.Length; i++)
                     {
-                        if (stationComponent.storage[i].itemId == packet.itemId)
+                        if (stationComponent.storage[i].itemId == packet.ItemId)
                         {
-                            stationComponent.storage[i].remoteOrder -= packet.itemCount;
+                            stationComponent.storage[i].remoteOrder -= packet.ItemCount;
                             RefreshValuesUI(stationComponent, i);
                             break;
                         }
@@ -249,9 +249,10 @@ namespace NebulaWorld.Logistics
                 }
                 else
                 {
-                    int itemId = packet.itemId;
-                    int itemCount = packet.itemCount;
-                    stationComponent.TakeItem(ref itemId, ref itemCount);
+                    int itemId = packet.ItemId;
+                    int itemCount = packet.ItemCount;
+                    int dummyInc;
+                    stationComponent.TakeItem(ref itemId, ref itemCount, out dummyInc);
                     // TODO: Update remote order here (issue #230)
                 }
             }

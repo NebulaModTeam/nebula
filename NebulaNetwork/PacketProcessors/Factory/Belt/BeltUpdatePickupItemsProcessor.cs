@@ -24,7 +24,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Belt
                     //Check if belt exists
                     if (cargoPath != null)
                     {
-                        cargoPath.TryPickItem(packet.BeltUpdates[i].SegId - 4 - 1, 12);
+                        byte stack, inc;
+                        cargoPath.TryPickItem(packet.BeltUpdates[i].SegId - 4 - 1, 12, out stack, out inc);
                     }
                 }
             }

@@ -30,11 +30,11 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(CargoTraffic.PutItemOnBelt))]
-        public static void PutItemOnBelt_Prefix(int beltId, int itemId)
+        public static void PutItemOnBelt_Prefix(int beltId, int itemId, byte itemInc)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, GameMain.data.localPlanet.id));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, itemInc, GameMain.data.localPlanet.id));
             }
         }
 

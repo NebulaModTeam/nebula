@@ -49,7 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive)
             {
                 PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, thisComponent.fuelInc, GameMain.localPlanet?.id ?? -1));
             }
         }
     }

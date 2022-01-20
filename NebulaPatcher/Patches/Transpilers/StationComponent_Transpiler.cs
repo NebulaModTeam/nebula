@@ -11,6 +11,7 @@ using UnityEngine;
 // thanks tanu and Therzok for the tipps!
 namespace NebulaPatcher.Patches.Transpilers
 {
+#pragma warning disable Harmony003 // Harmony non-ref patch parameters modified
     [HarmonyPatch(typeof(StationComponent))]
     public class StationComponent_Transpiler
     {
@@ -272,7 +273,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
+                        ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid, shipData.inc);
                         Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
@@ -296,7 +297,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
+                        ILSShipItems packet = new ILSShipItems(true, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid, shipData.inc);
                         Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
@@ -324,7 +325,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        ILSShipItems packet = new ILSShipItems(false, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid);
+                        ILSShipItems packet = new ILSShipItems(false, shipData.itemId, shipData.itemCount, shipData.shipIndex, stationComponent.gid, shipData.inc);
                         Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
@@ -360,7 +361,8 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
+                                // TODO: use correct inc value
+                                ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid, 0);
                                 Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                             return 0;
@@ -393,7 +395,8 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
+                                // TODO: use correct inc value
+                                ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid, 0);
                                 Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                             return 0;
@@ -439,7 +442,8 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid);
+                        // TODO: use correct inc value
+                        ILSShipItems packet = new ILSShipItems(false, stationComponent.storage[storageIndex].itemId, amount, 0, stationComponent.gid, 0);
                         Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                     return 0;
@@ -591,7 +595,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 }))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
                 .InstructionEnumeration();
-            // c# 480, c# 948, c# 1033
+                                  // c# 480, c# 948, c# 1033
             instructions = new CodeMatcher(instructions)
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloc_S),
@@ -1027,4 +1031,5 @@ namespace NebulaPatcher.Patches.Transpilers
             _ = Transpiler(null, null);
         }
     }
+#pragma warning restore Harmony003 // Harmony non-ref patch parameters modified
 }

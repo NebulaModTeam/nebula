@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.PowerGenerator
             {
                 if (pool[packet.PowerGeneratorIndex].fuelId != packet.FuelId)
                 {
-                    pool[packet.PowerGeneratorIndex].SetNewFuel(packet.FuelId, packet.FuelAmount);
+                    pool[packet.PowerGeneratorIndex].SetNewFuel(packet.FuelId, packet.FuelAmount, packet.FuelInc);
                 }
                 else
                 {

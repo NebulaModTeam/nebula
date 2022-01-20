@@ -2,20 +2,22 @@
 {
     public class ILSShipItems
     {
-        public bool addItem { get; set; }
-        public int itemId { get; set; }
-        public int itemCount { get; set; }
-        public int origShipIndex { get; set; }
-        public int stationGID { get; set; }
+        public bool AddItem { get; set; }
+        public int ItemId { get; set; }
+        public int ItemCount { get; set; }
+        public int OrigShipIndex { get; set; }
+        public int StationGID { get; set; }
+        public int Inc { get; set; }
 
         public ILSShipItems() { }
-        public ILSShipItems(bool AddItem, int itemId, int itemCount, int origShipIndex, int stationGID)
+        public ILSShipItems(bool addItem, int itemId, int itemCount, int origShipIndex, int stationGID, int inc)
         {
-            addItem = AddItem;
-            this.itemId = itemId;
-            this.itemCount = itemCount;
-            this.origShipIndex = origShipIndex;
-            this.stationGID = stationGID;
+            AddItem = addItem;
+            ItemId = itemId;
+            ItemCount = itemCount;
+            OrigShipIndex = origShipIndex;
+            StationGID = stationGID;
+            Inc = inc;
         }
     }
 }

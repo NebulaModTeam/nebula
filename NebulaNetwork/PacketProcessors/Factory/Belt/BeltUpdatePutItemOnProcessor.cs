@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Belt
         {
             using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
-                GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic?.PutItemOnBelt(packet.BeltId, packet.ItemId);
+                GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic?.PutItemOnBelt(packet.BeltId, packet.ItemId, packet.ItemInc);
             }
         }
     }
