@@ -45,14 +45,14 @@ namespace NebulaModel
 
         public void SetMechaColors()
         {
-            UnityEngine.Color32[] mainColors = GameMain.mainPlayer.mecha.mainColors;
+            /*UnityEngine.Color32[] mainColors = GameMain.mainPlayer.mecha.mainColors;
             string mechaColors = string.Empty;
             for (int i = 0; i < mainColors.Length; i++)
             {
                 mechaColors += $"{(int)mainColors[i].r} {(int)mainColors[i].g} {(int)mainColors[i].b} {(int)mainColors[i].a};";
             }
             MechaColors = mechaColors;
-            Config.SaveOptions();
+            Config.SaveOptions();*/
         }
 
         // Detail function group buttons

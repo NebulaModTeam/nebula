@@ -324,7 +324,7 @@ namespace NebulaWorld
                 // We changed our own color, so we have to let others know
                 if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
-                    GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
+                    //GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
                     Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, colors));
                 }
             }
