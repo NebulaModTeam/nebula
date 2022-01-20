@@ -3,6 +3,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.PowerSystem;
 using NebulaWorld;
 using NebulaWorld.Factory;
+using PowerNetworkStructures;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     return false;
                 }
 
-                UpdateAnimations(__instance, time, isActive);
+                UpdateAnimations(__instance, time, isActive, isMultithreadMode);
 
                 timePassed += Time.deltaTime;
 
@@ -57,7 +58,7 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
-        private static void UpdateAnimations(PowerSystem pSys, long time, bool isActive)
+        private static void UpdateAnimations(PowerSystem pSys, long time, bool isActive, bool isMultiplayerMode)
         {
             if(GameMain.localPlanet == null || GameMain.localPlanet.factory == null)
             {
@@ -85,6 +86,17 @@ namespace NebulaPatcher.Patches.Dynamic
 
             SignData[] entitySignPool = pSys.factory.entitySignPool;
 
+            Vector3 playerPos = Vector3.zero;
+            bool triggerPlayerRecharge = GameMain.mainPlayer.mecha.coreEnergyCap - GameMain.mainPlayer.mecha.coreEnergy > 10000.0;
+            if(triggerPlayerRecharge && GameMain.mainPlayer.planetId == pSys.planet.id)
+            {
+                playerPos = (isMultiplayerMode ? pSys.multithreadPlayerPos : GameMain.mainPlayer.position);
+            }
+            else
+            {
+                triggerPlayerRecharge = false;
+            }
+
             foreach (PowerNetwork pNet in GameMain.localPlanet.factory.powerSystem.netPool)
             {
                 if(pNet == null || animCache == null)
@@ -93,9 +105,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     {
                         // still update signs even if there is no power source on this planet
                         UpdateSignPool(pSys, entitySignPool, pNet, ref isActive);
+                        // still compute wireless charger state
+                        ComputeWirelessChargerState(pSys, pNet, triggerPlayerRecharge, playerPos);
                     }
                     continue;
                 }
+
+                ComputeWirelessChargerState(pSys, pNet, triggerPlayerRecharge, playerPos);
 
                 for (int i = 0; i < pNet.generators.Count && pNet.id - 1 < animCache.Count; i++)
                 {
@@ -106,7 +122,6 @@ namespace NebulaPatcher.Patches.Dynamic
 
                     bool isPoweredByFuel = !pSys.genPool[compIndex].wind && !pSys.genPool[compIndex].photovoltaic && !pSys.genPool[compIndex].gamma;
                     long generateCurrentTick = num35 > 0 ? pSys.genPool[compIndex].generateCurrentTick : 0;
-                    //Log.Info($"{generateCurrentTick} in net {pNet.id} while cache is {animCache == null} and has {animCache?.Count} entries");
 
                     // first compute fuel usage and energy left in facility. Also compute generateCurrentTick as its different for each facility but based on num35 which we sync in the animCache.
                     PrepareUpdateFuelComputation(pSys, ref pSys.genPool[compIndex], normalized);
@@ -152,7 +167,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                     else if(pSys.genPool[pNet.generators[i]].fuelMask > 1)
                     {
-                        // capacityCurrentTick is > 30 when there is still fuel energy inside the facility (check needed to turn off animations when fuel runs out)
                         float power = (float)((double)entityAnimPool[eID].power * 0.98 + 0.02 * (double)((generateCurrentTick > 0L && pSys.genPool[compIndex].capacityCurrentTick > 30L) ? 1 : 0));
                         if(power > 0L)
                         {
@@ -162,7 +176,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         {
                             power = 0f;
                         }
-                        //Log.Warn(entityAnimPool[eID].power + " " + generateCurrentTick);
+                        
                         entityAnimPool[eID].Step2((entityAnimPool[eID].power > 0.1f || generateCurrentTick > 0L) ? 1U : 0U, stepTime, power, speed);
                     }
                     else
@@ -182,6 +196,47 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
 
                 UpdateSignPool(pSys, entitySignPool, pNet, ref isActive);
+            }
+        }
+
+        // use requiredEnergy to determine the animation state further down in the UpdateAnimations() method
+        private static void ComputeWirelessChargerState(PowerSystem pSys, PowerNetwork pNet, bool triggerPlayerRecharge, Vector3 playerPos)
+        {
+            foreach(Node node in pNet.nodes)
+            {
+                int id = node.id;
+                if(pSys.nodePool[id].id == id && pSys.nodePool[id].isCharger){
+                    if (triggerPlayerRecharge)
+                    {
+                        float num8 = pSys.nodePool[id].powerPoint.x * 0.988f - playerPos.x;
+                        float num9 = pSys.nodePool[id].powerPoint.y * 0.988f - playerPos.y;
+                        float num10 = pSys.nodePool[id].powerPoint.z * 0.988f - playerPos.z;
+                        if(pSys.nodePool[id].coverRadius < 15f && (double)(num8 * num8 + num9 * num9 + num10 * num10) <= 64.05)
+                        {
+                            if(pSys.nodePool[id].requiredEnergy == pSys.nodePool[id].idleEnergyPerTick)
+                            {
+                                // tower starts to work, send event to host
+                            }
+                            pSys.nodePool[id].requiredEnergy = pSys.nodePool[id].workEnergyPerTick;
+                        }
+                        else
+                        {
+                            if(pSys.nodePool[id].requiredEnergy == pSys.nodePool[id].workEnergyPerTick)
+                            {
+                                // tower stops to work, send event to host
+                            }
+                            pSys.nodePool[id].requiredEnergy = pSys.nodePool[id].idleEnergyPerTick;
+                        }
+                    }
+                    else
+                    {
+                        if(pSys.nodePool[id].requiredEnergy == pSys.nodePool[id].workEnergyPerTick)
+                        {
+                            // tower stops to work, send event to host
+                        }
+                        pSys.nodePool[id].requiredEnergy = pSys.nodePool[id].idleEnergyPerTick;
+                    }
+                }
             }
         }
 
