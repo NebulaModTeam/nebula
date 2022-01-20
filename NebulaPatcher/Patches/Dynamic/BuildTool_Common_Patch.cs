@@ -44,7 +44,10 @@ namespace NebulaPatcher.Patches.Dynamic
             //If client builds, he need to first send request to the host and wait for reply
             if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()));
+                if (Multiplayer.Session.BuildTools.InitialCheck(previews[0].lpos))
+                {
+                    Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()));
+                }
                 return false;
             }
             return true;

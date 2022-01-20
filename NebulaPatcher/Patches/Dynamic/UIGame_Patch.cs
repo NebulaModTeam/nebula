@@ -20,5 +20,17 @@ namespace NebulaPatcher.Patches.Dynamic
             __instance.dfSpaceGuideOn = Config.Options.SpaceNavigationEnabled;
             __instance.dfVeinOn = Config.Options.VeinDistributionEnabled;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIGame.StarmapChangingToMilkyWay))]
+        public static bool StarmapChangingToMilkyWay_Prefix(UIGame __instance)
+        {
+            if (Multiplayer.IsActive)
+            {
+                InGamePopup.ShowInfo("Access Denied", "Milky Way is disabled in multiplayer game.", "OK");
+                return false;
+            }
+            return true;
+        }
     }
 }
