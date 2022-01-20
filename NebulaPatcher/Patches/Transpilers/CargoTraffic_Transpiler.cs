@@ -31,22 +31,18 @@ namespace NebulaPatcher.Patches.Transpiler
                 return instructions;
             }
 
-            CodeInstruction itemId = codeMatcher.InstructionAt(3);
-            CodeInstruction count = codeMatcher.InstructionAt(4);
-            CodeInstruction beltId = new CodeInstruction(OpCodes.Ldarg_2);
-            CodeInstruction segId = codeMatcher.InstructionAt(-6);
-
             return codeMatcher
                     .Advance(2)
-                    .InsertAndAdvance(itemId)
-                    .InsertAndAdvance(count)
-                    .InsertAndAdvance(beltId)
-                    .InsertAndAdvance(segId)
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int>>((item, cnt, belt, seg) =>
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 5))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_3))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_2))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 4))
+                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, int>>((item, cnt, belt, seg, inc) =>
                     {
                         if (Multiplayer.IsActive)
                         {
-                            Multiplayer.Session.Belts.RegisterBeltPickupUpdate(item, cnt, belt, seg);
+                            Multiplayer.Session.Belts.RegisterBeltPickupUpdate(item, cnt, belt, seg, inc);
                         }
                     }))
                     .InstructionEnumeration();

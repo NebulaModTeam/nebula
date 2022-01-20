@@ -23,12 +23,14 @@ namespace NebulaModel.Packets.Belt
         public int Count { get; set; }
         public int BeltId { get; set; }
         public int SegId { get; set; }
-        public BeltUpdate(int itemId, int count, int beltId, int segId)
+        public int Inc { get; set; } // do we need to send it? well we could..
+        public BeltUpdate(int itemId, int count, int beltId, int segId, int inc)
         {
             SegId = segId;
             ItemId = itemId;
             Count = count;
             BeltId = beltId;
+            Inc = inc;
         }
 
         public void Serialize(INetDataWriter writer)
@@ -37,6 +39,7 @@ namespace NebulaModel.Packets.Belt
             writer.Put(Count);
             writer.Put(BeltId);
             writer.Put(SegId);
+            writer.Put(Inc);
         }
 
         public void Deserialize(INetDataReader reader)
@@ -45,6 +48,7 @@ namespace NebulaModel.Packets.Belt
             Count = reader.GetInt();
             BeltId = reader.GetInt();
             SegId = reader.GetInt();
+            Inc = reader.GetInt();
         }
     }
 }
