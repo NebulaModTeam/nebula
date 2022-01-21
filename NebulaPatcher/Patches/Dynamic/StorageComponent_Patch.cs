@@ -10,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
     internal class StorageComponent_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(StorageComponent.AddItem))]
+        [HarmonyPatch(nameof(StorageComponent.AddItem), new Type[] { typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) }, new ArgumentType[]{ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Out})]
         public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length, int inc, out int remainInc)
         {
             //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
@@ -70,7 +70,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(StorageComponent), nameof(StorageComponent.TakeTailItems), new Type[] { typeof(int), typeof(int), typeof(bool) }, new ArgumentType[] { ArgumentType.Ref, ArgumentType.Ref, ArgumentType.Normal })]
+        [HarmonyPatch(typeof(StorageComponent), nameof(StorageComponent.TakeTailItems), new Type[] { typeof(int), typeof(int), typeof(int), typeof(bool) }, new ArgumentType[] { ArgumentType.Ref, ArgumentType.Ref, ArgumentType.Out, ArgumentType.Normal })]
         public static bool TakeTailItems_Prefix(StorageComponent __instance, ref int count)
         {
             // Run normally if we are not in an MP session or StorageComponent is not player package

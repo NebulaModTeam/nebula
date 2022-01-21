@@ -9,6 +9,7 @@ using System.Reflection.Emit;
 using UnityEngine;
 
 // thanks tanu and Therzok for the tipps!
+/*
 namespace NebulaPatcher.Patches.Transpilers
 {
 #pragma warning disable Harmony003 // Harmony non-ref patch parameters modified
@@ -886,9 +887,8 @@ namespace NebulaPatcher.Patches.Transpilers
 
             // energy consumption start
             // c# 221, c# 338, c# 420 (weey)
-            /*
-             * energy consumption transpiler moved up because for whatever reason it did not work as standalone here.
-             */
+            //
+            // energy consumption transpiler moved up because for whatever reason it did not work as standalone here.
             // energy consumption end
 
             return instructions;
@@ -1033,3 +1033,4 @@ namespace NebulaPatcher.Patches.Transpilers
     }
 #pragma warning restore Harmony003 // Harmony non-ref patch parameters modified
 }
+*/
