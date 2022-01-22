@@ -21,8 +21,8 @@ namespace NebulaNetwork
     {
         private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         private const float STATISTICS_UPDATE_INTERVAL = 1;
-        private const float LAUNCH_UPDATE_INTERVAL = 2;
-        private const float DYSONSPHERE_UPDATE_INTERVAL = 5;
+        private const float LAUNCH_UPDATE_INTERVAL = 4;
+        private const float DYSONSPHERE_UPDATE_INTERVAL = 2;
         private const float WARNING_UPDATE_INTERVAL = 1;
 
         private float gameResearchHashUpdateTimer = 0;
@@ -155,15 +155,7 @@ namespace NebulaNetwork
             if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
             {
                 dysonSphereUpdateTimer = 0;
-                DysonSphere[] dysonSpheres = GameMain.data.dysonSpheres;
-                for (int i = 0; i < dysonSpheres.Length; i++)
-                {
-                    DysonSphere dysonSphere = dysonSpheres[i];
-                    if (dysonSphere != null && (dysonSphere.energyReqCurrentTick + dysonSphere.energyGenCurrentTick > 0))
-                    {
-                        SendPacketToStar(new DysonSphereStatusPacket(dysonSphere), dysonSphere.starData.id);
-                    }
-                }
+                Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded();
             }
 
             if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)

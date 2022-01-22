@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using NebulaAPI;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace NebulaModel.DataStructures
 {
-    public class DysonLaunchData
+    [RegisterNestedType]
+    public class DysonLaunchData : INetSerializable
     {
         public struct Projectile
         {            
@@ -31,60 +32,56 @@ namespace NebulaModel.DataStructures
 
         public DysonLaunchData() : this(0) { }
 
-        public void Export(BinaryWriter bw)
+        public void Serialize(INetDataWriter writer)
         {
-            bw.Write(StarIndex);
-            bw.Write((ushort)BulletList.Count);
+            writer.Put(StarIndex);
+            writer.Put((ushort)BulletList.Count);
             for (ushort i = 0; i < (ushort)BulletList.Count; i++)
             {
                 Projectile data = BulletList[i];
-                bw.Write((byte)(data.PlanetId % 100));
-                bw.Write(data.Interval);
-                bw.Write(data.TargetId);
-                bw.Write(data.LocalPos.x);
-                bw.Write(data.LocalPos.y);
-                bw.Write(data.LocalPos.z);
+                writer.Put((byte)(data.PlanetId % 100));
+                writer.Put(data.Interval);
+                writer.Put(data.TargetId);
+                writer.Put(data.LocalPos.ToFloat3());
             }
-            bw.Write((ushort)RocketList.Count);
+            writer.Put((ushort)RocketList.Count);
             for (ushort i = 0; i < (ushort)RocketList.Count; i++)
             {
                 Projectile data = RocketList[i];
-                bw.Write((byte)(data.PlanetId % 100));
-                bw.Write(data.Interval);
-                bw.Write(data.TargetId);
-                bw.Write(data.LocalPos.x);
-                bw.Write(data.LocalPos.y);
-                bw.Write(data.LocalPos.z);
+                writer.Put((byte)(data.PlanetId % 100));
+                writer.Put(data.Interval);
+                writer.Put(data.TargetId);
+                writer.Put(data.LocalPos.ToFloat3());
             }
         }
 
-        public void Import(BinaryReader br)
+        public void Deserialize(INetDataReader reader)
         {
-            StarIndex = br.ReadInt32();
+            StarIndex = reader.GetInt();
             int starId = (StarIndex + 1) * 100;
-            int count = br.ReadUInt16();
+            int count = reader.GetUShort();
             BulletList = new List<Projectile>(count);
             for (int i = 0; i < count; i++)
             {
                 Projectile data = new Projectile
                 {
-                    PlanetId = br.ReadByte() + starId,
-                    Interval = br.ReadByte(),
-                    TargetId = br.ReadUInt16(),
-                    LocalPos = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
+                    PlanetId = reader.GetByte() + starId,
+                    Interval = reader.GetByte(),
+                    TargetId = reader.GetUShort(),
+                    LocalPos = reader.GetFloat3().ToVector3()
                 };
                 BulletList.Add(data);
             }
-            count = br.ReadUInt16();
+            count = reader.GetUShort();
             RocketList = new List<Projectile>(count);
             for (ushort i = 0; i < count; i++)
             {
                 Projectile data = new Projectile
                 {
-                    PlanetId = br.ReadByte() + starId,
-                    Interval = br.ReadByte(),
-                    TargetId = br.ReadUInt16(),
-                    LocalPos = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle())
+                    PlanetId = reader.GetByte() + starId,
+                    Interval = reader.GetByte(),
+                    TargetId = reader.GetUShort(),
+                    LocalPos = reader.GetFloat3().ToVector3()
                 };
                 RocketList.Add(data);
             }
