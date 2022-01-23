@@ -79,7 +79,7 @@ namespace NebulaWorld
             LocalPlayer player = Multiplayer.Session.LocalPlayer as LocalPlayer;
 
             // Assign our own color
-            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColors);
+            UpdatePlayerAppearance(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaAppearance);
 
             // If not a new client, we need to update the player position to put him where he was previously
             if (player.IsClient && !player.IsNewPlayer)
@@ -172,7 +172,7 @@ namespace NebulaWorld
                 }
             }
 
-            UpdatePlayerColor(playerData.PlayerId, playerData.MechaColors);
+            UpdatePlayerAppearance(playerData.PlayerId, playerData.MechaAppearance);
         }
 
         public void DestroyRemotePlayerModel(ushort playerId)
@@ -278,9 +278,9 @@ namespace NebulaWorld
             }
         }
 
-        public void UpdatePlayerColor(ushort playerId, Float4[] colors)
+        public void UpdatePlayerAppearance(ushort playerId, MechaAppearance appearance)
         {
-            if (colors == null || colors.Length == 0)
+            if (appearance == null)
             {
                 return;
             }
@@ -302,30 +302,30 @@ namespace NebulaWorld
                     return;
                 }
 
-                Log.Info($"Changing color of player {playerId}");
-                for (int i = 0; i < colors.Length; i++)
-                {
-                    Log.Info($"Color {i}: {colors[i]}");
-                }
+                //Log.Info($"Changing color of player {playerId}");
+                //for (int i = 0; i < appearance.Length; i++)
+                //{
+                //    Log.Info($"Color {i}: {appearance[i]}");
+                //}
 
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color", colors[0].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color2", colors[1].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color3", colors[2].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color", colors[0].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color2", colors[1].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color3", colors[2].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_em_mat.SetColor("_EmissionMask", colors[3].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_em_mat.SetColor("_EmissionMask", colors[4].ToColor() / 255);
+                //mechaArmorModel.inst_part_ar_mat.SetColor("_Color", appearance[0].ToColor() / 255);
+                //mechaArmorModel.inst_part_ar_mat.SetColor("_Color2", appearance[1].ToColor() / 255);
+                //mechaArmorModel.inst_part_ar_mat.SetColor("_Color3", appearance[2].ToColor() / 255);
+                //mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor", appearance[5].ToColor() / 255);
+                //mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor3", appearance[6].ToColor() / 255);
+                //mechaArmorModel.inst_part_sk_mat.SetColor("_Color", appearance[0].ToColor() / 255);
+                //mechaArmorModel.inst_part_sk_mat.SetColor("_Color2", appearance[1].ToColor() / 255);
+                //mechaArmorModel.inst_part_sk_mat.SetColor("_Color3", appearance[2].ToColor() / 255);
+                //mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor", appearance[5].ToColor() / 255);
+                //mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor3", appearance[6].ToColor() / 255);
+                //mechaArmorModel.inst_part_ar_em_mat.SetColor("_EmissionMask", appearance[3].ToColor() / 255);
+                //mechaArmorModel.inst_part_sk_em_mat.SetColor("_EmissionMask", appearance[4].ToColor() / 255);
 
                 // We changed our own color, so we have to let others know
                 if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
                     //GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
-                    Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, colors));
+                    //Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, appearance));
                 }
             }
         }

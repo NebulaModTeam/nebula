@@ -72,16 +72,11 @@ namespace NebulaNetwork
             socket.Start();
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
-            //var playerData = new PlayerData(
-            //    PlayerManager.GetNextAvailablePlayerId(),
-            //    GameMain.localPlanet?.id ?? -1,
-            //    Config.Options.GetMechaAppearance(),
-            //    !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName);
-            
+
             var playerData = new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
-                new Float4[7],
+                Config.Options.GetMechaAppearance(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName);
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(playerData, loadSaveFile);

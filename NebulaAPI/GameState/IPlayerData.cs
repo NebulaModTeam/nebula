@@ -5,7 +5,7 @@
         string Username { get; set; }
         ushort PlayerId { get; set; }
         int LocalPlanetId { get; set; }
-        Float4[] MechaColors { get; set; }
+        MechaAppearance MechaAppearance { get; set; }
         Float3 LocalPlanetPosition { get; set; }
         Double3 UPosition { get; set; }
         Float3 Rotation { get; set; }

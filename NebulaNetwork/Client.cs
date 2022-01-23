@@ -157,14 +157,10 @@ namespace NebulaNetwork
             serverConnection = new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor);
 
             //TODO: Maybe some challenge-response authentication mechanism?
-            //var lobbyRequest = new LobbyRequest(
-            //    CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
-            //    !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
-            //    Config.Options.GetMechaAppearance());
             var lobbyRequest = new LobbyRequest(
                 CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
-                new Float4[7]);
+                Config.Options.GetMechaAppearance());
 
             SendPacket(lobbyRequest);
         }
