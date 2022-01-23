@@ -25,7 +25,9 @@ namespace NebulaNetwork.PacketProcessors.Players
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
-                    player.Data.MechaAppearance = packet.Appearance;
+                    var mechaAppearance = new MechaAppearance();
+                    mechaAppearance.FromByte(packet.Appearance);
+                    player.Data.MechaAppearance = mechaAppearance;
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 }
                 else
@@ -36,7 +38,9 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                Multiplayer.Session.World.UpdatePlayerAppearance(packet.PlayerId, packet.Appearance);
+                var mechaAppearance = new MechaAppearance();
+                mechaAppearance.FromByte(packet.Appearance);
+                Multiplayer.Session.World.UpdatePlayerAppearance(packet.PlayerId, mechaAppearance);
             }
         }
     }

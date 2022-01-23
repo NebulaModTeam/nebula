@@ -3,16 +3,13 @@
     public class PlayerAppearanceChanged
     {
         public ushort PlayerId { get; set; }
-        public MechaAppearance Appearance { get; set; }
+        public byte[] Appearance { get; set; }
 
         public PlayerAppearanceChanged() { }
-        public PlayerAppearanceChanged(ushort playerID, byte[] appearance)
+        public PlayerAppearanceChanged(ushort playerID, MechaAppearance appearance)
         {
             PlayerId = playerID;
-
-            var mechaAppearance = new MechaAppearance();
-            mechaAppearance.FromByte(appearance);
-            Appearance = mechaAppearance;
+            Appearance = appearance.ToByte();
         }
     }
 }
