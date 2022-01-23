@@ -72,12 +72,19 @@ namespace NebulaNetwork
             socket.Start();
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
-
-            ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
+            //var playerData = new PlayerData(
+            //    PlayerManager.GetNextAvailablePlayerId(),
+            //    GameMain.localPlanet?.id ?? -1,
+            //    Config.Options.GetMechaAppearance(),
+            //    !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName);
+            
+            var playerData = new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
-                Config.Options.GetMechaColors(),
-                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
+                new Float4[7],
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName);
+
+            ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(playerData, loadSaveFile);
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
