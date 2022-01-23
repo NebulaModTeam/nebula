@@ -109,7 +109,9 @@ namespace NebulaNetwork.PacketProcessors.Session
             player.Data.Username = !string.IsNullOrWhiteSpace(packet.Username) ? packet.Username : $"Player {player.Id}";
 
             // Add the Mecha Appearance to the player data
-            player.Data.MechaAppearance = packet.MechaAppearance;
+            var mechaAppearance = new MechaAppearance();
+            mechaAppearance.FromByte(packet.MechaAppearance);
+            player.Data.MechaAppearance = mechaAppearance;
 
             // Add the new player to the list
             using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))

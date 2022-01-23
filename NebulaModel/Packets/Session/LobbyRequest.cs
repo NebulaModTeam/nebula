@@ -6,7 +6,7 @@ namespace NebulaModel.Packets.Session
     public class LobbyRequest
     {
         public string Username { get; set; }
-        public MechaAppearance MechaAppearance { get; set; }
+        public byte[] MechaAppearance { get; set; }
         public byte[] ModsVersion { get; set; }
         public int ModsCount { get; set; }
         public int GameVersionSig { get; set; }
@@ -15,7 +15,7 @@ namespace NebulaModel.Packets.Session
         public LobbyRequest(byte[] clientCert, string username, MechaAppearance mechaAppearance)
         {
             Username = username;
-            MechaAppearance = mechaAppearance;
+            MechaAppearance = mechaAppearance.ToByte();
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
