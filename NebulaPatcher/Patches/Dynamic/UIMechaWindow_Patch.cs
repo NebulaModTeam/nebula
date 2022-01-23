@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using NebulaAPI;
 using NebulaModel;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
@@ -18,8 +17,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            // GameMain.mainPlayer.mecha.mainColors not there anymore
-            //Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(Multiplayer.Session.LocalPlayer.Id, Float4.ToFloat4(GameMain.mainPlayer.mecha.mainColors)));
+            var appearanceArray = (GameMain.mainPlayer.mecha.diyAppearance ?? GameMain.mainPlayer.mecha.appearance).ToByte();
+            Multiplayer.Session.Network.SendPacket(new PlayerAppearanceChanged(Multiplayer.Session.LocalPlayer.Id, appearanceArray));
             Config.Options.SetMechaAppearance();
         }
     }
