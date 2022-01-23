@@ -37,7 +37,6 @@ namespace NebulaModel.DataStructures
             writer.Put(LocalPlanetId);
 
             var appearanceArray = MechaAppearance.ToByte();
-            Logger.Log.Error($"### Appearance serialize {appearanceArray.Length}");
             writer.Put(appearanceArray.Length);
             writer.Put(appearanceArray);
 
