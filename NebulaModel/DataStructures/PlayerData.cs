@@ -37,6 +37,7 @@ namespace NebulaModel.DataStructures
             writer.Put(LocalPlanetId);
 
             var appearanceArray = MechaAppearance.ToByte();
+            Logger.Log.Error($"### Appearance serialize {appearanceArray.Length}");
             writer.Put(appearanceArray.Length);
             writer.Put(appearanceArray);
 
@@ -56,6 +57,7 @@ namespace NebulaModel.DataStructures
             var appearanceArray = new byte[reader.GetInt()];
             reader.GetBytes(appearanceArray, appearanceArray.Length);
             MechaAppearance = new MechaAppearance();
+            MechaAppearance.Init();
             MechaAppearance.FromByte(appearanceArray);
 
             LocalPlanetPosition = reader.GetFloat3();

@@ -78,7 +78,7 @@ namespace NebulaWorld
 
             LocalPlayer player = Multiplayer.Session.LocalPlayer as LocalPlayer;
 
-            // Assign our own color
+            // Assign our own appearance
             UpdatePlayerAppearance(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaAppearance);
 
             // If not a new client, we need to update the player position to put him where he was previously
@@ -321,11 +321,11 @@ namespace NebulaWorld
                 //mechaArmorModel.inst_part_ar_em_mat.SetColor("_EmissionMask", appearance[3].ToColor() / 255);
                 //mechaArmorModel.inst_part_sk_em_mat.SetColor("_EmissionMask", appearance[4].ToColor() / 255);
 
-                // We changed our own color, so we have to let others know
+                // We changed our own appearance, so we have to let others know
                 if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
-                    //GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
-                    //Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, appearance));
+                    GameMain.mainPlayer.mecha.diyAppearance = appearance;
+                    Multiplayer.Session.Network.SendPacket(new PlayerAppearanceChanged(playerId, appearance));
                 }
             }
         }

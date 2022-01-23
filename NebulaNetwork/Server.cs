@@ -65,7 +65,6 @@ namespace NebulaNetwork
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
-
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socket);
             socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));

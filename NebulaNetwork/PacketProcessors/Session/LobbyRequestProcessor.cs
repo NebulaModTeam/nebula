@@ -110,6 +110,7 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             // Add the Mecha Appearance to the player data
             var mechaAppearance = new MechaAppearance();
+            mechaAppearance.Init();
             mechaAppearance.FromByte(packet.MechaAppearance);
             player.Data.MechaAppearance = mechaAppearance;
 

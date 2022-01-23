@@ -17,7 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Multiplayer.Session.Network.SendPacket(new PlayerAppearanceChanged(Multiplayer.Session.LocalPlayer.Id, GameMain.mainPlayer.mecha.diyAppearance ?? GameMain.mainPlayer.mecha.appearance));
+            Multiplayer.Session.Network.SendPacket(new PlayerAppearanceChanged(Multiplayer.Session.LocalPlayer.Id, GameMain.mainPlayer.mecha.diyAppearance));
             Config.Options.SetMechaAppearance();
         }
     }

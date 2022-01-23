@@ -16,6 +16,7 @@ namespace NebulaModel.Packets.Session
         {
             Username = username;
             MechaAppearance = mechaAppearance.ToByte();
+            Logger.Log.Error($"### appearance data {MechaAppearance}");
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {

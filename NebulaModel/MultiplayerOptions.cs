@@ -22,26 +22,30 @@ namespace NebulaModel
 
         public string LastIP { get; set; } = string.Empty;
 
-        public byte[] MechaAppearance { get; set; } = { };
+        public string MechaAppearance { get; set; } = "";
 
         public MechaAppearance GetMechaAppearance()
         {
-            MechaAppearance appearance = new MechaAppearance();
             if (MechaAppearance.Length > 0)
             {
-                appearance.FromByte(MechaAppearance);
+                var defaultAppearance = new MechaAppearance();
+                defaultAppearance.Init();
+
+                defaultAppearance.FromByte(GetAppearanceAsByteArray());
+                return defaultAppearance;
             }
             else
             {
-                Logger.Log.Error($"Appearance is invalid.");
+                Logger.Log.Error("Appearance is invalid. Fallback to mainPlayer");
+                //not sure if we should fallback
+                return GameMain.mainPlayer.mecha.appearance;
             }
-            return appearance;
         }
 
         public void SetMechaAppearance()
         {
-            MechaAppearance appearance = GameMain.mainPlayer.mecha.diyAppearance ?? GameMain.mainPlayer.mecha.appearance;
-            MechaAppearance = appearance.ToByte();
+            string appearance = GetAppearanceAsByteString();
+            MechaAppearance = appearance;
             Config.SaveOptions();
         }
 
@@ -56,6 +60,31 @@ namespace NebulaModel
         public object Clone()
         {
             return MemberwiseClone();
+        }
+
+        private byte[] GetAppearanceAsByteArray()
+        {
+            var a = MechaAppearance.Split(';');
+
+            var b = new byte[a.Length - 1];
+            for (var i = 0; i < a.Length - 1; i++)
+            {
+                b[i] = byte.Parse(a[i]);
+            }
+
+            return b;
+        }
+
+        private string GetAppearanceAsByteString()
+        {
+            var appearance = GameMain.mainPlayer.mecha.diyAppearance;
+            var stri = "";
+            foreach (var b in appearance.ToByte())
+            {
+                stri += $"{b};";
+            }
+
+            return stri;
         }
     }
 }
