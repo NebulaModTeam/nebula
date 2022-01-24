@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
@@ -9,13 +10,13 @@ using System.Reflection.Emit;
 using UnityEngine;
 
 // thanks tanu and Therzok for the tipps!
-/*
 namespace NebulaPatcher.Patches.Transpilers
 {
 #pragma warning disable Harmony003 // Harmony non-ref patch parameters modified
     [HarmonyPatch(typeof(StationComponent))]
     public class StationComponent_Transpiler
     {
+        /*
         // desc of function to inject into InternalTickRemote after an addItem() call
         private delegate int ShipFunc(StationComponent stationComponent, ref ShipData shipData);
 
@@ -893,7 +894,8 @@ namespace NebulaPatcher.Patches.Transpilers
 
             return instructions;
         }
-
+        */
+        
         [HarmonyReversePatch]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroPose[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
@@ -902,8 +904,8 @@ namespace NebulaPatcher.Patches.Transpilers
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
                 // find begin of ship movement computation, c# 436 IL 2090
-                CodeMatcher matcher = new CodeMatcher(instructions);
-                int origShipUpdateCodeBeginPos = matcher
+                CodeMatcher matcher = new CodeMatcher(instructions, il);
+                int indexStart = matcher
                     .MatchForward(false,
                         new CodeMatch(i => i.IsLdarg()),
                         new CodeMatch(OpCodes.Ldc_R4),
@@ -917,110 +919,167 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ble_Un))
                     .Pos;
                 // cut out only that part of original function, but keep the first 5 IL lines (they create the 'bool flag' which is needed)
-                for (matcher.Start().Advance(6); matcher.Pos < origShipUpdateCodeBeginPos;)
+                for (matcher.Start().Advance(6); matcher.Pos < indexStart;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
 
-                // remove c# 478 - 501 IL 2215 - 2367 (which is just after the first addItem() call)
-                int indexStart = matcher.Start()
+                // add null check at the beginning of the while(){} for gStationPool[shipData.otherGId] and if it is null skip this shipData until all data received from server
+                matcher
                     .MatchForward(true,
-                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"),
-                        new CodeMatch(OpCodes.Pop))
-                    .Pos + 1;
+                        new CodeMatch(OpCodes.Br),
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipDatas")),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldelem, typeof(ShipData)),
+                        new CodeMatch(OpCodes.Stloc_S));
+                object jmpNextLoopIter = matcher.InstructionAt(-5).operand;
+                matcher.CreateLabelAt(matcher.Pos + 1, out Label jmpNormalFlow);
+                matcher
+                    .Advance(1)
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 55)) // j
+                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, int>>((int j) =>
+                    {
+                        Log.Warn($"Working on index: {j}");
+                        return 0;
+                    }))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 7)) // gStationPool
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 56)) // shipData
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldelem, typeof(StationComponent)))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpNormalFlow))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 55)) // j
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_1))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Add))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Stloc_S, 55))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Br, jmpNextLoopIter));
+
+                // remove c# 498-520 (adding item from landing ship to station and modify remote order and shifitng those arrays)
+                indexStart = matcher
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemId")),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemCount")),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "inc")),
+                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
+                    .Pos;
                 int indexEnd = matcher
                     .MatchForward(false,
-                        new CodeMatch(OpCodes.Br))
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipDatas")),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldc_I4_1),
+                        new CodeMatch(OpCodes.Add))
                     .Pos;
+                /*
+                 * The following in exchange to the above would exclude
+                 *  Array.Copy(this.workShipDatas, j + 1, this.workShipDatas, j, this.workShipDatas.Length - j - 1);
+				 *	Array.Copy(this.workShipOrders, j + 1, this.workShipOrders, j, this.workShipOrders.Length - j - 1);
+				 *	this.workShipCount--;
+				 *	this.idleShipCount++;
+				 *	this.WorkShipBackToIdle(shipData.shipIndex);
+				 *	Array.Clear(this.workShipDatas, this.workShipCount, this.workShipDatas.Length - this.workShipCount);
+				 *	Array.Clear(this.workShipOrders, this.workShipCount, this.workShipOrders.Length - this.workShipCount);
+				 *	
+                 * but would produce and endless loop inside while(){} because of the missing decrement of workShipCount resulting in a frozen game:
+                 * so either do all of this clientside (hmm) or check again once the transpiler above does work again on 0.9.x game version.
+                 * 
+                int indexEnd = matcher
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Sub),
+                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Clear"),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldc_I4_1),
+                        new CodeMatch(OpCodes.Sub),
+                        new CodeMatch(OpCodes.Stloc_S))
+                    .Pos + 2;
+                */
                 for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
 
-                // remove c# 937 - 1014 IL 4548 - 4921 (TODO: and fetch data from server)
-                indexStart = matcher.Start()
-                    .MatchForward(true,
-                        new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"),
-                        new CodeMatch(OpCodes.Pop))
-                    .Pos + 1;
-                indexEnd = matcher
-                    .MatchForward(false,
-                        new CodeMatch(OpCodes.Br))
-                    .Pos;
-                for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
-                {
-                    matcher.SetAndAdvance(OpCodes.Nop, null);
-                }
-
-                // remove addItem() calls
-                matcher.Start()
-                    .MatchForward(false,
-                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
-                    .SetAndAdvance(OpCodes.Pop, null)
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Pop))
-                    .MatchForward(false,
-                        new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"))
-                    .SetAndAdvance(OpCodes.Pop, null)
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Pop));
-
-                // remove c# 1019 - 1049 IL 4923 - 5069 (TODO: and fetch data from server) (NOTE: this does also remove the TakeItem() call)
-                indexStart = matcher.Start()
+                // c# 617 remove the need for warpers inside of ships to enter warp state to avoid syncing issues there.
+                // i think this may caused some issues in previous versions where ships where floating very slow through space for no obvious reason.
+                matcher
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldfld),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                        new CodeMatch(OpCodes.Ldc_I4_0),
+                        new CodeMatch(OpCodes.Bgt))
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetOpcodeAndAdvance(OpCodes.Br)
+                    // and now remove the code that decrements the ship warper counter (just in case, not really needed)
+                    .Advance(4)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null);
+
+                // remove c# 952 - 1048 (adding item from landing ship to station and modify remote order)
+                indexStart = matcher
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Ldarg_S),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")),
+                        new CodeMatch(OpCodes.Ldelem_Ref),
+                        new CodeMatch(OpCodes.Stloc_S),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
+                        new CodeMatch(OpCodes.Stloc_S),
+                        new CodeMatch(OpCodes.Ldarg_S),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "planetA")))
+                    .Pos;
+                indexEnd = matcher
+                    .MatchForward(true,
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "remotePairCount")),
+                        new CodeMatch(OpCodes.Rem),
+                        new CodeMatch(OpCodes.Stloc_S),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Bne_Un))
+                    .Pos;
+                for(matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
+                {
+                    matcher.SetAndAdvance(OpCodes.Nop, null);
+                }
+
+                // remove c# 1052 - 1087 (taking item from station and modify remote order)
+                indexStart = matcher
+                    .MatchForward(false,
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemId")),
                         new CodeMatch(OpCodes.Stloc_S),
                         new CodeMatch(OpCodes.Ldarg_S),
                         new CodeMatch(OpCodes.Stloc_S),
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldloca_S),
                         new CodeMatch(OpCodes.Ldloca_S),
+                        new CodeMatch(OpCodes.Ldloca_S),
                         new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
-                    .Pos + 1; // to exclude the Br opcode from vanishing
+                    .Pos;
                 indexEnd = matcher
                     .MatchForward(true,
+                        new CodeMatch(OpCodes.Stind_I4),
+                        new CodeMatch(OpCodes.Leave),
                         new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldelema),
-                        new CodeMatch(OpCodes.Ldflda),
-                        new CodeMatch(OpCodes.Dup),
-                        new CodeMatch(OpCodes.Ldind_I4),
+                        new CodeMatch(OpCodes.Brfalse),
                         new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Add),
-                        new CodeMatch(OpCodes.Stind_I4))
-                    .Advance(1)
+                        new CodeMatch(OpCodes.Call),
+                        new CodeMatch(OpCodes.Endfinally))
                     .Pos;
-                for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
-                {
-                    matcher.SetAndAdvance(OpCodes.Nop, null);
-                }
-
-                // remove weird code thats left over after cut out from above
-                matcher.Advance(2);
-                for (int i = 0; i < 4; i++)
-                {
-                    matcher.SetAndAdvance(OpCodes.Nop, null);
-                }
-
-                // remove c# 928 - 932 (adding warper from station to ship)
-                indexStart = matcher.Start()
-                    .MatchForward(false,
-                    new CodeMatch(OpCodes.Ldarg_S),
-                    new CodeMatch(OpCodes.Stloc_S),
-                    new CodeMatch(OpCodes.Ldc_I4_0),
-                    new CodeMatch(OpCodes.Stloc_S),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldloca_S))
-                    .Pos;
-                indexEnd = matcher.Start()
-                    .MatchForward(true,
-                    new CodeMatch(OpCodes.Stind_I4),
-                    new CodeMatch(OpCodes.Leave),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Brfalse),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Call),
-                    new CodeMatch(OpCodes.Endfinally))
-                    .Pos;
-                for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
+                for(matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
@@ -1033,4 +1092,3 @@ namespace NebulaPatcher.Patches.Transpilers
     }
 #pragma warning restore Harmony003 // Harmony non-ref patch parameters modified
 }
-*/

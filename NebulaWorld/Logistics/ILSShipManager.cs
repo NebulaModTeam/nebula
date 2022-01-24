@@ -160,6 +160,7 @@ namespace NebulaWorld.Logistics
             stationComponent.gid = GId;
             stationComponent.planetId = planetId;
             stationComponent.workShipDatas = new ShipData[maxShipCount];
+            stationComponent.workShipOrders = new RemoteLogisticOrder[maxShipCount];
             stationComponent.shipRenderers = new ShipRenderingData[maxShipCount];
             stationComponent.shipUIRenderers = new ShipUIRenderingData[maxShipCount];
             stationComponent.workShipCount = 0;
@@ -189,7 +190,7 @@ namespace NebulaWorld.Logistics
         }
 
         /*
-         * As StationComponent.InternalTickRemote() neds to have the dock position to correctly compute ship movement we request it here from server.
+         * As StationComponent.InternalTickRemote() needs to have the dock position to correctly compute ship movement we request it here from server.
          */
         private void RequestgStationDockPos(int GId)
         {
