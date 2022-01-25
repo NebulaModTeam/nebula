@@ -63,14 +63,8 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void IdleShipGetToWork_Postfix(StationComponent __instance, int index)
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                int otherGId = __instance.workShipDatas[__instance.workShipCount - 1].otherGId;
-                int otherShipCount = GameMain.data.galacticTransport.stationPool[otherGId].workShipDatas.Length;
-                
-                ILSShipData packet = new ILSShipData(true, 
-                    __instance.workShipDatas[__instance.workShipCount - 1],
-                    __instance.gid, __instance.workDroneDatas.Length,  otherGId, otherShipCount, index,
-                    __instance.warperCount);
+            {   
+                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[__instance.workShipCount - 1], __instance.gid, __instance.workShipDatas.Length, __instance.warperCount);
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }
@@ -81,7 +75,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
-                ILSShipData packet = new ILSShipData(false, __instance.gid, index);
+                ILSShipData packet = new ILSShipData(false, __instance.gid, __instance.planetId, __instance.workShipDatas.Length);
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }

@@ -30,49 +30,62 @@ namespace NebulaWorld.Logistics
          */
         public void IdleShipGetToWork(ILSShipData packet)
         {
-            PlanetData planetA = GameMain.galaxy.PlanetById(packet.planetA);
-            PlanetData planetB = GameMain.galaxy.PlanetById(packet.planetB);
+            PlanetData planetA = GameMain.galaxy.PlanetById(packet.PlanetA);
+            PlanetData planetB = GameMain.galaxy.PlanetById(packet.PlanetB);
 
             if (planetA != null && planetB != null)
             {
-                if (GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
+                if (GameMain.data.galacticTransport.stationCapacity <= packet.ThisGId)
                 {
-                    CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetAStationMaxShipCount);
+                    CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
                 }
-                else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
+                else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId] == null)
                 {
-                    CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetAStationMaxShipCount);
+                    CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
                 }
-                else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
+                else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
                 {
-                    RequestgStationDockPos(packet.planetAStationGID);
+                    RequestgStationDockPos(packet.ThisGId);
                 }
-                if (GameMain.data.galacticTransport.stationCapacity <= packet.planetBStationGID)
+                if (GameMain.data.galacticTransport.stationCapacity <= packet.OtherGId)
                 {
-                    CreateFakeStationComponent(packet.planetBStationGID, packet.planetB, packet.planetBStationMaxShipCount);
+                    CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
                 }
-                else if (GameMain.data.galacticTransport.stationPool[packet.planetBStationGID] == null)
+                else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId] == null)
                 {
-                    CreateFakeStationComponent(packet.planetBStationGID, packet.planetB, packet.planetBStationMaxShipCount);
+                    CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
                 }
-                else if (GameMain.data.galacticTransport.stationPool[packet.planetBStationGID].shipDockPos == Vector3.zero)
+                else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId].shipDockPos == Vector3.zero)
                 {
-                    RequestgStationDockPos(packet.planetBStationGID);
+                    RequestgStationDockPos(packet.OtherGId);
                 }
 
-                StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.planetAStationGID];
+                StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
+
+                if (stationComponent.workShipCount >= packet.StationMaxShipCount)
+                {
+                    Log.Warn($"ILSShipManager: workShipCount out of bounds, which is weird. Station: {stationComponent.name} on {GameMain.galaxy.PlanetById(stationComponent.planetId).displayName}");
+                    stationComponent.workShipCount = packet.StationMaxShipCount - 1;
+                }
+                if (stationComponent.workShipCount < 0)
+                {
+                    Log.Warn($"ILSShipManager: workShipCount out of bounds, which is weird. Station: {stationComponent.name} on {GameMain.galaxy.PlanetById(stationComponent.planetId).displayName}");
+                    stationComponent.workShipCount++;
+                }
+
                 stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
-                stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.planetA;
-                stationComponent.workShipDatas[stationComponent.workShipCount].planetB = packet.planetB;
-                stationComponent.workShipDatas[stationComponent.workShipCount].otherGId = packet.planetBStationGID;
+                stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
+                stationComponent.workShipDatas[stationComponent.workShipCount].planetB = packet.PlanetB;
+                stationComponent.workShipDatas[stationComponent.workShipCount].otherGId = packet.OtherGId;
                 stationComponent.workShipDatas[stationComponent.workShipCount].direction = 1;
                 stationComponent.workShipDatas[stationComponent.workShipCount].t = 0f;
-                stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.itemId;
-                stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.itemCount;
-                stationComponent.workShipDatas[stationComponent.workShipCount].gene = 0; // WHAT IS THIS?
-                stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.origShipIndex;
-                stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.warperCnt;
-                stationComponent.warperCount = packet.stationWarperCnt;
+                stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.ItemId;
+                stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.ItemCount;
+                stationComponent.workShipDatas[stationComponent.workShipCount].inc = packet.Inc;
+                stationComponent.workShipDatas[stationComponent.workShipCount].gene = packet.Gene;
+                stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.ShipIndex;
+                stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
+                stationComponent.warperCount = packet.StationWarperCount;
 
                 stationComponent.workShipCount++;
                 stationComponent.idleShipCount--;
@@ -80,25 +93,11 @@ namespace NebulaWorld.Logistics
                 {
                     stationComponent.idleShipCount = 0;
                 }
-                if (stationComponent.workShipCount > packet.planetAStationMaxShipCount)
+                if (stationComponent.workShipCount >= packet.StationMaxShipCount)
                 {
-                    stationComponent.workShipCount = packet.planetAStationMaxShipCount;
+                    stationComponent.workShipCount = packet.StationMaxShipCount - 1;
                 }
-                stationComponent.IdleShipGetToWork(packet.origShipIndex);
-
-                StationComponent otherStationComponent = GameMain.data.galacticTransport.stationPool[packet.planetBStationGID];
-                if (otherStationComponent != null && otherStationComponent.storage != null)
-                {
-                    for (int i = 0; i < otherStationComponent.storage.Length; i++)
-                    {
-                        if (otherStationComponent.storage[i].itemId == packet.itemId)
-                        {
-                            otherStationComponent.storage[i].remoteOrder += packet.itemCount;
-                            RefreshValuesUI(otherStationComponent, i);
-                            break;
-                        }
-                    }
-                }
+                stationComponent.IdleShipGetToWork(packet.ShipIndex);
             }
         }
 
@@ -112,32 +111,18 @@ namespace NebulaWorld.Logistics
                 return;
             }
 
-            if (GameMain.data.galacticTransport.stationCapacity <= packet.planetAStationGID)
+            if (GameMain.data.galacticTransport.stationCapacity <= packet.ThisGId)
             {
-                CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetAStationMaxShipCount);
+                CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
             }
-            else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID] == null)
+            else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId] == null)
             {
-                CreateFakeStationComponent(packet.planetAStationGID, packet.planetA, packet.planetBStationMaxShipCount);
+                CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
             }
-            else if (GameMain.data.galacticTransport.stationPool[packet.planetAStationGID].shipDockPos == Vector3.zero)
+            else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
             {
-                RequestgStationDockPos(packet.planetAStationGID);
+                RequestgStationDockPos(packet.ThisGId);
             }
-
-            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.planetAStationGID];
-            Array.Copy(stationComponent.workShipDatas, packet.origShipIndex + 1, stationComponent.workShipDatas, packet.origShipIndex, stationComponent.workShipDatas.Length - packet.origShipIndex - 1);
-            stationComponent.workShipCount--;
-            stationComponent.idleShipCount++;
-            if (stationComponent.idleShipCount > packet.planetAStationMaxShipCount)
-            {
-                stationComponent.idleShipCount = packet.planetAStationMaxShipCount;
-            }
-            if (stationComponent.workShipCount < 0)
-            {
-                stationComponent.workShipCount = 0;
-            }
-            stationComponent.WorkShipBackToIdle(packet.origShipIndex);
         }
 
         /*
@@ -195,30 +180,6 @@ namespace NebulaWorld.Logistics
         private void RequestgStationDockPos(int GId)
         {
             Multiplayer.Session.Network.SendPacket(new ILSRequestShipDock(GId));
-        }
-
-        /*
-         * Update the items that are currently in transfer by ships
-         */
-        public void UpdateRemoteOrder(ILSRemoteOrderData packet)
-        {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                return;
-            }
-            foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
-            {
-                if (stationComponent != null && stationComponent.gid == packet.stationGID)
-                {
-                    if (stationComponent.storage == null || packet.storageIndex >= stationComponent.storage.Length)
-                    {
-                        return;
-                    }
-                    stationComponent.storage[packet.storageIndex].remoteOrder = packet.remoteOrder;
-                    RefreshValuesUI(stationComponent, packet.storageIndex);
-                    break;
-                }
-            }
         }
 
         /*

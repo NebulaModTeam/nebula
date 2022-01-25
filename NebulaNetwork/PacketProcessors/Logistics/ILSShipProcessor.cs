@@ -31,7 +31,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    if (packet.idleToWork)
+                    if (packet.IdleToWork)
                     {
                         Multiplayer.Session.Ships.IdleShipGetToWork(packet);
                     }
