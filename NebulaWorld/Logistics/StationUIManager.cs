@@ -8,93 +8,25 @@ using UnityEngine.EventSystems;
 
 namespace NebulaWorld.Logistics
 {
-    public class Subscribers
-    {
-        public int PlanetId { get; }
-        public int StationId { get; }
-        public int StationGId { get; }
-        public List<NebulaConnection> Connections { get; set; }
-        public Subscribers(int planetId, int stationId, int stationGId)
-        {
-            PlanetId = planetId;
-            StationId = stationId;
-            StationGId = stationGId;
-            Connections = new List<NebulaConnection>();
-        }
-
-        public override string ToString()
-        {
-            return $"{PlanetId}.{StationId}.{StationGId}";
-        }
-
-        public static string GetKey(int planetId, int stationId, int statgionGId)
-        {
-            return $"{planetId}.{stationId}.{statgionGId}";
-        }
-    }
-
     public class StationUIManager : IDisposable
     {
-        private Dictionary<string, Subscribers> _stationUISubscribers;
-
-        public int UpdateCooldown; // cooldown is used to slow down updates on storage slider
+        public int UpdateCooldown; // cooldown is reserved for future use
         public BaseEventData LastMouseEvent;
         public bool LastMouseEventWasDown;
-        public GameObject LastSelectedGameObj;
         public int UIIsSyncedStage; // 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
-        public int UIStationId;
         public bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
 
         public StationUIManager()
         {
-            _stationUISubscribers = new Dictionary<string, Subscribers>();
         }
 
         public void Dispose()
         {
-            _stationUISubscribers = null;
-        }
-
-        // When a client opens a station's UI he requests a subscription for live updates, so add him to the list
-        public void AddSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
-        {
-            // Attempt to find existing subscribers to a specific station, if we couldn't find an existing one
-            // we must initialize a new Subscribers for this specific station.
-            if (!_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
-            {
-                _stationUISubscribers.Add(Subscribers.GetKey(planetId, stationId, stationGId), new Subscribers(planetId, stationId, stationGId));
-            }
-
-            _stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out subscribers);
-
-            subscribers?.Connections.Add(connection);
-        }
-        public void RemoveSubscriber(int planetId, int stationId, int stationGId, NebulaConnection connection)
-        {
-            if (_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
-            {
-                subscribers.Connections.Remove(connection);
-
-                if (subscribers.Connections.Count == 0)
-                {
-                    _stationUISubscribers.Remove(subscribers.ToString());
-                }
-            }
-        }
-
-        public List<NebulaConnection> GetSubscribers(int planetId, int stationId, int stationGId)
-        {
-            if (!_stationUISubscribers.TryGetValue(Subscribers.GetKey(planetId, stationId, stationGId), out Subscribers subscribers))
-            {
-                return new List<NebulaConnection>();
-            }
-
-            return subscribers.Connections;
         }
 
         public void DecreaseCooldown()
         {
-            // cooldown is for the storage sliders
+            // cooldown is reserved for future use
             if (UpdateCooldown > 0)
             {
                 UpdateCooldown--;
@@ -103,27 +35,23 @@ namespace NebulaWorld.Logistics
 
         public void UpdateUI(StationUI packet)
         {
-            if ((UpdateCooldown == 0 || !packet.IsStorageUI) && Multiplayer.Session.LocalPlayer.IsHost)
+            if (packet.IsStorageUI)
             {
-                UpdateCooldown = 10;
-                if (packet.IsStorageUI)
-                {
-                    UpdateStorageUI(packet);
-                }
-                else
-                {
-                    UpdateSettingsUI(packet);
-                }
+                UpdateStorageUI(packet);
             }
-            else if (!Multiplayer.Session.LocalPlayer.IsHost)
+            else
             {
-                if (packet.IsStorageUI)
+                UpdateSettingsUI(packet);
+            }
+
+            // If station window is opened and veiwing the updating station, refresh the window.
+            UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
+            if (stationWindow != null && stationWindow.active)
+            {
+                if (stationWindow.factory?.planetId == packet.PlanetId && stationWindow.stationId == packet.StationId)
                 {
-                    UpdateStorageUI(packet);
-                }
-                else
-                {
-                    UpdateSettingsUI(packet);
+                    Log.Info($"Refresh value {packet.StationId}");
+                    stationWindow.OnStationIdChange();
                 }
             }
         }
@@ -269,8 +197,6 @@ namespace NebulaWorld.Logistics
          */
         private void UpdateSettingsUI(StationUI packet)
         {
-            UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-
             StationComponent stationComponent = null;
             PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
 
@@ -288,144 +214,12 @@ namespace NebulaWorld.Logistics
 
             if (stationComponent == null)
             {
-                Log.Error($"UpdateStorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
+                Log.Warn($"UpdateStorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
                 return;
             }
 
-            if (stationWindow == null)
-            {
-                return;
-            }
-
-            int _stationId = stationWindow._stationId;
-
-            // Client has no knowledge of the planet, closed the window or
-            // opened a different station, do all updates in the background.
-            if (planet?.factory?.transport == null || stationComponent.id != _stationId)
-            {
-                UpdateSettingsUIBackground(packet, planet, stationComponent);
-                return;
-            }
-
-            // this locks the patches so we can call vanilla functions without triggering our patches to avoid endless loops
-            using (Multiplayer.Session.Ships.PatchLockILS.On())
-            {
-                if (packet.SettingIndex == StationUI.EUISettings.MaxChargePower)
-                {
-                    stationWindow.OnMaxChargePowerSliderValueChange(packet.SettingValue);
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.MaxTripDrones)
-                {
-                    stationWindow.OnMaxTripDroneSliderValueChange(packet.SettingValue);
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.MaxTripVessel)
-                {
-                    stationWindow.OnMaxTripVesselSliderValueChange(packet.SettingValue);
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.MinDeliverDrone)
-                {
-                    stationWindow.OnMinDeliverDroneValueChange(packet.SettingValue);
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.MinDeliverVessel)
-                {
-                    stationWindow.OnMinDeliverVesselValueChange(packet.SettingValue);
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.WarpDistance)
-                {
-                    stationWindow.OnWarperDistanceValueChange(packet.SettingValue);
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.WarperNeeded)
-                {
-                    stationWindow.OnWarperNecessaryClick(0);
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.IncludeCollectors)
-                {
-                    stationWindow.OnIncludeOrbitCollectorClick(0);
-                }
-                if (packet.SettingIndex >= StationUI.EUISettings.SetDroneCount && packet.SettingIndex <= StationUI.EUISettings.SetWarperCount)
-                {
-                    if (packet.SettingIndex == StationUI.EUISettings.SetDroneCount)
-                    {
-                        if (UIRequestedShipDronWarpChange)
-                        {
-                            stationWindow.OnDroneIconClick(0);
-                            UIRequestedShipDronWarpChange = false;
-                        }
-                        stationComponent.idleDroneCount = (int)packet.SettingValue;
-                    }
-                    if (packet.SettingIndex == StationUI.EUISettings.SetShipCount)
-                    {
-                        if (UIRequestedShipDronWarpChange)
-                        {
-                            stationWindow.OnShipIconClick(0);
-                            UIRequestedShipDronWarpChange = false;
-                        }
-                        stationComponent.idleShipCount = (int)packet.SettingValue;
-                    }
-                    if (packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
-                    {
-                        if (UIRequestedShipDronWarpChange)
-                        {
-                            stationWindow.OnWarperIconClick(0);
-                            UIRequestedShipDronWarpChange = false;
-                        }
-                        stationComponent.warperCount = (int)packet.SettingValue;
-
-                        if (stationComponent.storage != null && packet.WarperShouldTakeFromStorage)
-                        {
-                            for (int i = 0; i < stationComponent.storage.Length; i++)
-                            {
-                                if (stationComponent.storage[i].itemId == 1210 && stationComponent.storage[i].count > 0)
-                                {
-                                    stationComponent.storage[i].count--;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                /*
-                 * the idea is that clients request that they want to apply a change and do so once the server responded with an okay.
-                 * the calls to OnItemIconMouseDown() and OnItemIconMouseUp() are blocked for clients and called only from here.
-                 */
-                if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageRequest)
-                {
-                    if (stationComponent.storage != null)
-                    {
-                        if (packet.ShouldMimic)
-                        {
-                            BaseEventData mouseEvent = LastMouseEvent;
-                            UIStationStorage[] storageUIs = stationWindow.storageUIs;
-
-                            if (LastMouseEvent != null)
-                            {
-                                // TODO: change this such that only server sends the response, else clients with a desynced state could change servers storage to a faulty value
-                                // issue #249
-                                if (LastMouseEventWasDown)
-                                {
-                                    storageUIs[packet.StorageIdx].OnItemIconMouseDown(mouseEvent);
-                                    StationUI packet2 = new StationUI(packet.PlanetId, packet.StationId, packet.StationGId, packet.StorageIdx, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, packet.ItemId, stationComponent.storage[packet.StorageIdx].count);
-                                    Multiplayer.Session.Network.SendPacket(packet2);
-                                }
-                                else
-                                {
-                                    storageUIs[packet.StorageIdx].OnItemIconMouseUp(mouseEvent);
-                                    StationUI packet2 = new StationUI(packet.PlanetId, packet.StationId, packet.StationGId, packet.StorageIdx, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, packet.ItemId, stationComponent.storage[packet.StorageIdx].count);
-                                    Multiplayer.Session.Network.SendPacket(packet2);
-                                }
-                                LastMouseEvent = null;
-                            }
-                        }
-                    }
-                }
-                if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
-                {
-                    if (stationComponent.storage != null)
-                    {
-                        stationComponent.storage[packet.StorageIdx].count = (int)packet.SettingValue;
-                    }
-                }
-            }
+            // Do all updates in the background.
+            UpdateSettingsUIBackground(packet, planet, stationComponent);
         }
 
         private void UpdateStorageUI(StationUI packet)
@@ -452,6 +246,7 @@ namespace NebulaWorld.Logistics
 
             using (Multiplayer.Session.Ships.PatchLockILS.On())
             {
+                Log.Info($"Refresh storage {stationComponent.id}");
                 planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldMimic == true) ? GameMain.mainPlayer : null);
             }
         }

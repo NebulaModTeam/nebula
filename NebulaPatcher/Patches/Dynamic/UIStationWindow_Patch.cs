@@ -284,45 +284,32 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIStationWindow.OnStationIdChange))]
-        public static bool OnStationIdChange_Prefix(UIStationWindow __instance)
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnOpen_Postfix(UIStationWindow __instance)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.StationsUI.UIIsSyncedStage > 0 || GameMain.localPlanet == null || !__instance.active)
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.StationsUI.UIIsSyncedStage > 0)
             {
-                return true;
+                return;
             }
+
+            // Hide UI elements until sync data arrive
             __instance.titleText.text = "Loading...";
-            Multiplayer.Session.StationsUI.LastSelectedGameObj = EventSystem.current.currentSelectedGameObject;
-            if (__instance.factory == null)
+            for (int i = 0; i < __instance.storageUIs.Length; i++)
             {
-                __instance.factory = GameMain.localPlanet.factory;
+                __instance.storageUIs[i]._Close();
+                __instance.storageUIs[i].ClosePopMenu();
             }
-            if (__instance.transport == null)
+            __instance.panelDown.SetActive(false);
+
+            StationComponent stationComponent = __instance.transport?.stationPool[__instance.stationId];
+            if (stationComponent != null && __instance.factory != null)
             {
-                __instance.transport = __instance.factory.transport;
-            }
-            StationComponent stationComponent = null;
-            if (__instance.stationId == 0)
-            {
-                UIStationStorage[] stationStorage = __instance.storageUIs;
-                if (stationStorage != null && stationStorage[0] != null && stationStorage[0].station.id != 0)
-                {
-                    stationComponent = __instance.transport.stationPool[stationStorage[0].station.id];
-                }
-            }
-            else
-            {
-                stationComponent = __instance.transport.stationPool[__instance.stationId];
-            }
-            if (stationComponent != null && GameMain.localPlanet != null)
-            {
-                int id = (stationComponent.isStellar == true) ? stationComponent.gid : stationComponent.id;
-                // for some reason PLS has planetId set to 0, so we use players localPlanet here (he should be on a planet anyways when opening the UI)
-                Multiplayer.Session.Network.SendPacket(new StationUIInitialSyncRequest(stationComponent.planetId, stationComponent.id, stationComponent.gid));
+                // for some reason advance miner has planetId set to 0, so we use UI's factory planetId
+                Multiplayer.Session.Network.SendPacket(new StationUIInitialSyncRequest(__instance.factory.planetId, stationComponent.id, stationComponent.gid));
                 Multiplayer.Session.StationsUI.UIIsSyncedStage++;
             }
-            return false;
         }
 
         [HarmonyPrefix]
@@ -346,21 +333,9 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return;
             }
-            if (__instance.factory == null)
+            if (__instance.stationId != 0)
             {
-                __instance.factory = GameMain.localPlanet.factory;
-            }
-            if (__instance.transport == null)
-            {
-                __instance.transport = __instance.factory.transport;
-            }
-            if (__instance.stationId != 0 || Multiplayer.Session.StationsUI.UIStationId != 0)
-            {
-                // it is actually 0 before we manually set it to the right value in StationUIInitialSyncProcessor.cs and thus its a good check to skip sending the packet on the Free() call
-                Multiplayer.Session.Network.SendPacket(new StationSubscribeUIUpdates(false, __instance.transport.planet.id, __instance.transport.stationPool[Multiplayer.Session.StationsUI.UIStationId].id, __instance.transport.stationPool[Multiplayer.Session.StationsUI.UIStationId].gid));
-                Multiplayer.Session.StationsUI.LastSelectedGameObj = null;
                 Multiplayer.Session.StationsUI.UIIsSyncedStage = 0;
-                Multiplayer.Session.StationsUI.UIStationId = 0;
             }
         }
     }

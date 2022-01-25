@@ -8,7 +8,6 @@ using NebulaWorld;
 /*
  * When the client opens the UI of a station (ILS/PLS/Collector) the contents gets updated and shown to
  * the player once this packet is received. He will see a loading text before that.
- * This will also subscribe to live updates syncing changes made by other players to the station while the UI is opened
  */
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
@@ -29,47 +28,36 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 return;
             }
 
-            if (Multiplayer.Session.StationsUI.UIIsSyncedStage == 1)
+            stationComponent.tripRangeDrones = packet.TripRangeDrones;
+            stationComponent.tripRangeShips = packet.TripRangeShips;
+            stationComponent.deliveryDrones = packet.DeliveryDrones;
+            stationComponent.deliveryShips = packet.DeliveryShips;
+            stationComponent.warpEnableDist = packet.WarperEnableDistance;
+            stationComponent.warperNecessary = packet.WarperNecessary;
+            stationComponent.includeOrbitCollector = packet.IncludeOrbitCollector;
+            stationComponent.energy = packet.Energy;
+            stationComponent.energyPerTick = packet.EnergyPerTick;
+
+            for (int i = 0; i < packet.ItemId.Length; i++)
             {
-                UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-
-                stationComponent.tripRangeDrones = packet.TripRangeDrones;
-                stationComponent.tripRangeShips = packet.TripRangeShips;
-                stationComponent.deliveryDrones = packet.DeliveryDrones;
-                stationComponent.deliveryShips = packet.DeliveryShips;
-                stationComponent.warpEnableDist = packet.WarperEnableDistance;
-                stationComponent.warperNecessary = packet.WarperNecessary;
-                stationComponent.includeOrbitCollector = packet.IncludeOrbitCollector;
-                stationComponent.energy = packet.Energy;
-                stationComponent.energyPerTick = packet.EnergyPerTick;
-
-                for (int i = 0; i < packet.ItemId.Length; i++)
+                if (stationComponent.storage == null)
                 {
-                    if (stationComponent.storage == null)
-                    {
-                        stationComponent.storage = new StationStore[packet.ItemId.Length];
-                    }
-
-                    stationComponent.storage[i].itemId = packet.ItemId[i];
-                    stationComponent.storage[i].max = packet.ItemCountMax[i];
-                    stationComponent.storage[i].count = packet.ItemCount[i];
-                    stationComponent.storage[i].remoteOrder = packet.RemoteOrder[i];
-                    stationComponent.storage[i].localLogic = (ELogisticStorage)packet.LocalLogic[i];
-                    stationComponent.storage[i].remoteLogic = (ELogisticStorage)packet.RemoteLogic[i];
+                    stationComponent.storage = new StationStore[packet.ItemId.Length];
                 }
 
-                if (stationWindow != null && stationWindow.active)
-                {
-                    conn.SendPacket(new StationSubscribeUIUpdates(true, stationComponent.planetId, stationComponent.id, stationComponent.gid));
-                    Multiplayer.Session.StationsUI.UIIsSyncedStage++;
-                    stationWindow._Free();
-                    stationWindow._Init(stationComponent);
-                    stationWindow._stationId = stationComponent.id;
-                    stationWindow._Open();
-                    stationWindow._Update();
-                }
+                stationComponent.storage[i].itemId = packet.ItemId[i];
+                stationComponent.storage[i].max = packet.ItemCountMax[i];
+                stationComponent.storage[i].count = packet.ItemCount[i];
+                stationComponent.storage[i].remoteOrder = packet.RemoteOrder[i];
+                stationComponent.storage[i].localLogic = (ELogisticStorage)packet.LocalLogic[i];
+                stationComponent.storage[i].remoteLogic = (ELogisticStorage)packet.RemoteLogic[i];
+            }
 
-                Multiplayer.Session.StationsUI.UIStationId = stationComponent.id;
+            UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
+            if (stationWindow.active && Multiplayer.Session.StationsUI.UIIsSyncedStage == 1)
+            {
+                //Trigger OnStationIdChange() to refresh window
+                stationWindow.OnStationIdChange();
             }
         }
     }
