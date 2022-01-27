@@ -13,8 +13,9 @@ namespace NebulaWorld.Logistics
         public int UpdateCooldown; // cooldown is reserved for future use
         public BaseEventData LastMouseEvent;
         public bool LastMouseEventWasDown;
-        public int UIIsSyncedStage; // 0 == not synced, 1 == request sent, 2 == synced | this is only used client side
         public bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
+        public StationUI SliderBarPacket; // store the change of slider bar temporary, only send it when mouse button is released.
+        public int StorageMaxChangeId; // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
 
         public StationUIManager()
         {
@@ -50,8 +51,7 @@ namespace NebulaWorld.Logistics
             {
                 if (stationWindow.factory?.planetId == packet.PlanetId && stationWindow.stationId == packet.StationId)
                 {
-                    Log.Info($"Refresh value {packet.StationId}");
-                    stationWindow.OnStationIdChange();
+                    stationWindow.OnStationIdChange();                    
                 }
             }
         }
@@ -66,7 +66,7 @@ namespace NebulaWorld.Logistics
             // update drones, ships, warpers and energy consumption for everyone
             if ((packet.SettingIndex >= StationUI.EUISettings.SetDroneCount && packet.SettingIndex <= StationUI.EUISettings.SetWarperCount) || packet.SettingIndex == StationUI.EUISettings.MaxChargePower)
             {
-                if (packet.SettingIndex == (int)StationUI.EUISettings.MaxChargePower && planet.factory?.powerSystem != null)
+                if (packet.SettingIndex == StationUI.EUISettings.MaxChargePower && planet.factory?.powerSystem != null)
                 {
                     PowerConsumerComponent[] consumerPool = planet.factory.powerSystem.consumerPool;
                     if (consumerPool.Length > stationComponent.pcId)
@@ -246,8 +246,8 @@ namespace NebulaWorld.Logistics
 
             using (Multiplayer.Session.Ships.PatchLockILS.On())
             {
-                Log.Info($"Refresh storage {stationComponent.id}");
                 planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldMimic == true) ? GameMain.mainPlayer : null);
+                StorageMaxChangeId = -1;
             }
         }
     }

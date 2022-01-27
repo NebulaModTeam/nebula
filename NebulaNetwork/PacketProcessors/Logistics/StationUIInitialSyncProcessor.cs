@@ -54,7 +54,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             }
 
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-            if (stationWindow.active && Multiplayer.Session.StationsUI.UIIsSyncedStage == 1)
+            if (stationWindow.active && stationWindow.factory?.planetId == packet.PlanetId && stationWindow.stationId == packet.StationId)
             {
                 //Trigger OnStationIdChange() to refresh window
                 stationWindow.OnStationIdChange();

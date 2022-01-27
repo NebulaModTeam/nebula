@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -13,136 +13,104 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(UIStationWindow.OnMaxChargePowerSliderValueChange))]
         public static bool OnMaxChargePowerSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxChargePower, value);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxChargePower;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnMaxTripDroneSliderValueChange))]
         public static bool OnMaxTripDroneSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxTripDrones, value);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxTripDrones;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnMaxTripVesselSliderValueChange))]
         public static bool OnMaxTripVesselSliderValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MaxTripVessel, value);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxTripVessel;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnMinDeliverDroneValueChange))]
         public static bool OnMinDeliverDroneValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MinDeliverDrone, value);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MinDeliverDrone;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnMinDeliverVesselValueChange))]
         public static bool OnMinDeliverVesselValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.MinDeliverVessel, value);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MinDeliverVessel;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnWarperDistanceValueChange))]
         public static bool OnWarperDistanceValueChange_Prefix(UIStationWindow __instance, float value)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.WarpDistance, value);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.WarpDistance;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnWarperNecessaryClick))]
         public static bool OnWarperNecessaryClick_Prefix(UIStationWindow __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.WarperNeeded, 0f);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.WarperNeeded, 0f);
+            Multiplayer.Session.Network.SendPacket(packet);
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnIncludeOrbitCollectorClick))]
         public static bool OnIncludeOrbitCollectorClick_Prefix(UIStationWindow __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS && (Multiplayer.Session.StationsUI.UIIsSyncedStage == 2 || Multiplayer.Session.LocalPlayer.IsHost))
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.IncludeCollectors, 0f);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
-            return true;
+            StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.IncludeCollectors, 0f);
+            Multiplayer.Session.Network.SendPacket(packet);
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPrefix]
@@ -289,12 +257,20 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Postfix(UIStationWindow __instance)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.StationsUI.UIIsSyncedStage > 0)
+            if (!Multiplayer.IsActive || __instance.transport == null)
             {
                 return;
             }
 
-            // Hide UI elements until sync data arrive
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            Multiplayer.Session.StationsUI.SliderBarPacket = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.None, 0);
+            Multiplayer.Session.StationsUI.StorageMaxChangeId = -1;
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return;
+            }
+
+            // Stage 0 : Hide UI elements until sync data arrive
             __instance.titleText.text = "Loading...";
             for (int i = 0; i < __instance.storageUIs.Length; i++)
             {
@@ -303,25 +279,42 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             __instance.panelDown.SetActive(false);
 
-            StationComponent stationComponent = __instance.transport?.stationPool[__instance.stationId];
-            if (stationComponent != null && __instance.factory != null)
-            {
-                // for some reason advance miner has planetId set to 0, so we use UI's factory planetId
-                Multiplayer.Session.Network.SendPacket(new StationUIInitialSyncRequest(__instance.factory.planetId, stationComponent.id, stationComponent.gid));
-                Multiplayer.Session.StationsUI.UIIsSyncedStage++;
-            }
+            // for some reason advance miner has planetId set to 0, so we use UI's factory planetId
+            Multiplayer.Session.Network.SendPacket(new StationUIInitialSyncRequest(__instance.factory.planetId, stationComponent.id, stationComponent.gid));
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow._OnUpdate))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        public static bool _OnUpdate_Prefix()
+        public static bool _OnUpdate_Prefix(UIStationWindow __instance)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.StationsUI.UIIsSyncedStage == 2)
+            if (!Multiplayer.IsActive)
             {
                 return true;
             }
-            return false;
+
+            // When releasing left mouse button
+            if (Input.GetMouseButtonUp(0))
+            {
+                if (Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex != StationUI.EUISettings.None)
+                {
+                    // Send SliderBarPacket when left mouse button is released
+                    Multiplayer.Session.Network.SendPacket(Multiplayer.Session.StationsUI.SliderBarPacket);
+                    Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.None;
+                }
+                if (Multiplayer.Session.StationsUI.StorageMaxChangeId >= 0)
+                {
+                    // Do the job in UIStationStorage.OnMaxSliderValueChange()
+                    int index = Multiplayer.Session.StationsUI.StorageMaxChangeId;
+                    float val = __instance.storageUIs[index].maxSlider.value;
+                    StationStore stationStore = __instance.transport.stationPool[__instance.stationId].storage[index];
+                    __instance.transport.SetStationStorage(__instance.stationId, index, stationStore.itemId, (int)(val * 100f + 0.5f), stationStore.localLogic, stationStore.remoteLogic, GameMain.mainPlayer);
+
+                    // In client side, preserve displaying slider value until host response
+                    Multiplayer.Session.StationsUI.StorageMaxChangeId = Multiplayer.Session.LocalPlayer.IsHost ? -1 : -2;
+                }
+            }
+            return true;
         }
 
         [HarmonyPostfix]
@@ -329,13 +322,9 @@ namespace NebulaPatcher.Patches.Dynamic
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnClose_Postfix(UIStationWindow __instance)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive)
             {
                 return;
-            }
-            if (__instance.stationId != 0)
-            {
-                Multiplayer.Session.StationsUI.UIIsSyncedStage = 0;
             }
         }
     }

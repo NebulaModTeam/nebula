@@ -3,11 +3,53 @@ using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using UnityEngine.EventSystems;
 
+
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStationStorage))]
     internal class UIStationStorage_Patch
     {
+        private static bool eventLock;
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIStationStorage.OnMaxSliderValueChange))]
+        public static bool OnMaxSliderValueChangePrefix(UIStationStorage __instance, float val)
+        {
+            if (Multiplayer.IsActive && !eventLock)
+            {
+                if (val != (float)(__instance.station.storage[__instance.index].max / 100))
+                {
+                    // If the silder value doesn't match with storage.max, mark it
+                    Multiplayer.Session.StationsUI.StorageMaxChangeId = __instance.index;
+                }
+            }
+            return !Multiplayer.IsActive;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIStationStorage._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnUpdate_Prefix(UIStationStorage __instance, ref float __state)
+        {
+            // Set up eventLock so value changes in maxSlider.value don't trigger changed check
+            eventLock = true;
+            __state = __instance.maxSlider.value;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationStorage._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnUpdate_Postfix(UIStationStorage __instance, float __state)
+        {
+            // Restore the silder value so it is not modified by RefreshValues()
+            if (Multiplayer.IsActive && Multiplayer.Session.StationsUI.StorageMaxChangeId != -1)
+            {
+                __instance.maxSlider.value = __state;
+                __instance.maxValueText.text = ((int)(__instance.maxSlider.value * 100)).ToString();
+            }
+            eventLock = false;
+        }
+
         /*
          * host behaves normally and sends update to clients which then apply the changes
          * clients send a request to the server and only run the original method once they receive the response

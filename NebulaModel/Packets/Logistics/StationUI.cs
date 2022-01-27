@@ -4,6 +4,7 @@
     {
         public enum EUISettings
         {
+            None,
             MaxChargePower,
             MaxTripDrones,
             MaxTripVessel,
