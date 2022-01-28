@@ -16,7 +16,9 @@
             SetDroneCount,
             SetShipCount,
             SetWarperCount,
-            AddOrRemoveItemFromStorage
+            AddOrRemoveItemFromStorage,
+            PilerCount,
+            MaxMiningSpeed
         }
 
         public int PlanetId { get; set; }

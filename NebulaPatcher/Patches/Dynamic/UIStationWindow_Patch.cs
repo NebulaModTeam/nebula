@@ -75,6 +75,19 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIStationWindow.OnMaxMiningSpeedChange))]
+        public static bool OnMaxMiningSpeedChangee_Prefix(UIStationWindow __instance, float value)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return true;
+            }
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxMiningSpeed;
+            Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            return Multiplayer.Session.LocalPlayer.IsHost;
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnWarperDistanceValueChange))]
         public static bool OnWarperDistanceValueChange_Prefix(UIStationWindow __instance, float value)
         {
@@ -85,6 +98,21 @@ namespace NebulaPatcher.Patches.Dynamic
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.WarpDistance;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
             return Multiplayer.Session.LocalPlayer.IsHost;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow.OnMinPilerValueChange))]
+        [HarmonyPatch(nameof(UIStationWindow.OnTechPilerClick))]
+        public static void OnPilerCountChange(UIStationWindow __instance)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return;
+            }
+
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.PilerCount, stationComponent.pilerCount);
+            Multiplayer.Session.Network.SendPacket(packet);
         }
 
         [HarmonyPrefix]
@@ -274,17 +302,6 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
             return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(UIStationWindow._OnClose))]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        public static void _OnClose_Postfix(UIStationWindow __instance)
-        {
-            if (!Multiplayer.IsActive)
-            {
-                return;
-            }
         }
     }
 }

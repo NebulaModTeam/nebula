@@ -37,6 +37,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             stationComponent.includeOrbitCollector = packet.IncludeOrbitCollector;
             stationComponent.energy = packet.Energy;
             stationComponent.energyPerTick = packet.EnergyPerTick;
+            stationComponent.pilerCount = packet.PilerCount;
 
             for (int i = 0; i < packet.ItemId.Length; i++)
             {

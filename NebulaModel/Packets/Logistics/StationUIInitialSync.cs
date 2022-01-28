@@ -14,6 +14,7 @@
         public bool IncludeOrbitCollector { get; set; }
         public long Energy { get; set; }
         public long EnergyPerTick { get; set; }
+        public int PilerCount { get; set; }
         public int[] ItemId { get; set; }
         public int[] ItemCountMax { get; set; }
         public int[] ItemCount { get; set; }
@@ -35,6 +36,7 @@
             bool includeOrbitCollector,
             long energy,
             long energyPerTick,
+            int pilerCount,
             int[] itemId,
             int[] itemCountMax,
             int[] itemCount,
@@ -55,6 +57,7 @@
             IncludeOrbitCollector = includeOrbitCollector;
             Energy = energy;
             EnergyPerTick = energyPerTick;
+            PilerCount = pilerCount;
 
             ItemId = itemId;
             ItemCountMax = itemCountMax;

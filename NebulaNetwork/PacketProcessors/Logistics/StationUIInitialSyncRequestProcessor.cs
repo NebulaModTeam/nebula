@@ -64,6 +64,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 stationComponent.includeOrbitCollector,
                 stationComponent.energy,
                 stationComponent.energyPerTick,
+                stationComponent.pilerCount,
                 itemId,
                 itemCountMax,
                 itemCount,
