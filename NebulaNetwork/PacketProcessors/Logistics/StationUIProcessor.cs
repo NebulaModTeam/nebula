@@ -25,7 +25,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 Multiplayer.Session.StationsUI.UpdateUI(ref packet);
 
                 // broadcast to every clients that may have the station loaded.
-                playerManager.SendPacketToStarExcept(packet, packet.PlanetId, conn);
+                int starId = GameMain.galaxy.PlanetById(packet.PlanetId)?.star.id ?? -1;
+                playerManager.SendPacketToStarExcept(packet, starId, conn);
 
                 // as we block the normal method for the client he must run it once he receives this packet.
                 // but only the one issued the request should do it, we indicate this here
