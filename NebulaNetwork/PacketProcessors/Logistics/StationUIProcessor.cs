@@ -22,7 +22,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 // always update values for host, but he does not need to rely on the mimic flag (infact its bad for him)
                 packet.ShouldMimic = false;
-                Multiplayer.Session.StationsUI.UpdateUI(packet);
+                Multiplayer.Session.StationsUI.UpdateUI(ref packet);
 
                 // broadcast to every clients that may have the station loaded.
                 playerManager.SendPacketToStarExcept(packet, packet.PlanetId, conn);
@@ -35,7 +35,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
             if (IsClient)
             {
-                Multiplayer.Session.StationsUI.UpdateUI(packet);
+                Multiplayer.Session.StationsUI.UpdateUI(ref packet);
             }
         }
     }

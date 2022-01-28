@@ -16,8 +16,7 @@
             SetDroneCount,
             SetShipCount,
             SetWarperCount,
-            AddOrRemoveItemFromStorageRequest,
-            AddOrRemoveItemFromStorageResponse
+            AddOrRemoveItemFromStorage
         }
 
         public int PlanetId { get; set; }
@@ -26,6 +25,7 @@
         public bool IsStorageUI { get; set; }
         public StationUI.EUISettings SettingIndex { get; set; }
         public float SettingValue { get; set; }
+        public float SettingValue2 { get; set; }
         public int StorageIdx { get; set; }
         public int ItemId { get; set; }
         public int ItemCountMax { get; set; }
@@ -61,7 +61,7 @@
             SettingValue = value;
             WarperShouldTakeFromStorage = warperShouldTakeFromStorage;
         }
-        public StationUI(int planetId, int stationId, int stationGId, int storageIdx, StationUI.EUISettings settingIndex, int itemId, int settingValue)
+        public StationUI(int planetId, int stationId, int stationGId, int storageIdx, StationUI.EUISettings settingIndex, int itemId, int count, int inc)
         {
             WarperShouldTakeFromStorage = false;
 
@@ -71,7 +71,8 @@
             StorageIdx = storageIdx;
             SettingIndex = settingIndex;
             ItemId = itemId;
-            SettingValue = settingValue;
+            SettingValue = count;
+            SettingValue2 = inc;
         }
     }
 }

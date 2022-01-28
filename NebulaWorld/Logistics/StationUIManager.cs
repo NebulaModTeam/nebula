@@ -1,18 +1,13 @@
 ﻿using NebulaModel.Logger;
-using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace NebulaWorld.Logistics
 {
     public class StationUIManager : IDisposable
     {
         public int UpdateCooldown; // cooldown is reserved for future use
-        public BaseEventData LastMouseEvent;
-        public bool LastMouseEventWasDown;
         public bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
         public StationUI SliderBarPacket; // store the change of slider bar temporary, only send it when mouse button is released.
         public int StorageMaxChangeId; // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
@@ -34,15 +29,20 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        public void UpdateUI(StationUI packet)
+        public void UpdateUI(ref StationUI packet)
         {
+            StationComponent stationComponent = GetStation(packet);
+            if (stationComponent == null)
+            {
+                return;
+            }
             if (packet.IsStorageUI)
             {
-                UpdateStorageUI(packet);
+                UpdateStorageUI(stationComponent, packet);
             }
             else
             {
-                UpdateSettingsUI(packet);
+                UpdateSettingsUI(stationComponent, ref packet);
             }
 
             // If station window is opened and veiwing the updating station, refresh the window.
@@ -59,33 +59,54 @@ namespace NebulaWorld.Logistics
         /**
          * Updates to a given station that should happen in the background.
          */
-        private void UpdateSettingsUIBackground(StationUI packet, PlanetData planet, StationComponent stationComponent)
+        private void UpdateSettingsUI(StationComponent stationComponent, ref StationUI packet)
         {
-            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
-
-            // update drones, ships, warpers and energy consumption for everyone
-            if ((packet.SettingIndex >= StationUI.EUISettings.SetDroneCount && packet.SettingIndex <= StationUI.EUISettings.SetWarperCount) || packet.SettingIndex == StationUI.EUISettings.MaxChargePower)
+            Debug.Log(packet.SettingIndex);
+            // SetDroneCount, SetShipCount may change packet.SettingValue
+            switch (packet.SettingIndex)
             {
-                if (packet.SettingIndex == StationUI.EUISettings.MaxChargePower && planet.factory?.powerSystem != null)
+                case StationUI.EUISettings.MaxChargePower:
                 {
-                    PowerConsumerComponent[] consumerPool = planet.factory.powerSystem.consumerPool;
-                    if (consumerPool.Length > stationComponent.pcId)
+                    PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                    if (planet.factory?.powerSystem != null)
                     {
-                        consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(50000.0 * packet.SettingValue + 0.5);
+                        PowerConsumerComponent[] consumerPool = planet.factory.powerSystem.consumerPool;
+                        if (consumerPool.Length > stationComponent.pcId)
+                        {
+                            consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(50000.0 * packet.SettingValue + 0.5);
+                        }
                     }
+                    break;
                 }
-
-                if (packet.SettingIndex == StationUI.EUISettings.SetDroneCount)
+                case StationUI.EUISettings.SetDroneCount:
                 {
-                    stationComponent.idleDroneCount = (int)packet.SettingValue;
+                    // Check if new setting is acceptable
+                    int totalCount = Math.Min((int)packet.SettingValue, stationComponent.workDroneDatas.Length);
+                    stationComponent.idleDroneCount = Math.Max(totalCount - stationComponent.workDroneCount, 0);
+                    if (totalCount < (int)packet.SettingValue && packet.ShouldMimic)
+                    {
+                        // The result is less than original setting, refund extra drones to author
+                        int refund = (int)packet.SettingValue - totalCount;
+                        GameMain.mainPlayer.TryAddItemToPackage(5001, refund, 0, true);
+                    }
+                    packet.SettingValue = totalCount;
+                    break;
                 }
-
-                if (packet.SettingIndex == StationUI.EUISettings.SetShipCount)
+                case StationUI.EUISettings.SetShipCount:
                 {
-                    stationComponent.idleShipCount = (int)packet.SettingValue;
+                    // Check if new setting is acceptable
+                    int totalCount = Math.Min((int)packet.SettingValue, stationComponent.workShipDatas.Length);
+                    stationComponent.idleShipCount = Math.Max(totalCount - stationComponent.workShipCount, 0);
+                    if (totalCount < (int)packet.SettingValue && packet.ShouldMimic)
+                    {
+                        // The result is less than original setting, refund extra ships to author
+                        int refund = (int)packet.SettingValue - totalCount;
+                        GameMain.mainPlayer.TryAddItemToPackage(5002, refund, 0, true);
+                    }
+                    packet.SettingValue = totalCount;
+                    break;
                 }
-
-                if (packet.SettingIndex == StationUI.EUISettings.SetWarperCount)
+                case StationUI.EUISettings.SetWarperCount:
                 {
                     stationComponent.warperCount = (int)packet.SettingValue;
                     if (stationComponent.storage != null && packet.WarperShouldTakeFromStorage)
@@ -99,93 +120,83 @@ namespace NebulaWorld.Logistics
                             }
                         }
                     }
+                    break;
                 }
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.MaxTripDrones)
-            {
-                stationComponent.tripRangeDrones = Math.Cos(packet.SettingValue / 180.0 * 3.141592653589793);
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.MaxTripVessel)
-            {
-                double value = packet.SettingValue;
-                if (value > 40.5)
+                case StationUI.EUISettings.MaxTripDrones:
                 {
-                    value = 10000.0;
+                    stationComponent.tripRangeDrones = Math.Cos(packet.SettingValue / 180.0 * 3.141592653589793);
+                    break;
                 }
-                else if (value > 20.5)
+                case StationUI.EUISettings.MaxTripVessel:
                 {
-                    value = value * 2f - 20f;
+                    double value = packet.SettingValue;
+                    if (value > 40.5)
+                    {
+                        value = 10000.0;
+                    }
+                    else if (value > 20.5)
+                    {
+                        value = value * 2f - 20f;
+                    }
+                    stationComponent.tripRangeShips = 2400000.0 * value;
+                    break;
                 }
-
-                stationComponent.tripRangeShips = 2400000.0 * value;
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.MinDeliverDrone)
-            {
-                int value = (int)(packet.SettingValue * 10f + 0.5f);
-                if (value < 1)
+                case StationUI.EUISettings.MinDeliverDrone:
                 {
-                    value = 1;
+                    int value = (int)(packet.SettingValue * 10f + 0.5f);
+                    stationComponent.deliveryDrones = value < 1 ? 1 : value;
+                    break;
                 }
-
-                stationComponent.deliveryDrones = value;
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.MinDeliverVessel)
-            {
-                int value = (int)(packet.SettingValue * 10f + 0.5f);
-                if (value < 1)
+                case StationUI.EUISettings.MinDeliverVessel:
                 {
-                    value = 1;
+                    int value = (int)(packet.SettingValue * 10f + 0.5f);
+                    stationComponent.deliveryShips = value < 1 ? 1 : value;
+                    break;
                 }
-
-                stationComponent.deliveryShips = value;
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.WarpDistance)
-            {
-                double value = packet.SettingValue;
-                if (value < 1.5)
+                case StationUI.EUISettings.WarpDistance:
                 {
-                    value = 0.2;
+                    double value = packet.SettingValue;
+                    if (value < 1.5)
+                    {
+                        value = 0.2;
+                    }
+                    else if (value < 7.5)
+                    {
+                        value = value * 0.5 - 0.5;
+                    }
+                    else if (value < 16.5)
+                    {
+                        value -= 4f;
+                    }
+                    else if (value < 20.5)
+                    {
+                        value = value * 2f - 20f;
+                    }
+                    else
+                    {
+                        value = 60;
+                    }
+                    stationComponent.warpEnableDist = 40000.0 * value;
+                    break;
                 }
-                else if (value < 7.5)
+                case StationUI.EUISettings.WarperNeeded:
                 {
-                    value = value * 0.5 - 0.5;
+                    stationComponent.warperNecessary = !stationComponent.warperNecessary;
+                    break;
                 }
-                else if (value < 16.5)
+                case StationUI.EUISettings.IncludeCollectors:
                 {
-                    value -= 4f;
+                    stationComponent.includeOrbitCollector = !stationComponent.includeOrbitCollector;
+                    break;
                 }
-                else if (value < 20.5)
+                case StationUI.EUISettings.AddOrRemoveItemFromStorage:
                 {
-                    value = value * 2f - 20f;
-                }
-                else
-                {
-                    value = 60;
-                }
-
-                stationComponent.warpEnableDist = 40000.0 * value;
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.WarperNeeded)
-            {
-                stationComponent.warperNecessary = !stationComponent.warperNecessary;
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.IncludeCollectors)
-            {
-                stationComponent.includeOrbitCollector = !stationComponent.includeOrbitCollector;
-            }
-
-            if (packet.SettingIndex == StationUI.EUISettings.AddOrRemoveItemFromStorageResponse)
-            {
-                if (stationComponent.storage != null)
-                {
-                    stationComponent.storage[packet.StorageIdx].count = (int)packet.SettingValue;
+                    if (stationComponent.storage != null)
+                    {
+                        stationComponent.storage[packet.StorageIdx].count = (int)packet.SettingValue;
+                        stationComponent.storage[packet.StorageIdx].inc = (int)packet.SettingValue2;
+                    }
+                    break;
                 }
             }
         }
@@ -195,7 +206,7 @@ namespace NebulaWorld.Logistics
          * 
          * First determine if the local player has the station window opened and handle that accordingly.
          */
-        private void UpdateSettingsUI(StationUI packet)
+        private StationComponent GetStation(StationUI packet)
         {
             StationComponent stationComponent = null;
             PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
@@ -203,7 +214,7 @@ namespace NebulaWorld.Logistics
             // If we can't find planet or the factory for said planet, we can just skip this
             if (planet?.factory?.transport == null)
             {
-                return;
+                return null;
             }
 
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
@@ -214,38 +225,17 @@ namespace NebulaWorld.Logistics
 
             if (stationComponent == null)
             {
-                Log.Warn($"UpdateStorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
-                return;
+                Log.Warn($"StationUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
+                return null;
             }
-
-            // Do all updates in the background.
-            UpdateSettingsUIBackground(packet, planet, stationComponent);
+            return stationComponent;
         }
 
-        private void UpdateStorageUI(StationUI packet)
+        private void UpdateStorageUI(StationComponent stationComponent, StationUI packet)
         {
-            StationComponent stationComponent = null;
-            PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
-
-            // If we can't find planet or the factory for said planet, we can just skip this
-            if (planet?.factory?.transport == null)
-            {
-                return;
-            }
-
-            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
-            StationComponent[] stationPool = planet?.factory?.transport?.stationPool;
-
-            stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
-
-            if (stationComponent == null)
-            {
-                Log.Error($"UpdateStorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
-                return;
-            }
-
             using (Multiplayer.Session.Ships.PatchLockILS.On())
             {
+                PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
                 planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldMimic == true) ? GameMain.mainPlayer : null);
                 StorageMaxChangeId = -1;
             }

@@ -115,141 +115,100 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnDroneIconClick))]
-        public static bool OnDroneIconClick_Prefix(UIStationWindow __instance)
+        [HarmonyPriority(Priority.First)]
+        public static void OnDroneIconClick_Prefix(UIStationWindow __instance, ref int __state)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
-            {
-                Player player = GameMain.mainPlayer;
-                if (player.inhandItemCount > 0 && player.inhandItemId != 5001)
-                {
-                    ItemProto itemProto = LDB.items.Select(5001);
-                    UIRealtimeTip.Popup("只能放入".Translate() + itemProto.name, true, 0);
-                    return false;
-                }
-                StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
-                ItemProto stationItem = LDB.items.Select(__instance.factory.entityPool[stationComponent.entityId].protoId);
-                
-                int toAdd;
-                if (player.inhandItemCount > 0)
-                {
-                    int droneAmount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
-                    int spaceLeft = stationItem.prefabDesc.stationMaxDroneCount - droneAmount;
-                    if (spaceLeft < 0)
-                    {
-                        spaceLeft = 0;
-                    }
-                    toAdd = (__instance.player.inhandItemCount >= spaceLeft) ? spaceLeft : __instance.player.inhandItemCount;
-                }
-                else
-                {
-                    toAdd = stationComponent.idleDroneCount * -1;
-                }
-                if (!Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    Multiplayer.Session.StationsUI.UIRequestedShipDronWarpChange = true;
-                }
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            __state = stationComponent.idleDroneCount;
+        }
 
-                StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetDroneCount, stationComponent.idleDroneCount + toAdd);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow.OnDroneIconClick))]
+        [HarmonyPriority(Priority.Last)]
+        public static void OnDroneIconClick_Posfix(UIStationWindow __instance, int __state)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return;
             }
-            return true;
+
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            if (__state != stationComponent.idleDroneCount)
+            {
+                int droneCount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
+                StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetDroneCount, droneCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsClient)
+                {
+                    // Revert drone count until host verify
+                    stationComponent.idleDroneCount = __state;
+                }
+            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnShipIconClick))]
-        public static bool OnShipIconClick_Prefix(UIStationWindow __instance)
+        [HarmonyPriority(Priority.First)]
+        public static void OnShipIconClick_Prefix(UIStationWindow __instance, ref int __state)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
-            {
-                Player player = GameMain.mainPlayer;
-                if (player.inhandItemCount > 0 && player.inhandItemId != 5002)
-                {
-                    ItemProto itemProto = LDB.items.Select(5002);
-                    UIRealtimeTip.Popup("只能放入".Translate() + itemProto.name, true, 0);
-                    return false;
-                }
-                StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
-                ItemProto stationItem = LDB.items.Select(__instance.factory.entityPool[stationComponent.entityId].protoId);
-                
-                int toAdd;
-                if (player.inhandItemCount > 0)
-                {
-                    int shipAmount = stationComponent.idleShipCount + stationComponent.workShipCount;
-                    int spaceLeft = stationItem.prefabDesc.stationMaxShipCount - shipAmount;
-                    if (spaceLeft < 0)
-                    {
-                        spaceLeft = 0;
-                    }
-                    toAdd = (__instance.player.inhandItemCount >= spaceLeft) ? spaceLeft : __instance.player.inhandItemCount;
-                }
-                else
-                {
-                    toAdd = stationComponent.idleShipCount * -1;
-                }
-                if (!Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    Multiplayer.Session.StationsUI.UIRequestedShipDronWarpChange = true;
-                }
-                StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetShipCount, stationComponent.idleShipCount + toAdd);
-                Multiplayer.Session.Network.SendPacket(packet);
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            __state = stationComponent.idleShipCount;
+        }
 
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow.OnShipIconClick))]
+        [HarmonyPriority(Priority.Last)]
+        public static void OnShipIconClick_Posfix(UIStationWindow __instance, int __state)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return;
             }
-            return true;
+
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            if (__state != stationComponent.idleShipCount)
+            {
+                int ShipCount = stationComponent.idleShipCount + stationComponent.workShipCount;
+                StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetShipCount, ShipCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsClient)
+                {
+                    // Revert ship count until host verify
+                    stationComponent.idleShipCount = __state;
+                }
+            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnWarperIconClick))]
-        public static bool OnWarperIconClick_Prefix(UIStationWindow __instance)
+        [HarmonyPriority(Priority.First)]
+        public static void OnWarperIconClick_Prefix(UIStationWindow __instance, ref int __state)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
-            {
-                Player player = GameMain.mainPlayer;
-                if (player.inhandItemCount > 0 && player.inhandItemId != 1210)
-                {
-                    ItemProto itemProto = LDB.items.Select(1210);
-                    UIRealtimeTip.Popup("只能放入".Translate() + itemProto.name, true, 0);
-                    return false;
-                }
-                StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
-                
-                int toAdd;
-                if (player.inhandItemCount > 0)
-                {
-                    int spaceLeft = stationComponent.warperMaxCount - stationComponent.warperCount;
-                    if (spaceLeft < 0)
-                    {
-                        spaceLeft = 0;
-                    }
-                    toAdd = (__instance.player.inhandItemCount >= spaceLeft) ? spaceLeft : __instance.player.inhandItemCount;
-                }
-                else
-                {
-                    toAdd = stationComponent.warperCount * -1;
-                }
-                if (!Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    Multiplayer.Session.StationsUI.UIRequestedShipDronWarpChange = true;
-                }
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            __state = stationComponent.warperCount;
+        }
 
-                StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount + toAdd);
-                Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow.OnWarperIconClick))]
+        [HarmonyPriority(Priority.Last)]
+        public static void OnWarperIconClick_Posfix(UIStationWindow __instance, int __state)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return;
             }
-            return true;
+
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            if (__state != stationComponent.warperCount)
+            {
+                StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsClient)
+                {
+                    // Revert warper count until host verify
+                    stationComponent.warperCount = __state;
+                }
+            }
         }
 
         [HarmonyPostfix]

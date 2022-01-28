@@ -1,9 +1,8 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using UnityEngine.EventSystems;
 
-
+#pragma warning disable Harmony003
 namespace NebulaPatcher.Patches.Dynamic
 {
     [HarmonyPatch(typeof(UIStationStorage))]
@@ -56,40 +55,32 @@ namespace NebulaPatcher.Patches.Dynamic
          */
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseDown))]
-        public static bool OnItemIconMouseDown_Postfix(UIStationStorage __instance, BaseEventData evt)
+        [HarmonyPriority(Priority.First)]
+        public static void OnItemIconMouseDown_Prefix(UIStationStorage __instance, ref (int,int) __state)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
+            __state = (__instance.station.storage[__instance.index].count, __instance.station.storage[__instance.index].inc);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseDown))]
+        [HarmonyPriority(Priority.Last)]
+        public static void OnItemIconMouseDown_Postfix(UIStationStorage __instance, (int, int) __state)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                Multiplayer.Session.StationsUI.LastMouseEvent = evt;
-                Multiplayer.Session.StationsUI.LastMouseEventWasDown = true;
-                StationUI packet;
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    PointerEventData pointEventData = evt as PointerEventData;
-                    if (GameMain.mainPlayer.inhandItemId == __instance.station.storage[__instance.index].itemId && pointEventData.button == PointerEventData.InputButton.Left)
-                    {
-                        int diff = __instance.station.storage[__instance.index].max - __instance.station.storage[__instance.index].count;
-                        int amount = (diff >= GameMain.mainPlayer.inhandItemCount) ? GameMain.mainPlayer.inhandItemCount : diff;
-                        if (amount < 0)
-                        {
-                            amount = 0;
-                        }
-                        packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count + amount);
-                        Multiplayer.Session.Network.SendPacket(packet);
-                    }
-                }
-                else
-                {
-                    packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorageRequest, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return;
             }
-            return true;
+            StationStore stationStore = __instance.station.storage[__instance.index];            
+            if (__state.Item1 != stationStore.count || __state.Item2 != stationStore.inc)
+            {
+                StationUI packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorage, stationStore.itemId, stationStore.count, stationStore.inc);
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsClient)
+                {
+                    __instance.station.storage[__instance.index].count = __state.Item1;
+                    __instance.station.storage[__instance.index].inc = __state.Item2;
+                }
+            }
         }
 
         /*
@@ -98,35 +89,35 @@ namespace NebulaPatcher.Patches.Dynamic
          */
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseUp))]
-        public static bool OnItemIconMouseUp_Postfix(UIStationStorage __instance, BaseEventData evt)
+        [HarmonyPriority(Priority.First)]
+        public static void OnItemIconMouseUp_Prefix(UIStationStorage __instance, ref (int, int) __state)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
+            __state = (__instance.station.storage[__instance.index].count, __instance.station.storage[__instance.index].inc);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationStorage.OnItemIconMouseUp))]
+        [HarmonyPriority(Priority.Last)]
+        public static void OnItemIconMouseUp_Postfix(UIStationStorage __instance, (int, int) __state)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
             {
-                Multiplayer.Session.StationsUI.LastMouseEvent = evt;
-                Multiplayer.Session.StationsUI.LastMouseEventWasDown = false;
-                StationUI packet;
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    if (__instance.insplit)
-                    {
-                        int splitVal = UIRoot.instance.uiGame.gridSplit.value;
-                        int diff = (splitVal >= __instance.station.storage[__instance.index].count) ? __instance.station.storage[__instance.index].count : splitVal;
-                        packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorageResponse, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count - diff);
-                        Multiplayer.Session.Network.SendPacket(packet);
-                    }
-                }
-                else
-                {
-                    packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorageRequest, __instance.station.storage[__instance.index].itemId, __instance.station.storage[__instance.index].count);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-                if (Multiplayer.Session.LocalPlayer.IsHost)
-                {
-                    return true;
-                }
-                return false;
+                return;
             }
-            return true;
+            StationStore stationStore = __instance.station.storage[__instance.index];
+
+            if (__state.Item1 != stationStore.count || __state.Item2 != stationStore.inc)
+
+            {
+                StationUI packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorage, stationStore.itemId, stationStore.count, stationStore.inc);
+                Multiplayer.Session.Network.SendPacket(packet);
+                if (Multiplayer.Session.LocalPlayer.IsClient)
+                {
+                    __instance.station.storage[__instance.index].count = __state.Item1;
+                    __instance.station.storage[__instance.index].inc = __state.Item2;
+                }
+            }
         }
     }
 }
+#pragma warning restore Harmony003
