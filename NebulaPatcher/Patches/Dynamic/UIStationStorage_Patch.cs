@@ -75,11 +75,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 StationUI packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorage, stationStore.itemId, stationStore.count, stationStore.inc);
                 Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsClient)
-                {
-                    __instance.station.storage[__instance.index].count = __state.Item1;
-                    __instance.station.storage[__instance.index].inc = __state.Item2;
-                }
             }
         }
 
@@ -111,11 +106,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 StationUI packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorage, stationStore.itemId, stationStore.count, stationStore.inc);
                 Multiplayer.Session.Network.SendPacket(packet);
-                if (Multiplayer.Session.LocalPlayer.IsClient)
-                {
-                    __instance.station.storage[__instance.index].count = __state.Item1;
-                    __instance.station.storage[__instance.index].inc = __state.Item2;
-                }
             }
         }
     }

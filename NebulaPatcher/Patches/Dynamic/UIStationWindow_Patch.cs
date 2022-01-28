@@ -170,6 +170,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     // Revert drone count until host verify
                     stationComponent.idleDroneCount = __state;
+                    __instance.droneIconButton.button.interactable = false;
                 }
             }
         }
@@ -203,6 +204,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     // Revert ship count until host verify
                     stationComponent.idleShipCount = __state;
+                    __instance.shipIconButton.button.interactable = false;
                 }
             }
         }
@@ -235,6 +237,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     // Revert warper count until host verify
                     stationComponent.warperCount = __state;
+                    __instance.warperIconButton.button.interactable = false;
                 }
             }
         }
@@ -302,6 +305,20 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
             return true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow.OnStationIdChange))]
+        public static void OnStationIdChange_Postfix(UIStationWindow __instance)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return;
+            }
+
+            __instance.warperIconButton.button.interactable = true;
+            __instance.shipIconButton.button.interactable = true;
+            __instance.droneIconButton.button.interactable = true;
         }
     }
 }
