@@ -19,14 +19,12 @@ namespace NebulaNetwork
 {
     public class Server : NetworkProvider
     {
-        private const float GAME_STATE_UPDATE_INTERVAL = 1;
         private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         private const float STATISTICS_UPDATE_INTERVAL = 1;
         private const float LAUNCH_UPDATE_INTERVAL = 2;
         private const float DYSONSPHERE_UPDATE_INTERVAL = 5;
         private const float WARNING_UPDATE_INTERVAL = 1;
 
-        private float gameStateUpdateTimer = 0;
         private float gameResearchHashUpdateTimer = 0;
         private float productionStatisticsUpdateTimer = 0;
         private float dysonLaunchUpateTimer = 1;
@@ -126,18 +124,11 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
             productionStatisticsUpdateTimer += Time.deltaTime;
             dysonLaunchUpateTimer += Time.deltaTime;
             dysonSphereUpdateTimer += Time.deltaTime;
             warningUpdateTimer += Time.deltaTime;
-
-            if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
-            {
-                gameStateUpdateTimer = 0;
-                SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
-            }
 
             if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
             {
