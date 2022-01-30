@@ -20,7 +20,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 return;
             }
 
-            StationComponent stationComponent = null;
+            StationComponent stationComponent;
             StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             StationComponent[] stationPool = GameMain.data.galaxy?.PlanetById(packet.PlanetId)?.factory?.transport?.stationPool;
 
@@ -37,6 +37,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             int[] itemId = new int[storage.Length];
             int[] itemCountMax = new int[storage.Length];
             int[] itemCount = new int[storage.Length];
+            int[] itemInc = new int[storage.Length];
             int[] localLogic = new int[storage.Length];
             int[] remoteLogic = new int[storage.Length];
             int[] remoteOrder = new int[storage.Length];
@@ -46,6 +47,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 itemId[i] = storage[i].itemId;
                 itemCountMax[i] = storage[i].max;
                 itemCount[i] = storage[i].count;
+                itemInc[i] = storage[i].inc;
                 localLogic[i] = (int)storage[i].localLogic;
                 remoteLogic[i] = (int)storage[i].remoteLogic;
                 remoteOrder[i] = storage[i].remoteOrder;
@@ -68,6 +70,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 itemId,
                 itemCountMax,
                 itemCount,
+                itemInc,
                 localLogic,
                 remoteLogic,
                 remoteOrder

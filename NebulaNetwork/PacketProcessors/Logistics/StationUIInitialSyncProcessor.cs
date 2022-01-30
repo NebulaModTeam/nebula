@@ -49,6 +49,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 stationComponent.storage[i].itemId = packet.ItemId[i];
                 stationComponent.storage[i].max = packet.ItemCountMax[i];
                 stationComponent.storage[i].count = packet.ItemCount[i];
+                stationComponent.storage[i].inc = packet.ItemInc[i];
                 stationComponent.storage[i].remoteOrder = packet.RemoteOrder[i];
                 stationComponent.storage[i].localLogic = (ELogisticStorage)packet.LocalLogic[i];
                 stationComponent.storage[i].remoteLogic = (ELogisticStorage)packet.RemoteLogic[i];

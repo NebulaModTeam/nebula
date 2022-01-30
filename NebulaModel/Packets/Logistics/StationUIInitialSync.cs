@@ -18,6 +18,7 @@
         public int[] ItemId { get; set; }
         public int[] ItemCountMax { get; set; }
         public int[] ItemCount { get; set; }
+        public int[] ItemInc { get; set; }
         public int[] LocalLogic { get; set; }
         public int[] RemoteLogic { get; set; }
         public int[] RemoteOrder { get; set; }
@@ -40,6 +41,7 @@
             int[] itemId,
             int[] itemCountMax,
             int[] itemCount,
+            int[] itemInc,
             int[] localLogic,
             int[] remoteLogic,
             int[] remoteOrder
@@ -62,6 +64,7 @@
             ItemId = itemId;
             ItemCountMax = itemCountMax;
             ItemCount = itemCount;
+            ItemInc = itemInc;
             LocalLogic = localLogic;
             RemoteLogic = remoteLogic;
             RemoteOrder = remoteOrder;
