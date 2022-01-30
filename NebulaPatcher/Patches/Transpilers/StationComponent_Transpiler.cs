@@ -14,6 +14,8 @@ namespace NebulaPatcher.Patches.Transpilers
     public class StationComponent_Transpiler
     {
         delegate void ShipEnterWarpState(StationComponent stationComponent, int j);
+        delegate void AddItem(StationComponent stationComponent, ShipData shipData);
+        delegate void TakeItem(StationComponent stationComponent, int itemId, int itemCount, int j);
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
@@ -34,10 +36,77 @@ namespace NebulaPatcher.Patches.Transpilers
                 .Advance(-1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<ShipEnterWarpState> ((StationComponent stationComponent, int j) =>
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<ShipEnterWarpState> ((StationComponent stationComponent, int j) =>
                 {
-                    Multiplayer.Session.Network.SendPacket(new ILSShipEnterWarp(stationComponent.gid, j));
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    {
+                        Multiplayer.Session.Network.SendPacket(new ILSShipEnterWarp(stationComponent.gid, j));
+                    }
                 }));
+
+            // tell clients about AddItem() calls on host
+            // c# 502
+            matcher.Start()
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemId")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemCount")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "inc")),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
+                .Advance(2) // also skip Pop call
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<AddItem>((StationComponent stationComponent, ShipData shipData) =>
+                {
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    {
+                        Multiplayer.Session.Network.SendPacket(new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc));
+                    }
+                }));
+
+            // c# 970
+            matcher
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemId")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemCount")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "inc")),
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"))
+                .Advance(2) // also skip Pop call
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 147))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<AddItem>((StationComponent stationComponent, ShipData shipData) =>
+                {
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    {
+                        Multiplayer.Session.Network.SendPacket(new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc));
+                    }
+                }));
+
+            // tell clients about TakeItem() calls on host
+            matcher
+                .MatchForward(true,
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
+                // just before the call to TakeItem()
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 147))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemId")))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 157))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int itemId, int itemCount, int j) =>
+                {
+                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    {
+                        Multiplayer.Session.Network.SendPacket(new ILSShipAddTake(false, itemId, itemCount, stationComponent.gid, j));
+                    }
+                }));
+
 
             return matcher.InstructionEnumeration();
         }

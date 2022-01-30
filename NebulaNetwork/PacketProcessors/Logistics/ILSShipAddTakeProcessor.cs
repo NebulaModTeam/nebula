@@ -7,28 +7,22 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    internal class ILSShipItemsProcessor : PacketProcessor<ILSShipItems>
+    internal class ILSShipAddTakeProcessor : PacketProcessor<ILSShipAddTake>
     {
         private readonly IPlayerManager playerManager;
-        public ILSShipItemsProcessor()
+        public ILSShipAddTakeProcessor()
         {
             playerManager = Multiplayer.Session.Network.PlayerManager;
         }
-        public override void ProcessPacket(ILSShipItems packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSShipAddTake packet, NebulaConnection conn)
         {
             if (IsHost)
             {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
-                {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
-                }
+                return;
             }
 
-            // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
-                // TODO: Aren't we missing a using (incoming.On()) here ?
                 Multiplayer.Session.Ships.AddTakeItem(packet);
             }
         }

@@ -1,7 +1,6 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
-using System;
 using UnityEngine;
 
 namespace NebulaWorld.Logistics
@@ -182,11 +181,8 @@ namespace NebulaWorld.Logistics
             Multiplayer.Session.Network.SendPacket(new ILSRequestShipDock(GId));
         }
 
-        /*
-         * This is triggered by server and either adds or removes items to an ILS caused by a ship transport.
-         * Also update the remoteOrder value to reflect the changes
-         */
-        public void AddTakeItem(ILSShipItems packet)
+        // This is triggered by server and either adds or removes items to an ILS caused by a ship transport.
+        public void AddTakeItem(ILSShipAddTake packet)
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.StationGID)
             {
@@ -199,47 +195,22 @@ namespace NebulaWorld.Logistics
                 if (packet.AddItem)
                 {
                     stationComponent.AddItem(packet.ItemId, packet.ItemCount, packet.Inc);
-                    for (int i = 0; i < stationComponent.storage.Length; i++)
-                    {
-                        if (stationComponent.storage[i].itemId == packet.ItemId)
-                        {
-                            stationComponent.storage[i].remoteOrder -= packet.ItemCount;
-                            RefreshValuesUI(stationComponent, i);
-                            break;
-                        }
-                    }
                 }
                 else
                 {
                     int itemId = packet.ItemId;
                     int itemCount = packet.ItemCount;
-                    int dummyInc;
-                    stationComponent.TakeItem(ref itemId, ref itemCount, out dummyInc);
-                    // TODO: Update remote order here (issue #230)
-                }
-            }
-        }
-
-        /*
-         * call UIStationStorage.RefreshValues() on the current opened stations UI
-         */
-        private void RefreshValuesUI(StationComponent stationComponent, int storageIndex)
-        {
-            UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
-            if (stationWindow != null && stationWindow._stationId == stationComponent.id)
-            {
-                UIStationStorage[] stationStorageUI = stationWindow.storageUIs;
-                if (stationStorageUI != null && stationStorageUI.Length > storageIndex)
-                {
-                    stationStorageUI[storageIndex].RefreshValues();
+                    int Inc;
+                    stationComponent.TakeItem(ref itemId, ref itemCount, out Inc);
+                    // we need to update the ShipData here too, luckily our transpiler sends the workShipDatas index in the inc field
+                    stationComponent.workShipDatas[packet.Inc].itemCount = itemCount;
+                    stationComponent.workShipDatas[packet.Inc].inc = Inc;
                 }
             }
         }
 
         public void UpdateSlotData(ILSUpdateSlotData packet)
         {
-            Log.Info($"Updating slot data for planet {packet.PlanetId}, station {packet.StationId} gid {packet.StationGId}. Index {packet.Index}, storageIdx {packet.StorageIdx}");
-
             // Clients only care about what happens on their planet, hosts always need to apply this.
             // Using PlanetFactory to prevent getting the "fakes" that are creates on clients.
             if (Multiplayer.Session.LocalPlayer.IsHost || (!Multiplayer.Session.LocalPlayer.IsHost && packet.PlanetId == GameMain.localPlanet?.id))
