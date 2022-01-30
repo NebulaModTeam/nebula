@@ -17,6 +17,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates
         private int averageRTT;
         private float avaerageUPS = 60f;
         private const float BUFFERING_TIME = 20f;
+        private bool hasChanged;
 
         public override void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
         {
@@ -39,7 +40,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates
                     averageRTT = (int)rtt;
                     GameMain.gameTick = currentGameTick;
                 }
-                Log.Debug($"GameStateUpdate unstable. RTT:{rtt}(avg {averageRTT}) UPS:{packet.UnitsPerSecond:F2}(avg{avaerageUPS:F2})");
+                Log.Debug($"GameStateUpdate unstable. RTT:{rtt}(avg{averageRTT}) UPS:{packet.UnitsPerSecond:F2}(avg{avaerageUPS:F2})");
                 return;
             }
 
@@ -50,6 +51,12 @@ namespace NebulaNetwork.PacketProcessors.GameStates
                 {
                     Log.Info($"Game Tick got updated since it was desynced, was {GameMain.gameTick}, diff={diff}");
                     GameMain.gameTick = currentGameTick;
+                }
+                // Reset FixUPS when user turns off the option
+                if (hasChanged)
+                {
+                    FPSController.SetFixUPS(0);
+                    hasChanged = false;
                 }
                 return;
             }
@@ -81,6 +88,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates
                 GameMain.gameTick += skipTick;
             }
             FPSController.SetFixUPS(UPS);
+            hasChanged = true;
         }
     }
 }
