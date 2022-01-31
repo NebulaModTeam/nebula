@@ -33,7 +33,7 @@ namespace NebulaPatcher.Patches.Transpiler
                     {
                         return Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id;
                     }))
-                    .CreateLabelAt(matcher.Pos + 19, out Label jmpLabel)
+                    .CreateLabelAt(matcher.Pos + 19 + 24, out Label jmpLabel)
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpLabel))
                     .InstructionEnumeration();
         }
