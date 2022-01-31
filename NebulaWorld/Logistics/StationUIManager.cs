@@ -8,9 +8,9 @@ namespace NebulaWorld.Logistics
     public class StationUIManager : IDisposable
     {
         public int UpdateCooldown; // cooldown is reserved for future use
-        public bool UIRequestedShipDronWarpChange; // when receiving a ship, drone or warp change only take/add items from the one issuing the request
-        public StationUI SliderBarPacket; // store the change of slider bar temporary, only send it when mouse button is released.
-        public int StorageMaxChangeId; // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
+        public bool UIRequestedShipDronWarpChange { get; set; } // when receiving a ship, drone or warp change only take/add items from the one issuing the request
+        public StationUI SliderBarPacket { get; set; } // store the change of slider bar temporary, only send it when mouse button is released.
+        public int StorageMaxChangeId { get; set; } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
 
         public StationUIManager()
         {
@@ -29,29 +29,39 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        public void UpdateUI(ref StationUI packet)
+        public void UpdateStation(ref StationUI packet)
         {
-            StationComponent stationComponent = GetStation(packet);
+            StationComponent stationComponent = GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
             if (stationComponent == null)
             {
+                Log.Warn($"StationUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
                 return;
             }
-            if (packet.IsStorageUI)
-            {
-                UpdateStorageUI(stationComponent, packet);
-            }
-            else
-            {
-                UpdateSettingsUI(stationComponent, ref packet);
-            }
+            UpdateSettingsUI(stationComponent, ref packet);
+            RefreshWindow(packet.PlanetId, packet.StationId);
+        }
 
+        public void UpdateStorage(StorageUI packet)
+        {
+            StationComponent stationComponent = GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
+            if (stationComponent == null)
+            {
+                Log.Warn($"StorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
+                return;
+            }
+            UpdateStorageUI(stationComponent, packet);
+            RefreshWindow(packet.PlanetId, packet.StationId);
+        }
+
+        private void RefreshWindow(int planetId, int stationId)
+        {
             // If station window is opened and veiwing the updating station, refresh the window.
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
             if (stationWindow != null && stationWindow.active)
             {
-                if (stationWindow.factory?.planetId == packet.PlanetId && stationWindow.stationId == packet.StationId)
+                if (stationWindow.factory?.planetId == planetId && stationWindow.stationId == stationId)
                 {
-                    stationWindow.OnStationIdChange();                    
+                    stationWindow.OnStationIdChange();
                 }
             }
         }
@@ -82,7 +92,7 @@ namespace NebulaWorld.Logistics
                     // Check if new setting is acceptable
                     int totalCount = Math.Min((int)packet.SettingValue, stationComponent.workDroneDatas.Length);
                     stationComponent.idleDroneCount = Math.Max(totalCount - stationComponent.workDroneCount, 0);
-                    if (totalCount < (int)packet.SettingValue && packet.ShouldMimic)
+                    if (totalCount < (int)packet.SettingValue && packet.ShouldRefund)
                     {
                         // The result is less than original setting, refund extra drones to author
                         int refund = (int)packet.SettingValue - totalCount;
@@ -96,7 +106,7 @@ namespace NebulaWorld.Logistics
                     // Check if new setting is acceptable
                     int totalCount = Math.Min((int)packet.SettingValue, stationComponent.workShipDatas.Length);
                     stationComponent.idleShipCount = Math.Max(totalCount - stationComponent.workShipCount, 0);
-                    if (totalCount < (int)packet.SettingValue && packet.ShouldMimic)
+                    if (totalCount < (int)packet.SettingValue && packet.ShouldRefund)
                     {
                         // The result is less than original setting, refund extra ships to author
                         int refund = (int)packet.SettingValue - totalCount;
@@ -188,15 +198,6 @@ namespace NebulaWorld.Logistics
                     stationComponent.includeOrbitCollector = !stationComponent.includeOrbitCollector;
                     break;
                 }
-                case StationUI.EUISettings.AddOrRemoveItemFromStorage:
-                {
-                    if (stationComponent.storage != null)
-                    {
-                        stationComponent.storage[packet.StorageIdx].count = (int)packet.SettingValue;
-                        stationComponent.storage[packet.StorageIdx].inc = (int)packet.SettingValue2;
-                    }
-                    break;
-                }
                 case StationUI.EUISettings.PilerCount:
                 {
                     stationComponent.pilerCount = (int)packet.SettingValue;
@@ -222,10 +223,9 @@ namespace NebulaWorld.Logistics
          * 
          * First determine if the local player has the station window opened and handle that accordingly.
          */
-        private StationComponent GetStation(StationUI packet)
+        private StationComponent GetStation(int planetId, int stationId, int stationGid)
         {
-            StationComponent stationComponent = null;
-            PlanetData planet = GameMain.galaxy?.PlanetById(packet.PlanetId);
+            PlanetData planet = GameMain.galaxy?.PlanetById(planetId);
 
             // If we can't find planet or the factory for said planet, we can just skip this
             if (planet?.factory?.transport == null)
@@ -237,23 +237,25 @@ namespace NebulaWorld.Logistics
             StationComponent[] stationPool = planet?.factory?.transport?.stationPool;
 
             // Figure out if we're dealing with a PLS or a ILS station
-            stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
-
-            if (stationComponent == null)
-            {
-                Log.Warn($"StationUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
-                return null;
-            }
+            StationComponent stationComponent = stationGid > 0 ? gStationPool[stationGid] : stationPool?[stationId];
             return stationComponent;
         }
 
-        private void UpdateStorageUI(StationComponent stationComponent, StationUI packet)
+        private void UpdateStorageUI(StationComponent stationComponent, StorageUI packet)
         {
             using (Multiplayer.Session.Ships.PatchLockILS.On())
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-                planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldMimic == true) ? GameMain.mainPlayer : null);
-                StorageMaxChangeId = -1;
+                if (packet.ItemCount == -1)
+                {
+                    planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldRefund == true) ? GameMain.mainPlayer : null);
+                    StorageMaxChangeId = -1;
+                }
+                else
+                {
+                    stationComponent.storage[packet.StorageIdx].count = packet.ItemCount;
+                    stationComponent.storage[packet.StorageIdx].inc = packet.ItemInc;
+                }
             }
         }
     }

@@ -73,7 +73,7 @@ namespace NebulaPatcher.Patches.Dynamic
             StationStore stationStore = __instance.station.storage[__instance.index];            
             if (__state.Item1 != stationStore.count || __state.Item2 != stationStore.inc)
             {
-                StationUI packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorage, stationStore.itemId, stationStore.count, stationStore.inc);
+                StorageUI packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }
@@ -104,7 +104,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (__state.Item1 != stationStore.count || __state.Item2 != stationStore.inc)
 
             {
-                StationUI packet = new StationUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, StationUI.EUISettings.AddOrRemoveItemFromStorage, stationStore.itemId, stationStore.count, stationStore.inc);
+                StorageUI packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id, __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }

@@ -9,6 +9,8 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIStationWindow))]
     internal class UIStationWindow_Patch
     {
+        private static long lastUpdateGametick;
+
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnMaxChargePowerSliderValueChange))]
         public static bool OnMaxChargePowerSliderValueChange_Prefix(UIStationWindow __instance, float value)
@@ -259,6 +261,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return;
             }
+            lastUpdateGametick = GameMain.gameTick;
 
             // Stage 0 : Hide UI elements until sync data arrive
             __instance.titleText.text = "Loading...";
@@ -304,6 +307,18 @@ namespace NebulaPatcher.Patches.Dynamic
                     Multiplayer.Session.StationsUI.StorageMaxChangeId = Multiplayer.Session.LocalPlayer.IsHost ? -1 : -2;
                 }
             }
+
+            // Request for remoteOrder update every 180tick
+            if (Multiplayer.Session.LocalPlayer.IsClient && GameMain.gameTick - lastUpdateGametick > 180)
+            {
+                int gid = __instance.transport?.stationPool?[__instance.stationId].gid ?? 0;
+                if (gid > 0)
+                {
+                    Multiplayer.Session.Network.SendPacket(new RemoteOrderUpdate(gid, System.Array.Empty<int>()));
+                }
+                lastUpdateGametick = GameMain.gameTick;
+            }
+
             return true;
         }
 

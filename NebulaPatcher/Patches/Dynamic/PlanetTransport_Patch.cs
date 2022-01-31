@@ -18,7 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if (stationComponent != null)
                 {
-                    StationUI packet = new StationUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
+                    StorageUI packet = new StorageUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
                     Multiplayer.Session.Network.SendPacket(packet);
                 }
 
