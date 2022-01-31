@@ -66,7 +66,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        Multiplayer.Session.Network.SendPacket(new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc));
+                        Multiplayer.Session.Network.SendPacketToStar(new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                 }));
 
@@ -88,7 +88,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        Multiplayer.Session.Network.SendPacket(new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc));
+                        Multiplayer.Session.Network.SendPacketToStar(new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                 }));
 
@@ -106,7 +106,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        Multiplayer.Session.Network.SendPacket(new ILSShipAddTake(false, itemId, itemCount, stationComponent.gid, j));
+                        Multiplayer.Session.Network.SendPacketToStar(new ILSShipAddTake(false, itemId, itemCount, stationComponent.gid, j), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                 }));
 
@@ -131,7 +131,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        Multiplayer.Session.Network.SendPacket(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc));
+                        Multiplayer.Session.Network.SendPacketToStar(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                 }));
 
@@ -160,7 +160,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         {
                             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                Multiplayer.Session.Network.SendPacket(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc));
+                                Multiplayer.Session.Network.SendPacketToStar(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                         }));
 
@@ -189,7 +189,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        Multiplayer.Session.Network.SendPacket(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc));
+                        Multiplayer.Session.Network.SendPacketToStar(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                 }));
 

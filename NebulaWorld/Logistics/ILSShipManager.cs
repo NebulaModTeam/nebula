@@ -231,17 +231,25 @@ namespace NebulaWorld.Logistics
 
         public void UpdateSlotData(ILSUpdateSlotData packet)
         {
-            // Clients only care about what happens on their planet, hosts always need to apply this.
-            // Using PlanetFactory to prevent getting the "fakes" that are creates on clients.
-            if (Multiplayer.Session.LocalPlayer.IsHost || (!Multiplayer.Session.LocalPlayer.IsHost && packet.PlanetId == GameMain.localPlanet?.id))
-            {
-                PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                StationComponent stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];
+            PlanetData pData = null;
+            StationComponent stationComponent = null;
 
-                if (stationComponent?.slots != null)
+            if (packet.StationGId == 0) // PLS
+            {
+                pData = GameMain.galaxy.PlanetById(packet.PlanetId);
+                stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];
+            }
+            else // ILS
+            {
+                if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
                 {
-                    stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
+                    stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
                 }
+            }
+
+            if (stationComponent?.slots != null)
+            {
+                stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
             }
         }
     }

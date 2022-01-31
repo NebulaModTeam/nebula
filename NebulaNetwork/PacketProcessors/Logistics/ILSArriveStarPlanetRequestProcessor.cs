@@ -6,7 +6,7 @@ using NebulaWorld;
 using System.Collections.Generic;
 
 /*
- * when a client arrives at a star he needs to sync the ILS storages to give a feeling of living planet factories
+ * when a client arrives at a star he needs to sync the ILS storages as update events are sent only to corresponding stars
  * and also to sync the belt filters conencted to the ILS
  */
 namespace NebulaNetwork.PacketProcessors.Logistics
@@ -40,47 +40,20 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 List<int> storageLength = new List<int>();
                 int arraySize = 0;
                 int offset = 0;
-                if (packet.PlanetId == 0) // arrive at solar system
+
+                foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
                 {
-                    foreach (StationComponent stationComponent in GameMain.data.galacticTransport.stationPool)
+                    if (stationComponent != null && GameMain.galaxy.PlanetById(stationComponent.planetId)?.star.id == packet.StarId)
                     {
-                        if (stationComponent != null && GameMain.galaxy.PlanetById(stationComponent.planetId)?.star.id == packet.StarId)
-                        {
-                            stationGId.Add(stationComponent.gid);
-                            stationMaxShips.Add(stationComponent.workShipDatas.Length);
-                            storageLength.Add(stationComponent.storage.Length);
-                        }
-                    }
-                }
-                else // arrive at planet
-                {
-                    PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                    if (pData?.factory?.transport != null)
-                    {
-                        foreach (StationComponent stationComponent in pData.factory.transport.stationPool)
-                        {
-                            if (stationComponent != null)
-                            {
-                                stationGId.Add(stationComponent.gid);
-                                stationMaxShips.Add(stationComponent.workShipDatas.Length);
-                                storageLength.Add(stationComponent.storage.Length);
-                            }
-                        }
+                        stationGId.Add(stationComponent.gid);
+                        stationMaxShips.Add(stationComponent.workShipDatas.Length);
+                        storageLength.Add(stationComponent.storage.Length);
                     }
                 }
 
                 if (stationGId.Count > 0)
                 {
-                    StationComponent[] gStationPool;
-                    if (packet.PlanetId == 0) // arrive at solar system
-                    {
-                        gStationPool = GameMain.data.galacticTransport.stationPool;
-                    }
-                    else // arrive at planet
-                    {
-                        PlanetData pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                        gStationPool = pData.factory.transport.stationPool;
-                    }
+                    StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
 
                     for (int i = 0; i < storageLength.Count; i++)
                     {
@@ -91,11 +64,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     int[] storageIdx = new int[arraySize];
                     int[] itemId = new int[arraySize];
                     int[] count = new int[arraySize];
-                    int[] localOrder = new int[arraySize];
-                    int[] remoteOrder = new int[arraySize];
-                    int[] max = new int[arraySize];
-                    int[] localLogic = new int[arraySize];
-                    int[] remoteLogic = new int[arraySize];
+                    int[] inc = new int[arraySize];
 
                     for (int i = 0; i < stationGId.Count; i++)
                     {
@@ -108,28 +77,19 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                             }
                             itemId[offset + j] = gStationPool[stationGId[i]].storage[j].itemId;
                             count[offset + j] = gStationPool[stationGId[i]].storage[j].count;
-                            localOrder[offset + j] = gStationPool[stationGId[i]].storage[j].localOrder;
-                            remoteOrder[offset + j] = gStationPool[stationGId[i]].storage[j].remoteOrder;
-                            max[offset + j] = gStationPool[stationGId[i]].storage[j].max;
-                            localLogic[offset + j] = (int)gStationPool[stationGId[i]].storage[j].localLogic;
-                            remoteLogic[offset + j] = (int)gStationPool[stationGId[i]].storage[j].remoteLogic;
+                            inc[offset + j] = gStationPool[stationGId[i]].storage[j].inc;
                         }
                         offset += storageLength[i];
                     }
 
                     player.SendPacket(new ILSArriveStarPlanetResponse(stationGId.ToArray(),
-                                                                stationMaxShips.ToArray(),
                                                                 planetId,
-                                                                (packet.PlanetId == 0) ? 0 : packet.PlanetId,
+                                                                stationMaxShips.ToArray(),
                                                                 storageLength.ToArray(),
                                                                 storageIdx,
                                                                 itemId,
                                                                 count,
-                                                                localOrder,
-                                                                remoteOrder,
-                                                                max,
-                                                                localLogic,
-                                                                remoteLogic));
+                                                                inc));
                 }
             }
         }
