@@ -181,7 +181,7 @@ namespace NebulaWorld.Logistics
             Multiplayer.Session.Network.SendPacket(new ILSRequestShipDock(GId));
         }
 
-        // This is triggered by server and either adds or removes items to an ILS caused by a ship transport.
+        // This is triggered by server when InternalTickRemote() calls AddItem() or TakeItem()
         public void AddTakeItem(ILSShipAddTake packet)
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.StationGID)
@@ -205,6 +205,26 @@ namespace NebulaWorld.Logistics
                     // we need to update the ShipData here too, luckily our transpiler sends the workShipDatas index in the inc field
                     stationComponent.workShipDatas[packet.Inc].itemCount = itemCount;
                     stationComponent.workShipDatas[packet.Inc].inc = Inc;
+                }
+            }
+        }
+
+        // is triggered by server when InternalTickRemote() updates the StationComponent.storage array
+        public void UpdateStorage(ILSUpdateStorage packet)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || GameMain.data.galacticTransport.stationPool.Length <= packet.GId)
+            {
+                return;
+            }
+
+            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.GId];
+            if(stationComponent != null && stationComponent.gid == packet.GId && stationComponent.storage != null)
+            {
+                StationStore[] obj = stationComponent.storage;
+                lock (obj)
+                {
+                    stationComponent.storage[packet.Index].count = packet.Count;
+                    stationComponent.storage[packet.Index].inc = packet.Inc;
                 }
             }
         }

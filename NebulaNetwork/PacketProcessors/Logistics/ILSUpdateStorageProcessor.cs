@@ -7,16 +7,16 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    public class ILSShipAddTakeProcessor : PacketProcessor<ILSShipAddTake>
+    public class ILSUpdateStorageProcessor : PacketProcessor<ILSUpdateStorage>
     {
-        public override void ProcessPacket(ILSShipAddTake packet, NebulaConnection conn)
+        public override void ProcessPacket(ILSUpdateStorage packet, NebulaConnection conn)
         {
             if (IsHost)
             {
                 return;
             }
 
-            Multiplayer.Session.Ships.AddTakeItem(packet);
+            Multiplayer.Session.Ships.UpdateStorage(packet);
         }
     }
 }

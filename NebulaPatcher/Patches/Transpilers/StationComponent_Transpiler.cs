@@ -16,6 +16,9 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate void ShipEnterWarpState(StationComponent stationComponent, int j);
         delegate void AddItem(StationComponent stationComponent, ShipData shipData);
         delegate void TakeItem(StationComponent stationComponent, int itemId, int itemCount, int j);
+        delegate void UpdateStorage(StationComponent stationComponent, int index);
+
+        private static int UpdateStorageMatchCounter = 0;
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
@@ -107,6 +110,88 @@ namespace NebulaPatcher.Patches.Transpilers
                     }
                 }));
 
+            // tell client about StationSTorage[] updates
+            // c# 17
+            matcher.Start()
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "inc")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 26))
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<UpdateStorage>((StationComponent stationComponent, int index) =>
+                {
+                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    {
+                        Multiplayer.Session.Network.SendPacket(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc));
+                    }
+                }));
+
+            // c# 242, 367
+            matcher
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "inc")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Repeat(localMatcher =>
+                {
+                    localMatcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, UpdateStorageMatchCounter == 0 ? 30 : 52))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                        .Insert(HarmonyLib.Transpilers.EmitDelegate<UpdateStorage>((StationComponent stationComponent, int index) =>
+                        {
+                            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                            {
+                                Multiplayer.Session.Network.SendPacket(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc));
+                            }
+                        }));
+
+                    UpdateStorageMatchCounter++;
+                });
+            UpdateStorageMatchCounter = 0; // resetting here as it seems our patches are done twice
+
+            // c# 1034
+            matcher.Start()
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "inc")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 147))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 151))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<UpdateStorage>((StationComponent stationComponent, int index) =>
+                {
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    {
+                        Multiplayer.Session.Network.SendPacket(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc));
+                    }
+                }));
 
             return matcher.InstructionEnumeration();
         }
