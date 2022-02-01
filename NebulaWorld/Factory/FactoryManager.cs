@@ -73,6 +73,9 @@ namespace NebulaWorld.Factory
                 // If a timer for the planet already exists, reset it.
                 else
                 {
+                    // Reload the planet if it is unloaded by game.
+                    LoadPlanetData(planetId);
+
                     planetTimers[planetId].Stop();
                     planetTimers[planetId].Start();
                 }
