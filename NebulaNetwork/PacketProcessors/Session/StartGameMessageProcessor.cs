@@ -37,7 +37,7 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 if(Multiplayer.Session.IsGameLoaded && !GameMain.isFullscreenPaused)
                 {
-                    Multiplayer.Session.World.OnPlayerJoining();
+                    Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 
                     // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
                     PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data

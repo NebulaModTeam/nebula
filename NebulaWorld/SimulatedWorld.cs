@@ -142,14 +142,14 @@ namespace NebulaWorld
             localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
         }
 
-        public void OnPlayerJoining()
+        public void OnPlayerJoining(string Username)
         {
             if (!IsPlayerJoining)
             {
                 IsPlayerJoining = true;
                 Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
-                InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
+                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait", null);
             }
         }
 
