@@ -36,7 +36,6 @@ namespace NebulaWorld
         public WarningManager Warning { get; private set; }
 
         // Some Patch Flags
-        public bool IsTankWindowPointerPress { get; set; }
         public bool PlanetRefreshMissingMeshes { get; set; }
 
 
