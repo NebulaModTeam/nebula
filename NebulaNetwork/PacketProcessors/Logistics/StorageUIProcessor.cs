@@ -7,27 +7,27 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Logistics
 {
     [RegisterPacketProcessor]
-    internal class StationUIProcessor : PacketProcessor<StationUI>
+    internal class StorageUIProcessor : PacketProcessor<StorageUI>
     {
         private readonly IPlayerManager playerManager;
-        public StationUIProcessor()
+        public StorageUIProcessor()
         {
             playerManager = Multiplayer.Session.Network.PlayerManager;
         }
 
-        public override void ProcessPacket(StationUI packet, NebulaConnection conn)
+        public override void ProcessPacket(StorageUI packet, NebulaConnection conn)
         {
             if (IsHost)
             {
                 // always update values for host
                 packet.ShouldRefund = false;
-                Multiplayer.Session.StationsUI.UpdateStation(ref packet);
+                Multiplayer.Session.StationsUI.UpdateStorage(packet);
 
                 // broadcast to every clients that may have the station loaded.
                 int starId = GameMain.galaxy.PlanetById(packet.PlanetId)?.star.id ?? -1;
                 playerManager.SendPacketToStarExcept(packet, starId, conn);
 
-                // as we block the normal method for the client he must run it once he receives this packet.
+                // as we block some methods for the client he must run it once he receives this packet.
                 // but only the one issued the request should get items refund
                 packet.ShouldRefund = true;
                 conn.SendPacket(packet);
@@ -35,7 +35,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
             if (IsClient)
             {
-                Multiplayer.Session.StationsUI.UpdateStation(ref packet);
+                Multiplayer.Session.StationsUI.UpdateStorage(packet);
             }
         }
     }
