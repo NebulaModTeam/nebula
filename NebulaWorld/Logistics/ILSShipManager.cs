@@ -97,6 +97,14 @@ namespace NebulaWorld.Logistics
                     stationComponent.workShipCount = packet.StationMaxShipCount - 1;
                 }
                 stationComponent.IdleShipGetToWork(packet.ShipIndex);
+
+                float shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
+                float shipWarpSpeed = (GameMain.history.logisticShipWarpDrive ? GameMain.history.logisticShipWarpSpeedModified : shipSailSpeed);
+                AstroPose[] astroPoses = GameMain.galaxy.astroPoses;
+
+                bool canWarp = shipWarpSpeed > shipSailSpeed + 1f;
+                double trip = (astroPoses[packet.PlanetB].uPos - astroPoses[packet.PlanetA].uPos).magnitude + astroPoses[packet.PlanetB].uRadius + astroPoses[packet.PlanetA].uRadius;
+                stationComponent.energy -= stationComponent.CalcTripEnergyCost(trip, shipSailSpeed, canWarp);
             }
         }
 
