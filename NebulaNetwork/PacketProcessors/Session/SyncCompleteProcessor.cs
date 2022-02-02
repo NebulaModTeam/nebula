@@ -75,7 +75,6 @@ namespace NebulaNetwork.PacketProcessors.Session
                 // Since the player is now connected, we can safely spawn his player model
                 Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
 
-                Log.Warn($"syncing player count: {syncingCount}");
                 if (syncingCount == 0)
                 {
                     IPlayerData[] inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
