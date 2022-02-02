@@ -18,7 +18,87 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate void TakeItem(StationComponent stationComponent, int itemId, int itemCount, int j);
         delegate void UpdateStorage(StationComponent stationComponent, int index);
 
+        delegate void RematchRemotePairs(StationComponent stationComponent, int index);
+        delegate void SendRematchPacket(StationComponent stationComponent);
+
         private static int UpdateStorageMatchCounter = 0;
+
+        // theese are needed to craft the ILSRematchRemotePairs packet
+        private static List<int> ShipIndex = new List<int>();
+        private static List<int> OtherGId = new List<int>();
+        private static List<int> ItemId = new List<int>();
+        private static List<int> Direction = new List<int>();
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]
+        public static IEnumerable<CodeInstruction> RematchRemotePairs_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            // tell clients about all changes to workShipDatas
+            CodeMatcher matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipDatas")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "direction")))
+                .Repeat(localMatcher =>
+                {
+                    localMatcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 10))
+                        .Insert(HarmonyLib.Transpilers.EmitDelegate<RematchRemotePairs>((StationComponent stationComponent, int index) =>
+                        {
+                            ShipIndex.Add(index);
+                            OtherGId.Add(stationComponent.workShipDatas[index].otherGId);
+                            ItemId.Add(stationComponent.workShipDatas[index].itemId);
+                            Direction.Add(stationComponent.workShipDatas[index].direction);
+                        }));
+                });
+
+            matcher
+                .Start()
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipDatas")),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldc_I4_M1),
+                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "direction")))
+                .Repeat(localMatcher =>
+                {
+                    localMatcher
+                        .Advance(1)
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 10))
+                        .Insert(HarmonyLib.Transpilers.EmitDelegate<RematchRemotePairs>((StationComponent stationComponent, int index) =>
+                        {
+                            ShipIndex.Add(index);
+                            OtherGId.Add(stationComponent.workShipDatas[index].otherGId);
+                            ItemId.Add(stationComponent.workShipDatas[index].itemId);
+                            Direction.Add(stationComponent.workShipDatas[index].direction);
+                        }));
+                });
+
+            matcher.Start()
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ret))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<SendRematchPacket>((StationComponent stationComponent) =>
+                {
+                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost && ShipIndex.Count > 0)
+                    {
+                        Multiplayer.Session.Network.SendPacket(new ILSRematchRemotePairs(stationComponent.gid, ShipIndex, OtherGId, Direction, ItemId));
+                    }
+                    ShipIndex.Clear();
+                    OtherGId.Clear();
+                    Direction.Clear();
+                    ItemId.Clear();
+                }));
+
+            return matcher.InstructionEnumeration();
+        }
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]

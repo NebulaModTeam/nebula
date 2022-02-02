@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using UnityEngine;
@@ -36,28 +37,6 @@ namespace NebulaPatcher.Patches.Dynamic
             return true;
         }
 
-        // this one is to catch changes to workShipData to update rendering for clients
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]
-        public static void RematchRemotePairs_Postfix(StationComponent __instance)
-        {
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost && __instance.isStellar)
-            {
-                int[] shipIndex = new int[__instance.workShipDatas.Length];
-                int[] otherGId = new int[__instance.workShipDatas.Length];
-                int[] direction = new int[__instance.workShipDatas.Length];
-                int[] itemId = new int[__instance.workShipDatas.Length];
-                for (int i = 0; i < __instance.workShipDatas.Length; i++)
-                {
-                    shipIndex[i] = __instance.workShipDatas[i].shipIndex;
-                    otherGId[i] = __instance.workShipDatas[i].otherGId;
-                    direction[i] = __instance.workShipDatas[i].direction;
-                    itemId[i] = __instance.workShipDatas[i].itemId;
-                }
-                Multiplayer.Session.Network.SendPacket(new ILSShipDataUpdate(__instance.gid, shipIndex, otherGId, direction, itemId));
-            }
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch(nameof(StationComponent.IdleShipGetToWork))]
         public static void IdleShipGetToWork_Postfix(StationComponent __instance, int index)
@@ -93,6 +72,14 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return false;
             }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(StationComponent.Reset))]
+        public static bool Reset_Prefix(StationComponent __instance)
+        {
+            Log.Warn($"Reset called on gid {__instance.gid}");
             return true;
         }
     }
