@@ -23,7 +23,7 @@ namespace NebulaNetwork.PacketProcessors.Routers
             }
 
             INebulaPlayer player = playerManager.GetPlayer(conn);
-            if (player != null)
+            if (player != null && packet.PacketObject != null)
             {
                 //Forward packet to other users
                 playerManager.SendRawPacketToStar(packet.PacketObject, packet.StarId, conn);
