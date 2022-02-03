@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Transpiler
 {
     /*  
      *  Add:
-     *      Multiplayer.Session.Belts.RegisterBeltPickupUpdate(itemId, count, beltId, segId);
+     *      Multiplayer.Session.Belts.RegisterBeltPickupUpdate(itemId, count, beltId);
      *  After:
      *      int itemId = cargoPath.TryPickItem(i - 4 - 1, 12);
     */
@@ -36,13 +36,13 @@ namespace NebulaPatcher.Patches.Transpiler
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 5))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_3))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_2))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 4))
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, int>>((item, cnt, belt, seg, inc) =>
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_3))
+                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, bool>>((item, cnt, belt, all) =>
                     {
-                        if (Multiplayer.IsActive)
+                        // Only pickup by hand needs to be synced
+                        if (Multiplayer.IsActive && !all)
                         {
-                            Multiplayer.Session.Belts.RegisterBeltPickupUpdate(item, cnt, belt, seg, inc);
+                            Multiplayer.Session.Belts.RegisterBeltPickupUpdate(item, cnt, belt);
                         }
                     }))
                     .InstructionEnumeration();

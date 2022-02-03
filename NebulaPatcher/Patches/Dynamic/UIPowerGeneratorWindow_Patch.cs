@@ -37,7 +37,11 @@ namespace NebulaPatcher.Patches.Dynamic
             //Notify about changing amount of gravitational lens
             if (Multiplayer.IsActive)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeLensPacket(__instance.generatorId, __instance.powerSystem.genPool[__instance.generatorId].catalystPoint, GameMain.localPlanet?.id ?? -1));
+                RayReceiverChangeLensPacket packet = new RayReceiverChangeLensPacket(__instance.generatorId, 
+                    __instance.powerSystem.genPool[__instance.generatorId].catalystPoint,
+                    __instance.powerSystem.genPool[__instance.generatorId].catalystIncPoint,
+                    GameMain.localPlanet?.id ?? -1);
+                Multiplayer.Session.Network.SendPacketToLocalStar(packet);
             }
         }
 

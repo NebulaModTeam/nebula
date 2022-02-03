@@ -9,7 +9,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIAssemblerWindow.OnRecipeResetClick))]
-        public static void OnRecipeResetClick_Prefix(UIAssemblerWindow __instance)
+        public static void OnRecipeResetClick_Postfix(UIAssemblerWindow __instance)
         {
             if (Multiplayer.IsActive)
             {
@@ -19,7 +19,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIAssemblerWindow.OnRecipePickerReturn))]
-        public static void OnRecipePickerReturn_Prefix(UIAssemblerWindow __instance, RecipeProto recipe)
+        public static void OnRecipePickerReturn_Postfix(UIAssemblerWindow __instance, RecipeProto recipe)
         {
             if (Multiplayer.IsActive)
             {
@@ -28,8 +28,19 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIAssemblerWindow.OnIncSwitchClick))]
+        public static void OnIncSwitchClick_Postfix(UIAssemblerWindow __instance)
+        {
+            if (Multiplayer.IsActive)
+            {
+                // Notify others about production switch
+                Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id, __instance.assemblerId, -1));
+            }
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(nameof(UIAssemblerWindow.OnProductIcon0Click))]
-        public static void OnProductIcon0Click_Prefix(UIAssemblerWindow __instance)
+        public static void OnProductIcon0Click_Postfix(UIAssemblerWindow __instance)
         {
             if (Multiplayer.IsActive)
             {
@@ -39,7 +50,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIAssemblerWindow.OnProductIcon1Click))]
-        public static void OnProductIcon1Click_Prefix(UIAssemblerWindow __instance)
+        public static void OnProductIcon1Click_Postfix(UIAssemblerWindow __instance)
         {
             if (Multiplayer.IsActive)
             {
@@ -49,20 +60,22 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIAssemblerWindow.OnManualServingContentChange))]
-        public static void OnManualServingContentChange_Prefix(UIAssemblerWindow __instance)
+        public static void OnManualServingContentChange_Postfix(UIAssemblerWindow __instance)
         {
             if (!Multiplayer.IsActive)
             {
                 return;
             }
 
-            int[] update = new int[__instance.factorySystem.assemblerPool[__instance.assemblerId].served.Length];
+            int[] served = new int[__instance.factorySystem.assemblerPool[__instance.assemblerId].served.Length];
+            int[] incServed = new int[served.Length];
             StorageComponent assemblerStorage = __instance.servingStorage;
-            for (int i = 0; i < update.Length; i++)
+            for (int i = 0; i < served.Length; i++)
             {
-                update[i] = assemblerStorage.grids[i].count;
+                served[i] = assemblerStorage.grids[i].count;
+                incServed[i] = assemblerStorage.grids[i].inc;
             }
-            Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(update, GameMain.data.localPlanet.id, __instance.assemblerId));
+            Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(GameMain.data.localPlanet.id, __instance.assemblerId, served, incServed));
         }
     }
 }

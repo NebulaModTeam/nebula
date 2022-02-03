@@ -171,7 +171,6 @@ namespace NebulaWorld.Factory
                 if (pos == LastPosition)
                 {
                     //Reset check timer on client
-                    Log.Info($"Receive {LastPosition}");
                     LastCheckTime = 0;
                 }
             }

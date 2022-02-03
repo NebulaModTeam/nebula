@@ -16,6 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Assembler
                 for (int i = 0; i < packet.Served.Length; i++)
                 {
                     pool[packet.AssemblerIndex].served[i] = packet.Served[i];
+                    pool[packet.AssemblerIndex].incServed[i] = packet.IncServed[i];
                 }
             }
         }

@@ -14,6 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.RayReceiver
             if (pool != null && packet.GeneratorId != -1 && packet.GeneratorId < pool.Length && pool[packet.GeneratorId].id != -1)
             {
                 pool[packet.GeneratorId].catalystPoint = packet.LensCount;
+                pool[packet.GeneratorId].catalystIncPoint = packet.LensInc;
             }
         }
     }

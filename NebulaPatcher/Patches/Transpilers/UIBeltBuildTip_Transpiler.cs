@@ -10,13 +10,30 @@ namespace NebulaPatcher.Patches.Transpilers
     [HarmonyPatch(typeof(UIBeltBuildTip))]
     internal class UIBeltBuildTip_Transpiler
     {
-        private delegate int SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex);
-
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIBeltBuildTip.SetFilterToEntity))]
-        public static IEnumerable<CodeInstruction> SetFilterToEntity_Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> SetFilterToEntity_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            instructions = new CodeMatcher(instructions)
+            /*  Find:
+             *      stationComponent.slots[this.outputSlotId].storageIdx = 1;
+             *      stationComponent.slots[this.outputSlotId].storageIdx = this.selectedIndex;
+             *  Insert SetSlot(StationComponent, int, int) afterward
+            */
+            CodeMatcher matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_2),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldelema),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Stfld))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2),
+                                    new CodeInstruction(OpCodes.Ldarg_0),
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.outputSlotId))),
+                                    new CodeInstruction(OpCodes.Ldc_I4_1),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(UIBeltBuildTip_Transpiler), nameof(UIBeltBuildTip_Transpiler.SetSlot))))
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloc_2),
                     new CodeMatch(OpCodes.Ldfld),
@@ -31,32 +48,34 @@ namespace NebulaPatcher.Patches.Transpilers
                                     new CodeInstruction(OpCodes.Ldarg_0),
                                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.outputSlotId))),
                                     new CodeInstruction(OpCodes.Ldarg_0),
-                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.selectedIndex))))
-                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<SetSlot>((StationComponent stationComponent, int outputSlotId, int selectedIndex) =>
-                {
-                    if (!Multiplayer.IsActive)
-                    {
-                        return 0;
-                    }
+                                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(UIBeltBuildTip), nameof(UIBeltBuildTip.selectedIndex))),
+                                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(UIBeltBuildTip_Transpiler), nameof(UIBeltBuildTip_Transpiler.SetSlot))));
 
-                    if (Multiplayer.Session.Ships.ItemSlotStationId == stationComponent.id &&
-                        Multiplayer.Session.Ships.ItemSlotStationGId == stationComponent.gid &&
-                        Multiplayer.Session.Ships.ItemSlotLastSlotId == outputSlotId &&
-                        Multiplayer.Session.Ships.ItemSlotLastSelectedIndex == selectedIndex)
-                    {
-                        return 0;
-                    }
+            return matcher.InstructionEnumeration();
+        }
 
-                    Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
-                    Multiplayer.Session.Ships.ItemSlotStationId = stationComponent.id;
-                    Multiplayer.Session.Ships.ItemSlotStationGId = stationComponent.gid;
-                    Multiplayer.Session.Ships.ItemSlotLastSlotId = outputSlotId;
-                    Multiplayer.Session.Ships.ItemSlotLastSelectedIndex = selectedIndex;
-                    return 0;
-                }))
-                .Insert(new CodeInstruction(OpCodes.Pop))
-                .InstructionEnumeration();
-            return instructions;
+        private static void SetSlot(StationComponent stationComponent, int outputSlotId, int selectedIndex)
+        {
+            if (!Multiplayer.IsActive)
+            {
+                return;
+            }
+
+            if (Multiplayer.Session.Ships.ItemSlotStationId == stationComponent.id &&
+                Multiplayer.Session.Ships.ItemSlotStationGId == stationComponent.gid &&
+                Multiplayer.Session.Ships.ItemSlotLastSlotId == outputSlotId &&
+                Multiplayer.Session.Ships.ItemSlotLastSelectedIndex == selectedIndex)
+            {
+                return;
+            }
+
+            // Notify others about storageIdx changes
+            Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
+            Multiplayer.Session.Ships.ItemSlotStationId = stationComponent.id;
+            Multiplayer.Session.Ships.ItemSlotStationGId = stationComponent.gid;
+            Multiplayer.Session.Ships.ItemSlotLastSlotId = outputSlotId;
+            Multiplayer.Session.Ships.ItemSlotLastSelectedIndex = selectedIndex;
+            return;
         }
     }
 }

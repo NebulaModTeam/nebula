@@ -5,15 +5,17 @@
         public int TankIndex { get; set; }
         public int FluidId { get; set; }
         public int FluidCount { get; set; }
+        public int FluidInc { get; set; }
         public int PlanetId { get; set; }
 
         public TankStorageUpdatePacket() { }
 
-        public TankStorageUpdatePacket(int tankIndex, int fluidId, int fluidCount, int planetId)
+        public TankStorageUpdatePacket(in TankComponent tankComponent, int planetId)
         {
-            TankIndex = tankIndex;
-            FluidId = fluidId;
-            FluidCount = fluidCount;
+            TankIndex = tankComponent.id;
+            FluidId = tankComponent.fluidId;
+            FluidCount = tankComponent.fluidCount;
+            FluidInc = tankComponent.fluidInc;
             PlanetId = planetId;
         }
     }

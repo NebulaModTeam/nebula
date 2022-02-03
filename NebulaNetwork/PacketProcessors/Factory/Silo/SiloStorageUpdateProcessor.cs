@@ -13,7 +13,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Silo
             SiloComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.siloPool;
             if (pool != null && packet.SiloIndex != -1 && packet.SiloIndex < pool.Length && pool[packet.SiloIndex].id != -1)
             {
-                pool[packet.SiloIndex].bulletCount = packet.NewRocketsAmount;
+                pool[packet.SiloIndex].bulletCount = packet.ItemCount;
+                pool[packet.SiloIndex].bulletInc = packet.ItemInc;
             }
         }
     }
