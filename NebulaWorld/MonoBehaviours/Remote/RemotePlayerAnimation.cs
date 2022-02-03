@@ -143,6 +143,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
             //animator.player.mechaArmorModel.inst_armor_mat.SetVector("_InitPositionSet", transform.position);
             animator.player.mechaArmorModel.inst_part_ar_mat.SetVector("_InitPositionSet", transform.position);
             animator.player.mechaArmorModel.inst_part_sk_mat.SetVector("_InitPositionSet", transform.position);
+            for (int i = 0; i < 8; i++)
+            {
+                animator.player.mechaArmorModel.bone_mats_inst[i].SetVector("_InitPositionSet", transform.position);
+            }
         }
 
         private void LateUpdate()

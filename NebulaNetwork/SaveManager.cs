@@ -11,7 +11,7 @@ namespace NebulaNetwork
     public class SaveManager
     {
         private const string FILE_EXTENSION = ".server";
-        private const ushort REVISION = 4;
+        private const ushort REVISION = 5;
 
         public static void SaveServerData(string saveName)
         {
