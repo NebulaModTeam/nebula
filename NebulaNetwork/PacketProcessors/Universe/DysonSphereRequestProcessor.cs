@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
+using System.Collections.Generic;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -15,14 +16,39 @@ namespace NebulaNetwork.PacketProcessors.Universe
             {
                 return;
             }
-
-            DysonSphere dysonSphere = GameMain.data.CreateDysonSphere(packet.StarIndex);
-
-            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+            switch (packet.Event)
             {
-                dysonSphere.Export(writer.BinaryWriter);
-                conn.SendPacket(new DysonSphereData(packet.StarIndex, writer.CloseAndGetBytes()));
-                Multiplayer.Session.Launch.RegisterPlayer(conn, packet.StarIndex);
+                case DysonSphereRequestEvent.List:
+                    using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                    {
+                        List<int> list = new List<int>();
+                        for (int i = 0; i < GameMain.data.dysonSpheres.Length; ++i)
+                        {
+                            if (GameMain.data.dysonSpheres[i] != null)
+                            {
+                                list.Add(i);
+                            }
+                        }
+                        writer.BinaryWriter.Write(list.Count);
+                        foreach(int starIndex in list)
+                        {
+                            writer.BinaryWriter.Write(starIndex);
+                        }
+                        conn.SendPacket(new DysonSphereData(packet.StarIndex, writer.CloseAndGetBytes(), DysonSphereRespondEvent.List));
+                    }
+                    break;
+                case DysonSphereRequestEvent.Load:
+                    DysonSphere dysonSphere = GameMain.data.CreateDysonSphere(packet.StarIndex);
+                    using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                    {
+                        dysonSphere.Export(writer.BinaryWriter);
+                        conn.SendPacket(new DysonSphereData(packet.StarIndex, writer.CloseAndGetBytes(), DysonSphereRespondEvent.Load));
+                        Multiplayer.Session.DysonSpheres.RegisterPlayer(conn, packet.StarIndex);
+                    }
+                    break;
+                case DysonSphereRequestEvent.Unload:
+                    Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn, packet.StarIndex);
+                    break;
             }
         }
     }

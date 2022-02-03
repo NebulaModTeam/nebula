@@ -35,7 +35,8 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(EjectorComponent), nameof(EjectorComponent.orbitId))),
                         HarmonyLib.Transpilers.EmitDelegate<Action<int, Vector3, int>>((planetId, localPos, orbitId) =>
                         {
-                            if (!Multiplayer.IsActive || !Multiplayer.Session.Launch.IsUpdateNeeded)
+                            // If the dyson sphere has no subscribers anymore, skip this data
+                            if (!Multiplayer.IsActive || !Multiplayer.Session.Launch.Snapshots.ContainsKey(planetId / 100 - 1))
                                 return;
 
                             // Assume orbitId < 65536

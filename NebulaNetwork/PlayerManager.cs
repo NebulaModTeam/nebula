@@ -285,7 +285,7 @@ namespace NebulaNetwork
                     availablePlayerIds.Enqueue(player.Id);
                 }
                 Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
-                Multiplayer.Session.Launch.UnRegisterPlayer(conn);
+                Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
 
                 //Notify players about queued building plans for drones
                 int[] DronePlans = Multiplayer.Session.Drones.GetPlayerDronePlans(player.Id);

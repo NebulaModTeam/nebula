@@ -9,35 +9,21 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     internal class DysonSphereRemoveLayerProcessor : PacketProcessor<DysonSphereRemoveLayerPacket>
     {
-        private readonly IPlayerManager playerManager;
-
-        public DysonSphereRemoveLayerProcessor()
-        {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
-
         public override void ProcessPacket(DysonSphereRemoveLayerPacket packet, NebulaConnection conn)
         {
-            bool valid = true;
+            DysonSphere sphere = GameMain.data.dysonSpheres[packet.StarIndex];
+            if (sphere == null)
+            {
+                return;
+            }
+            using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
+            {
+                sphere.RemoveLayer(packet.LayerId);
+                NebulaWorld.Universe.DysonSphereManager.ClearSelection(packet.StarIndex);
+            }
             if (IsHost)
             {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
-                {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
-                }
-                else
-                {
-                    valid = false;
-                }
-            }
-
-            if (valid)
-            {
-                using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
-                {
-                    GameMain.data.dysonSpheres[packet.StarIndex]?.RemoveLayer(packet.LayerId);
-                }
+                Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
             }
         }
     }
