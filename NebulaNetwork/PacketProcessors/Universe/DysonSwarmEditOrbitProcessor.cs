@@ -7,9 +7,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    internal class DysonSwarmRemoveOrbitProcessor : PacketProcessor<DysonSwarmRemoveOrbitPacket>
+    internal class DysonSwarmEditOrbitProcessor : PacketProcessor<DysonSwarmEditOrbitPacket>
     {
-        public override void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSwarmEditOrbitPacket packet, NebulaConnection conn)
         {
             DysonSphere sphere = GameMain.data.dysonSpheres[packet.StarIndex];
             if (sphere == null)
@@ -18,15 +18,12 @@ namespace NebulaNetwork.PacketProcessors.Universe
             }
             using (Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket.On())
             {
-                if (packet.Event == SwarmRemoveOrbitEvent.Remove)
+                if (!sphere.swarm.OrbitExist(packet.OrbitId))
                 {
-                    sphere.swarm.RemoveOrbit(packet.OrbitId);
+                    Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
+                    return;
                 }
-                else if (packet.Event == SwarmRemoveOrbitEvent.Enable || packet.Event == SwarmRemoveOrbitEvent.Disable)
-                {
-                    sphere.swarm.SetOrbitEnable(packet.OrbitId, packet.Event == SwarmRemoveOrbitEvent.Enable);
-                }
-                NebulaWorld.Universe.DysonSphereManager.ClearSelection(packet.StarIndex);
+                sphere.swarm.EditOrbit(packet.OrbitId, packet.Radius, packet.Rotation.ToQuaternion());
             }
             if (IsHost)
             {

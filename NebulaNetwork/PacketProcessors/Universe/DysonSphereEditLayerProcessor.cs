@@ -7,23 +7,25 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    internal class DysonSwarmAddOrbitProcessor : PacketProcessor<DysonSwarmAddOrbitPacket>
+    public class DysonSphereEditLayerProcessor : PacketProcessor<DysonSphereEditLayerPacket>
     {
-        public override void ProcessPacket(DysonSwarmAddOrbitPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonSphereEditLayerPacket packet, NebulaConnection conn)
         {
             DysonSphere sphere = GameMain.data.dysonSpheres[packet.StarIndex];
             if (sphere == null)
             {
                 return;
             }
-            using (Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket.On())
+            using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
             {
-                if (packet.OrbitId != NebulaWorld.Universe.DysonSphereManager.QueryOrbitId(sphere.swarm))
+                DysonSphereLayer layer = sphere.GetLayer(packet.LayerId);
+                if (layer == null)
                 {
                     Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                     return;
                 }
-                sphere.swarm.NewOrbit(packet.Radius, packet.Rotation.ToQuaternion());
+                layer.targetOrbitRotation = packet.OrbitRotation.ToQuaternion();
+                layer.InitOrbitRotation(layer.orbitRotation, layer.targetOrbitRotation);
             }
             if (IsHost)
             {

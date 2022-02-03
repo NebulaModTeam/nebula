@@ -23,18 +23,17 @@ namespace NebulaWorld.Universe
 
         public readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
         public readonly ToggleSwitch IncomingDysonSwarmPacket = new ToggleSwitch();
-        public bool IsNormal { get; set; } = true;
-        public List<DysonSphereAddFramePacket> QueuedAddFramePackets = new List<DysonSphereAddFramePacket>();
-        private readonly List<DysonSphereStatusPacket> statusPackets = new List<DysonSphereStatusPacket>();
+        public bool IsNormal { get; set; } = true; //Client side: is the spheres data normal or desynced
+        public bool InBlueprint { get; set; } = false; //In the processing of importing blueprint
+
+        private readonly List<DysonSphereStatusPacket> statusPackets = new List<DysonSphereStatusPacket>(); //Server side
 
         public DysonSphereManager()
         {
-            QueuedAddFramePackets = new List<DysonSphereAddFramePacket>();
         }
 
         public void Dispose()
         {
-            QueuedAddFramePackets = null;
         }
 
         /// <summary>
@@ -180,46 +179,35 @@ namespace NebulaWorld.Universe
             }
         }
 
-        public bool CanCreateFrame(int node1, int node2, DysonSphereLayer dsl)
+        public static int QueryOrbitId(DysonSwarm swarm)
         {
-            if (dsl == null)
+            //Return the next available orbit Id
+            int orbitId = swarm.orbitCursor <= 20 ? swarm.orbitCursor : -1;
+            for (int i = 1; i < swarm.orbitCursor; i++)
             {
-                return false;
-            }
-            if ((ulong)node1 >= (ulong)dsl.nodeCursor)
-            {
-                return false;
-            }
-            if ((ulong)node2 >= (ulong)dsl.nodeCursor)
-            {
-                return false;
-            }
-            if (dsl.nodePool[node1] == null || dsl.nodePool[node2] == null)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public bool CanRemoveFrame(int frameId, DysonSphereLayer dsl)
-        {
-            return dsl != null && dsl.framePool[frameId] != null && dsl.framePool[frameId].nodeA.frames != null && dsl.framePool[frameId].nodeB.frames != null;
-        }
-
-        public bool CanRemoveShell(int shellId, DysonSphereLayer dsl)
-        {
-            if (dsl?.shellPool[shellId]?.nodes != null)
-            {
-                foreach (DysonNode dysonNode in dsl.shellPool[shellId].nodes)
+                if (swarm.orbits[i].id == 0)
                 {
-                    if (dysonNode == null)
-                    {
-                        return false;
-                    }
+                    orbitId = i;
+                    break;
                 }
-                return true;
             }
-            return false;
+            return orbitId;
+        }
+
+        public static void ClearSelection(int starIndex, int layerId = -1)
+        {
+            DESelection selection = UIRoot.instance.uiGame.dysonEditor.selection;
+            if (starIndex == selection.viewStar.index)
+            {
+                if (layerId == -1)
+                {
+                    selection.ClearAllSelection();
+                }
+                else if (selection.IsLayerSelected(layerId))
+                {
+                    selection.ClearComponentSelection();
+                }
+            }
         }
     }
 }

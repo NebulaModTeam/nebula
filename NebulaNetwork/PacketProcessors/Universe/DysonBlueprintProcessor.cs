@@ -8,21 +8,22 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Universe
 {
     [RegisterPacketProcessor]
-    internal class DysonSphereAddFrameProcessor : PacketProcessor<DysonSphereAddFramePacket>
+    internal class DysonBlueprintProcessor : PacketProcessor<DysonBlueprintPacket>
     {
-        public override void ProcessPacket(DysonSphereAddFramePacket packet, NebulaConnection conn)
+        public override void ProcessPacket(DysonBlueprintPacket packet, NebulaConnection conn)
         {
-            DysonSphereLayer layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-            if (layer == null)
+            DysonSphere sphere = GameMain.data.dysonSpheres[packet.StarIndex];
+            if (sphere == null)
             {
                 return;
             }
             using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
             {
-                int frameId = layer.frameRecycleCursor > 0 ? layer.frameRecycle[layer.frameRecycleCursor - 1] : layer.frameCursor;
-                if (frameId != packet.FrameId || layer.NewDysonFrame(packet.ProtoId, packet.NodeAId, packet.NodeBId, packet.Euler) == 0)
+                DysonSphereLayer layer = sphere.GetLayer(packet.LayerId);
+                DysonBlueprintDataIOError err = new DysonBlueprintData().ContentFromBase64String(packet.StringData, packet.BlueprintType, sphere, layer);
+                if (err != DysonBlueprintDataIOError.OK)
                 {
-                    Log.Warn($"Cannnot add frame[{packet.FrameId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                    Log.Warn($"DysonBlueprintData IO error: {err}");
                     Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                     return;
                 }
@@ -34,4 +35,3 @@ namespace NebulaNetwork.PacketProcessors.Universe
         }
     }
 }
-
