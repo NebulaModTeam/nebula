@@ -1,5 +1,18 @@
 ## Changelog
 
+0.8.0:
+
+- @starfish: Refactoring of the ILS UI making it more stable and accurate
+- @starfish: Update Dyson Sphere syncing to match the new features of the game update
+- @starfish: Add UPS syncing to the game making the overall game state more accurate
+- @starfish: Updates for the proliferator and advanced miner
+- @starfish: Bugfix for wrong objId
+- @sp00ktober: Rework ILS ship rendering to be more accurate for clients
+- @sp00ktober: Rework ILS item adding (into stations) to be more accurate for clients
+- @sp00ktober: Bugfixes related to belts placed with a filter set
+- @sp00ktober: Add syncing of MechaAppearance
+- @sp00ktober: Fixed a bug that would lock the host with the "player joining" message when multiple clients try to join at the same time
+
 0.7.10:
 
 - @starfish: Added WarningSystem syncing

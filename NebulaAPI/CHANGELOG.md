@@ -1,5 +1,9 @@
 ## Changelog
 
+1.1.3:
+
+- Added new MechaAppearance to the IPlayerData interface.
+
 1.1.2:
 
 - Bump version for nuget package.
