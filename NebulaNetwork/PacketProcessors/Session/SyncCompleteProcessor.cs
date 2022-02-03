@@ -114,9 +114,6 @@ namespace NebulaNetwork.PacketProcessors.Session
                                 playerModel.MechaInstance.appearance.NotifyAllEvents();
                                 playerModel.PlayerInstance.mechaArmorModel._Init(playerModel.PlayerInstance);
                                 playerModel.PlayerInstance.mechaArmorModel._OnOpen();
-
-                                playerModel.PlayerInstance.mechaArmorModel.inst_part_ar_mat.SetVector("_InitPositionSet", playerModel.PlayerInstance.mechaArmorModel.gameObject.transform.position);
-                                playerModel.PlayerInstance.mechaArmorModel.inst_part_sk_mat.SetVector("_InitPositionSet", playerModel.PlayerInstance.mechaArmorModel.gameObject.transform.position);
                             }
                         }
                     }

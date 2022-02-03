@@ -40,6 +40,26 @@ namespace NebulaNetwork.PacketProcessors.Players
                     GameMain.mainPlayer.mecha.appearance.NotifyAllEvents();
                     GameMain.mainPlayer.mechaArmorModel._Init(GameMain.mainPlayer);
                     GameMain.mainPlayer.mechaArmorModel._OnOpen();
+
+                    // and also load it in the mecha editor
+                    UIMechaEditor editor = UIRoot.instance.uiMechaEditor;
+                    if(editor != null)
+                    {
+                        editor.selection.ClearSelection();
+                        editor.saveGroup._Close();
+                        if(editor.mecha.diyAppearance == null)
+                        {
+                            editor.mecha.diyAppearance = new MechaAppearance();
+                            editor.mecha.diyAppearance.Init();
+                        }
+                        GameMain.mainPlayer.mecha.appearance.CopyTo(editor.mecha.diyAppearance);
+                        editor.mechaArmorModel.RefreshAllPartObjects();
+                        editor.mechaArmorModel.RefreshAllBoneObjects();
+                        editor.mecha.diyAppearance.NotifyAllEvents();
+                        editor._left_content_height_max = 0f;
+                        editor.SetLeftScrollTop();
+                        editor.saveGroup._Open();
+                    }
                 }
                 else
                 {
