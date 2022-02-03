@@ -152,7 +152,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
-                int currentFactingStage = (int)AccessTools.Field(typeof(PlanetModelingManager), "currentFactingStage").GetValue(null);
                 if (GameMain.data.localPlanet != null && GameMain.data.localPlanet.factoryLoading && GameMain.data.localPlanet.physics != null)
                 {
                     GameMain.data.localPlanet.physics.LateUpdate();

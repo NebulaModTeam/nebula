@@ -121,5 +121,34 @@ namespace NebulaPatcher.Patches.Dynamic
             return false;
         }
     }
+
+    [HarmonyPatch(typeof(UIMechaEditor))]
+    internal class Debug_UIMechaEditor_Patch
+    {
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIMechaEditor.ApplyMechaAppearance))]
+        public static bool ApplyMechaAppearance_Prefix(UIMechaEditor __instance)
+        {
+            __instance.mecha.diyAppearance.CopyTo(__instance.mecha.appearance);
+            __instance.player.mechaArmorModel.RefreshAllPartObjects();
+            __instance.player.mechaArmorModel.RefreshAllBoneObjects();
+            __instance.mecha.appearance.NotifyAllEvents();
+            __instance.CalcMechaProperty();
+
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(UIMechaMatsGroup))]
+    internal class Debug_UIMechaMatsGroup_Patch
+    {
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIMechaMatsGroup.TestMaterialEnough))]
+        public static bool TestMaterialsEnough_Prefix(UIMechaMatsGroup __instance, ref bool __result)
+        {
+            __result = true;
+            return false;
+        }
+    }
 }
 #endif

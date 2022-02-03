@@ -36,7 +36,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             if (valid)
             {
-                Multiplayer.Session.World.UpdatePlayerColor(packet.PlayerId, packet.Colors);
+                //Multiplayer.Session.World.UpdatePlayerColor(packet.PlayerId, packet.Colors);
             }
         }
     }
