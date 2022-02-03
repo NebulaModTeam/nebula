@@ -22,11 +22,14 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(CargoPath), nameof(CargoPath.TryInsertItem))))
                     .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Ldarg_0),
-                        HarmonyLib.Transpilers.EmitDelegate<Func<byte, UISpraycoaterWindow, bool>>((itemInc, window) =>
+                        HarmonyLib.Transpilers.EmitDelegate<Func<byte, UISpraycoaterWindow, bool>>((foo, window) =>
                         {
+                            // Recalculate itemInc here because the argument is not reliable
+                            int itemInc = (window.player.inhandItemInc > 0) ? (window.player.inhandItemInc / window.player.inhandItemCount) : 0;
+                            itemInc = ((itemInc > 10) ? 10 : itemInc);
                             int itemId = window.player.inhandItemId;
                             int cargoBeltId = window.traffic.spraycoaterPool[window.spraycoaterId].cargoBeltId;
-                            return window.traffic.PutItemOnBelt(cargoBeltId, itemId, itemInc);
+                            return window.traffic.PutItemOnBelt(cargoBeltId, itemId, (byte)itemInc);
                         }))
                     .RemoveInstruction()
                     .Advance(-17)

@@ -23,11 +23,11 @@ namespace NebulaWorld.Factory
             BeltUpdates.Clear();
         }
 
-        public void RegisterBeltPickupUpdate(int itemId, int count, int beltId, int segId, int inc)
+        public void RegisterBeltPickupUpdate(int itemId, int count, int beltId)
         {
             if (Multiplayer.IsActive)
             {
-                BeltUpdates.Add(new BeltUpdate(itemId, count, beltId, segId, inc));
+                BeltUpdates.Add(new BeltUpdate(itemId, count, beltId));
             }
         }
 
