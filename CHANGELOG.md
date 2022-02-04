@@ -2,6 +2,7 @@
 
 0.8.0:
 
+- Now compatible with DSP 0.9.24
 - @starfish: Refactoring of the ILS UI making it more stable and accurate
 - @starfish: Update Dyson Sphere syncing to match the new features of the game update
 - @starfish: Add UPS syncing to the game making the overall game state more accurate
