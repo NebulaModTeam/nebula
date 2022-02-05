@@ -227,7 +227,17 @@ namespace NebulaNetwork
 
             protected override void OnError(ErrorEventArgs e)
             {
-                // TODO: Decide what to do here - does OnClose get called too?
+                // TODO: seems like clients erroring out in the sync process can lock the host with the joining player message, maybe this fixes it
+                NebulaModel.Logger.Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
+                UnityDispatchQueue.RunOnMainThread(() =>
+                {
+                    // This is to make sure that we don't try to deal with player disconnection
+                    // if it is because we have stopped the server and are not in a multiplayer game anymore.
+                    if (Multiplayer.IsActive)
+                    {
+                        playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                    }
+                });
             }
         }
     }
