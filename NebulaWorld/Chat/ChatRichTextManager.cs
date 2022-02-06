@@ -1,6 +1,4 @@
-﻿// unset
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.TextCore;

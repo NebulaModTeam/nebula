@@ -114,18 +114,18 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
             else
             {
-                ChatLinkHandler.CloseTips();
+                ChatLinkTrigger.CloseTips();
             }
         }
         
         public void InsertSprite()
         {
             Vector2 pos =  new Vector2(-300, 238);
-            UISignalPicker.Popup(pos, singalId =>
+            UISignalPicker.Popup(pos, signalId =>
             {
-                if (singalId <= 0) return;
+                if (signalId <= 0) return;
                 
-                string richText = $"<sprite name=\"{singalId}\">";
+                string richText = $"<sprite name=\"{signalId}\">";
                 chatBox.Insert(richText);
                 chatBox.ActivateInputField();
             });
