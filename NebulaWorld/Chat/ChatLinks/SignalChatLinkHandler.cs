@@ -1,8 +1,7 @@
 ﻿using NebulaModel.Utils;
-using NebulaWorld.Chat;
+using NebulaWorld.MonoBehaviours.Local;
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace NebulaWorld.Chat

@@ -1,4 +1,4 @@
-﻿using NebulaWorld.Chat;
+﻿using NebulaWorld.MonoBehaviours.Local;
 using UnityEngine;
 
 namespace NebulaWorld.Chat

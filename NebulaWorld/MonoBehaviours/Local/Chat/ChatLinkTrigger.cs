@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace NebulaWorld.Chat
+namespace NebulaWorld.MonoBehaviours.Local
 {
     public class ChatLinkTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {

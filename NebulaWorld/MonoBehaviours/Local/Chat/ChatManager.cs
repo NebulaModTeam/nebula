@@ -63,7 +63,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         // Queue a message to appear in chat window
         public void SendChatMessage(string text, ChatMessageType messageType)
         {
-            chatWindow.SendLocalMessage(text, messageType);
+            chatWindow.SendLocalChatMessage(text, messageType);
         }
     }
 }
