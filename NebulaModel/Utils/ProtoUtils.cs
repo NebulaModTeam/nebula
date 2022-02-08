@@ -1,5 +1,4 @@
-﻿
-namespace NebulaModel.Utils
+﻿namespace NebulaModel.Utils
 {
     public static class ProtoUtils
     {
@@ -7,7 +6,9 @@ namespace NebulaModel.Utils
         {
             if (signalId < 1000)
             {
-                return $"signal-{signalId}";
+                SignalProto signal = LDB.signals.Select(signalId);
+                return signal.name;
+                //return $"signal-{signalId}";
             }
             if (signalId < 20000)
             {

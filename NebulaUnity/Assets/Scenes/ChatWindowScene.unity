@@ -483,34 +483,44 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4092147421265152491, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_textInfo.characterCount
-      value: 0
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_textInfo.spaceCount
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_textInfo.wordCount
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_textInfo.lineCount
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_textInfo.pageCount
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_isInputParsingRequired
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7156096781188197911, guid: c47833b2cfc3dc441a4faffd34d532a9,
@@ -536,6 +546,41 @@ PrefabInstance:
     - target: {fileID: 7156096781188197911, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_isInputParsingRequired
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7156096781188197911, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_text
+      value: "hello <sprite index=\"0\">\u200B"
+      objectReference: {fileID: 0}
+    - target: {fileID: 6005627739334278740, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: userName
+      value: test
+      objectReference: {fileID: 0}
+    - target: {fileID: 7690332344613162966, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.9999695
+      objectReference: {fileID: 0}
+    - target: {fileID: 4710401390210384327, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6071691974971199975, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_Text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6071691974971199975, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_RichText
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []

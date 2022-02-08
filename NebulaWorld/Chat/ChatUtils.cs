@@ -56,7 +56,7 @@ namespace NebulaModel.Utils
 
         private static string TryParseRichTag(string tagString)
         {
-            Regex regex = new Regex(@"<sprite name=""?(\w+)""? index=""?(\w+)""?>");
+            Regex regex = new Regex(@"<sprite name=""(\w+)"" color=""([^""]+)"">");
             MatchCollection matches = regex.Matches(tagString);
             
             if (matches.Count == 0) return "";

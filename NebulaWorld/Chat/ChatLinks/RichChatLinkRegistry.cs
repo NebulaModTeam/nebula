@@ -58,7 +58,7 @@ namespace NebulaWorld.Chat
             IChatLinkHandler handler = GetChatLinkHandler(linkID);
             if (handler == null) return "";
             
-            return $"<sprite name=\"{handler.GetIconName(linkData)}\" index=\"{linkString}\">";
+            return $"<sprite name=\"{handler.GetIconName(linkData)}\" color=\"{linkString}\">";
         }
         
         static RichChatLinkRegistry()
