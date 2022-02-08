@@ -1,9 +1,7 @@
 ﻿using CommonAPI.Systems;
-using NebulaModel;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
+using NebulaWorld.Chat;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace NebulaWorld.MonoBehaviours.Local
@@ -65,7 +63,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         // Queue a message to appear in chat window
         public void SendChatMessage(string text, ChatMessageType messageType)
         {
-            chatWindow.SendMessageToChat(text, (int)messageType);
+            chatWindow.SendLocalMessage(text, messageType);
         }
     }
 }

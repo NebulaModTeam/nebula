@@ -30,9 +30,7 @@ namespace NebulaWorld.Chat
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
                     string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {chatBox.text}";
-                    
-                    QueueOutgoingMessage(formattedMessage, 0);
-                    SendMessageToChat(formattedMessage, 0);
+                    BroadcastMessage(formattedMessage);
 
                     chatBox.text = "";
                     // bring cursor back to message area so they can keep typing
@@ -52,7 +50,13 @@ namespace NebulaWorld.Chat
             }
         }
 
-        private void QueueOutgoingMessage(string message, MessageType chatMesageType)
+        private void BroadcastMessage(string message)
+        {
+            QueueOutgoingMessage(message, 0);
+            SendLocalMessage(message, 0);
+        }
+
+        private void QueueOutgoingMessage(string message, ChatMessageType chatMesageType)
         {
             outgoingMessages.Enqueue(new QueuedMessage { MessageText = message, ChatMessageType = chatMesageType });
         }
