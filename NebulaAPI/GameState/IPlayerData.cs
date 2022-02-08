@@ -13,6 +13,7 @@
         int LocalStarId { get; set; }
 
         IMechaData Mecha { get; set; }
+        MechaAppearance Appearance { get; set; }
 
         IPlayerData CreateCopyWithoutMechaData();
     }

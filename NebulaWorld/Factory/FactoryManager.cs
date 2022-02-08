@@ -73,6 +73,9 @@ namespace NebulaWorld.Factory
                 // If a timer for the planet already exists, reset it.
                 else
                 {
+                    // Reload the planet if it is unloaded by game.
+                    LoadPlanetData(planetId);
+
                     planetTimers[planetId].Stop();
                     planetTimers[planetId].Start();
                 }
@@ -232,7 +235,8 @@ namespace NebulaWorld.Factory
 
         public void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.Id == PacketAuthor)
+            // 1. Client receives the build request from itself 2. Host sends the build request
+            if (Multiplayer.IsActive && (Multiplayer.Session.LocalPlayer.Id == PacketAuthor || (Multiplayer.Session.LocalPlayer.IsHost && PacketAuthor == NebulaModAPI.AUTHOR_NONE)))
             {
                 Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
@@ -240,7 +244,7 @@ namespace NebulaWorld.Factory
 
         public void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
         {
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.Id == PacketAuthor)
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.Id == PacketAuthor || (Multiplayer.Session.LocalPlayer.IsHost && PacketAuthor == NebulaModAPI.AUTHOR_NONE))
             {
                 Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId, inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }

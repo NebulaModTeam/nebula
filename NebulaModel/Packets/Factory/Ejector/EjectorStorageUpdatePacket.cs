@@ -3,14 +3,16 @@
     public class EjectorStorageUpdatePacket
     {
         public int EjectorIndex { get; set; }
-        public int NewBulletAmount { get; set; }
+        public int ItemCount { get; set; }
+        public int ItemInc { get; set; }
         public int PlanetId { get; set; }
 
         public EjectorStorageUpdatePacket() { }
-        public EjectorStorageUpdatePacket(int ejectorIndex, int newBulletAmount, int planetId)
+        public EjectorStorageUpdatePacket(int ejectorIndex, int itemCount, int itemInc, int planetId)
         {
             EjectorIndex = ejectorIndex;
-            NewBulletAmount = newBulletAmount;
+            ItemCount = itemCount;
+            ItemInc = itemInc;
             PlanetId = planetId;
         }
     }

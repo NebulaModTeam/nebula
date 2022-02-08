@@ -183,7 +183,7 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalStarId == starId && player.Connection != sender)
+                    if (player.Data.LocalStarId == starId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
                     {
                         ((NebulaPlayer)player).SendRawPacket(rawPacket);
                     }
@@ -198,7 +198,7 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalPlanetId == planetId && player.Connection != sender)
+                    if (player.Data.LocalPlanetId == planetId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
                     {
                         ((NebulaPlayer)player).SendRawPacket(rawPacket);
                     }
@@ -285,7 +285,7 @@ namespace NebulaNetwork
                     availablePlayerIds.Enqueue(player.Id);
                 }
                 Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
-                Multiplayer.Session.Launch.UnRegisterPlayer(conn);
+                Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
 
                 //Notify players about queued building plans for drones
                 int[] DronePlans = Multiplayer.Session.Drones.GetPlayerDronePlans(player.Id);

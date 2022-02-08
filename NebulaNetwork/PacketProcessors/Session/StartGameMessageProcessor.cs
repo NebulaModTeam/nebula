@@ -23,21 +23,28 @@ namespace NebulaNetwork.PacketProcessors.Session
         {
             if (IsHost)
             {
-                INebulaPlayer player;
-                using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
+                if (Multiplayer.Session.IsGameLoaded && !GameMain.isFullscreenPaused)
                 {
-                    if (!syncingPlayers.TryGetValue(conn, out player))
+                    INebulaPlayer player;
+                    using (playerManager.GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
                     {
-                        conn.Disconnect(DisconnectionReason.InvalidData);
-                        syncingPlayers.Remove(conn);
-                        Log.Warn("WARNING: Player tried to start a game without being in the syncing list");
-                        return;
-                    }
-                }
+                        if (!pendingPlayers.TryGetValue(conn, out player))
+                        {
+                            conn.Disconnect(DisconnectionReason.InvalidData);
+                            Log.Warn("WARNING: Player tried to enter the game without being in the pending list");
+                            return;
+                        }
 
-                if(Multiplayer.Session.IsGameLoaded && !GameMain.isFullscreenPaused)
-                {
-                    Multiplayer.Session.World.OnPlayerJoining();
+                        pendingPlayers.Remove(conn);
+                    }
+
+                    // Add the new player to the list
+                    using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
+                    {
+                        syncingPlayers.Add(conn, player);
+                    }
+
+                    Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 
                     // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
                     PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data

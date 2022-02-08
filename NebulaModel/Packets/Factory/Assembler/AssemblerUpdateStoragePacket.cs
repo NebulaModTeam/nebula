@@ -5,12 +5,14 @@
         public int PlanetId { get; set; }
         public int AssemblerIndex { get; set; }
         public int[] Served { get; set; }
+        public int[] IncServed { get; set; }
         public AssemblerUpdateStoragePacket() { }
-        public AssemblerUpdateStoragePacket(int[] served, int planetId, int assemblerIndex)
+        public AssemblerUpdateStoragePacket(int planetId, int assemblerIndex, int[] served, int[] incServed)
         {
             PlanetId = planetId;
             AssemblerIndex = assemblerIndex;
             Served = served;
+            IncServed = incServed;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using NebulaAPI;
-using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets.Universe;
 using System;
 using System.Collections.Concurrent;
@@ -11,61 +9,44 @@ namespace NebulaWorld.Universe
 {
     public class LaunchManager
     {
-        public bool IsUpdateNeeded { get; private set; }
         public ConcurrentBag<DysonLaunchData.Projectile> ProjectileBag { get; private set; }
+        public ConcurrentDictionary<int, DysonLaunchData> Snapshots { get; private set; }
 
-        private List<DysonLaunchData> snapshots;
-        private ConcurrentDictionary<INebulaConnection, int> subscribers;
-        private List<int> planetIds;
+        private HashSet<int> planetIds; //Client side
 
         public LaunchManager()
         {
             ProjectileBag = new ConcurrentBag<DysonLaunchData.Projectile>();
-            snapshots = new List<DysonLaunchData>();
-            subscribers = new ConcurrentDictionary<INebulaConnection, int>();
-            planetIds = new List<int>();
+            Snapshots = new ConcurrentDictionary<int, DysonLaunchData>();
+            planetIds = new HashSet<int>();
         }
 
         public void Dispose()
         {
             ProjectileBag = null;
-            snapshots = null;
-            subscribers = null;
+            Snapshots = null;
             planetIds = null;
         }
            
-        public void RegisterPlayer(INebulaConnection conn, int starIndex)
+        public void Register(int starIndex)
         {
-            // TODO: Manage starIndex in list in future?
-            subscribers.AddOrUpdate(conn, starIndex, (c,s) => starIndex);
-            if (!IsUpdateNeeded)
+            if (Snapshots.IsEmpty)
             {
-                // Clear sanpshots
-                foreach (DysonLaunchData snapshot in snapshots)
-                {
-                    snapshot.BulletList.Clear();
-                    snapshot.RocketList.Clear();
-                    snapshot.BulletTick = 0;
-                    snapshot.RocketTick = 0;
-                }
                 // Clear remaining projectile data in bag
                 while (ProjectileBag.TryTake(out _))
                     ;
-                IsUpdateNeeded = true;
             }
+            Snapshots.TryAdd(starIndex, new DysonLaunchData(starIndex));
         }
 
-        public void UnRegisterPlayer(INebulaConnection conn)
+        public void Unregister(int starIndex)
         {
-            if (subscribers.TryRemove(conn, out _) && subscribers.IsEmpty)
-            {
-                IsUpdateNeeded = false;
-            }
+            Snapshots.TryRemove(starIndex, out _);
         }
 
         public void CollectProjectile()
         {            
-            if (!IsUpdateNeeded)
+            if (Snapshots.IsEmpty)
             {
                 return;
             }
@@ -73,13 +54,12 @@ namespace NebulaWorld.Universe
             while (ProjectileBag.TryTake(out DysonLaunchData.Projectile data))
             {
                 int starId = data.PlanetId / 100 - 1;
-                DysonLaunchData snapshot = snapshots.Find(x => x.StarIndex == starId);
-                if (snapshot == null)
+                if (!Snapshots.TryGetValue(starId, out DysonLaunchData snapshot))
                 {
-                    snapshot = new DysonLaunchData(starId);
-                    snapshots.Add(snapshot);
+                    // If the dyson sphere has no subscribers anymore, skip this data
+                    continue;
                 }
-                // bullet: targetId is orbitId, range 1~20
+                // bullet: targetId is orbitId, range 1~40
                 if (data.TargetId <= 40)
                 {
                     data.Interval = snapshot.BulletTick;
@@ -96,7 +76,7 @@ namespace NebulaWorld.Universe
             }            
 
             // Increase tick counter
-            foreach (DysonLaunchData snapshot in snapshots)
+            foreach (DysonLaunchData snapshot in Snapshots.Values)
             {
                 snapshot.BulletTick++;
                 snapshot.RocketTick++;
@@ -105,37 +85,22 @@ namespace NebulaWorld.Universe
 
         public void SendBroadcastIfNeeded()
         {
-            if (!IsUpdateNeeded)
+            if (Snapshots.IsEmpty)
             {
                 return;
             }
-            //Export and prepare update packet
-            DysonLaunchDataPacket packet;
-            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
-            {
-                int count = 0;
-                foreach (DysonLaunchData snapshot in snapshots)
-                {
-                    if (snapshot.BulletList.Count > 0 || snapshot.RocketList.Count > 0)
-                    {
-                        snapshot.Export(writer.BinaryWriter);
-                        count++;
-                    }
-                }
-                packet = new DysonLaunchDataPacket(count, writer.CloseAndGetBytes());
-            }
 
             //Broadcast the update packet to subscribers
-            if (packet.Count > 0)
+            foreach (DysonLaunchData snapshot in Snapshots.Values)
             {
-                foreach (KeyValuePair<INebulaConnection, int> subscriber in subscribers)
+                if (snapshot.BulletList.Count > 0 || snapshot.RocketList.Count > 0)
                 {
-                    subscriber.Key.SendPacket(packet);
+                    Multiplayer.Session.DysonSpheres.SendPacketToDysonSphere(new DysonLaunchDataPacket(snapshot), snapshot.StarIndex);
                 }
             }
 
             // Clear sanpshots
-            foreach (DysonLaunchData snapshot in snapshots)
+            foreach (DysonLaunchData snapshot in Snapshots.Values)
             {
                 snapshot.BulletList.Clear();
                 snapshot.RocketList.Clear();
@@ -146,34 +111,25 @@ namespace NebulaWorld.Universe
 
         public void ImportPacket(DysonLaunchDataPacket packet)
         {
-            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.BinaryData))
-            {
-                for (int i = 0; i < packet.Count; i++)
-                {
-                    DysonLaunchData snapshot = new DysonLaunchData();
-                    snapshot.Import(reader.BinaryReader);
-                    snapshots.Add(snapshot);
-                }
-            }
+            Snapshots[packet.Data.StarIndex] = packet.Data;
 
-            // Update planetId list of loaded factories
+            // Update planetId set of loaded factories
             planetIds.Clear();
             for (int i = 0; i < GameMain.data.factoryCount; i++)
             {
                 planetIds.Add(GameMain.data.factories[i].planetId);
             }
-            planetIds.Sort();
         }
 
         public void LaunchProjectile()
         {
-            DysonLaunchData discardTarget = null;
-            foreach (DysonLaunchData snapshot in snapshots)
+            int discardTarget = -1;
+            foreach (DysonLaunchData snapshot in Snapshots.Values)
             {
                 DysonSphere sphere = GameMain.data.dysonSpheres[snapshot.StarIndex];
                 if (sphere == null)
                 {
-                    discardTarget = snapshot;
+                    discardTarget = snapshot.StarIndex;
                     continue;
                 }
                 while (snapshot.BulletCursor < snapshot.BulletList.Count)
@@ -181,7 +137,7 @@ namespace NebulaWorld.Universe
                     if (snapshot.BulletList[snapshot.BulletCursor].Interval <= snapshot.BulletTick)
                     {
                         // Only fire when the planet factory isn't loaded 
-                        if (planetIds.BinarySearch(snapshot.BulletList[snapshot.BulletCursor].PlanetId) < 0)
+                        if (!planetIds.Contains(snapshot.BulletList[snapshot.BulletCursor].PlanetId))
                         {
                             AddBullet(sphere.swarm, snapshot.BulletList[snapshot.BulletCursor]);
                         }
@@ -199,7 +155,7 @@ namespace NebulaWorld.Universe
                     if (snapshot.RocketList[snapshot.RocketCursor].Interval <= snapshot.RocketTick)
                     {
                         // Only fire when the planet factory isn't loaded
-                        if (planetIds.BinarySearch(snapshot.RocketList[snapshot.RocketCursor].PlanetId) < 0)
+                        if (!planetIds.Contains(snapshot.RocketList[snapshot.RocketCursor].PlanetId))
                         {
                             AddRocket(sphere, snapshot.RocketList[snapshot.RocketCursor]);
                         }
@@ -215,12 +171,12 @@ namespace NebulaWorld.Universe
                 if (snapshot.BulletCursor == snapshot.BulletList.Count && snapshot.RocketCursor == snapshot.RocketList.Count)
                 {
                     // snapshot is empty, can be removed now
-                    discardTarget = snapshot;
+                    discardTarget = snapshot.StarIndex;
                 }
             }
-            if (discardTarget != null)
+            if (discardTarget >= 0)
             {
-                snapshots.Remove(discardTarget);
+                Snapshots.TryRemove(discardTarget, out _);
             }
         }
 

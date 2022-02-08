@@ -13,7 +13,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Ejector
             EjectorComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.ejectorPool;
             if (pool != null && packet.EjectorIndex != -1 && packet.EjectorIndex < pool.Length && pool[packet.EjectorIndex].id != -1)
             {
-                pool[packet.EjectorIndex].bulletCount = packet.NewBulletAmount;
+                pool[packet.EjectorIndex].bulletCount = packet.ItemCount;
+                pool[packet.EjectorIndex].bulletInc = packet.ItemInc;
             }
         }
     }

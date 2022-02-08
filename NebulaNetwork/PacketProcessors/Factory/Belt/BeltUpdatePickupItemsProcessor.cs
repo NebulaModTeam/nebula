@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Belt;
@@ -20,11 +21,29 @@ namespace NebulaNetwork.PacketProcessors.Factory.Belt
                     {
                         return;
                     }
-                    CargoPath cargoPath = traffic.GetCargoPath(traffic.beltPool[packet.BeltUpdates[i].BeltId].segPathId);
+                    BeltComponent beltComponent = traffic.beltPool[packet.BeltUpdates[i].BeltId];
+                    CargoPath cargoPath = traffic.GetCargoPath(beltComponent.segPathId);
+                    int ItemId = packet.BeltUpdates[i].ItemId;
                     //Check if belt exists
                     if (cargoPath != null)
                     {
-                        cargoPath.TryPickItem(packet.BeltUpdates[i].SegId - 4 - 1, 12);
+                        // Search downstream for target item
+                        for (int k = beltComponent.segIndex + beltComponent.segPivotOffset; k <= (beltComponent.segIndex + beltComponent.segLength - 1); k++)
+                        {
+                            if (cargoPath.TryPickItem(k - 4 - 1, 12, ItemId, out _, out _) != 0)
+                            {
+                                return;
+                            }
+                        }
+                        // Search upstream for target item
+                        for (int k = beltComponent.segIndex + beltComponent.segPivotOffset - 1; k >= beltComponent.segIndex; k--)
+                        {
+                            if (cargoPath.TryPickItem(k - 4 - 1, 12, ItemId, out _, out _) != 0)
+                            {
+                                return;
+                            }
+                        }
+                        Log.Warn($"BeltUpdatePickupItem: Cannot pick item{ItemId} on belt{packet.BeltUpdates[i].BeltId}, planet{packet.PlanetId}");
                     }
                 }
             }

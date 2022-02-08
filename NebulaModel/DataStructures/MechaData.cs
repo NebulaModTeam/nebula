@@ -73,7 +73,7 @@ namespace NebulaModel.DataStructures
             Forge = new MechaForge
             {
                 tasks = new List<ForgeTask>(),
-                extraItems = new ItemPack()
+                extraItems = new ItemBundle()
             };
             TechBonuses.Deserialize(reader);
             SandCount = reader.GetInt();

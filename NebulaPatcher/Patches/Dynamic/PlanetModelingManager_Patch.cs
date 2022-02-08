@@ -87,11 +87,12 @@ namespace NebulaPatcher.Patches.Dynamic
 
             InternalLoadPlanetsRequestGenerator(star.planets);
 
+            Multiplayer.Session.DysonSpheres.UnloadRemoteDysonSpheres();
             // Request initial dysonSphere data
             if (GameMain.data.dysonSpheres[star.index] == null)
             {
                 Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
-                Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(star.index));
+                Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(star.index, DysonSphereRequestEvent.Load));
             }
 
             NebulaModAPI.OnStarLoadRequest?.Invoke(star.index);

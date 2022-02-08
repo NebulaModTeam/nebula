@@ -19,14 +19,12 @@ namespace NebulaNetwork
 {
     public class Server : NetworkProvider
     {
-        private const float GAME_STATE_UPDATE_INTERVAL = 1;
         private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         private const float STATISTICS_UPDATE_INTERVAL = 1;
-        private const float LAUNCH_UPDATE_INTERVAL = 2;
-        private const float DYSONSPHERE_UPDATE_INTERVAL = 5;
+        private const float LAUNCH_UPDATE_INTERVAL = 4;
+        private const float DYSONSPHERE_UPDATE_INTERVAL = 2;
         private const float WARNING_UPDATE_INTERVAL = 1;
 
-        private float gameStateUpdateTimer = 0;
         private float gameResearchHashUpdateTimer = 0;
         private float productionStatisticsUpdateTimer = 0;
         private float dysonLaunchUpateTimer = 1;
@@ -126,18 +124,11 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            gameStateUpdateTimer += Time.deltaTime;
             gameResearchHashUpdateTimer += Time.deltaTime;
             productionStatisticsUpdateTimer += Time.deltaTime;
             dysonLaunchUpateTimer += Time.deltaTime;
             dysonSphereUpdateTimer += Time.deltaTime;
             warningUpdateTimer += Time.deltaTime;
-
-            if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
-            {
-                gameStateUpdateTimer = 0;
-                SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
-            }
 
             if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
             {
@@ -164,15 +155,7 @@ namespace NebulaNetwork
             if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
             {
                 dysonSphereUpdateTimer = 0;
-                DysonSphere[] dysonSpheres = GameMain.data.dysonSpheres;
-                for (int i = 0; i < dysonSpheres.Length; i++)
-                {
-                    DysonSphere dysonSphere = dysonSpheres[i];
-                    if (dysonSphere != null && (dysonSphere.energyReqCurrentTick + dysonSphere.energyGenCurrentTick > 0))
-                    {
-                        SendPacketToStar(new DysonSphereStatusPacket(dysonSphere), dysonSphere.starData.id);
-                    }
-                }
+                Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded();
             }
 
             if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
@@ -244,7 +227,17 @@ namespace NebulaNetwork
 
             protected override void OnError(ErrorEventArgs e)
             {
-                // TODO: Decide what to do here - does OnClose get called too?
+                // TODO: seems like clients erroring out in the sync process can lock the host with the joining player message, maybe this fixes it
+                NebulaModel.Logger.Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
+                UnityDispatchQueue.RunOnMainThread(() =>
+                {
+                    // This is to make sure that we don't try to deal with player disconnection
+                    // if it is because we have stopped the server and are not in a multiplayer game anymore.
+                    if (Multiplayer.IsActive)
+                    {
+                        playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                    }
+                });
             }
         }
     }

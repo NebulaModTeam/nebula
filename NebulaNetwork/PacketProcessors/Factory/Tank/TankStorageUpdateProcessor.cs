@@ -15,6 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Tank
             {
                 pool[packet.TankIndex].fluidId = packet.FluidId;
                 pool[packet.TankIndex].fluidCount = packet.FluidCount;
+                pool[packet.TankIndex].fluidInc = packet.FluidInc;
             }
         }
     }

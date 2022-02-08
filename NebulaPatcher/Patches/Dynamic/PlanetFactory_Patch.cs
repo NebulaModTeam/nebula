@@ -79,27 +79,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                bool isPrebuild = false;
-                Vector3 pos;
-                Quaternion rot;
-
-                if (objId > 0)
-                {
-                    // real entity
-                    EntityData eData = __instance.entityPool[objId];
-                    pos = eData.pos;
-                    rot = eData.rot;
-                }
-                else
-                {
-                    // blueprint build preview
-                    PrebuildData pData = __instance.prebuildPool[-objId];
-                    pos = pData.pos;
-                    rot = pData.rot;
-                    isPrebuild = true;
-                }
-
-                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, new Float3(pos.x, pos.y, pos.z), new Float4(rot.x, rot.y, rot.z, rot.w), replace_item_proto.ID, isPrebuild, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
+                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
             }
 
             return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;

@@ -9,6 +9,10 @@ namespace NebulaWorld.Factory
 {
     public class BuildToolManager : IDisposable
     {
+        public const long WAIT_TIME = 10000;
+        public Vector3 LastPosition;
+        public long LastCheckTime;
+
         public BuildToolManager()
         {
         }
@@ -61,9 +65,10 @@ namespace NebulaWorld.Factory
                     tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
                     tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
                     Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
-                }
+                }                
 
                 bool incomingBlueprintEvent = packet.BuildToolType == typeof(BuildTool_BlueprintPaste).ToString();
+                Vector3 pos = Vector3.zero;
 
                 //Create Prebuilds from incoming packet and prepare new position
                 List<BuildPreview> tmpList = new List<BuildPreview>();
@@ -72,6 +77,7 @@ namespace NebulaWorld.Factory
                     tmpList.AddRange(buildTool.buildPreviews);
                     buildTool.buildPreviews.Clear();
                     buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
+                    pos = buildTool.buildPreviews[0].lpos;
                 }
 
                 Multiplayer.Session.Factories.EventFactory = planet.factory;
@@ -80,7 +86,7 @@ namespace NebulaWorld.Factory
                 buildTool.factory = planet.factory;
                 pab.factory = planet.factory;
                 pab.noneTool.factory = planet.factory;
-                if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     // Only the server needs to set these
                     pab.planetPhysics = planet.physics;
@@ -89,13 +95,13 @@ namespace NebulaWorld.Factory
 
                 //Check if prebuilds can be build (collision check, height check, etc)
                 bool canBuild = false;
-                if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
+                if (Multiplayer.Session.LocalPlayer.IsHost)
                 {
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
                 }
 
-                if (canBuild || Multiplayer.Session.Factories.IsIncomingRequest.Value)
+                if (canBuild || Multiplayer.Session.LocalPlayer.IsClient)
                 {
                     if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
                     {
@@ -132,6 +138,7 @@ namespace NebulaWorld.Factory
                         bpTool.bpCursor = incomingPreviews.Count;
                         bpTool.bpPool = incomingPreviews.ToArray();
                         bpTool.CreatePrebuilds();
+                        pos = incomingPreviews[0].lpos;
 
                         // Revert to previous data
                         bpTool.bpCursor = previousCursor;
@@ -160,6 +167,12 @@ namespace NebulaWorld.Factory
 
                 Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
                 Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
+
+                if (pos == LastPosition)
+                {
+                    //Reset check timer on client
+                    LastCheckTime = 0;
+                }
             }
         }
 
@@ -236,6 +249,19 @@ namespace NebulaWorld.Factory
                     }
                 }
             }
+            return true;
+        }
+        
+        public bool InitialCheck(Vector3 pos)
+        {
+            long now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            if ((now - LastCheckTime) < WAIT_TIME && LastPosition == pos)
+            {
+                //Stop client from sending prebuilds at the same position
+                return false;
+            }
+            LastCheckTime = now;
+            LastPosition = pos;
             return true;
         }
     }
