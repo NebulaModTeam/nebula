@@ -1,13 +1,11 @@
-﻿using NebulaModel.Logger;
-using NebulaModel.Utils;
-using NebulaWorld.Chat;
+﻿using NebulaModel.Utils;
+using NebulaWorld.MonoBehaviours.Local;
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 
-namespace NebulaWorld.MonoBehaviours.Local
+namespace NebulaWorld.Chat
 {
     public class ChatWindow : MonoBehaviour
     {
@@ -61,7 +59,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public void SendMessageToChat(string text, int messageType)
         {
-            text = TextUtils.SanitizeText(text);
+            text = ChatUtils.SanitizeText(text);
             if (messages.Count > MAX_MESSAGES)
             {
                 Destroy(messages[0].textObject.gameObject);
@@ -124,8 +122,8 @@ namespace NebulaWorld.MonoBehaviours.Local
             UISignalPicker.Popup(pos, signalId =>
             {
                 if (signalId <= 0) return;
-                
-                string richText = $"<sprite name=\"{signalId}\">";
+
+                string richText = RichChatLinkRegistry.FormatShortRichText(SignalChatLinkHandler.GetLinkString(signalId));
                 chatBox.Insert(richText);
                 chatBox.ActivateInputField();
             });

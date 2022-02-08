@@ -1,9 +1,5 @@
 ﻿using HarmonyLib;
 using NebulaWorld.Chat;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
-using UnityEngine.TextCore;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -14,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPostfix]
         public static void Create_Postfix(IconSet __instance)
         {
-            ChatRichTextManager.Create(__instance);
+            ChatSpriteSheetManager.Create(__instance);
         }
     }
 }

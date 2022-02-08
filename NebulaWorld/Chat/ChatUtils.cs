@@ -1,15 +1,17 @@
-﻿using System.Linq;
+﻿using NebulaWorld.Chat;
+using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 
 namespace NebulaModel.Utils
 {
-    public static class TextUtils
+    public static class ChatUtils
     {
         public static readonly string[] AllowedTags = {"b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"};
         
         public static string SanitizeText(string input)
         {
+            // Matches any valid rich text tag. For example: <sprite name="hello" index=5>
             Regex regex = new Regex(@"<([/\w]+)=?[""#]?\w*""?\s?[\s\w""=]*>");
             MatchCollection matches = regex.Matches(input);
 
@@ -27,9 +29,13 @@ namespace NebulaModel.Utils
 
                 if (tagName == "sprite")
                 {
-                    string newTagString = FormatIconTags(match.Value);
-                    sanitized += newTagString;
-                    lastIndex = match.Index + match.Length;
+                    string linkString = TryParseRichTag(match.Value);
+                    if (!string.IsNullOrEmpty(linkString))
+                    {
+                        string newTagString = RichChatLinkRegistry.FormatFullRichText(linkString);
+                        sanitized += newTagString;
+                        lastIndex = match.Index + match.Length;
+                    }
                 }
 
                 if (AllowedTags.Contains(tagName) || AllowedTags.Contains(tagName.Substring(1))) continue;
@@ -45,17 +51,14 @@ namespace NebulaModel.Utils
             return sanitized;
         }
 
-        public static string FormatIconTags(string input)
+        private static string TryParseRichTag(string tagString)
         {
-            Regex regex = new Regex(@"<sprite name=""?(\w+)""?>");
-            MatchCollection matches = regex.Matches(input);
+            Regex regex = new Regex(@"<sprite name=""?(\w+)""? index=""?(\w+)""?>");
+            MatchCollection matches = regex.Matches(tagString);
             
-            if (matches.Count == 0) return input;
+            if (matches.Count == 0) return "";
 
-            string signalIdStr = matches[0].Groups[1].Value;
-            int signalId = int.Parse(signalIdStr);
-
-            return $"<link=\"signal {signalId}\">[<sprite name=\"{signalId}\"> <color=\"green\">{ProtoUtils.GetSignalDisplayName(signalId)}</color>]</link>";
+            return matches[0].Groups[2].Value;
         }
 
 

@@ -5,7 +5,7 @@ using UnityEngine.TextCore;
 
 namespace NebulaWorld.Chat
 {
-    public static class ChatRichTextManager
+    public static class ChatSpriteSheetManager
     {
         public static uint[] signalSpriteIndex;
         public static TMP_SpriteAsset iconsSpriteAsset;
