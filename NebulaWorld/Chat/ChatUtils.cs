@@ -1,7 +1,10 @@
-﻿using NebulaWorld.Chat;
+﻿using NebulaModel.Packets.Players;
+using NebulaWorld.Chat;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
+using UnityEngine;
 
 namespace NebulaModel.Utils
 {
@@ -61,6 +64,28 @@ namespace NebulaModel.Utils
             return matches[0].Groups[2].Value;
         }
 
+        
+        public static Color GetMessageColor(ChatMessageType messageType)
+        {
+            switch (messageType)
+            {
+                case ChatMessageType.PlayerMessage:
+                    return Color.white;
+                
+                case ChatMessageType.SystemMessage:
+                    return new Color(1,0.95f,0,1);
+                
+                case ChatMessageType.CommandUsageMessage:
+                    return new Color(1,0.65f,0,1);
+                
+                case ChatMessageType.CommandOutputMessage:
+                    return new Color(0.8f,0.8f,0.8f,1);
+                
+                default:
+                    Console.WriteLine($"Requested color for unexpected chat message type {messageType}");
+                    return Color.white;
+            }
+        }
 
         public static void Insert(this TMP_InputField field, string str)
         {

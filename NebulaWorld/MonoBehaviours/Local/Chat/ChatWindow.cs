@@ -1,4 +1,5 @@
-﻿using NebulaModel.Utils;
+﻿using NebulaModel.Packets.Players;
+using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours.Local;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,7 @@ namespace NebulaWorld.Chat
         
         public TMP_InputField chatBox;
         public GameObject chatPanel, textObject, notifier, chatWindow;
-        public Color playerMessage, info;
-        
+
         private Queue<QueuedMessage> outgoingMessages = new Queue<QueuedMessage>(5);
         private readonly List<Message> messages = new List<Message>();
         
@@ -52,12 +52,12 @@ namespace NebulaWorld.Chat
             }
         }
 
-        private void QueueOutgoingMessage(string message, int chatMesageType)
+        private void QueueOutgoingMessage(string message, MessageType chatMesageType)
         {
             outgoingMessages.Enqueue(new QueuedMessage { MessageText = message, ChatMessageType = chatMesageType });
         }
 
-        public void SendMessageToChat(string text, int messageType)
+        public void SendLocalMessage(string text, ChatMessageType messageType)
         {
             text = ChatUtils.SanitizeText(text);
             if (messages.Count > MAX_MESSAGES)
@@ -70,7 +70,7 @@ namespace NebulaWorld.Chat
             GameObject nextText = Instantiate(textObject, chatPanel.transform);
             newMsg.textObject = nextText.GetComponent<TMP_Text>();
             newMsg.textObject.text = newMsg.text;
-            newMsg.textObject.color = MessageTypeColor(messageType);
+            newMsg.textObject.color = ChatUtils.GetMessageColor(messageType);
             
             GameObject notificationMsg = Instantiate(nextText, notifier.transform);
             NotificationMessage message = notificationMsg.AddComponent<NotificationMessage>();
@@ -79,26 +79,7 @@ namespace NebulaWorld.Chat
             Console.WriteLine($"Adding message: {messageType} {newMsg.text}");
             messages.Add(newMsg);
         }
-
-
-        private Color MessageTypeColor(int messageType)
-        {
-            Color color = Color.white;
-            switch (messageType)
-            {
-                case 0:
-                    color = playerMessage;
-                    break;
-                case 1:
-                    color = info;
-                    break;
-                default:
-                    Console.WriteLine($"Requested color for unexpected chat message type {messageType}");
-                    break;
-            }
-
-            return color;
-        }
+        
 
         public void Toggle(bool forceClosed = false)
         {
@@ -137,7 +118,7 @@ namespace NebulaWorld.Chat
         public class QueuedMessage
         {
             public string MessageText;
-            public int ChatMessageType;
+            public ChatMessageType ChatMessageType;
         }
     }
 
@@ -150,6 +131,6 @@ namespace NebulaWorld.Chat
     {
         public string text;
         public TMP_Text textObject;
-        public int messageType;
+        public ChatMessageType messageType;
     }
 }
