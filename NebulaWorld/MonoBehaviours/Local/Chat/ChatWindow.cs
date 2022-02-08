@@ -1,12 +1,15 @@
 ﻿using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
+using NebulaWorld.Chat;
+using NebulaWorld.Chat.Commands;
 using NebulaWorld.MonoBehaviours.Local;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
-namespace NebulaWorld.Chat
+namespace NebulaWorld.MonoBehaviours.Local
 {
     public class ChatWindow : MonoBehaviour
     {
@@ -24,17 +27,12 @@ namespace NebulaWorld.Chat
         void Update()
         {
             if (!chatWindow.activeSelf) return;
-            
+
             if (chatBox.text != "")
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
-                    string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {chatBox.text}";
-                    BroadcastMessage(formattedMessage);
-
-                    chatBox.text = "";
-                    // bring cursor back to message area so they can keep typing
-                    chatBox.ActivateInputField();
+                    TrySendMessage();
                 }
                 else
                 {
@@ -50,18 +48,48 @@ namespace NebulaWorld.Chat
             }
         }
 
-        private void BroadcastMessage(string message)
+        private void TrySendMessage()
         {
-            QueueOutgoingMessage(message, 0);
-            SendLocalMessage(message, 0);
+            if (chatBox.text.StartsWith(ChatCommandRegistry.CommandPrefix))
+            {
+                string[] arguments = chatBox.text.Substring(1).Split(' ');
+                if (arguments.Length > 0)
+                {
+                    string commandName = arguments[0];
+                    IChatCommandHandler handler = ChatCommandRegistry.GetCommandHandler(commandName);
+                    if (handler != null)
+                    {
+                        handler.Execute(this, arguments.Skip(1).ToArray());
+                    }
+                    else
+                    {
+                        SendLocalChatMessage($"Unknown command {commandName}. Use /help to get list of commands", ChatMessageType.CommandUsageMessage);
+                    }
+                }
+            }
+            else
+            {
+                string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {chatBox.text}";
+                BroadcastChatMessage(formattedMessage);
+
+                chatBox.text = "";
+                // bring cursor back to message area so they can keep typing
+                chatBox.ActivateInputField();
+            }
         }
 
-        private void QueueOutgoingMessage(string message, ChatMessageType chatMesageType)
+        private void BroadcastChatMessage(string message, ChatMessageType chatMesageType = ChatMessageType.PlayerMessage)
+        {
+            QueueOutgoingChatMessage(message, chatMesageType);
+            SendLocalChatMessage(message, chatMesageType);
+        }
+
+        private void QueueOutgoingChatMessage(string message, ChatMessageType chatMesageType)
         {
             outgoingMessages.Enqueue(new QueuedMessage { MessageText = message, ChatMessageType = chatMesageType });
         }
 
-        public void SendLocalMessage(string text, ChatMessageType messageType)
+        public void SendLocalChatMessage(string text, ChatMessageType messageType)
         {
             text = ChatUtils.SanitizeText(text);
             if (messages.Count > MAX_MESSAGES)
