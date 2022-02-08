@@ -1,10 +1,22 @@
 fileFormatVersion: 2
 guid: 262b6210d250add4abc5970f702b9b90
-timeCreated: 1636206295
-licenseType: Free
-NativeFormatImporter:
+TrueTypeFontImporter:
   externalObjects: {}
-  mainObjectFileID: 12800000
-  userData:
-  assetBundleName:
-  assetBundleVariant:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: MF JiaHei (Noncommercial)
+  fontNames:
+  - MF JiaHei (Noncommercial)
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

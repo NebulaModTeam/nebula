@@ -1,10 +1,22 @@
 fileFormatVersion: 2
 guid: 1e47e86fadddeb0438ab5152e66d091c
-timeCreated: 1636206108
-licenseType: Free
-NativeFormatImporter:
+TrueTypeFontImporter:
   externalObjects: {}
-  mainObjectFileID: 12800000
-  userData:
-  assetBundleName:
-  assetBundleVariant:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: FZDengXianS-H-GB
+  fontNames:
+  - FZDengXianS-H-GB
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

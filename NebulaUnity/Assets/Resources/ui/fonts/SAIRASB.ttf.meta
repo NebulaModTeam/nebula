@@ -1,10 +1,23 @@
 fileFormatVersion: 2
 guid: 20f3656dfae46ea4eb4a6eea788350c5
-timeCreated: 1636206108
-licenseType: Free
-NativeFormatImporter:
+TrueTypeFontImporter:
   externalObjects: {}
-  mainObjectFileID: 12800000
-  userData:
-  assetBundleName:
-  assetBundleVariant:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Saira Condensed
+  fontNames:
+  - Saira Condensed
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 16ede59ac110d984b9bbe8ec436ee993, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
