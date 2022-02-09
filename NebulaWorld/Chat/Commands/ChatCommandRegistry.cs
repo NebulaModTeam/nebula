@@ -41,6 +41,7 @@ namespace NebulaWorld.Chat.Commands
         {
             RegisterCommand("ping", new PingCommandHandler());
             RegisterCommand("help", new HelpCommandHandler());
+            RegisterCommand("who", new WhoCommandHandler());
         }
         
         
