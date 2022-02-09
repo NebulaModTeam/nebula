@@ -7,13 +7,6 @@ namespace NebulaWorld.Chat.Commands
 {
     public class WhoCommandHandler : IChatCommandHandler
     {
-        private readonly IPlayerManager _playerManager;
-
-        public WhoCommandHandler()
-        {
-            _playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
-
         public void Execute(ChatWindow window, string[] parameters)
         {
             if (!Multiplayer.Session.LocalPlayer.IsHost)
@@ -23,7 +16,7 @@ namespace NebulaWorld.Chat.Commands
             }
             else
             {
-                IPlayerData[] playerDatas = _playerManager.GetAllPlayerDataIncludingHost();
+                IPlayerData[] playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
                 ILocalPlayer hostPlayer = Multiplayer.Session.LocalPlayer;
                 string messageContent = BuildResultPayload(playerDatas, hostPlayer);
                 window.SendLocalChatMessage(messageContent, ChatMessageType.CommandOutputMessage);
