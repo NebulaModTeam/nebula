@@ -17,6 +17,7 @@ namespace NebulaPatcher.Patches.Transpilers
         delegate void AddItem(StationComponent stationComponent, ShipData shipData);
         delegate void TakeItem(StationComponent stationComponent, int itemId, int itemCount, int j);
         delegate void UpdateStorage(StationComponent stationComponent, int index);
+        delegate void WorkShipBackToIdle(StationComponent stationComponent, int j, ShipData shipData);
 
         delegate void RematchRemotePairs(StationComponent stationComponent, int index);
         delegate void SendRematchPacket(StationComponent stationComponent);
@@ -124,6 +125,27 @@ namespace NebulaPatcher.Patches.Transpilers
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         Multiplayer.Session.Network.SendPacket(new ILSShipEnterWarp(stationComponent.gid, j));
+                    }
+                }));
+
+            // tell client about WorkShipBackToIdle here as we need to tell him j too
+            // c# 522
+            matcher.Start()
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "shipIndex")),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "WorkShipBackToIdle"))
+                .Advance(1)
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<WorkShipBackToIdle>((StationComponent stationComponent, int j, ShipData shipData) =>
+                {
+                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    {
+                        ILSShipData packet = new ILSShipData(false, stationComponent.gid, shipData, j);
+                        Multiplayer.Session.Network.SendPacket(packet);
                     }
                 }));
 
@@ -328,7 +350,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Stloc_S, 59))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Br, jmpNextLoopIter));
                 
-                // remove c# 502-524 (adding item from landing ship to station and modify remote order and shifitng those arrays)
+                // remove c# 502-525 (adding item from landing ship to station and modify remote order and shifitng those arrays AND j-- (as we end up in an endless loop if not))
                 indexStart = matcher
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -341,12 +363,14 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
                     .Pos;
                 int indexEnd = matcher
-                    .MatchForward(false,
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipDatas")),
+                    .MatchForward(true,
+                        new CodeMatch(OpCodes.Sub),
+                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Clear"),
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Ldc_I4_1),
-                        new CodeMatch(OpCodes.Add))
+                        new CodeMatch(OpCodes.Sub),
+                        new CodeMatch(OpCodes.Stloc_S))
+                    .Advance(1)
                     .Pos;
                 for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
                 {

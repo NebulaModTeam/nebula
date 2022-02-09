@@ -1,6 +1,6 @@
 ﻿using NebulaModel.DataStructures;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
+using System;
 using UnityEngine;
 
 namespace NebulaWorld.Logistics
@@ -61,17 +61,6 @@ namespace NebulaWorld.Logistics
 
                 StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
 
-                if (stationComponent.workShipCount >= packet.StationMaxShipCount)
-                {
-                    Log.Warn($"ILSShipManager: workShipCount out of bounds, which is weird. Station: {stationComponent.name} on {GameMain.galaxy.PlanetById(stationComponent.planetId).displayName}");
-                    stationComponent.workShipCount = packet.StationMaxShipCount - 1;
-                }
-                if (stationComponent.workShipCount < 0)
-                {
-                    Log.Warn($"ILSShipManager: workShipCount out of bounds, which is weird. Station: {stationComponent.name} on {GameMain.galaxy.PlanetById(stationComponent.planetId).displayName}");
-                    stationComponent.workShipCount++;
-                }
-
                 stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
                 stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
                 stationComponent.workShipDatas[stationComponent.workShipCount].planetB = packet.PlanetB;
@@ -88,14 +77,6 @@ namespace NebulaWorld.Logistics
 
                 stationComponent.workShipCount++;
                 stationComponent.idleShipCount--;
-                if (stationComponent.idleShipCount < 0)
-                {
-                    stationComponent.idleShipCount = 0;
-                }
-                if (stationComponent.workShipCount >= packet.StationMaxShipCount)
-                {
-                    stationComponent.workShipCount = packet.StationMaxShipCount - 1;
-                }
                 stationComponent.IdleShipGetToWork(packet.ShipIndex);
 
                 float shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
@@ -130,6 +111,14 @@ namespace NebulaWorld.Logistics
             {
                 RequestgStationDockPos(packet.ThisGId);
             }
+
+            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
+
+            Array.Copy(stationComponent.workShipDatas, packet.WorkShipIndex + 1, stationComponent.workShipDatas, packet.WorkShipIndex, stationComponent.workShipDatas.Length - packet.WorkShipIndex - 1);
+            stationComponent.workShipCount--;
+            stationComponent.idleShipCount++;
+            stationComponent.WorkShipBackToIdle(packet.ShipIndex);
+            Array.Clear(stationComponent.workShipDatas, stationComponent.workShipCount, stationComponent.workShipDatas.Length - stationComponent.workShipCount);
         }
 
         /*

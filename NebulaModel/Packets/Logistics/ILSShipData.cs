@@ -36,21 +36,22 @@
             WorkShipIndex = 0;
             
         }
-        public ILSShipData(bool idleToWork, int thisGId, int planetA, int stationMaxShipCount)
+        // maybe make this its own packet sometime as we only need to set a fraction of its fields
+        public ILSShipData(bool idleToWork, int thisGId, ShipData shipData, int j)
         {
             IdleToWork = idleToWork;
             ThisGId = thisGId;
-            PlanetA = planetA;
+            PlanetA = 0;
             PlanetB = 0;
             OtherGId = 0;
             ItemId = 0;
             ItemCount = 0;
             Inc = 0;
             Gene = 0;
-            ShipIndex = 0;
-            StationMaxShipCount = stationMaxShipCount;
-            StationWarperCount = 0;
-            WorkShipIndex = 0;
+            ShipIndex = shipData.shipIndex;
+            StationMaxShipCount = 0;
+            StationMaxShipCount = 0;
+            WorkShipIndex = j;
         }
     }
 }

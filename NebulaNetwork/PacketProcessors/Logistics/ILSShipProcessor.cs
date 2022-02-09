@@ -19,14 +19,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         {
             if (IsHost)
             {
+                /*
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 if (player != null)
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 }
+                */
+                return;
             }
 
-            // TODO: Shouldn't we call this also on host ??
             if (IsClient)
             {
                 using (Multiplayer.Session.Factories.IsIncomingRequest.On())
