@@ -66,7 +66,9 @@ namespace NebulaNetwork
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socket);
-            socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
+            WebSocketService.PacketProcessor = PacketProcessor;
+            WebSocketService.PlayerManager = PlayerManager;
+            socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
             socket.Start();
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
@@ -175,13 +177,15 @@ namespace NebulaNetwork
 
         private class WebSocketService : WebSocketBehavior
         {
-            private readonly IPlayerManager playerManager;
-            private readonly NetPacketProcessor packetProcessor;
+            public static IPlayerManager PlayerManager;
+            public static NetPacketProcessor PacketProcessor;
+
+            public WebSocketService() { }
 
             public WebSocketService(IPlayerManager playerManager, NetPacketProcessor packetProcessor)
             {
-                this.playerManager = playerManager;
-                this.packetProcessor = packetProcessor;
+                PlayerManager = playerManager;
+                PacketProcessor = packetProcessor;
             }
 
             protected override void OnOpen()
@@ -194,13 +198,13 @@ namespace NebulaNetwork
                 }
 
                 NebulaModel.Logger.Log.Info($"Client connected ID: {ID}");
-                NebulaConnection conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor);
-                playerManager.PlayerConnected(conn);
+                NebulaConnection conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor);
+                PlayerManager.PlayerConnected(conn);
             }
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor));
             }
 
             protected override void OnClose(CloseEventArgs e)
@@ -220,7 +224,7 @@ namespace NebulaNetwork
                     // if it is because we have stopped the server and are not in a multiplayer game anymore.
                     if (Multiplayer.IsActive)
                     {
-                        playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                        PlayerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor));
                     }
                 });
             }
@@ -235,7 +239,7 @@ namespace NebulaNetwork
                     // if it is because we have stopped the server and are not in a multiplayer game anymore.
                     if (Multiplayer.IsActive)
                     {
-                        playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                        PlayerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor));
                     }
                 });
             }
