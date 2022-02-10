@@ -71,11 +71,10 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {chatBox.text}";
                 BroadcastChatMessage(formattedMessage);
-
-                chatBox.text = "";
-                // bring cursor back to message area so they can keep typing
-                chatBox.ActivateInputField();
             }
+            chatBox.text = "";
+            // bring cursor back to message area so they can keep typing
+            chatBox.ActivateInputField();
         }
 
         private void BroadcastChatMessage(string message, ChatMessageType chatMesageType = ChatMessageType.PlayerMessage)
