@@ -166,5 +166,34 @@ namespace NebulaWorld.Warning
                 warningPool[i].localPos.z = br.ReadSingle();
             }
         }
+
+        public static void DisplayCriticalWarning(string warningText)
+        {
+            WarningSystem warningSystem = GameMain.data.warningSystem;
+            ECriticalWarning id = ECriticalWarning.Null;
+
+            if (warningSystem.criticalWarnings.ContainsKey(id))
+            {
+                if (warningSystem.criticalWarnings[id].warningParam != 0)
+                {
+                    warningSystem.criticalWarnings[id].warningParam = 0;
+                    warningSystem.criticalWarnings[id].Update();
+                    warningSystem.UpdateCriticalWarningText();
+                    return;
+                }
+            }
+            else
+            {
+                CriticalWarningData data = new CriticalWarningData(id, 0);
+                data.warningText = warningText;
+                warningSystem.criticalWarnings.Add(id, data);
+                warningSystem.UpdateCriticalWarningText();
+            }
+        }
+
+        public static void RemoveCriticalWarning()
+        {
+            GameMain.data.warningSystem.UnsetCriticalWarning(ECriticalWarning.Null);
+        }
     }
 }

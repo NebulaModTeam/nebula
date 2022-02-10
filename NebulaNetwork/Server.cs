@@ -69,7 +69,15 @@ namespace NebulaNetwork
             WebSocketService.PacketProcessor = PacketProcessor;
             WebSocketService.PlayerManager = PlayerManager;
             socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
-            socket.Start();
+            try
+            {
+                socket.Start();
+            }catch(System.InvalidOperationException e)
+            {
+                InGamePopup.ShowError("Error", "An error occurred while hosting the game: " + e.Message, "Close");
+                Stop();
+                return;
+            }
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
