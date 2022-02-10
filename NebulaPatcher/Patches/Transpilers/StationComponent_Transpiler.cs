@@ -144,7 +144,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 {
                     if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        ILSShipData packet = new ILSShipData(false, stationComponent.gid, shipData, j);
+                        ILSWorkShipBackToIdle packet = new ILSWorkShipBackToIdle(stationComponent, shipData, j);
                         Multiplayer.Session.Network.SendPacket(packet);
                     }
                 }));

@@ -43,7 +43,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
-                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[__instance.workShipCount - 1], __instance.gid, __instance.workShipDatas.Length, __instance.warperCount);
+                ILSIdleShipBackToWork packet = new ILSIdleShipBackToWork(__instance.workShipDatas[__instance.workShipCount - 1], __instance.gid, __instance.workShipDatas.Length, __instance.warperCount);
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }

@@ -27,7 +27,7 @@ namespace NebulaWorld.Logistics
          * When the host notifies the client that a ship started its travel client needs to check if he got both ILS in his gStationPool
          * if not we create a fake entry (which gets updated to the full one when client arrives that planet) and also request the stations dock position
          */
-        public void IdleShipGetToWork(ILSShipData packet)
+        public void IdleShipGetToWork(ILSIdleShipBackToWork packet)
         {
             PlanetData planetA = GameMain.galaxy.PlanetById(packet.PlanetA);
             PlanetData planetB = GameMain.galaxy.PlanetById(packet.PlanetB);
@@ -92,27 +92,27 @@ namespace NebulaWorld.Logistics
         /*
          * this is also triggered by server and called once a ship lands back to the dock station
          */
-        public void WorkShipBackToIdle(ILSShipData packet)
+        public void WorkShipBackToIdle(ILSWorkShipBackToIdle packet)
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
             }
 
-            if (GameMain.data.galacticTransport.stationCapacity <= packet.ThisGId)
+            if (GameMain.data.galacticTransport.stationCapacity <= packet.GId)
             {
-                CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
+                CreateFakeStationComponent(packet.GId, packet.PlanetA, packet.StationMaxShipCount);
             }
-            else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId] == null)
+            else if (GameMain.data.galacticTransport.stationPool[packet.GId] == null)
             {
-                CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
+                CreateFakeStationComponent(packet.GId, packet.PlanetA, packet.StationMaxShipCount);
             }
-            else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
+            else if (GameMain.data.galacticTransport.stationPool[packet.GId].shipDockPos == Vector3.zero)
             {
-                RequestgStationDockPos(packet.ThisGId);
+                RequestgStationDockPos(packet.GId);
             }
 
-            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
+            StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.GId];
 
             Array.Copy(stationComponent.workShipDatas, packet.WorkShipIndex + 1, stationComponent.workShipDatas, packet.WorkShipIndex, stationComponent.workShipDatas.Length - packet.WorkShipIndex - 1);
             stationComponent.workShipCount--;
