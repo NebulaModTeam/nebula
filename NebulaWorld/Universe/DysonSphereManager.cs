@@ -25,6 +25,7 @@ namespace NebulaWorld.Universe
         public readonly ToggleSwitch IncomingDysonSwarmPacket = new ToggleSwitch();
         public bool IsNormal { get; set; } = true; //Client side: is the spheres data normal or desynced
         public bool InBlueprint { get; set; } = false; //In the processing of importing blueprint
+        public int RequestingIndex { get; set; } = -1; //StarIndex of the dyson sphere requesting
 
         private readonly List<DysonSphereStatusPacket> statusPackets = new List<DysonSphereStatusPacket>(); //Server side
 
@@ -197,7 +198,7 @@ namespace NebulaWorld.Universe
         public static void ClearSelection(int starIndex, int layerId = -1)
         {
             DESelection selection = UIRoot.instance.uiGame.dysonEditor.selection;
-            if (starIndex == selection.viewStar.index)
+            if (selection.viewStar!= null && selection.viewStar.index == starIndex)
             {
                 if (layerId == -1)
                 {

@@ -61,10 +61,14 @@ namespace NebulaNetwork.PacketProcessors.Universe
                     if (UIRoot.instance.uiGame.dysonEditor.active)
                     {
                         UIRoot.instance.uiGame.dysonEditor.selection.SetViewStar(GameMain.galaxy.stars[packet.StarIndex]);
+                        UIComboBox dysonBox2 = UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.dysonBox;
+                        int index2 = dysonBox2.ItemsData.FindIndex(x => x == UIRoot.instance.uiGame.dysonEditor.selection.viewStar?.index);
+                        dysonBox2.itemIndex = index2 >= 0 ? index2 : 0;
                     }
+                    InGamePopup.FadeOut();
+                    Multiplayer.Session.DysonSpheres.RequestingIndex = -1;
                     Multiplayer.Session.DysonSpheres.IsNormal = true;
                     break;
-
                 case DysonSphereRespondEvent.Desync:
                     Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                     break;
