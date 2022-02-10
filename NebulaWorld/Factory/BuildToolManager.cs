@@ -258,6 +258,7 @@ namespace NebulaWorld.Factory
             if ((now - LastCheckTime) < WAIT_TIME && LastPosition == pos)
             {
                 //Stop client from sending prebuilds at the same position
+                UIRealtimeTip.Popup("Please wait for server respond");
                 return false;
             }
             LastCheckTime = now;

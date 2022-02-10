@@ -31,6 +31,8 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             if(__instance is BuildTool_PathAddon)
             {
+                // traffic monitors & sprayers cannot be drag build atm, so its always only one.
+                previews = new List<BuildPreview>();
                 previews.Add(((BuildTool_PathAddon)__instance).handbp);
             }
 

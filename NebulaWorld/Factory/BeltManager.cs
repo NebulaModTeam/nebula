@@ -1,4 +1,4 @@
-﻿using NebulaModel.Packets.Belt;
+﻿using NebulaModel.Packets.Factory.Belt;
 using System;
 using System.Collections.Generic;
 

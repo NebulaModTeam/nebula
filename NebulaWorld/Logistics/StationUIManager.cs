@@ -77,7 +77,7 @@ namespace NebulaWorld.Logistics
                 case StationUI.EUISettings.MaxChargePower:
                 {
                     PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-                    if (planet.factory?.powerSystem != null)
+                    if (planet?.factory?.powerSystem?.consumerPool != null)
                     {
                         PowerConsumerComponent[] consumerPool = planet.factory.powerSystem.consumerPool;
                         if (consumerPool.Length > stationComponent.pcId)
@@ -205,13 +205,16 @@ namespace NebulaWorld.Logistics
                 }
                 case StationUI.EUISettings.MaxMiningSpeed:
                 {                       
-                    PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
+                    PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
                     if (factory != null)
                     {
                         int speed = 10000 + (int)(packet.SettingValue + 0.5f) * 1000;
-                        long workEnergyPrefab = LDB.items.Select(factory.entityPool[stationComponent.entityId].protoId).prefabDesc.workEnergyPerTick;
-                        factory.factorySystem.minerPool[stationComponent.minerId].speed = speed;
-                        factory.powerSystem.consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(workEnergyPrefab * (speed / 10000f) * (speed / 10000f));
+                        PrefabDesc workEnergyPrefab = LDB.items.Select(factory.entityPool[stationComponent.entityId].protoId)?.prefabDesc;
+                        if (workEnergyPrefab != null && factory.factorySystem?.minerPool != null && factory.powerSystem?.consumerPool != null)
+                        {
+                            factory.factorySystem.minerPool[stationComponent.minerId].speed = speed;
+                            factory.powerSystem.consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(workEnergyPrefab.workEnergyPerTick * (speed / 10000f) * (speed / 10000f));
+                        }
                     }
                     break;
                 }

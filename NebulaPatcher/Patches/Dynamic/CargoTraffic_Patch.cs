@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
-using NebulaModel.Packets.Belt;
+using NebulaModel.Packets.Factory.Belt;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -77,6 +77,36 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             //Do not call renderer, if user is not on the planet as the request
             return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(CargoTraffic.ConnectToMonitor))]
+        public static void ConnectToMonitor_Postfix(int monitorId, int targetBeltId, int offset)
+        {
+            if (!Multiplayer.IsActive)
+            {
+                return;
+            }
+            // If host build, or client receive his build request
+            if((Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value)|| Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToMonitorPacket(monitorId, targetBeltId, offset, GameMain.data.localPlanet.id));
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(CargoTraffic.ConnectToSpraycoater))]
+        public static void ConnectToSpraycoater(int spraycoaterId, int cargoBeltId, int incBeltId)
+        {
+            if (!Multiplayer.IsActive)
+            {
+                return;
+            }
+            // If host build, or client receive his build request
+            if ((Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value) || Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToSpraycoaterPacket(spraycoaterId, cargoBeltId, incBeltId, GameMain.data.localPlanet.id));
+            }
         }
     }
 }
