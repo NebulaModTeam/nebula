@@ -33,7 +33,6 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(LogisticShipRenderer), "transport")),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(GalacticTransport), "stationPool")),
                     new CodeMatch(OpCodes.Ldloc_0))
-                .CreateLabel(out Label jmpToOverflowCheck)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(LogisticShipRenderer), "transport")))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(GalacticTransport), "stationPool")))
@@ -47,6 +46,13 @@ namespace NebulaPatcher.Patches.Transpilers
                     return index < stationComponent.Length;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Brfalse, jmpToForCompare))
+                // find start of our injected code
+                .MatchBack(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(LogisticShipRenderer), "transport")),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(GalacticTransport), "stationPool")),
+                    new CodeMatch(OpCodes.Ldloc_0))
+                .CreateLabel(out Label jmpToOverflowCheck)
                 .Start()
                 // exchange loop start ptr with our index checking
                 .MatchForward(true,
