@@ -80,6 +80,9 @@ namespace NebulaModel.Utils
                 
                 case ChatMessageType.CommandOutputMessage:
                     return new Color(0.8f,0.8f,0.8f,1);
+
+                case ChatMessageType.PlayerMessagePrivate:
+                    return Color.green;
                 
                 default:
                     Console.WriteLine($"Requested color for unexpected chat message type {messageType}");

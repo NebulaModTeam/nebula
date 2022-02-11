@@ -7,7 +7,8 @@ namespace NebulaModel.Packets.Players
         PlayerMessage = 0,
         SystemMessage = 1,
         CommandUsageMessage = 2,
-        CommandOutputMessage = 3
+        CommandOutputMessage = 3,
+        PlayerMessagePrivate = 4
     }
 
     public class NewChatMessagePacket

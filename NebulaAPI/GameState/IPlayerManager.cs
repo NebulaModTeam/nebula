@@ -18,6 +18,8 @@ namespace NebulaAPI
 
         INebulaPlayer GetSyncingPlayer(INebulaConnection conn);
 
+        INebulaPlayer GetConnectedPlayerByUsername(string username);
+
         void SendPacketToAllPlayers<T>(T packet) where T : class, new();
 
         void SendPacketToLocalStar<T>(T packet) where T : class, new();
