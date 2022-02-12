@@ -109,21 +109,22 @@
             {
                 float2 size = 1 / _Grid;
  
+                // Calculate emoji position
                 fixed2 fixUV = IN.texcoord;
-                fixUV.y = 1-fixUV.y;
+                fixUV.y = 1 - fixUV.y;
                 int2 pos = fixUV / size;
                 uint index = pos.x + pos.y * _Grid.x;
 
+                // Get emoji data from buffer
                 index = _EmojiBuffer[index]; 
                 if (index == 0) discard;
                 index = index - 1;
 
+                // Calculate emoji position in sprite sheet
                 pos = int2(index % 62, index / 62);
-
-
-                //int2 pos = _Grid.zw;
                 pos.y = -pos.y - 1;
 
+                // Calculate sheet UV position
                 float2 spriteUV = frac(IN.texcoord * _Grid) * 1.1f;
                 spriteUV = clamp(spriteUV, 0, 1);
                 if (spriteUV.x < 0.01f || spriteUV.x > 0.99f) discard;
@@ -131,8 +132,8 @@
 
                 float2 texPos = (pos + spriteUV) * 66 * _SpriteSheetTex_TexelSize.xy;
                 
+                // Sample texture and output color
                 half4 emojiColor = tex2D(_SpriteSheetTex, texPos);
-
                 half4 color = (emojiColor + _TextureSampleAdd) * IN.color;
 
                 #ifdef UNITY_UI_CLIP_RECT
