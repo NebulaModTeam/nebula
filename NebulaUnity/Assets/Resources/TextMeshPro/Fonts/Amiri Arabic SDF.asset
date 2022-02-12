@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: Amiri Arabic SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: -170402315
   material: {fileID: 21306689048587626}
-  materialHashCode: 0
+  materialHashCode: -1375635234
   m_Version: 1.1.0
   m_SourceFontFileGUID: 05e15a10c95f2d54faf3864f8d1b7305
   m_SourceFontFile_EditorRef: {fileID: 0}
@@ -26,7 +26,7 @@ MonoBehaviour:
     m_PointSize: 56
     m_Scale: 1
     m_LineHeight: 98.448
-    m_AscentLine: 62.943996
+    m_AscentLine: 40.3
     m_CapLine: 37
     m_MeanLine: 24
     m_Baseline: 0

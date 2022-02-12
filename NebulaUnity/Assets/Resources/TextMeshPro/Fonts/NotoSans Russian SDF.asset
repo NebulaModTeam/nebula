@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: NotoSans Russian SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: -192177851
   material: {fileID: 21759639942269358}
-  materialHashCode: 0
+  materialHashCode: 168450990
   m_Version: 1.1.0
   m_SourceFontFileGUID: 86a51ee65e8d60c46bc21aa079c21798
   m_SourceFontFile_EditorRef: {fileID: 0}
@@ -26,7 +26,7 @@ MonoBehaviour:
     m_PointSize: 65
     m_Scale: 1
     m_LineHeight: 88.51807
-    m_AscentLine: 69.4751
+    m_AscentLine: 54.4
     m_CapLine: 46
     m_MeanLine: 35
     m_Baseline: 0
