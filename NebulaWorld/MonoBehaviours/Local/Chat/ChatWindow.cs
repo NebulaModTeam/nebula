@@ -155,6 +155,15 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
         }
         
+        public void InsertEmoji()
+        {
+            EmojiPicker.Open(emoji =>
+            {
+                chatBox.Insert($"<sprite name=\"{emoji.UnifiedCode.ToLower()}\">");
+                FocusInputField();
+            });
+        }
+        
         public void InsertSprite()
         {
             Vector2 pos =  new Vector2(-300, 238);
