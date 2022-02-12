@@ -99,7 +99,7 @@
                 OUT.worldPosition = v.vertex;
                 OUT.vertex = UnityObjectToClipPos(OUT.worldPosition);
 
-                OUT.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                OUT.texcoord = v.texcoord;
 
                 OUT.color = v.color * _Color;
                 return OUT; 
@@ -124,8 +124,13 @@
                 //int2 pos = _Grid.zw;
                 pos.y = -pos.y - 1;
 
-                float2 spriteUV = frac(IN.texcoord * _Grid);
-                float2 texPos = (pos * 66 + spriteUV * 66 + 0.5f) * _SpriteSheetTex_TexelSize.xy;
+                float2 spriteUV = frac(IN.texcoord * _Grid) * 1.1f;
+                spriteUV = clamp(spriteUV, 0, 1);
+                if (spriteUV.x < 0.01f || spriteUV.x > 0.99f) discard;
+                if (spriteUV.y < 0.01f || spriteUV.y > 0.99f) discard;
+
+                float2 texPos = (pos + spriteUV) * 66 * _SpriteSheetTex_TexelSize.xy;
+                
                 half4 emojiColor = tex2D(_SpriteSheetTex, texPos);
 
                 half4 color = (emojiColor + _TextureSampleAdd) * IN.color;
