@@ -28,9 +28,7 @@ namespace NebulaWorld.Chat.Commands
             // first echo what the player typed so they know something actually happened
             ChatManager.Instance.SendChatMessage($"[{DateTime.Now:HH:mm}] [To: {recipientUserName}] : {fullMessageBody}", ChatMessageType.PlayerMessage);
 
-            // TODO: decide what limit here should really be
-            string message = fullMessageBody.Length > 500 ? fullMessageBody.Substring(0, 500) : fullMessageBody;
-            ChatCommandWhisperPacket packet = new ChatCommandWhisperPacket(senderUsername, recipientUserName, message);
+            ChatCommandWhisperPacket packet = new ChatCommandWhisperPacket(senderUsername, recipientUserName, fullMessageBody);
             
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
