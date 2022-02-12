@@ -2,7 +2,6 @@
 using NebulaModel.Utils;
 using NebulaWorld.Chat;
 using NebulaWorld.Chat.Commands;
-using NebulaWorld.MonoBehaviours.Local;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +17,17 @@ namespace NebulaWorld.MonoBehaviours.Local
         
         public TMP_InputField chatBox;
         public GameObject chatPanel, textObject, notifier, chatWindow;
+        public UIWindowDrag dragTrigger;
 
         private Queue<QueuedMessage> outgoingMessages = new Queue<QueuedMessage>(5);
         private readonly List<Message> messages = new List<Message>();
         
         public string userName;
+
+        private void Awake()
+        {
+            dragTrigger = GetComponent<UIWindowDrag>();
+        }
 
         void Update()
         {
@@ -37,15 +42,37 @@ namespace NebulaWorld.MonoBehaviours.Local
                 else
                 {
                     if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
-                        chatBox.ActivateInputField();
+                    {
+                        FocusInputField();
+                    }
                 }
             }
 
             if (VFInput.escKey.onDown || VFInput.escape)
             {
+                if (UISignalPicker.isOpened)
+                {
+                    UISignalPicker.Close();
+                    VFInput.UseEscape();
+                    return;
+                }
+                
+                if (EmojiPicker.IsOpen())
+                {
+                    EmojiPicker.Close();
+                    VFInput.UseEscape();
+                    return;
+                }
+                
                 Toggle(true);
                 VFInput.UseEscape();
             }
+        }
+
+        private void FocusInputField()
+        {
+            chatBox.ActivateInputField();
+            chatBox.MoveToEndOfLine(false, true);
         }
 
         private void TrySendMessage()
@@ -73,7 +100,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
             chatBox.text = "";
             // bring cursor back to message area so they can keep typing
-            chatBox.ActivateInputField();
+            FocusInputField();
         }
 
         private void BroadcastChatMessage(string message, ChatMessageType chatMessageType = ChatMessageType.PlayerMessage)
@@ -120,7 +147,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             if (chatWindow.activeSelf)
             {
                 // when the window is activated we assume user wants to type right away
-                chatBox.ActivateInputField();
+                FocusInputField();
             }
             else
             {

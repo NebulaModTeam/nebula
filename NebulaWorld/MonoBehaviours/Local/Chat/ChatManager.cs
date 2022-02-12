@@ -19,6 +19,12 @@ namespace NebulaWorld.MonoBehaviours.Local
             GameObject prefab = AssetLoader.AssetBundle.LoadAsset<GameObject>("Assets/Prefab/ChatV2.prefab");
             var uiGameInventory = UIRoot.instance.uiGame.inventory;
             var chatGo = Instantiate(prefab, uiGameInventory.transform.parent, false);
+            
+            RectTransform trans = (RectTransform)chatGo.transform;
+            trans.anchoredPosition = new Vector2(
+                 (Screen.currentResolution.width - trans.sizeDelta.x) / 2.0f,
+                -(Screen.currentResolution.height - trans.sizeDelta.y) / 2.0f);
+            
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
             chatWindow.userName = GetUserName();
         }
@@ -64,6 +70,11 @@ namespace NebulaWorld.MonoBehaviours.Local
         public void SendChatMessage(string text, ChatMessageType messageType)
         {
             chatWindow.SendLocalChatMessage(text, messageType);
+        }
+
+        public bool IsPointerIn()
+        {
+            return chatWindow.dragTrigger.pointerIn;
         }
     }
 }

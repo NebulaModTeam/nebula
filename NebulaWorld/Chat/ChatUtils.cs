@@ -89,6 +89,11 @@ namespace NebulaModel.Utils
                     return Color.white;
             }
         }
+        
+        public static bool Contains(this string source, string toCheck, StringComparison comp)
+        {
+            return source?.IndexOf(toCheck, comp) >= 0;
+        }
 
         public static void Insert(this TMP_InputField field, string str)
         {
