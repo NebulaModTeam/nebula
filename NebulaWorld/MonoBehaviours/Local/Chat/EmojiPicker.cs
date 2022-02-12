@@ -43,7 +43,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         private static readonly int grid = Shader.PropertyToID("_Grid");
 
 
-        private static string[] categoryNames =
+        private static readonly string[] categoryNames =
         {
             "Smileys & Emotion",
             "Animals & Nature",

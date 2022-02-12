@@ -2434,7 +2434,7 @@ MonoBehaviour:
   resizeTrigger: {fileID: 5164659503510037536}
   resizeTrans: {fileID: 3527980105942565041}
   resizeThreshold: 4
-  minSize: {x: 100, y: 100}
+  minSize: {x: 500, y: 300}
   pointerIn: 0
 --- !u!1 &3854063135128288579
 GameObject:

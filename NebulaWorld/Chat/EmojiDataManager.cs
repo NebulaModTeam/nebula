@@ -70,10 +70,8 @@ namespace NebulaWorld.Chat
                 }
             }
 
-            Debug.Log("Categories:");
             foreach (var kv in emojies)
             {
-                Debug.Log(kv.Key);
                 kv.Value.Sort((emoji1, emoji2) => emoji1.SortOrder.CompareTo(emoji2.SortOrder));
             }
         }

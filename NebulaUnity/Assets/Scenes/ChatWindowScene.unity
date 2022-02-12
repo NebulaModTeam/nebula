@@ -718,6 +718,37 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 0898d2eb8def49a418f709b3c6c0ba91,
+        type: 2}
+    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_spriteAsset
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_isDefaultMaterial
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
+        type: 3}
+      propertyPath: m_padding
+      value: 8.25
+      objectReference: {fileID: 0}
     - target: {fileID: 7232521665596875484, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_Name

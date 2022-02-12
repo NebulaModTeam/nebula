@@ -37,7 +37,7 @@ namespace NebulaWorld.Chat
             RectTransform rect = (RectTransform)trigger.transform;
             
             RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, Input.mousePosition, trigger.camera, out Vector2 offset);
-            offset -= new Vector2(rect.sizeDelta.x / 2, 0);
+            offset -= new Vector2(rect.sizeDelta.x / 2, 1.5f);
             
             UIItemTip uiitemTip = tipObject as UIItemTip;
             if (uiitemTip == null)
