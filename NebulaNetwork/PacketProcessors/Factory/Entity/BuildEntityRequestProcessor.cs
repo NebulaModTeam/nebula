@@ -39,6 +39,12 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     PlanetData pData = GameMain.gpuiManager.specifyPlanet;
 
                     GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                    if (packet.EntityId != -1 && packet.EntityId != NebulaWorld.Factory.FactoryManager.GetNextEntityId(planet.factory))
+                    {
+                        string warningText = $"EntityId mismatch {packet.EntityId} != {NebulaWorld.Factory.FactoryManager.GetNextEntityId(planet.factory)} on planet {planet.id}";
+                        Log.Warn(warningText);
+                        NebulaWorld.Warning.WarningManager.DisplayTemporaryWarning(warningText, 5000);
+                    }
                     planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
                     GameMain.gpuiManager.specifyPlanet = pData;
 

@@ -1,8 +1,10 @@
-﻿using NebulaModel.Networking;
+﻿using BepInEx;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Warning;
 using System;
 using System.IO;
 using System.Collections.Concurrent;
+using System.Threading;
 using NebulaModel.DataStructures;
 
 namespace NebulaWorld.Warning
@@ -165,6 +167,19 @@ namespace NebulaWorld.Warning
                 warningPool[i].localPos.y = br.ReadSingle();
                 warningPool[i].localPos.z = br.ReadSingle();
             }
+        }
+
+        public static void DisplayTemporaryWarning(string warningText, int millisecond)
+        {
+            DisplayCriticalWarning(warningText);
+            ThreadingHelper.Instance.StartAsyncInvoke(() =>
+            {
+                Thread.Sleep(millisecond);
+                return (() =>
+                {
+                    RemoveCriticalWarning();
+                });
+            });
         }
 
         public static void DisplayCriticalWarning(string warningText)
