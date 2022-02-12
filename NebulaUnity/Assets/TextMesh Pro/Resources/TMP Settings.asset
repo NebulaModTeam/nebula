@@ -29,13 +29,14 @@ MonoBehaviour:
   m_defaultTextMeshProTextContainerSize: {x: 20, y: 5}
   m_defaultTextMeshProUITextContainerSize: {x: 200, y: 50}
   m_autoSizeTextContainer: 0
-  m_fallbackFontAssets: []
+  m_fallbackFontAssets:
+  - {fileID: 11400000, guid: 52d811cf52b800246893c954a90da227, type: 2}
   m_matchMaterialPreset: 1
-  m_defaultSpriteAsset: {fileID: 11400000, guid: c41005c129ba4d66911b75229fd70b45,
+  m_defaultSpriteAsset: {fileID: 11400000, guid: 2e15dede90856384bb10105dd47bc291,
     type: 2}
   m_defaultSpriteAssetPath: TextMeshPro/Sprite Assets/
   m_defaultColorGradientPresetsPath: 
-  m_enableEmojiSupport: 1
+  m_enableEmojiSupport: 0
   m_defaultStyleSheet: {fileID: 0}
   m_leadingCharacters: {fileID: 4900000, guid: d82c1b31c7e74239bff1220585707d2b, type: 3}
   m_followingCharacters: {fileID: 4900000, guid: fade42e8bc714b018fac513c043d323b,
