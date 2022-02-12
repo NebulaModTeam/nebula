@@ -1,5 +1,6 @@
 ﻿using NebulaModel.Packets.Players;
 using NebulaWorld.MonoBehaviours.Local;
+using System.Text;
 
 namespace NebulaWorld.Chat.Commands
 {
@@ -8,13 +9,13 @@ namespace NebulaWorld.Chat.Commands
         public void Execute(ChatWindow window, string[] parameters)
         {
             IChatCommandHandler[] handlers = ChatCommandRegistry.GetCommands();
-            string message = "Known commands:";
+            StringBuilder sb = new StringBuilder("Known commands:");
 
             foreach (IChatCommandHandler handler in handlers)
             {
-                message += $"\n {handler.GetUsage()}";
+                sb.Append($"\n {handler.GetUsage()}");
             }
-            window.SendLocalChatMessage(message, ChatMessageType.CommandOutputMessage);
+            window.SendLocalChatMessage(sb.ToString(), ChatMessageType.CommandOutputMessage);
         }
         
         public string GetUsage()
