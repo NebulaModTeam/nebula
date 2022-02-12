@@ -69,18 +69,18 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
             else
             {
-                string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {chatBox.text}";
-                BroadcastChatMessage(formattedMessage);
+                BroadcastChatMessage(chatBox.text);
             }
             chatBox.text = "";
             // bring cursor back to message area so they can keep typing
             chatBox.ActivateInputField();
         }
 
-        private void BroadcastChatMessage(string message, ChatMessageType chatMesageType = ChatMessageType.PlayerMessage)
+        private void BroadcastChatMessage(string message, ChatMessageType chatMessageType = ChatMessageType.PlayerMessage)
         {
-            QueueOutgoingChatMessage(message, chatMesageType);
-            SendLocalChatMessage(message, chatMesageType);
+            QueueOutgoingChatMessage(message, chatMessageType);
+            string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {message}";
+            SendLocalChatMessage(formattedMessage, chatMessageType);
         }
 
         private void QueueOutgoingChatMessage(string message, ChatMessageType chatMesageType)

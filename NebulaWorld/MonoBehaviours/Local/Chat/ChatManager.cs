@@ -33,7 +33,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             ChatWindow.QueuedMessage newMessage = chatWindow.GetQueuedMessage();
             if (Multiplayer.IsActive && newMessage != null)
             {
-                Multiplayer.Session.Network?.SendPacket(new NewChatMessagePacket((ChatMessageType)newMessage.ChatMessageType,
+                Multiplayer.Session.Network?.SendPacket(new NewChatMessagePacket(newMessage.ChatMessageType,
                     newMessage.MessageText, DateTime.Now, GetUserName()));
             }
 
