@@ -2,6 +2,7 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using WebSocketSharp;
 
@@ -12,6 +13,8 @@ namespace NebulaModel.Networking
         private readonly EndPoint peerEndpoint;
         private readonly WebSocket peerSocket;
         private readonly NetPacketProcessor packetProcessor;
+        private readonly Queue<byte[]> pendingPackets = new Queue<byte[]>();
+        private bool enable = true;
 
         public bool IsAlive => peerSocket?.IsAlive ?? false;
 
@@ -24,25 +27,47 @@ namespace NebulaModel.Networking
 
         public void SendPacket<T>(T packet) where T : class, new()
         {
-            if (peerSocket.ReadyState == WebSocketState.Open)
+            lock (pendingPackets)
             {
-                peerSocket.Send(packetProcessor.Write(packet));
-            }
-            else
-            {
-                Log.Warn($"Cannot send packet {packet?.GetType()} to a closed connection {peerEndpoint}");
-            }
+                byte[] rawData = packetProcessor.Write(packet);
+                pendingPackets.Enqueue(rawData);
+                ProcessPacketQueue();
+            }            
         }
 
         public void SendRawPacket(byte[] rawData)
         {
+            lock (pendingPackets)
+            {
+                pendingPackets.Enqueue(rawData);
+                ProcessPacketQueue();
+            }            
+        }
+
+        public void ProcessPacketQueue()
+        {
+            if (pendingPackets.Count == 0 || !enable)
+            {
+                return;
+            }
+            byte[] packet = pendingPackets.Dequeue();
             if (peerSocket.ReadyState == WebSocketState.Open)
             {
-                peerSocket.Send(rawData);
+                enable = false;
+                peerSocket.SendAsync(packet, res => OnSendCompleted());
             }
             else
             {
-                Log.Warn($"Cannot send raw packet to a closed connection {peerSocket?.Url}");
+                Log.Warn($"Cannot send packet to a {peerSocket.ReadyState} connection {peerEndpoint.GetHashCode()}");
+            }
+        }
+
+        public void OnSendCompleted()
+        {
+            lock (pendingPackets)
+            {
+                enable = true;
+                ProcessPacketQueue();
             }
         }
 

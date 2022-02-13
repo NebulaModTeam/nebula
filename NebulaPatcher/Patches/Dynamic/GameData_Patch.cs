@@ -28,7 +28,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameData.GetOrCreateFactory))]
-        public static bool GetOrCreateFactory_Prefix(GameData __instance, PlanetFactory __result, PlanetData planet)
+        public static bool GetOrCreateFactory_Prefix(GameData __instance, ref PlanetFactory __result, PlanetData planet)
         {
             // We want the original method to run on the host client or in single player games
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
@@ -135,6 +135,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 planet.physics.raycastLogic.factory = planet.factory;
 
                 planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
+
+                // If the game is still loading, we wait till the full loading is completed
+                if (Multiplayer.Session.IsGameLoaded)
+                {
+                    ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+                    Log.Info($"OnActivePlanetLoaded: Resume PacketProcessor");
+                }
             }
 
             // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor

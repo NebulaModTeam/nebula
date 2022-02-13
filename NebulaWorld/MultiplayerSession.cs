@@ -142,6 +142,8 @@ namespace NebulaWorld
             {
                 Log.Info("Game load completed");
                 IsGameLoaded = true;
+                ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+                Log.Info($"OnGameLoadCompleted: Resume PacketProcessor");
 
                 if (Multiplayer.Session.LocalPlayer.IsHost)
                 {

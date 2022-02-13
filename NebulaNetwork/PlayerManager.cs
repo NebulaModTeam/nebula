@@ -266,25 +266,19 @@ namespace NebulaNetwork
 
             using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
             {
-                if (player == null)
+                if (pendingPlayers.TryGetValue(conn, out player))
                 {
-                    if (pendingPlayers.TryGetValue(conn, out player))
-                    {
-                        pendingPlayers.Remove(conn);
-                    }
+                    pendingPlayers.Remove(conn);
                 }
             }
 
             using (GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
             {
-                if (player == null)
+                if (syncingPlayers.TryGetValue(conn, out player))
                 {
-                    if (syncingPlayers.TryGetValue(conn, out player))
-                    {
-                        syncingPlayers.Remove(conn);
-                        playerWasSyncing = true;
-                        syncCount = syncingPlayers.Count;
-                    }
+                    syncingPlayers.Remove(conn);
+                    playerWasSyncing = true;
+                    syncCount = syncingPlayers.Count;
                 }
             }
 

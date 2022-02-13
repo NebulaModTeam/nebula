@@ -30,6 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 if (player == null)
                 {
                     Log.Warn("Received a SyncComplete packet, but no player is joining.");
+                    Multiplayer.Session.World.OnAllPlayersSyncCompleted();
                     return;
                 }
 
@@ -54,7 +55,10 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 using (playerManager.GetConnectedPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                 {
-                    connectedPlayers.Add(player.Connection, player);
+                    if (!connectedPlayers.ContainsKey(player.Connection))
+                    {
+                        connectedPlayers.Add(player.Connection, player);
+                    }
                 }
 
                 // Load overriden Planet and Star names
