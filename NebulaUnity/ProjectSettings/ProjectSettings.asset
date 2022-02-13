@@ -531,15 +531,15 @@ PlayerSettings:
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
   scriptingDefineSymbols:
-    1: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    7: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    13: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    19: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    21: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    25: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    26: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    27: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
-    28: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-commonapi;commonapi-dspeditorkit
+    1: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    7: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    13: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    19: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    21: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    25: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    26: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    27: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
+    28: thunderkit;dspgame;xiaoye97-bepinex;xiaoye97-ldbtool;commonapi-dspmodsave;commonapi-dspeditorkit;commonapi-commonapi
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}

@@ -11,11 +11,8 @@ public class AutoInstallPackagesWindow : EditorWindow
 {
     public static string[] Packages =
     {
-        "xiaoye97-BepInEx-5.4.17", 
-        "xiaoye97-LDBTool-1.8.0", 
-        "CommonAPI-DSPModSave-1.1.3", 
-        "CommonAPI-CommonAPI-1.2.2", 
-        "CommonAPI-DSPEditorKit-1.0.1"
+        "CommonAPI-CommonAPI-1.4.1", 
+        "CommonAPI-DSPEditorKit-1.0.3"
     };
 
     public bool shouldClose;

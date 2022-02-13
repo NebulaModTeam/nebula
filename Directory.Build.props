@@ -50,7 +50,7 @@
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
     <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" PrivateAssets="all" />
     <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" IncludeAssets="compile" PrivateAssets="all" />
-    <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="*-*" IncludeAssets="compile" PrivateAssets="all"
+    <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="1.4.1" IncludeAssets="compile" PrivateAssets="all"
                       Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' " />
 
   </ItemGroup>

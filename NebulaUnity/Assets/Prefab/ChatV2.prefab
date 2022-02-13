@@ -2458,7 +2458,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3527980105942574080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1904805820, guid: 6157fa478a4d3854cb69db360cc2bc2a, type: 3}
+  m_Script: {fileID: -1932770272, guid: 3600edaccfdc38fa8e66dcb6d9df841b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   resizeTrigger: {fileID: 5164659503510037536}

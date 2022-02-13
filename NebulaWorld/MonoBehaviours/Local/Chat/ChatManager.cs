@@ -1,5 +1,7 @@
-﻿using CommonAPI.Systems;
+﻿using CommonAPI;
+using CommonAPI.Systems;
 using NebulaModel;
+using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
 using NebulaWorld.Chat;
@@ -30,6 +32,8 @@ namespace NebulaWorld.MonoBehaviours.Local
             
             trans.sizeDelta = defaultSize;
             trans.anchoredPosition = defaultPos;
+
+            chatGo.GetComponent<UIWindowResize>().minSize = ChatUtils.GetDefaultSize(ChatSize.Small);
 
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
             chatWindow.userName = GetUserName();
