@@ -58,6 +58,7 @@ namespace NebulaWorld.Chat.Commands
             RegisterCommand("help", new HelpCommandHandler(), "h", "?");
             RegisterCommand("who", new WhoCommandHandler(), "players", "list");
             RegisterCommand("whisper", new WhisperCommandHandler(), "w", "tell", "t");
+            RegisterCommand("info", new InfoCommandHandler(), "server");
         }
     }
 

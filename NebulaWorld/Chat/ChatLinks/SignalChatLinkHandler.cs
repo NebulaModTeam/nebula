@@ -34,29 +34,37 @@ namespace NebulaWorld.Chat
                 return;
             }
 
-            RectTransform rect = (RectTransform)trigger.transform;
-            
+            UpdateTip(trigger, ref tipObject, signalId);
+        }
+
+        private static void UpdateTip(ChatLinkTrigger trigger, ref MonoBehaviour tipObject, int signalId)
+        {
+            RectTransform rect = (RectTransform) trigger.transform;
+
             RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, Input.mousePosition, trigger.camera, out Vector2 offset);
-            offset -= new Vector2(rect.sizeDelta.x / 2, 1.5f);
-            
+            offset -= new Vector2(rect.sizeDelta.x / 2, 3f);
+
             UIItemTip uiitemTip = tipObject as UIItemTip;
             if (uiitemTip == null)
             {
-                uiitemTip = UIItemTip.Create(signalId, Corner, offset, trigger.transform, 1, 0, UIButton.ItemTipType.Item);
+                uiitemTip = UIItemTip.Create(signalId, Corner, offset, rect, 1, 0, UIButton.ItemTipType.Item);
                 if (tipObject != null)
                 {
                     Object.Destroy(tipObject.gameObject);
                 }
+
                 tipObject = uiitemTip;
             }
+
             if (!uiitemTip.gameObject.activeSelf)
             {
                 uiitemTip.gameObject.SetActive(true);
-                uiitemTip.SetTip(signalId, Corner, offset, trigger.transform, 1, 0, UIButton.ItemTipType.Item);
+                uiitemTip.SetTip(signalId, Corner, offset, rect, 1, 0, UIButton.ItemTipType.Item);
             }
+
             if (uiitemTip != null && uiitemTip.isActiveAndEnabled && uiitemTip.showingItemId != signalId)
             {
-                uiitemTip.SetTip(signalId, Corner, offset, trigger.transform, 1, 0, UIButton.ItemTipType.Item);
+                uiitemTip.SetTip(signalId, Corner, offset, rect, 1, 0, UIButton.ItemTipType.Item);
             }
         }
 

@@ -16,12 +16,14 @@ using WebSocketSharp;
 
 namespace NebulaNetwork
 {
-    public class Client : NetworkProvider
+    public class Client : NetworkProvider, IClient
     {
         private const float GAME_STATE_UPDATE_INTERVAL = 1f;
         private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private readonly IPEndPoint serverEndpoint;
+        public IPEndPoint ServerEndpoint => serverEndpoint;
+        
         private WebSocket clientSocket;
         private NebulaConnection serverConnection;
 

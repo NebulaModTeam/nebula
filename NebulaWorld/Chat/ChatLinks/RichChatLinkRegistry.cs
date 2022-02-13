@@ -64,6 +64,7 @@ namespace NebulaWorld.Chat
         static RichChatLinkRegistry()
         {
             RegisterChatLinkHandler("signal", new SignalChatLinkHandler());
+            RegisterChatLinkHandler("copytext", new CopyTextChatLinkHandler());
         }
     }
 }
