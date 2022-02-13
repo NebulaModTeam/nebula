@@ -145,6 +145,8 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
+  m_isInputParsingRequired: 0
+  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -169,6 +171,6 @@ MonoBehaviour:
   m_Script: {fileID: 1656385170, guid: 6157fa478a4d3854cb69db360cc2bc2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
-  isOnLink: 0
-  currentLinkID: 
+  camera: {fileID: 0}
+  text: {fileID: 0}
+  currentLink: 

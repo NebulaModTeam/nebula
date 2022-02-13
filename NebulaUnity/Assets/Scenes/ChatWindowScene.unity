@@ -406,12 +406,12 @@ PrefabInstance:
     - target: {fileID: 3527980105942565041, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 560
+      value: 478
       objectReference: {fileID: 0}
     - target: {fileID: 3527980105942565041, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -290
+      value: -348
       objectReference: {fileID: 0}
     - target: {fileID: 3527980105942565041, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
@@ -468,16 +468,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2921197164647086451, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.000030517578
-      objectReference: {fileID: 0}
-    - target: {fileID: 4092147421265152491, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4092147421265152491, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -491,11 +481,6 @@ PrefabInstance:
     - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
         type: 3}
       propertyPath: m_isInputParsingRequired
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7948196423074851955, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7156096781188197911, guid: c47833b2cfc3dc441a4faffd34d532a9,
@@ -707,72 +692,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6071691974971199975, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Text
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 0898d2eb8def49a418f709b3c6c0ba91,
-        type: 2}
-    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_spriteAsset
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_isDefaultMaterial
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7997206231866747312, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_padding
-      value: 8.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 7232521665596875484, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Name
-      value: TMP SubMeshUI [VERDANA SDF Material + Amiri Arabic SDF Atlas]
-      objectReference: {fileID: 0}
-    - target: {fileID: 572366840817923843, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545742199130095895, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545742199130095895, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545742199130095895, guid: c47833b2cfc3dc441a4faffd34d532a9,
-        type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c47833b2cfc3dc441a4faffd34d532a9, type: 3}
@@ -1140,8 +1059,8 @@ Canvas:
   m_GameObject: {fileID: 1897700701}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 1132857991}
   m_PlaneDistance: 100
   m_PixelPerfect: 1
   m_ReceivesEvents: 1
