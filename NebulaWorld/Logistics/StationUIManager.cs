@@ -90,8 +90,16 @@ namespace NebulaWorld.Logistics
                 case StationUI.EUISettings.SetDroneCount:
                 {
                     // Check if new setting is acceptable
-                    int totalCount = Math.Min((int)packet.SettingValue, stationComponent.workDroneDatas.Length);
+                    int maxDroneCount = stationComponent.workDroneDatas?.Length ?? 0;
+                    if (maxDroneCount == 0)
+                    {
+                        PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                        ItemProto itemProto = LDB.items.Select(planet.factory.entityPool[stationComponent.entityId].protoId);
+                        maxDroneCount = itemProto?.prefabDesc.stationMaxDroneCount ?? 10;
+                    }
+                    int totalCount = Math.Min((int)packet.SettingValue, maxDroneCount);
                     stationComponent.idleDroneCount = Math.Max(totalCount - stationComponent.workDroneCount, 0);
+                    totalCount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
                     if (totalCount < (int)packet.SettingValue && packet.ShouldRefund)
                     {
                         // The result is less than original setting, refund extra drones to author
@@ -104,8 +112,16 @@ namespace NebulaWorld.Logistics
                 case StationUI.EUISettings.SetShipCount:
                 {
                     // Check if new setting is acceptable
-                    int totalCount = Math.Min((int)packet.SettingValue, stationComponent.workShipDatas.Length);
+                    int maxShipCount = stationComponent.workShipDatas?.Length ?? 0;
+                    if (maxShipCount == 0)
+                    {
+                        PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                        ItemProto itemProto = LDB.items.Select(planet.factory.entityPool[stationComponent.entityId].protoId);
+                        maxShipCount = itemProto?.prefabDesc.stationMaxShipCount ?? 10;
+                    }
+                    int totalCount = Math.Min((int)packet.SettingValue, maxShipCount);
                     stationComponent.idleShipCount = Math.Max(totalCount - stationComponent.workShipCount, 0);
+                    totalCount = stationComponent.idleShipCount + stationComponent.workShipCount;
                     if (totalCount < (int)packet.SettingValue && packet.ShouldRefund)
                     {
                         // The result is less than original setting, refund extra ships to author
@@ -228,7 +244,7 @@ namespace NebulaWorld.Logistics
          */
         private StationComponent GetStation(int planetId, int stationId, int stationGid)
         {
-            PlanetData planet = GameMain.galaxy?.PlanetById(planetId);
+            PlanetData planet = GameMain.galaxy.PlanetById(planetId);
 
             // If we can't find planet or the factory for said planet, we can just skip this
             if (planet?.factory?.transport == null)
