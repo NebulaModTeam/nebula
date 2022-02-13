@@ -123,6 +123,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             Config.Options = tempMultiplayerOptions;
             Config.SaveOptions();
+            Config.OnConfigApplied?.Invoke();
         }
 
         [HarmonyPrefix]

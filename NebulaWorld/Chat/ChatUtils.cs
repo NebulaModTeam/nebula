@@ -1,4 +1,5 @@
-﻿using NebulaModel.Packets.Players;
+﻿using NebulaModel.DataStructures;
+using NebulaModel.Packets.Players;
 using NebulaWorld.Chat;
 using System;
 using System.Linq;
@@ -11,6 +12,57 @@ namespace NebulaModel.Utils
     public static class ChatUtils
     {
         public static readonly string[] AllowedTags = {"b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"};
+
+        internal static readonly Vector2[] ChatMargins = {
+            new Vector2(10, 350),
+            new Vector2(10, 350),
+            new Vector2(10, 10),
+            new Vector2(10, 100)
+        };
+
+
+        internal static readonly Vector2[] ChatSizes = {
+            new Vector2(500, 300),
+            new Vector2(700, 420),
+            new Vector2(800, 480)
+        };
+
+        public static Vector2 GetDefaultPosition(ChatPosition position, ChatSize size)
+        {
+            Vector2 chatSize = GetDefaultSize(size);
+            Vector2 margin = ChatMargins[(int)position];
+            bool snapRight = ((int)position & 1) == 1;
+            bool snapTop = ((int)position & 2) == 2;
+
+            float needXPos;
+            float needYPos;
+            
+            if (snapRight)
+            {
+                needXPos = Screen.currentResolution.width - margin.x - chatSize.x;
+            }
+            else
+            {
+                needXPos = margin.x;
+            }
+
+            if (snapTop)
+            {
+                needYPos = -margin.y;
+            }
+            else
+            {
+                needYPos = -Screen.currentResolution.height + margin.y + chatSize.y;
+            }
+
+            return new Vector2(needXPos, needYPos);
+        }
+        
+        public static Vector2 GetDefaultSize(ChatSize size)
+        {
+            return ChatSizes[(int)size];
+        }
+        
         
         public static string SanitizeText(string input)
         {

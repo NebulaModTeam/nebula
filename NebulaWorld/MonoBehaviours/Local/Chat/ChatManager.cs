@@ -1,5 +1,7 @@
 ﻿using CommonAPI.Systems;
+using NebulaModel;
 using NebulaModel.Packets.Players;
+using NebulaModel.Utils;
 using NebulaWorld.Chat;
 using System;
 using UnityEngine;
@@ -21,12 +23,34 @@ namespace NebulaWorld.MonoBehaviours.Local
             var chatGo = Instantiate(prefab, uiGameInventory.transform.parent, false);
             
             RectTransform trans = (RectTransform)chatGo.transform;
-            trans.anchoredPosition = new Vector2(
-                 (Screen.currentResolution.width - trans.sizeDelta.x) / 2.0f,
-                -(Screen.currentResolution.height - trans.sizeDelta.y) / 2.0f);
+            MultiplayerOptions options = Config.Options;
+
+            Vector2 defaultPos = ChatUtils.GetDefaultPosition(options.DefaultChatPosition, options.DefaultChatSize);
+            Vector2 defaultSize = ChatUtils.GetDefaultSize(options.DefaultChatSize);
             
+            trans.sizeDelta = defaultSize;
+            trans.anchoredPosition = defaultPos;
+
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
             chatWindow.userName = GetUserName();
+            chatWindow.Toggle(true);
+            Config.OnConfigApplied += UpdateChatPosition;
+        }
+
+        private void OnDestroy()
+        {
+            Config.OnConfigApplied -= UpdateChatPosition;
+        }
+
+        public static void UpdateChatPosition()
+        {
+            MultiplayerOptions options = Config.Options;
+            Vector2 defaultPos = ChatUtils.GetDefaultPosition(options.DefaultChatPosition, options.DefaultChatSize);
+            Vector2 defaultSize = ChatUtils.GetDefaultSize(options.DefaultChatSize);
+            
+            RectTransform trans = (RectTransform)Instance.chatWindow.transform;
+            trans.anchoredPosition = defaultPos;
+            trans.sizeDelta = defaultSize;
         }
 
         void Update()
@@ -74,7 +98,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public bool IsPointerIn()
         {
-            return chatWindow.dragTrigger.pointerIn;
+            return chatWindow.DragTrigger.pointerIn;
         }
     }
 }

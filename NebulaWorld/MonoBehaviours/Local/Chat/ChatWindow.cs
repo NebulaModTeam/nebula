@@ -14,11 +14,16 @@ namespace NebulaWorld.MonoBehaviours.Local
     {
         private const int MAX_MESSAGES = 200;
         
+        [SerializeField] private TMP_InputField chatBox;
+        [SerializeField] private RectTransform chatPanel;
+        [SerializeField] private GameObject textObject;
+        [SerializeField] private RectTransform notifier;
+        [SerializeField] private RectTransform notifierMask;
         
-        public TMP_InputField chatBox;
-        public GameObject chatPanel, textObject, notifier, chatWindow;
-        public UIWindowDrag dragTrigger;
-
+        [SerializeField] private GameObject chatWindow;
+        
+        
+        internal UIWindowDrag DragTrigger;
         private Queue<QueuedMessage> outgoingMessages = new Queue<QueuedMessage>(5);
         private readonly List<Message> messages = new List<Message>();
         
@@ -26,12 +31,14 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         private void Awake()
         {
-            dragTrigger = GetComponent<UIWindowDrag>();
+            DragTrigger = GetComponent<UIWindowDrag>();
         }
 
         void Update()
         {
             if (!chatWindow.activeSelf) return;
+
+            notifierMask.sizeDelta = new Vector2(chatPanel.rect.width, notifierMask.sizeDelta.y);
 
             if (chatBox.text != "")
             {
@@ -72,7 +79,8 @@ namespace NebulaWorld.MonoBehaviours.Local
         private void FocusInputField()
         {
             chatBox.ActivateInputField();
-            chatBox.MoveToEndOfLine(false, true);
+            if (!chatBox.text.Equals(""))
+                chatBox.MoveToEndOfLine(false, true);
         }
 
         private void TrySendMessage()
@@ -115,7 +123,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             outgoingMessages.Enqueue(new QueuedMessage { MessageText = message, ChatMessageType = chatMesageType });
         }
 
-        public void SendLocalChatMessage(string text, ChatMessageType messageType)
+        public Message SendLocalChatMessage(string text, ChatMessageType messageType)
         {
             text = ChatUtils.SanitizeText(text);
             if (messages.Count > MAX_MESSAGES)
@@ -124,18 +132,17 @@ namespace NebulaWorld.MonoBehaviours.Local
                 messages.Remove(messages[0]);
             }
 
-            var newMsg = new Message { text = text };
-            GameObject nextText = Instantiate(textObject, chatPanel.transform);
-            newMsg.textObject = nextText.GetComponent<TMP_Text>();
-            newMsg.textObject.text = newMsg.text;
-            newMsg.textObject.color = ChatUtils.GetMessageColor(messageType);
             
-            GameObject notificationMsg = Instantiate(nextText, notifier.transform);
+            GameObject textObj = Instantiate(textObject, chatPanel);
+            Message newMsg = new Message(textObj, text, messageType);
+
+            GameObject notificationMsg = Instantiate(textObj, notifier);
+            newMsg.notificationText = notificationMsg.GetComponent<TMP_Text>();
             NotificationMessage message = notificationMsg.AddComponent<NotificationMessage>();
             message.Init();
             
-            Console.WriteLine($"Adding message: {messageType} {newMsg.text}");
             messages.Add(newMsg);
+            return newMsg;
         }
         
 
@@ -143,7 +150,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         {
             bool desiredStatus = !forceClosed && !chatWindow.activeSelf;
             chatWindow.SetActive(desiredStatus);
-            notifier.SetActive(!desiredStatus);
+            notifier.gameObject.SetActive(!desiredStatus);
             if (chatWindow.activeSelf)
             {
                 // when the window is activated we assume user wants to type right away
@@ -173,7 +180,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
                 string richText = RichChatLinkRegistry.FormatShortRichText(SignalChatLinkHandler.GetLinkString(signalId));
                 chatBox.Insert(richText);
-                chatBox.ActivateInputField();
+                FocusInputField();
             });
         }
 
@@ -196,8 +203,46 @@ namespace NebulaWorld.MonoBehaviours.Local
     [Serializable]
     public class Message
     {
-        public string text;
+        private string text;
+        private ChatMessageType messageType;
+        
         public TMP_Text textObject;
-        public ChatMessageType messageType;
+        public TMP_Text notificationText;
+        
+
+        public string Text
+        {
+            get => text;
+            set
+            {
+                textObject.text = value;
+                if (notificationText != null)
+                {
+                    notificationText.text = value;
+                }
+                text = value;
+            }
+        }
+
+        public ChatMessageType MessageType
+        {
+            get => messageType;
+            set
+            {
+                textObject.color = ChatUtils.GetMessageColor(value);
+                if (notificationText != null)
+                {
+                    notificationText.color = textObject.color;
+                }
+                messageType = value;
+            }
+        }
+
+        public Message(GameObject textObj, string message, ChatMessageType messageType)
+        {
+            textObject = textObj.GetComponent<TMP_Text>();
+            Text = message;
+            MessageType = messageType;
+        }
     }
 }

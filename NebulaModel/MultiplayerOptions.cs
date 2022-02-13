@@ -1,5 +1,6 @@
 ﻿using NebulaAPI;
 using NebulaModel.Attributes;
+using NebulaModel.DataStructures;
 using System;
 using System.ComponentModel;
 
@@ -28,6 +29,15 @@ namespace NebulaModel
 
         [DisplayName("Sync Ups")]
         public bool SyncUps { get; set; } = true;
+        
+        [DisplayName("Streamer mode")]
+        public bool StreamerMode { get; set; } = false;
+        
+        [DisplayName("Default chat position")]
+        public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
+        
+        [DisplayName("Default chat size")]
+        public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
 
         public string MechaColors { get; set; } = "209 151 76 255;184 90 72 255;94 92 92 255;123 234 255 255;229 155 94 255;255 243 235 255;255 248 245 255;255 255 255 255;";
 
