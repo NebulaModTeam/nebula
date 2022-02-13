@@ -1,4 +1,5 @@
-﻿using NebulaModel.Packets.Players;
+﻿using NebulaModel;
+using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
 using NebulaWorld.Chat;
 using NebulaWorld.Chat.Commands;
@@ -142,6 +143,15 @@ namespace NebulaWorld.MonoBehaviours.Local
             message.Init();
             
             messages.Add(newMsg);
+
+            if (!chatWindow.activeSelf)
+            {
+                if (Config.Options.AutoOpenChat)
+                {
+                    Toggle();
+                }
+            }
+
             return newMsg;
         }
         

@@ -27,6 +27,9 @@ namespace NebulaModel.Utils
             new Vector2(800, 480)
         };
 
+        internal const float ReferenceX = 1920;
+        internal const float ReferenceY = 1080;
+
         public static Vector2 GetDefaultPosition(ChatPosition position, ChatSize size)
         {
             Vector2 chatSize = GetDefaultSize(size);
@@ -39,7 +42,7 @@ namespace NebulaModel.Utils
             
             if (snapRight)
             {
-                needXPos = Screen.currentResolution.width - margin.x - chatSize.x;
+                needXPos = ReferenceX - margin.x - chatSize.x;
             }
             else
             {
@@ -52,15 +55,21 @@ namespace NebulaModel.Utils
             }
             else
             {
-                needYPos = -Screen.currentResolution.height + margin.y + chatSize.y;
+                needYPos = -ReferenceY + margin.y + chatSize.y;
             }
+
+            needXPos *= Screen.width / ReferenceX;
+            needYPos *= Screen.height / ReferenceY;
 
             return new Vector2(needXPos, needYPos);
         }
         
         public static Vector2 GetDefaultSize(ChatSize size)
         {
-            return ChatSizes[(int)size];
+            Vector2 chatSize = ChatSizes[(int)size];
+            chatSize.x *= Screen.width / ReferenceX;
+            chatSize.y *= Screen.height / ReferenceY;
+            return chatSize;
         }
         
         
