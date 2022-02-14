@@ -1,4 +1,5 @@
-﻿using NebulaWorld.MonoBehaviours.Local;
+﻿using NebulaModel.Utils;
+using NebulaWorld.MonoBehaviours.Local;
 
 namespace NebulaWorld.Chat.Commands
 {
@@ -6,7 +7,21 @@ namespace NebulaWorld.Chat.Commands
     {
         public void Execute(ChatWindow window, string[] parameters)
         {
-            window.ClearChat();
+            if (parameters.Length > 0)
+            {
+                string param = parameters[0];
+                if (param.Equals("all"))
+                {
+                    window.ClearChat(); 
+                    return;
+                }
+            }
+            window.ClearChat(message => message.MessageType.IsCommandMessage());
+        }
+        
+        public string GetUsage()
+        {
+            return $"[all|commands]";
         }
 
         public string GetDescription()
