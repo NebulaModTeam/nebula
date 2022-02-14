@@ -8,19 +8,29 @@ namespace NebulaWorld.Chat.Commands
     {
         public void Execute(ChatWindow window, string[] parameters)
         {
-            IChatCommandHandler[] handlers = ChatCommandRegistry.GetCommands();
             StringBuilder sb = new StringBuilder("Known commands:");
 
-            foreach (IChatCommandHandler handler in handlers)
+            foreach (var kv in ChatCommandRegistry.commands)
             {
-                sb.Append($"\n {handler.GetUsage()}");
+                sb.Append($"\n {FullCommandName(kv.Key.Name)}(");
+                foreach (string alias in kv.Key.Aliases)
+                {
+                    sb.Append($"{FullCommandName(alias)} ");
+                }
+
+                sb.Append($") - {kv.Value.GetDescription()}");
             }
             window.SendLocalChatMessage(sb.ToString(), ChatMessageType.CommandOutputMessage);
         }
-        
-        public string GetUsage()
+
+        private static string FullCommandName(string name)
         {
-            return $"{ChatCommandRegistry.CommandPrefix}help - get list of existing commands and their usage";
+            return ChatCommandRegistry.CommandPrefix + name;
+        }
+        
+        public string GetDescription()
+        {
+            return "Get list of existing commands and their usage";
         }
     }
 }

@@ -10,9 +10,9 @@ namespace NebulaWorld.Chat.Commands
             window.SendLocalChatMessage("Pong", ChatMessageType.CommandOutputMessage);
         }
 
-        public string GetUsage()
+        public string GetDescription()
         {
-            return $"{ChatCommandRegistry.CommandPrefix}ping - test command";
+            return "Test command";
         }
     }
 }

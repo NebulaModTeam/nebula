@@ -7,7 +7,7 @@ namespace NebulaWorld.Chat.Commands
     public static class ChatCommandRegistry
     {
         public const string CommandPrefix = "/";
-        private static readonly Dictionary<ChatCommandKey, IChatCommandHandler> commands = new Dictionary<ChatCommandKey, IChatCommandHandler>();
+        public static readonly Dictionary<ChatCommandKey, IChatCommandHandler> commands = new Dictionary<ChatCommandKey, IChatCommandHandler>();
 
         public static void RegisterCommand(string commandName, IChatCommandHandler commandHandlerHandler, params string[] aliases)
         {
@@ -28,11 +28,7 @@ namespace NebulaWorld.Chat.Commands
                 .FirstOrDefault((command) => command.RespondsTo(commandOrAlias.ToLowerInvariant()));
             return chatCommandKey != null ? commands[chatCommandKey] : null;
         }
-
-        public static IChatCommandHandler[] GetCommands()
-        {
-            return commands.Values.ToArray();
-        }
+        
         private static bool NameOrAliasRegistered(string commandName, string[] aliases)
         {
             if (commands.Keys.Any(command => command.RespondsTo(commandName)))
@@ -59,10 +55,11 @@ namespace NebulaWorld.Chat.Commands
             RegisterCommand("who", new WhoCommandHandler(), "players", "list");
             RegisterCommand("whisper", new WhisperCommandHandler(), "w", "tell", "t");
             RegisterCommand("info", new InfoCommandHandler(), "server");
+            RegisterCommand("clear", new ClearCommandHandler(), "c");
         }
     }
 
-    internal class ChatCommandKey
+    public class ChatCommandKey
     {
         public readonly string Name;
         public readonly HashSet<string> Aliases;

@@ -146,9 +146,9 @@ namespace NebulaWorld.Chat.Commands
             return sb.ToString();
         }
 
-        public string GetUsage()
+        public string GetDescription()
         {
-            return $"{ChatCommandRegistry.CommandPrefix}info - get information about server";
+            return "Get information about server";
         }
     }
 }

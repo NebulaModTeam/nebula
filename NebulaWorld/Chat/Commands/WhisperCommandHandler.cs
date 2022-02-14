@@ -13,7 +13,7 @@ namespace NebulaWorld.Chat.Commands
         {
             if (parameters.Length < 2)
             {
-                window.SendLocalChatMessage($"Message not sent: {GetUsageImpl(true)}", ChatMessageType.CommandOutputMessage);
+                window.SendLocalChatMessage($"Message not sent: {GetUsage()}", ChatMessageType.CommandOutputMessage);
                 return;
             }
 
@@ -48,15 +48,14 @@ namespace NebulaWorld.Chat.Commands
             }
         }
 
-        public string GetUsage()
+        public string GetDescription()
         {
-            return GetUsageImpl(false);
+            return $"Send direct message to player. Use {ChatCommandRegistry.CommandPrefix}who for valid user names";
         }
 
-        private string GetUsageImpl(bool brief)
+        private string GetUsage()
         {
-            var extendedMessage = brief ? "" : "- send message to player. Use /who for valid user names";
-            return $"{ChatCommandRegistry.CommandPrefix}whisper [player] [message] {extendedMessage}";
+            return $"{ChatCommandRegistry.CommandPrefix}whisper [player] [message]";
         }
 
         public static void SendWhisperToLocalPlayer(string sender, string mesageBody)
