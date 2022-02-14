@@ -2,7 +2,7 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Belt;
+using NebulaModel.Packets.Factory.Belt;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Belt
 {

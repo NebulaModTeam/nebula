@@ -51,7 +51,6 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(SpeakerComponent.SetLength))]
         public static void SetLength_Prefix(MonitorComponent __instance, float __0)
         {
-            Log.Info($"SetLength {__0} {Multiplayer.Session.Warning.IsIncomingMonitorPacket == true}");
             if (Multiplayer.IsActive && !Multiplayer.Session.Warning.IsIncomingMonitorPacket)
             {
                 int planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
@@ -77,7 +76,6 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(SpeakerComponent.SetFalloffRadius))]
         public static void SetFalloffRadius_Prefix(MonitorComponent __instance, float __0, float __1)
         {
-            Log.Info($"SetFalloffRadius {__0} {__1} {Multiplayer.Session.Warning.IsIncomingMonitorPacket == true}");
             if (Multiplayer.IsActive && !Multiplayer.Session.Warning.IsIncomingMonitorPacket)
             {
                 int planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;

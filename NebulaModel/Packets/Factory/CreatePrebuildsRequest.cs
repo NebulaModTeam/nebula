@@ -11,10 +11,11 @@ namespace NebulaModel.Packets.Factory
         public byte[] BuildPreviewData { get; set; }
         public int AuthorId { get; set; }
         public string BuildToolType { get; set; }
+        public int PrebuildId { get; set; }
 
         public CreatePrebuildsRequest() { }
 
-        public CreatePrebuildsRequest(int planetId, List<BuildPreview> buildPreviews, int playerId, string buildToolType)
+        public CreatePrebuildsRequest(int planetId, List<BuildPreview> buildPreviews, int playerId, string buildToolType, int prebuildId)
         {
             AuthorId = playerId;
             PlanetId = planetId;
@@ -28,6 +29,7 @@ namespace NebulaModel.Packets.Factory
                 }
                 BuildPreviewData = writer.CloseAndGetBytes();
             }
+            PrebuildId = prebuildId;
         }
 
         public List<BuildPreview> GetBuildPreviews()

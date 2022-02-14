@@ -52,7 +52,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
+                int author = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor;
+                int entityId = Multiplayer.Session.LocalPlayer.IsHost ? NebulaWorld.Factory.FactoryManager.GetNextEntityId(__instance) : -1;
+                Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, author, entityId));
             }
 
             if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value && !Multiplayer.Session.Drones.IsPendingBuildRequest(-prebuildId))
