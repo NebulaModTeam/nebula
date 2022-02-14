@@ -4,6 +4,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
@@ -307,10 +308,29 @@ namespace NebulaNetwork
                     Multiplayer.Session.Network.SendPacket(new SyncComplete());
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();
                 }
+                else if(Config.Options.SyncSoil)
+                {
+                    GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
+                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+                }
             }
             else
             {
                 Log.Warn($"PlayerDisconnected NOT CALLED!");
+
+                if (Config.Options.SyncSoil)
+                {
+                    // now we need to recalculate the current sand amount :C
+                    GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+                    using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+                    {
+                        foreach (KeyValuePair<INebulaConnection, INebulaPlayer> entry in connectedPlayers)
+                        {
+                            GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
+                        }
+                    }
+                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+                }
             }
         }
 
@@ -337,8 +357,30 @@ namespace NebulaNetwork
             {
                 if (connectedPlayers.TryGetValue(conn, out INebulaPlayer player))
                 {
-                    //Find correct player for data to update
+                    //Find correct player for data to update, preserve sand count if syncing is enabled
+                    int sandCount = player.Data.Mecha.SandCount;
                     player.Data.Mecha = mechaData;
+                    if (Config.Options.SyncSoil)
+                    {
+                        player.Data.Mecha.SandCount = sandCount;
+                    }
+                }
+            }
+        }
+
+        // add or take sand evenly from each connected player while soil is synced
+        public void UpdateSyncedSandCount(int deltaSandCount)
+        {
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                foreach(KeyValuePair<INebulaConnection, INebulaPlayer> entry in connectedPlayers)
+                {
+                    entry.Value.Data.Mecha.SandCount += deltaSandCount / connectedPlayers.Count;
+                    // dont be too picky here, a little bit more or less sand is ignorable i guess
+                    if(entry.Value.Data.Mecha.SandCount < 0)
+                    {
+                        entry.Value.Data.Mecha.SandCount = 0;
+                    }
                 }
             }
         }

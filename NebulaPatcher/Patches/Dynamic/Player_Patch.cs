@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
+using NebulaModel;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -9,10 +11,23 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(Player.SetSandCount))]
-        public static bool RemoveLayer_Prefix()
+        public static bool SetSandCount_Prefix(int newSandCount)
         {
-            //Soil should be given in singleplayer or to the player who is author of the "Build" request, or to the host if there is no author.
-            return !Multiplayer.IsActive || Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id || (Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE) || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
+            if (Config.Options.SyncSoil)
+            {
+                //Soil should be given in singleplayer or to the host who then syncs it back to all players.
+                if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                {
+                    Multiplayer.Session.Network.PlayerManager.UpdateSyncedSandCount(newSandCount - GameMain.mainPlayer.sandCount);
+                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
+                }
+                return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
+            }
+            else
+            {
+                //Soil should be given in singleplayer or to the player who is author of the "Build" request, or to the host if there is no author.
+                return !Multiplayer.IsActive || Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id || (Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE) || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
+            }
         }
 
         [HarmonyPrefix]

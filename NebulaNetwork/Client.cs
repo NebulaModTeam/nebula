@@ -79,6 +79,8 @@ namespace NebulaNetwork
         {
             clientSocket?.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
 
+            // load settings again to dispose the temp soil setting that could have been received from server
+            Config.LoadOptions();
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
 

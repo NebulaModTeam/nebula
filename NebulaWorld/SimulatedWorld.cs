@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
@@ -135,6 +136,12 @@ namespace NebulaWorld
 
                 // Hide the "Joining Game" popup
                 InGamePopup.FadeOut();
+            }
+
+            // store original sand count of host if we are syncing it to preserve it when saving the game
+            if (Config.Options.SyncSoil)
+            {
+                player.Data.Mecha.SandCount = GameMain.mainPlayer.sandCount;
             }
 
             // Finally we need add the local player components to the player character

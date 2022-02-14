@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -116,6 +117,13 @@ namespace NebulaNetwork.PacketProcessors.Session
                                 playerModel.PlayerInstance.mechaArmorModel._OnOpen();
                             }
                         }
+                    }
+
+                    // add together player sand count and tell others if we are syncing soil
+                    if (Config.Options.SyncSoil)
+                    {
+                        GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
+                        Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
                     }
 
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();

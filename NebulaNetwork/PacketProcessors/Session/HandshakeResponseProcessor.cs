@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Bootstrap;
 using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -25,6 +26,10 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
                 }
             }
+
+            // overwrite local setting with host setting, but dont save it as its a temp setting for this session
+            Config.Options.SyncSoil = packet.SyncSoil;
+
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(packet.LocalPlayerData, packet.IsNewPlayer);
 

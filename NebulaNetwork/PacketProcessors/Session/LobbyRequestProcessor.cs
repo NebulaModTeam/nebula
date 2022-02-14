@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -148,6 +149,11 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 //Add current tech bonuses to the connecting player based on the Host's mecha
                 ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
+                // if soil is synced add the hosts value here
+                if (Config.Options.SyncSoil)
+                {
+                    ((MechaData)player.Data.Mecha).SandCount = GameMain.mainPlayer.sandCount;
+                }
 
                 using (BinaryUtils.Writer p = new BinaryUtils.Writer())
                 {
@@ -163,7 +169,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
 
                     GameDesc gameDesc = GameMain.data.gameDesc;
-                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
+                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil));
                 }
             }
             else
