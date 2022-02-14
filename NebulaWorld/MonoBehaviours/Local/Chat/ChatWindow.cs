@@ -129,7 +129,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             text = ChatUtils.SanitizeText(text);
             if (messages.Count > MAX_MESSAGES)
             {
-                Destroy(messages[0].textObject.gameObject);
+                messages[0].DestroyMessage();
                 messages.Remove(messages[0]);
             }
 
@@ -153,6 +153,15 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
 
             return newMsg;
+        }
+
+        public void ClearChat()
+        {
+            foreach (ChatMessage message in messages)
+            {
+                message.DestroyMessage();
+            }
+            messages.Clear();
         }
         
 

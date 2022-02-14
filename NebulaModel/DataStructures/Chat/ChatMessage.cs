@@ -3,6 +3,7 @@ using NebulaModel.Utils;
 using System;
 using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace NebulaModel.DataStructures
 {
@@ -54,6 +55,15 @@ namespace NebulaModel.DataStructures
             textObject = textObj.GetComponent<TMP_Text>();
             Text = message;
             MessageType = messageType;
+        }
+
+        public void DestroyMessage()
+        {
+            Object.Destroy(textObject.gameObject);
+            if (notificationText != null)
+            {
+                Object.Destroy(notificationText.gameObject);
+            }
         }
     }
 }
