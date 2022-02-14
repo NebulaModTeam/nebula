@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using NebulaWorld.MonoBehaviours.Local;
 using System;

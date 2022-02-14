@@ -1,6 +1,5 @@
 ﻿using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
-using NebulaWorld.Chat;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,7 +10,7 @@ namespace NebulaModel.Utils
 {
     public static class ChatUtils
     {
-        public static readonly string[] AllowedTags = {"b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"};
+        internal static readonly string[] AllowedTags = {"b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"};
 
         internal static readonly Vector2[] ChatMargins = {
             new Vector2(10, 350),
@@ -77,55 +76,18 @@ namespace NebulaModel.Utils
         {
             // Matches any valid rich text tag. For example: <sprite name="hello" index=5>
             Regex regex = new Regex(@"<([/\w]+)=?[""#]?\w*""?\s?[\s\w""=]*>");
-            MatchCollection matches = regex.Matches(input);
 
-            if (matches.Count == 0) return input;
-
-            string sanitized = "";
-            int lastIndex = 0;
-            
-            foreach (Match match in matches)
+            return regex.Replace(input, match =>
             {
-                sanitized += input.Substring(lastIndex, match.Index - lastIndex);
-                lastIndex = match.Index;
-                
                 string tagName = match.Groups[1].Value;
-
-                if (tagName == "sprite")
+                if (AllowedTags.Contains(tagName) || AllowedTags.Contains(tagName.Substring(1)))
                 {
-                    string linkString = TryParseRichTag(match.Value);
-                    if (!string.IsNullOrEmpty(linkString))
-                    {
-                        string newTagString = RichChatLinkRegistry.FormatFullRichText(linkString);
-                        sanitized += newTagString;
-                        lastIndex = match.Index + match.Length;
-                    }
+                    return match.Value;
                 }
-
-                if (AllowedTags.Contains(tagName) || AllowedTags.Contains(tagName.Substring(1))) continue;
-                
-                lastIndex = match.Index + match.Length;
-            }
-
-            if (lastIndex < input.Length)
-            {
-                sanitized += input.Substring(lastIndex, input.Length - lastIndex);
-            }
-            
-            return sanitized;
+                return "";
+            });
         }
 
-        private static string TryParseRichTag(string tagString)
-        {
-            Regex regex = new Regex(@"<sprite name=""(\w+)"" color=""([^""]+)"">");
-            MatchCollection matches = regex.Matches(tagString);
-            
-            if (matches.Count == 0) return "";
-
-            return matches[0].Groups[2].Value;
-        }
-
-        
         public static Color GetMessageColor(ChatMessageType messageType)
         {
             switch (messageType)

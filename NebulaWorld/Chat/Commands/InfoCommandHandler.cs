@@ -1,12 +1,10 @@
 ﻿using BepInEx.Bootstrap;
+using NebulaModel.DataStructures;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours.Local;
 using System;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
 using static NebulaWorld.Chat.CopyTextChatLinkHandler;
@@ -44,7 +42,7 @@ namespace NebulaWorld.Chat.Commands
                     string pending = "pending...";
 
                     string output = GetServerInfoText(server, localIP, pending, pending, full);
-                    Message message = window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                    ChatMessage message = window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
 
                     IPUtils.GetPortStatus(server.Port, (ip, port) =>
                     {

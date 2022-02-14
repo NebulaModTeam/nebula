@@ -1,5 +1,5 @@
 ﻿using NebulaModel;
-using NebulaModel.Packets.Players;
+using NebulaModel.DataStructures;
 using NebulaModel.Utils;
 using NebulaWorld.Chat;
 using NebulaWorld.Chat.Commands;
@@ -26,7 +26,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         
         internal UIWindowDrag DragTrigger;
         private Queue<QueuedMessage> outgoingMessages = new Queue<QueuedMessage>(5);
-        private readonly List<Message> messages = new List<Message>();
+        private readonly List<ChatMessage> messages = new List<ChatMessage>();
         
         public string userName;
 
@@ -124,7 +124,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             outgoingMessages.Enqueue(new QueuedMessage { MessageText = message, ChatMessageType = chatMesageType });
         }
 
-        public Message SendLocalChatMessage(string text, ChatMessageType messageType)
+        public ChatMessage SendLocalChatMessage(string text, ChatMessageType messageType)
         {
             text = ChatUtils.SanitizeText(text);
             if (messages.Count > MAX_MESSAGES)
@@ -135,7 +135,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
             
             GameObject textObj = Instantiate(textObject, chatPanel);
-            Message newMsg = new Message(textObj, text, messageType);
+            ChatMessage newMsg = new ChatMessage(textObj, text, messageType);
 
             GameObject notificationMsg = Instantiate(textObj, notifier);
             newMsg.notificationText = notificationMsg.GetComponent<TMP_Text>();
@@ -203,56 +203,6 @@ namespace NebulaWorld.MonoBehaviours.Local
         {
             public string MessageText;
             public ChatMessageType ChatMessageType;
-        }
-    }
-
-
-    /// <summary>
-    /// This is what is rendered in the chat area (already sent chat messages)
-    /// </summary>
-    [Serializable]
-    public class Message
-    {
-        private string text;
-        private ChatMessageType messageType;
-        
-        public TMP_Text textObject;
-        public TMP_Text notificationText;
-        
-
-        public string Text
-        {
-            get => text;
-            set
-            {
-                textObject.text = value;
-                if (notificationText != null)
-                {
-                    notificationText.text = value;
-                }
-                text = value;
-            }
-        }
-
-        public ChatMessageType MessageType
-        {
-            get => messageType;
-            set
-            {
-                textObject.color = ChatUtils.GetMessageColor(value);
-                if (notificationText != null)
-                {
-                    notificationText.color = textObject.color;
-                }
-                messageType = value;
-            }
-        }
-
-        public Message(GameObject textObj, string message, ChatMessageType messageType)
-        {
-            textObject = textObj.GetComponent<TMP_Text>();
-            Text = message;
-            MessageType = messageType;
         }
     }
 }

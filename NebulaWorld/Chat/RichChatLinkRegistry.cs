@@ -1,5 +1,4 @@
 ﻿using NebulaModel.Logger;
-using NebulaWorld.Chat;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -41,6 +40,22 @@ namespace NebulaWorld.Chat
             }
 
             return null;
+        }
+        
+        public static string ExpandRichTextTags(string text)
+        {
+            Regex regex = new Regex(@"<sprite name=""(\w+)"" color=""([^""]+)"">");
+            
+            return regex.Replace(text, match =>
+            {
+                string data = match.Groups[2].Value;
+                if (!string.IsNullOrEmpty(data))
+                {
+                    return FormatFullRichText(data);
+                }
+
+                return match.Value;
+            });
         }
         
         public static string FormatFullRichText(string linkString)

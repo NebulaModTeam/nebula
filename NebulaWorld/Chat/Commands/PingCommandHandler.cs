@@ -1,4 +1,4 @@
-﻿using NebulaModel.Packets.Players;
+﻿using NebulaModel.DataStructures;
 using NebulaWorld.MonoBehaviours.Local;
 
 namespace NebulaWorld.Chat.Commands

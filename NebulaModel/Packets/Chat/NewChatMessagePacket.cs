@@ -1,16 +1,8 @@
-﻿using System;
+﻿using NebulaModel.DataStructures;
+using System;
 
 namespace NebulaModel.Packets.Players
 {
-    public enum ChatMessageType
-    {
-        PlayerMessage = 0,
-        SystemMessage = 1,
-        CommandUsageMessage = 2,
-        CommandOutputMessage = 3,
-        PlayerMessagePrivate = 4
-    }
-
     public class NewChatMessagePacket
     {
         public ChatMessageType MessageType { get; set; }
