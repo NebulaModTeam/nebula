@@ -96,6 +96,25 @@ namespace NebulaModel.DataStructures
             }
         }
 
+        // Old import method
+        public void DeserializeOld(INetDataReader reader, ushort revision)
+        {
+            Username = reader.GetString();
+            PlayerId = reader.GetUShort();
+            LocalPlanetId = reader.GetInt();
+            MechaColors = new Float4[reader.GetInt()];
+            for (int i = 0; i < MechaColors.Length; i++)
+            {
+                MechaColors[i] = reader.GetFloat4();
+            }
+            LocalPlanetPosition = reader.GetFloat3();
+            UPosition = reader.GetDouble3();
+            Rotation = reader.GetFloat3();
+            BodyRotation = reader.GetFloat3();
+            Mecha = new MechaData();
+            Mecha.Deserialize(reader);
+        }
+
         public IPlayerData CreateCopyWithoutMechaData()
         {
             return new PlayerData(PlayerId, LocalPlanetId, MechaColors, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);

@@ -129,6 +129,12 @@ namespace NebulaNetwork.PacketProcessors.Session
             // if user is known and host is ingame dont put him into lobby but let him join the game
             if (!isNewUser && Multiplayer.Session.IsGameLoaded)
             {
+                // Remove the new player from pending list
+                using (playerManager.GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
+                {
+                    pendingPlayers.Remove(conn);
+                }
+
                 // Add the new player to the list
                 using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
                 {

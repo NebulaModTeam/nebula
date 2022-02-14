@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets.Belt
+﻿namespace NebulaModel.Packets.Factory.Belt
 {
     public class BeltUpdatePutItemOnPacket
     {

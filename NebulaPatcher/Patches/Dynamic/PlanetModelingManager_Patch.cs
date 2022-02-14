@@ -91,6 +91,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // Request initial dysonSphere data
             if (GameMain.data.dysonSpheres[star.index] == null)
             {
+                Multiplayer.Session.DysonSpheres.RequestingIndex = star.index;
                 Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
                 Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(star.index, DysonSphereRequestEvent.Load));
             }

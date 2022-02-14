@@ -30,35 +30,37 @@ namespace NebulaPatcher.Patches.Dynamic
                                 return true;
                             }
                         }
+                        //No dyson sphere exist, close the UI
+                        UIRoot.instance.uiGame.dysonEditor._Close();
+                        return false;
+                    }
+                    else if (GameMain.data.dysonSpheres[starData.index] == null)
+                    {
+                        //Local dyson sphere hasn't loaded yet, close the UI
+                        UIRoot.instance.uiGame.dysonEditor._Close();
+                        return false;
                     }
                 }
                 if (starData != null && GameMain.data.dysonSpheres[starData.index] == null)
                 {
+                    if (Multiplayer.Session.DysonSpheres.RequestingIndex != -1)
+                    {
+                        InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", "OK");
+                        return false;
+                    }
+                    Multiplayer.Session.DysonSpheres.RequestingIndex = starData.index;
                     Log.Info($"Requesting DysonSphere for system {starData.displayName} (Index: {starData.index})");
                     Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(starData.index, DysonSphereRequestEvent.Load));
-                    //Set viewDysonSphere to null until requested dyson sphere data is arrived.
                     __instance.ClearAllSelection();
-                    __instance.viewStar = starData;
-                    __instance.viewDysonSphere = null;
+                    InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", "OK");
+                    // Restore comboBox back to original star
+                    UIComboBox dysonBox = UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.dysonBox;
+                    int index = dysonBox.ItemsData.FindIndex(x => x == UIRoot.instance.uiGame.dysonEditor.selection.viewStar?.index);
+                    dysonBox.itemIndex = index >= 0 ? index : 0;
                     return false;
                 }
             }
             return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(DESelection.ClearAllSelection))]
-        public static void ClearAllSelection_Postfix()
-        {
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
-            {
-                //UIDysonEditor._OnClose()
-                if (!UIRoot.instance.uiGame.dysonEditor.sceneGroup.activeSelf)
-                {
-                    //Unload remote dyson spheres
-                    Multiplayer.Session.DysonSpheres.UnloadRemoteDysonSpheres();
-                }
-            }            
         }
     }
 }

@@ -1,8 +1,10 @@
-﻿using NebulaModel.Networking;
+﻿using NebulaAPI;
+using NebulaModel.Networking;
 using NebulaModel.Packets;
 
 namespace NebulaNetwork.PacketProcessors.Players
 {
+    [RegisterPacketProcessor]
     internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPacket>
     {
         public override void ProcessPacket(RemoveDroneOrdersPacket packet, NebulaConnection conn)

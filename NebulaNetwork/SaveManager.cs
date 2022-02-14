@@ -92,6 +92,7 @@ namespace NebulaNetwork
 
             byte[] source = File.ReadAllBytes(path);
             NetDataReader netDataReader = new NetDataReader(source);
+            ushort revision = 0;
             try
             {
                 string revString = netDataReader.GetString();
@@ -100,10 +101,15 @@ namespace NebulaNetwork
                     throw new System.Exception();
                 }
 
-                ushort revision = netDataReader.GetUShort();
+                revision = netDataReader.GetUShort();
+                NebulaModel.Logger.Log.Info($"Loading server data, revision {revision}");
                 if (revision != REVISION)
                 {
-                    throw new System.Exception();
+                    // Supported revision: 4~5
+                    if (revision < 4 || revision > REVISION)
+                    {
+                        throw new System.Exception();
+                    }
                 }
             }
             catch (System.Exception)
@@ -119,8 +125,16 @@ namespace NebulaNetwork
                 for (int i = 0; i < playerNum; i++)
                 {
                     string hash = netDataReader.GetString();
-
-                    PlayerData playerData = netDataReader.Get<PlayerData>();
+                    PlayerData playerData;
+                    if (revision == REVISION)
+                    {
+                        playerData = netDataReader.Get<PlayerData>();
+                    }
+                    else
+                    {
+                        playerData = new PlayerData();
+                        playerData.DeserializeOld(netDataReader, revision);
+                    }
                     if (!savedPlayerData.ContainsKey(hash))
                     {
                         savedPlayerData.Add(hash, playerData);
