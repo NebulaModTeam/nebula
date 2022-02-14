@@ -14,5 +14,10 @@ namespace NebulaWorld.Chat.Commands
         {
             return "Test command";
         }
+
+        public string GetUsage()
+        {
+            return "";
+        }
     }
 }

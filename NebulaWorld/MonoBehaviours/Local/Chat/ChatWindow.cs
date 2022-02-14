@@ -95,7 +95,14 @@ namespace NebulaWorld.MonoBehaviours.Local
                     IChatCommandHandler handler = ChatCommandRegistry.GetCommandHandler(commandName);
                     if (handler != null)
                     {
-                        handler.Execute(this, arguments.Skip(1).ToArray());
+                        try
+                        {
+                            handler.Execute(this, arguments.Skip(1).ToArray());
+                        }
+                        catch (ChatCommandUsageException e)
+                        {
+                            SendLocalChatMessage($"Invalid usage: {e.Message}! Usage: {ChatCommandRegistry.CommandPrefix}{commandName} {handler.GetUsage()}", ChatMessageType.CommandUsageMessage);
+                        }
                     }
                     else
                     {
@@ -126,14 +133,20 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public ChatMessage SendLocalChatMessage(string text, ChatMessageType messageType)
         {
-            text = ChatUtils.SanitizeText(text);
+            if (!messageType.IsCommandMessage())
+            {
+                text = ChatUtils.SanitizeText(text);
+            }
+
+            text = RichChatLinkRegistry.ExpandRichTextTags(text);
+
             if (messages.Count > MAX_MESSAGES)
             {
                 messages[0].DestroyMessage();
                 messages.Remove(messages[0]);
             }
 
-            
+
             GameObject textObj = Instantiate(textObject, chatPanel);
             ChatMessage newMsg = new ChatMessage(textObj, text, messageType);
 
@@ -163,7 +176,20 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
             messages.Clear();
         }
-        
+
+        public void ClearChat(Func<ChatMessage, bool> filter)
+        {
+            for (int i = 0; i < messages.Count; i++)
+            {
+                ChatMessage message = messages[i];
+                if (!filter(message)) continue;
+
+                message.DestroyMessage();
+                messages.RemoveAt(i);
+                i--;
+            }
+        }
+
 
         public void Toggle(bool forceClosed = false)
         {
@@ -192,7 +218,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         
         public void InsertSprite()
         {
-            Vector2 pos =  new Vector2(-300, 238);
+            Vector2 pos = new Vector2(-300, 238);
             UISignalPicker.Popup(pos, signalId =>
             {
                 if (signalId <= 0) return;

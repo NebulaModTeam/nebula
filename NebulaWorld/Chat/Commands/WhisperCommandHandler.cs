@@ -13,14 +13,13 @@ namespace NebulaWorld.Chat.Commands
         {
             if (parameters.Length < 2)
             {
-                window.SendLocalChatMessage($"Message not sent: {GetUsage()}", ChatMessageType.CommandOutputMessage);
-                return;
+                throw new ChatCommandUsageException("Not enough arguments!");
             }
 
             string senderUsername = Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "UNKNOWN";
             if (senderUsername == "UNKNOWN" || Multiplayer.Session == null || Multiplayer.Session.LocalPlayer == null )
             {
-                window.SendLocalChatMessage("Not connected, can't send message", ChatMessageType.CommandOutputMessage);
+                window.SendLocalChatMessage("Not connected, can't send message", ChatMessageType.CommandErrorMessage);
                 return;
             }
             
@@ -36,7 +35,7 @@ namespace NebulaWorld.Chat.Commands
                 INebulaPlayer recipient = Multiplayer.Session.Network.PlayerManager.GetConnectedPlayerByUsername(recipientUserName);
                 if (recipient == null)
                 {
-                    window.SendLocalChatMessage($"Player not found: {recipientUserName}", ChatMessageType.CommandOutputMessage);
+                    window.SendLocalChatMessage($"Player not found: {recipientUserName}", ChatMessageType.CommandErrorMessage);
                     return;
                 }
 
@@ -53,9 +52,9 @@ namespace NebulaWorld.Chat.Commands
             return $"Send direct message to player. Use {ChatCommandRegistry.CommandPrefix}who for valid user names";
         }
 
-        private string GetUsage()
+        public string GetUsage()
         {
-            return $"{ChatCommandRegistry.CommandPrefix}whisper [player] [message]";
+            return "<player> <message>";
         }
 
         public static void SendWhisperToLocalPlayer(string sender, string mesageBody)

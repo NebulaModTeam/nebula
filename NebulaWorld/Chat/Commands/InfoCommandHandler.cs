@@ -19,7 +19,7 @@ namespace NebulaWorld.Chat.Commands
         {
             if (!Multiplayer.IsActive)
             {
-                window.SendLocalChatMessage("This command can only be used in multiplayer!", ChatMessageType.CommandOutputMessage);
+                window.SendLocalChatMessage("This command can only be used in multiplayer!", ChatMessageType.CommandErrorMessage);
                 return;
             }
             
@@ -149,6 +149,11 @@ namespace NebulaWorld.Chat.Commands
         public string GetDescription()
         {
             return "Get information about server";
+        }
+        
+        public string GetUsage()
+        {
+            return "[full]";
         }
     }
 }

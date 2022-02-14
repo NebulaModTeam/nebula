@@ -29,6 +29,13 @@ namespace NebulaWorld.Chat.Commands
             return chatCommandKey != null ? commands[chatCommandKey] : null;
         }
         
+        public static string[] GetCommandAliases(string commandOrAlias)
+        {
+            ChatCommandKey chatCommandKey = commands.Keys
+                .FirstOrDefault((command) => command.RespondsTo(commandOrAlias.ToLowerInvariant()));
+            return chatCommandKey?.Aliases.ToArray();
+        }
+        
         private static bool NameOrAliasRegistered(string commandName, string[] aliases)
         {
             if (commands.Keys.Any(command => command.RespondsTo(commandName)))

@@ -103,6 +103,9 @@ namespace NebulaModel.Utils
                 
                 case ChatMessageType.CommandOutputMessage:
                     return new Color(0.8f,0.8f,0.8f,1);
+                
+                case ChatMessageType.CommandErrorMessage:
+                    return Color.red;
 
                 case ChatMessageType.PlayerMessagePrivate:
                     return Color.green;
@@ -111,6 +114,14 @@ namespace NebulaModel.Utils
                     Console.WriteLine($"Requested color for unexpected chat message type {messageType}");
                     return Color.white;
             }
+        }
+
+        public static bool IsCommandMessage(this ChatMessageType type)
+        {
+            return type == ChatMessageType.CommandOutputMessage ||
+                   type == ChatMessageType.CommandUsageMessage ||
+                   type == ChatMessageType.CommandErrorMessage ||
+                   type == ChatMessageType.SystemMessage;
         }
         
         public static bool Contains(this string source, string toCheck, StringComparison comp)

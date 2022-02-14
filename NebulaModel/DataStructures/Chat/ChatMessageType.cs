@@ -6,6 +6,7 @@
         SystemMessage = 1,
         CommandUsageMessage = 2,
         CommandOutputMessage = 3,
-        PlayerMessagePrivate = 4
+        CommandErrorMessage = 4,
+        PlayerMessagePrivate = 5
     }
 }
