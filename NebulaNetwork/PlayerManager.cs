@@ -311,6 +311,7 @@ namespace NebulaNetwork
                 else if(Config.Options.SyncSoil)
                 {
                     GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
+                    UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
                     Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
                 }
             }
@@ -329,6 +330,7 @@ namespace NebulaNetwork
                             GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
                         }
                     }
+                    UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
                     Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
                 }
             }
@@ -375,13 +377,14 @@ namespace NebulaNetwork
             {
                 foreach(KeyValuePair<INebulaConnection, INebulaPlayer> entry in connectedPlayers)
                 {
-                    entry.Value.Data.Mecha.SandCount += deltaSandCount / connectedPlayers.Count;
+                    entry.Value.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
                     // dont be too picky here, a little bit more or less sand is ignorable i guess
                     if(entry.Value.Data.Mecha.SandCount < 0)
                     {
                         entry.Value.Data.Mecha.SandCount = 0;
                     }
                 }
+                Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
             }
         }
 

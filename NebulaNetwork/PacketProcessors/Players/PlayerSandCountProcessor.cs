@@ -12,6 +12,8 @@ namespace NebulaNetwork.PacketProcessors.Players
         {
             if (IsHost)
             {
+                // when receive update request, host UpdateSyncedSandCount and send to other players
+                GameMain.mainPlayer.SetSandCount(packet.SandCount);
                 return;
             }
 

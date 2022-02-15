@@ -21,6 +21,11 @@ namespace NebulaPatcher.Patches.Dynamic
                     Multiplayer.Session.Network.PlayerManager.UpdateSyncedSandCount(newSandCount - GameMain.mainPlayer.sandCount);
                     Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
                 }
+                //Or client that use reform tool
+                else if (Multiplayer.IsActive && GameMain.mainPlayer.controller.actionBuild.reformTool.drawing == true)
+                {
+                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
+                }
                 return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
             }
             else
