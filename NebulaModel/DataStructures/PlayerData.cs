@@ -182,7 +182,6 @@ namespace NebulaModel.DataStructures
             }
         }
 
-        // Old import method
         public void Deserialize_4(INetDataReader reader)
         {
             Username = reader.GetString();

@@ -1,5 +1,20 @@
 ## Changelog
 
+0.8.1:
+
+- @starfish: Add copy&close error button
+- @starfish: bugfixes regarding dyson sphere editor
+- @starfish: bugfix regarding item refund in matrix labs
+- @starfish: bugfix regarding the ILS UI
+- @starfish: bugfix regarding placement of spraycoaters, traffic monitors and inserters
+- @starfish: bugfix regarding drone and ship counts in stations
+- @PhantomGamers, @sp00ktober: adjust TCP fragment size for faster data transmission
+- @sp00ktober: bugfix regarding players getting stuck with the "player joining" message
+- @sp00ktober: bugfix regarding wrong mecha color until hitting "apply" in mecha editor
+- @sp00ktober: bugfix regarding ILS ship rendering clientside
+- @sp00ktober: add optional soil syncing
+- @sp00ktober: add syncing of mecha editor state and items
+
 0.8.0:
 
 - Now compatible with DSP 0.9.24
