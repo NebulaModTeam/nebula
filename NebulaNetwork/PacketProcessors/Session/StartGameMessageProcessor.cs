@@ -59,11 +59,6 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                     //Add current tech bonuses to the connecting player based on the Host's mecha
                     ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
-                    // if soil is synced add the hosts value here
-                    if (Config.Options.SyncSoil)
-                    {
-                        ((MechaData)player.Data.Mecha).SandCount = GameMain.mainPlayer.sandCount;
-                    }
 
                     conn.SendPacket(new StartGameMessage(true, (PlayerData)player.Data, Config.Options.SyncSoil));
                 }
