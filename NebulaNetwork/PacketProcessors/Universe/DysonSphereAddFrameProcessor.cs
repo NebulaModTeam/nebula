@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -9,45 +10,26 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     internal class DysonSphereAddFrameProcessor : PacketProcessor<DysonSphereAddFramePacket>
     {
-        private readonly IPlayerManager playerManager;
-
-        public DysonSphereAddFrameProcessor()
-        {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
-
         public override void ProcessPacket(DysonSphereAddFramePacket packet, NebulaConnection conn)
         {
-            bool valid = true;
-
-            if (IsHost)
+            DysonSphereLayer layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+            if (layer == null)
             {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
+                return;
+            }
+            using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
+            {
+                int frameId = layer.frameRecycleCursor > 0 ? layer.frameRecycle[layer.frameRecycleCursor - 1] : layer.frameCursor;
+                if (frameId != packet.FrameId || layer.NewDysonFrame(packet.ProtoId, packet.NodeAId, packet.NodeBId, packet.Euler) == 0)
                 {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
-                }
-                else
-                {
-                    valid = false;
+                    Log.Warn($"Cannnot add frame[{packet.FrameId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                    Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
+                    return;
                 }
             }
-
-            if (valid)
+            if (IsHost)
             {
-                using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
-                {
-                    DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-                    //Check if target nodes exists (if not, assume that AddNode packet is on the way)
-                    if (Multiplayer.Session.DysonSpheres.CanCreateFrame(packet.NodeAId, packet.NodeBId, dsl))
-                    {
-                        dsl.NewDysonFrame(packet.ProtoId, packet.NodeAId, packet.NodeBId, packet.Euler);
-                    }
-                    else
-                    {
-                        Multiplayer.Session.DysonSpheres.QueuedAddFramePackets.Add(packet);
-                    }
-                }
+                Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
             }
         }
     }

@@ -47,6 +47,7 @@ namespace NebulaModel.Logger
         public static void Error(string message)
         {
             logger.LogError(message);
+            UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
         }
 
         public static void Error(Exception ex)

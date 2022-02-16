@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -9,39 +10,31 @@ namespace NebulaNetwork.PacketProcessors.Universe
     [RegisterPacketProcessor]
     internal class DysonSphereRemoveShellProcessor : PacketProcessor<DysonSphereRemoveShellPacket>
     {
-        private readonly IPlayerManager playerManager;
-
-        public DysonSphereRemoveShellProcessor()
-        {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
-
         public override void ProcessPacket(DysonSphereRemoveShellPacket packet, NebulaConnection conn)
         {
-            bool valid = true;
-            if (IsHost)
+            DysonSphereLayer layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+            if (layer == null)
             {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
+                return;
+            }
+            using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
+            {
+                if (packet.ShellId < 1 || packet.ShellId >= layer.shellCursor)
                 {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
+                    Log.Warn($"Cannnot remove shell[{packet.ShellId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                    Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
+                    return;
                 }
-                else
+                //No need to remove if the shell is already null
+                if (layer.shellPool[packet.ShellId] != null)
                 {
-                    valid = false;
+                    layer.RemoveDysonShell(packet.ShellId);
+                    NebulaWorld.Universe.DysonSphereManager.ClearSelection(packet.StarIndex, layer.id);
                 }
             }
-
-            if (valid)
+            if (IsHost)
             {
-                using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
-                {
-                    DysonSphereLayer dsl = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-                    if (Multiplayer.Session.DysonSpheres.CanRemoveShell(packet.ShellId, dsl))
-                    {
-                        dsl.RemoveDysonShell(packet.ShellId);
-                    }
-                }
+                Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
             }
         }
     }

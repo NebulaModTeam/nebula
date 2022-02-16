@@ -31,6 +31,8 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             if(__instance is BuildTool_PathAddon)
             {
+                // traffic monitors & sprayers cannot be drag build atm, so its always only one.
+                previews = new List<BuildPreview>();
                 previews.Add(((BuildTool_PathAddon)__instance).handbp);
             }
 
@@ -38,7 +40,9 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 int planetId = Multiplayer.Session.Factories.EventFactory?.planetId ?? GameMain.localPlanet?.id ?? -1;
-                Multiplayer.Session.Network.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()), GameMain.galaxy.PlanetById(planetId).star.id);
+                int authorId = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor;
+                int prebuildId = Multiplayer.Session.Factories.GetNextPrebuildId(planetId);
+                Multiplayer.Session.Network.SendPacketToStar(new CreatePrebuildsRequest(planetId, previews, authorId, __instance.GetType().ToString(), prebuildId), GameMain.galaxy.PlanetById(planetId).star.id);
             }
 
             //If client builds, he need to first send request to the host and wait for reply
@@ -46,7 +50,8 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if (Multiplayer.Session.BuildTools.InitialCheck(previews[0].lpos))
                 {
-                    Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor, __instance.GetType().ToString()));
+                    int authorId = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor;
+                    Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews, authorId, __instance.GetType().ToString(), -1));
                 }
                 return false;
             }

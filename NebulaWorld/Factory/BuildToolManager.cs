@@ -99,6 +99,10 @@ namespace NebulaWorld.Factory
                 {
                     GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
                     canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool, planet.factory.prebuildPool);
+                    if (!canBuild)
+                    {
+                        Log.Warn($"CreatePrebuildsRequest: request do not pass connections test on planet {planet.id}");
+                    }
                 }
 
                 if (canBuild || Multiplayer.Session.LocalPlayer.IsClient)
@@ -106,6 +110,15 @@ namespace NebulaWorld.Factory
                     if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
                     {
                         CheckAndFixConnections(buildTool, planet);
+                    }
+                    if (Multiplayer.Session.LocalPlayer.IsClient)
+                    {
+                        if (packet.PrebuildId != Multiplayer.Session.Factories.GetNextPrebuildId(packet.PlanetId))
+                        {
+                            string warningText = $"PrebuildId mismatch on {packet.PlanetId} planet: {packet.PrebuildId} != {Multiplayer.Session.Factories.GetNextPrebuildId(planet.factory)}";
+                            Log.Warn(warningText);
+                            NebulaWorld.Warning.WarningManager.DisplayTemporaryWarning(warningText, 5000);
+                        }
                     }
 
                     if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
@@ -171,7 +184,6 @@ namespace NebulaWorld.Factory
                 if (pos == LastPosition)
                 {
                     //Reset check timer on client
-                    Log.Info($"Receive {LastPosition}");
                     LastCheckTime = 0;
                 }
             }
@@ -202,6 +214,7 @@ namespace NebulaWorld.Factory
                         // `entity.pos == tmpVector` does not work in every cases (rounding errors?).
                         if ((entity.pos - tmpVector).sqrMagnitude < 0.1f)
                         {
+                            Log.Info($"CheckAndFixConnections: {entity.pos} {tmpVector}");
                             preview.coverObjId = entity.id;
                             break;
                         }
@@ -259,6 +272,7 @@ namespace NebulaWorld.Factory
             if ((now - LastCheckTime) < WAIT_TIME && LastPosition == pos)
             {
                 //Stop client from sending prebuilds at the same position
+                UIRealtimeTip.Popup("Please wait for server respond");
                 return false;
             }
             LastCheckTime = now;

@@ -19,14 +19,12 @@ namespace NebulaNetwork
 {
     public class Server : NetworkProvider
     {
-        private const float GAME_STATE_UPDATE_INTERVAL = 1;
         private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         private const float STATISTICS_UPDATE_INTERVAL = 1;
-        private const float LAUNCH_UPDATE_INTERVAL = 2;
-        private const float DYSONSPHERE_UPDATE_INTERVAL = 5;
+        private const float LAUNCH_UPDATE_INTERVAL = 4;
+        private const float DYSONSPHERE_UPDATE_INTERVAL = 2;
         private const float WARNING_UPDATE_INTERVAL = 1;
 
-        private float gameStateUpdateTimer = 0;
         private float gameResearchHashUpdateTimer = 0;
         private float productionStatisticsUpdateTimer = 0;
         private float dysonLaunchUpateTimer = 1;
@@ -68,8 +66,18 @@ namespace NebulaNetwork
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socket);
-            socket.AddWebSocketService("/socket", () => new WebSocketService(PlayerManager, PacketProcessor));
-            socket.Start();
+            WebSocketService.PacketProcessor = PacketProcessor;
+            WebSocketService.PlayerManager = PlayerManager;
+            socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
+            try
+            {
+                socket.Start();
+            }catch(System.InvalidOperationException e)
+            {
+                InGamePopup.ShowError("Error", "An error occurred while hosting the game: " + e.Message, "Close");
+                Stop();
+                return;
+            }
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
@@ -126,62 +134,50 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            gameStateUpdateTimer += Time.deltaTime;
-            gameResearchHashUpdateTimer += Time.deltaTime;
-            productionStatisticsUpdateTimer += Time.deltaTime;
-            dysonLaunchUpateTimer += Time.deltaTime;
-            dysonSphereUpdateTimer += Time.deltaTime;
-            warningUpdateTimer += Time.deltaTime;
+            PacketProcessor.ProcessPacketQueue();
 
-            if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
+            if (Multiplayer.Session.IsGameLoaded)
             {
-                gameStateUpdateTimer = 0;
-                SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
-            }
+                gameResearchHashUpdateTimer += Time.deltaTime;
+                productionStatisticsUpdateTimer += Time.deltaTime;
+                dysonLaunchUpateTimer += Time.deltaTime;
+                dysonSphereUpdateTimer += Time.deltaTime;
+                warningUpdateTimer += Time.deltaTime;
 
-            if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
-            {
-                gameResearchHashUpdateTimer = 0;
-                if (GameMain.data.history.currentTech != 0)
+                if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
                 {
-                    TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
-                    SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
-                }
-            }
-
-            if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
-            {
-                productionStatisticsUpdateTimer = 0;
-                Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
-            }
-
-            if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)
-            {
-                dysonLaunchUpateTimer = 0;
-                Multiplayer.Session.Launch.SendBroadcastIfNeeded();
-            }
-
-            if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
-            {
-                dysonSphereUpdateTimer = 0;
-                DysonSphere[] dysonSpheres = GameMain.data.dysonSpheres;
-                for (int i = 0; i < dysonSpheres.Length; i++)
-                {
-                    DysonSphere dysonSphere = dysonSpheres[i];
-                    if (dysonSphere != null && (dysonSphere.energyReqCurrentTick + dysonSphere.energyGenCurrentTick > 0))
+                    gameResearchHashUpdateTimer = 0;
+                    if (GameMain.data.history.currentTech != 0)
                     {
-                        SendPacketToStar(new DysonSphereStatusPacket(dysonSphere), dysonSphere.starData.id);
+                        TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
+                        SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
                     }
                 }
-            }
 
-            if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
-            {
-                warningUpdateTimer = 0;
-                Multiplayer.Session.Warning.SendBroadcastIfNeeded();
-            }
+                if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
+                {
+                    productionStatisticsUpdateTimer = 0;
+                    Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
+                }
 
-            PacketProcessor.ProcessPacketQueue();
+                if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)
+                {
+                    dysonLaunchUpateTimer = 0;
+                    Multiplayer.Session.Launch.SendBroadcastIfNeeded();
+                }
+
+                if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
+                {
+                    dysonSphereUpdateTimer = 0;
+                    Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded();
+                }
+
+                if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
+                {
+                    warningUpdateTimer = 0;
+                    Multiplayer.Session.Warning.SendBroadcastIfNeeded();
+                }
+            }            
         }
 
         private void DisableNagleAlgorithm(WebSocketServer socketServer)
@@ -192,13 +188,15 @@ namespace NebulaNetwork
 
         private class WebSocketService : WebSocketBehavior
         {
-            private readonly IPlayerManager playerManager;
-            private readonly NetPacketProcessor packetProcessor;
+            public static IPlayerManager PlayerManager;
+            public static NetPacketProcessor PacketProcessor;
+
+            public WebSocketService() { }
 
             public WebSocketService(IPlayerManager playerManager, NetPacketProcessor packetProcessor)
             {
-                this.playerManager = playerManager;
-                this.packetProcessor = packetProcessor;
+                PlayerManager = playerManager;
+                PacketProcessor = packetProcessor;
             }
 
             protected override void OnOpen()
@@ -211,13 +209,13 @@ namespace NebulaNetwork
                 }
 
                 NebulaModel.Logger.Log.Info($"Client connected ID: {ID}");
-                NebulaConnection conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor);
-                playerManager.PlayerConnected(conn);
+                NebulaConnection conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor);
+                PlayerManager.PlayerConnected(conn);
             }
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                packetProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor));
             }
 
             protected override void OnClose(CloseEventArgs e)
@@ -237,14 +235,24 @@ namespace NebulaNetwork
                     // if it is because we have stopped the server and are not in a multiplayer game anymore.
                     if (Multiplayer.IsActive)
                     {
-                        playerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, packetProcessor));
+                        PlayerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor));
                     }
                 });
             }
 
             protected override void OnError(ErrorEventArgs e)
             {
-                // TODO: Decide what to do here - does OnClose get called too?
+                // TODO: seems like clients erroring out in the sync process can lock the host with the joining player message, maybe this fixes it
+                NebulaModel.Logger.Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
+                UnityDispatchQueue.RunOnMainThread(() =>
+                {
+                    // This is to make sure that we don't try to deal with player disconnection
+                    // if it is because we have stopped the server and are not in a multiplayer game anymore.
+                    if (Multiplayer.IsActive)
+                    {
+                        PlayerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor));
+                    }
+                });
             }
         }
     }

@@ -1,7 +1,9 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
@@ -79,6 +81,61 @@ namespace NebulaNetwork.PacketProcessors.Session
                 {
                     IPlayerData[] inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
                     playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
+
+                    // Since the host is always in the game he could already have changed his mecha armor, so send it to the new player.
+                    using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                    {
+                        GameMain.mainPlayer.mecha.appearance.Export(writer.BinaryWriter);
+                        player.SendPacket(new PlayerMechaArmor(Multiplayer.Session.LocalPlayer.Id, writer.CloseAndGetBytes()));
+                    }
+
+                    // if the client had used a custom armor we should have saved a copy of it, so send it back
+                    if(player.Data.Appearance != null)
+                    {
+                        using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                        {
+                            player.Data.Appearance.Export(writer.BinaryWriter);
+                            playerManager.SendPacketToAllPlayers(new PlayerMechaArmor(player.Id, writer.CloseAndGetBytes()));
+                        }
+
+                        // and load custom appearance on host side too
+                        // this is the code from PlayerMechaArmonrProcessor
+                        using (Multiplayer.Session.World.GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
+                        {
+                            if(remotePlayersModels.TryGetValue(player.Id, out RemotePlayerModel playerModel))
+                            {
+                                if(playerModel.MechaInstance.appearance == null)
+                                {
+                                    playerModel.MechaInstance.appearance = new MechaAppearance();
+                                    playerModel.MechaInstance.appearance.Init();
+                                }
+                                player.Data.Appearance.CopyTo(playerModel.MechaInstance.appearance);
+                                playerModel.PlayerInstance.mechaArmorModel.RefreshAllPartObjects();
+                                playerModel.PlayerInstance.mechaArmorModel.RefreshAllBoneObjects();
+                                playerModel.MechaInstance.appearance.NotifyAllEvents();
+                                playerModel.PlayerInstance.mechaArmorModel._Init(playerModel.PlayerInstance);
+                                playerModel.PlayerInstance.mechaArmorModel._OnOpen();
+                            }
+                        }
+                    }
+
+                    // if the client has some changes made in his mecha editor send them back for them to load
+                    if(player.Data.DIYAppearance != null)
+                    {
+                        using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                        {
+                            player.Data.DIYAppearance.Export(writer.BinaryWriter);
+                            player.SendPacket(new PlayerMechaDIYArmor(writer.CloseAndGetBytes(), player.Data.DIYItemId, player.Data.DIYItemValue));
+                        }
+                    }
+
+                    // add together player sand count and tell others if we are syncing soil
+                    if (Config.Options.SyncSoil)
+                    {
+                        GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
+                        Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+                    }
+
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();
                 }
             }

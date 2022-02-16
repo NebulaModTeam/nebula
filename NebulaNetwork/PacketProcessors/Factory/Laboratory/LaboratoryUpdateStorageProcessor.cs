@@ -13,7 +13,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Labratory
             LabComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.labPool;
             if (pool != null && packet.LabIndex != -1 && packet.LabIndex < pool.Length && pool[packet.LabIndex].id != -1)
             {
-                pool[packet.LabIndex].served[packet.Index] = packet.Value;
+                pool[packet.LabIndex].served[packet.Index] = packet.ItemCount;
+                pool[packet.LabIndex].incServed[packet.Index] = packet.ItemInc;
             }
         }
     }

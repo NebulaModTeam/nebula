@@ -8,6 +8,8 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(PlanetTransport))]
     internal class PlanetTransport_Patch
     {
+        private static int RemovingStationGId = 0;
+
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetTransport.SetStationStorage))]
         public static bool SetStationStorage_Postfix(PlanetTransport __instance, int stationId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, Player player)
@@ -18,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if (stationComponent != null)
                 {
-                    StationUI packet = new StationUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
+                    StorageUI packet = new StorageUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId, itemCountMax, localLogic, remoteLogic);
                     Multiplayer.Session.Network.SendPacket(packet);
                 }
 
@@ -91,12 +93,12 @@ namespace NebulaPatcher.Patches.Dynamic
          * As clients need to access the StationComponent in gStationPool when RematchRemotePairs() is called (and this also gets called by RemoveStationComponent())
          * we need to prevent the call for client here to avoid a NRE and instead call it triggered by host after RematchRemotePairs() got called.
          * basically in a Postfix of RemoveStationComponent()
-         * Clients do not call RematchRemotePairs() (as we block it), but update ships when host calls it via ILSShipDataUpdate packet
          */
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
         public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id)
         {
+            RemovingStationGId = __instance.stationPool[id].gid; // cache this as we need it in the postfix but its gone there already.
             return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Ships.PatchLockILS;
         }
 
@@ -111,7 +113,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return;
             }
-            Multiplayer.Session.Network.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, __instance.stationPool[id].gid));
+            Multiplayer.Session.Network.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, RemovingStationGId));
         }
     }
 }

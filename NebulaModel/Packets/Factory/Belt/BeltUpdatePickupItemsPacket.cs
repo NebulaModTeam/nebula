@@ -1,6 +1,6 @@
 ﻿using NebulaAPI;
 
-namespace NebulaModel.Packets.Belt
+namespace NebulaModel.Packets.Factory.Belt
 {
     public class BeltUpdatePickupItemsPacket
     {
@@ -22,10 +22,9 @@ namespace NebulaModel.Packets.Belt
         public int ItemId { get; set; }
         public int Count { get; set; }
         public int BeltId { get; set; }
-        public int SegId { get; set; }
-        public BeltUpdate(int itemId, int count, int beltId, int segId)
+
+        public BeltUpdate(int itemId, int count, int beltId)
         {
-            SegId = segId;
             ItemId = itemId;
             Count = count;
             BeltId = beltId;
@@ -36,7 +35,6 @@ namespace NebulaModel.Packets.Belt
             writer.Put(ItemId);
             writer.Put(Count);
             writer.Put(BeltId);
-            writer.Put(SegId);
         }
 
         public void Deserialize(INetDataReader reader)
@@ -44,7 +42,6 @@ namespace NebulaModel.Packets.Belt
             ItemId = reader.GetInt();
             Count = reader.GetInt();
             BeltId = reader.GetInt();
-            SegId = reader.GetInt();
         }
     }
 }

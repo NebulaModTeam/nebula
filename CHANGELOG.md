@@ -1,5 +1,34 @@
 ## Changelog
 
+0.8.1:
+
+- @starfish: Add copy&close error button
+- @starfish: bugfixes regarding dyson sphere editor
+- @starfish: bugfix regarding item refund in matrix labs
+- @starfish: bugfix regarding the ILS UI
+- @starfish: bugfix regarding placement of spraycoaters, traffic monitors and inserters
+- @starfish: bugfix regarding drone and ship counts in stations
+- @PhantomGamers, @sp00ktober: adjust TCP fragment size for faster data transmission
+- @sp00ktober: bugfix regarding players getting stuck with the "player joining" message
+- @sp00ktober: bugfix regarding wrong mecha color until hitting "apply" in mecha editor
+- @sp00ktober: bugfix regarding ILS ship rendering clientside
+- @sp00ktober: add optional soil syncing
+- @sp00ktober: add syncing of mecha editor state and items
+
+0.8.0:
+
+- Now compatible with DSP 0.9.24
+- @starfish: Refactoring of the ILS UI making it more stable and accurate
+- @starfish: Update Dyson Sphere syncing to match the new features of the game update
+- @starfish: Add UPS syncing to the game making the overall game state more accurate
+- @starfish: Updates for the proliferator and advanced miner
+- @starfish: Bugfix for wrong objId
+- @sp00ktober: Rework ILS ship rendering to be more accurate for clients
+- @sp00ktober: Rework ILS item adding (into stations) to be more accurate for clients
+- @sp00ktober: Bugfixes related to belts placed with a filter set
+- @sp00ktober: Add syncing of MechaAppearance
+- @sp00ktober: Fixed a bug that would lock the host with the "player joining" message when multiple clients try to join at the same time
+
 0.7.10:
 
 - @starfish: Added WarningSystem syncing

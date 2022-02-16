@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
@@ -137,19 +138,25 @@ namespace NebulaWorld
                 InGamePopup.FadeOut();
             }
 
+            // store original sand count of host if we are syncing it to preserve it when saving the game
+            if (Config.Options.SyncSoil)
+            {
+                player.Data.Mecha.SandCount = GameMain.mainPlayer.sandCount;
+            }
+
             // Finally we need add the local player components to the player character
             localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
             localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
         }
 
-        public void OnPlayerJoining()
+        public void OnPlayerJoining(string Username)
         {
             if (!IsPlayerJoining)
             {
                 IsPlayerJoining = true;
                 Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
-                InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
+                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait", null);
             }
         }
 
@@ -301,7 +308,7 @@ namespace NebulaWorld
                     Log.Error("Could not find the playerAnimator for player with ID " + playerId);
                     return;
                 }
-
+                
                 Log.Info($"Changing color of player {playerId}");
                 for (int i = 0; i < colors.Length; i++)
                 {
@@ -320,11 +327,11 @@ namespace NebulaWorld
                 mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
                 mechaArmorModel.inst_part_ar_em_mat.SetColor("_EmissionMask", colors[3].ToColor() / 255);
                 mechaArmorModel.inst_part_sk_em_mat.SetColor("_EmissionMask", colors[4].ToColor() / 255);
-
+                
                 // We changed our own color, so we have to let others know
                 if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
-                    GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
+                    //GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
                     Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, colors));
                 }
             }

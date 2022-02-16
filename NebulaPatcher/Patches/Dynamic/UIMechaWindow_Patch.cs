@@ -18,7 +18,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(Multiplayer.Session.LocalPlayer.Id, Float4.ToFloat4(GameMain.mainPlayer.mecha.mainColors)));
+            // GameMain.mainPlayer.mecha.mainColors not there anymore
+            //Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(Multiplayer.Session.LocalPlayer.Id, Float4.ToFloat4(GameMain.mainPlayer.mecha.mainColors)));
             Config.Options.SetMechaColors();
         }
     }
