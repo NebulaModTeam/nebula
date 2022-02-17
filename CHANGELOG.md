@@ -1,5 +1,9 @@
 ## Changelog
 
+0.8.2:
+
+- @kremnev8: fix issue with EmojiDataManager when a save was loaded multiple times in a row.
+
 0.8.1:
 
 - @starfish: Add copy&close error button
