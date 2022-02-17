@@ -14,7 +14,7 @@
 - @sp00ktober: bugfix regarding ILS ship rendering clientside
 - @sp00ktober: add optional soil syncing
 - @sp00ktober: add syncing of mecha editor state and items
-- @mattsemar, @kremnev8: add in-game chat functionality with commands
+- @mattsemar, @kremnev8: add in-game chat functionality with commands (open with `Alt` + `~` by default)
 
 0.8.0:
 
