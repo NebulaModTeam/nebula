@@ -69,19 +69,6 @@ jobs:
           TCLI_AUTH_TOKEN: ${{ secrets.TS_SERVICE_ACCOUNT_TOKEN }}
         run: node .github\scripts\thunderstore_bundle.js
 
-      - name: Prepare Release
-        id: prepare-release
-        run: |
-          $version = ./nbgv prepare-release --format json;
-          echo "::set-output name=PREPARE_RELEASE_OUTPUT::$version";
-      
-      - name: Push changes
-        run: |
-          git push;
-          git checkout ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }};
-          git push -u origin head;
-          git checkout ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).CurrentBranch.Name }}
-
       # Upload the thunderstore artifact (in case automatic upload fails)
       - uses: actions/upload-artifact@v2.2.4
         with:
