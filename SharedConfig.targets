@@ -46,6 +46,7 @@
   
   <Target Name="BeforeBuild">
     <Copy
+          Condition="Exists('..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle')"
           SourceFiles="..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle"
           DestinationFolder="..\NebulaWorld\Assets\" />
   </Target>  
