@@ -33,6 +33,7 @@ namespace NebulaWorld.Chat
     public static class EmojiDataManager
     {
         public static Dictionary<string, List<Emoji>> emojies = new Dictionary<string, List<Emoji>>();
+        private static bool isLoaded = false;
 
         private static void Add(Emoji emoji)
         {
@@ -49,6 +50,8 @@ namespace NebulaWorld.Chat
 
         public static void ParseData(TextAsset asset)
         {
+            if (isLoaded) return;
+            
             string json = "{\"frames\":" + asset.text + "}";
 
             if (MiniJson.Deserialize(json) is Dictionary<string, object> jObject)
@@ -74,6 +77,8 @@ namespace NebulaWorld.Chat
             {
                 kv.Value.Sort((emoji1, emoji2) => emoji1.SortOrder.CompareTo(emoji2.SortOrder));
             }
+
+            isLoaded = true;
         }
     }
 }
