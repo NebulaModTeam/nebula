@@ -22,7 +22,7 @@ namespace NebulaWorld
                         return null;
                     }
 
-                    var fullAssetPath = Path.Combine(pluginfolder, "Assets", "nebulabundle");
+                    var fullAssetPath = Path.Combine(pluginfolder, "nebulabundle");
                     assetBundle = AssetBundle.LoadFromFile(fullAssetPath);
                 }
 

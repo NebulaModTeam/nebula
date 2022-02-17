@@ -43,6 +43,10 @@
           SourceFiles="@(ProjectAssembliesMetaFilesFolder)"
           DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
   </Target>
+
+  <Target Name="CopyBundleToOutDir" AfterTargets="Build">
+    <Copy SourceFiles="..\NebulaWorld\Assets\nebulabundle" DestinationFolder="$(OutDir)" />
+  </Target>
   
   <Target Name="BeforeBuild">
     <Copy
