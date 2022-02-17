@@ -47,5 +47,7 @@ namespace NebulaAPI
         void SendTechRefundPackagesToClients(int techId);
 
         void UpdateMechaData(IMechaData mechaData, INebulaConnection conn);
+
+        void UpdateSyncedSandCount(int deltaSandCount);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -116,6 +117,23 @@ namespace NebulaNetwork.PacketProcessors.Session
                                 playerModel.PlayerInstance.mechaArmorModel._OnOpen();
                             }
                         }
+                    }
+
+                    // if the client has some changes made in his mecha editor send them back for them to load
+                    if(player.Data.DIYAppearance != null)
+                    {
+                        using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
+                        {
+                            player.Data.DIYAppearance.Export(writer.BinaryWriter);
+                            player.SendPacket(new PlayerMechaDIYArmor(writer.CloseAndGetBytes(), player.Data.DIYItemId, player.Data.DIYItemValue));
+                        }
+                    }
+
+                    // add together player sand count and tell others if we are syncing soil
+                    if (Config.Options.SyncSoil)
+                    {
+                        GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
+                        Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
                     }
 
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();

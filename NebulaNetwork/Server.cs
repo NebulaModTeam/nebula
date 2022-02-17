@@ -71,7 +71,15 @@ namespace NebulaNetwork
             WebSocketService.PacketProcessor = PacketProcessor;
             WebSocketService.PlayerManager = PlayerManager;
             socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
-            socket.Start();
+            try
+            {
+                socket.Start();
+            }catch(System.InvalidOperationException e)
+            {
+                InGamePopup.ShowError("Error", "An error occurred while hosting the game: " + e.Message, "Close");
+                Stop();
+                return;
+            }
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
@@ -128,47 +136,50 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            gameResearchHashUpdateTimer += Time.deltaTime;
-            productionStatisticsUpdateTimer += Time.deltaTime;
-            dysonLaunchUpateTimer += Time.deltaTime;
-            dysonSphereUpdateTimer += Time.deltaTime;
-            warningUpdateTimer += Time.deltaTime;
-
-            if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
-            {
-                gameResearchHashUpdateTimer = 0;
-                if (GameMain.data.history.currentTech != 0)
-                {
-                    TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
-                    SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
-                }
-            }
-
-            if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
-            {
-                productionStatisticsUpdateTimer = 0;
-                Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
-            }
-
-            if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)
-            {
-                dysonLaunchUpateTimer = 0;
-                Multiplayer.Session.Launch.SendBroadcastIfNeeded();
-            }
-
-            if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
-            {
-                dysonSphereUpdateTimer = 0;
-                Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded();
-            }
-
-            if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
-            {
-                warningUpdateTimer = 0;
-                Multiplayer.Session.Warning.SendBroadcastIfNeeded();
-            }
-
             PacketProcessor.ProcessPacketQueue();
+
+            if (Multiplayer.Session.IsGameLoaded)
+            {
+                gameResearchHashUpdateTimer += Time.deltaTime;
+                productionStatisticsUpdateTimer += Time.deltaTime;
+                dysonLaunchUpateTimer += Time.deltaTime;
+                dysonSphereUpdateTimer += Time.deltaTime;
+                warningUpdateTimer += Time.deltaTime;
+
+                if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
+                {
+                    gameResearchHashUpdateTimer = 0;
+                    if (GameMain.data.history.currentTech != 0)
+                    {
+                        TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
+                        SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
+                    }
+                }
+
+                if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
+                {
+                    productionStatisticsUpdateTimer = 0;
+                    Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
+                }
+
+                if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)
+                {
+                    dysonLaunchUpateTimer = 0;
+                    Multiplayer.Session.Launch.SendBroadcastIfNeeded();
+                }
+
+                if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
+                {
+                    dysonSphereUpdateTimer = 0;
+                    Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded();
+                }
+
+                if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
+                {
+                    warningUpdateTimer = 0;
+                    Multiplayer.Session.Warning.SendBroadcastIfNeeded();
+                }
+            }            
         }
 
         private void DisableNagleAlgorithm(WebSocketServer socketServer)

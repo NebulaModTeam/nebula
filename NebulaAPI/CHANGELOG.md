@@ -1,5 +1,9 @@
 ## Changelog
 
+1.1.4:
+
+- Added DIY Mecha Appearance to the IPlayerData interface representing the current state of the mecha editor UI.
+
 1.1.3:
 
 - Added new MechaAppearance to the IPlayerData interface.

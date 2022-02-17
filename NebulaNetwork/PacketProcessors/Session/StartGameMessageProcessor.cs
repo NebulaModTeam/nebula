@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -59,19 +60,24 @@ namespace NebulaNetwork.PacketProcessors.Session
                     //Add current tech bonuses to the connecting player based on the Host's mecha
                     ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
-                    conn.SendPacket(new StartGameMessage(true, (PlayerData)player.Data));
+                    conn.SendPacket(new StartGameMessage(true, (PlayerData)player.Data, Config.Options.SyncSoil));
                 }
                 else
                 {
-                    conn.SendPacket(new StartGameMessage(false, null));
+                    conn.SendPacket(new StartGameMessage(false, null, false));
                 }
             }
             else if(packet.IsAllowedToStart)
             {
+                // overwrite local setting with host setting, but dont save it as its a temp setting for this session
+                Config.Options.SyncSoil = packet.SyncSoil;
+
+                ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
                 ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(packet.LocalPlayerData, true);
 
                 UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
                 Multiplayer.Session.IsInLobby = false;
+                Multiplayer.ShouldReturnToJoinMenu = false;
 
                 GameDesc gameDesc = UIRoot.instance.galaxySelect.gameDesc;
                 gameDesc.SetForNewGame(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, 1, gameDesc.resourceMultiplier);

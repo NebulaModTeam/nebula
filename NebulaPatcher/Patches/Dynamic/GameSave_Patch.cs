@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel;
 using NebulaNetwork;
 using NebulaWorld;
 
@@ -13,11 +14,34 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
+                // temp revert sand count back to original value before saving if we sync it (see SimulatedWorld.SetupInitialPlayerState() )
+                if (Config.Options.SyncSoil)
+                {
+                    int tmp = GameMain.mainPlayer.sandCount;
+                    GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+                    Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount = tmp;
+                }
                 SaveManager.SaveServerData(saveName);
             }
 
             // Only save if in single player or if you are the host
             return (!Multiplayer.IsActive && !Multiplayer.IsLeavingGame) || Multiplayer.Session.LocalPlayer.IsHost;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameSave.SaveCurrentGame))]
+        public static void SaveCurrentGame_Postfix(string saveName)
+        {
+            if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                // if we sync soil we need to revert changes from above after saving the game
+                if (Config.Options.SyncSoil)
+                {
+                    int tmp = GameMain.mainPlayer.sandCount;
+                    GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+                    Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount = tmp;
+                }
+            }
         }
 
         [HarmonyPrefix]

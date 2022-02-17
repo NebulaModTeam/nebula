@@ -42,19 +42,8 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void IdleShipGetToWork_Postfix(StationComponent __instance, int index)
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-            {   
-                ILSShipData packet = new ILSShipData(true, __instance.workShipDatas[__instance.workShipCount - 1], __instance.gid, __instance.workShipDatas.Length, __instance.warperCount);
-                Multiplayer.Session.Network.SendPacket(packet);
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(StationComponent.WorkShipBackToIdle))]
-        public static void WorkShipBackToIdle_Postfix(StationComponent __instance, int index)
-        {
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {
-                ILSShipData packet = new ILSShipData(false, __instance.gid, __instance.planetId, __instance.workShipDatas.Length);
+                ILSIdleShipBackToWork packet = new ILSIdleShipBackToWork(__instance.workShipDatas[__instance.workShipCount - 1], __instance.gid, __instance.workShipDatas.Length, __instance.warperCount);
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }

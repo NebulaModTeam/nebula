@@ -2,6 +2,7 @@
 using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
+using NebulaWorld;
 using NGPT;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -195,7 +196,22 @@ namespace NebulaPatcher.Patches.Dynamic
             SetupUIElement(element, control, prop, anchorPosition);
             UIToggle toggle = element.GetComponentInChildren<UIToggle>();
             toggle.toggle.onValueChanged.RemoveAllListeners();
-            toggle.toggle.onValueChanged.AddListener((value) => { prop.SetValue(tempMultiplayerOptions, value, null); });
+            toggle.toggle.onValueChanged.AddListener((value) => {
+
+                // lock soil setting while in multiplayer game
+                if (control.DisplayName == "Sync Soil" && Multiplayer.IsActive)
+                {
+                    // reset to saved value if needed
+                    if(value != (bool)prop.GetValue(tempMultiplayerOptions, null))
+                    {
+                        toggle.isOn = !value;
+                        InGamePopup.ShowInfo("Info", "This setting can only be changed while not in game", "Okay");
+                    }
+                    return;
+                }
+                prop.SetValue(tempMultiplayerOptions, value, null);
+
+            });
 
             tempToUICallbacks[prop.Name] = () =>
             {

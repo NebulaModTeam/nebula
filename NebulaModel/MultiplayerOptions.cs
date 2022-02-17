@@ -39,6 +39,9 @@ namespace NebulaModel
         [DisplayName("Default chat size")]
         public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
 
+        [DisplayName("Sync Soil")]
+        public bool SyncSoil { get; set; } = false;
+
         public string MechaColors { get; set; } = "209 151 76 255;184 90 72 255;94 92 92 255;123 234 255 255;229 155 94 255;255 243 235 255;255 248 245 255;255 255 255 255;";
 
         public Float4[] GetMechaColors()
