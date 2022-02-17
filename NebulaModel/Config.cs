@@ -19,7 +19,10 @@ namespace NebulaModel
         public static string ModVersion => ThisAssembly.AssemblyInformationalVersion;
         public static MultiplayerOptions Options { get; set; }
 
+        public static Action OnConfigApplied;
+        
         private static ConfigFile configFile;
+        
 
         public static bool LoadOptions()
         {

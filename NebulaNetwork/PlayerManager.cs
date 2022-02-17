@@ -8,7 +8,9 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace NebulaNetwork
@@ -74,6 +76,15 @@ namespace NebulaNetwork
             }
 
             return null;
+        }
+
+        public INebulaPlayer GetConnectedPlayerByUsername(string username)
+        {
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                return connectedPlayers.Values
+                    .FirstOrDefault(plr => plr.Data != null && string.Equals(plr.Data.Username, username, StringComparison.InvariantCultureIgnoreCase));
+            }
         }
 
         public INebulaPlayer GetSyncingPlayer(INebulaConnection conn)

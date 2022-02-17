@@ -38,6 +38,8 @@ namespace NebulaWorld
         // Some Patch Flags
         public bool PlanetRefreshMissingMeshes { get; set; }
 
+        public DateTime StartTime;
+
 
         public bool IsGameLoaded { get; set; }
         public bool IsInLobby { get; set; }
@@ -73,6 +75,8 @@ namespace NebulaWorld
             DysonSpheres = new DysonSphereManager();
             Launch = new LaunchManager();
             Warning = new WarningManager();
+            
+            StartTime = DateTime.Now;
         }
 
         public void Dispose()

@@ -1,5 +1,10 @@
 ﻿using HarmonyLib;
 using NebulaWorld;
+using NebulaWorld.MonoBehaviours.Local;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -17,6 +22,22 @@ namespace NebulaPatcher.Patches.Dynamic
                 return false;
             }
             return true;
+        }
+
+        [HarmonyPatch(nameof(VFInput.UpdateGameStates))]
+        [HarmonyPostfix]
+        public static void UpdateGameStates_Postfix()
+        {
+            if (!VFInput.inputing)
+            {
+                GameObject currentSelectedGameObject = EventSystem.current.currentSelectedGameObject;
+                VFInput.inputing = currentSelectedGameObject != null && currentSelectedGameObject.GetComponent<TMP_InputField>() != null;
+            }
+
+            if (!VFInput.inScrollView && ChatManager.Instance != null && EmojiPicker.instance != null)
+            {
+                VFInput.inScrollView = ChatManager.Instance.IsPointerIn() || EmojiPicker.instance.pointerIn;
+            }
         }
     }
 }

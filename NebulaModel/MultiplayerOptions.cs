@@ -1,5 +1,6 @@
 ﻿using NebulaAPI;
 using NebulaModel.Attributes;
+using NebulaModel.DataStructures;
 using System;
 using System.ComponentModel;
 
@@ -21,10 +22,22 @@ namespace NebulaModel
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
 
+        [DisplayName("Auto Open Chat")]
+        public bool AutoOpenChat { get; set; } = true;
+
         public string LastIP { get; set; } = string.Empty;
 
         [DisplayName("Sync Ups")]
         public bool SyncUps { get; set; } = true;
+        
+        [DisplayName("Streamer mode")]
+        public bool StreamerMode { get; set; } = false;
+        
+        [DisplayName("Default chat position")]
+        public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
+        
+        [DisplayName("Default chat size")]
+        public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
 
         [DisplayName("Sync Soil")]
         public bool SyncSoil { get; set; } = false;
