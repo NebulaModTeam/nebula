@@ -1,18 +1,17 @@
 ﻿using NebulaAPI;
+using NebulaModel.DataStructures;
 
 namespace NebulaModel.Packets.Universe
 {
     [HidePacketInDebugLogs]
     public class DysonLaunchDataPacket
     {
-        public int Count { get; set; }
-        public byte[] BinaryData { get; set; }
+        public DysonLaunchData Data { get; set; }
 
         public DysonLaunchDataPacket() { }
-        public DysonLaunchDataPacket(int num, byte[] data)
+        public DysonLaunchDataPacket(DysonLaunchData data)
         {
-            Count = num;
-            BinaryData = data;
+            Data = data;
         }
     }
 }

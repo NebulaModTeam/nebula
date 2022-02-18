@@ -32,7 +32,8 @@ namespace NebulaPatcher.Patches.Transpilers
                         loadInstruction,
                         HarmonyLib.Transpilers.EmitDelegate<Action<int, Vector3, DysonNode>>((planetId, localPos, autoDysonNode) =>
                         {
-                            if (!Multiplayer.IsActive || !Multiplayer.Session.Launch.IsUpdateNeeded)
+                            // If the dyson sphere has no subscribers anymore, skip this data
+                            if (!Multiplayer.IsActive || !Multiplayer.Session.Launch.Snapshots.ContainsKey(planetId/100-1))
                                 return;
 
                             // Assume layerId < 16, nodeId < 4096

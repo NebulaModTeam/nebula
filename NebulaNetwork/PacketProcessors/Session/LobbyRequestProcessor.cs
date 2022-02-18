@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -37,54 +38,68 @@ namespace NebulaNetwork.PacketProcessors.Session
                     return;
                 }
 
-                pendingPlayers.Remove(conn);
-            }
-
-            Dictionary<string, string> clientMods = new Dictionary<string, string>();
-
-            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.ModsVersion))
-            {
-                for (int i = 0; i < packet.ModsCount; i++)
+                if (GameMain.isFullscreenPaused)
                 {
-                    string guid = reader.BinaryReader.ReadString();
-                    string version = reader.BinaryReader.ReadString();
+                    conn.Disconnect(DisconnectionReason.HostStillLoading);
+                    pendingPlayers.Remove(conn);
 
-                    if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
-                    {
-                        conn.Disconnect(DisconnectionReason.ModIsMissingOnServer, guid);
-                        return;
-                    }
-
-                    clientMods.Add(guid, version);
-                }
-            }
-
-            foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
-            {
-                if (pluginInfo.Value.Instance is IMultiplayerMod mod)
-                {
-                    if (!clientMods.ContainsKey(pluginInfo.Key))
-                    {
-                        conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
-                        return;
-                    }
-
-                    string version = clientMods[pluginInfo.Key];
-
-                    if (mod.CheckVersion(mod.Version, version))
-                    {
-                        continue;
-                    }
-
-                    conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Version}");
                     return;
                 }
-            }
 
-            if (packet.GameVersionSig != GameConfig.gameVersion.sig)
-            {
-                conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
-                return;
+                Dictionary<string, string> clientMods = new Dictionary<string, string>();
+
+                using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.ModsVersion))
+                {
+                    for (int i = 0; i < packet.ModsCount; i++)
+                    {
+                        string guid = reader.BinaryReader.ReadString();
+                        string version = reader.BinaryReader.ReadString();
+
+                        if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
+                        {
+                            conn.Disconnect(DisconnectionReason.ModIsMissingOnServer, guid);
+                            pendingPlayers.Remove(conn);
+
+                            return;
+                        }
+
+                        clientMods.Add(guid, version);
+                    }
+                }
+
+                foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+                {
+                    if (pluginInfo.Value.Instance is IMultiplayerMod mod)
+                    {
+                        if (!clientMods.ContainsKey(pluginInfo.Key))
+                        {
+                            conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
+                            pendingPlayers.Remove(conn);
+
+                            return;
+                        }
+
+                        string version = clientMods[pluginInfo.Key];
+
+                        if (mod.CheckVersion(mod.Version, version))
+                        {
+                            continue;
+                        }
+
+                        conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Version}");
+                        pendingPlayers.Remove(conn);
+
+                        return;
+                    }
+                }
+
+                if (packet.GameVersionSig != GameConfig.gameVersion.sig)
+                {
+                    conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
+                    pendingPlayers.Remove(conn);
+
+                    return;
+                }
             }
 
             bool isNewUser = false;
@@ -111,16 +126,22 @@ namespace NebulaNetwork.PacketProcessors.Session
             // Add the Mecha Color to the player data
             player.Data.MechaColors = packet.MechaColors;
 
-            // Add the new player to the list
-            using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
-            {
-                syncingPlayers.Add(conn, player);
-            }
-
             // if user is known and host is ingame dont put him into lobby but let him join the game
             if (!isNewUser && Multiplayer.Session.IsGameLoaded)
             {
-                Multiplayer.Session.World.OnPlayerJoining();
+                // Remove the new player from pending list
+                using (playerManager.GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
+                {
+                    pendingPlayers.Remove(conn);
+                }
+
+                // Add the new player to the list
+                using (playerManager.GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
+                {
+                    syncingPlayers.Add(conn, player);
+                }
+
+                Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 
                 // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
                 PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
@@ -149,7 +170,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
 
                     GameDesc gameDesc = GameMain.data.gameDesc;
-                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count));
+                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil));
                 }
             }
             else

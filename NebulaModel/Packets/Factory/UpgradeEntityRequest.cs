@@ -5,20 +5,16 @@ namespace NebulaModel.Packets.Factory
     public class UpgradeEntityRequest
     {
         public int PlanetId { get; set; }
-        public Float3 pos { get; set; }
-        public Float4 rot { get; set; }
+        public int ObjId { get; set; }
         public int UpgradeProtoId { get; set; }
-        public bool IsPrebuild { get; set; }
         public int AuthorId { get; set; }
 
         public UpgradeEntityRequest() { }
-        public UpgradeEntityRequest(int planetId, Float3 pos, Float4 rot, int upgradeProtoId, bool isPrebuild, int authorId)
+        public UpgradeEntityRequest(int planetId, int objId, int upgradeProtoId, int authorId)
         {
             PlanetId = planetId;
-            this.pos = pos;
-            this.rot = rot;
+            ObjId = objId;
             UpgradeProtoId = upgradeProtoId;
-            IsPrebuild = isPrebuild;
             AuthorId = authorId;
         }
     }

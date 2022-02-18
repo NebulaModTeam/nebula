@@ -4,6 +4,7 @@ using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
 using UnityEngine;
+using NebulaModel.Logger;
 
 namespace NebulaNetwork.PacketProcessors.Factory.Entity
 {
@@ -29,47 +30,16 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                 Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
                 ItemProto itemProto = LDB.items.Select(packet.UpgradeProtoId);
 
-                Quaternion qRot = new Quaternion(packet.rot.x, packet.rot.y, packet.rot.z, packet.rot.w);
-                Vector3 vPos = new Vector3(packet.pos.x, packet.pos.y, packet.pos.z);
+                // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
+                PlanetData pData = GameMain.gpuiManager.specifyPlanet;
 
-                if (packet.IsPrebuild)
-                {
-                    for (int i = 1; i < planet.factory.prebuildCursor; i++)
-                    {
-                        PrebuildData pbData = planet.factory.prebuildPool[i];
-                        if (pbData.pos == vPos && pbData.rot == qRot)
-                        {
-                            DoUpgrade(planet, -i, itemProto);
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    for (int i = 1; i < planet.factory.entityCursor; i++)
-                    {
-                        EntityData eData = planet.factory.entityPool[i];
-                        if (eData.pos == vPos && eData.rot == qRot)
-                        {
-                            DoUpgrade(planet, i, itemProto);
-                            break;
-                        }
-                    }
-                }
+                GameMain.gpuiManager.specifyPlanet = planet;
+                planet.factory.UpgradeFinally(GameMain.mainPlayer, packet.ObjId, itemProto);
+                GameMain.gpuiManager.specifyPlanet = pData;
 
                 Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
                 Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
             }
-        }
-
-        private static void DoUpgrade(PlanetData planet, int objId, ItemProto itemProto)
-        {
-            // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
-            PlanetData pData = GameMain.gpuiManager.specifyPlanet;
-
-            GameMain.gpuiManager.specifyPlanet = planet;
-            planet.factory.UpgradeFinally(GameMain.mainPlayer, objId, itemProto);
-            GameMain.gpuiManager.specifyPlanet = pData;
         }
     }
 }

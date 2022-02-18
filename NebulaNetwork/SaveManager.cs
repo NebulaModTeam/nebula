@@ -1,5 +1,6 @@
 ﻿using NebulaAPI;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Utils;
 using NebulaWorld;
@@ -11,7 +12,7 @@ namespace NebulaNetwork
     public class SaveManager
     {
         private const string FILE_EXTENSION = ".server";
-        private const ushort REVISION = 4;
+        private const ushort REVISION = 6;
 
         public static void SaveServerData(string saveName)
         {
@@ -92,6 +93,7 @@ namespace NebulaNetwork
 
             byte[] source = File.ReadAllBytes(path);
             NetDataReader netDataReader = new NetDataReader(source);
+            ushort revision = 0;
             try
             {
                 string revString = netDataReader.GetString();
@@ -100,15 +102,20 @@ namespace NebulaNetwork
                     throw new System.Exception();
                 }
 
-                ushort revision = netDataReader.GetUShort();
+                revision = netDataReader.GetUShort();
+                Log.Info($"Loading server data, revision {revision}");
                 if (revision != REVISION)
                 {
-                    throw new System.Exception();
+                    // Supported revision: 4~6
+                    if (revision < 4 || revision > REVISION)
+                    {
+                        throw new System.Exception();
+                    }
                 }
             }
             catch (System.Exception)
             {
-                NebulaModel.Logger.Log.Warn("Skipping server data from unsupported Nebula version...");
+                Log.Warn("Skipping server data from unsupported Nebula version...");
                 return;
             }
 
@@ -119,11 +126,29 @@ namespace NebulaNetwork
                 for (int i = 0; i < playerNum; i++)
                 {
                     string hash = netDataReader.GetString();
+                    PlayerData playerData = null;
+                    if (revision == REVISION)
+                    {
+                        playerData = netDataReader.Get<PlayerData>();
+                    }
+                    else if(revision == 4)
+                    {
+                        playerData = new PlayerData();
+                        playerData.Deserialize_4(netDataReader);
+                    }
+                    else if(revision == 5)
+                    {
+                        playerData = new PlayerData();
+                        playerData.Deserialize_5(netDataReader);
+                    }
 
-                    PlayerData playerData = netDataReader.Get<PlayerData>();
-                    if (!savedPlayerData.ContainsKey(hash))
+                    if (!savedPlayerData.ContainsKey(hash) && playerData != null)
                     {
                         savedPlayerData.Add(hash, playerData);
+                    }
+                    else if(playerData == null)
+                    {
+                        Log.Warn($"could not load player data from unsupported save file revision {revision}");
                     }
                 }
             }

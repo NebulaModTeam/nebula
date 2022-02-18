@@ -4,6 +4,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
+using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
@@ -183,7 +184,7 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalStarId == starId && player.Connection != sender)
+                    if (player.Data.LocalStarId == starId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
                     {
                         ((NebulaPlayer)player).SendRawPacket(rawPacket);
                     }
@@ -198,7 +199,7 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalPlanetId == planetId && player.Connection != sender)
+                    if (player.Data.LocalPlanetId == planetId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
                     {
                         ((NebulaPlayer)player).SendRawPacket(rawPacket);
                     }
@@ -285,7 +286,7 @@ namespace NebulaNetwork
                     availablePlayerIds.Enqueue(player.Id);
                 }
                 Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
-                Multiplayer.Session.Launch.UnRegisterPlayer(conn);
+                Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
 
                 //Notify players about queued building plans for drones
                 int[] DronePlans = Multiplayer.Session.Drones.GetPlayerDronePlans(player.Id);
@@ -307,10 +308,31 @@ namespace NebulaNetwork
                     Multiplayer.Session.Network.SendPacket(new SyncComplete());
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();
                 }
+                else if(Config.Options.SyncSoil)
+                {
+                    GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
+                    UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
+                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+                }
             }
             else
             {
                 Log.Warn($"PlayerDisconnected NOT CALLED!");
+
+                if (Config.Options.SyncSoil)
+                {
+                    // now we need to recalculate the current sand amount :C
+                    GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+                    using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+                    {
+                        foreach (KeyValuePair<INebulaConnection, INebulaPlayer> entry in connectedPlayers)
+                        {
+                            GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
+                        }
+                    }
+                    UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
+                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+                }
             }
         }
 
@@ -337,9 +359,32 @@ namespace NebulaNetwork
             {
                 if (connectedPlayers.TryGetValue(conn, out INebulaPlayer player))
                 {
-                    //Find correct player for data to update
+                    //Find correct player for data to update, preserve sand count if syncing is enabled
+                    int sandCount = player.Data.Mecha.SandCount;
                     player.Data.Mecha = mechaData;
+                    if (Config.Options.SyncSoil)
+                    {
+                        player.Data.Mecha.SandCount = sandCount;
+                    }
                 }
+            }
+        }
+
+        // add or take sand evenly from each connected player while soil is synced
+        public void UpdateSyncedSandCount(int deltaSandCount)
+        {
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                foreach(KeyValuePair<INebulaConnection, INebulaPlayer> entry in connectedPlayers)
+                {
+                    entry.Value.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
+                    // dont be too picky here, a little bit more or less sand is ignorable i guess
+                    if(entry.Value.Data.Mecha.SandCount < 0)
+                    {
+                        entry.Value.Data.Mecha.SandCount = 0;
+                    }
+                }
+                Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
             }
         }
 

@@ -17,17 +17,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             using (Multiplayer.Session.Ships.PatchLockILS.On())
             {
                 GalacticTransport galacticTransport = GameMain.data.galacticTransport;
-
-                if (packet.PlanetId == GameMain.localPlanet?.id)
+                StationComponent[] stationPool = GameMain.galaxy.PlanetById(packet.PlanetId).factory?.transport.stationPool;
+                if (stationPool != null)
                 {
-                    // If we're on the same planet as the new station was created on, should be able to find
-                    // it in our local PlanetTransport.stationPool
-                    StationComponent stationComponent = GameMain.localPlanet.factory.transport.stationPool[packet.StationId];
-                    galacticTransport.AddStationComponent(packet.PlanetId, stationComponent);
+                    // If we have loaded the factory where the new station was created on, should be able to find
+                    // it in our PlanetTransport.stationPool
+                    galacticTransport.AddStationComponent(packet.PlanetId, stationPool[packet.StationId]);
                 }
                 else
                 {
-                    // If we're not on the same planet as the new station was create on, we need to create a 
+                    // If we haven't loaded the factory the new station was create on, we need to create a 
                     // "fake" station that we can put into the GalacticTransport.stationPool instead of a real on
                     Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId, packet.PlanetId, packet.MaxShipCount);
                 }

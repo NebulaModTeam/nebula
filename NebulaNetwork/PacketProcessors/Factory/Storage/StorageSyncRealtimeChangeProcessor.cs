@@ -24,17 +24,19 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
                 {
                     int itemId = packet.ItemId;
                     int count = packet.Count;
+                    int inc = packet.Inc;
+                    int dummyOut;
                     if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItem2)
                     {
-                        storage.AddItem(itemId, count, packet.StartIndex, packet.Length);
+                        storage.AddItem(itemId, count, packet.StartIndex, packet.Length, inc, out dummyOut);
                     }
                     else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItemStacked)
                     {
-                        storage.AddItemStacked(itemId, count);
+                        storage.AddItemStacked(itemId, count, inc, out dummyOut);
                     }
                     else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.TakeItemFromGrid)
                     {
-                        storage.TakeItemFromGrid(packet.Length, ref itemId, ref count);
+                        storage.TakeItemFromGrid(packet.Length, ref itemId, ref count, out dummyOut);
                     }
 
                     if (IsHost)

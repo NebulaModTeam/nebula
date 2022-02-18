@@ -3,14 +3,16 @@
     public class SiloStorageUpdatePacket
     {
         public int SiloIndex { get; set; }
-        public int NewRocketsAmount { get; set; }
+        public int ItemCount { get; set; }
+        public int ItemInc { get; set; }
         public int PlanetId { get; set; }
 
         public SiloStorageUpdatePacket() { }
-        public SiloStorageUpdatePacket(int siloIndex, int newRocketsAmount, int planetId)
+        public SiloStorageUpdatePacket(int siloIndex, int itemCount, int itemInc, int planetId)
         {
             SiloIndex = siloIndex;
-            NewRocketsAmount = newRocketsAmount;
+            ItemCount = itemCount;
+            ItemInc = itemInc;
             PlanetId = planetId;
         }
     }

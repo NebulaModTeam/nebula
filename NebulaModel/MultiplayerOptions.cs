@@ -23,6 +23,12 @@ namespace NebulaModel
 
         public string LastIP { get; set; } = string.Empty;
 
+        [DisplayName("Sync Ups")]
+        public bool SyncUps { get; set; } = true;
+
+        [DisplayName("Sync Soil")]
+        public bool SyncSoil { get; set; } = false;
+
         public string MechaColors { get; set; } = "209 151 76 255;184 90 72 255;94 92 92 255;123 234 255 255;229 155 94 255;255 243 235 255;255 248 245 255;255 255 255 255;";
 
         public Float4[] GetMechaColors()
@@ -45,14 +51,14 @@ namespace NebulaModel
 
         public void SetMechaColors()
         {
-            UnityEngine.Color32[] mainColors = GameMain.mainPlayer.mecha.mainColors;
+            /*UnityEngine.Color32[] mainColors = GameMain.mainPlayer.mecha.mainColors;
             string mechaColors = string.Empty;
             for (int i = 0; i < mainColors.Length; i++)
             {
                 mechaColors += $"{(int)mainColors[i].r} {(int)mainColors[i].g} {(int)mainColors[i].b} {(int)mainColors[i].a};";
             }
             MechaColors = mechaColors;
-            Config.SaveOptions();
+            Config.SaveOptions();*/
         }
 
         // Detail function group buttons

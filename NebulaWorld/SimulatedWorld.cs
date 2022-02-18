@@ -1,9 +1,11 @@
 ﻿using NebulaAPI;
+using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
+using NebulaModel.Packets.Warning;
 using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
@@ -131,8 +133,17 @@ namespace NebulaWorld
                 // Subscribe for the local star events
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
 
+                // Request latest warning signal
+                Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Signal));
+
                 // Hide the "Joining Game" popup
                 InGamePopup.FadeOut();
+            }
+
+            // store original sand count of host if we are syncing it to preserve it when saving the game
+            if (Config.Options.SyncSoil)
+            {
+                player.Data.Mecha.SandCount = GameMain.mainPlayer.sandCount;
             }
 
             // Finally we need add the local player components to the player character
@@ -140,7 +151,7 @@ namespace NebulaWorld
             localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
         }
 
-        public void OnPlayerJoining()
+        public void OnPlayerJoining(string Username)
         {
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
@@ -152,7 +163,7 @@ namespace NebulaWorld
                 IsPlayerJoining = true;
                 Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
-                InGamePopup.ShowInfo("Loading", "Player joining the game, please wait", null);
+                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait", null);
             }
         }
 
@@ -273,7 +284,7 @@ namespace NebulaWorld
                     {
                         drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
                     }
-                    drone.target = GameMain.mainPlayer.mecha.droneLogic._obj_hpos(packet.EntityId);
+                    drone.target = droneLogic._obj_hpos(packet.EntityId);
                     drone.initialVector = drone.position + drone.position.normalized * 4.5f + ((drone.target - drone.position).normalized + UnityEngine.Random.insideUnitSphere) * 1.5f;
                     drone.forward = drone.initialVector;
                     drone.progress = 0f;
@@ -311,7 +322,7 @@ namespace NebulaWorld
                     Log.Error("Could not find the playerAnimator for player with ID " + playerId);
                     return;
                 }
-
+                
                 Log.Info($"Changing color of player {playerId}");
                 for (int i = 0; i < colors.Length; i++)
                 {
@@ -330,11 +341,11 @@ namespace NebulaWorld
                 mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
                 mechaArmorModel.inst_part_ar_em_mat.SetColor("_EmissionMask", colors[3].ToColor() / 255);
                 mechaArmorModel.inst_part_sk_em_mat.SetColor("_EmissionMask", colors[4].ToColor() / 255);
-
+                
                 // We changed our own color, so we have to let others know
                 if (Multiplayer.Session.LocalPlayer.Id == playerId)
                 {
-                    GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
+                    //GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
                     Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, colors));
                 }
             }
@@ -660,6 +671,22 @@ namespace NebulaWorld
                 }
             }
 
+        }
+
+        public static int GetUniverseObserveLevel()
+        {
+            int level = 0;
+            // the tech ids of the 4 tiers of Universe Exploration from https://dsp-wiki.com/Upgrades
+            for (int i = 4104; i >= 4101; i--)
+            {
+                if (GameMain.history.TechUnlocked(i))
+                {
+                    // set level to last digit of tech id
+                    level = (i % 10);
+                    break;
+                }
+            }
+            return level;
         }
     }
 }

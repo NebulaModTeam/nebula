@@ -9,6 +9,7 @@ using NebulaWorld.Player;
 using NebulaWorld.Statistics;
 using NebulaWorld.Trash;
 using NebulaWorld.Universe;
+using NebulaWorld.Warning;
 using System;
 
 namespace NebulaWorld
@@ -32,9 +33,9 @@ namespace NebulaWorld
         public TrashManager Trashes { get; private set; }
         public DysonSphereManager DysonSpheres { get; private set; }
         public LaunchManager Launch { get; private set; }
+        public WarningManager Warning { get; private set; }
 
         // Some Patch Flags
-        public bool IsTankWindowPointerPress { get; set; }
         public bool PlanetRefreshMissingMeshes { get; set; }
 
 
@@ -71,6 +72,7 @@ namespace NebulaWorld
             Trashes = new TrashManager();
             DysonSpheres = new DysonSphereManager();
             Launch = new LaunchManager();
+            Warning = new WarningManager();
         }
 
         public void Dispose()
@@ -125,6 +127,9 @@ namespace NebulaWorld
 
             Launch?.Dispose();
             Launch = null;
+
+            Warning?.Dispose();
+            Warning = null;
         }
 
         public void OnGameLoadCompleted()
@@ -133,6 +138,11 @@ namespace NebulaWorld
             {
                 Log.Info("Game load completed");
                 IsGameLoaded = true;
+
+                if (Multiplayer.Session.LocalPlayer.IsHost)
+                {
+                    GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
+                }
 
                 if (Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
                 {

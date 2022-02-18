@@ -17,6 +17,7 @@ namespace NebulaNetwork
 {
     public class Client : NetworkProvider
     {
+        private const float GAME_STATE_UPDATE_INTERVAL = 1f;
         private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private readonly IPEndPoint serverEndpoint;
@@ -25,7 +26,7 @@ namespace NebulaNetwork
         private NebulaConnection serverConnection;
 
         private float mechaSynchonizationTimer = 0f;
-        private float pingTimer = 0f;
+        private float gameStateUpdateTimer = 0f;
 
         public Client(string url, int port)
             : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port))
@@ -105,6 +106,8 @@ namespace NebulaNetwork
                 Sockets.CloseConnection(connection, (int)DisconnectionReason.ClientRequestedDisconnect, "Player left the game", true);
             }
 
+            // load settings again to dispose the temp soil setting that could have been received from server
+            Config.LoadOptions();
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
 
             ShouldPoll = false;
@@ -176,18 +179,11 @@ namespace NebulaNetwork
                     mechaSynchonizationTimer = 0f;
                 }
 
-                pingTimer += Time.deltaTime;
-                if (pingTimer >= 1f)
+                gameStateUpdateTimer += Time.deltaTime;
+                if (gameStateUpdateTimer >= GAME_STATE_UPDATE_INTERVAL)
                 {
-                    ConnectionRealTimeStatus realTimeStatus = new ConnectionRealTimeStatus();
-                    ConnectionRealTimeLaneStatus realTimeLaneStatus = new ConnectionRealTimeLaneStatus();
-                    lock (Sockets)
-                    {
-                        Sockets.GetConnectionRealTimeStatus(connection, ref realTimeStatus, 1, ref realTimeLaneStatus);
-                    }
-
-                    Multiplayer.Session.World.UpdatePingIndicator($"Ping: {realTimeStatus.ping}ms");
-                    pingTimer = 0f;
+                    SendPacket(new PingPacket());
+                    gameStateUpdateTimer = 0f;
                 }
             }
         }

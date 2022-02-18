@@ -17,17 +17,17 @@ namespace NebulaNetwork
 {
     public class Server : NetworkProvider
     {
-        private const float GAME_STATE_UPDATE_INTERVAL = 1;
         private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         private const float STATISTICS_UPDATE_INTERVAL = 1;
-        private const float LAUNCH_UPDATE_INTERVAL = 2;
-        private const float DYSONSPHERE_UPDATE_INTERVAL = 5;
+        private const float LAUNCH_UPDATE_INTERVAL = 4;
+        private const float DYSONSPHERE_UPDATE_INTERVAL = 2;
+        private const float WARNING_UPDATE_INTERVAL = 1;
 
-        private float gameStateUpdateTimer = 0;
         private float gameResearchHashUpdateTimer = 0;
         private float productionStatisticsUpdateTimer = 0;
         private float dysonLaunchUpateTimer = 1;
         private float dysonSphereUpdateTimer = 0;
+        private float warningUpdateTimer = 0;
 
         private readonly int port;
         private readonly bool loadSaveFile;
@@ -176,45 +176,45 @@ namespace NebulaNetwork
 
         public override void Update()
         {
-            gameStateUpdateTimer += Time.deltaTime;
-            gameResearchHashUpdateTimer += Time.deltaTime;
-            productionStatisticsUpdateTimer += Time.deltaTime;
-            dysonLaunchUpateTimer += Time.deltaTime;
-            dysonSphereUpdateTimer += Time.deltaTime;            
+            PacketProcessor.ProcessPacketQueue();
 
-            if (gameStateUpdateTimer > GAME_STATE_UPDATE_INTERVAL)
+            if (Multiplayer.Session.IsGameLoaded)
             {
-                gameStateUpdateTimer = 0;
-                SendPacket(new GameStateUpdate() { State = new GameState(TimeUtils.CurrentUnixTimestampMilliseconds(), GameMain.gameTick) });
-            }
+                gameResearchHashUpdateTimer += Time.deltaTime;
+                productionStatisticsUpdateTimer += Time.deltaTime;
+                dysonLaunchUpateTimer += Time.deltaTime;
+                dysonSphereUpdateTimer += Time.deltaTime;
+                warningUpdateTimer += Time.deltaTime;
 
-            if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
-            {
-                gameResearchHashUpdateTimer = 0;
-                if (GameMain.data.history.currentTech != 0)
+                if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
                 {
-                    TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
-                    SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
+                    gameResearchHashUpdateTimer = 0;
+                    if (GameMain.data.history.currentTech != 0)
+                    {
+                        TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
+                        SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
+                    }
                 }
-            }
 
-            if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
-            {
-                productionStatisticsUpdateTimer = 0;
-                Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
-            }
+                if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
+                {
+                    productionStatisticsUpdateTimer = 0;
+                    Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
+                }
 
-            if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)
-            {
-                dysonLaunchUpateTimer = 0;
-                Multiplayer.Session.Launch.SendBroadcastIfNeeded();
-            }
+                if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)
+                {
+                    dysonLaunchUpateTimer = 0;
+                    Multiplayer.Session.Launch.SendBroadcastIfNeeded();
+                }
 
-            if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
-            {
-                dysonSphereUpdateTimer = 0;
-                DysonSphere[] dysonSpheres = GameMain.data.dysonSpheres;
-                for (int i = 0; i < dysonSpheres.Length; i++)
+                if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
+                {
+                    dysonSphereUpdateTimer = 0;
+                    Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded();
+                }
+
+                if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
                 {
                     DysonSphere dysonSphere = dysonSpheres[i];
                     if (dysonSphere != null && (dysonSphere.energyReqCurrentTick + dysonSphere.energyGenCurrentTick > 0))

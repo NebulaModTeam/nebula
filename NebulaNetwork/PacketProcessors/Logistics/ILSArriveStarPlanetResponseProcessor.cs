@@ -16,30 +16,14 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 return;
             }
 
-            StationComponent[] gStationPool = null;
-            if (packet.Planet == 0) // arrive at solar system
-            {
-                gStationPool = GameMain.data.galacticTransport.stationPool;
-            }
-            else // arrive at planet
-            {
-                PlanetData pData = GameMain.galaxy.PlanetById(packet.Planet);
-                if (pData?.factory?.transport != null)
-                {
-                    gStationPool = pData.factory.transport.stationPool;
-                }
-                else
-                {
-                    return;
-                }
-            }
+            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
 
             int offset = 0;
             for (int i = 0; i < packet.StationGId.Length; i++)
             {
                 if (packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
                 {
-                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId[i], packet.PlanetId[i], packet.StationMaxShips[i]);
+                    Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId[i], packet.StationPId[i], packet.StationMaxShips[i]);
                 }
 
                 StationComponent stationComponent = gStationPool[packet.StationGId[i]];
@@ -61,11 +45,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     }
                     stationComponent.storage[j].itemId = packet.ItemId[index];
                     stationComponent.storage[j].count = packet.Count[index];
-                    stationComponent.storage[j].localOrder = packet.LocalOrder[index];
-                    stationComponent.storage[j].remoteOrder = packet.RemoteOrder[index];
-                    stationComponent.storage[j].max = packet.Max[index];
-                    stationComponent.storage[j].localLogic = (ELogisticStorage)packet.LocalLogic[index];
-                    stationComponent.storage[j].remoteLogic = (ELogisticStorage)packet.RemoteLogic[index];
+                    stationComponent.storage[j].inc = packet.Inc[index];
                 }
                 offset += packet.StorageLength[i];
             }

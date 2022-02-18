@@ -136,9 +136,6 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 planet.onFactoryLoaded -= __instance.OnActivePlanetFactoryLoaded;
             }
-            // sync station storages and slot filter for belt i/o
-            // do this once the factory is loaded so the processor has access to PlanetData.factory.transport.stationPool
-            Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(0, planet.id));
 
             // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor
             // Arragement() updates galacticTransport.stationCursor
@@ -155,7 +152,6 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
-                int currentFactingStage = (int)AccessTools.Field(typeof(PlanetModelingManager), "currentFactingStage").GetValue(null);
                 if (GameMain.data.localPlanet != null && GameMain.data.localPlanet.factoryLoading && GameMain.data.localPlanet.physics != null)
                 {
                     GameMain.data.localPlanet.physics.LateUpdate();
@@ -283,11 +279,6 @@ namespace NebulaPatcher.Patches.Dynamic
                             }
                         }
                     }
-                    // we need to reset the warning system to avoid nre for clients when they leave the solar system. this is related to the new traffic monitor
-                    // as we also free factory data this should be fine.
-                    // warnings should be triggered by some other syncing mechanic issued by the host (or find a better solution for this if you are not so tired as i am now)
-                    GameMain.data.warningSystem.Free();
-                    GameMain.data.warningSystem.Init(GameMain.data);
                 }
                 if (!Multiplayer.Session.IsInLobby)
                 {
@@ -304,7 +295,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.IsInLobby && star != null)
             {
                 Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
-                Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id, 0));
+                Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id));
             }
         }
 

@@ -10,16 +10,18 @@
         public int Length { get; set; }
         public int[] Needs { get; set; }
         public int StorageIndex { get; set; }
+        public int Inc { get; set; }
         public int PlanetId { get; set; }
 
         public StorageSyncRealtimeChangePacket() { }
 
-        public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int itemId, int count)
+        public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int itemId, int count, int inc)
         {
             StorageEvent = storageEvent;
             ItemId = itemId;
             Count = count;
             StorageIndex = storageIndex;
+            Inc = inc;
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
 
@@ -44,7 +46,7 @@
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
 
-        public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int gridIndex, int itemId, int count)
+        public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int gridIndex, int itemId, int count, int inc)
         {
             StorageEvent = storageEvent;
             ItemId = itemId;
@@ -54,7 +56,7 @@
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
 
-        public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int itemId, int count, int startIndex, int length)
+        public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int itemId, int count, int startIndex, int length, int inc)
         {
             StorageEvent = storageEvent;
             ItemId = itemId;
@@ -62,6 +64,7 @@
             StartIndex = startIndex;
             Length = length;
             StorageIndex = storageIndex;
+            Inc = inc;
             PlanetId = GameMain.localPlanet?.id ?? -1;
         }
     }

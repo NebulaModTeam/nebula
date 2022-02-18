@@ -52,7 +52,9 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
+                int author = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor;
+                int entityId = Multiplayer.Session.LocalPlayer.IsHost ? NebulaWorld.Factory.FactoryManager.GetNextEntityId(__instance) : -1;
+                Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, author, entityId));
             }
 
             if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value && !Multiplayer.Session.Drones.IsPendingBuildRequest(-prebuildId))
@@ -79,27 +81,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                bool isPrebuild = false;
-                Vector3 pos;
-                Quaternion rot;
-
-                if (objId > 0)
-                {
-                    // real entity
-                    EntityData eData = __instance.entityPool[objId];
-                    pos = eData.pos;
-                    rot = eData.rot;
-                }
-                else
-                {
-                    // blueprint build preview
-                    PrebuildData pData = __instance.prebuildPool[-objId];
-                    pos = pData.pos;
-                    rot = pData.rot;
-                    isPrebuild = true;
-                }
-
-                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, new Float3(pos.x, pos.y, pos.z), new Float4(rot.x, rot.y, rot.z, rot.w), replace_item_proto.ID, isPrebuild, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
+                Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID, Multiplayer.Session.Factories.PacketAuthor == -1 ? Multiplayer.Session.LocalPlayer.Id : Multiplayer.Session.Factories.PacketAuthor));
             }
 
             return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;
@@ -170,6 +152,31 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
                 }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.EnableEntityWarning))]
+        public static void EnableEntityWarning_Postfix(PlanetFactory __instance, int entityId)
+        {
+            if (Multiplayer.IsActive && entityId > 0 && __instance.entityPool[entityId].id == entityId)
+            {
+                if (Multiplayer.Session.LocalPlayer.IsClient)
+                {
+                    //Becasue WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
+                    __instance.entityPool[entityId].warningId = 1;
+                }
+                Multiplayer.Session.Network.SendPacketToLocalStar(new EntityWarningSwitchPacket(__instance.planetId, entityId, true));
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.DisableEntityWarning))]
+        public static void DisableEntityWarning_Postfix(PlanetFactory __instance, int entityId)
+        {
+            if (Multiplayer.IsActive && entityId > 0 && __instance.entityPool[entityId].id == entityId)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new EntityWarningSwitchPacket(__instance.planetId, entityId, false));
             }
         }
     }
