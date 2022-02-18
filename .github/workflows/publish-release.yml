@@ -9,7 +9,6 @@ jobs:
     runs-on: windows-latest
 
     env:
-      SOLUTION_NAME: Nebula.sln
       NEBULA_FOLDER : dist\\release\\nebula\\
       DIST_RELEASE_FOLDER : dist\\release\\
 
@@ -59,7 +58,7 @@ jobs:
 
       # Build it
       - name: Build the application
-        run: dotnet build $env:SOLUTION_NAME /p:Configuration=Release /p:PublicRelease=true
+        run: dotnet build -c Release /p:PublicRelease=true
 
       # Bundle
       - name: Bundle build for thunderstore and github
