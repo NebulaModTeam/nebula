@@ -216,11 +216,8 @@ namespace NebulaNetwork
 
                 if (warningUpdateTimer > WARNING_UPDATE_INTERVAL)
                 {
-                    DysonSphere dysonSphere = dysonSpheres[i];
-                    if (dysonSphere != null && (dysonSphere.energyReqCurrentTick + dysonSphere.energyGenCurrentTick > 0))
-                    {
-                        SendPacketToStar(new DysonSphereStatusPacket(dysonSphere), dysonSphere.starData.id);
-                    }
+                    warningUpdateTimer = 0;
+                    Multiplayer.Session.Warning.SendBroadcastIfNeeded();
                 }
             }
 
