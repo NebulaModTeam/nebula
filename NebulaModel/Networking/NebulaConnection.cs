@@ -77,7 +77,7 @@ namespace NebulaModel.Networking
             }
             else
             {
-                Log.Warn($"Cannot send packet {packet?.GetType()} to a closed connection {peerEndpoint}");
+                Log.Warn($"Cannot send packet {packet?.GetType()} to a closed connection {peerEndpoint.GetHashCode()}");
             }
         }
 
@@ -125,7 +125,7 @@ namespace NebulaModel.Networking
             }
             else
             {
-                Log.Warn($"Cannot send raw packet to a closed connection {peerEndpoint}");
+                Log.Warn($"Cannot send raw packet to a closed connection {peerEndpoint.GetHashCode()}");
             }
 
             return false;

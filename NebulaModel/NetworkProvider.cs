@@ -30,10 +30,12 @@ namespace NebulaModel
             Sockets = new NetworkingSockets();
             Utils = new NetworkingUtils();
 
+#if DEBUG
             Utils.SetDebugCallback(DebugType.Everything, (DebugType type, string message) =>
             {
-                Log.Info(message);
+                Log.Debug(message);
             });
+#endif
 
             // We have to store a static instance to the current NetworkProvider as this callback comes from native code and 
             // therefore has to be a flat cdecl call, it cannot capture anything or have any context
