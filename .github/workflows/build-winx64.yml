@@ -17,9 +17,6 @@ jobs:
     if: ${{ github.event.ref == 'refs/heads/master' || (github.event.review.state == 'approved' && (github.event.review.author_association == 'COLLABORATOR' || github.event.review.author_association == 'OWNER')) }}
     runs-on: windows-latest
 
-    env:
-      Solution_Name: Nebula.sln
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -34,15 +31,15 @@ jobs:
     - name: Add remote build identifier
       run: New-Item -Name .remoteBuild -ItemType File -force
 
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.2
+    # Add dotnet to the PATH: https://github.com/actions/setup-dotnet
+    - name: Setup dotnet.exe
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: "6.0.x"
 
     # Build it
     - name: Build the application
-      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
+      run: dotnet build -c ${{ matrix.configuration }}
 
     # Upload it to the run results
     - name: Upload a Build Artifact
