@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace NebulaWorld.MonoBehaviours.Local
 {
@@ -56,7 +57,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                 }
             }
 
-            if (VFInput.escKey.onDown || VFInput.escape)
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (UISignalPicker.isOpened)
                 {
@@ -71,7 +72,7 @@ namespace NebulaWorld.MonoBehaviours.Local
                     VFInput.UseEscape();
                     return;
                 }
-                
+
                 Toggle(true);
                 VFInput.UseEscape();
             }
@@ -161,7 +162,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 if (Config.Options.AutoOpenChat)
                 {
-                    Toggle();
+                    Toggle(false, false);
                 }
             }
 
@@ -191,7 +192,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         }
 
 
-        public void Toggle(bool forceClosed = false)
+        public void Toggle(bool forceClosed = false, bool focusField = true)
         {
             bool desiredStatus = !forceClosed && !chatWindow.activeSelf;
             chatWindow.SetActive(desiredStatus);
@@ -199,11 +200,13 @@ namespace NebulaWorld.MonoBehaviours.Local
             if (chatWindow.activeSelf)
             {
                 // when the window is activated we assume user wants to type right away
-                FocusInputField();
+                if (focusField)
+                    FocusInputField();
             }
             else
             {
                 ChatLinkTrigger.CloseTips();
+                EventSystem.current.SetSelectedGameObject(null);
             }
         }
         
