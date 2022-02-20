@@ -73,6 +73,7 @@ namespace NebulaNetwork
             socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
             try
             {
+                socket.KeepClean = Config.Options.CleanupInactiveSessions;
                 socket.Start();
             }catch(System.InvalidOperationException e)
             {
