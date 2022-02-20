@@ -306,7 +306,7 @@ namespace NebulaWorld
                 }
                 else
                 {
-                    Log.Error("Could not find the playerAnimator for player with ID " + playerId);
+                    Log.Warn("Could not find the playerAnimator for player with ID " + playerId);
                     return;
                 }
                 

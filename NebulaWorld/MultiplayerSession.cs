@@ -3,6 +3,7 @@ using NebulaModel;
 using NebulaModel.Logger;
 using NebulaWorld.Factory;
 using NebulaWorld.GameDataHistory;
+using NebulaWorld.GameStates;
 using NebulaWorld.Logistics;
 using NebulaWorld.Planet;
 using NebulaWorld.Player;
@@ -26,6 +27,7 @@ namespace NebulaWorld
         public BuildToolManager BuildTools { get; private set; }
         public DroneManager Drones { get; private set; }
         public GameDataHistoryManager History { get; private set; }
+        public GameStatesManager State { get; private set; }
         public ILSShipManager Ships { get; private set; }
         public StationUIManager StationsUI { get; private set; }
         public PlanetManager Planets { get; private set; }
@@ -67,6 +69,7 @@ namespace NebulaWorld
             BuildTools = new BuildToolManager();
             Drones = new DroneManager();
             History = new GameDataHistoryManager();
+            State = new GameStatesManager();
             Ships = new ILSShipManager();
             StationsUI = new StationUIManager();
             Planets = new PlanetManager();
@@ -110,6 +113,9 @@ namespace NebulaWorld
 
             History?.Dispose();
             History = null;
+
+            State?.Dispose();
+            State = null;
 
             Ships?.Dispose();
             Ships = null;

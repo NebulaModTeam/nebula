@@ -292,7 +292,6 @@ namespace NebulaPatcher.Patches.Dynamic
             if (isIP)
             {
                 Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort)));
-                Multiplayer.Session.IsInLobby = true;
                 return true;
             }
 
@@ -300,7 +299,6 @@ namespace NebulaPatcher.Patches.Dynamic
             if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out _))
             {
                 Multiplayer.JoinGame(new Client(connectionString, serverPort));
-                Multiplayer.Session.IsInLobby = true;
                 return true;
             }
 

@@ -252,30 +252,33 @@ namespace NebulaNetwork
 
         public void PlayerDisconnected(INebulaConnection conn)
         {
-            INebulaPlayer player;
+            INebulaPlayer player = null;
             bool playerWasSyncing = false;
             int syncCount = -1;
 
             using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                if (connectedPlayers.TryGetValue(conn, out player))
+                if (connectedPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
+                    player = removingPlayer;
                     connectedPlayers.Remove(conn);
                 }
             }
 
             using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
             {
-                if (pendingPlayers.TryGetValue(conn, out player))
+                if (pendingPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
+                    player = removingPlayer;
                     pendingPlayers.Remove(conn);
                 }
             }
 
             using (GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
             {
-                if (syncingPlayers.TryGetValue(conn, out player))
+                if (syncingPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
+                    player = removingPlayer;
                     syncingPlayers.Remove(conn);
                     playerWasSyncing = true;
                     syncCount = syncingPlayers.Count;

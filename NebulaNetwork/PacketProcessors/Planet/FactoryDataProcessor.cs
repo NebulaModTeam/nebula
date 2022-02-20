@@ -16,18 +16,18 @@ namespace NebulaNetwork.PacketProcessors.Planet
             {
                 return;
             }
+            // Stop packet processing until factory is imported
+            ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
+            Log.Info($"FactoryDataProcessor: Pause PacketProcessor");
 
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             Multiplayer.Session.Planets.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
-            Log.Info($"Parsing {packet.BinaryData.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
+            Log.Info($"Parsing {packet.BinaryData.Length} bytes of data for factory {planet.name} (ID: {planet.id})");
 
             lock (PlanetModelingManager.fctPlanetReqList)
             {
                 PlanetModelingManager.fctPlanetReqList.Enqueue(GameMain.galaxy.PlanetById(packet.PlanetId));
             }
-            // Stop packet processing until factory is imported
-            ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
-            Log.Info($"FactoryDataProcessor: Pause PacketProcessor");
         }
     }
 }
