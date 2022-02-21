@@ -20,7 +20,8 @@ namespace NebulaNetwork.PacketProcessors.Universe
             using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
             {
                 DysonSphereLayer layer = sphere.GetLayer(packet.LayerId);
-                DysonBlueprintDataIOError err = new DysonBlueprintData().ContentFromBase64String(packet.StringData, packet.BlueprintType, sphere, layer);
+                string str64Data = new string(packet.CharsData);
+                DysonBlueprintDataIOError err = new DysonBlueprintData().FromBase64String(str64Data, packet.BlueprintType, sphere, layer);
                 if (err != DysonBlueprintDataIOError.OK)
                 {
                     Log.Warn($"DysonBlueprintData IO error: {err}");
