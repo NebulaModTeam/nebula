@@ -77,8 +77,6 @@ namespace NebulaPatcher.Patches.Dynamic
             // Assign the factory to the result
             __result = __instance.factories[planet.factoryIndex];
 
-            NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
-
             // Do not run the original method
             return false;
         }
@@ -142,6 +140,8 @@ namespace NebulaPatcher.Patches.Dynamic
                     ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
                     Log.Info($"OnActivePlanetLoaded: Resume PacketProcessor");
                 }
+
+                NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
             }
 
             // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor

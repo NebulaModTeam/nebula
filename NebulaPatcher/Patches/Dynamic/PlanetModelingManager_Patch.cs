@@ -46,12 +46,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 PlanetModelingManager.currentFactingStage = 0;
                 return false;
             }
+            NebulaModAPI.OnPlanetLoadRequest?.Invoke(planet.id);
 
             // Request factory
             Log.Info($"Requested factory for planet {planet.name} (ID: {planet.id}) from host");
-            Multiplayer.Session.Network.SendPacket(new FactoryLoadRequest(planet.id));
-
-            NebulaModAPI.OnPlanetLoadRequest?.Invoke(planet.id);
+            Multiplayer.Session.Network.SendPacket(new FactoryLoadRequest(planet.id));            
 
             // Skip running the actual method
             return false;
