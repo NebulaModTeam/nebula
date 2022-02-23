@@ -13,5 +13,12 @@ namespace NebulaWorld.GameStates
         public void Dispose()
         {
         }
+
+        public static long RealGameTick => GameMain.gameTick;
+        public static float RealUPS => (float)FPSController.currentUPS;
+
+        public static void NotifyTickDifference(float delta)
+        {
+        }
     }
 }

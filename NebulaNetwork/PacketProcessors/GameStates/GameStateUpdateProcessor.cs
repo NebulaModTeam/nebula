@@ -1,11 +1,11 @@
 ﻿using NebulaAPI;
 using NebulaModel;
-using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 using System;
 using UnityEngine;
 
@@ -14,9 +14,13 @@ namespace NebulaNetwork.PacketProcessors.GameStates
     [RegisterPacketProcessor]
     public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
     {
+        public float MaxUPS = 120f;
+        public float MinUPS = 30f;
+        public float BUFFERING_TIME = 30f;
+        public float BUFFERING_TICK = 60f;
+
         private int averageRTT;
         private float avaerageUPS = 60f;
-        private const float BUFFERING_TIME = 20f;
         private bool hasChanged;
 
         public override void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
@@ -64,23 +68,23 @@ namespace NebulaNetwork.PacketProcessors.GameStates
             // Adjust client's UPS to match game tick with server, range 30~120 UPS
             float UPS = diff / 1f + avaerageUPS;
             long skipTick = 0;
-            if (UPS > 120f)
+            if (UPS > MaxUPS)
             {
                 // Try to disturbute game tick difference into BUFFERING_TIME (seconds)
-                if (diff / BUFFERING_TIME + avaerageUPS > 120f)
+                if (diff / BUFFERING_TIME + avaerageUPS > MaxUPS)
                 {
                     // The difference is too large, need to skip ticks to catch up
-                    skipTick = (long)(UPS - 120f);
+                    skipTick = (long)(UPS - MaxUPS);
                 }
-                UPS = 120f;
+                UPS = MaxUPS;
             }
-            else if (UPS < 30f)
+            else if (UPS < MinUPS)
             {
-                if (diff / BUFFERING_TIME + avaerageUPS < 30f)
+                if (diff + avaerageUPS - MinUPS < -BUFFERING_TICK)
                 {
-                    skipTick = (long)(UPS - 30f);
+                    skipTick = (long)(UPS - MinUPS);
                 }
-                UPS = 30f;
+                UPS = MinUPS;
             }
             if (skipTick != 0)
             {
@@ -89,6 +93,8 @@ namespace NebulaNetwork.PacketProcessors.GameStates
             }
             FPSController.SetFixUPS(UPS);
             hasChanged = true;
+            // Tick difference in the next second. Expose for other mods
+            GameStatesManager.NotifyTickDifference((diff / 1f + avaerageUPS) - UPS);
         }
     }
 }
