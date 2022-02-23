@@ -23,9 +23,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 packet.ShouldRefund = false;
                 Multiplayer.Session.StationsUI.UpdateStorage(packet);
 
-                // broadcast to every clients that may have the station loaded.
-                int starId = GameMain.galaxy.PlanetById(packet.PlanetId)?.star.id ?? -1;
-                playerManager.SendPacketToStarExcept(packet, starId, conn);
+                // broadcast to other clients 
+                INebulaPlayer player = playerManager.GetPlayer(conn);
+                playerManager.SendPacketToOtherPlayers(packet, player);
 
                 // as we block some methods for the client he must run it once he receives this packet.
                 // but only the one issued the request should get items refund

@@ -203,7 +203,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if (Multiplayer.IsActive)
                 {
-                    Multiplayer.Session.StationsUI.DecreaseCooldown();
                     Multiplayer.Session.Launch.CollectProjectile();
                 }
                 return;
