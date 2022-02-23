@@ -2,6 +2,7 @@
 using BepInEx.Bootstrap;
 using HarmonyLib;
 using NebulaModel.Logger;
+using NebulaWorld;
 using System;
 using System.Text;
 using UnityEngine;
@@ -44,10 +45,14 @@ namespace NebulaPatcher.Patches.Dynamic
         private static string Title()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("This game has occured an error! Game version ");
+            stringBuilder.Append("An error occurred! Game version ");
             stringBuilder.Append(GameConfig.gameVersion.ToString());
             stringBuilder.Append('.');
             stringBuilder.Append(GameConfig.gameVersion.Build);
+            if (Multiplayer.IsActive)
+            {
+                stringBuilder.Append(Multiplayer.Session.LocalPlayer.IsHost ? " (Host)" : " (Client)");
+            }
             stringBuilder.AppendLine();
             stringBuilder.Append("Mods use: ");
             foreach (BepInEx.PluginInfo pluginInfo in Chainloader.PluginInfos.Values)
@@ -63,9 +68,19 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnClick(int id)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("```");
+            stringBuilder.AppendLine("```ini");
             stringBuilder.AppendLine(Title());
-            stringBuilder.Append(UIFatalErrorTip.instance.errorLogText.text);
+            string[] subs = UIFatalErrorTip.instance.errorLogText.text.Split('\n', '\r');
+            foreach (string str in subs)
+            {
+                // Nebula only: skip the message after PacketProcessor
+                if (str.StartsWith("NebulaModel.Packets.PacketProcessor"))
+                {
+                    break;
+                }
+                stringBuilder.AppendLine(str);
+            }
+            stringBuilder.Replace(" (at", ";(at");
             stringBuilder.AppendLine("```");
             // Copy string to clipboard
             GUIUtility.systemCopyBuffer = stringBuilder.ToString();
