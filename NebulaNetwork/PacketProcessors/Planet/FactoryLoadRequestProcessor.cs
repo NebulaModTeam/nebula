@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
@@ -22,7 +23,9 @@ namespace NebulaNetwork.PacketProcessors.Planet
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 factory.Export(writer.BinaryWriter);
-                conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
+                byte[] data = writer.CloseAndGetBytes();
+                Log.Info($"Sent {data.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
+                conn.SendPacket(new FactoryData(packet.PlanetID, data));
             }
 
             // Add requesting client to connected player, so he can receive following update
