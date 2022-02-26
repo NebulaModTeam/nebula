@@ -44,25 +44,24 @@ namespace NebulaModel.Networking
             }            
         }
 
-        public void ProcessPacketQueue()
+        private void ProcessPacketQueue()
         {
-            if (pendingPackets.Count == 0 || !enable)
+            if (enable && pendingPackets.Count > 0)
             {
-                return;
-            }
-            byte[] packet = pendingPackets.Dequeue();
-            if (peerSocket.ReadyState == WebSocketState.Open)
-            {
-                enable = false;
-                peerSocket.SendAsync(packet, res => OnSendCompleted());
-            }
-            else
-            {
-                Log.Warn($"Cannot send packet to a {peerSocket.ReadyState} connection {peerEndpoint.GetHashCode()}");
+                byte[] packet = pendingPackets.Dequeue();
+                if (peerSocket.ReadyState == WebSocketState.Open)
+                {
+                    peerSocket.SendAsync(packet, OnSendCompleted);
+                    enable = false;
+                }
+                else
+                {
+                    Log.Warn($"Cannot send packet to a {peerSocket.ReadyState} connection {peerEndpoint.GetHashCode()}");
+                }
             }
         }
 
-        public void OnSendCompleted()
+        private void OnSendCompleted(bool result)
         {
             lock (pendingPackets)
             {
