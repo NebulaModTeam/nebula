@@ -13,7 +13,7 @@
             StarIndex = starIndex;
             LayerId = layerId;
             BlueprintType = blueprintType;
-            // because string leangth may exceed maxStringLength in NetSerializer, convert to char array here
+            // because string length may exceed maxStringLength in NetSerializer, convert to char array here
             CharsData = stringData.ToCharArray();
         }
     }

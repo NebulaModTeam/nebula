@@ -45,7 +45,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static string Title()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("An error occurred! Game version ");
+            stringBuilder.Append("An error has occurred! Game version ");
             stringBuilder.Append(GameConfig.gameVersion.ToString());
             stringBuilder.Append('.');
             stringBuilder.Append(GameConfig.gameVersion.Build);
