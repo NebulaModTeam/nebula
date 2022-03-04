@@ -21,14 +21,13 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             }
 
             StationComponent stationComponent;
-            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             StationComponent[] stationPool = GameMain.data.galaxy?.PlanetById(packet.PlanetId)?.factory?.transport?.stationPool;
 
-            stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
+            stationComponent = stationPool?[packet.StationId];
 
             if (stationComponent == null)
             {
-                Log.Error($"StationUIInitialSyncRequestProcessor: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
+                Log.Error($"StationUIInitialSyncRequestProcessor: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid {packet.StationGId}");
                 return;
             }
 

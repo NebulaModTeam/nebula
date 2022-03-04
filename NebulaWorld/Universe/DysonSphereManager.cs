@@ -145,6 +145,19 @@ namespace NebulaWorld.Universe
             }
         }
 
+        public void RequestDysonSphere(int starIndex, bool showInfo = true)
+        {
+            StarData starData = GameMain.galaxy.stars[starIndex];
+            RequestingIndex = starIndex;
+            Log.Info($"Requesting DysonSphere for system {starData.displayName} (Index: {starData.index})");
+            Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(starData.index, DysonSphereRequestEvent.Load));
+            ClearSelection(starIndex);
+            if (showInfo)
+            {
+                InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", null);
+            }
+        }
+
         public void UnloadRemoteDysonSpheres()
         {
             //The editor will throw errors if there are no dyson spheres available
@@ -175,7 +188,7 @@ namespace NebulaWorld.Universe
                 {
                     IsNormal = false;
                     InGamePopup.ShowWarning("Desync", $"Dyson sphere id[{starIndex}] {GameMain.galaxy.stars[starIndex].displayName} is desynced.",
-                        "Reload", () => Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(starIndex, DysonSphereRequestEvent.Load)));
+                        "Reload", () => RequestDysonSphere(starIndex));
                 }
             }
         }

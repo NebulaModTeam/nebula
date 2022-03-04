@@ -9,8 +9,8 @@ namespace NebulaPatcher.Patches.Dynamic
     internal class DysonBlueprintData_Patch
     {
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(DysonBlueprintData.ContentFromBase64String))]
-        public static void ContentFromBase64String_Prefix()
+        [HarmonyPatch(nameof(DysonBlueprintData.FromBase64String))]
+        public static void FromBase64String_Prefix()
         {
             if (Multiplayer.IsActive)
             {
@@ -20,17 +20,17 @@ namespace NebulaPatcher.Patches.Dynamic
 
 #pragma warning disable Harmony003
         [HarmonyPostfix]
-        [HarmonyPatch(nameof(DysonBlueprintData.ContentFromBase64String))]
-        public static void ContentFromBase64String_Postfix(DysonBlueprintDataIOError __result, string __0, EDysonBlueprintType __1, DysonSphere __2, DysonSphereLayer __3)
+        [HarmonyPatch(nameof(DysonBlueprintData.FromBase64String))]
+        public static void FromBase64String_Postfix(DysonBlueprintDataIOError __result, string str64Data, EDysonBlueprintType requestType, DysonSphere sphere, DysonSphereLayer layer)
         {
             if (Multiplayer.IsActive)
             {
                 Multiplayer.Session.DysonSpheres.InBlueprint = false;
                 if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest && __result == DysonBlueprintDataIOError.OK)
                 {
-                    int starIndex = __2.starData.index;
-                    int layerId = __3?.id ?? -1;
-                    Multiplayer.Session.Network.SendPacket(new DysonBlueprintPacket(starIndex, layerId, __1, __0));
+                    int starIndex = sphere.starData.index;
+                    int layerId = layer?.id ?? -1;
+                    Multiplayer.Session.Network.SendPacket(new DysonBlueprintPacket(starIndex, layerId, requestType, str64Data));
                 }
             }
         }
