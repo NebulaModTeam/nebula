@@ -157,7 +157,7 @@ namespace NebulaWorld
                 IsPlayerJoining = true;
                 Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
-                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait", null);
+                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait\n(Use BulletTime mod to unfreeze the game)", null);
             }
         }
 
