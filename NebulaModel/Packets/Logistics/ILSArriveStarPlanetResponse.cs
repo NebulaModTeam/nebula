@@ -10,6 +10,7 @@ namespace NebulaModel.Packets.Logistics
         
         public int[] StationMaxShips { get; set; }
         public int[] StorageLength { get; set; }
+        public int[] SlotLength { get; set; }
         public int[] StorageIdx { get; set; }
         public int[] ItemId { get; set; }
         public int[] Count { get; set; }
@@ -20,6 +21,7 @@ namespace NebulaModel.Packets.Logistics
                                         int[] stationMaxShips,
                                         int[] storageLength,
                                         int[] storageIdx,
+                                        int[] slotLength,
                                         int[] itemId,
                                         int[] count,
                                         int[] inc)
@@ -29,6 +31,7 @@ namespace NebulaModel.Packets.Logistics
             StationMaxShips = stationMaxShips;
             StorageLength = storageLength;
             StorageIdx = storageIdx;
+            SlotLength = slotLength;
             ItemId = itemId;
             Count = count;
             Inc = inc;
