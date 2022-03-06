@@ -5,6 +5,8 @@ namespace NebulaModel.Logger
 {
     public static class Log
     {
+        public static string MessageInfo { get; private set; }
+
         private static ILogger logger;
 
         public static void Init(ILogger logger)
@@ -27,6 +29,7 @@ namespace NebulaModel.Logger
         public static void Info(string message)
         {
             logger.LogInfo(message);
+            MessageInfo = message;
         }
 
         public static void Info(object message)

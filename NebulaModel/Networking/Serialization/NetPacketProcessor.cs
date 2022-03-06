@@ -26,6 +26,7 @@ namespace NebulaModel.Networking.Serialization
         public bool SimulateLatency = false;
         public int SimulatedMinLatency = 20;
         public int SimulatedMaxLatency = 50;
+        public bool Enable { get; set; } = true;
 
         public NetPacketProcessor()
         {
@@ -70,7 +71,7 @@ namespace NebulaModel.Networking.Serialization
             {
                 ProcessDelayedPackets();
 
-                while (pendingPackets.Count > 0)
+                while (pendingPackets.Count > 0 && Enable)
                 {
                     PendingPacket packet = pendingPackets.Dequeue();
                     ReadPacket(new NetDataReader(packet.Data), packet.UserData);

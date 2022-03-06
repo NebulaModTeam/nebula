@@ -91,6 +91,28 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                         return;
                     }
+                    else
+                    {
+                        foreach (BepInEx.BepInDependency dependency in pluginInfo.Value.Dependencies)
+                        {
+                            if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
+                            {
+                                string hostVersion = pluginInfo.Value.Metadata.Version.ToString();
+                                if (!clientMods.ContainsKey(pluginInfo.Key))
+                                {
+                                    conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
+                                    pendingPlayers.Remove(conn);
+                                    return;
+                                }
+                                if (clientMods[pluginInfo.Key] != hostVersion)
+                                {
+                                    conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{clientMods[pluginInfo.Key]};{hostVersion}");
+                                    pendingPlayers.Remove(conn);
+                                    return;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (packet.GameVersionSig != GameConfig.gameVersion.sig)

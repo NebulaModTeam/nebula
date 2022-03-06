@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Session;
+using NebulaWorld.GameStates;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Session
         {
             if (IsHost)
             {
-                conn.SendPacket(new GameStateUpdate(packet.SentTimestamp, GameMain.gameTick, (float)FPSController.currentUPS));
+                conn.SendPacket(new GameStateUpdate(packet.SentTimestamp, GameStatesManager.RealGameTick, GameStatesManager.RealUPS));
             }
             else
             {

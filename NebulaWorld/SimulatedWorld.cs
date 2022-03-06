@@ -157,7 +157,7 @@ namespace NebulaWorld
                 IsPlayerJoining = true;
                 Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
-                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait", null);
+                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait\n(Use BulletTime mod to unfreeze the game)", null);
             }
         }
 
@@ -306,7 +306,7 @@ namespace NebulaWorld
                 }
                 else
                 {
-                    Log.Error("Could not find the playerAnimator for player with ID " + playerId);
+                    Log.Warn("Could not find the playerAnimator for player with ID " + playerId);
                     return;
                 }
                 

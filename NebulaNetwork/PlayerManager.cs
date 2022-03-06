@@ -252,39 +252,36 @@ namespace NebulaNetwork
 
         public void PlayerDisconnected(INebulaConnection conn)
         {
-            INebulaPlayer player;
+            INebulaPlayer player = null;
             bool playerWasSyncing = false;
             int syncCount = -1;
 
             using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                if (connectedPlayers.TryGetValue(conn, out player))
+                if (connectedPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
+                    player = removingPlayer;
                     connectedPlayers.Remove(conn);
                 }
             }
 
             using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
             {
-                if (player == null)
+                if (pendingPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
-                    if (pendingPlayers.TryGetValue(conn, out player))
-                    {
-                        pendingPlayers.Remove(conn);
-                    }
+                    player = removingPlayer;
+                    pendingPlayers.Remove(conn);
                 }
             }
 
             using (GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
             {
-                if (player == null)
+                if (syncingPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
-                    if (syncingPlayers.TryGetValue(conn, out player))
-                    {
-                        syncingPlayers.Remove(conn);
-                        playerWasSyncing = true;
-                        syncCount = syncingPlayers.Count;
-                    }
+                    player = removingPlayer;
+                    syncingPlayers.Remove(conn);
+                    playerWasSyncing = true;
+                    syncCount = syncingPlayers.Count;
                 }
             }
 
