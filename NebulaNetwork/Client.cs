@@ -140,7 +140,10 @@ namespace NebulaNetwork
                 gameStateUpdateTimer += Time.deltaTime;
                 if (gameStateUpdateTimer >= GAME_STATE_UPDATE_INTERVAL)
                 {
-                    SendPacket(new PingPacket());
+                    if (!GameMain.isFullscreenPaused)
+                    {
+                        SendPacket(new PingPacket());
+                    }
                     gameStateUpdateTimer = 0f;
                 }
             }

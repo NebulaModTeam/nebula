@@ -28,6 +28,18 @@ namespace NebulaModel.Packets.Session
                         writer.BinaryWriter.Write(mod.Version);
                         count++;
                     }
+                    else
+                    {
+                        foreach (BepInEx.BepInDependency dependency in pluginInfo.Value.Dependencies)
+                        {
+                            if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
+                            {
+                                writer.BinaryWriter.Write(pluginInfo.Key);
+                                writer.BinaryWriter.Write(pluginInfo.Value.Metadata.Version.ToString());
+                                count++;
+                            }
+                        }
+                    }
                 }
 
                 ModsVersion = writer.CloseAndGetBytes();

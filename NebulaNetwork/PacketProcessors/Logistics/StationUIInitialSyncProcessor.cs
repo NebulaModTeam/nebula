@@ -17,15 +17,18 @@ namespace NebulaNetwork.PacketProcessors.Logistics
         public override void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
         {
             StationComponent stationComponent = null;
-            StationComponent[] gStationPool = GameMain.data.galacticTransport.stationPool;
             StationComponent[] stationPool = GameMain.data.galaxy.PlanetById(packet.PlanetId).factory.transport.stationPool;
-
-            stationComponent = packet.StationGId > 0 ? gStationPool[packet.StationGId] : stationPool?[packet.StationId];
+            // Assume the requesting station is on a loaded planet
+            stationComponent = stationPool?[packet.StationId];
 
             if (stationComponent == null)
             {
                 Log.Error($"StationUIInitialSyncProcessor: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
                 return;
+            }
+            if (stationComponent.gid > 0 && stationComponent.gid != packet.StationGId)
+            {
+                Log.Error($"StationGid desync! Host:{packet.StationGId} Local:{stationComponent.gid}");
             }
 
             stationComponent.tripRangeDrones = packet.TripRangeDrones;

@@ -43,16 +43,14 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 if (starData != null && GameMain.data.dysonSpheres[starData.index] == null)
                 {
-                    if (Multiplayer.Session.DysonSpheres.RequestingIndex != -1)
+                    if (Multiplayer.Session.DysonSpheres.RequestingIndex == -1)
                     {
-                        InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", "OK");
-                        return false;
+                        Multiplayer.Session.DysonSpheres.RequestDysonSphere(starData.index);
                     }
-                    Multiplayer.Session.DysonSpheres.RequestingIndex = starData.index;
-                    Log.Info($"Requesting DysonSphere for system {starData.displayName} (Index: {starData.index})");
-                    Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(starData.index, DysonSphereRequestEvent.Load));
-                    __instance.ClearAllSelection();
-                    InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", "OK");
+                    else
+                    {
+                        InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", null);
+                    }
                     // Restore comboBox back to original star
                     UIComboBox dysonBox = UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.dysonBox;
                     int index = dysonBox.ItemsData.FindIndex(x => x == UIRoot.instance.uiGame.dysonEditor.selection.viewStar?.index);

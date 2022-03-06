@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace NebulaWorld
 {
@@ -10,6 +11,16 @@ namespace NebulaWorld
         {
             displayedMessage?.FadeOut();
             displayedMessage = null;
+        }
+
+        public static void UpdateMessage(in string title, string message)
+        {
+            if (displayedMessage != null && displayedMessage.m_TitleText.text == title)
+            {
+                displayedMessage.m_MessageText.horizontalOverflow = HorizontalWrapMode.Overflow;
+                displayedMessage.m_MessageText.verticalOverflow = VerticalWrapMode.Overflow;
+                displayedMessage.m_MessageText.text = message;
+            }
         }
 
         // Info

@@ -124,6 +124,7 @@ function generateManifest() {
       `nebula-${apiPluginInfo.name}-${apiPluginInfo.version}`,
       "PhantomGamers-IlLine-1.0.0",
       "CommonAPI-CommonAPI-1.2.2",
+      "starfi5h-BulletTime-1.2.0",
     ],
     website_url: "https://github.com/hubastard/nebula"
   };

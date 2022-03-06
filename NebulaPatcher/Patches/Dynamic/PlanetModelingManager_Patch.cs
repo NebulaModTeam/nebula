@@ -46,12 +46,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 PlanetModelingManager.currentFactingStage = 0;
                 return false;
             }
+            NebulaModAPI.OnPlanetLoadRequest?.Invoke(planet.id);
 
             // Request factory
             Log.Info($"Requested factory for planet {planet.name} (ID: {planet.id}) from host");
-            Multiplayer.Session.Network.SendPacket(new FactoryLoadRequest(planet.id));
-
-            NebulaModAPI.OnPlanetLoadRequest?.Invoke(planet.id);
+            Multiplayer.Session.Network.SendPacket(new FactoryLoadRequest(planet.id));            
 
             // Skip running the actual method
             return false;
@@ -91,9 +90,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // Request initial dysonSphere data
             if (GameMain.data.dysonSpheres[star.index] == null)
             {
-                Multiplayer.Session.DysonSpheres.RequestingIndex = star.index;
-                Log.Info($"Requesting DysonSphere for system {star.displayName} (Index: {star.index})");
-                Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(star.index, DysonSphereRequestEvent.Load));
+                Multiplayer.Session.DysonSpheres.RequestDysonSphere(star.index, false);
             }
 
             NebulaModAPI.OnStarLoadRequest?.Invoke(star.index);
