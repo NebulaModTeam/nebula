@@ -122,7 +122,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     textMesh.text = Username;
                     textMesh.fontSize = 20;
                 }
-                else
+                else if(textMesh == null)
                 {
                     // may be reached if the destroy in Awake() did not happen fast enough preventing us from adding a TextMesh
                     playerName.AddComponent<TextMesh>();
