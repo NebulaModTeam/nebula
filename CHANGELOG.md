@@ -1,5 +1,19 @@
 ## Changelog
 
+0.8.3:
+
+- @kremnev8: improved ingame chat
+- @starfish: added compatibility with BulletTime which enables fluent loading times on Planet and System arrival
+- @starfish: bugfix regarding too large dyson sphere data
+- @starfish: bugfix regarding reloading of dyson sphere
+- @starfish: improved loading of solar systems, this now runs on its own thread
+- @starfish: developer commands can now be executed from the ingame chat (using /xconsole [command] )
+- @sp00ktober: added tooltips to the Nebula settings
+- @sp00ktober: added setting to prevent `System.ObjectDisposedException` errors resulting in random client disconnect
+- @sp00ktober: added code to handle IndexOutOfBounds errors when importing PlanetFactory data (very rare issue)
+- @sp00ktober: fixed wrong array size for storage and slots in ILS
+- @sp00ktober: added minimap indicator for other players positions (on the same planet)
+
 0.8.2:
 
 - @kremnev8: fix issue with EmojiDataManager when a save was loaded multiple times in a row.
