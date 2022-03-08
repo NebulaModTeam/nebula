@@ -107,11 +107,25 @@ namespace NebulaWorld.MonoBehaviours.Remote
             // update player dot on minimap if on same planet
             if(playerDot != null && playerName != null && localPlanetId == GameMain.mainPlayer.planetId)
             {
-                playerDot.transform.localPosition = rootTransform.position * (float)(0.5 / (double)GameMain.localPlanet.realRadius);
-                playerDot.transform.localScale = 0.02f * Vector3.one;
+                // compute spherical distance from us to player to hide his name if he is on the other side of the planet
+                double distance = PlayerNavigation.SphericalDistance(GameCamera.main.transform.position, rootTransform.position, GameMain.localPlanet.realRadius, false);
 
-                playerName.transform.localPosition = playerDot.transform.localPosition;
-                playerName.transform.rotation = UIRoot.instance.uiGame.planetGlobe.minimapControl.cam.transform.rotation;
+                if (distance >= GameMain.localPlanet.realRadius)
+                {
+                    playerDot.SetActive(false);
+                    playerName.SetActive(false);
+                }
+                else
+                {
+                    playerDot.SetActive(true);
+                    playerName.SetActive(true);
+
+                    playerDot.transform.localPosition = rootTransform.position * (float)(0.5 / (double)GameMain.localPlanet.realRadius);
+                    playerDot.transform.localScale = 0.02f * Vector3.one;
+
+                    playerName.transform.localPosition = playerDot.transform.localPosition;
+                    playerName.transform.rotation = UIRoot.instance.uiGame.planetGlobe.minimapControl.cam.transform.rotation;
+                }
 
                 TextMesh textMesh = playerName.GetComponent<TextMesh>();
                 if (textMesh != null && textMesh.text != Username)
@@ -130,8 +144,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
             }
             else if(playerDot != null && playerName != null)
             {
-                playerDot.transform.localPosition = Vector3.zero;
-                playerName.transform.localPosition = playerDot.transform.localPosition;
+                playerDot.SetActive(false);
+                playerName.SetActive(false);
             }
 
             double renderTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - INTERPOLATION_TIME;
