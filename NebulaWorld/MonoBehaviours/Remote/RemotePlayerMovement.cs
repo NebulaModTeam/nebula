@@ -27,6 +27,10 @@ namespace NebulaWorld.MonoBehaviours.Remote
         public int localPlanetId;
         public VectorLF3 absolutePosition;
 
+        private GameObject playerDot;
+        private GameObject playerName;
+        public String Username { get; set; }
+
 #if DEBUG
         private GameObject positionDebugger;
 #endif
@@ -43,6 +47,26 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             localPlanetId = -1;
             absolutePosition = Vector3.zero;
+
+            GameObject origPlayerDot = GameObject.Find("UI Root/Minimap/Player Dot");
+            TextMesh uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
+            if (origPlayerDot != null && uiSailIndicator_targetText != null)
+            {
+                playerDot = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
+
+                playerName = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
+                //playerName.transform.SetParent(playerDot.transform, false);
+
+                Destroy(playerName.GetComponent<MeshFilter>());
+
+                //MeshRenderer meshRenderer = playerName.AddComponent<MeshRenderer>();
+                MeshRenderer meshRenderer = playerName.GetComponent<MeshRenderer>();
+                playerName.AddComponent<TextMesh>();
+
+                meshRenderer.sharedMaterial = uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
+
+                playerName.SetActive(true);
+            }
 #if DEBUG
             positionDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             GameObject.Destroy(positionDebugger.GetComponent<SphereCollider>());
@@ -51,6 +75,18 @@ namespace NebulaWorld.MonoBehaviours.Remote
             positionDebugger.GetComponent<MeshRenderer>().material = null;
             positionDebugger.SetActive(false);
 #endif
+        }
+
+        private void OnDisable()
+        {
+            if(playerDot != null)
+            {
+                Destroy(playerDot);
+            }
+            if(playerName != null)
+            {
+                Destroy(playerName);
+            }
         }
 
         private void Update()
@@ -66,6 +102,36 @@ namespace NebulaWorld.MonoBehaviours.Remote
             if (snapshotBuffer[0].Timestamp == 0)
             {
                 return;
+            }
+
+            // update player dot on minimap if on same planet
+            if(playerDot != null && playerName != null && localPlanetId == GameMain.mainPlayer.planetId)
+            {
+                playerDot.transform.localPosition = rootTransform.position * (float)(0.5 / (double)GameMain.localPlanet.realRadius);
+                playerDot.transform.localScale = 0.02f * Vector3.one;
+
+                playerName.transform.localPosition = playerDot.transform.localPosition;
+                playerName.transform.rotation = UIRoot.instance.uiGame.planetGlobe.minimapControl.cam.transform.rotation;
+
+                TextMesh textMesh = playerName.GetComponent<TextMesh>();
+                if (textMesh != null && textMesh.text != Username)
+                {
+                    TextMesh uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
+
+                    textMesh.font = uiSailIndicator_targetText.font;
+                    textMesh.text = Username;
+                    textMesh.fontSize = 20;
+                }
+                else
+                {
+                    // may be reached if the destroy in Awake() did not happen fast enough preventing us from adding a TextMesh
+                    playerName.AddComponent<TextMesh>();
+                }
+            }
+            else if(playerDot != null && playerName != null)
+            {
+                playerDot.transform.localPosition = Vector3.zero;
+                playerName.transform.localPosition = playerDot.transform.localPosition;
             }
 
             double renderTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - INTERPOLATION_TIME;
