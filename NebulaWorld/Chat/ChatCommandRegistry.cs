@@ -64,6 +64,8 @@ namespace NebulaWorld.Chat.Commands
             RegisterCommand("info", new InfoCommandHandler(), "server");
             RegisterCommand("clear", new ClearCommandHandler(), "c");
             RegisterCommand("xconsole", new XConsoleCommandHandler(), "x");
+            RegisterCommand("navigate", new NavigateCommandHandler(), "n");
+            RegisterCommand("system", new SystemCommandHandler(), "s");
         }
     }
 

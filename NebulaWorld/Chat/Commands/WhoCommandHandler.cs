@@ -47,7 +47,7 @@ namespace NebulaWorld.Chat.Commands
 
         private static string BuildWhoMessageTextForPlayer(IPlayerData playerData, ILocalPlayer localPlayer)
         {
-            StringBuilder sb = new StringBuilder($"Player {playerData.Username}");
+            StringBuilder sb = new StringBuilder($"Player {playerData.Username} ({playerData.PlayerId})");
             if (localPlayer.Id == playerData.PlayerId)
             {
                 sb.Append(" (host)");

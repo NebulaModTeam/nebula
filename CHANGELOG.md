@@ -13,6 +13,8 @@
 - @sp00ktober: added code to handle IndexOutOfBounds errors when importing PlanetFactory data (very rare issue)
 - @sp00ktober: fixed wrong array size for storage and slots in ILS
 - @sp00ktober: added minimap indicator for other players positions (on the same planet)
+- @sp00ktober: added chat command to list planets in a system
+- @sp00ktober: added chat command to navigate to star, planet or player by name or id
 
 0.8.2:
 
