@@ -32,7 +32,15 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if(tip != null)
                 {
-                    Object.Destroy(tip.gameObject);
+                    Destroy(tip.gameObject);
+                }
+            }
+
+            public void OnDisable()
+            {
+                if (tip != null)
+                {
+                    Destroy(tip.gameObject);
                 }
             }
         }
