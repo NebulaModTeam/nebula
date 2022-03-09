@@ -29,9 +29,9 @@ namespace NebulaWorld.Chat.Commands
             return "List all players";
         }
         
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "";
+            return new string[] { "" };
         }
 
         public static string BuildResultPayload(IPlayerData[] allPlayers, ILocalPlayer hostPlayer)
@@ -47,7 +47,7 @@ namespace NebulaWorld.Chat.Commands
 
         private static string BuildWhoMessageTextForPlayer(IPlayerData playerData, ILocalPlayer localPlayer)
         {
-            StringBuilder sb = new StringBuilder($"Player {playerData.Username}");
+            StringBuilder sb = new StringBuilder($"Player {playerData.Username} ({playerData.PlayerId})");
             if (localPlayer.Id == playerData.PlayerId)
             {
                 sb.Append(" (host)");

@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -16,6 +17,34 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIOptionWindow))]
     internal class UIOptionWindow_Patch
     {
+        public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        {
+            public string Title = null;
+            public string Text = null;
+            UIButtonTip tip = null;
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                tip = UIButtonTip.Create(true, Title, Text, 2, new Vector2(0, 0), 508, this.gameObject.transform, "", "");
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                if(tip != null)
+                {
+                    Destroy(tip.gameObject);
+                }
+            }
+
+            public void OnDisable()
+            {
+                if (tip != null)
+                {
+                    Destroy(tip.gameObject);
+                }
+            }
+        }
+
         private static RectTransform multiplayerTab;
 
         // Templates
@@ -159,23 +188,24 @@ namespace NebulaPatcher.Patches.Dynamic
             foreach (PropertyInfo prop in properties)
             {
                 DisplayNameAttribute displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
+                DescriptionAttribute descriptionAttr = prop.GetCustomAttribute<DescriptionAttribute>();
                 if (displayAttr != null)
                 {
                     if (prop.PropertyType == typeof(bool))
                     {
-                        CreateBooleanControl(displayAttr, prop, anchorPosition, container);
+                        CreateBooleanControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) || prop.PropertyType == typeof(ushort))
                     {
-                        CreateNumberControl(displayAttr, prop, anchorPosition, container);
+                        CreateNumberControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType == typeof(string))
                     {
-                        CreateStringControl(displayAttr, prop, anchorPosition, container);
+                        CreateStringControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
                     }
                     else if (prop.PropertyType.IsEnum)
                     {
-                        CreateEnumControl(displayAttr, prop, anchorPosition, container);
+                        CreateEnumControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
                     }
                     else
                     {
@@ -190,10 +220,10 @@ namespace NebulaPatcher.Patches.Dynamic
             container.sizeDelta = new Vector2(container.sizeDelta.x, -anchorPosition.y + 40);
         }
 
-        private static void CreateBooleanControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateBooleanControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
             RectTransform element = Object.Instantiate(checkboxTemplate, container, false);
-            SetupUIElement(element, control, prop, anchorPosition);
+            SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
             UIToggle toggle = element.GetComponentInChildren<UIToggle>();
             toggle.toggle.onValueChanged.RemoveAllListeners();
             toggle.toggle.onValueChanged.AddListener((value) => {
@@ -219,13 +249,13 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateNumberControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateNumberControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
             UIRangeAttribute rangeAttr = prop.GetCustomAttribute<UIRangeAttribute>();
             bool sliderControl = rangeAttr != null && rangeAttr.Slider;
 
             RectTransform element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, container, false);
-            SetupUIElement(element, control, prop, anchorPosition);
+            SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
 
             bool isFloatingPoint = prop.PropertyType == typeof(float) || prop.PropertyType == typeof(double);
 
@@ -294,10 +324,10 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        private static void CreateStringControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateStringControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
             RectTransform element = Object.Instantiate(inputTemplate, container, false);
-            SetupUIElement(element, control, prop, anchorPosition);
+            SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
 
             InputField input = element.GetComponentInChildren<InputField>();
             input.onValueChanged.RemoveAllListeners();
@@ -309,10 +339,10 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateEnumControl(DisplayNameAttribute control, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateEnumControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
             RectTransform element = Object.Instantiate(comboBoxTemplate, container, false);
-            SetupUIElement(element, control, prop, anchorPosition);
+            SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
             UIComboBox combo = element.GetComponentInChildren<UIComboBox>();
             combo.Items = System.Enum.GetNames(prop.PropertyType).ToList();
             combo.ItemsData = System.Enum.GetValues(prop.PropertyType).OfType<int>().ToList();
@@ -325,11 +355,17 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void SetupUIElement(RectTransform element, DisplayNameAttribute display, PropertyInfo prop, Vector2 anchorPosition)
+        private static void SetupUIElement(RectTransform element, DisplayNameAttribute display, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition)
         {
             element.gameObject.SetActive(true);
             element.name = prop.Name;
             element.anchoredPosition = anchorPosition;
+            if(descriptionAttr != null)
+            {
+                element.gameObject.AddComponent<Tooltip>();
+                element.gameObject.GetComponent<Tooltip>().Title = display.DisplayName;
+                element.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description;
+            }
             element.GetComponent<Localizer>().enabled = false;
             element.GetComponent<Text>().text = display.DisplayName;
         }

@@ -52,9 +52,9 @@ namespace NebulaWorld.Chat.Commands
             return $"Send direct message to player. Use {ChatCommandRegistry.CommandPrefix}who for valid user names";
         }
 
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "<player> <message>";
+            return new string[] { "<player> <message>" };
         }
 
         public static void SendWhisperToLocalPlayer(string sender, string mesageBody)

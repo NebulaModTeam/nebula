@@ -43,6 +43,9 @@ namespace NebulaWorld
                 Effects = PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
                 Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
 
+                Movement.Username = username;
+                Movement.PlayerID = playerId;
+
                 PlayerTransform.GetComponent<PlayerAnimator>().Start();
                 PlayerTransform.GetComponent<PlayerAnimator>().enabled = false;
             }

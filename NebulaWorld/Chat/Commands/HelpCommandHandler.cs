@@ -45,7 +45,10 @@ namespace NebulaWorld.Chat.Commands
             StringBuilder sb = new StringBuilder();
             sb.Append($"Command {commandName} - {handler.GetDescription()}\n");
             sb.Append($"Aliases: {aliasList}\n");
-            sb.Append($"Usage: {FullCommandName(commandName)} {handler.GetUsage()}");
+            foreach (string usage in handler.GetUsage())
+            {
+                sb.Append($"Usage: {FullCommandName(commandName)} {usage}\n");
+            }
             return sb.ToString();
         }
         
@@ -82,9 +85,9 @@ namespace NebulaWorld.Chat.Commands
             return "Get list of existing commands and their usage";
         }
         
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "[command name]";
+            return new string[] { "[command name]" };
         }
     }
 }
