@@ -43,16 +43,12 @@ namespace NebulaWorld.Chat.Commands
             string aliasList = ChatCommandRegistry.GetCommandAliases(commandName).Join(FullCommandName);
 
             StringBuilder sb = new StringBuilder();
-            foreach(string usage in handler.GetUsage())
+            sb.Append($"Command {commandName} - {handler.GetDescription()}\n");
+            sb.Append($"Aliases: {aliasList}\n");
+            foreach (string usage in handler.GetUsage())
             {
                 sb.Append($"Usage: {FullCommandName(commandName)} {usage}\n");
             }
-            string usageString = sb.ToString();
-
-            sb.Clear();
-            sb.Append($"Command {commandName} - {handler.GetDescription()}\n");
-            sb.Append($"Aliases: {aliasList}\n");
-            sb.Append($"{usageString}");
             return sb.ToString();
         }
         
