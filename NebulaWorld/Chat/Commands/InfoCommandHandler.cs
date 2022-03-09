@@ -151,9 +151,9 @@ namespace NebulaWorld.Chat.Commands
             return "Get information about server";
         }
         
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "[full]";
+            return new string[] { "[full]" };
         }
     }
 }

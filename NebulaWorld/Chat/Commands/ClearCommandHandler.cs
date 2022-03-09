@@ -19,9 +19,9 @@ namespace NebulaWorld.Chat.Commands
             window.ClearChat(message => message.MessageType.IsCommandMessage());
         }
         
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return $"[all|commands]";
+            return new string[] { $"[all|commands]" };
         }
 
         public string GetDescription()

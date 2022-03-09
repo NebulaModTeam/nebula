@@ -16,7 +16,7 @@ namespace NebulaWorld.Chat.Commands
         /// <summary>
         /// Provide argument usage (If needed) without starting with command name
         /// </summary>
-        string GetUsage();
+        string[] GetUsage();
     }
 
     public class ChatCommandUsageException : Exception

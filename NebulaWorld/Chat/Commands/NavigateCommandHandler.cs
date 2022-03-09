@@ -91,16 +91,17 @@ namespace NebulaWorld.Chat.Commands
                 }
             }
 
-            window.SendLocalChatMessage("Failed to start navigation, please check your input.", ChatMessageType.CommandOutputMessage);
+            window.SendLocalChatMessage("Failed to start navigation, please check your input.", ChatMessageType.CommandErrorMessage);
         }
 
         public string GetDescription()
         {
             return "Start navigating to a specified destination";
         }
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "[planet name | planet id | star name | star id | clear]\r\nUsage: /n player [player id | playr name]";
+            return new string[] {   "<planet name | planet id | star name | star id | clear>",
+                                    "player <player id | player name>" };
         }
     }
 }

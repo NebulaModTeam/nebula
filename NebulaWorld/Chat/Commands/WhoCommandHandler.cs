@@ -29,9 +29,9 @@ namespace NebulaWorld.Chat.Commands
             return "List all players";
         }
         
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "";
+            return new string[] { "" };
         }
 
         public static string BuildResultPayload(IPlayerData[] allPlayers, ILocalPlayer hostPlayer)

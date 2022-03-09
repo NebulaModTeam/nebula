@@ -33,9 +33,9 @@ namespace NebulaWorld.Chat.Commands
             return "Execute developer console command";
         }
 
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "[XConsole command]";
+            return new string[] { "[XConsole command]" };
         }
     }
 }

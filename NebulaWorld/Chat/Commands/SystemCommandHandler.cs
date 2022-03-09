@@ -38,15 +38,15 @@ namespace NebulaWorld.Chat.Commands
                 resp = "Could not find given star '" + input + "'";
             }
 
-            window.SendLocalChatMessage(resp, ChatMessageType.CommandOutputMessage);
+            window.SendLocalChatMessage(resp, ChatMessageType.CommandErrorMessage);
         }
         public string GetDescription()
         {
             return "List planets in a system";
         }
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "[star name]";
+            return new string[] { "[star name]" };
         }
     }
 }

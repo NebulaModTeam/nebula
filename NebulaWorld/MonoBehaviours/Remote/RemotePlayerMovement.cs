@@ -184,24 +184,18 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
                 if (gizmo.naviIndicatorGizmo == null)
                 {
-                    if (gizmo.player.navigation.indicatorAstroId > 0)
-                    {
-                        gizmo.naviIndicatorGizmo = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
-                    }
+                    gizmo.naviIndicatorGizmo = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
                     gizmo.naviIndicatorGizmo.autoRefresh = true;
                     gizmo.naviIndicatorGizmo.multiplier = 1.5f;
-                    gizmo.naviIndicatorGizmo.alphaMultiplier = 0.3f;
-                    gizmo.naviIndicatorGizmo.width = 0.6f;
+                    gizmo.naviIndicatorGizmo.alphaMultiplier = 0.6f;
+                    gizmo.naviIndicatorGizmo.width = 1.8f;
                     gizmo.naviIndicatorGizmo.color = Configs.builtin.gizmoColors[4];
-                    gizmo.naviIndicatorGizmo.spherical = false;
+                    gizmo.naviIndicatorGizmo.spherical = gizmo.player.planetId == localPlanetId;
                     gizmo.naviIndicatorGizmo.Open();
                 }
                 if (gizmo.naviIndicatorGizmoStarmap == null)
                 {
-                    if (gizmo.player.navigation.indicatorAstroId > 0)
-                    {
-                        gizmo.naviIndicatorGizmoStarmap = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
-                    }
+                    gizmo.naviIndicatorGizmoStarmap = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
                     gizmo.naviIndicatorGizmoStarmap.autoRefresh = true;
                     gizmo.naviIndicatorGizmoStarmap.multiplier = 1.5f;
                     gizmo.naviIndicatorGizmoStarmap.alphaMultiplier = 0.3f;
@@ -212,16 +206,9 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 }
 
                 gizmo.naviIndicatorGizmo.startPoint = gizmo.player.position;
-                if (gizmo.player.navigation.indicatorAstroId > 0)
-                {
-                    gizmo.naviIndicatorGizmo.endPoint = rootTransform.position;
-                }
+                gizmo.naviIndicatorGizmo.endPoint = rootTransform.position;
                 gizmo.naviIndicatorGizmoStarmap.startPoint = (gizmo.player.uPosition - starmap.viewTargetUPos) * 0.00025;
-                if (gizmo.player.navigation.indicatorAstroId > 0)
-                {
-                    gizmo.naviIndicatorGizmoStarmap.endPoint = (absolutePosition - starmap.viewTargetUPos) * 0.00025;
-                }
-
+                gizmo.naviIndicatorGizmoStarmap.endPoint = (absolutePosition - starmap.viewTargetUPos) * 0.00025;
                 gizmo.naviIndicatorGizmoStarmap.gameObject.layer = 20;
             }
         }

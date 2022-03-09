@@ -37,9 +37,9 @@ namespace NebulaWorld.Chat.Commands
             return "Test command";
         }
 
-        public string GetUsage()
+        public string[] GetUsage()
         {
-            return "[time delay (seconds)]";
+            return new string[] { "[time delay (seconds)]" };
         }
     }
 }
