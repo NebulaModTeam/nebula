@@ -2,7 +2,6 @@ name: Publish Release
 
 on:
   workflow_dispatch:
-    branches: [master]
 
 jobs:
   build:
@@ -78,15 +77,21 @@ jobs:
           name: nebula-api-thunderstore
           path: ${{ env.DIST_RELEASE_FOLDER }}nebula-NebulaMultiplayerModApi
         continue-on-error: true
+        
+      # Get Version
+      - id: getver
+        run: |
+          $ver = (Get-Content version.json | ConvertFrom-Json).version
+          echo "::set-output name=ver::$ver"
 
       # Create release
       - uses: hubastard/release-action@v1
         with:
           artifactErrorsFailBuild: true
           bodyFile: "${{ env.DIST_RELEASE_FOLDER }}BODY.md"
-          artifacts: "${{ env.DIST_RELEASE_FOLDER }}Nebula_${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Version }}.zip"
-          tag: ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
-          commit: ${{ fromJson(steps.prepare-release.outputs.PREPARE_RELEASE_OUTPUT).NewBranch.Name }}
+          artifacts: "${{ env.DIST_RELEASE_FOLDER }}Nebula_${{ steps.getver.outputs.ver }}.zip"
+          tag: v${{ steps.getver.outputs.ver }}
+          commit: ${{ github.event.base_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
        # Publish to NuGet
