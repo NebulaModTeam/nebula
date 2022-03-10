@@ -4,7 +4,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
-using System.Linq;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
@@ -18,36 +17,28 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 return;
             }
 
-            // We have to track the offset we are currently at in the flattened jagged array as we decode
-            int currentOffset = 0;
 
-            for (int i = 0; i < packet.PlanetDataIDs.Length; i++)
+            PlanetData planet = null;
+
+            if (Multiplayer.Session.IsInLobby)
             {
-                PlanetData planet = null;
+                planet = UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID);
+            }
+            else
+            {
+                planet = GameMain.galaxy.PlanetById(packet.PlanetDataID);
+            }
 
-                if (Multiplayer.Session.IsInLobby)
-                {
-                    planet = UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataIDs[i]);
-                }
-                else
-                {
-                    planet = GameMain.galaxy.PlanetById(packet.PlanetDataIDs[i]);
-                }
+            Log.Info($"Parsing {packet.PlanetDataByte.Length} bytes of data for planet {planet.name} (ID: {planet.id})");
 
-                Log.Info($"Parsing {packet.PlanetDataBytesLengths[i]} bytes of data for planet {planet.name} (ID: {planet.id})");
-                byte[] planetData = packet.PlanetDataBytes.Skip(currentOffset).Take(packet.PlanetDataBytesLengths[i]).ToArray();
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.PlanetDataByte))
+            {
+                planet.ImportRuntime(reader.BinaryReader);
+            }
 
-                using (BinaryUtils.Reader reader = new BinaryUtils.Reader(planetData))
-                {
-                    planet.ImportRuntime(reader.BinaryReader);
-                }
-
-                lock (PlanetModelingManager.genPlanetReqList)
-                {
-                    PlanetModelingManager.genPlanetReqList.Enqueue(planet);
-                }
-
-                currentOffset += packet.PlanetDataBytesLengths[i];
+            lock (PlanetModelingManager.genPlanetReqList)
+            {
+                PlanetModelingManager.genPlanetReqList.Enqueue(planet);
             }
         }
     }
