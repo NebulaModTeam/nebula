@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
+using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
@@ -222,6 +223,9 @@ namespace NebulaNetwork.PacketProcessors.Session
                         player.SendPacket(new LobbyResponse(galaxySelect.gameDesc.galaxyAlgo, galaxySelect.gameDesc.galaxySeed, galaxySelect.gameDesc.starCount, galaxySelect.gameDesc.resourceMultiplier, p.CloseAndGetBytes(), count));
                     }
                 }
+
+                // Send overriden Planet and Star names
+                player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
             }
         }
     }
