@@ -25,6 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIPlanetDetail._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static bool _OnUpdate_Prefix(UIPlanetDetail __instance)
         {
             if(UIRoot.instance.galaxySelect == null || UIRoot.instance.galaxySelect.starmap == null || (Multiplayer.Session != null && !Multiplayer.Session.IsInLobby) || Multiplayer.Session == null)
@@ -36,16 +37,8 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 __instance.RefreshDynamicProperties();
             }
-            __instance.trslBg.gameObject.SetActive(true);
-            __instance.imgBg.gameObject.SetActive(true);
-
-            for(int i = 0; i < __instance.entries.Count; i++)
-            {
-                if((i < 6 || i > 9) && !__instance.entries[i].valueString.Contains("-") && (!__instance.entries[i].valueString.Equals("0") && __instance.entries[i].valueString.Contains(",")))
-                {
-                    __instance.entries[i].valueString = "exists";
-                }
-            }
+            __instance.trslBg.SetActive(true);
+            __instance.imgBg.SetActive(true);
 
             return false;
         }
@@ -54,19 +47,18 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIPlanetDetail.OnPlanetDataSet))]
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
-        public static bool OnPlanetDataSet_Prefix(UIPlanetDetail __instance)
+        public static void OnPlanetDataSet_Prefix()
         {
             if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {
                 GameMain.history.universeObserveLevel = 4;
             }
-            return true;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIPlanetDetail.OnPlanetDataSet))]
         [HarmonyPatch(nameof(UIPlanetDetail.RefreshDynamicProperties))]
-        public static void OnPlanetDataSet_Postfix(UIPlanetDetail __instance)
+        public static void OnPlanetDataSet_Postfix()
         {
             if(Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
             {

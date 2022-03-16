@@ -36,9 +36,18 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 planet.ImportRuntime(reader.BinaryReader);
             }
 
-            lock (PlanetModelingManager.genPlanetReqList)
+            if (Multiplayer.Session.IsInLobby)
             {
-                PlanetModelingManager.genPlanetReqList.Enqueue(planet);
+                // Pretend planet is loaded to make planetDetail show resources
+                planet.loaded = true;
+                UIRoot.instance.uiGame.planetDetail.RefreshDynamicProperties();
+            }
+            else
+            {
+                lock (PlanetModelingManager.genPlanetReqList)
+                {
+                    PlanetModelingManager.genPlanetReqList.Enqueue(planet);
+                }
             }
         }
     }
