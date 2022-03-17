@@ -48,13 +48,25 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             localPlanetId = -1;
             absolutePosition = Vector3.zero;
+#if DEBUG
+            positionDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject.Destroy(positionDebugger.GetComponent<SphereCollider>());
+            positionDebugger.transform.SetParent(rootTransform, false);
+            positionDebugger.transform.localScale = Vector3.one * 30;
+            positionDebugger.GetComponent<MeshRenderer>().material = null;
+            positionDebugger.SetActive(false);
+#endif
+        }
 
+        private void OnEnable()
+        {
             GameObject origPlayerDot = GameObject.Find("UI Root/Minimap/Player Dot");
             TextMesh uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
             if (origPlayerDot != null && uiSailIndicator_targetText != null)
             {
                 playerDot = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
                 playerName = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
+                playerName.name = "playerName(Clone)";
 
                 Destroy(playerName.GetComponent<MeshFilter>());
 
@@ -65,14 +77,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
                 playerName.SetActive(true);
             }
-#if DEBUG
-            positionDebugger = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            GameObject.Destroy(positionDebugger.GetComponent<SphereCollider>());
-            positionDebugger.transform.SetParent(rootTransform, false);
-            positionDebugger.transform.localScale = Vector3.one * 30;
-            positionDebugger.GetComponent<MeshRenderer>().material = null;
-            positionDebugger.SetActive(false);
-#endif
         }
 
         private void OnDisable()
@@ -111,8 +115,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
             // update player dot on minimap if on same planet
             if(playerDot != null && playerName != null && localPlanetId == GameMain.mainPlayer.planetId)
             {
-                // compute spherical distance from us to player to hide his name if he is on the other side of the planet
-                double distance = PlayerNavigation.SphericalDistance(GameCamera.main.transform.position, rootTransform.position, GameMain.localPlanet.realRadius, false);
                 TextMesh textMesh = playerName.GetComponent<TextMesh>();
 
                 playerDot.SetActive(true);
@@ -120,7 +122,8 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
                 if (textMesh != null)
                 {
-                    textMesh.color = new Color(textMesh.color.r, textMesh.color.g, textMesh.color.b, (distance >= GameMain.localPlanet.realRadius) ? 0.2f : 1f);
+                    bool isFront = Vector3.Dot(UIRoot.instance.uiGame.planetGlobe.minimapControl.cam.transform.localPosition, rootTransform.localPosition) > 0;
+                    textMesh.color = new Color(textMesh.color.r, textMesh.color.g, textMesh.color.b, isFront ? 1f : 0.2f);
                 }
 
                 playerDot.transform.localPosition = rootTransform.position * (float)(0.5 / (double)GameMain.localPlanet.realRadius);
