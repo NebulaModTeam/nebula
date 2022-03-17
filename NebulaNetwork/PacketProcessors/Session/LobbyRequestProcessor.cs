@@ -134,7 +134,19 @@ namespace NebulaNetwork.PacketProcessors.Session
             {
                 if (savedPlayerData.TryGetValue(clientCertHash, out IPlayerData value))
                 {
-                    player.LoadUserData(value);
+                    using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+                    {
+                        IPlayerData playerData = value;
+                        foreach (INebulaPlayer connectedPlayer in connectedPlayers.Values)
+                        {
+                            if (connectedPlayer.Data == playerData)
+                            {
+                                playerData = value.CreateCopyWithoutMechaData();
+                                Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
+                            }
+                        }
+                        player.LoadUserData(playerData);
+                    }
                 }
                 else
                 {
