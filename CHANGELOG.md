@@ -1,5 +1,9 @@
 ## Changelog
 
+0.8.4:
+
+- @kremnev8: add two new events to Nebula API
+
 0.8.3:
 
 - @kremnev8: improved ingame chat

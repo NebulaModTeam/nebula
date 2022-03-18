@@ -44,7 +44,7 @@
           DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
   </Target>
 
-  <Target Name="CopyBundleToOutDir" AfterTargets="Build">
+  <Target Name="CopyBundleToOutDir" AfterTargets="Build" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
     <Copy SourceFiles="..\NebulaWorld\Assets\nebulabundle" DestinationFolder="$(OutDir)" />
   </Target>
   
