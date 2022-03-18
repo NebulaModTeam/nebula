@@ -86,6 +86,19 @@ namespace NebulaAPI
         /// </summary>
         public static Action<int> OnPlanetLoadFinished;
 
+        /// <summary>
+        /// Subscribe to receive even when a new player joins the game.
+        /// The event fires right after the player starts to load in the save data
+        /// <see cref="IPlayerData"/>> player - info about the player
+        /// </summary>
+        public static Action<IPlayerData> OnPlayerJoinedGame;
+        
+        /// <summary>
+        /// Subscribe to receive even when a new player leaves the game
+        /// <see cref="IPlayerData"/>> player - info about the player
+        /// </summary>
+        public static Action<IPlayerData> OnPlayerLeftGame;
+
         private void Awake()
         {
             nebulaIsInstalled = false;
