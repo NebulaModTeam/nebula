@@ -3,6 +3,12 @@
 0.8.4:
 
 - @kremnev8: add two new events to Nebula API
+- @starfish: fixed issue where client would sometimes be unable to load in while using GalacticScale
+- @starfish: custom planet and star names now show up in lobby (not while GalacticScale is active)
+- @starfi5h: show correct resource amount in UIPlanetDetail
+- @starfi5h: show custom planet and star names in lobby screen
+- @starfi5h: the selected starting planet name will now show on the lobby screen
+- @starfi5h: fixed issue where the nametag on the minimap wouldn't show up for a client that rejoined
 
 0.8.3:
 
