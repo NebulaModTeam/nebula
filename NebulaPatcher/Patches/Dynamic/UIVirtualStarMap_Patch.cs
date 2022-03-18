@@ -8,19 +8,19 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
-        public static bool _OnLateUpdate_Prefix(UIVirtualStarmap __instance)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnLateUpdate_Prefix()
         {
             // reset the spam protector if no press is recognized to enable solar system details again.
             if (!VFInput.rtsConfirm.pressing)
             {
                 UIVirtualStarmap_Transpiler.pressSpamProtector = false;
             }
-            return true;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIVirtualStarmap.OnGalaxyDataReset))]
-        public static bool OnGalaxyDataReset_Prefix(UIVirtualStarmap __instance)
+        public static void OnGalaxyDataReset_Prefix(UIVirtualStarmap __instance)
         {
             __instance.clickText = ""; // reset to vanilla
 
@@ -28,8 +28,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 connNode.lineRenderer.positionCount = 2;
             }
-
-            return true;
         }
     }
 }

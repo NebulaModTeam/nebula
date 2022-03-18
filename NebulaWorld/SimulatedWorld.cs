@@ -175,6 +175,7 @@ namespace NebulaWorld
             {
                 if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
                 {
+                    Log.Info($"Spawn player model {playerData.PlayerId} {playerData.Username}");
                     RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
                     remotePlayersModels.Add(playerData.PlayerId, model);
                 }
@@ -310,10 +311,10 @@ namespace NebulaWorld
                     return;
                 }
                 
-                Log.Info($"Changing color of player {playerId}");
+                Log.Debug($"Changing color of player {playerId}");
                 for (int i = 0; i < colors.Length; i++)
                 {
-                    Log.Info($"Color {i}: {colors[i]}");
+                    Log.Debug($"Color {i}: {colors[i]}");
                 }
 
                 mechaArmorModel.inst_part_ar_mat.SetColor("_Color", colors[0].ToColor() / 255);

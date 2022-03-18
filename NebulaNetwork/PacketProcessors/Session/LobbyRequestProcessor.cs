@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
+using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
@@ -133,7 +134,19 @@ namespace NebulaNetwork.PacketProcessors.Session
             {
                 if (savedPlayerData.TryGetValue(clientCertHash, out IPlayerData value))
                 {
-                    player.LoadUserData(value);
+                    using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+                    {
+                        IPlayerData playerData = value;
+                        foreach (INebulaPlayer connectedPlayer in connectedPlayers.Values)
+                        {
+                            if (connectedPlayer.Data == playerData)
+                            {
+                                playerData = value.CreateCopyWithoutMechaData();
+                                Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
+                            }
+                        }
+                        player.LoadUserData(playerData);
+                    }
                 }
                 else
                 {
@@ -223,6 +236,9 @@ namespace NebulaNetwork.PacketProcessors.Session
                         player.SendPacket(new LobbyResponse(galaxySelect.gameDesc.galaxyAlgo, galaxySelect.gameDesc.galaxySeed, galaxySelect.gameDesc.starCount, galaxySelect.gameDesc.resourceMultiplier, p.CloseAndGetBytes(), count));
                     }
                 }
+
+                // Send overriden Planet and Star names
+                player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
             }
         }
     }

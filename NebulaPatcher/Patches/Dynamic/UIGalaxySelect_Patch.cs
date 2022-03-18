@@ -18,6 +18,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGalaxySelect._OnOpen))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnOpen_Postfix(UIGalaxySelect __instance)
         {
             if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
@@ -52,6 +53,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     MainMenuStarID = GameMain.localStar.id;
                 }
+                Button button = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button").GetComponent<Button>();
+                button.interactable = true;
             }
         }
 
@@ -88,7 +91,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIGalaxySelect.CancelSelect))]
-        public static bool CancelSelect_Prefix(UIGalaxySelect __instance)
+        public static void CancelSelect_Prefix(UIGalaxySelect __instance)
         {
             if (Multiplayer.IsInMultiplayerMenu && Multiplayer.Session.IsInLobby)
             {
@@ -117,29 +120,26 @@ namespace NebulaPatcher.Patches.Dynamic
             galaxySelectRect.Find("resource-multiplier").gameObject.SetActive(true);
             galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = true;
             galaxySelectRect.Find("random-button").gameObject.SetActive(true);
-
-            return true;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIGalaxySelect.Rerand))]
-        public static bool Rerand_Prefix()
+        public static void Rerand_Prefix()
         {
             UIVirtualStarmap_Transpiler.customBirthStar = -1;
             UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
-            return true;
+            GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button/start-text").GetComponent<Text>().text = "Start Game";
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIGalaxySelect.SetStarmapGalaxy))]
-        public static bool SetStarmapGalaxy_Prefix()
+        public static void SetStarmapGalaxy_Prefix()
         {
             if(Multiplayer.IsInMultiplayerMenu && Multiplayer.Session.LocalPlayer.IsClient)
             {
                 UIVirtualStarmap_Transpiler.customBirthStar = -1;
                 UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
             }
-            return true;
         }
 
         [HarmonyPostfix]
@@ -162,6 +162,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGalaxySelect._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static void _OnUpdate_Postfix()
         {
             if (Multiplayer.IsInMultiplayerMenu)

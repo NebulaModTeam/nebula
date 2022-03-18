@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -21,7 +22,6 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
         public override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
         {
-            bool valid = true;
             if (IsHost)
             {
                 INebulaPlayer player = playerManager.GetPlayer(conn);
@@ -29,29 +29,39 @@ namespace NebulaNetwork.PacketProcessors.Universe
                 {
                     playerManager.SendPacketToOtherPlayers(packet, player);
                 }
-                else
-                {
-                    valid = false;
-                }
             }
 
-            if (valid)
+            using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
-                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
+                // If in lobby, apply change to UI galaxy
+                GalaxyData galaxyData = Multiplayer.Session.IsInLobby ? UIRoot.instance.galaxySelect.starmap.galaxyData : GameMain.galaxy;
+                if (galaxyData == null)
                 {
-                    if (packet.StarId != NebulaModAPI.STAR_NONE)
+                    return;
+                }
+
+                for (int i = 0; i < packet.Names.Length; i++)
+                {
+                    if (packet.StarIds[i] != NebulaModAPI.STAR_NONE)
                     {
-                        StarData star = GameMain.galaxy.StarById(packet.StarId);
-                        star.overrideName = packet.Name;
+                        StarData star = galaxyData.StarById(packet.StarIds[i]);
+                        star.overrideName = packet.Names[i];
                         star.NotifyOnDisplayNameChange();
+                        Log.Debug($"star{star.id}: {star.name} -> {star.overrideName}");
                     }
                     else
                     {
-                        PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-                        planet.overrideName = packet.Name;
+                        PlanetData planet = galaxyData.PlanetById(packet.PlanetIds[i]);
+                        planet.overrideName = packet.Names[i];
                         planet.NotifyOnDisplayNameChange();
+                        Log.Debug($"planet{planet.id}: {planet.name} -> {planet.overrideName}");
                     }
-                    GameMain.galaxy.NotifyAstroNameChange();
+                }
+                galaxyData.NotifyAstroNameChange();
+                if (Multiplayer.Session.IsInLobby)
+                {
+                    // Refresh star name in lobby
+                    UIRoot.instance.galaxySelect.starmap.OnGalaxyDataReset();
                 }
             }
         }
