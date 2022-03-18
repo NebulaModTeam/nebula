@@ -288,6 +288,7 @@ namespace NebulaNetwork
             if (player != null)
             {
                 SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
+                NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
                 Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
                 using (threadSafe.availablePlayerIds.GetLocked(out Queue<ushort> availablePlayerIds))
                 {

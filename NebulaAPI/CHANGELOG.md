@@ -1,4 +1,7 @@
 ## Changelog
+1.2.0:
+
+- @kremnev8: add two new events to Nebula API for players joining and leaving the game
 
 1.1.4:
 
