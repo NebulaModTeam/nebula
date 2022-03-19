@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
+using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
@@ -91,6 +92,28 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                         return;
                     }
+                    else
+                    {
+                        foreach (BepInEx.BepInDependency dependency in pluginInfo.Value.Dependencies)
+                        {
+                            if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
+                            {
+                                string hostVersion = pluginInfo.Value.Metadata.Version.ToString();
+                                if (!clientMods.ContainsKey(pluginInfo.Key))
+                                {
+                                    conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
+                                    pendingPlayers.Remove(conn);
+                                    return;
+                                }
+                                if (clientMods[pluginInfo.Key] != hostVersion)
+                                {
+                                    conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{clientMods[pluginInfo.Key]};{hostVersion}");
+                                    pendingPlayers.Remove(conn);
+                                    return;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (packet.GameVersionSig != GameConfig.gameVersion.sig)
@@ -111,7 +134,19 @@ namespace NebulaNetwork.PacketProcessors.Session
             {
                 if (savedPlayerData.TryGetValue(clientCertHash, out IPlayerData value))
                 {
-                    player.LoadUserData(value);
+                    using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+                    {
+                        IPlayerData playerData = value;
+                        foreach (INebulaPlayer connectedPlayer in connectedPlayers.Values)
+                        {
+                            if (connectedPlayer.Data == playerData)
+                            {
+                                playerData = value.CreateCopyWithoutMechaData();
+                                Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
+                            }
+                        }
+                        player.LoadUserData(playerData);
+                    }
                 }
                 else
                 {
@@ -142,6 +177,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
 
                 Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
+                NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
 
                 // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
                 PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
@@ -200,6 +236,9 @@ namespace NebulaNetwork.PacketProcessors.Session
                         player.SendPacket(new LobbyResponse(galaxySelect.gameDesc.galaxyAlgo, galaxySelect.gameDesc.galaxySeed, galaxySelect.gameDesc.starCount, galaxySelect.gameDesc.resourceMultiplier, p.CloseAndGetBytes(), count));
                     }
                 }
+
+                // Send overriden Planet and Star names
+                player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
             }
         }
     }

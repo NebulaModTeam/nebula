@@ -1,13 +1,11 @@
 ﻿using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using System;
-using UnityEngine;
 
 namespace NebulaWorld.Logistics
 {
     public class StationUIManager : IDisposable
     {
-        public int UpdateCooldown; // cooldown is reserved for future use
         public bool UIRequestedShipDronWarpChange { get; set; } // when receiving a ship, drone or warp change only take/add items from the one issuing the request
         public StationUI SliderBarPacket { get; set; } // store the change of slider bar temporary, only send it when mouse button is released.
         public int StorageMaxChangeId { get; set; } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
@@ -20,21 +18,11 @@ namespace NebulaWorld.Logistics
         {
         }
 
-        public void DecreaseCooldown()
-        {
-            // cooldown is reserved for future use
-            if (UpdateCooldown > 0)
-            {
-                UpdateCooldown--;
-            }
-        }
-
         public void UpdateStation(ref StationUI packet)
         {
             StationComponent stationComponent = GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
             if (stationComponent == null)
             {
-                Log.Warn($"StationUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
                 return;
             }
             UpdateSettingsUI(stationComponent, ref packet);
@@ -44,16 +32,15 @@ namespace NebulaWorld.Logistics
         public void UpdateStorage(StorageUI packet)
         {
             StationComponent stationComponent = GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
-            if (stationComponent == null)
+            if (stationComponent == null || stationComponent.storage == null)
             {
-                Log.Warn($"StorageUI: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid of {packet.StationGId}");
                 return;
             }
             UpdateStorageUI(stationComponent, packet);
             RefreshWindow(packet.PlanetId, packet.StationId);
         }
 
-        private void RefreshWindow(int planetId, int stationId)
+        private static void RefreshWindow(int planetId, int stationId)
         {
             // If station window is opened and veiwing the updating station, refresh the window.
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
@@ -69,7 +56,7 @@ namespace NebulaWorld.Logistics
         /**
          * Updates to a given station that should happen in the background.
          */
-        private void UpdateSettingsUI(StationComponent stationComponent, ref StationUI packet)
+        private static void UpdateSettingsUI(StationComponent stationComponent, ref StationUI packet)
         {
             // SetDroneCount, SetShipCount may change packet.SettingValue
             switch (packet.SettingIndex)
@@ -237,12 +224,7 @@ namespace NebulaWorld.Logistics
             }
         }
 
-        /*
-         * Update station settings and drone, ship and warper counts.
-         * 
-         * First determine if the local player has the station window opened and handle that accordingly.
-         */
-        private StationComponent GetStation(int planetId, int stationId, int stationGid)
+        private static StationComponent GetStation(int planetId, int stationId, int stationGid)
         {
             PlanetData planet = GameMain.galaxy.PlanetById(planetId);
 

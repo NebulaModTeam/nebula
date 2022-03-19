@@ -19,6 +19,10 @@ Please do keep in mind that this mod is still in heavy development, it may still
 
 This mod has an API, that makes it easier for other mod developers to make their mods compatible with Nebula. If you are a mod developer and you want your mods to be compatible, follow the instructions [here](https://github.com/hubastard/nebula/wiki/Nebula-mod-API). Also you can always join our [Discord Server](https://discord.gg/UHeB2QvgDa) for help with using the API.
 
+## Chat 
+
+The chat window can opened/closed using Alt + Backtick (configurable in game settings under Control). Also in settings (under Multiplayer) is an option to disable the chat window from automatically opening when a message is received.
+
 ## What is the current status?
 
 The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.

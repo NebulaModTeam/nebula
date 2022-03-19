@@ -1,7 +1,9 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Planet
 {
@@ -21,7 +23,22 @@ namespace NebulaNetwork.PacketProcessors.Planet
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 factory.Export(writer.BinaryWriter);
-                conn.SendPacket(new FactoryData(packet.PlanetID, writer.CloseAndGetBytes()));
+                byte[] data = writer.CloseAndGetBytes();
+                Log.Info($"Sent {data.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
+                conn.SendPacket(new FactoryData(packet.PlanetID, data));
+            }
+
+            // Add requesting client to connected player, so he can receive following update
+            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+            INebulaPlayer player = playerManager.GetSyncingPlayer(conn);
+            if (player != null)
+            {
+                player.Data.LocalPlanetId = packet.PlanetID;
+                player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
+                using (playerManager.GetConnectedPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+                {
+                    connectedPlayers.Add(player.Connection, player);
+                }
             }
         }
     }

@@ -149,6 +149,7 @@ namespace NebulaWorld
             // Finally we need add the local player components to the player character
             localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
             localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
         }
 
         public void OnPlayerJoining(string Username)
@@ -163,7 +164,7 @@ namespace NebulaWorld
                 IsPlayerJoining = true;
                 Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
-                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait", null);
+                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait\n(Use BulletTime mod to unfreeze the game)", null);
             }
         }
 
@@ -188,6 +189,7 @@ namespace NebulaWorld
             {
                 if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
                 {
+                    Log.Info($"Spawn player model {playerData.PlayerId} {playerData.Username}");
                     RemotePlayerModel model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
                     remotePlayersModels.Add(playerData.PlayerId, model);
                 }
@@ -319,14 +321,14 @@ namespace NebulaWorld
                 }
                 else
                 {
-                    Log.Error("Could not find the playerAnimator for player with ID " + playerId);
+                    Log.Warn("Could not find the playerAnimator for player with ID " + playerId);
                     return;
                 }
                 
-                Log.Info($"Changing color of player {playerId}");
+                Log.Debug($"Changing color of player {playerId}");
                 for (int i = 0; i < colors.Length; i++)
                 {
-                    Log.Info($"Color {i}: {colors[i]}");
+                    Log.Debug($"Color {i}: {colors[i]}");
                 }
 
                 mechaArmorModel.inst_part_ar_mat.SetColor("_Color", colors[0].ToColor() / 255);

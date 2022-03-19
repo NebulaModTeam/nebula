@@ -24,4 +24,34 @@
   <Target Name="TestDSPGameFolder"
           DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid"
           Condition="!Exists('$(DSPGameDir)') And !Exists('$(PropSheetPath).remoteBuild')" />
+
+  <ItemGroup>
+    <ProjectAssembliesForUnityProject Include="$(TargetDir)\*.dll"/>
+	<ProjectAssembliesMetaFilesFolder Include="..\NebulaUnity\AssemblyMeta\*.meta"/>
+  </ItemGroup>
+  <Target Name="CopyAssembliesToUnityProject"
+          AfterTargets="Build">
+    <Message Text="Executing CopyAssembliesToUnityProject task $(ProjectName)" Importance="high"/>
+    <Copy
+          SourceFiles="@(ProjectAssembliesForUnityProject)"
+          DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
+  </Target>
+  
+  <Target Name="CopyMetaFilesToUnityProject"
+          AfterTargets="Build">
+    <Copy
+          SourceFiles="@(ProjectAssembliesMetaFilesFolder)"
+          DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
+  </Target>
+
+  <Target Name="CopyBundleToOutDir" AfterTargets="Build" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
+    <Copy SourceFiles="..\NebulaWorld\Assets\nebulabundle" DestinationFolder="$(OutDir)" />
+  </Target>
+  
+  <Target Name="BeforeBuild">
+    <Copy
+          Condition="Exists('..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle')"
+          SourceFiles="..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle"
+          DestinationFolder="..\NebulaWorld\Assets\" />
+  </Target>  
 </Project>

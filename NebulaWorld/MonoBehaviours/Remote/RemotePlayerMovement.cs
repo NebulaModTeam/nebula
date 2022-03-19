@@ -27,6 +27,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
         public int localPlanetId;
         public VectorLF3 absolutePosition;
 
+        private GameObject playerDot;
+        private GameObject playerName;
+        public String Username { get; set; }
+        public ushort PlayerID { get; set; }
+
 #if DEBUG
         private GameObject positionDebugger;
 #endif
@@ -53,6 +58,39 @@ namespace NebulaWorld.MonoBehaviours.Remote
 #endif
         }
 
+        private void OnEnable()
+        {
+            GameObject origPlayerDot = GameObject.Find("UI Root/Minimap/Player Dot");
+            TextMesh uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
+            if (origPlayerDot != null && uiSailIndicator_targetText != null)
+            {
+                playerDot = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
+                playerName = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
+                playerName.name = "playerName(Clone)";
+
+                Destroy(playerName.GetComponent<MeshFilter>());
+
+                MeshRenderer meshRenderer = playerName.GetComponent<MeshRenderer>();
+                playerName.AddComponent<TextMesh>();
+
+                meshRenderer.sharedMaterial = uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
+
+                playerName.SetActive(true);
+            }
+        }
+
+        private void OnDisable()
+        {
+            if(playerDot != null)
+            {
+                Destroy(playerDot);
+            }
+            if(playerName != null)
+            {
+                Destroy(playerName);
+            }
+        }
+
         private void Update()
         {
 #if DEBUG
@@ -66,6 +104,52 @@ namespace NebulaWorld.MonoBehaviours.Remote
             if (snapshotBuffer[0].Timestamp == 0)
             {
                 return;
+            }
+
+            // update navigation indicator if requested
+            if(GameMain.mainPlayer.navigation.indicatorAstroId > 100000)
+            {
+                UpdateNavigationGizmo();
+            }
+
+            // update player dot on minimap if on same planet
+            if(playerDot != null && playerName != null && localPlanetId == GameMain.mainPlayer.planetId)
+            {
+                TextMesh textMesh = playerName.GetComponent<TextMesh>();
+
+                playerDot.SetActive(true);
+                playerName.SetActive(true);
+
+                if (textMesh != null)
+                {
+                    bool isFront = Vector3.Dot(UIRoot.instance.uiGame.planetGlobe.minimapControl.cam.transform.localPosition, rootTransform.localPosition) > 0;
+                    textMesh.color = new Color(textMesh.color.r, textMesh.color.g, textMesh.color.b, isFront ? 1f : 0.2f);
+                }
+
+                playerDot.transform.localPosition = rootTransform.position * (float)(0.5 / (double)GameMain.localPlanet.realRadius);
+                playerDot.transform.localScale = 0.02f * Vector3.one;
+
+                playerName.transform.localPosition = playerDot.transform.localPosition;
+                playerName.transform.rotation = UIRoot.instance.uiGame.planetGlobe.minimapControl.cam.transform.rotation;
+
+                if (textMesh != null && textMesh.text != Username)
+                {
+                    TextMesh uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
+
+                    textMesh.font = uiSailIndicator_targetText.font;
+                    textMesh.text = Username;
+                    textMesh.fontSize = 20;
+                }
+                else if(textMesh == null)
+                {
+                    // may be reached if the destroy in Awake() did not happen fast enough preventing us from adding a TextMesh
+                    playerName.AddComponent<TextMesh>();
+                }
+            }
+            else if(playerDot != null && playerName != null)
+            {
+                playerDot.SetActive(false);
+                playerName.SetActive(false);
             }
 
             double renderTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - INTERPOLATION_TIME;
@@ -91,6 +175,44 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     // This will skip interpolation and will snap to the most recent position.
                     MoveInterpolated(snapshotBuffer[i], snapshotBuffer[i + 1], 1);
                 }
+            }
+        }
+
+        private void UpdateNavigationGizmo()
+        {
+            if(PlayerID == GameMain.mainPlayer.navigation.indicatorAstroId - 100000)
+            {
+                PlayerControlGizmo gizmo = GameMain.mainPlayer.gizmo;
+                UIStarmap starmap = UIRoot.instance.uiGame.starmap;
+
+                if (gizmo.naviIndicatorGizmo == null)
+                {
+                    gizmo.naviIndicatorGizmo = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
+                    gizmo.naviIndicatorGizmo.autoRefresh = true;
+                    gizmo.naviIndicatorGizmo.multiplier = 1.5f;
+                    gizmo.naviIndicatorGizmo.alphaMultiplier = 0.6f;
+                    gizmo.naviIndicatorGizmo.width = 1.8f;
+                    gizmo.naviIndicatorGizmo.color = Configs.builtin.gizmoColors[4];
+                    gizmo.naviIndicatorGizmo.spherical = gizmo.player.planetId == localPlanetId;
+                    gizmo.naviIndicatorGizmo.Open();
+                }
+                if (gizmo.naviIndicatorGizmoStarmap == null)
+                {
+                    gizmo.naviIndicatorGizmoStarmap = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
+                    gizmo.naviIndicatorGizmoStarmap.autoRefresh = true;
+                    gizmo.naviIndicatorGizmoStarmap.multiplier = 1.5f;
+                    gizmo.naviIndicatorGizmoStarmap.alphaMultiplier = 0.3f;
+                    gizmo.naviIndicatorGizmoStarmap.width = 0.01f;
+                    gizmo.naviIndicatorGizmoStarmap.color = Configs.builtin.gizmoColors[4];
+                    gizmo.naviIndicatorGizmoStarmap.spherical = false;
+                    gizmo.naviIndicatorGizmoStarmap.Open();
+                }
+
+                gizmo.naviIndicatorGizmo.startPoint = gizmo.player.position;
+                gizmo.naviIndicatorGizmo.endPoint = rootTransform.position;
+                gizmo.naviIndicatorGizmoStarmap.startPoint = (gizmo.player.uPosition - starmap.viewTargetUPos) * 0.00025;
+                gizmo.naviIndicatorGizmoStarmap.endPoint = (absolutePosition - starmap.viewTargetUPos) * 0.00025;
+                gizmo.naviIndicatorGizmoStarmap.gameObject.layer = 20;
             }
         }
 

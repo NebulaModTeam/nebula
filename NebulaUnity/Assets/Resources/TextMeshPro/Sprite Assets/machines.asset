@@ -1,0 +1,183 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84a92b25f83d49b9bc132d206b370281, type: 3}
+  m_Name: machines
+  m_EditorClassIdentifier: 
+  hashCode: 1214835606
+  material: {fileID: 21950109362629182}
+  materialHashCode: 0
+  m_Version: 1.1.0
+  spriteSheet: {fileID: 2800000, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+  m_SpriteCharacterTable:
+  - m_ElementType: 2
+    m_Unicode: 0
+    m_GlyphIndex: 0
+    m_Scale: 1
+    m_Name: assembler-1
+    m_HashCode: -1859794388
+  - m_ElementType: 2
+    m_Unicode: 0
+    m_GlyphIndex: 1
+    m_Scale: 1
+    m_Name: belt-1
+    m_HashCode: -414470813
+  - m_ElementType: 2
+    m_Unicode: 0
+    m_GlyphIndex: 2
+    m_Scale: 1
+    m_Name: iron-ore
+    m_HashCode: -701020625
+  - m_ElementType: 2
+    m_Unicode: 0
+    m_GlyphIndex: 3
+    m_Scale: 1
+    m_Name: 1101
+    m_HashCode: 1776737
+  - m_ElementType: 2
+    m_Unicode: 0
+    m_GlyphIndex: 4
+    m_Scale: 1
+    m_Name: mining-drill
+    m_HashCode: 1891360728
+  - m_ElementType: 2
+    m_Unicode: 0
+    m_GlyphIndex: 5
+    m_Scale: 1
+    m_Name: red-jello
+    m_HashCode: 1013376414
+  m_SpriteGlyphTable:
+  - m_Index: 0
+    m_Metrics:
+      m_Width: 80
+      m_Height: 80
+      m_HorizontalBearingX: 0
+      m_HorizontalBearingY: 70
+      m_HorizontalAdvance: 80
+    m_GlyphRect:
+      m_X: 0
+      m_Y: 240
+      m_Width: 80
+      m_Height: 80
+    m_Scale: 1
+    m_AtlasIndex: 0
+    sprite: {fileID: 21300000, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+  - m_Index: 1
+    m_Metrics:
+      m_Width: 80
+      m_Height: 80
+      m_HorizontalBearingX: 0
+      m_HorizontalBearingY: 70
+      m_HorizontalAdvance: 80
+    m_GlyphRect:
+      m_X: 80
+      m_Y: 240
+      m_Width: 80
+      m_Height: 80
+    m_Scale: 1
+    m_AtlasIndex: 0
+    sprite: {fileID: 21300002, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+  - m_Index: 2
+    m_Metrics:
+      m_Width: 80
+      m_Height: 80
+      m_HorizontalBearingX: 0
+      m_HorizontalBearingY: 70
+      m_HorizontalAdvance: 80
+    m_GlyphRect:
+      m_X: 160
+      m_Y: 240
+      m_Width: 80
+      m_Height: 80
+    m_Scale: 1
+    m_AtlasIndex: 0
+    sprite: {fileID: 21300004, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+  - m_Index: 3
+    m_Metrics:
+      m_Width: 80
+      m_Height: 80
+      m_HorizontalBearingX: 0
+      m_HorizontalBearingY: 70
+      m_HorizontalAdvance: 80
+    m_GlyphRect:
+      m_X: 240
+      m_Y: 240
+      m_Width: 80
+      m_Height: 80
+    m_Scale: 1
+    m_AtlasIndex: 0
+    sprite: {fileID: 21300006, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+  - m_Index: 4
+    m_Metrics:
+      m_Width: 80
+      m_Height: 80
+      m_HorizontalBearingX: 0
+      m_HorizontalBearingY: 70
+      m_HorizontalAdvance: 80
+    m_GlyphRect:
+      m_X: 0
+      m_Y: 160
+      m_Width: 80
+      m_Height: 80
+    m_Scale: 1
+    m_AtlasIndex: 0
+    sprite: {fileID: 21300008, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+  - m_Index: 5
+    m_Metrics:
+      m_Width: 80
+      m_Height: 80
+      m_HorizontalBearingX: 0
+      m_HorizontalBearingY: 70
+      m_HorizontalAdvance: 80
+    m_GlyphRect:
+      m_X: 80
+      m_Y: 160
+      m_Width: 80
+      m_Height: 80
+    m_Scale: 1
+    m_AtlasIndex: 0
+    sprite: {fileID: 21300010, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+  spriteInfoList: []
+  fallbackSpriteAssets: []
+--- !u!21 &21950109362629182
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TextMeshPro/Sprite
+  m_Shader: {fileID: 4800000, guid: cf81c85f95fe47e1a27f6ae460cf182c, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: eb8421cf20c3ab244be20f2cf445d3cf, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}

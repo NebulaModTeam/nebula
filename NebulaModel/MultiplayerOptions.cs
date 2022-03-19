@@ -1,5 +1,6 @@
 ﻿using NebulaAPI;
 using NebulaModel.Attributes;
+using NebulaModel.DataStructures;
 using System;
 using System.ComponentModel;
 
@@ -21,13 +22,32 @@ namespace NebulaModel
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
 
+        [DisplayName("Auto Open Chat")]
+        public bool AutoOpenChat { get; set; } = true;
+
         public string LastIP { get; set; } = string.Empty;
 
         [DisplayName("Sync Ups")]
+        [Description("If enabled the UPS of each player is synced. This ensures a similar amount of GameTick() calls.")]
         public bool SyncUps { get; set; } = true;
 
         [DisplayName("Sync Soil")]
+        [Description("If enabled the soil count of each players is added together and used as one big pool for everyone. Note that this is a server side setting applied to all clients.")]
         public bool SyncSoil { get; set; } = false;
+
+        [DisplayName("Streamer mode")]
+        [Description("If enabled specific personal information like your IP address is hidden from the ingame chat.")]
+        public bool StreamerMode { get; set; } = false;
+        
+        [DisplayName("Default chat position")]
+        public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
+        
+        [DisplayName("Default chat size")]
+        public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
+
+        [DisplayName("Cleanup inactive sessions")]
+        [Description("If disabled the underlying networking library will not cleanup inactive connections. This might solve issues with clients randomly disconnecting and hosts having a 'System.ObjectDisposedException'.")]
+        public bool CleanupInactiveSessions { get; set; } = true;
 
         public string MechaColors { get; set; } = "209 151 76 255;184 90 72 255;94 92 92 255;123 234 255 255;229 155 94 255;255 243 235 255;255 248 245 255;255 255 255 255;";
 

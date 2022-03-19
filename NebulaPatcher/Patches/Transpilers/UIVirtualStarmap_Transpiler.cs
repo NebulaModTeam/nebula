@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NebulaPatcher.Patches.Transpilers
 {
@@ -18,7 +19,7 @@ namespace NebulaPatcher.Patches.Transpilers
         private delegate void TrackPlayerClick(UIVirtualStarmap starmap, int starIndex);
 
         public static bool pressSpamProtector = false;
-        private static float orbitScaler = 5f;
+        private static readonly float orbitScaler = 5f;
 
         public static int customBirthStar = -1;
         public static int customBirthPlanet = -1;
@@ -46,6 +47,7 @@ namespace NebulaPatcher.Patches.Transpilers
          */
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         public static IEnumerable<CodeInstruction> _OnLateUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher matcher = new CodeMatcher(instructions)
@@ -119,12 +121,27 @@ namespace NebulaPatcher.Patches.Transpilers
                             GameMain.data.galaxy.birthStarId = starId;
                             GameMain.data.galaxy.birthPlanetId = pData.id;
 
-                            pData.GenBirthPoints();
-
                             customBirthStar = starData.id;
                             customBirthPlanet = pData.id;
 
-                            Debug.Log("set birth planet");
+                            Log.Info($"set birth planet{pData.id} {pData.displayName}");
+                            Text text = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button/start-text").GetComponent<Text>();
+                            text.text = $"Start Game at {pData.displayName}";
+                            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+
+                            if (pData.data == null)
+                            {
+                                Button button = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button").GetComponent<Button>();
+                                button.interactable = false;
+                                EPlanetType planetType = pData.type;
+                                pData.type = EPlanetType.Gas;
+                                PlanetModelingManager.genPlanetReqList.Enqueue(pData);
+                                pData.onLoaded += (PlanetData planet) =>
+                                {
+                                    pData.type = planetType;
+                                    button.interactable = true;
+                                };
+                            }
                         }
 
                         starmap.clickText = split[0] + " " + starIndex.ToString();
@@ -261,12 +278,14 @@ namespace NebulaPatcher.Patches.Transpilers
                 if(!pData.loaded) PlanetModelingManager.RequestLoadPlanet(pData);
 
                 // create fake StarData to pass _OnLateUpdate()
-                StarData dummyStarData = new StarData();
-                dummyStarData.position = pPos;
-                dummyStarData.color = starData.color;
-                dummyStarData.id = pData.id;
+                StarData dummyStarData = new StarData
+                {
+                    position = pPos,
+                    color = starData.color,
+                    id = pData.id
+                };
 
-                Vector3 scale = Vector3.one * scaleFactor * (pData.realRadius / 100);
+                Vector3 scale = (pData.realRadius / 100) * scaleFactor * Vector3.one;
                 if(scale.x > 3 || scale.y > 3 || scale.z > 3)
                 {
                     scale = new Vector3(3, 3, 3);
@@ -426,7 +445,7 @@ namespace NebulaPatcher.Patches.Transpilers
             starmap.starPool[0].starData = starData;
             starmap.starPool[0].pointRenderer.material.SetColor("_TintColor", color);
             starmap.starPool[0].pointRenderer.transform.localPosition = starData.position;
-            starmap.starPool[0].pointRenderer.transform.localScale = Vector3.one * num2 * 2;
+            starmap.starPool[0].pointRenderer.transform.localScale = 2 * num2 * Vector3.one;
             starmap.starPool[0].pointRenderer.gameObject.SetActive(true);
             starmap.starPool[0].nameText.text = text;
             starmap.starPool[0].nameText.color = Color.Lerp(color, Color.white, 0.5f);

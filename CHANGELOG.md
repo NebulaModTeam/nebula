@@ -1,5 +1,35 @@
 ## Changelog
 
+0.8.4:
+
+- @kremnev8: add two new events to Nebula API
+- @starfish: fixed issue where client would sometimes be unable to load in while using GalacticScale
+- @starfish: custom planet and star names now show up in lobby (not while GalacticScale is active)
+- @starfi5h: show correct resource amount in UIPlanetDetail
+- @starfi5h: show custom planet and star names in lobby screen
+- @starfi5h: the selected starting planet name will now show on the lobby screen
+- @starfi5h: fixed issue where the nametag on the minimap wouldn't show up for a client that rejoined
+
+0.8.3:
+
+- @kremnev8: improved ingame chat
+- @starfish: added compatibility with BulletTime which enables fluent loading times on Planet and System arrival
+- @starfish: bugfix regarding too large dyson sphere data
+- @starfish: bugfix regarding reloading of dyson sphere
+- @starfish: improved loading of solar systems, this now runs on its own thread
+- @starfish: developer commands can now be executed from the ingame chat (using /xconsole [command] )
+- @sp00ktober: added tooltips to the Nebula settings
+- @sp00ktober: added setting to prevent `System.ObjectDisposedException` errors resulting in random client disconnect
+- @sp00ktober: added code to handle IndexOutOfBounds errors when importing PlanetFactory data (very rare issue)
+- @sp00ktober: fixed wrong array size for storage and slots in ILS
+- @sp00ktober: added minimap indicator for other players positions (on the same planet)
+- @sp00ktober: added chat command to list planets in a system
+- @sp00ktober: added chat command to navigate to star, planet or player by name or id
+
+0.8.2:
+
+- @kremnev8: fix issue with EmojiDataManager when a save was loaded multiple times in a row.
+
 0.8.1:
 
 - @starfish: Add copy&close error button
@@ -14,6 +44,7 @@
 - @sp00ktober: bugfix regarding ILS ship rendering clientside
 - @sp00ktober: add optional soil syncing
 - @sp00ktober: add syncing of mecha editor state and items
+- @mattsemar, @kremnev8: add in-game chat functionality with commands (open with `Alt` + `~` by default)
 
 0.8.0:
 

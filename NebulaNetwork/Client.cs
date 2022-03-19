@@ -15,12 +15,14 @@ using Valve.Sockets;
 
 namespace NebulaNetwork
 {
-    public class Client : NetworkProvider
+    public class Client : NetworkProvider, IClient
     {
         private const float GAME_STATE_UPDATE_INTERVAL = 1f;
         private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private readonly IPEndPoint serverEndpoint;
+        public IPEndPoint ServerEndpoint => serverEndpoint;
+
         private Address serverAddress;
         private uint connection;
         private NebulaConnection serverConnection;
@@ -182,7 +184,10 @@ namespace NebulaNetwork
                 gameStateUpdateTimer += Time.deltaTime;
                 if (gameStateUpdateTimer >= GAME_STATE_UPDATE_INTERVAL)
                 {
-                    SendPacket(new PingPacket());
+                    if (!GameMain.isFullscreenPaused)
+                    {
+                        SendPacket(new PingPacket());
+                    }
                     gameStateUpdateTimer = 0f;
                 }
             }

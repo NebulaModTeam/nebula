@@ -8,7 +8,9 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace NebulaNetwork
@@ -74,6 +76,15 @@ namespace NebulaNetwork
             }
 
             return null;
+        }
+
+        public INebulaPlayer GetConnectedPlayerByUsername(string username)
+        {
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                return connectedPlayers.Values
+                    .FirstOrDefault(plr => plr.Data != null && string.Equals(plr.Data.Username, username, StringComparison.InvariantCultureIgnoreCase));
+            }
         }
 
         public INebulaPlayer GetSyncingPlayer(INebulaConnection conn)
@@ -241,45 +252,43 @@ namespace NebulaNetwork
 
         public void PlayerDisconnected(INebulaConnection conn)
         {
-            INebulaPlayer player;
+            INebulaPlayer player = null;
             bool playerWasSyncing = false;
             int syncCount = -1;
 
             using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
-                if (connectedPlayers.TryGetValue(conn, out player))
+                if (connectedPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
+                    player = removingPlayer;
                     connectedPlayers.Remove(conn);
                 }
             }
 
             using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
             {
-                if (player == null)
+                if (pendingPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
-                    if (pendingPlayers.TryGetValue(conn, out player))
-                    {
-                        pendingPlayers.Remove(conn);
-                    }
+                    player = removingPlayer;
+                    pendingPlayers.Remove(conn);
                 }
             }
 
             using (GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
             {
-                if (player == null)
+                if (syncingPlayers.TryGetValue(conn, out INebulaPlayer removingPlayer))
                 {
-                    if (syncingPlayers.TryGetValue(conn, out player))
-                    {
-                        syncingPlayers.Remove(conn);
-                        playerWasSyncing = true;
-                        syncCount = syncingPlayers.Count;
-                    }
+                    player = removingPlayer;
+                    syncingPlayers.Remove(conn);
+                    playerWasSyncing = true;
+                    syncCount = syncingPlayers.Count;
                 }
             }
 
             if (player != null)
             {
                 SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
+                NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
                 Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
                 using (threadSafe.availablePlayerIds.GetLocked(out Queue<ushort> availablePlayerIds))
                 {

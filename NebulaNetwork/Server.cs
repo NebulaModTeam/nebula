@@ -15,7 +15,7 @@ using Valve.Sockets;
 
 namespace NebulaNetwork
 {
-    public class Server : NetworkProvider
+    public class Server : NetworkProvider, IServer
     {
         private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
         private const float STATISTICS_UPDATE_INTERVAL = 1;
@@ -35,6 +35,8 @@ namespace NebulaNetwork
         private uint pollGroup;
 
         private Dictionary<uint, NebulaConnection> connections = new Dictionary<uint, NebulaConnection>();
+
+        public int Port => port;
 
         public Server(int port, bool loadSaveFile = false) : base(new PlayerManager())
         {

@@ -26,6 +26,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
             }
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
+            Multiplayer.Session.IsInLobby = true;
 
             UIRoot.instance.galaxySelect._Open();
             UIRoot.instance.uiMainMenu._Close();

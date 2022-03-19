@@ -1,4 +1,5 @@
 ﻿using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -41,19 +42,18 @@ namespace NebulaNetwork.PacketProcessors.Universe
 
                 case DysonSphereRespondEvent.Load:
                     //Failsafe, if client does not have instantiated sphere for the star, it will create dummy one that will be replaced during import
-                    if (GameMain.data.dysonSpheres[packet.StarIndex] == null)
+                    GameMain.data.dysonSpheres[packet.StarIndex] = new DysonSphere();
+                    GameMain.data.statistics.production.Init(GameMain.data);
+                    //Another failsafe, DysonSphere import requires initialized factory statistics
+                    if (GameMain.data.statistics.production.factoryStatPool[0] == null)
                     {
-                        GameMain.data.dysonSpheres[packet.StarIndex] = new DysonSphere();
-                        GameMain.data.statistics.production.Init(GameMain.data);
-                        //Another failsafe, DysonSphere import requires initialized factory statistics
-                        if (GameMain.data.statistics.production.factoryStatPool[0] == null)
-                        {
-                            GameMain.data.statistics.production.factoryStatPool[0] = new FactoryProductionStat();
-                            GameMain.data.statistics.production.factoryStatPool[0].Init();
-                        }
-                        GameMain.data.dysonSpheres[packet.StarIndex].Init(GameMain.data, GameMain.data.galaxy.stars[packet.StarIndex]);
+                        GameMain.data.statistics.production.factoryStatPool[0] = new FactoryProductionStat();
+                        GameMain.data.statistics.production.factoryStatPool[0].Init();
                     }
+                    GameMain.data.dysonSpheres[packet.StarIndex].Init(GameMain.data, GameMain.data.galaxy.stars[packet.StarIndex]);
 
+                    StarData star = GameMain.galaxy.stars[packet.StarIndex];
+                    Log.Info($"Parsing {packet.BinaryData.Length} bytes of data for DysonSphere {star.name} (INDEX: {star.id})");
                     using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.BinaryData))
                     {
                         GameMain.data.dysonSpheres[packet.StarIndex].Import(reader.BinaryReader);
@@ -64,8 +64,12 @@ namespace NebulaNetwork.PacketProcessors.Universe
                         UIComboBox dysonBox2 = UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.dysonBox;
                         int index2 = dysonBox2.ItemsData.FindIndex(x => x == UIRoot.instance.uiGame.dysonEditor.selection.viewStar?.index);
                         dysonBox2.itemIndex = index2 >= 0 ? index2 : 0;
+                    }                    
+                    if (Multiplayer.Session.IsGameLoaded)
+                    {
+                        // Don't fade out when client is still joining
+                        InGamePopup.FadeOut();
                     }
-                    InGamePopup.FadeOut();
                     Multiplayer.Session.DysonSpheres.RequestingIndex = -1;
                     Multiplayer.Session.DysonSpheres.IsNormal = true;
                     break;

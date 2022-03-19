@@ -3,6 +3,7 @@ using NebulaModel;
 using NebulaModel.Logger;
 using NebulaWorld.Factory;
 using NebulaWorld.GameDataHistory;
+using NebulaWorld.GameStates;
 using NebulaWorld.Logistics;
 using NebulaWorld.Planet;
 using NebulaWorld.Player;
@@ -26,6 +27,7 @@ namespace NebulaWorld
         public BuildToolManager BuildTools { get; private set; }
         public DroneManager Drones { get; private set; }
         public GameDataHistoryManager History { get; private set; }
+        public GameStatesManager State { get; private set; }
         public ILSShipManager Ships { get; private set; }
         public StationUIManager StationsUI { get; private set; }
         public PlanetManager Planets { get; private set; }
@@ -37,6 +39,8 @@ namespace NebulaWorld
 
         // Some Patch Flags
         public bool PlanetRefreshMissingMeshes { get; set; }
+
+        public DateTime StartTime;
 
 
         public bool IsGameLoaded { get; set; }
@@ -65,6 +69,7 @@ namespace NebulaWorld
             BuildTools = new BuildToolManager();
             Drones = new DroneManager();
             History = new GameDataHistoryManager();
+            State = new GameStatesManager();
             Ships = new ILSShipManager();
             StationsUI = new StationUIManager();
             Planets = new PlanetManager();
@@ -73,6 +78,8 @@ namespace NebulaWorld
             DysonSpheres = new DysonSphereManager();
             Launch = new LaunchManager();
             Warning = new WarningManager();
+            
+            StartTime = DateTime.Now;
         }
 
         public void Dispose()
@@ -107,6 +114,9 @@ namespace NebulaWorld
             History?.Dispose();
             History = null;
 
+            State?.Dispose();
+            State = null;
+
             Ships?.Dispose();
             Ships = null;
 
@@ -138,6 +148,8 @@ namespace NebulaWorld
             {
                 Log.Info("Game load completed");
                 IsGameLoaded = true;
+                ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+                Log.Info($"OnGameLoadCompleted: Resume PacketProcessor");
 
                 if (Multiplayer.Session.LocalPlayer.IsHost)
                 {

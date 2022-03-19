@@ -30,6 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 if (player == null)
                 {
                     Log.Warn("Received a SyncComplete packet, but no player is joining.");
+                    Multiplayer.Session.World.OnAllPlayersSyncCompleted();
                     return;
                 }
 
@@ -54,25 +55,14 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 using (playerManager.GetConnectedPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                 {
-                    connectedPlayers.Add(player.Connection, player);
+                    if (!connectedPlayers.ContainsKey(player.Connection))
+                    {
+                        connectedPlayers.Add(player.Connection, player);
+                    }
                 }
 
                 // Load overriden Planet and Star names
-                foreach (StarData s in GameMain.galaxy.stars)
-                {
-                    if (!string.IsNullOrEmpty(s.overrideName))
-                    {
-                        player.SendPacket(new NameInputPacket(s.overrideName, s.id, NebulaModAPI.PLANET_NONE, Multiplayer.Session.LocalPlayer.Id));
-                    }
-
-                    foreach (PlanetData p in s.planets)
-                    {
-                        if (!string.IsNullOrEmpty(p.overrideName))
-                        {
-                            player.SendPacket(new NameInputPacket(p.overrideName, NebulaModAPI.STAR_NONE, p.id, Multiplayer.Session.LocalPlayer.Id));
-                        }
-                    }
-                }
+                player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
 
                 // Since the player is now connected, we can safely spawn his player model
                 Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
