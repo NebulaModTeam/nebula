@@ -18,8 +18,16 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(GalacticTransport.AddStationComponent))]
+        public static bool AddStationComponent_Prefix()
+        {
+            // We will let host decide the value of gid, so client only add when the packet arrives
+            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Ships.PatchLockILS;
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(GalacticTransport.RemoveStationComponent))]
-        public static bool RemoveStationComponent_Prefix(GalacticTransport __instance, int gid)
+        public static bool RemoveStationComponent_Prefix()
         {
             return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Ships.PatchLockILS;
         }
