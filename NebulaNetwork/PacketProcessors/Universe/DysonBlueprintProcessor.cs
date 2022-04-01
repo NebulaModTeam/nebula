@@ -4,6 +4,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
+using System.Text;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -20,7 +21,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
             using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
             {
                 DysonSphereLayer layer = sphere.GetLayer(packet.LayerId);
-                string str64Data = new string(packet.CharsData);
+                string str64Data = Encoding.ASCII.GetString(packet.BinaryData);
                 DysonBlueprintDataIOError err = new DysonBlueprintData().FromBase64String(str64Data, packet.BlueprintType, sphere, layer);
                 if (err != DysonBlueprintDataIOError.OK)
                 {
