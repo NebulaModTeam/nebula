@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates
     [RegisterPacketProcessor]
     public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
     {
-        public float MaxUPS = 120f;
+        public float MaxUPS = 240f;
         public float MinUPS = 30f;
         public float BUFFERING_TIME = 30f;
         public float BUFFERING_TICK = 60f;
