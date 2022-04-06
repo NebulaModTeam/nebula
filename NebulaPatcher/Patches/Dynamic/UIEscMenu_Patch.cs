@@ -40,6 +40,8 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive)
             {
+                // Because GameSave.SaveAsLastExit() is disable, we have to save game here to match the vanilla behavior.
+                GameSave.SaveCurrentGame(GameSave.LastExit);
                 Multiplayer.LeaveGame();
             }
         }
