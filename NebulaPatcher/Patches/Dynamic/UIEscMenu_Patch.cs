@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaPatcher.Patches.Transpiler;
 using NebulaWorld;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,6 +41,8 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive)
             {
+                PlanetFactory_Transpiler.CheckPopupPresent.Clear();
+                PlanetFactory_Transpiler.FaultyVeins.Clear();
                 Multiplayer.LeaveGame();
             }
         }
