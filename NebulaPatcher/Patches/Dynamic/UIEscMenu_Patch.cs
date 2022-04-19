@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaPatcher.Patches.Transpiler;
 using NebulaWorld;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,6 +43,8 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 // Because GameSave.SaveAsLastExit() is disable, we have to save game here to match the vanilla behavior.
                 GameSave.SaveCurrentGame(GameSave.LastExit);
+                PlanetFactory_Transpiler.CheckPopupPresent.Clear();
+                PlanetFactory_Transpiler.FaultyVeins.Clear();
                 Multiplayer.LeaveGame();
             }
         }
