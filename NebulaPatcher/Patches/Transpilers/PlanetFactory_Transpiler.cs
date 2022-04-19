@@ -91,6 +91,8 @@ namespace NebulaPatcher.Patches.Transpiler
         }
 
         public delegate bool BoundsChecker(PlanetFactory factory, int index);
+        public static List<int> CheckPopupPresent = new List<int>();
+        public static Dictionary<int, List<int>> FaultyVeins = new Dictionary<int, List<int>>();
 
         /*
          * it is very unlikely that this is needed, but it was reported by one user
@@ -132,28 +134,39 @@ namespace NebulaPatcher.Patches.Transpiler
                 {
                     if (factory.veinPool[index].groupIndex >= factory.planet.veinGroups.Length && Multiplayer.IsActive)
                     {
-                        if(Multiplayer.Session.LocalPlayer.IsClient)
+                        if (Multiplayer.Session.LocalPlayer.IsHost)
                         {
-                            WarningManager.DisplayTemporaryWarning("IndexOutOfBounds while importing factory data. Host should fix his savefile.", 15000);
-                        }
-                        else if(Multiplayer.Session.LocalPlayer.IsHost)
-                        {
-                            List<int> faultyVeins = new List<int>();
-                            for(int i = 1; i < factory.veinCursor; i++)
+                            if (FaultyVeins.ContainsKey(factory.planetId))
                             {
-                                if(factory.veinPool[i].groupIndex >= factory.planet.veinGroups.Length)
-                                {
-                                    faultyVeins.Add(i);
-                                }
+                                FaultyVeins[factory.planetId].Add(index);
                             }
-                            InGamePopup.ShowError("IndexOutOfBounds", $"Nebula detected an IndexOutOfBounds error while importing PlanetFactory data. This is very weird and rare, but we can try to fix it. Keep in mind this will possibly end in weird results but may makes this save usable again. We would need to remove {faultyVeins.Count} veins from {factory.planet.displayName}. Make a backup before trying the fix!", "Ignore", "Try to fix it", new Action(delegate() { }), new Action(delegate ()
+                            else
                             {
-                                for(int i = 0; i < faultyVeins.Count; i++)
+                                List<int> veins = new List<int>();
+                                veins.Add(index);
+                                FaultyVeins.Add(factory.planetId, veins);
+                            }
+                        }
+                        if(index == factory.veinCursor - 1)
+                        {
+                            if (Multiplayer.Session.LocalPlayer.IsClient && !CheckPopupPresent.Contains(factory.planetId))
+                            {
+                                WarningManager.DisplayTemporaryWarning("IndexOutOfBounds while importing factory data. Host should fix his savefile.", 15000);
+                                CheckPopupPresent.Add(factory.planetId);
+                            }
+                            else if (Multiplayer.Session.LocalPlayer.IsHost && !CheckPopupPresent.Contains(factory.planetId))
+                            {
+                                InGamePopup.ShowError("IndexOutOfBounds", $"Nebula detected an IndexOutOfBounds error while importing PlanetFactory data. This is very weird and rare, but we can try to fix it. Keep in mind this will possibly end in weird results but may makes this save usable again. We would need to remove {FaultyVeins[factory.planetId].Count} veins from {factory.planet.displayName}. Make a backup before trying the fix!", "Ignore", "Try to fix it", new Action(delegate () { }), new Action(delegate ()
                                 {
-                                    factory.RemoveVeinWithComponents(faultyVeins[i]);
-                                }
-                                WarningManager.DisplayTemporaryWarning("Done performing the fix, hopefully you dont see me again.", 15000);
-                            }));
+                                    for (int i = 0; i < FaultyVeins[factory.planetId].Count; i++)
+                                    {
+                                        factory.RemoveVeinWithComponents(FaultyVeins[factory.planetId][i]);
+                                    }
+                                    WarningManager.DisplayTemporaryWarning("Done performing the fix, hopefully you dont see me again.", 15000);
+                                    FaultyVeins[factory.planetId].Clear();
+                                }));
+                                CheckPopupPresent.Add(factory.planetId);
+                            }
                         }
                         return false;
                     }
