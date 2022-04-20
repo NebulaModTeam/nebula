@@ -177,7 +177,10 @@ namespace NebulaModel.Networking
                 // Try to send fragments as they are processed, if we fail to send it will be queued for later send
                 var data = writer.CopyData();
                 if (SendImmediateRawPacket(data) == Result.LimitExceeded)
+                {
+                    Log.Warn("LimitExceeded!");
                     sendQueue.Enqueue(data);
+                }
             }
         }
 
@@ -225,12 +228,15 @@ namespace NebulaModel.Networking
             fragmentedPayload.Remaining -= data.Length;
             Array.Copy(data, 0, fragmentedPayload.Data, offset, data.Length);
 
-            // We have filled all the gaps, return the data
+
             if (fragmentedPayload.Remaining > 0)
+            {
+                Log.Info($"fragment[{fragmentId}] {fragmentedPayload.Data.Length - fragmentedPayload.Remaining:n0} / {fragmentedPayload.Data.Length:n0} bytes");
                 return null;
+            }
 
+            // We have filled all the gaps, return the data
             fragmentedPayloads.Remove(fragmentId);
-
             return fragmentedPayload.Data;
         }
 

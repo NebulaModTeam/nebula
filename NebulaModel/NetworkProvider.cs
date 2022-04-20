@@ -51,7 +51,7 @@ namespace NebulaModel
             configSendRateMax.value = ConfigurationValue.SendRateMax;
 
             Configuration configSendRateMin = new Configuration();
-            configSendRateMin.data.Int32 = 0x10000000;
+            configSendRateMin.data.Int32 = 5 * 1024 * 1024; // Make it user configurable?
             configSendRateMin.dataType = ConfigurationDataType.Int32;
             configSendRateMin.value = ConfigurationValue.SendRateMin;
 
