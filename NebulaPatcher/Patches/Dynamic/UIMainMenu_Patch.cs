@@ -160,6 +160,9 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerMenu.Find("star-count").gameObject.SetActive(false);
             multiplayerMenu.Find("resource-multiplier").gameObject.SetActive(false);
             multiplayerMenu.Find("right-group").gameObject.SetActive(false);
+            multiplayerMenu.Find("left-group").gameObject.SetActive(false);
+            multiplayerMenu.Find("property-multiplier").gameObject.SetActive(false);
+            multiplayerMenu.Find("seed-key").gameObject.SetActive(false);
 
             Transform topTitle = multiplayerMenu.Find("top-title");
             topTitle.GetComponent<Localizer>().enabled = false;

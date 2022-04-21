@@ -94,7 +94,7 @@ namespace NebulaModel.Packets.Factory
                 isBelt = br.ReadBoolean(),
                 isCollectStation = br.ReadBoolean(),
                 isEjector = br.ReadBoolean(),
-                isFractionate = br.ReadBoolean(),
+                isFractionator = br.ReadBoolean(),
                 isInserter = br.ReadBoolean(),
                 isLab = br.ReadBoolean(),
                 isPowerExchanger = br.ReadBoolean(),
@@ -201,7 +201,7 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.desc.isBelt);
             bw.Write(buildPreview.desc.isCollectStation);
             bw.Write(buildPreview.desc.isEjector);
-            bw.Write(buildPreview.desc.isFractionate);
+            bw.Write(buildPreview.desc.isFractionator);
             bw.Write(buildPreview.desc.isInserter);
             bw.Write(buildPreview.desc.isLab);
             bw.Write(buildPreview.desc.isPowerExchanger);
