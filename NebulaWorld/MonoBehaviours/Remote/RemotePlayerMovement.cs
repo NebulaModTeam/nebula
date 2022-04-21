@@ -60,7 +60,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
         private void OnEnable()
         {
-            GameObject origPlayerDot = GameObject.Find("UI Root/Minimap/Player Dot");
+            GameObject origPlayerDot = UIRoot.instance.uiGame.planetGlobe.minimapControl.playerDot.gameObject;
             TextMesh uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
             if (origPlayerDot != null && uiSailIndicator_targetText != null)
             {

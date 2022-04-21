@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetTransport.SetStationStorage))]
-        public static bool SetStationStorage_Postfix(PlanetTransport __instance, int stationId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic, Player player)
+        public static bool SetStationStorage_Prefix(PlanetTransport __instance, int stationId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
             {
@@ -33,11 +33,10 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             return true;
         }
-        // for the PLS slot to sync properly the StationComponent of the PLS needs to have planetId set to the correct value.
-        // as the game does not do that for some reason, we need to do it here
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
-        public static void NewStationComponent_AddPlanetId_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
+        public static void NewStationComponent_Postfix(PlanetTransport __instance, StationComponent __result, PrefabDesc _desc)
         {
             if (!Multiplayer.IsActive)
             {
@@ -46,32 +45,20 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (!__result.isStellar && __result.planetId == 0)
             {
+                // for the PLS slot to sync properly the StationComponent of the PLS needs to have planetId set to the correct value.
+                // as the game does not do that for some reason, we need to do it here
                 __result.planetId = __instance.planet.id;
             }
-        }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(PlanetTransport.NewStationComponent))]
-        public static void NewStationComponent_BroadcastNewILS_Postfix(PlanetTransport __instance, StationComponent __result, int _entityId, int _pcId, PrefabDesc _desc)
-        {
-            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
+            if (__result.gid > 0 && Multiplayer.Session.LocalPlayer.IsHost)
             {
-                return;
+                // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
+                // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
+                // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
+                Log.Info($"Send AddStationComponen to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
+                Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid, _desc.stationMaxShipCount));
             }
-
-            // We don't need to do this for PLS
-            if (__result.gid == 0)
-            {
-                return;
-            }
-
-            // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
-            // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
-            // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
-            Log.Info($"Sending packet about new station component to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
-            Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid, _desc.stationMaxShipCount));
         }
-
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlanetTransport.Import))]

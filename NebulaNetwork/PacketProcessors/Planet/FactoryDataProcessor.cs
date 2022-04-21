@@ -26,8 +26,17 @@ namespace NebulaNetwork.PacketProcessors.Planet
 
             lock (PlanetModelingManager.fctPlanetReqList)
             {
-                PlanetModelingManager.fctPlanetReqList.Enqueue(GameMain.galaxy.PlanetById(packet.PlanetId));
+                PlanetModelingManager.fctPlanetReqList.Enqueue(planet);
             }
+
+            // Apply terrian changes, code from PlanetFactory.FlattenTerrainReform()
+            planet.data.modData = packet.TerrainModData;
+            for (int i = 0; i < planet.dirtyFlags.Length; i++)
+            {
+                planet.dirtyFlags[i] = true;
+            }
+            planet.landPercentDirty = true;
+            planet.UpdateDirtyMeshes();
         }
     }
 }
