@@ -63,5 +63,21 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.Network.SendPacket(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, radius, rotation));
             }
         }
+
+        static Vector4 storedHsva = default;
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(DysonSwarm.SetOrbitColor))]
+        public static void SetOrbitColor_Prefix(DysonSwarm __instance, int orbitId, Vector4 hsva)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket)
+            {
+                if (storedHsva != hsva)
+                {
+                    Multiplayer.Session.Network.SendPacket(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, hsva));
+                    storedHsva = hsva;
+                }
+            }
+        }
     }
 }

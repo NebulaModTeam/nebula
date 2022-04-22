@@ -1,5 +1,18 @@
 ## Changelog
 
+0.8.5:
+
+- @starfish: Add Dyson Sphere color syncing
+- @starfish: Add syncing for fast insert / fast take out of items to / from buildings
+- @starfish: Add syncing for fractionator and power generator product
+- @starfish: Save game to Last Quit when exiting multiplayer game.
+- @starfish: Fix a bug that would lead to an inserter's filter to not set correctly
+- @starfish: Fix planet terrain not synced when client loads a factory.
+- @starfish: Fix trash item count incorrect when item count > 256.
+- @sp00ktober: UI adjustments to account for the game update
+- @sp00ktober: Disable metadata upgrades for clients in tech tree
+- @sp00ktober: Add syncing for fast insert / fast take out of items to / from belts
+
 0.8.4:
 
 - @kremnev8: add two new events to Nebula API
