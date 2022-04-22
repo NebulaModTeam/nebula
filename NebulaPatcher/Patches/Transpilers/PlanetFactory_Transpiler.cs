@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Factory.Belt;
 using NebulaWorld;
 using NebulaWorld.Warning;
 using System;
@@ -11,6 +12,9 @@ namespace NebulaPatcher.Patches.Transpiler
     [HarmonyPatch(typeof(PlanetFactory))]
     internal class PlanetFactory_Transpiler
     {
+        delegate bool CatchBeltFastFillIn(bool result, PlanetFactory factory, int beltId, int offset, int itemId, byte itemCount, byte itemInc);
+        delegate bool CatchBeltFastTakeOut(bool result, PlanetFactory factory, int beltId, int itemId, int count);
+
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(PlanetFactory.OnBeltBuilt))]
         private static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
@@ -173,6 +177,89 @@ namespace NebulaPatcher.Patches.Transpiler
                     return true;
                 }))
                 .Insert(new CodeInstruction(OpCodes.Brfalse, jmpForLoopIncrement));
+            return matcher.InstructionEnumeration();
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(PlanetFactory.BeltFastFillIn))]
+        public static IEnumerable<CodeInstruction> BeltFastFillIn_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            int matchCounter = 0;
+
+            CodeMatcher matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TryInsertItem"))
+                .Repeat(localMatcher =>
+                {
+                    localMatcher
+                        .Advance(1)
+                        .InsertAndAdvance(
+                            new CodeInstruction(OpCodes.Ldarg_0),
+                            new CodeInstruction(OpCodes.Ldarg_1),
+                            new CodeInstruction(OpCodes.Ldarg_2),
+                            new CodeInstruction(OpCodes.Ldloc, matchCounter == 0 ? 13 : 16),
+                            matchCounter == 0 ? new CodeInstruction(OpCodes.Ldloc, 14) : new CodeInstruction(OpCodes.Ldc_I4_1),
+                            new CodeInstruction(OpCodes.Conv_U1),
+                            new CodeInstruction(OpCodes.Ldloc, matchCounter == 0 ? 15 : 17),
+                            new CodeInstruction(OpCodes.Conv_U1))
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<CatchBeltFastFillIn>((result, factory, beltId, offset, itemId, itemCount, itemInc) =>
+                        {
+                            if (Multiplayer.IsActive && result)
+                            {
+                                if (Multiplayer.Session.LocalPlayer.IsHost)
+                                {
+                                    Multiplayer.Session.Network.SendPacketToStar(new BeltUpdatePutItemOnPacket(beltId, itemId, itemCount, itemInc, factory.planetId), factory.planet.star.id);
+                                }
+                                else
+                                {
+                                    Multiplayer.Session.Network.SendPacket(new BeltUpdatePutItemOnPacket(beltId, itemId, itemCount, itemInc, factory.planetId));
+                                }
+                            }
+                            return result;
+                        }));
+                    matchCounter++;
+                });
+            return matcher.InstructionEnumeration();
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(PlanetFactory.BeltFastTakeOut))]
+        public static IEnumerable<CodeInstruction> BeltFastTakeOut_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            CodeMatcher matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "RemoveCargoAtIndex"))
+                .Repeat(localMatcher =>
+                {
+                    localMatcher
+                        .Advance(1)
+                        .InsertAndAdvance(
+                            new CodeInstruction(OpCodes.Ldarg_0),
+                            new CodeInstruction(OpCodes.Ldarg_1),
+                            new CodeInstruction(OpCodes.Ldloc, 10),
+                            new CodeInstruction(OpCodes.Ldloc, 6))
+                        .Insert(HarmonyLib.Transpilers.EmitDelegate<CatchBeltFastTakeOut>((result, factory, beltId, itemId, count) =>
+                        {
+                            if (Multiplayer.IsActive)
+                            {
+                                BeltUpdate[] bUpdate = new BeltUpdate[1];
+
+                                bUpdate[0].ItemId = itemId;
+                                bUpdate[0].Count = count;
+                                bUpdate[0].BeltId = beltId;
+
+                                if (Multiplayer.Session.LocalPlayer.IsHost)
+                                {
+                                    Multiplayer.Session.Network.SendPacketToStar(new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId), factory.planet.star.id);
+                                }
+                                else
+                                {
+                                    Multiplayer.Session.Network.SendPacket(new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId));
+                                }
+                            }
+                            return result;
+                        }));
+                });
             return matcher.InstructionEnumeration();
         }
     }
