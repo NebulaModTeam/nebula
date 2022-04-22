@@ -29,6 +29,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 galaxySelectRect.Find("resource-multiplier").gameObject.SetActive(false);
                 galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = false;
                 galaxySelectRect.Find("random-button").gameObject.SetActive(false);
+                galaxySelectRect.Find("property-multiplier").gameObject.SetActive(false);
+                galaxySelectRect.Find("seed-key").gameObject.SetActive(false);
             }
             if (Multiplayer.IsActive)
             {
