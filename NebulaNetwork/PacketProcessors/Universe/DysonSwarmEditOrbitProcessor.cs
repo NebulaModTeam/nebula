@@ -3,6 +3,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
+using UnityEngine;
 
 namespace NebulaNetwork.PacketProcessors.Universe
 {
@@ -23,7 +24,10 @@ namespace NebulaNetwork.PacketProcessors.Universe
                     Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                     return;
                 }
-                sphere.swarm.EditOrbit(packet.OrbitId, packet.Radius, packet.Rotation.ToQuaternion());
+                if (packet.Radius >= 0)
+                    sphere.swarm.EditOrbit(packet.OrbitId, packet.Radius, packet.Rotation.ToQuaternion());
+                else
+                    sphere.swarm.SetOrbitColor(packet.OrbitId, new Vector4(packet.Color.x, packet.Color.y, packet.Color.z, packet.Color.w));
             }
             if (IsHost)
             {
