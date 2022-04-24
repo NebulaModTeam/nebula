@@ -7,25 +7,26 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIInserterWindow))]
     internal class UIInserterWindow_Patch
     {
-        [HarmonyPrefix]
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIInserterWindow.OnItemPickerReturn))]
         [HarmonyPatch(nameof(UIInserterWindow.OnResetFilterButtonClick))]
-        public static void OnResetFilterButtonClick_Prefix(UIInserterWindow __instance)
+        public static void OnFilterChange_Postfix(UIInserterWindow __instance)
         {
-            //Notify about reseting inserter's filter
+            //Notify about chaning inserter's filter
             if (Multiplayer.IsActive)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, __instance.factorySystem.inserterPool[__instance.inserterId].filter, __instance.factory.planetId));
             }
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIInserterWindow.OnItemPickerReturn))]
-        public static void OnItemPickerReturn_Prefix(UIInserterWindow __instance, ItemProto item)
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIInserterWindow.OnTakeBackButtonClick))]
+        public static void OnTakeBackButtonClick_Postfix(UIInserterWindow __instance)
         {
-            //Notify about changing filter item
+            //Notify about taking inserter buffer item
             if (Multiplayer.IsActive)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId, (item != null) ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterItemUpdatePacket(in __instance.factorySystem.inserterPool[__instance.inserterId], __instance.factory.planetId));
             }
         }
     }

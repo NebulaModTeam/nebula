@@ -2,6 +2,7 @@
 using NebulaAPI;
 using NebulaModel.Packets.Factory.Belt;
 using NebulaWorld;
+using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -35,7 +36,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // Only send packet when insertion successes
             if (Multiplayer.IsActive && __result && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, itemInc, GameMain.data.localPlanet.id));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, 1, itemInc, GameMain.data.localPlanet.id));
             }
         }
 

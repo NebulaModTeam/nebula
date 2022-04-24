@@ -56,5 +56,16 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId, thisComponent.fuelId, thisComponent.fuelCount, thisComponent.fuelInc, GameMain.localPlanet?.id ?? -1));
             }
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnProductButtonClick))]
+        public static void OnProductButtonClick(UIPowerGeneratorWindow __instance)
+        {
+            if (Multiplayer.IsActive)
+            {
+                PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorProductUpdatePacket(thisComponent, __instance.factory.planetId));
+            }
+        }
     }
 }

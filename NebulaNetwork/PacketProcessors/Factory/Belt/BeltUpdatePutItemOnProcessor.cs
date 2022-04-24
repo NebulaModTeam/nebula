@@ -19,9 +19,25 @@ namespace NebulaNetwork.PacketProcessors.Factory.Belt
                 {
                     return;
                 }
-                if (!cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId, packet.ItemInc))
+                if(packet.ItemCount == 1)
                 {
-                    Log.Warn($"BeltUpdatePutItemOn: Cannot put item{packet.ItemId} on belt{packet.BeltId}, planet{packet.PlanetId}");
+                    if (!cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId, packet.ItemInc))
+                    {
+                        Log.Warn($"BeltUpdatePutItemOn: Cannot put item{packet.ItemId} on belt{packet.BeltId}, planet{packet.PlanetId}");
+                    }
+                }
+                else
+                {
+                    bool ret = false;
+                    if (cargoTraffic.beltPool[packet.BeltId].id != 0 && cargoTraffic.beltPool[packet.BeltId].id == packet.BeltId)
+                    {
+                        int index = cargoTraffic.beltPool[packet.BeltId].segIndex + cargoTraffic.beltPool[packet.BeltId].segPivotOffset;
+                        ret = cargoTraffic.GetCargoPath(cargoTraffic.beltPool[packet.BeltId].segPathId).TryInsertItem(index, packet.ItemId, packet.ItemCount, packet.ItemInc);
+                    }
+                    if (!ret)
+                    {
+                        Log.Warn($"BeltUpdatePutItemOn: Cannot put item{packet.ItemId} on belt{packet.BeltId}, planet{packet.PlanetId}");
+                    }
                 }
             }
         }

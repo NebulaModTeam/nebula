@@ -22,11 +22,12 @@ namespace NebulaNetwork.PacketProcessors.Planet
 
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             Multiplayer.Session.Planets.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
+            Multiplayer.Session.Planets.PendingTerrainData.Add(packet.PlanetId, packet.TerrainModData);
             Log.Info($"Parsing {packet.BinaryData.Length} bytes of data for factory {planet.name} (ID: {planet.id})");
 
             lock (PlanetModelingManager.fctPlanetReqList)
             {
-                PlanetModelingManager.fctPlanetReqList.Enqueue(GameMain.galaxy.PlanetById(packet.PlanetId));
+                PlanetModelingManager.fctPlanetReqList.Enqueue(planet);
             }
         }
     }

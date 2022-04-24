@@ -25,7 +25,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 factory.Export(writer.BinaryWriter);
                 byte[] data = writer.CloseAndGetBytes();
                 Log.Info($"Sent {data.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
-                conn.SendPacket(new FactoryData(packet.PlanetID, data));
+                conn.SendPacket(new FactoryData(packet.PlanetID, data, planet.data.modData));
             }
 
             // Add requesting client to connected player, so he can receive following update

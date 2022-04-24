@@ -18,8 +18,21 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(GalacticTransport.AddStationComponent))]
+        public static bool AddStationComponent_Prefix(StationComponent station)
+        {
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient && station.gid == 0)
+            {
+                // When client build a new station (gid == 0), we will let host decide the value of gid
+                // ILS will be added when ILSAddStationComponent from host arrived
+                return false;
+            }            
+            return true;
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(GalacticTransport.RemoveStationComponent))]
-        public static bool RemoveStationComponent_Prefix(GalacticTransport __instance, int gid)
+        public static bool RemoveStationComponent_Prefix()
         {
             return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Ships.PatchLockILS;
         }

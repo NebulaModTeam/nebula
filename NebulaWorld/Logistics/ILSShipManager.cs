@@ -167,7 +167,7 @@ namespace NebulaWorld.Logistics
                 RequestgStationDockPos(GId);
             }
 
-            GameMain.data.galacticTransport.stationCursor++;
+            GameMain.data.galacticTransport.stationCursor = Math.Max(GameMain.data.galacticTransport.stationCursor, GId + 1);
         }
 
         /*
