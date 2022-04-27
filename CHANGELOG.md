@@ -1,5 +1,13 @@
 ## Changelog
 
+0.8.6:
+
+- @starfish: Bugfix regarding NRE exception in UpdateDirtyMeshes()
+- @starfish: Bugfix desync issues regarding ILS and PLS
+- @starfish: Add milestone syncing
+- @sp00ktober: Add gracefull error messages regarding broken traffic monitors and broken compression of factory data
+- @sp00ktober: Add a reconnect command to the chat for easy and fast reconnection of clients
+
 0.8.5:
 
 - @starfish: Add Dyson Sphere color syncing
