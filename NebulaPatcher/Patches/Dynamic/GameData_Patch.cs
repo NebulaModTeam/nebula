@@ -6,6 +6,7 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
+using NebulaWorld.Warning;
 using System;
 using UnityEngine;
 
@@ -56,13 +57,29 @@ namespace NebulaPatcher.Patches.Dynamic
                     factoryIndex = GameMain.data.factoryCount++;
                     planet.factoryIndex = factoryIndex;
                     __instance.factories[factoryIndex] = new PlanetFactory();
-                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    try
+                    {
+                        __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    }
+                    catch(System.InvalidOperationException e)
+                    {
+                        HandleRemoteDataImportError(e);
+                        return false;
+                    }
                     planet.factory = __instance.factories[factoryIndex];
                 }
                 else
                 {
                     factoryIndex = planet.factoryIndex;
-                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    try
+                    {
+                        __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    }
+                    catch (System.InvalidOperationException e)
+                    {
+                        HandleRemoteDataImportError(e);
+                        return false;
+                    }
                     planet.factory = __instance.factories[factoryIndex];
                 }
                 // Initial FactoryProductionStat for other in-game stats checking functions
@@ -79,6 +96,15 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Do not run the original method
             return false;
+        }
+
+        // a user reported to receive an error regarding decompressing the lz4 data which breaks the game as the planet factory cant be loaded.
+        // it is not known what exactly caused the error but that client seemed to have an instable internet connection.
+        // so we give advice in this rare situation to issue a reconnect.
+        private static void HandleRemoteDataImportError(System.InvalidOperationException e)
+        {
+            WarningManager.DisplayCriticalWarning($"Failed to properly decompress and import factory data.\nPlease do a reconnect.\nSee the logfile for more information.");
+            Log.Error($"There was an error while decompressing and importing factory data, probably due to an instable internet connection. See full error below.\n{e.StackTrace}");
         }
 
         [HarmonyPrefix]

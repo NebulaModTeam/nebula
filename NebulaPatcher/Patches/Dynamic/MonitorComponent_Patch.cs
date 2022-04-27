@@ -131,6 +131,22 @@ namespace NebulaPatcher.Patches.Dynamic
                     new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetTargetBelt, __0, __1));
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(MonitorComponent.InternalUpdate))]
+        public static bool InternalUpdate_Prefix(MonitorComponent __instance, CargoTraffic _traffic, EntityData[] _entityPool, SpeakerComponent[] _speakerPool, AnimData[] _animPool)
+        {
+            if (Multiplayer.IsActive && __instance.targetBeltId > _traffic.beltPool.Length)
+            {
+                if (Multiplayer.Session.LocalPlayer.IsHost)
+                {
+                    _traffic.factory.RemoveEntityWithComponents(__instance.entityId);
+                    WarningManager.DisplayTemporaryWarning($"Broken Traffic Monitor detected on {_traffic.factory.planet.displayName}\nIt was removed, clients should reconnect!", 15000);
+                }
+                return false;
+            }
+            return true;
+        }
     }
 #pragma warning restore Harmony003 // Harmony non-ref patch parameters modified
 }
