@@ -7,7 +7,7 @@ using NebulaModel.Packets.Players;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using NebulaWorld.Warning;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -165,6 +165,27 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
                     Log.Info($"OnActivePlanetLoaded: Resume PacketProcessor");
+                }
+
+                // Get the recieved bytes from the remote server that we will import
+                if (Multiplayer.Session.Planets.PendingTerrainData.TryGetValue(planet.id, out byte[] terrainBytes))
+                {
+                    // Apply terrian changes, code from PlanetFactory.FlattenTerrainReform()
+                    planet.data.modData = terrainBytes;
+                    for (int i = 0; i < planet.dirtyFlags.Length; i++)
+                    {
+                        planet.dirtyFlags[i] = true;
+                    }
+                    planet.landPercentDirty = true;
+                    try
+                    {
+                        planet.UpdateDirtyMeshes();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
+                    Multiplayer.Session.Planets.PendingTerrainData.Remove(planet.id);
                 }
 
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);

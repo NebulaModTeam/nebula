@@ -22,21 +22,13 @@ namespace NebulaNetwork.PacketProcessors.Planet
 
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             Multiplayer.Session.Planets.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
+            Multiplayer.Session.Planets.PendingTerrainData.Add(packet.PlanetId, packet.TerrainModData);
             Log.Info($"Parsing {packet.BinaryData.Length} bytes of data for factory {planet.name} (ID: {planet.id})");
 
             lock (PlanetModelingManager.fctPlanetReqList)
             {
                 PlanetModelingManager.fctPlanetReqList.Enqueue(planet);
             }
-
-            // Apply terrian changes, code from PlanetFactory.FlattenTerrainReform()
-            planet.data.modData = packet.TerrainModData;
-            for (int i = 0; i < planet.dirtyFlags.Length; i++)
-            {
-                planet.dirtyFlags[i] = true;
-            }
-            planet.landPercentDirty = true;
-            planet.UpdateDirtyMeshes();
         }
     }
 }
