@@ -4,6 +4,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Statistics;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using NebulaWorld.Warning;
