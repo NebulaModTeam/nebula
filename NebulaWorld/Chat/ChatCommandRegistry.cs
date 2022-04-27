@@ -66,6 +66,7 @@ namespace NebulaWorld.Chat.Commands
             RegisterCommand("xconsole", new XConsoleCommandHandler(), "x");
             RegisterCommand("navigate", new NavigateCommandHandler(), "n");
             RegisterCommand("system", new SystemCommandHandler(), "s");
+            RegisterCommand("reconnect", new ReconnectCommandHandler(), "r");
         }
     }
 

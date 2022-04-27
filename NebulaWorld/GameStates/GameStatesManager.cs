@@ -1,5 +1,4 @@
-﻿using NebulaModel.Logger;
-using System;
+﻿using System;
 
 namespace NebulaWorld.GameStates
 {
@@ -16,9 +15,17 @@ namespace NebulaWorld.GameStates
 
         public static long RealGameTick => GameMain.gameTick;
         public static float RealUPS => (float)FPSController.currentUPS;
+        public static bool DuringReconnect = false;
 
         public static void NotifyTickDifference(float delta)
         {
+        }
+
+        public static void DoFastReconnect()
+        {
+            // trigger game exit to main menu
+            DuringReconnect = true;
+            UIRoot.instance.uiGame.escMenu.OnButton5Click();
         }
     }
 }

@@ -37,7 +37,7 @@ namespace NebulaPatcher.Patches.Dynamic
             QuitGame();
         }
 
-        private static void QuitGame()
+        public static void QuitGame()
         {
             if (Multiplayer.IsActive)
             {

@@ -194,8 +194,14 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnJoinGameButtonClick()
         {
-            // Remove whitespaces from connection string
             string s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
+            JoinGame(s);
+        }
+
+        public static void JoinGame(string ip)
+        {
+            // Remove whitespaces from connection string
+            string s = ip;
 
             // Taken from .net IPEndPoint
             IPEndPoint result = null;
