@@ -4,8 +4,10 @@ using CommonAPI.Systems;
 using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
+using NebulaNetwork;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
+using NebulaPatcher.Patches.Dynamic;
 using System;
 #if DEBUG
 using System.IO;
@@ -43,6 +45,18 @@ namespace NebulaPatcher
             InitPatches();
             AddNebulaBootstrapper();
             RegisterKeyBinds();
+            DiscordManager.Setup();
+            DiscordManager.ActivityManager.OnActivityJoin += ActivityManager_OnActivityJoin;
+        }
+
+        private static void ActivityManager_OnActivityJoin(string secret)
+        {
+            UIMainMenu_Patch.JoinGame(secret);
+        }
+
+        private void Update()
+        {
+            DiscordManager.Update();
         }
 
         private static void RegisterKeyBinds()
@@ -108,5 +122,6 @@ namespace NebulaPatcher
         {
             return hostVersion.Equals(clientVersion);
         }
+
     }
 }

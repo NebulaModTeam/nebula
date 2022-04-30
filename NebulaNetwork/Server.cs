@@ -90,6 +90,11 @@ namespace NebulaNetwork
                 Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
+            IPUtils.GetPortStatus(Port, (ip, portStatus) =>
+            {
+                DiscordManager.UpdateRichPresence(ip);
+            });
+
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
