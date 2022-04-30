@@ -14,9 +14,17 @@ namespace NebulaModel.Networking
         public static void RegisterAllPacketNestedTypesInAssembly(Assembly assembly, NetPacketProcessor packetProcessor)
         {
             System.Collections.Generic.IEnumerable<Type> nestedTypes = AssembliesUtils.GetTypesWithAttributeInAssembly<RegisterNestedTypeAttribute>(assembly);
+            bool isAPIAssemblies = NebulaModAPI.TargetAssemblies.Contains(assembly);
             foreach (Type type in nestedTypes)
             {
-                Log.Info($"Registering Nested Type: {type.Name}");
+                if (isAPIAssemblies)
+                {
+                    Log.Info($"Registering Nested Type: {type.Name}");
+                }
+                else
+                {
+                    Log.Debug($"Registering Nested Type: {type.Name}");
+                }
                 if (type.IsClass)
                 {
                     MethodInfo registerMethod = packetProcessor.GetType().GetMethods()
@@ -66,12 +74,20 @@ namespace NebulaModel.Networking
                 .Where(m => m.IsGenericMethod && m.GetGenericArguments().Length == 2)
                 .FirstOrDefault();
 
+            bool isAPIAssemblies = NebulaModAPI.TargetAssemblies.Contains(assembly);
             foreach (Type type in processors)
             {
                 if (IsSubclassOfRawGeneric(typeof(BasePacketProcessor<>), type))
                 {
                     Type packetType = type.BaseType.GetGenericArguments().FirstOrDefault();
-                    Log.Info($"Registering {type.Name} to process packet of type: {packetType.Name}");
+                    if (isAPIAssemblies)
+                    {
+                        Log.Info($"Registering {type.Name} to process packet of type: {packetType.Name}");
+                    }
+                    else
+                    {
+                        Log.Debug($"Registering {type.Name} to process packet of type: {packetType.Name}");
+                    }
 
                     // Create instance of the processor
                     Type delegateType = typeof(Action<,>).MakeGenericType(packetType, typeof(INebulaConnection));

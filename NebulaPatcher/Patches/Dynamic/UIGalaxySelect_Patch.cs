@@ -70,7 +70,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if(UIVirtualStarmap_Transpiler.customBirthPlanet != -1)
                 {
-                    Debug.Log((GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) == null) ? "null" : "not null");
+                    Log.Debug((GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) == null) ? "null" : "not null");
                     GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet)?.UnloadFactory();
                 }
 

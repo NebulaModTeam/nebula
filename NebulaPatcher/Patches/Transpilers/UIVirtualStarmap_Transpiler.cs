@@ -262,7 +262,7 @@ namespace NebulaPatcher.Patches.Transpilers
             AddStarToStarmap(starmap, starData);
 
             starmap.clickText = starData.id.ToString();
-            Debug.Log("Setting it to " + starmap.clickText + " " + starData.id);
+            Log.Debug("Setting it to " + starmap.clickText + " " + starData.id);
 
             for (int i = 0; i < starData.planetCount; i++)
             {

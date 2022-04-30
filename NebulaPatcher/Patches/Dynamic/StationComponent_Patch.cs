@@ -68,7 +68,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(StationComponent.Reset))]
         public static bool Reset_Prefix(StationComponent __instance)
         {
-            Log.Warn($"Reset called on gid {__instance.gid}");
+            Log.Info($"Reset called on gid {__instance.gid}");
             return true;
         }
     }
