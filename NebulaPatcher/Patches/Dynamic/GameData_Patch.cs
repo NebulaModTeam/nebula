@@ -4,7 +4,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Statistics;
+using NebulaModel.Packets.Session;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using NebulaWorld.Warning;
@@ -221,6 +221,10 @@ namespace NebulaPatcher.Patches.Dynamic
             //Set starting star and planet to request from the server, except when client has set custom starting planet.
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
+                //Request global part of GameData from host
+                Log.Info($"Requesting global GameData from the server");
+                Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
+
                 if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
                 {
                     PlanetData planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
