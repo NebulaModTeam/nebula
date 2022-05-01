@@ -22,6 +22,12 @@ namespace NebulaNetwork
 
         public static void Setup()
         {
+            if(!NebulaModel.Config.Options.EnableDiscordRPC)
+            {
+                NebulaModel.Logger.Log.Info("Discord RPC support not enabled.");
+                return;
+            }
+
             client = new(968766006182961182L, (ulong)CreateFlags.Default);
             ActivityManager = client.GetActivityManager();
             ActivityManager.RegisterCommand(Environment.CommandLine);
@@ -61,22 +67,31 @@ namespace NebulaNetwork
         private static void ActivityManager_OnActivityJoinRequest(ref User user)
         {
             NebulaModel.Logger.Log.Info($"Received Discord join request from user {user.Username}");
-            ActivityManager.AcceptInvite(user.Id, result =>
+
+            if(!NebulaModel.Config.Options.AutoAcceptDiscordJoinRequests)
+            {
+                return;
+            }
+
+            ActivityManager.SendRequestReply(user.Id, ActivityJoinRequestReply.Yes, result =>
             {
                 if(result == Result.Ok)
                 {
-                    NebulaModel.Logger.Log.Info("Accepted Discord join request.");
+                    NebulaModel.Logger.Log.Info("Accepted request.");
                 }
                 else
                 {
-                    NebulaModel.Logger.Log.Warn("Discord join request not accepted.");
+                    NebulaModel.Logger.Log.Info("Could not accept request.");
                 }
             });
         }
 
         public static void Update()
         {
-            client.RunCallbacks();
+            if(NebulaModel.Config.Options.EnableDiscordRPC)
+            {
+                client.RunCallbacks();
+            }
         }
 
         private static void UpdateActivity()

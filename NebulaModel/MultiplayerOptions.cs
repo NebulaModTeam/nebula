@@ -19,6 +19,12 @@ namespace NebulaModel
         [DisplayName("Remember Last IP")]
         public bool RememberLastIP { get; set; } = true;
 
+        [DisplayName("Enable Discord RPC (requires restart)")]
+        public bool EnableDiscordRPC { get; set; } = false;
+
+        [DisplayName("Auto accept Discord join requests")]
+        public bool AutoAcceptDiscordJoinRequests { get; set; } = false;
+
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
 
