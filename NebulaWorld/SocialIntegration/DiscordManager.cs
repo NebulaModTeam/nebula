@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NebulaNetwork
+namespace NebulaWorld.SocialIntegration
 {
     public class DiscordManager
     {
@@ -42,8 +42,7 @@ namespace NebulaNetwork
             NebulaModel.Logger.Log.Info("Initialized Discord RPC");
             activity = new()
             {
-                Details = "Playing Nebula Multiplayer Mod",
-                State = "In Main Menu",
+                State = "In Menus",
                 Timestamps =
                 {
                     Start = 0
@@ -51,11 +50,7 @@ namespace NebulaNetwork
                 Party =
                 {
                     Id = CreateSecret(),
-                    Size =
-                    {
-                        CurrentSize = 1,
-                        MaxSize = 1
-                    }
+                    Size = new()
                 },
                 Instance = true,
             };
@@ -124,17 +119,31 @@ namespace NebulaNetwork
 
         public static void UpdateRichPresence(string ip = null)
         {
-            if(!Multiplayer.IsActive || !NebulaModel.Config.Options.EnableDiscordRPC)
+            if(!NebulaModel.Config.Options.EnableDiscordRPC)
             {
                 return;
             }
 
-            var numPlayers = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost().Length;
-            activity.Party.Size.CurrentSize = numPlayers;
-            activity.Party.Size.MaxSize = int.MaxValue;
-            activity.State = $"Building the factory with {numPlayers - 1} others";
+            int numPlayers = 0;
+            if(Multiplayer.IsActive)
+            {
+                Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayerModels);
+                numPlayers = (remotePlayerModels?.Count ?? 0) + 1;
+            }
 
-            if(!string.IsNullOrWhiteSpace(ip))
+            if(numPlayers > 0)
+            {
+                activity.Party.Size.CurrentSize = numPlayers;
+                activity.Party.Size.MaxSize = int.MaxValue;
+            }
+            else
+            {
+                activity.Party.Size = new();
+            }
+
+            activity.State = Multiplayer.IsActive ? "In Multiplayer" : "In Menus";
+
+            if(ip != null)
             {
                 activity.Secrets.Join = ip;
             }

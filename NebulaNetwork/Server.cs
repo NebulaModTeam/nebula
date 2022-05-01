@@ -9,6 +9,7 @@ using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
@@ -92,7 +93,7 @@ namespace NebulaNetwork
 
             IPUtils.GetPortStatus(Port, (ip, portStatus) =>
             {
-                DiscordManager.UpdateRichPresence(ip);
+                DiscordManager.UpdateRichPresence($"{ip}:{port}");
             });
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();

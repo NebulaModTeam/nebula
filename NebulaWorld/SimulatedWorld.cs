@@ -10,6 +10,7 @@ using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Remote;
+using NebulaWorld.SocialIntegration;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -182,6 +183,7 @@ namespace NebulaWorld
             }
 
             UpdatePlayerColor(playerData.PlayerId, playerData.MechaColors);
+            DiscordManager.UpdateRichPresence();
         }
 
         public void DestroyRemotePlayerModel(ushort playerId)
@@ -198,6 +200,7 @@ namespace NebulaWorld
                     }
                 }
             }
+            DiscordManager.UpdateRichPresence();
         }
 
         public void UpdateRemotePlayerPosition(PlayerMovement packet)

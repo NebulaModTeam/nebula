@@ -9,6 +9,7 @@ using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaPatcher.Patches.Dynamic;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System;
 #if DEBUG
 using System.IO;

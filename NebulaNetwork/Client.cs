@@ -8,6 +8,7 @@ using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -73,6 +74,8 @@ namespace NebulaNetwork
                 Config.Options.LastIP = serverEndpoint.ToString();
                 Config.SaveOptions();
             }
+
+            DiscordManager.UpdateRichPresence(serverEndpoint.ToString());
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
