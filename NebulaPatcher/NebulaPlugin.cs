@@ -8,6 +8,7 @@ using NebulaNetwork;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaPatcher.Patches.Dynamic;
+using NebulaWorld;
 using System;
 #if DEBUG
 using System.IO;
@@ -51,9 +52,16 @@ namespace NebulaPatcher
 
         private static void ActivityManager_OnActivityJoin(string secret)
         {
-            Log.Info("Joining lobby from Discord...");
-            UIMainMenu_Patch.OnMultiplayerButtonClick();
-            UIMainMenu_Patch.JoinGame(secret);
+            if(!Multiplayer.IsActive)
+            {
+                Log.Info("Joining lobby from Discord...");
+                UIMainMenu_Patch.OnMultiplayerButtonClick();
+                UIMainMenu_Patch.JoinGame(secret);
+            }
+            else
+            {
+                Log.Warn("Cannot join lobby from Discord, we are already in a lobby.");
+            }
         }
 
         private void Update()
