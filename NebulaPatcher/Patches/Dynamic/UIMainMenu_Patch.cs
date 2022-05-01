@@ -66,7 +66,7 @@ namespace NebulaPatcher.Patches.Dynamic
             OverrideButton(multiplayerButton, "Multiplayer", OnMultiplayerButtonClick);
         }
 
-        private static void OnMultiplayerButtonClick()
+        public static void OnMultiplayerButtonClick()
         {
             Multiplayer.IsInMultiplayerMenu = true;
             mainMenuButtonGroup.gameObject.SetActive(false);
