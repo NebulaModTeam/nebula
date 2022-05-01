@@ -124,7 +124,7 @@ namespace NebulaNetwork
 
         public static void UpdateRichPresence(string ip = null)
         {
-            if(!Multiplayer.IsActive)
+            if(!Multiplayer.IsActive || !NebulaModel.Config.Options.EnableDiscordRPC)
             {
                 return;
             }

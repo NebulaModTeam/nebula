@@ -51,6 +51,7 @@ namespace NebulaPatcher
 
         private static void ActivityManager_OnActivityJoin(string secret)
         {
+            Log.Info("Joining lobby from Discord...");
             UIMainMenu_Patch.JoinGame(secret);
         }
 
