@@ -2,6 +2,7 @@
 using NebulaWorld;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,15 @@ namespace NebulaNetwork
         {
             client = new(968766006182961182L, (ulong)CreateFlags.Default);
             ActivityManager = client.GetActivityManager();
-            ActivityManager.RegisterSteam(1366540u);
+            ActivityManager.RegisterCommand(Environment.CommandLine);
+
+            var gameDir = new FileInfo(Environment.GetCommandLineArgs()[0]);
+            var steamAppIdFile = Path.Combine(gameDir.DirectoryName, "steam_appid.txt");
+            if(!File.Exists(steamAppIdFile))
+            {
+                File.WriteAllText(steamAppIdFile, "1366540");
+            }
+
             NebulaModel.Logger.Log.Info("Initialized Discord RPC");
             activity = new()
             {
