@@ -57,7 +57,10 @@ namespace NebulaPatcher
 
         private void Update()
         {
-            DiscordManager.Update();
+            if(GameMain.isRunning && UIRoot.instance.launchSplash.willdone)
+            {
+                DiscordManager.Update();
+            }
         }
 
         private static void RegisterKeyBinds()
