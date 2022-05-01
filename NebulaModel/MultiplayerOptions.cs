@@ -16,6 +16,10 @@ namespace NebulaModel
         [UIRange(1, ushort.MaxValue)]
         public ushort HostPort { get; set; } = 8469;
 
+        [DisplayName("Enable UPnp/Pmp Support")]
+        [Description("If enabled, attempt to automatically create a port mapping using UPnp/Pmp (only works if your router has this feature and it is enabled)")]
+        public bool EnableUPnpOrPmpSupport { get; set; } = true;
+
         [DisplayName("Remember Last IP")]
         public bool RememberLastIP { get; set; } = true;
 

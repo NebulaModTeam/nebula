@@ -9,8 +9,11 @@ using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
+using Open.Nat;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -65,6 +68,27 @@ namespace NebulaNetwork
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
+
+            if (Config.Options.EnableUPnpOrPmpSupport)
+            {
+                Task.Run(async () => {
+                    var discoverer = new NatDiscoverer();
+                    try
+                    {
+                        var device = await discoverer.DiscoverDeviceAsync();
+                        await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, port, port, "DSP nebula"));
+                        NebulaModel.Logger.Log.Info($"Successfully created UPnp or Pmp port mapping for {port}");
+                    }
+                    catch (NatDeviceNotFoundException)
+                    {
+                        NebulaModel.Logger.Log.Warn("No UPnp or Pmp compatible/enabled NAT device found");
+                    }
+                    catch (MappingException)
+                    {
+                        NebulaModel.Logger.Log.Warn("Could not create UPnp or Pmp port mapping");
+                    }
+                }).Wait();
+            }
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             DisableNagleAlgorithm(socket);
