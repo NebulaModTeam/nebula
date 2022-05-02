@@ -66,11 +66,18 @@ namespace NebulaNetwork
             PacketProcessor.SimulateLatency = true;
 #endif
 
-            socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
+            socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port, false);
+            socket.Log.Level = LogLevel.Debug;
+            socket.AllowForwardedRequest = true;
             DisableNagleAlgorithm(socket);
             WebSocketService.PacketProcessor = PacketProcessor;
             WebSocketService.PlayerManager = PlayerManager;
-            socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
+            //socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
+            socket.AddWebSocketService<WebSocketService>("/socket", wse =>
+            {
+                wse.OriginValidator = val => true;
+                wse.CookiesValidator = (req, res) => true;
+            });
             try
             {
                 socket.KeepClean = Config.Options.CleanupInactiveSessions;
