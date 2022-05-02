@@ -145,8 +145,15 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.OnActivePlanetFactoryLoaded))]
         public static bool OnActivePlanetFactoryLoaded_Prefix(GameData __instance, PlanetData planet)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive)
             {
+                return true;
+            }
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                // Resume packet processing when local planet is loaded
+                ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+                Log.Info($"Resume PacketProcessor (OnActivePlanetFactoryLoaded)");
                 return true;
             }
             if (planet != null)
@@ -165,7 +172,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (Multiplayer.Session.IsGameLoaded)
                 {
                     ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
-                    Log.Info($"OnActivePlanetLoaded: Resume PacketProcessor");
+                    Log.Info($"Resume PacketProcessor (OnActivePlanetFactoryLoaded)");
                 }
 
                 // Get the recieved bytes from the remote server that we will import

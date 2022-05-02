@@ -16,9 +16,9 @@ namespace NebulaNetwork.PacketProcessors.Planet
             {
                 return;
             }
-            // Stop packet processing until factory is imported
+            // Stop packet processing until factory is imported and loaded
             ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
-            Log.Info($"FactoryDataProcessor: Pause PacketProcessor");
+            Log.Info($"Pause PacketProcessor (FactoryDataProcessor)");
 
             PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
             Multiplayer.Session.Planets.PendingFactories.Add(packet.PlanetId, packet.BinaryData);
