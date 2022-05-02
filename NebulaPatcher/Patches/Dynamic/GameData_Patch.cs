@@ -172,21 +172,24 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (Multiplayer.Session.Planets.PendingTerrainData.TryGetValue(planet.id, out byte[] terrainBytes))
                 {
                     // Apply terrian changes, code from PlanetFactory.FlattenTerrainReform()
-                    planet.data.modData = terrainBytes;
-                    for (int i = 0; i < planet.dirtyFlags.Length; i++)
+                    if (planet.type != EPlanetType.Gas)
                     {
-                        planet.dirtyFlags[i] = true;
+                        planet.data.modData = terrainBytes;
+                        for (int i = 0; i < planet.dirtyFlags.Length; i++)
+                        {
+                            planet.dirtyFlags[i] = true;
+                        }
+                        planet.landPercentDirty = true;
+                        try
+                        {
+                            planet.UpdateDirtyMeshes();
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Warn(e);
+                        }
                     }
-                    planet.landPercentDirty = true;
-                    try
-                    {
-                        planet.UpdateDirtyMeshes();
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e);
-                    }
-                    Multiplayer.Session.Planets.PendingTerrainData.Remove(planet.id);
+                    Multiplayer.Session.Planets.PendingTerrainData.Remove(planet.id);                    
                 }
 
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
