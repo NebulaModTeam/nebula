@@ -3,6 +3,7 @@ using NebulaAPI;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
@@ -145,7 +146,7 @@ namespace NebulaNetwork
                 {
                     if (!GameMain.isFullscreenPaused)
                     {
-                        SendPacket(new PingPacket());
+                        SendPacket(new GameStateRequest());
                     }
                     gameStateUpdateTimer = 0f;
                 }

@@ -1,14 +1,14 @@
 ﻿using NebulaAPI;
 using System;
 
-namespace NebulaModel.Packets.Session
+namespace NebulaModel.Packets.GameStates
 {
     [HidePacketInDebugLogs]
-    public class PingPacket
+    public class GameStateRequest
     {
         public long SentTimestamp { get; set; }
 
-        public PingPacket()
+        public GameStateRequest()
         {
             SentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }

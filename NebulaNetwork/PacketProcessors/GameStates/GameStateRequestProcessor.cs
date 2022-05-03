@@ -2,15 +2,14 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
-using NebulaModel.Packets.Session;
 using NebulaWorld.GameStates;
 
-namespace NebulaNetwork.PacketProcessors.Session
+namespace NebulaNetwork.PacketProcessors.GameStates
 {
     [RegisterPacketProcessor]
-    internal class PingPacketProcessor : PacketProcessor<PingPacket>
+    internal class GameStateRequestProcessor : PacketProcessor<GameStateRequest>
     {
-        public override void ProcessPacket(PingPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(GameStateRequest packet, NebulaConnection conn)
         {
             if (IsHost)
             {

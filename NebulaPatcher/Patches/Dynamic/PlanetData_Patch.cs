@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -6,6 +7,18 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(PlanetData))]
     internal class PlanetData_Patch
     {
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetData.LoadFactory))]
+        public static void LoadFactory_Prefix()
+        {
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                // Stop packet processing for host until factory is loaded
+                ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
+                Log.Info($"Pause PacketProcessor (PlanetData.LoadFactory)");
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetData.UnloadMeshes))]
         public static bool UnloadMeshes_Prefix(PlanetData __instance)

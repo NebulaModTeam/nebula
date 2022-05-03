@@ -206,12 +206,12 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
 
                     GameDesc gameDesc = GameMain.data.gameDesc;
-                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil));
+                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil));
                 }
             }
             else
             {
-                UIGalaxySelect galaxySelect = UIRoot.instance.galaxySelect;
+                GameDesc gameDesc = Multiplayer.Session.IsGameLoaded ? GameMain.data.gameDesc : UIRoot.instance.galaxySelect.gameDesc;
 
                 using (BinaryUtils.Writer p = new BinaryUtils.Writer())
                 {
@@ -226,15 +226,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                         }
                     }
 
-                    if (Multiplayer.Session.IsGameLoaded)
-                    {
-                        GameDesc gameDesc = GameMain.data.gameDesc;
-                        player.SendPacket(new LobbyResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, p.CloseAndGetBytes(), count));
-                    }
-                    else
-                    {
-                        player.SendPacket(new LobbyResponse(galaxySelect.gameDesc.galaxyAlgo, galaxySelect.gameDesc.galaxySeed, galaxySelect.gameDesc.starCount, galaxySelect.gameDesc.resourceMultiplier, p.CloseAndGetBytes(), count));
-                    }
+                    player.SendPacket(new LobbyResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, p.CloseAndGetBytes(), count));
                 }
 
                 // Send overriden Planet and Star names
