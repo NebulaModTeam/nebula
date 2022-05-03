@@ -12,6 +12,7 @@ using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Remote;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,6 +34,7 @@ namespace NebulaWorld
         private Text pingIndicator;
         private LocalPlayerMovement localPlayerMovement;
         private LocalPlayerAnimation localPlayerAnimation;
+        private static readonly Stopwatch watch = new Stopwatch();
 
         public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels)
         {
@@ -152,6 +154,11 @@ namespace NebulaWorld
 
         public void OnPlayerJoining(string Username)
         {
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                watch.Start();
+            }
+
             if (!IsPlayerJoining)
             {
                 IsPlayerJoining = true;
@@ -163,6 +170,13 @@ namespace NebulaWorld
 
         public void OnAllPlayersSyncCompleted()
         {
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                watch.Stop();
+                Log.Debug($"Joined in {watch.Elapsed}");
+                watch.Reset();
+            }
+
             IsPlayerJoining = false;
             InGamePopup.FadeOut();
             GameMain.isFullscreenPaused = false;

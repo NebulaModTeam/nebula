@@ -3,6 +3,7 @@
 namespace NebulaModel.Packets.Players
 {
     [HidePacketInDebugLogs]
+    [NetworkOptions(Reliable = false)]
     public class PlayerMovement
     {
         public ushort PlayerId { get; set; }
