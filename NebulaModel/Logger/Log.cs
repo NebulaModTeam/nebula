@@ -5,7 +5,9 @@ namespace NebulaModel.Logger
 {
     public static class Log
     {
-        public static string MessageInfo { get; private set; }
+        public static string LastInfoMsg { get; set; }
+        public static string LastWarnMsg { get; set; }
+        public static string LastErrorMsg { get; set; }
 
         private static ILogger logger;
 
@@ -29,7 +31,7 @@ namespace NebulaModel.Logger
         public static void Info(string message)
         {
             logger.LogInfo(message);
-            MessageInfo = message;
+            LastInfoMsg = message;
         }
 
         public static void Info(object message)
@@ -40,6 +42,7 @@ namespace NebulaModel.Logger
         public static void Warn(string message)
         {
             logger.LogWarning(message);
+            LastWarnMsg = message;
         }
 
         public static void Warn(object message)
@@ -50,7 +53,11 @@ namespace NebulaModel.Logger
         public static void Error(string message)
         {
             logger.LogError(message);
-            UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
+            LastErrorMsg = message;
+            if (UIFatalErrorTip.instance != null)
+            {
+                UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
+            }
         }
 
         public static void Error(Exception ex)
