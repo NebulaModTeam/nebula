@@ -33,6 +33,8 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
+            gameDesc.savedThemeIds = packet.SavedThemeIds;
+
             UIRoot.instance.galaxySelect.gameDesc = gameDesc;
             UIRoot.instance.galaxySelect.SetStarmapGalaxy();
         }

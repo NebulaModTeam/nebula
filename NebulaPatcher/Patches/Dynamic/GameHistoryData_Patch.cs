@@ -9,20 +9,6 @@ namespace NebulaPatcher.Patches.Dynamic
     internal class GameHistoryData_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch(nameof(GameHistoryData.SetForNewGame))]
-        public static void SetForNewGame_Postfix()
-        {
-            // Do not run if it is not multiplayer and the player is not a client
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                return;
-            }
-            // Request history data
-            Log.Info($"Requesting GameHistoryData from the server");
-            Multiplayer.Session.Network.SendPacket(new GameHistoryDataRequest());
-        }
-
-        [HarmonyPostfix]
         [HarmonyPatch(nameof(GameHistoryData.EnqueueTech))]
         public static void EnqueueTech_Postfix(int techId)
         {

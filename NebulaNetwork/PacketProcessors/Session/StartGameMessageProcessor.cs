@@ -80,9 +80,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 Multiplayer.Session.IsInLobby = false;
                 Multiplayer.ShouldReturnToJoinMenu = false;
 
-                GameDesc gameDesc = UIRoot.instance.galaxySelect.gameDesc;
-                gameDesc.SetForNewGame(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, 1, gameDesc.resourceMultiplier);
-                DSPGame.StartGameSkipPrologue(gameDesc);
+                DSPGame.StartGameSkipPrologue(UIRoot.instance.galaxySelect.gameDesc);
 
                 InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
             }
