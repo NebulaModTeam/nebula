@@ -67,6 +67,7 @@ namespace NebulaNetwork
 #endif
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
+            socket.Log.Level = LogLevel.Debug;
             socket.AllowForwardedRequest = true; // This is required to make the websocket play nice with tunneling services like ngrok
             DisableNagleAlgorithm(socket);
             WebSocketService.PacketProcessor = PacketProcessor;
