@@ -20,7 +20,7 @@ namespace NebulaModel
         public bool RememberLastIP { get; set; } = true;
 
         [DisplayName("Enable Discord RPC (requires restart)")]
-        public bool EnableDiscordRPC { get; set; } = false;
+        public bool EnableDiscordRPC { get; set; } = true;
 
         [DisplayName("Auto accept Discord join requests")]
         public bool AutoAcceptDiscordJoinRequests { get; set; } = false;
