@@ -76,8 +76,6 @@ namespace NebulaNetwork
                 Config.SaveOptions();
             }
 
-            DiscordManager.UpdateRichPresence(ip: serverEndpoint.ToString());
-
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 

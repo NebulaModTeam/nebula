@@ -34,18 +34,18 @@ namespace NebulaNetwork
 
         private WebSocketServer socket;
 
-        private readonly int port;
+        private readonly ushort port;
         private readonly bool loadSaveFile;
 
-        public int Port => port;
+        public ushort Port => port;
 
-        public Server(int port, bool loadSaveFile = false) : base(new PlayerManager())
+        public Server(ushort port, bool loadSaveFile = false) : base(new PlayerManager())
         {
             this.port = port;
             this.loadSaveFile = loadSaveFile;
         }
 
-        public override void Start()
+        public override async void Start()
         {
             if (loadSaveFile)
             {
@@ -91,10 +91,7 @@ namespace NebulaNetwork
                 Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
-            IPUtils.GetPortStatus(Port, (ip, portStatus) =>
-            {
-                DiscordManager.UpdateRichPresence(ip: $"{ip}:{port}");
-            });
+            DiscordManager.UpdateRichPresence(ip: $"{await IPUtils.GetWANv4Address()};{await IPUtils.GetWANv6Address()};{port}");
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }

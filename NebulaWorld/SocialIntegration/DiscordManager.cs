@@ -142,7 +142,7 @@ namespace NebulaWorld.SocialIntegration
             }
         }
 
-        public static void UpdateRichPresence(string ip = null, string partyId = null)
+        public static void UpdateRichPresence(string ip = null, string partyId = null, bool secretPassthrough = false)
         {
             if(!NebulaModel.Config.Options.EnableDiscordRPC || client == null)
             {
@@ -163,7 +163,7 @@ namespace NebulaWorld.SocialIntegration
 
             if(ip != null)
             {
-                if(!string.IsNullOrWhiteSpace(ip))
+                if(!string.IsNullOrWhiteSpace(ip) && !secretPassthrough)
                 {
                     ip = ip.ToBase64();
                 }
