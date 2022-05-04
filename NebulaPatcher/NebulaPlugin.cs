@@ -47,8 +47,7 @@ namespace NebulaPatcher
             InitPatches();
             AddNebulaBootstrapper();
             RegisterKeyBinds();
-            DiscordManager.Setup();
-            DiscordManager.ActivityManager.OnActivityJoin += ActivityManager_OnActivityJoin;
+            DiscordManager.Setup(ActivityManager_OnActivityJoin);
         }
 
         private static void ActivityManager_OnActivityJoin(string secret)

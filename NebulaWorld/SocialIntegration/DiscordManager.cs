@@ -12,7 +12,8 @@ namespace NebulaWorld.SocialIntegration
     public class DiscordManager
     {
         private static Discord.Discord client;
-        public static ActivityManager ActivityManager { get; private set; }
+
+        private static ActivityManager ActivityManager;
 
         private static Activity activity;
 
@@ -20,7 +21,7 @@ namespace NebulaWorld.SocialIntegration
 
         private static int SecretLength => 128;
 
-        public static void Setup()
+        public static void Setup(ActivityManager.ActivityJoinHandler activityJoinHandler)
         {
             if(!NebulaModel.Config.Options.EnableDiscordRPC)
             {
@@ -28,7 +29,17 @@ namespace NebulaWorld.SocialIntegration
                 return;
             }
 
-            client = new(968766006182961182L, (ulong)CreateFlags.Default);
+            try
+            {
+                client = new(968766006182961182L, (ulong)CreateFlags.NoRequireDiscord);
+            }
+            catch(ResultException e)
+            {
+                NebulaModel.Logger.Log.Warn(e);
+                Cleanup();
+                return;
+            }
+
             ActivityManager = client.GetActivityManager();
             ActivityManager.RegisterCommand(Environment.CommandLine);
 
@@ -57,6 +68,7 @@ namespace NebulaWorld.SocialIntegration
             UpdateActivity();
 
             ActivityManager.OnActivityJoinRequest += ActivityManager_OnActivityJoinRequest;
+            ActivityManager.OnActivityJoin += activityJoinHandler;
         }
 
         private static void ActivityManager_OnActivityJoinRequest(ref User user)
@@ -83,9 +95,17 @@ namespace NebulaWorld.SocialIntegration
 
         public static void Update()
         {
-            if(NebulaModel.Config.Options.EnableDiscordRPC)
+            if(NebulaModel.Config.Options.EnableDiscordRPC && client != null)
             {
-                client.RunCallbacks();
+                try
+                {
+                    client.RunCallbacks();
+                }
+                catch (ResultException e) // RunCallbacks throws an exception when Discord is not running.
+                {
+                    NebulaModel.Logger.Log.Warn(e);
+                    Cleanup();
+                }
             }
         }
 
@@ -113,13 +133,17 @@ namespace NebulaWorld.SocialIntegration
 
         public static void Cleanup()
         {
-            client.Dispose();
-            NebulaModel.Logger.Log.Info("Disposed Discord RPC");
+            if(client != null)
+            {
+                client.Dispose();
+                client = null;
+                NebulaModel.Logger.Log.Info("Disposed Discord RPC");
+            }
         }
 
         public static void UpdateRichPresence(string ip = null)
         {
-            if(!NebulaModel.Config.Options.EnableDiscordRPC)
+            if(!NebulaModel.Config.Options.EnableDiscordRPC || client == null)
             {
                 return;
             }
