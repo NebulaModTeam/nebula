@@ -108,17 +108,16 @@ namespace NebulaModel.Utils
             }
         }
 
-        public static async Task<string> GetPortStatus(ushort port, string ip = "")
+        public static async Task<string> GetPortStatus(ushort port)
         {
-            if(!string.IsNullOrWhiteSpace(ip) && !IsIPv4(ip))
-            {
-                return Status.Unsupported.ToString();
-            }
-
             try
             {
-                string response = await client.GetStringAsync($"https://ifconfig.co/port/{port}?ip={ip}");
+                string response = await client.GetStringAsync($"https://ifconfig.co/port/{port}");
                 Dictionary<string, object> jObject = MiniJson.Deserialize(response) as Dictionary<string, object>;
+                if (!IsIPv4((string)jObject["ip"]))
+                {
+                    return Status.Unsupported.ToString();
+                }
                 return (bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed.ToString();
             }
             catch (Exception e)
@@ -143,7 +142,7 @@ namespace NebulaModel.Utils
                 DataState = DataState.Fresh
             };
 
-            rawInfo.PortStatus = await GetPortStatus(port, rawInfo.WANv4Address);
+            rawInfo.PortStatus = await GetPortStatus(port);
 
             ipInfo = rawInfo;
             ipInfo.DataState = DataState.Cached;
