@@ -124,24 +124,17 @@ namespace NebulaWorld.SocialIntegration
                 return;
             }
 
-            int numPlayers = 0;
             if(Multiplayer.IsActive)
             {
-                Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayerModels);
-                numPlayers = (remotePlayerModels?.Count ?? 0) + 1;
-            }
-
-            if(numPlayers > 0)
-            {
-                activity.Party.Size.CurrentSize = numPlayers;
-                activity.Party.Size.MaxSize = int.MaxValue;
+                activity.Party.Size.CurrentSize = Multiplayer.Session.NumPlayers;
+                activity.Party.Size.MaxSize = ushort.MaxValue;
             }
             else
             {
                 activity.Party.Size = new();
             }
 
-            activity.State = Multiplayer.IsActive ? "In Multiplayer" : "In Menus";
+            activity.State = Multiplayer.IsActive ? (Multiplayer.Session.IsInLobby ? "In Lobby" : "In Game") : "In Menus";
 
             if(ip != null)
             {

@@ -9,6 +9,7 @@ using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System.Collections.Generic;
 
 namespace NebulaNetwork.PacketProcessors.Session
@@ -161,6 +162,9 @@ namespace NebulaNetwork.PacketProcessors.Session
             // Add the Mecha Color to the player data
             player.Data.MechaColors = packet.MechaColors;
 
+            Multiplayer.Session.NumPlayers += 1;
+            DiscordManager.UpdateRichPresence();
+
             // if user is known and host is ingame dont put him into lobby but let him join the game
             if (!isNewUser && Multiplayer.Session.IsGameLoaded)
             {
@@ -180,7 +184,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
 
                 // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
-                PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
+                PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData(), Multiplayer.Session.NumPlayers); // Remove inventory from mecha data
                 using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                 {
                     foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
@@ -206,7 +210,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
 
                     GameDesc gameDesc = GameMain.data.gameDesc;
-                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil));
+                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil, Multiplayer.Session.NumPlayers));
                 }
             }
             else
@@ -226,7 +230,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                         }
                     }
 
-                    player.SendPacket(new LobbyResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, p.CloseAndGetBytes(), count));
+                    player.SendPacket(new LobbyResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, p.CloseAndGetBytes(), count, Multiplayer.Session.NumPlayers));
                 }
 
                 // Send overriden Planet and Star names

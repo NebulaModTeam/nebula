@@ -183,7 +183,6 @@ namespace NebulaWorld
             }
 
             UpdatePlayerColor(playerData.PlayerId, playerData.MechaColors);
-            DiscordManager.UpdateRichPresence();
         }
 
         public void DestroyRemotePlayerModel(ushort playerId)
@@ -200,7 +199,6 @@ namespace NebulaWorld
                     }
                 }
             }
-            DiscordManager.UpdateRichPresence();
         }
 
         public void UpdateRemotePlayerPosition(PlayerMovement packet)
