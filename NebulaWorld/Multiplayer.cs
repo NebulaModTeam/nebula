@@ -60,7 +60,7 @@ namespace NebulaWorld
                 Transform multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");
                 multiplayerMenu.gameObject.SetActive(true);
             }
-            DiscordManager.UpdateRichPresence(string.Empty);
+            DiscordManager.UpdateRichPresence(ip: string.Empty, partyId: DiscordManager.CreateSecret());
         }
     }
 }

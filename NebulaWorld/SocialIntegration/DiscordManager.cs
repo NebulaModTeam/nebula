@@ -124,7 +124,7 @@ namespace NebulaWorld.SocialIntegration
             });
         }
 
-        private static string CreateSecret()
+        public static string CreateSecret()
         {
             byte[] bytes = new byte[SecretLength];
             random.NextBytes(bytes);
@@ -141,7 +141,7 @@ namespace NebulaWorld.SocialIntegration
             }
         }
 
-        public static void UpdateRichPresence(string ip = null)
+        public static void UpdateRichPresence(string ip = null, string partyId = null)
         {
             if(!NebulaModel.Config.Options.EnableDiscordRPC || client == null)
             {
@@ -165,7 +165,22 @@ namespace NebulaWorld.SocialIntegration
                 activity.Secrets.Join = ip;
             }
 
+            if(!string.IsNullOrWhiteSpace(partyId))
+            {
+                activity.Party.Id = partyId;
+            }
+
             UpdateActivity();
+        }
+
+        public static string GetPartyId()
+        {
+            if (!NebulaModel.Config.Options.EnableDiscordRPC || client == null)
+            {
+                return null;
+            }
+
+            return activity.Party.Id;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
             Multiplayer.Session.NumPlayers = packet.NumPlayers;
             Multiplayer.Session.IsInLobby = true;
-            DiscordManager.UpdateRichPresence();
+            DiscordManager.UpdateRichPresence(partyId: packet.DiscordPartyId);
 
             UIRoot.instance.galaxySelect._Open();
             UIRoot.instance.uiMainMenu._Close();

@@ -10,9 +10,10 @@
         public byte[] ModsSettings { get; set; }
         public int ModsSettingsCount { get; set; }
         public ushort NumPlayers { get; set; }
+        public string DiscordPartyId { get; set; }
 
         public LobbyResponse() { }
-        public LobbyResponse(int galaxyAlgo, int galaxySeed, int starCount, float resourceMultiplier, int[] savedThemeIds, byte[] modsSettings, int settingsCount, ushort numPlayers)
+        public LobbyResponse(int galaxyAlgo, int galaxySeed, int starCount, float resourceMultiplier, int[] savedThemeIds, byte[] modsSettings, int settingsCount, ushort numPlayers, string discordPartyId)
         {
             GalaxyAlgo = galaxyAlgo;
             GalaxySeed = galaxySeed;
@@ -22,6 +23,7 @@
             ModsSettings = modsSettings;
             ModsSettingsCount = settingsCount;
             NumPlayers = numPlayers;
+            DiscordPartyId = discordPartyId;
         }
     }
 }
