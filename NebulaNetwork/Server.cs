@@ -93,7 +93,7 @@ namespace NebulaNetwork
 
             IPUtils.GetPortStatus(Port, (ip, portStatus) =>
             {
-                DiscordManager.UpdateRichPresence($"{ip}:{port}");
+                DiscordManager.UpdateRichPresence(ip: $"{ip}:{port}");
             });
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();

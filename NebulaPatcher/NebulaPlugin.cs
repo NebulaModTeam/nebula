@@ -4,6 +4,7 @@ using CommonAPI.Systems;
 using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
+using NebulaModel.Utils;
 using NebulaNetwork;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
@@ -52,11 +53,11 @@ namespace NebulaPatcher
 
         private static void ActivityManager_OnActivityJoin(string secret)
         {
-            if(!Multiplayer.IsActive)
+            if(!Multiplayer.IsActive && !string.IsNullOrWhiteSpace(secret))
             {
                 Log.Info("Joining lobby from Discord...");
                 UIMainMenu_Patch.OnMultiplayerButtonClick();
-                UIMainMenu_Patch.JoinGame(secret);
+                UIMainMenu_Patch.JoinGame(secret.FromBase64());
             }
             else
             {

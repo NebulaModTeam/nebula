@@ -1,4 +1,5 @@
 ﻿using Discord;
+using NebulaModel.Utils;
 using NebulaWorld;
 using System;
 using System.Collections.Generic;
@@ -162,6 +163,10 @@ namespace NebulaWorld.SocialIntegration
 
             if(ip != null)
             {
+                if(!string.IsNullOrWhiteSpace(ip))
+                {
+                    ip = ip.ToBase64();
+                }
                 activity.Secrets.Join = ip;
             }
 
