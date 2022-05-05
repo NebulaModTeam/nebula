@@ -38,12 +38,11 @@ namespace NebulaModel.Utils
 
         public struct IpInfo
         {
-            public string LANAddress = null;
-            public string WANv4Address = null;
-            public string WANv6Address = null;
-            public string PortStatus = null;
-            public DataState DataState = DataState.Unset;
-            public IpInfo() { }
+            public string LANAddress;
+            public string WANv4Address;
+            public string WANv6Address;
+            public string PortStatus;
+            public DataState DataState;
         }
 
         static IpInfo ipInfo;
