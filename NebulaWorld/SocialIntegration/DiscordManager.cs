@@ -74,7 +74,9 @@ namespace NebulaWorld.SocialIntegration
 
         private static void ActivityManager_OnActivityJoinRequest(ref User user)
         {
-            NebulaModel.Logger.Log.Info($"Received Discord join request from user {user.Username}");
+            // Print anonymized username of user who requested to join
+            NebulaModel.Logger.Log.Info($"Received Discord join request from user " +
+                                        $"{user.Username[0] + new string('*', user.Username.Length - 2) + user.Username[user.Username.Length - 1]}");
 
             if(!NebulaModel.Config.Options.AutoAcceptDiscordJoinRequests)
             {
