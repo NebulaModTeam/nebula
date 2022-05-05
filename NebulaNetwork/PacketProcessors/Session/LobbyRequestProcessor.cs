@@ -159,9 +159,6 @@ namespace NebulaNetwork.PacketProcessors.Session
             // Add the username to the player data
             player.Data.Username = !string.IsNullOrWhiteSpace(packet.Username) ? packet.Username : $"Player {player.Id}";
 
-            // Add the Mecha Color to the player data
-            player.Data.MechaColors = packet.MechaColors;
-
             Multiplayer.Session.NumPlayers += 1;
             DiscordManager.UpdateRichPresence();
 

@@ -6,16 +6,14 @@ namespace NebulaModel.Packets.Session
     public class LobbyRequest
     {
         public string Username { get; set; }
-        public Float4[] MechaColors { get; set; }
         public byte[] ModsVersion { get; set; }
         public int ModsCount { get; set; }
         public int GameVersionSig { get; set; }
         public byte[] ClientCert { get; set; }
         public LobbyRequest() { }
-        public LobbyRequest(byte[] clientCert, string username, Float4[] mechaColors)
+        public LobbyRequest(byte[] clientCert, string username)
         {
             Username = username;
-            MechaColors = mechaColors;
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {

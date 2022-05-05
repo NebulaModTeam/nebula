@@ -80,9 +80,6 @@ namespace NebulaWorld
 
             LocalPlayer player = Multiplayer.Session.LocalPlayer as LocalPlayer;
 
-            // Assign our own color
-            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColors);
-
             // If not a new client, we need to update the player position to put him where he was previously
             if (player.IsClient && !player.IsNewPlayer)
             {
@@ -187,8 +184,6 @@ namespace NebulaWorld
                     SendChatMessage(message, ChatMessageType.SystemInfoMessage);
                 }
             }
-
-            UpdatePlayerColor(playerData.PlayerId, playerData.MechaColors);
         }
 
         public void DestroyRemotePlayerModel(ushort playerId)
@@ -294,58 +289,6 @@ namespace NebulaWorld
                         GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
                     }
                     droneLogic.factory = tmpFactory;
-                }
-            }
-        }
-
-        public void UpdatePlayerColor(ushort playerId, Float4[] colors)
-        {
-            if (colors == null || colors.Length == 0)
-            {
-                return;
-            }
-
-            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
-            {
-                MechaArmorModel mechaArmorModel;
-                if (playerId == Multiplayer.Session.LocalPlayer.Id)
-                {
-                    mechaArmorModel = GameMain.data.mainPlayer.mechaArmorModel;
-                }
-                else if (remotePlayersModels.TryGetValue(playerId, out RemotePlayerModel remotePlayerModel))
-                {
-                    mechaArmorModel = remotePlayerModel.PlayerInstance.mechaArmorModel;
-                }
-                else
-                {
-                    Log.Warn("Could not find the playerAnimator for player with ID " + playerId);
-                    return;
-                }
-                
-                Log.Debug($"Changing color of player {playerId}");
-                for (int i = 0; i < colors.Length; i++)
-                {
-                    Log.Debug($"Color {i}: {colors[i]}");
-                }
-
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color", colors[0].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color2", colors[1].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color3", colors[2].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color", colors[0].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color2", colors[1].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color3", colors[2].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_em_mat.SetColor("_EmissionMask", colors[3].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_em_mat.SetColor("_EmissionMask", colors[4].ToColor() / 255);
-                
-                // We changed our own color, so we have to let others know
-                if (Multiplayer.Session.LocalPlayer.Id == playerId)
-                {
-                    //GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
-                    Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, colors));
                 }
             }
         }

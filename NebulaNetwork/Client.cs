@@ -201,8 +201,7 @@ namespace NebulaNetwork
 
             SendPacket(new LobbyRequest(
                 CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
-                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
-                Config.Options.GetMechaColors()));
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName));
         }
 
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)

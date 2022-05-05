@@ -241,7 +241,7 @@ namespace NebulaNetwork
             ushort playerId = GetNextAvailablePlayerId();
 
             PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
-            PlayerData playerData = new PlayerData(playerId, -1, Config.Options.GetMechaColors(), position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+            PlayerData playerData = new PlayerData(playerId, -1, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
 
             INebulaPlayer newPlayer = new NebulaPlayer((NebulaConnection)conn, playerData);
             using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))

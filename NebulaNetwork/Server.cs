@@ -135,7 +135,6 @@ namespace NebulaNetwork
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
-                Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
             Task.Run(async () =>
