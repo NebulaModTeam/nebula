@@ -11,6 +11,7 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -32,11 +33,14 @@ namespace NebulaNetwork
         private float warningUpdateTimer = 0;
 
         private WebSocketServer socket;
+        private Ngrok.NgrokManager ngrokManager;
+        private string ngrokAddress;
 
         private readonly int port;
         private readonly bool loadSaveFile;
 
         public int Port => port;
+        public string NgrokAddress => ngrokAddress;
 
         public Server(int port, bool loadSaveFile = false) : base(new PlayerManager())
         {
@@ -65,6 +69,42 @@ namespace NebulaNetwork
 #if DEBUG
             PacketProcessor.SimulateLatency = true;
 #endif
+
+            if (Config.Options.EnableNgrok)
+            {
+                if (!Config.Options.NgrokAuthtoken.IsNullOrEmpty())
+                {
+                    ngrokManager = new Ngrok.NgrokManager();
+
+                    // Start this stuff in it's own thread, as we require async and we dont want to freeze up the GUI when freeze up when Downloading and installing ngrok
+                    Task.Run(async () =>
+                    {
+
+                        if (!ngrokManager.IsNgrokInstalled())
+                        {
+                            await ngrokManager.DownloadAndInstallNgrok();
+                        }
+                        var successfull = ngrokManager.StartNgrok(port, Config.Options.NgrokAuthtoken);
+                        if (!successfull)
+                        {
+                            NebulaModel.Logger.Log.Warn("Failed to start Ngrok tunnel!");
+                        }
+
+                        if (ngrokManager.IsNgrokStarted())
+                        {
+                            ngrokAddress = await ngrokManager.GetTunnelAdress();
+                        } else
+                        {
+                            NebulaModel.Logger.Log.Warn("Ngrok tunnel has exitted prematurely! Invalid authtoken perhaps?");
+                        }
+
+                    });
+                } else
+                {
+                    NebulaModel.Logger.Log.Warn("Ngrok support was enabled, however no Authtoken was provided");
+                }
+
+            }                
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             socket.Log.Level = LogLevel.Debug;
@@ -98,6 +138,8 @@ namespace NebulaNetwork
         public override void Stop()
         {
             socket?.Stop();
+
+            ngrokManager?.StopNgrok();
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }

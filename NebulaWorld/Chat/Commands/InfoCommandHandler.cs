@@ -66,6 +66,10 @@ namespace NebulaWorld.Chat.Commands
             sb.Append($"\n  Local IP address: {FormatCopyString($"{localIP}:{server.Port}")}");
             sb.Append($"\n  WAN IP address: {FormatCopyString(wanIP, true, IPFilter)}");
             sb.Append($"\n  Port status: {portStatus}");
+            if (server.NgrokAddress != null)
+            {
+                sb.Append($"\n  Ngrok address: {FormatCopyString(server.NgrokAddress)}");
+            }
             TimeSpan timeSpan = DateTime.Now.Subtract(Multiplayer.Session.StartTime);
             sb.Append($"\n  Uptime: {(int) Math.Round(timeSpan.TotalHours)}:{timeSpan.Minutes}:{timeSpan.Seconds} up");
 

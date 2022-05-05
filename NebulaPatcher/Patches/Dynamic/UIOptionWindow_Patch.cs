@@ -326,10 +326,16 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void CreateStringControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
+            UICharacterLimitAttribute characterLimitAttr = prop.GetCustomAttribute<UICharacterLimitAttribute>();
+
             RectTransform element = Object.Instantiate(inputTemplate, container, false);
             SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
 
             InputField input = element.GetComponentInChildren<InputField>();
+            if (characterLimitAttr != null)
+            {
+                input.characterLimit = characterLimitAttr.Max;
+            }
             input.onValueChanged.RemoveAllListeners();
             input.onValueChanged.AddListener((value) => { prop.SetValue(tempMultiplayerOptions, value, null); });
 

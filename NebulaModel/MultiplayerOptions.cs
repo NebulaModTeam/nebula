@@ -16,6 +16,15 @@ namespace NebulaModel
         [UIRange(1, ushort.MaxValue)]
         public ushort HostPort { get; set; } = 8469;
 
+        [DisplayName("Enable Experimental Ngrok support")]
+        [Description("If enabled, when hosting a server this will automatically download and install the Ngrok client and set up an Ngrok tunnel that provides an adress at which the server can be joined")]
+        public bool EnableNgrok { get; set; } = false;
+
+        [DisplayName("Ngrok Authtoken")]
+        [Description("This is required for Ngrok support and can be obtained by creating a free account at https://ngrok.com/")]
+        [UICharacterLimit(49)]
+        public string NgrokAuthtoken { get; set; } = string.Empty;
+
         [DisplayName("Remember Last IP")]
         public bool RememberLastIP { get; set; } = true;
 
