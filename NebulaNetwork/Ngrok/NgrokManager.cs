@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using NebulaModel;
 using Newtonsoft.Json.Linq;
 
 namespace NebulaNetwork.Ngrok
@@ -13,12 +14,71 @@ namespace NebulaNetwork.Ngrok
     public class NgrokManager
     {
         private readonly string _ngrokPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/ngrok-v3-stable-windows-amd64/ngrok.exe";
+        private readonly int _port;
+        private readonly string _authtoken;
 
         private Process _ngrokProcess;
-        private int _port;
 
-        public NgrokManager()
+        public string NgrokAddress;
+
+        public NgrokManager(int port, string authtoken = null)
         {
+            _port = port;
+            _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
+
+            if (!Config.Options.EnableNgrok)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_authtoken))
+            {
+                NebulaModel.Logger.Log.Warn("Ngrok support was enabled, however no Authtoken was provided");
+                return;
+            }
+
+            // Start this stuff in it's own thread, as we require async and we dont want to freeze up the GUI when freeze up when Downloading and installing ngrok
+            Task.Run(async () =>
+            {
+
+                if (!IsNgrokInstalled())
+                {
+                    try
+                    {
+                        await DownloadAndInstallNgrok();
+                    }
+                    catch
+                    {
+                        NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok!");
+                        throw;
+                    }
+                    
+                }
+
+                if (!StartNgrok())
+                {
+                    NebulaModel.Logger.Log.Warn("Failed to start Ngrok tunnel!");
+                    return;
+                }
+
+                if (!IsNgrokStarted())
+                {
+                    NebulaModel.Logger.Log.Warn("Ngrok tunnel has exitted prematurely! Invalid authtoken perhaps?");
+                    return;
+                }
+
+                try
+                {
+                    NgrokAddress = await GetTunnelAdress();
+                }
+                catch
+                {
+                    NebulaModel.Logger.Log.Warn("Failed to obtain Ngrok address!");
+                    throw;
+                }
+
+            });
+
         }
 
         public async Task DownloadAndInstallNgrok()
@@ -40,10 +100,8 @@ namespace NebulaNetwork.Ngrok
             return File.Exists(_ngrokPath);
         }
 
-        public bool StartNgrok(int port, string authToken)
+        public bool StartNgrok()
         {
-            _port = port;
-
             StopNgrok();
 
             _ngrokProcess = new Process();
@@ -55,7 +113,7 @@ namespace NebulaNetwork.Ngrok
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 FileName = _ngrokPath,
-                Arguments = $"tcp {_port} --authtoken {authToken}"
+                Arguments = $"tcp {_port} --authtoken {_authtoken}"
             };
             return _ngrokProcess.Start();
         }
