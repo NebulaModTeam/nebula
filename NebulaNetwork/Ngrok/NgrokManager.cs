@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using NebulaModel;
-using Newtonsoft.Json.Linq;
+using NebulaModel.Utils;
 
 namespace NebulaNetwork.Ngrok
 {
@@ -52,7 +52,7 @@ namespace NebulaNetwork.Ngrok
                         NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok!");
                         throw;
                     }
-                    
+
                 }
 
                 if (!StartNgrok())
@@ -157,14 +157,24 @@ namespace NebulaNetwork.Ngrok
                 {
                     var body = await response.Content.ReadAsStringAsync();
 
-                    var json = JObject.Parse(body);
+                    var json = MiniJson.Deserialize(body) as Dictionary<string, object>;
 
-                    var matchingTunnels =
-                        from tunnel in json["tunnels"]
-                        where tunnel["proto"].ToString() == "tcp" && tunnel["config"]["addr"].ToString() == $"localhost:{_port}"
-                        select tunnel;
+                    var tunnels = json["tunnels"] as List<object>;
 
-                    var publicUrl = matchingTunnels.ToList()[0]["public_url"].ToString();
+                    string publicUrl = null;
+                    foreach (Dictionary<string, object> tunnel in tunnels)
+                    {
+                        if (tunnel["proto"] as string == "tcp" && (tunnel["config"] as Dictionary<string, object>)["addr"] as string == $"localhost:{_port}")
+                        {
+                            publicUrl = tunnel["public_url"] as string;
+                            break;
+                        }
+                    }
+
+                    if (publicUrl == null)
+                    {
+                        throw new Exception("Not able to get Ngrok tunnel address because no matching tunnel was found in API response");
+                    }
 
                     return publicUrl.Replace("tcp://", "");
 
