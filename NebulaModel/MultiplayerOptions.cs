@@ -1,6 +1,7 @@
 ﻿using NebulaAPI;
 using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
+using NebulaModel.Utils;
 using System;
 using System.ComponentModel;
 
@@ -94,6 +95,8 @@ namespace NebulaModel
         public bool BuildingWarningEnabled { get; set; } = true;
         public bool BuildingIconEnabled { get; set; } = true;
         public bool GuidingLightEnabled { get; set; } = true;
+
+        public IPUtils.IPConfiguration IPConfiguration { get; set; }
 
         public object Clone()
         {

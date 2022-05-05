@@ -16,6 +16,13 @@ namespace NebulaModel.Utils
     {
         static readonly HttpClient client = new();
 
+        public enum IPConfiguration
+        {
+            Both,
+            IPv4,
+            IPv6
+        }
+
         public enum DataState
         {
             Unset,

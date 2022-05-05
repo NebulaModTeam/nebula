@@ -91,7 +91,9 @@ namespace NebulaNetwork
                 Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
-            DiscordManager.UpdateRichPresence(ip: $"{await IPUtils.GetWANv4Address()};{await IPUtils.GetWANv6Address()};{port}");
+            DiscordManager.UpdateRichPresence(ip: $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv6 ? await IPUtils.GetWANv4Address() : string.Empty)};" +
+                                                  $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv4 ? await IPUtils.GetWANv6Address() : string.Empty)};" +
+                                                  $"{port}");
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
