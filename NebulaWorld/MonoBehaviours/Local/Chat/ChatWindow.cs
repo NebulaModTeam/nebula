@@ -160,7 +160,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
             if (!chatWindow.activeSelf)
             {
-                if (Config.Options.AutoOpenChat)
+                if (Config.Options.AutoOpenChat && !ChatUtils.IsCommandMessage(messageType))
                 {
                     Toggle(false, false);
                 }

@@ -5,7 +5,6 @@ using NebulaModel.Packets.Statistics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 namespace NebulaWorld.Statistics
 {
@@ -191,7 +190,6 @@ namespace NebulaWorld.Statistics
             //Export production statistics for every planet
             for (int i = 0; i < GameMain.data.factoryCount; i++)
             {
-                Debug.Log("Exporting data for " + i);
                 Stats.production.factoryStatPool[i].Export(bw);
             }
 

@@ -1,5 +1,4 @@
-﻿using BepInEx;
-using BepInEx.Bootstrap;
+﻿using BepInEx.Bootstrap;
 using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaWorld;
@@ -14,6 +13,19 @@ namespace NebulaPatcher.Patches.Dynamic
     internal class UIFatalErrorTip_Patch
     {
         static GameObject button;
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIFatalErrorTip._OnRegEvent))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnRegEvent_Postfix()
+        {
+            // If there is errer message before game begin, we will show to user here
+            if (Log.LastErrorMsg != null)
+            {
+                UIFatalErrorTip.instance.ShowError("[Nebula Error] " + Log.LastErrorMsg, "");
+                Log.LastErrorMsg = null;
+            }
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIFatalErrorTip._OnOpen))]

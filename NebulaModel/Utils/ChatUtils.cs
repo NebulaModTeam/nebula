@@ -94,8 +94,11 @@ namespace NebulaModel.Utils
             {
                 case ChatMessageType.PlayerMessage:
                     return Color.white;
-                
-                case ChatMessageType.SystemMessage:
+
+                case ChatMessageType.SystemInfoMessage:
+                    return Color.cyan;
+
+                case ChatMessageType.SystemWarnMessage:
                     return new Color(1,0.95f,0,1);
                 
                 case ChatMessageType.CommandUsageMessage:
@@ -121,7 +124,8 @@ namespace NebulaModel.Utils
             return type == ChatMessageType.CommandOutputMessage ||
                    type == ChatMessageType.CommandUsageMessage ||
                    type == ChatMessageType.CommandErrorMessage ||
-                   type == ChatMessageType.SystemMessage;
+                   type == ChatMessageType.SystemWarnMessage ||
+                   type == ChatMessageType.SystemInfoMessage;
         }
         
         public static bool Contains(this string source, string toCheck, StringComparison comp)
