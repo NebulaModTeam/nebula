@@ -400,26 +400,6 @@ namespace NebulaNetwork
                 Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
             }
         }
-
-        public void SendTechRefundPackagesToClients(int techId)
-        {
-            //send players their contributions back
-            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
-            {
-                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
-                {
-                    INebulaPlayer curPlayer = kvp.Value;
-                    long techProgress = ((NebulaPlayer)curPlayer).ReleaseResearchProgress();
-
-                    if (techProgress > 0)
-                    {
-                        Log.Info($"Sending Recover request for player {curPlayer.Id}: refunding for techId {techId} - raw progress: {curPlayer.TechProgressContributed}");
-                        GameHistoryTechRefundPacket refundPacket = new GameHistoryTechRefundPacket(techId, techProgress);
-                        curPlayer.SendPacket(refundPacket);
-                    }
-                }
-            }
-        }
     }
 }
 

@@ -23,7 +23,6 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             {
                 GameMain.history.AddTechHash(packet.Hashes);
                 IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-                ((NebulaPlayer)playerManager.GetPlayer(conn)).UpdateResearchProgress(packet.TechId, packet.Hashes);
                 Log.Debug($"ProcessPacket researchContribution: playerid by: {playerManager.GetPlayer(conn).Id} - hashes {packet.Hashes}");
             }
             else

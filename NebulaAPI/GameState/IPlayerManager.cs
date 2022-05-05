@@ -44,8 +44,6 @@ namespace NebulaAPI
 
         ushort GetNextAvailablePlayerId();
 
-        void SendTechRefundPackagesToClients(int techId);
-
         void UpdateMechaData(IMechaData mechaData, INebulaConnection conn);
 
         void UpdateSyncedSandCount(int deltaSandCount);
