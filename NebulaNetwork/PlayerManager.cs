@@ -18,6 +18,7 @@ namespace NebulaNetwork
 {
     public class PlayerManager : IPlayerManager
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "TBD")]
         private sealed class ThreadSafe
         {
             internal readonly Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers = new Dictionary<INebulaConnection, INebulaPlayer>();

@@ -4,6 +4,7 @@ namespace NebulaModel.Packets.Logistics
 {
     // this one is only used when a client connects to sync all existing gStations.
     // needed because we also need to tell clients about ships that are already flying
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Field Name")]
     public class ILSgStationPoolSync
     {
         public int[] stationGId { get; set; }
