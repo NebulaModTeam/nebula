@@ -44,24 +44,24 @@ namespace NebulaNetwork.Ngrok
 
                 if (!IsNgrokInstalled())
                 {
-                    var hasDownloadAndInstallBeenConfrimed = false;
-                    var downloadAndInstallConfrimation = new Task<bool>(() => true);
+                    var hasDownloadAndInstallBeenConfirmed = false;
+                    var downloadAndInstallConfirmation = new Task<bool>(() => true);
                     var downloadAndInstallRejection = new Task<bool>(() => false);
 
                     UnityDispatchQueue.RunOnMainThread(() =>
                     {
                         InGamePopup.ShowWarning(
-                            "Ngrok download and installation confrimation",
+                            "Ngrok download and installation confirmation",
                             "Ngrok is support is enabled, however it has not been downloaded and installed yet, do you want to automattically download and install Ngrok?",
                             "Accept",
                             "Reject",
-                            () => downloadAndInstallConfrimation.Start(),
+                            () => downloadAndInstallConfirmation.Start(),
                             () => downloadAndInstallRejection.Start()
                         );
                     });
 
-                    hasDownloadAndInstallBeenConfrimed = await await Task.WhenAny(downloadAndInstallConfrimation, downloadAndInstallRejection);
-                    if (!hasDownloadAndInstallBeenConfrimed)
+                    hasDownloadAndInstallBeenConfirmed = await await Task.WhenAny(downloadAndInstallConfirmation, downloadAndInstallRejection);
+                    if (!hasDownloadAndInstallBeenConfirmed)
                     {
                         NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok, because user rejected Ngrok download and install confirmation!");
                         return;
