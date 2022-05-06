@@ -12,6 +12,7 @@ using NebulaWorld;
 using NebulaWorld.SocialIntegration;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -45,7 +46,7 @@ namespace NebulaNetwork
             this.loadSaveFile = loadSaveFile;
         }
 
-        public override async void Start()
+        public override void Start()
         {
             if (loadSaveFile)
             {
@@ -91,9 +92,12 @@ namespace NebulaNetwork
                 Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
-            DiscordManager.UpdateRichPresence(ip: $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv6 ? await IPUtils.GetWANv4Address() : string.Empty)};" +
-                                                  $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv4 ? await IPUtils.GetWANv6Address() : string.Empty)};" +
-                                                  $"{port}");
+            Task.Run(async () =>
+            {
+                DiscordManager.UpdateRichPresence(ip: $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv6 ? await IPUtils.GetWANv4Address() : string.Empty)};" +
+                                                      $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv4 ? await IPUtils.GetWANv6Address() : string.Empty)};" +
+                                                      $"{port}");
+            });
 
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }

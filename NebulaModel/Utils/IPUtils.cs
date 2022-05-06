@@ -64,6 +64,7 @@ namespace NebulaModel.Utils
                 Interval = TimeSpan.FromMinutes(1).TotalMilliseconds,
             };
             timer.Elapsed += (s, e) => { timer.Stop(); };
+            client.Timeout = TimeSpan.FromSeconds(15);
         }
 
         public static string GetLocalAddress()
