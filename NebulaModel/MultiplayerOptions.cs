@@ -28,6 +28,8 @@ namespace NebulaModel
         [UICharacterLimit(49)]
         public string NgrokAuthtoken { get; set; } = string.Empty;
 
+        public string NgrokRegion { get; set; } = string.Empty;
+
         [DisplayName("Remember Last IP")]
         public bool RememberLastIP { get; set; } = true;
 

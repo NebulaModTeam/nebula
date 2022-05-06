@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using NebulaModel;
 using NebulaModel.Utils;
 using NebulaWorld;
+using System.Linq;
 
 namespace NebulaNetwork.Ngrok
 {
@@ -17,15 +18,17 @@ namespace NebulaNetwork.Ngrok
         private readonly string _ngrokPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/ngrok-v3-stable-windows-amd64/ngrok.exe";
         private readonly int _port;
         private readonly string _authtoken;
+        private readonly string _region;
 
         private Process _ngrokProcess;
 
         public string NgrokAddress;
 
-        public NgrokManager(int port, string authtoken = null)
+        public NgrokManager(int port, string authtoken = null, string region = null)
         {
             _port = port;
             _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
+            _region = region ?? Config.Options.NgrokRegion;
 
             if (!Config.Options.EnableNgrok)
             {
@@ -36,6 +39,14 @@ namespace NebulaNetwork.Ngrok
             {
                 NebulaModel.Logger.Log.Warn("Ngrok support was enabled, however no Authtoken was provided");
                 return;
+            }
+
+            // Validate the Ngrok region
+            string[] availableRegions = { "us", "eu", "au", "ap", "sa", "jp", "in" };
+            if (!string.IsNullOrEmpty(_region) && !availableRegions.Any(_region.Contains))
+            {
+                NebulaModel.Logger.Log.Warn("Unsupported Ngrok region was provided, defaulting to autdetection");
+                _region = null;
             }
 
             // Start this stuff in it's own thread, as we require async and we dont want to freeze up the GUI when freeze up when Downloading and installing ngrok
@@ -137,7 +148,7 @@ namespace NebulaNetwork.Ngrok
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 FileName = _ngrokPath,
-                Arguments = $"tcp {_port} --authtoken {_authtoken}"
+                Arguments = $"tcp {_port} --authtoken {_authtoken}" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
             };
             return _ngrokProcess.Start();
         }
