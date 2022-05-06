@@ -241,17 +241,6 @@ namespace NebulaPatcher.Patches.Dynamic
                     return;
                 }
 
-                // Hide Ngrok Authtoken when Streamer mode is on
-                if (control.DisplayName == "Streamer mode")
-                {
-                    InputField input = GameObject.Find("list/scroll-view/viewport/content/NgrokAuthtoken")?.GetComponentInChildren<InputField>();
-                    if (input != null)
-                    {
-                        input.contentType = value ? InputField.ContentType.Password : InputField.ContentType.Standard;
-                        input.UpdateLabel();
-                    }
-                }
-
                 prop.SetValue(tempMultiplayerOptions, value, null);
 
             });
@@ -340,6 +329,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void CreateStringControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
             UICharacterLimitAttribute characterLimitAttr = prop.GetCustomAttribute<UICharacterLimitAttribute>();
+            UIContentTypeAttribute contentTypeAttr = prop.GetCustomAttribute<UIContentTypeAttribute>();
 
             RectTransform element = Object.Instantiate(inputTemplate, container, false);
             SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
@@ -349,6 +339,15 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 input.characterLimit = characterLimitAttr.Max;
             }
+            if (contentTypeAttr != null)
+            {
+                input.contentType = contentTypeAttr.ContentType;
+            }
+            if (control?.DisplayName != null)
+            {
+                tempMultiplayerOptions.ModifyInputFieldAtCreation(control.DisplayName, ref input);
+            }
+            
             input.onValueChanged.RemoveAllListeners();
             input.onValueChanged.AddListener((value) => { prop.SetValue(tempMultiplayerOptions, value, null); });
 

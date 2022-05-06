@@ -3,6 +3,8 @@ using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using System;
 using System.ComponentModel;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace NebulaModel
 {
@@ -20,7 +22,8 @@ namespace NebulaModel
         [Description("If enabled, when hosting a server this will automatically download and install the Ngrok client and set up an Ngrok tunnel that provides an adress at which the server can be joined")]
         public bool EnableNgrok { get; set; } = false;
 
-        [DisplayName("Ngrok Authtoken")]
+        private const string _ngrokAuthtokenDisplayname = "Ngrok Authtoken";
+        [DisplayName(_ngrokAuthtokenDisplayname)]
         [Description("This is required for Ngrok support and can be obtained by creating a free account at https://ngrok.com/")]
         [UICharacterLimit(49)]
         public string NgrokAuthtoken { get; set; } = string.Empty;
@@ -44,9 +47,18 @@ namespace NebulaModel
         [Description("If enabled the soil count of each players is added together and used as one big pool for everyone. Note that this is a server side setting applied to all clients.")]
         public bool SyncSoil { get; set; } = false;
 
+        private bool _streamerMode = false;
         [DisplayName("Streamer mode")]
         [Description("If enabled specific personal information like your IP address is hidden from the ingame chat.")]
-        public bool StreamerMode { get; set; } = false;
+        public bool StreamerMode { 
+            get => _streamerMode; 
+            set { 
+                _streamerMode = value;
+
+                InputField ngrokAuthTokenInput = GameObject.Find("list/scroll-view/viewport/content/NgrokAuthtoken")?.GetComponentInChildren<InputField>();
+                UpdateNgrokAuthtokenInputFieldContentType(ref ngrokAuthTokenInput);
+            }
+        }
         
         [DisplayName("Default chat position")]
         public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
@@ -102,5 +114,35 @@ namespace NebulaModel
         {
             return MemberwiseClone();
         }
+
+        private void UpdateNgrokAuthtokenInputFieldContentType(ref InputField ngrokAuthTokenInput)
+        {
+            if (ngrokAuthTokenInput != null)
+            {
+                if (StreamerMode)
+                {
+                    ngrokAuthTokenInput.contentType = InputField.ContentType.Password;
+                }
+                else
+                {
+                    ngrokAuthTokenInput.contentType = InputField.ContentType.Standard;
+                }
+                ngrokAuthTokenInput.UpdateLabel();
+            }
+        }
+
+        public void ModifyInputFieldAtCreation(string displayName, ref InputField inputField)
+        {
+            switch (displayName)
+            {
+                case _ngrokAuthtokenDisplayname:
+                    {
+                        UpdateNgrokAuthtokenInputFieldContentType(ref inputField);
+                        break;
+                    }
+            }
+
+        }
+
     }
 }
