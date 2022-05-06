@@ -4,5 +4,6 @@
     {
         int Port { get; }
         string NgrokAddress { get; }
+        bool NgrokActive { get; }
     }
 }

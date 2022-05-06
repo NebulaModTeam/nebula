@@ -39,6 +39,7 @@ namespace NebulaNetwork
 
         public int Port => port;
         public string NgrokAddress => ngrokManager.NgrokAddress;
+        public bool NgrokActive => ngrokManager.IsNgrokStarted();
 
         public Server(int port, bool loadSaveFile = false) : base(new PlayerManager())
         {

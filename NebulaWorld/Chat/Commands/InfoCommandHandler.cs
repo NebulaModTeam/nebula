@@ -6,6 +6,7 @@ using NebulaWorld.MonoBehaviours.Local;
 using System;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using static NebulaWorld.Chat.CopyTextChatLinkHandler;
 
@@ -68,7 +69,14 @@ namespace NebulaWorld.Chat.Commands
             sb.Append($"\n  Port status: {portStatus}");
             if (server.NgrokAddress != null)
             {
-                sb.Append($"\n  Ngrok address: {FormatCopyString(server.NgrokAddress)}");
+                if (server.NgrokActive)
+                {
+                    sb.Append($"\n  Ngrok address: {FormatCopyString(server.NgrokAddress, true, NgrokAddressFilter)}");
+                } else
+                {
+                    sb.Append($"\n  Ngrok address: Tunnel Inactive!");
+                }
+                
             }
             TimeSpan timeSpan = DateTime.Now.Subtract(Multiplayer.Session.StartTime);
             sb.Append($"\n  Uptime: {(int) Math.Round(timeSpan.TotalHours)}:{timeSpan.Minutes}:{timeSpan.Seconds} up");
@@ -135,6 +143,13 @@ namespace NebulaWorld.Chat.Commands
             }
 
             return safeIp;
+        }
+
+        private static string NgrokAddressFilter(string address)
+        {
+            if (!NebulaModel.Config.Options.StreamerMode) return address;
+
+            return Regex.Replace(address, @"\w", "*");
         }
 
         private static string ReplaceChars(string s, string targetSymbols, char newVal)
