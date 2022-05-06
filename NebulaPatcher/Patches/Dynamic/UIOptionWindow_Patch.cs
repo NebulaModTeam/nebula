@@ -108,6 +108,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Add ScrollView
             RectTransform list = Object.Instantiate(tabTweeners[3].transform.Find("list").GetComponent<RectTransform>(), multiplayerContent);
+            list.name = "list";
             list.offsetMax = Vector2.zero;
             RectTransform listContent = list.Find("scroll-view/viewport/content").GetComponent<RectTransform>();
             foreach (RectTransform child in listContent)
@@ -239,6 +240,18 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                     return;
                 }
+
+                // Hide Ngrok Authtoken when Streamer mode is on
+                if (control.DisplayName == "Streamer mode")
+                {
+                    InputField input = GameObject.Find("list/scroll-view/viewport/content/NgrokAuthtoken")?.GetComponentInChildren<InputField>();
+                    if (input != null)
+                    {
+                        input.contentType = value ? InputField.ContentType.Password : InputField.ContentType.Standard;
+                        input.UpdateLabel();
+                    }
+                }
+
                 prop.SetValue(tempMultiplayerOptions, value, null);
 
             });
