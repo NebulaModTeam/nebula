@@ -29,6 +29,7 @@ namespace NebulaNetwork.Ngrok
             _port = port;
             _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
             _region = region ?? Config.Options.NgrokRegion;
+            _ngrokProcess = Process.GetProcessesByName("ngrok").FirstOrDefault();
 
             if (!Config.Options.EnableNgrok)
             {
