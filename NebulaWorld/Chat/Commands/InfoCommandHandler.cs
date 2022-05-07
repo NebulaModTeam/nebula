@@ -123,19 +123,33 @@ namespace NebulaWorld.Chat.Commands
         private static string IPFilter(string ip)
         {
             if (!NebulaModel.Config.Options.StreamerMode) return ip;
-            
-            string[] parts = ip.Split(':');
-            string safeIp = ip;
-            if (parts.Length == 2)
-            {
-                safeIp = $"{Regex.Replace(parts[0], @"\w", "*")}:{parts[1]}";
-            }
-            else
-            {
-                safeIp = ReplaceChars(safeIp, "0123456789", '*');
-            }
 
-            return safeIp;
+            if (!ip.Contains("]:")) {
+                string[] parts = ip.Split(':');
+                string safeIp = ip;
+                if (parts.Length == 2)
+                {
+                    safeIp = $"{Regex.Replace(parts[0], @"\w", "*")}:{parts[1]}";
+                }
+                else
+                {
+                    safeIp = Regex.Replace(safeIp, @"\w", "*");
+                }
+                return safeIp;
+            } else
+            {
+                string[] parts = ip.Split(new string[] { "]:" }, StringSplitOptions.None);
+                string safeIp = ip;
+                if (parts.Length == 2)
+                {
+                    safeIp = $"{Regex.Replace(parts[0], @"\w", "*")}]:{parts[1]}";
+                }
+                else
+                {
+                    safeIp = Regex.Replace(safeIp, @"\w", "*");
+                }
+                return safeIp;
+            }
         }
 
         private static string NgrokAddressFilter(string address)
