@@ -8,17 +8,6 @@ namespace NebulaPatcher.Patches.Dynamic
     internal class TrashSystem_Patch
     {
         [HarmonyPostfix]
-        [HarmonyPatch(nameof(TrashSystem.SetForNewGame))]
-        public static void SetForNewGame_Postfix()
-        {
-            //Request trash data from the host
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                Multiplayer.Session.Network.SendPacket(new TrashSystemRequestDataPacket(GameMain.localStar == null ? -1 : GameMain.localStar.id));
-            }
-        }
-
-        [HarmonyPostfix]
         [HarmonyPatch(nameof(TrashSystem.ClearAllTrash))]
         public static void ClearAllTrash_Postfix()
         {

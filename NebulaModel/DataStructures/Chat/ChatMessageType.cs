@@ -3,10 +3,11 @@
     public enum ChatMessageType
     {
         PlayerMessage = 0,
-        SystemMessage = 1,
-        CommandUsageMessage = 2,
-        CommandOutputMessage = 3,
-        CommandErrorMessage = 4,
-        PlayerMessagePrivate = 5
+        SystemInfoMessage = 1,
+        SystemWarnMessage = 2,
+        CommandUsageMessage = 3,
+        CommandOutputMessage = 4,
+        CommandErrorMessage = 5,
+        PlayerMessagePrivate = 6
     }
 }

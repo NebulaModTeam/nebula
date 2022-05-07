@@ -1,6 +1,7 @@
 ﻿using NebulaAPI;
 using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
+using NebulaModel.Utils;
 using System;
 using System.ComponentModel;
 using UnityEngine;
@@ -32,6 +33,12 @@ namespace NebulaModel
 
         [DisplayName("Remember Last IP")]
         public bool RememberLastIP { get; set; } = true;
+
+        [DisplayName("Enable Discord RPC (requires restart)")]
+        public bool EnableDiscordRPC { get; set; } = true;
+
+        [DisplayName("Auto accept Discord join requests")]
+        public bool AutoAcceptDiscordJoinRequests { get; set; } = false;
 
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
@@ -111,6 +118,8 @@ namespace NebulaModel
         public bool BuildingWarningEnabled { get; set; } = true;
         public bool BuildingIconEnabled { get; set; } = true;
         public bool GuidingLightEnabled { get; set; } = true;
+
+        public IPUtils.IPConfiguration IPConfiguration { get; set; }
 
         public object Clone()
         {

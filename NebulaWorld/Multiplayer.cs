@@ -1,4 +1,5 @@
 ﻿using NebulaModel;
+using NebulaWorld.SocialIntegration;
 using UnityEngine;
 
 namespace NebulaWorld
@@ -59,6 +60,7 @@ namespace NebulaWorld
                 Transform multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");
                 multiplayerMenu.gameObject.SetActive(true);
             }
+            DiscordManager.UpdateRichPresence(ip: string.Empty, partyId: DiscordManager.CreateSecret());
         }
     }
 }

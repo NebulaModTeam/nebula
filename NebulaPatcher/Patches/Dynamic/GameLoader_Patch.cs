@@ -11,7 +11,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameLoader.FixedUpdate))]
         public static void FixedUpdate_Postfix(int ___frame)
         {
-            InGamePopup.UpdateMessage("Loading", "Loading state from server, please wait\n" + Log.MessageInfo);
+            InGamePopup.UpdateMessage("Loading", "Loading state from server, please wait\n" + Log.LastInfoMsg);
             if (Multiplayer.IsActive && ___frame >= 11)
             {
                 Multiplayer.Session.OnGameLoadCompleted();

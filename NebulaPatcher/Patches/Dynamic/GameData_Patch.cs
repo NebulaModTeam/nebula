@@ -4,7 +4,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Statistics;
+using NebulaModel.Packets.Session;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using NebulaWorld.Warning;
@@ -145,8 +145,15 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.OnActivePlanetFactoryLoaded))]
         public static bool OnActivePlanetFactoryLoaded_Prefix(GameData __instance, PlanetData planet)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive)
             {
+                return true;
+            }
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                // Resume packet processing when local planet is loaded
+                ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+                Log.Info($"Resume PacketProcessor (OnActivePlanetFactoryLoaded)");
                 return true;
             }
             if (planet != null)
@@ -165,28 +172,31 @@ namespace NebulaPatcher.Patches.Dynamic
                 if (Multiplayer.Session.IsGameLoaded)
                 {
                     ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
-                    Log.Info($"OnActivePlanetLoaded: Resume PacketProcessor");
+                    Log.Info($"Resume PacketProcessor (OnActivePlanetFactoryLoaded)");
                 }
 
                 // Get the recieved bytes from the remote server that we will import
                 if (Multiplayer.Session.Planets.PendingTerrainData.TryGetValue(planet.id, out byte[] terrainBytes))
                 {
                     // Apply terrian changes, code from PlanetFactory.FlattenTerrainReform()
-                    planet.data.modData = terrainBytes;
-                    for (int i = 0; i < planet.dirtyFlags.Length; i++)
+                    if (planet.type != EPlanetType.Gas)
                     {
-                        planet.dirtyFlags[i] = true;
+                        planet.data.modData = terrainBytes;
+                        for (int i = 0; i < planet.dirtyFlags.Length; i++)
+                        {
+                            planet.dirtyFlags[i] = true;
+                        }
+                        planet.landPercentDirty = true;
+                        try
+                        {
+                            planet.UpdateDirtyMeshes();
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Warn(e);
+                        }
                     }
-                    planet.landPercentDirty = true;
-                    try
-                    {
-                        planet.UpdateDirtyMeshes();
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e);
-                    }
-                    Multiplayer.Session.Planets.PendingTerrainData.Remove(planet.id);
+                    Multiplayer.Session.Planets.PendingTerrainData.Remove(planet.id);                    
                 }
 
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
@@ -221,6 +231,10 @@ namespace NebulaPatcher.Patches.Dynamic
             //Set starting star and planet to request from the server, except when client has set custom starting planet.
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
+                //Request global part of GameData from host
+                Log.Info($"Requesting global GameData from the server");
+                Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
+
                 if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
                 {
                     PlanetData planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);

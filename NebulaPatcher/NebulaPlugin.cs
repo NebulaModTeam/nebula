@@ -4,9 +4,15 @@ using CommonAPI.Systems;
 using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
+using NebulaModel.Utils;
+using NebulaNetwork;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
+using NebulaPatcher.Patches.Dynamic;
+using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System;
+using System.Net;
 #if DEBUG
 using System.IO;
 #endif
@@ -43,6 +49,70 @@ namespace NebulaPatcher
             InitPatches();
             AddNebulaBootstrapper();
             RegisterKeyBinds();
+            DiscordManager.Setup(ActivityManager_OnActivityJoin);
+        }
+
+        private static async void ActivityManager_OnActivityJoin(string secret)
+        {
+            if(Multiplayer.IsActive)
+            {
+                Log.Warn("Cannot join lobby from Discord, we are already in a lobby.");
+                return;
+            }
+
+            if(string.IsNullOrWhiteSpace(secret))
+            {
+                Log.Warn("Received Discord invite without IP address.");
+                return;
+            }
+
+            var ipAddresses = secret.FromBase64().Split(';');
+
+            if(ipAddresses.Length != 3)
+            {
+                Log.Warn("Received invalid discord invite.");
+                return;
+            }
+
+            string ipAddress = string.Empty;
+
+            if(await IPUtils.IsIPv6Supported())
+            {
+                if(ipAddresses.Length > 1)
+                {
+                    if (IPUtils.IsIPv6(ipAddresses[1]))
+                    {
+                        ipAddress = ipAddresses[1];
+                    }
+                }
+            }
+
+            if(string.IsNullOrWhiteSpace(ipAddress))
+            {
+                if (IPUtils.IsIPv4(ipAddresses[0]))
+                {
+                    ipAddress = ipAddresses[0];
+                }
+            }
+
+            if(string.IsNullOrWhiteSpace(ipAddress))
+            {
+                Log.Warn("Received Discord invite with invalid IP address.");
+                return;
+            }
+
+            Log.Info("Joining lobby from Discord...");
+            UIMainMenu_Patch.OnMultiplayerButtonClick();
+            UIMainMenu_Patch.JoinGame($"{ipAddress}:{ipAddresses[2]}");
+            DiscordManager.UpdateRichPresence(ip: secret, secretPassthrough: true);
+        }
+
+        private void Update()
+        {
+            if(GameMain.isRunning && UIRoot.instance.launchSplash.willdone)
+            {
+                DiscordManager.Update();
+            }
         }
 
         private static void RegisterKeyBinds()
@@ -108,5 +178,6 @@ namespace NebulaPatcher
         {
             return hostVersion.Equals(clientVersion);
         }
+
     }
 }
