@@ -96,6 +96,8 @@ namespace NebulaModel
         public bool BuildingIconEnabled { get; set; } = true;
         public bool GuidingLightEnabled { get; set; } = true;
 
+        public bool AutoPauseEnabled { get; set; } = true;
+
         public IPUtils.IPConfiguration IPConfiguration { get; set; }
 
         public object Clone()

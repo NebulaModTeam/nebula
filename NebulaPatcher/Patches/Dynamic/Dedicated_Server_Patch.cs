@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
+using NebulaModel;
+using NebulaModel.Logger;
+using NebulaWorld;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 
@@ -11,6 +13,17 @@ namespace NebulaPatcher.Patches.Dynamic
     // This part only get patch when Multiplayer.IsDedicated is true
     internal class Dedicated_Server_Patch
     {
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]
+        public static void GameMainBegin_Postfix()
+        {
+            if (Multiplayer.IsActive && Config.Options.AutoPauseEnabled)
+            {
+                Log.Info("AutoPauseEnabled");
+                GameMain.Pause();
+            }
+        }
+
         // Stop game rendering
         [HarmonyPrefix]
         [HarmonyPatch(typeof(GameData), nameof(GameData.OnDraw))]
@@ -81,15 +94,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 CodeMatcher matcher = new CodeMatcher(instructions)
                     .MatchForward(false, new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(DysonSwarm), nameof(DysonSwarm.Dispatch_UpdatePos))));
                 int num = matcher.Pos + 1;
-                NebulaModel.Logger.Log.Info(matcher.Pos);
                 matcher.Start()
                     .RemoveInstructions(num);
                 return matcher.InstructionEnumeration();
             }
-            catch (Exception e)
+            catch
             {
-                NebulaModel.Logger.Log.Error("DysonSwarmGameTick_Transpiler failed. Mod version not compatible with game version.");
-                NebulaModel.Logger.Log.Warn(e);
+                Log.Error("DysonSwarmGameTick_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
         }
