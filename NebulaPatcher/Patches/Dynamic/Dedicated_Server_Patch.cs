@@ -35,6 +35,15 @@ namespace NebulaPatcher.Patches.Dynamic
             return false;
         }
 
+        // Destory gameObject so Update() won't execute
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlanetAtmoBlur), nameof(PlanetAtmoBlur.Start))]
+        public static bool PlanetAtmoBlur_Start(PlanetAtmoBlur __instance)
+        {
+            UnityEngine.Object.Destroy(__instance.gameObject);
+            return false;
+        }
+
         // RenderTexture is not support, so disable all functions using the constructor
         [HarmonyPrefix]
         [HarmonyPatch(typeof(DysonMapCamera), nameof(DysonMapCamera.CheckOrCreateRTex))]
@@ -48,8 +57,6 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(UIMinimap3DControl), nameof(UIMinimap3DControl._OnCreate))]
         [HarmonyPatch(typeof(UISplitterWindow), nameof(UISplitterWindow._OnCreate))]
         [HarmonyPatch(typeof(UIStarmap), nameof(UIMilkyWay.CheckOrCreateRTex))]
-        [HarmonyPatch(typeof(PlanetAtmoBlur), nameof(PlanetAtmoBlur.Start))] //(int, int, int)
-        [HarmonyPatch(typeof(PlanetAtmoBlur), nameof(PlanetAtmoBlur.Update))]
         [HarmonyPatch(typeof(TranslucentImageSource), nameof(TranslucentImageSource.CreateNewBlurredScreen))]
         static bool RenderTexture_Prefix()
         {
@@ -70,17 +77,6 @@ namespace NebulaPatcher.Patches.Dynamic
         public static bool ComputeBuffer_Prefix()
         {
             return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(DysonSwarm), nameof(DysonSwarm.GameTick))]
-        public static bool DysonSwarm_GameTick()
-        {
-            // Remove this.computeShader.Set... and this.Dispatch_UpdateVel, this.Dispatch_UpdatePos
-            // TODO: Remove computeShader part
-            return false;
-
-
         }
 
         [HarmonyTranspiler]
