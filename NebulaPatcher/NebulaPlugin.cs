@@ -68,7 +68,7 @@ namespace NebulaPatcher
 
             var ipAddresses = secret.FromBase64().Split(';');
 
-            if(ipAddresses.Length != 3)
+            if(ipAddresses.Length != 1 && ipAddresses.Length != 3)
             {
                 Log.Warn("Received invalid discord invite.");
                 return;
@@ -76,13 +76,18 @@ namespace NebulaPatcher
 
             string ipAddress = string.Empty;
 
-            if(await IPUtils.IsIPv6Supported())
+            if(ipAddresses.Length == 1 && ipAddresses[0].Contains("ngrok"))
+            {
+                ipAddress = ipAddresses[0];
+            }
+
+            if(string.IsNullOrWhiteSpace(ipAddress) && await IPUtils.IsIPv6Supported())
             {
                 if(ipAddresses.Length > 1)
                 {
                     if (IPUtils.IsIPv6(ipAddresses[1]))
                     {
-                        ipAddress = ipAddresses[1];
+                        ipAddress = $"{ipAddresses[1]}:{ipAddresses[2]}";
                     }
                 }
             }
@@ -91,7 +96,7 @@ namespace NebulaPatcher
             {
                 if (IPUtils.IsIPv4(ipAddresses[0]))
                 {
-                    ipAddress = ipAddresses[0];
+                    ipAddress = $"{ipAddresses[0]}:{ipAddresses[2]}";
                 }
             }
 
@@ -103,7 +108,7 @@ namespace NebulaPatcher
 
             Log.Info("Joining lobby from Discord...");
             UIMainMenu_Patch.OnMultiplayerButtonClick();
-            UIMainMenu_Patch.JoinGame($"{ipAddress}:{ipAddresses[2]}");
+            UIMainMenu_Patch.JoinGame($"{ipAddress}");
             DiscordManager.UpdateRichPresence(ip: secret, secretPassthrough: true);
         }
 
