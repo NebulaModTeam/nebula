@@ -26,7 +26,7 @@ namespace NebulaWorld.Chat.Commands
 
             if (Multiplayer.Session.Network is IServer server)
             {
-                string output = GetServerInfoText(server, await IPUtils.GetIPInfo(server.Port), server.Port, full);
+                string output = GetServerInfoText(server, await IPUtils.GetIPInfo(server.Port), full);
                 window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
             }
             else if (Multiplayer.Session.Network is IClient client)
@@ -37,7 +37,7 @@ namespace NebulaWorld.Chat.Commands
             
         }
 
-        private static string GetServerInfoText(IServer server, IPUtils.IpInfo ipInfo, ushort port, bool full)
+        private static string GetServerInfoText(IServer server, IPUtils.IpInfo ipInfo, bool full)
         {
             StringBuilder sb = new("Server info:");
 
@@ -46,7 +46,7 @@ namespace NebulaWorld.Chat.Commands
             string wanv4 = ipInfo.WANv4Address;
             if(IPUtils.IsIPv4(wanv4))
             {
-                wanv4 = $"{FormatCopyString($"{ipInfo.WANv4Address}:{server.Port}", true)}";
+                wanv4 = $"{FormatCopyString($"{ipInfo.WANv4Address}:{server.Port}", true, IPv4Filter)}";
             }
             sb.Append($"\n  WANv4 IP address: {wanv4}");
 
@@ -120,7 +120,7 @@ namespace NebulaWorld.Chat.Commands
             return sb.ToString();
         }
 
-        private static string IPFilter(string ip)
+        private static string IPv4Filter(string ip)
         {
             if (!NebulaModel.Config.Options.StreamerMode) return ip;
             
