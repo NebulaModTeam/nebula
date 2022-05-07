@@ -100,7 +100,7 @@ namespace NebulaWorld.Chat.Commands
 
             string ipAddress = client.ServerEndpoint.ToString();
 
-            sb.Append($"\n  Host IP address: {FormatCopyString(ipAddress, true, IPFilter)}");
+            sb.Append($"\n  Host IP address: {FormatCopyString(ipAddress, true)}");
             sb.Append($"\n  Game Version: {GameConfig.gameVersion.ToFullString()}");
             sb.Append($"\n  Mod Version: {ThisAssembly.AssemblyFileVersion}");
 
