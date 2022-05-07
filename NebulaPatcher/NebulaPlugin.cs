@@ -109,7 +109,7 @@ namespace NebulaPatcher
             Log.Info("Joining lobby from Discord...");
             UIMainMenu_Patch.OnMultiplayerButtonClick();
             UIMainMenu_Patch.JoinGame($"{ipAddress}");
-            DiscordManager.UpdateRichPresence(ip: secret, secretPassthrough: true);
+            DiscordManager.UpdateRichPresence(ip: secret, secretPassthrough: true, updateTimestamp: true);
         }
 
         private void Update()

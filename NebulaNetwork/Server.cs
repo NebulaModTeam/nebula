@@ -103,13 +103,15 @@ namespace NebulaNetwork
             {
                 if(ngrokManager.IsNgrokStarted())
                 {
-                    DiscordManager.UpdateRichPresence(ip: await ngrokManager.GetTunnelAdress());
+                    DiscordManager.UpdateRichPresence(ip: await ngrokManager.GetTunnelAdress(),
+                                                      updateTimestamp: true);
                 }
                 else
                 {
                     DiscordManager.UpdateRichPresence(ip: $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv6 ? await IPUtils.GetWANv4Address() : string.Empty)};" +
                                                           $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv4 ? await IPUtils.GetWANv6Address() : string.Empty)};" +
-                                                          $"{port}");
+                                                          $"{port}",
+                                                      updateTimestamp: true);
                 }
             });
 
