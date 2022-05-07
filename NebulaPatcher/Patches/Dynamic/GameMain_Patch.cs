@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -16,6 +17,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 Log.Warn("Multiplayer is still running, closing now...");
                 Multiplayer.LeaveGame();
             }
+            DiscordManager.Cleanup();
         }
     }
 }
