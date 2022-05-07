@@ -138,6 +138,12 @@ namespace NebulaNetwork.Ngrok
 
         public bool StartNgrok()
         {
+#if DEBUG
+            if(_ngrokProcess != null)
+            {
+                return false;
+            }
+#endif
             StopNgrok();
 
             _ngrokProcess = new Process();
