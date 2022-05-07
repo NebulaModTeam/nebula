@@ -14,7 +14,7 @@ namespace NebulaWorld.Chat.Commands
 {
     public class InfoCommandHandler : IChatCommandHandler
     {
-        public async void Execute(ChatWindow window, string[] parameters)
+        public void Execute(ChatWindow window, string[] parameters)
         {
             if (!Multiplayer.IsActive)
             {
@@ -26,8 +26,25 @@ namespace NebulaWorld.Chat.Commands
 
             if (Multiplayer.Session.Network is IServer server)
             {
-                string output = GetServerInfoText(server, await IPUtils.GetIPInfo(server.Port), full);
-                window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                string output = GetServerInfoText(
+                    server, 
+                    new IPUtils.IpInfo {
+                        LANAddress = "Pending...",
+                        WANv4Address = "Pending...",
+                        WANv6Address = "Pending...",
+                        PortStatus = "Pending...",
+                        DataState = IPUtils.DataState.Unset
+                    }, 
+                    full
+                );
+                ChatMessage message = window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+
+                // This will cause the temporary (Pending...) info to be dynamically replaced with the correct info once it is in
+                IPUtils.GetIPInfo(server.Port).ContinueWith(async (ipInfo) =>
+                {
+                    string newOutput = GetServerInfoText(server, await ipInfo, full);
+                    message.Text = newOutput;
+                });
             }
             else if (Multiplayer.Session.Network is IClient client)
             {
@@ -41,7 +58,12 @@ namespace NebulaWorld.Chat.Commands
         {
             StringBuilder sb = new("Server info:");
 
-            sb.Append($"\n  Local IP address: {FormatCopyString($"{ipInfo.LANAddress}:{server.Port}")}");
+            string lan = ipInfo.LANAddress;
+            if (IPUtils.IsIPv4(lan))
+            {
+                lan = $"{FormatCopyString($"{ipInfo.LANAddress}:{server.Port}")}";
+            }
+            sb.Append($"\n  Local IP address: {lan}");
 
             string wanv4 = ipInfo.WANv4Address;
             if(IPUtils.IsIPv4(wanv4))
