@@ -46,14 +46,14 @@ namespace NebulaWorld.Chat.Commands
             string wanv4 = ipInfo.WANv4Address;
             if(IPUtils.IsIPv4(wanv4))
             {
-                wanv4 = $"{FormatCopyString($"{ipInfo.WANv4Address}:{server.Port}", true, IPv4Filter)}";
+                wanv4 = $"{FormatCopyString($"{ipInfo.WANv4Address}:{server.Port}", true, IPFilter)}";
             }
             sb.Append($"\n  WANv4 IP address: {wanv4}");
 
             string wanv6 = ipInfo.WANv6Address;
             if (IPUtils.IsIPv6(wanv6))
             {
-                wanv6 = $"{FormatCopyString($"{ipInfo.WANv6Address}:{server.Port}", true)}";
+                wanv6 = $"{FormatCopyString($"{ipInfo.WANv6Address}:{server.Port}", true, IPFilter)}";
             }
             sb.Append($"\n  WANv6 IP address: {wanv6}");
 
@@ -120,7 +120,7 @@ namespace NebulaWorld.Chat.Commands
             return sb.ToString();
         }
 
-        private static string IPv4Filter(string ip)
+        private static string IPFilter(string ip)
         {
             if (!NebulaModel.Config.Options.StreamerMode) return ip;
             
@@ -128,7 +128,7 @@ namespace NebulaWorld.Chat.Commands
             string safeIp = ip;
             if (parts.Length == 2)
             {
-                safeIp = $"{ReplaceChars(parts[0], "0123456789", '*')}:{parts[1]}";
+                safeIp = $"{Regex.Replace(parts[0], @"\w", "*")}:{parts[1]}";
             }
             else
             {
