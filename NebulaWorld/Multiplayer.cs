@@ -15,6 +15,7 @@ namespace NebulaWorld
 
         public static bool IsInMultiplayerMenu { get; set; }
 
+        public static bool IsDedicated { get; set; }
 
         public static void HostGame(NetworkProvider server)
         {

@@ -27,12 +27,43 @@ namespace NebulaPatcher
     [CommonAPISubmoduleDependency(nameof(ProtoRegistry), nameof(CustomKeyBindSystem))]
     public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
+        static string saveName = null;
+
         private void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
 
             NebulaModel.Config.ModInfo = Info;
             NebulaModel.Config.LoadOptions();
+
+            // Read command-line arguments
+            string[] args = Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "-server")
+                {
+                    Multiplayer.IsDedicated = true;
+                    Log.Info($">> Initial dedicated server");
+                }
+
+                if (args[i] == "-load" && i + 1 < args.Length)
+                {
+                    saveName = args[i + 1];
+                    if (saveName.EndsWith(".dsv"))
+                    {
+                        saveName = saveName.Remove(saveName.Length - 4);
+                    }
+                    if (GameSave.SaveExist(saveName))
+                    {
+                        Log.Info($">> Load save {saveName}");
+                    }
+                    else
+                    {
+                        Log.Warn($">> Can't find save {saveName}! Exiting...");
+                        Application.Quit();
+                    }
+                }
+            }
 
             try
             {
@@ -50,6 +81,19 @@ namespace NebulaPatcher
             AddNebulaBootstrapper();
             RegisterKeyBinds();
             DiscordManager.Setup(ActivityManager_OnActivityJoin);
+        }
+
+        public static void StartDedicatedServer()
+        {
+            // Mimic UI buttons clicking
+            UIMainMenu_Patch.OnMultiplayerButtonClick();            
+            if (GameSave.SaveExist(saveName))
+            {
+                // Modified from DoLoadSelectedGame
+                Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
+                DSPGame.StartGame(saveName);
+                Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
+            }
         }
 
         private static async void ActivityManager_OnActivityJoin(string secret)
@@ -147,7 +191,12 @@ namespace NebulaPatcher
                     Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "./mmdump");
                 }
 #endif
-                Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginInfo.PLUGIN_ID);
+                Harmony harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginInfo.PLUGIN_ID);
+                if (Multiplayer.IsDedicated)
+                {
+                    Log.Info("Patching for headless mode...");
+                    harmony.PatchAll(typeof(Dedicated_Server_Patch));
+                }
 #if DEBUG
                 Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "");
 #endif
