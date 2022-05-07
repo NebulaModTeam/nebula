@@ -105,7 +105,7 @@ namespace NebulaNetwork.Ngrok
 
                 try
                 {
-                    NgrokAddress = await GetTunnelAdress();
+                    NgrokAddress = await GetTunnelAddress();
                 }
                 catch
                 {
@@ -185,7 +185,7 @@ namespace NebulaNetwork.Ngrok
             return !_ngrokProcess.HasExited;
         }
 
-        public async Task<string> GetTunnelAdress()
+        public async Task<string> GetTunnelAddress()
         {
             if (!IsNgrokStarted())
             {

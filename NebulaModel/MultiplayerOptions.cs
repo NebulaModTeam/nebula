@@ -20,7 +20,7 @@ namespace NebulaModel
         public ushort HostPort { get; set; } = 8469;
 
         [DisplayName("Enable Experimental Ngrok support")]
-        [Description("If enabled, when hosting a server this will automatically download and install the Ngrok client and set up an Ngrok tunnel that provides an adress at which the server can be joined")]
+        [Description("If enabled, when hosting a server this will automatically download and install the Ngrok client and set up an Ngrok tunnel that provides an address at which the server can be joined")]
         public bool EnableNgrok { get; set; } = false;
 
         private const string _ngrokAuthtokenDisplayname = "Ngrok Authtoken";

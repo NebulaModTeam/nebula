@@ -103,7 +103,7 @@ namespace NebulaNetwork
             {
                 if(ngrokManager.IsNgrokStarted())
                 {
-                    DiscordManager.UpdateRichPresence(ip: await ngrokManager.GetTunnelAdress(),
+                    DiscordManager.UpdateRichPresence(ip: await ngrokManager.GetTunnelAddress(),
                                                       updateTimestamp: true);
                 }
                 else
