@@ -13,9 +13,7 @@ namespace NebulaWorld.Chat.Commands
 {
     public class InfoCommandHandler : IChatCommandHandler
     {
-        private static DateTime lastExecutionTime = DateTime.MinValue;
-        
-        public void Execute(ChatWindow window, string[] parameters)
+        public async void Execute(ChatWindow window, string[] parameters)
         {
             if (!Multiplayer.IsActive)
             {
@@ -27,31 +25,10 @@ namespace NebulaWorld.Chat.Commands
 
             if (Multiplayer.Session.Network is IServer server)
             {
-                string localIP = IPUtils.GetLocalAddress().ToString();
-
-                TimeSpan timeSpan = DateTime.Now.Subtract(lastExecutionTime);
-                if (timeSpan.TotalMinutes < 1)
-                {
-                    string ratelimited = $"rate limited (wait {Mathf.RoundToInt(60 - (float)timeSpan.TotalSeconds)} seconds)";
-
-                    string output = GetServerInfoText(server, localIP, ratelimited, ratelimited, full);
-                    window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
-                }
-                else
-                {
-                    string pending = "pending...";
-
-                    string output = GetServerInfoText(server, localIP, pending, pending, full);
-                    ChatMessage message = window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
-
-                    IPUtils.GetPortStatus(server.Port, (ip, port) =>
-                    {
-                        string newOutput = GetServerInfoText(server, localIP, $"{ip}:{server.Port}", port, full);
-                        message.Text = newOutput;
-                    });
-                    lastExecutionTime = DateTime.Now;
-                }
-            }else if (Multiplayer.Session.Network is IClient client)
+                string output = GetServerInfoText(server, await IPUtils.GetIPInfo(server.Port), server.Port, full);
+                window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+            }
+            else if (Multiplayer.Session.Network is IClient client)
             {
                 string output = GetClientInfoText(client, full);
                 window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
@@ -59,13 +36,28 @@ namespace NebulaWorld.Chat.Commands
             
         }
 
-        private static string GetServerInfoText(IServer server, string localIP, string wanIP, string portStatus, bool full)
+        private static string GetServerInfoText(IServer server, IPUtils.IpInfo ipInfo, ushort port, bool full)
         {
-            StringBuilder sb = new StringBuilder("Server info:");
+            StringBuilder sb = new("Server info:");
 
-            sb.Append($"\n  Local IP address: {FormatCopyString($"{localIP}:{server.Port}")}");
-            sb.Append($"\n  WAN IP address: {FormatCopyString(wanIP, true, IPFilter)}");
-            sb.Append($"\n  Port status: {portStatus}");
+            sb.Append($"\n  Local IP address: {FormatCopyString($"{ipInfo.LANAddress}:{server.Port}")}");
+
+            string wanv4 = ipInfo.WANv4Address;
+            if(IPUtils.IsIPv4(wanv4))
+            {
+                wanv4 = $"{FormatCopyString($"{ipInfo.WANv4Address}:{server.Port}", true)}";
+            }
+            sb.Append($"\n  WANv4 IP address: {wanv4}");
+
+            string wanv6 = ipInfo.WANv6Address;
+            if (IPUtils.IsIPv6(wanv6))
+            {
+                wanv6 = $"{FormatCopyString($"{ipInfo.WANv6Address}:{server.Port}", true)}";
+            }
+            sb.Append($"\n  WANv6 IP address: {wanv6}");
+
+            sb.Append($"\n  Port status: {ipInfo.PortStatus}");
+            sb.Append($"\n  Data State: {ipInfo.DataState}");
             TimeSpan timeSpan = DateTime.Now.Subtract(Multiplayer.Session.StartTime);
             sb.Append($"\n  Uptime: {(int) Math.Round(timeSpan.TotalHours)}:{timeSpan.Minutes}:{timeSpan.Seconds} up");
 
@@ -91,7 +83,7 @@ namespace NebulaWorld.Chat.Commands
 
         private static string GetClientInfoText(IClient client, bool full)
         {
-            StringBuilder sb = new StringBuilder("Client info:");
+            StringBuilder sb = new("Client info:");
 
             string ipAddress = client.ServerEndpoint.ToString();
 
@@ -135,7 +127,7 @@ namespace NebulaWorld.Chat.Commands
 
         private static string ReplaceChars(string s, string targetSymbols, char newVal)
         {
-            StringBuilder sb = new StringBuilder(s);
+            StringBuilder sb = new(s);
             for (int i = 0; i < sb.Length; i++)
             {
                 if (targetSymbols.Contains(sb[i]))

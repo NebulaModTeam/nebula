@@ -7,6 +7,7 @@ using NebulaWorld.GameStates;
 using NebulaWorld.Logistics;
 using NebulaWorld.Planet;
 using NebulaWorld.Player;
+using NebulaWorld.SocialIntegration;
 using NebulaWorld.Statistics;
 using NebulaWorld.Trash;
 using NebulaWorld.Universe;
@@ -42,7 +43,6 @@ namespace NebulaWorld
 
         public DateTime StartTime;
 
-
         public bool IsGameLoaded { get; set; }
         public bool IsInLobby { get; set; }
         public bool CanPause
@@ -55,6 +55,8 @@ namespace NebulaWorld
             }
         }
         private bool canPause = true;
+
+        public ushort NumPlayers { get; set; } = 1;
 
         public MultiplayerSession(NetworkProvider networkProvider)
         {
@@ -148,6 +150,7 @@ namespace NebulaWorld
             {
                 Log.Info("Game load completed");
                 IsGameLoaded = true;
+                DiscordManager.UpdateRichPresence();
                 ((NebulaModel.NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
                 Log.Info($"OnGameLoadCompleted: Resume PacketProcessor");
 

@@ -8,6 +8,7 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -255,6 +256,8 @@ namespace NebulaNetwork
             INebulaPlayer player = null;
             bool playerWasSyncing = false;
             int syncCount = -1;
+            Multiplayer.Session.NumPlayers -= 1;
+            DiscordManager.UpdateRichPresence();
 
             using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
@@ -287,7 +290,7 @@ namespace NebulaNetwork
 
             if (player != null)
             {
-                SendPacketToOtherPlayers(new PlayerDisconnected(player.Id), player);
+                SendPacketToOtherPlayers(new PlayerDisconnected(player.Id, Multiplayer.Session.NumPlayers), player);
                 NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
                 Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
                 using (threadSafe.availablePlayerIds.GetLocked(out Queue<ushort> availablePlayerIds))

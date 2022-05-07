@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -43,6 +44,9 @@ namespace NebulaNetwork.PacketProcessors.Session
             DSPGame.StartGameSkipPrologue(gameDesc);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
+
+            Multiplayer.Session.NumPlayers = packet.NumPlayers;
+            DiscordManager.UpdateRichPresence(partyId: packet.DiscordPartyId);
         }
     }
 }

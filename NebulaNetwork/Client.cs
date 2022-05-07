@@ -9,6 +9,7 @@ using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;

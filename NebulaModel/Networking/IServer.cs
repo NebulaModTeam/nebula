@@ -2,6 +2,6 @@
 {
     public interface IServer
     {
-        int Port { get; }
+        ushort Port { get; }
     }
 }

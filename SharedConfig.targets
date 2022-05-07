@@ -44,8 +44,12 @@
           DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
   </Target>
 
-  <Target Name="CopyBundleToOutDir" AfterTargets="Build" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
+  <Target Name="CopyFilesToOutDir" AfterTargets="Build" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
+    <ItemGroup>
+            <DiscordLibs Include="..\dep\discord_game_sdk\lib\x86_64\*"/>
+    </ItemGroup>
     <Copy SourceFiles="..\NebulaWorld\Assets\nebulabundle" DestinationFolder="$(OutDir)" />
+    <Copy SourceFiles="@(DiscordLibs)" DestinationFolder="$(OutDir)" />
   </Target>
   
   <Target Name="BeforeBuild">
