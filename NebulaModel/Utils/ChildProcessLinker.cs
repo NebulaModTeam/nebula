@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace NebulaNetwork.Ngrok
+namespace NebulaModel.Utils
 {
 
     // Adapted from https://stackoverflow.com/a/24012744/13620003
