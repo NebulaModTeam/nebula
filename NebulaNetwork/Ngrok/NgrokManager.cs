@@ -26,6 +26,7 @@ namespace NebulaNetwork.Ngrok
 
         public string NgrokAddress;
         public string NgrokLastErrorCode;
+        public bool NgrokEnabled = Config.Options.EnableNgrok;
 
         public NgrokManager(int port, string authtoken = null, string region = null)
         {
@@ -33,7 +34,7 @@ namespace NebulaNetwork.Ngrok
             _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
             _region = region ?? Config.Options.NgrokRegion;
 
-            if (!Config.Options.EnableNgrok)
+            if (!NgrokEnabled)
             {
                 return;
             }

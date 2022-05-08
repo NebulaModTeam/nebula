@@ -42,6 +42,8 @@ namespace NebulaNetwork
         public ushort Port => port;
         public string NgrokAddress => ngrokManager.NgrokAddress;
         public bool NgrokActive => ngrokManager.IsNgrokActive();
+        public bool NgrokEnabled => ngrokManager.NgrokEnabled;
+        public string NgrokLastErrorCode => ngrokManager.NgrokLastErrorCode;
 
         public Server(ushort port, bool loadSaveFile = false) : base(new PlayerManager())
         {

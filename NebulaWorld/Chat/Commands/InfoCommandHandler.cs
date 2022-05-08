@@ -79,16 +79,21 @@ namespace NebulaWorld.Chat.Commands
             }
             sb.Append($"\n  WANv6 IP address: {wanv6}");
 
-            if (server.NgrokAddress != null)
+            if (server.NgrokEnabled)
             {
                 if (server.NgrokActive)
                 {
                     sb.Append($"\n  Ngrok address: {FormatCopyString(server.NgrokAddress, true, NgrokAddressFilter)}");
-                } else
+                }
+                else
                 {
                     sb.Append($"\n  Ngrok address: Tunnel Inactive!");
                 }
-                
+
+                if (server.NgrokLastErrorCode != null)
+                {
+                    sb.Append($" ({FormatCopyString(server.NgrokLastErrorCode)})");
+                }
             }
 
             sb.Append($"\n  Port status: {ipInfo.PortStatus}");
