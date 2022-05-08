@@ -80,6 +80,33 @@ namespace NebulaNetwork
             return null;
         }
 
+        public INebulaPlayer GetPlayerById(ushort playerId)
+        {
+            INebulaPlayer player = null;
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                if ((player = connectedPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
+                {
+                    return player;
+                }
+            }
+            using (GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
+            {
+                if ((player = syncingPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
+                {
+                    return player;
+                }
+            }
+            using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
+            {
+                if ((player = pendingPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
+                {
+                    return player;
+                }
+            }
+            return null;
+        }
+
         public INebulaPlayer GetConnectedPlayerByUsername(string username)
         {
             using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
