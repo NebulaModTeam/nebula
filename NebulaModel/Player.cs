@@ -20,11 +20,6 @@ namespace NebulaModel
             Connection.SendPacket(packet);
         }
 
-        public void SendRawPacket(byte[] packet)
-        {
-            ((NebulaConnection)Connection).SendRawPacket(packet);
-        }
-
         public void LoadUserData(IPlayerData data)
         {
             ushort localId = Id;

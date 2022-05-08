@@ -226,7 +226,7 @@ namespace NebulaNetwork
                     INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalStarId == starId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
                     {
-                        ((NebulaPlayer)player).SendRawPacket(rawPacket);
+                        player.Connection.SendRawPacket(rawPacket);
                     }
                 }
             }
@@ -241,7 +241,7 @@ namespace NebulaNetwork
                     INebulaPlayer player = kvp.Value;
                     if (player.Data.LocalPlanetId == planetId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
                     {
-                        ((NebulaPlayer)player).SendRawPacket(rawPacket);
+                       player.Connection.SendRawPacket(rawPacket);
                     }
                 }
             }
