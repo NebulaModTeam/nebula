@@ -77,6 +77,12 @@ namespace NebulaAPI
         public static Action<int> OnStarLoadRequest;
 
         /// <summary>
+        /// Subscribe to receive event when a DysonSphere finishs loading (client)<br/>
+        /// int starIndex - index of star of dyson sphere to load<br/>
+        /// </summary>
+        public static Action<int> OnDysonSphereLoadFinished;
+
+        /// <summary>
         /// Subscribe to receive event when a PlanetFactory starts loading (client)<br/>
         /// int planetId - id of planet to load<br/>
         /// </summary>

@@ -72,6 +72,8 @@ namespace NebulaNetwork.PacketProcessors.Universe
                     }
                     Multiplayer.Session.DysonSpheres.RequestingIndex = -1;
                     Multiplayer.Session.DysonSpheres.IsNormal = true;
+
+                    NebulaModAPI.OnDysonSphereLoadFinished?.Invoke(star.index);
                     break;
                 case DysonSphereRespondEvent.Desync:
                     Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
