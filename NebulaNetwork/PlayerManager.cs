@@ -256,6 +256,7 @@ namespace NebulaNetwork
         {
             INebulaPlayer player = null;
             bool playerWasSyncing = false;
+            bool playerWasConnected = false;
             int syncCount = -1;
             Multiplayer.Session.NumPlayers -= 1;
             DiscordManager.UpdateRichPresence();
@@ -266,6 +267,7 @@ namespace NebulaNetwork
                 {
                     player = removingPlayer;
                     connectedPlayers.Remove(conn);
+                    playerWasConnected = true;
                 }
             }
 
@@ -292,8 +294,11 @@ namespace NebulaNetwork
             if (player != null)
             {
                 SendPacketToOtherPlayers(new PlayerDisconnected(player.Id, Multiplayer.Session.NumPlayers), player);
-                NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
-                Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
+                // For sync completed player who triggered OnPlayerJoinedGame() before
+                if (playerWasConnected && !playerWasSyncing)
+                {
+                    Multiplayer.Session.World.OnPlayerLeftGame(player);
+                }
                 using (threadSafe.availablePlayerIds.GetLocked(out Queue<ushort> availablePlayerIds))
                 {
                     availablePlayerIds.Enqueue(player.Id);
@@ -320,12 +325,6 @@ namespace NebulaNetwork
                 {
                     Multiplayer.Session.Network.SendPacket(new SyncComplete());
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();
-                }
-                else if(Config.Options.SyncSoil)
-                {
-                    GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
-                    UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
-                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
                 }
             }
             else

@@ -1,11 +1,9 @@
 ﻿using NebulaAPI;
-using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
-using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Collections.Generic;
@@ -61,11 +59,8 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
                 }
 
-                // Load overriden Planet and Star names
-                player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
-
                 // Since the player is now connected, we can safely spawn his player model
-                Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
+                Multiplayer.Session.World.OnPlayerJoinedGame(player);
 
                 if (syncingCount == 0)
                 {
@@ -117,13 +112,6 @@ namespace NebulaNetwork.PacketProcessors.Session
                             player.Data.DIYAppearance.Export(writer.BinaryWriter);
                             player.SendPacket(new PlayerMechaDIYArmor(writer.CloseAndGetBytes(), player.Data.DIYItemId, player.Data.DIYItemValue));
                         }
-                    }
-
-                    // add together player sand count and tell others if we are syncing soil
-                    if (Config.Options.SyncSoil)
-                    {
-                        GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
-                        Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
                     }
 
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();

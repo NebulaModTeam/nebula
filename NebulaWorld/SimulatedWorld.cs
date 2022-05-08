@@ -5,6 +5,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
+using NebulaModel.Packets.Universe;
 using NebulaModel.Packets.Warning;
 using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours;
@@ -158,6 +159,41 @@ namespace NebulaWorld
                 GameMain.isFullscreenPaused = true;
                 InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait\n(Use BulletTime mod to unfreeze the game)", null);
             }
+        }
+
+        public void OnPlayerJoinedGame(INebulaPlayer player)
+        {
+            Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
+
+            // Load overriden Planet and Star names
+            player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
+
+            // add together player sand count and tell others if we are syncing soil
+            if (Config.Options.SyncSoil)
+            {
+                GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
+                Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+            }
+
+            // (Host only) Trigger when a new client added to connected players
+            Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} joined");
+            NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
+        }
+
+        public void OnPlayerLeftGame(INebulaPlayer player)
+        {
+            Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
+
+            if (Config.Options.SyncSoil)
+            {
+                GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
+                UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
+                Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+            }
+
+            // (Host only) Trigger when a connected client leave the game
+            Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} left");
+            NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
         }
 
         public void OnAllPlayersSyncCompleted()
