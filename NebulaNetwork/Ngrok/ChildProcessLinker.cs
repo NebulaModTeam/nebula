@@ -18,10 +18,14 @@ namespace NebulaNetwork.Ngrok
 
         public Process ChildProcess { get; set; }
 
-        public ChildProcessLinker(Process childProcess)
+        private Action<Exception> _safeNullDebuggerExceptionHandler;
+
+        public ChildProcessLinker(Process childProcess, Action<Exception> exceptionHandler = null)
         {
             ChildProcess = childProcess;
-            new Thread(NullDebugger) { IsBackground = true }.Start(ChildProcess.Id);
+            _safeNullDebuggerExceptionHandler = exceptionHandler;
+
+            new Thread(_safeNullDebuggerExceptionHandler != null ? SafeNullDebugger : NullDebugger) { IsBackground = true }.Start(ChildProcess.Id);
         }
 
         private void NullDebugger(object arg)
@@ -47,7 +51,18 @@ namespace NebulaNetwork.Ngrok
                 //we were not able to attach the debugger
                 //do the processes have the same bitness?
                 //throw ApplicationException("Unable to attach debugger") // Kill child? // Send Event? // Ignore?
-                throw new Exception("ChildProcessLinker was unable to attach debugger!");
+                throw new Exception("ChildProcessLinker was unable to attach NullDebugger!");
+            }
+        }
+
+        private void SafeNullDebugger(object arg)
+        {
+            try
+            {
+                NullDebugger(arg);
+            } catch (Exception ex)
+            {
+                _safeNullDebuggerExceptionHandler(ex);
             }
         }
 

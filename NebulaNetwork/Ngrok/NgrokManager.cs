@@ -10,6 +10,7 @@ using NebulaModel;
 using NebulaModel.Utils;
 using NebulaWorld;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NebulaNetwork.Ngrok
 {
@@ -21,15 +22,16 @@ namespace NebulaNetwork.Ngrok
         private readonly string _region;
 
         private Process _ngrokProcess;
+        private string _ngrokAPIAddress;
 
         public string NgrokAddress;
+        public string NgrokLastErrorCode;
 
         public NgrokManager(int port, string authtoken = null, string region = null)
         {
             _port = port;
             _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
             _region = region ?? Config.Options.NgrokRegion;
-            //_ngrokProcess = Process.GetProcessesByName("ngrok").FirstOrDefault();
 
             if (!Config.Options.EnableNgrok)
             {
@@ -93,31 +95,21 @@ namespace NebulaNetwork.Ngrok
 
                 if (!StartNgrok())
                 {
-                    NebulaModel.Logger.Log.Warn("Failed to start Ngrok tunnel!");
+                    NebulaModel.Logger.Log.Warn($"Failed to start Ngrok tunnel! LastErrorCode: {NgrokLastErrorCode}");
                     return;
                 }
 
                 if (!IsNgrokActive())
                 {
-                    NebulaModel.Logger.Log.Warn("Ngrok tunnel has exitted prematurely! Invalid authtoken perhaps?");
+                    NebulaModel.Logger.Log.Warn($"Ngrok tunnel has exited prematurely! LastErrorCode: {NgrokLastErrorCode}");
                     return;
-                }
-
-                try
-                {
-                    NgrokAddress = await GetTunnelAddress();
-                }
-                catch
-                {
-                    NebulaModel.Logger.Log.Warn("Failed to obtain Ngrok address!");
-                    throw;
                 }
 
             });
 
         }
 
-        public async Task DownloadAndInstallNgrok()
+        private async Task DownloadAndInstallNgrok()
         {
             using (var client = new HttpClient())
             {
@@ -131,12 +123,12 @@ namespace NebulaNetwork.Ngrok
             }
         }
 
-        public bool IsNgrokInstalled()
+        private bool IsNgrokInstalled()
         {
             return File.Exists(_ngrokPath);
         }
 
-        public bool StartNgrok()
+        private bool StartNgrok()
         {
             StopNgrok();
 
@@ -152,29 +144,70 @@ namespace NebulaNetwork.Ngrok
                 Arguments = $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
             };
 
-            _ngrokProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) => { 
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    NebulaModel.Logger.Log.Info($"Ngrok Stdout: {e.Data}");
-                }
-            });
-            _ngrokProcess.ErrorDataReceived += new DataReceivedEventHandler((sender, e) => {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    NebulaModel.Logger.Log.Error($"Ngrok Stderr: {e.Data}");
-                }
-            });
+            _ngrokProcess.OutputDataReceived += new DataReceivedEventHandler(OutputDataReceivedEventHandler);
+            _ngrokProcess.ErrorDataReceived += new DataReceivedEventHandler(ErrorDataReceivedEventHandler);
 
             var started = _ngrokProcess.Start();
             if (IsNgrokActive())
             {
                 // This links the process as a child process by attaching a null debugger thus ensuring that the process is killed when its parent dies.
-                new ChildProcessLinker(_ngrokProcess);
+                new ChildProcessLinker(_ngrokProcess, (exception) =>
+                {
+                    NebulaModel.Logger.Log.Warn("Failed to link Ngrok process to DSP process as a child! (This might result in a left over ngrok process if the DSP process uncleanly killed)");
+                });
             }
+
             _ngrokProcess.BeginOutputReadLine();
             _ngrokProcess.BeginErrorReadLine();
 
             return started;
+        }
+
+        private void OutputDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                NebulaModel.Logger.Log.Debug($"Ngrok Stdout: {e.Data}");
+
+                var json = MiniJson.Deserialize(e.Data) as Dictionary<string, object>;
+                if (json != null)
+                {
+                    var lvl = json["lvl"] as string;
+                    if (lvl == "info")
+                    {
+                        var msg = json["msg"] as string;
+                        if (msg == "starting web service")
+                        {
+                            _ngrokAPIAddress = json["addr"] as string;
+                        } else if (msg == "started tunnel")
+                        {
+                            var addr = json["addr"] as string;
+                            var url = json["url"] as string;
+                            if (
+                                (addr == $"//localhost:{_port}" || addr == $"//127.0.0.1:{_port}" || addr == $"//0.0.0.0:{_port}") &&
+                                url.StartsWith("tcp://")
+                                )
+                            {
+                                NgrokAddress = url.Replace("tcp://", "");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ErrorDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                NebulaModel.Logger.Log.Warn($"Ngrok Stderr: {e.Data}");
+
+                var errorCodeMatches = Regex.Matches(e.Data, @"ERR_NGROK_\d+");
+                if (errorCodeMatches.Count > 0)
+                {
+                    NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
+                }
+            }
         }
 
         public void StopNgrok()
@@ -202,16 +235,21 @@ namespace NebulaNetwork.Ngrok
             return !_ngrokProcess.HasExited;
         }
 
-        public async Task<string> GetTunnelAddress()
+        public async Task<string> GetTunnelAddressFromAPI()
         {
             if (!IsNgrokActive())
             {
-                throw new Exception("Not able to get Ngrok tunnel address because Ngrok is not started (or exitted prematurely)");
+                throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
+            }
+
+            if (_ngrokAPIAddress == null)
+            {
+                throw new Exception($"Not able to get Ngrok tunnel address because Ngrok API address is not (yet) known!");
             }
 
             using (var client = new HttpClient())
             {
-                var response = await client.GetAsync("http://localhost:4040/api/tunnels");
+                var response = await client.GetAsync($"http://{_ngrokAPIAddress}/api/tunnels");
                 if (response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
