@@ -41,7 +41,7 @@ namespace NebulaNetwork
 
         public ushort Port => port;
         public string NgrokAddress => ngrokManager.NgrokAddress;
-        public bool NgrokActive => ngrokManager.IsNgrokStarted();
+        public bool NgrokActive => ngrokManager.IsNgrokActive();
 
         public Server(ushort port, bool loadSaveFile = false) : base(new PlayerManager())
         {
@@ -101,7 +101,7 @@ namespace NebulaNetwork
 
             Task.Run(async () =>
             {
-                if(ngrokManager.IsNgrokStarted())
+                if(ngrokManager.IsNgrokActive())
                 {
                     DiscordManager.UpdateRichPresence(ip: NgrokAddress, updateTimestamp: true);
                 }

@@ -29,7 +29,7 @@ namespace NebulaNetwork.Ngrok
             _port = port;
             _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
             _region = region ?? Config.Options.NgrokRegion;
-            _ngrokProcess = Process.GetProcessesByName("ngrok").FirstOrDefault();
+            //_ngrokProcess = Process.GetProcessesByName("ngrok").FirstOrDefault();
 
             if (!Config.Options.EnableNgrok)
             {
@@ -46,7 +46,7 @@ namespace NebulaNetwork.Ngrok
             string[] availableRegions = { "us", "eu", "au", "ap", "sa", "jp", "in" };
             if (!string.IsNullOrEmpty(_region) && !availableRegions.Any(_region.Contains))
             {
-                NebulaModel.Logger.Log.Warn("Unsupported Ngrok region was provided, defaulting to autdetection");
+                NebulaModel.Logger.Log.Warn("Unsupported Ngrok region was provided, defaulting to autodetection");
                 _region = null;
             }
 
@@ -97,7 +97,7 @@ namespace NebulaNetwork.Ngrok
                     return;
                 }
 
-                if (!IsNgrokStarted())
+                if (!IsNgrokActive())
                 {
                     NebulaModel.Logger.Log.Warn("Ngrok tunnel has exitted prematurely! Invalid authtoken perhaps?");
                     return;
@@ -138,12 +138,6 @@ namespace NebulaNetwork.Ngrok
 
         public bool StartNgrok()
         {
-#if DEBUG
-            if(_ngrokProcess != null)
-            {
-                return false;
-            }
-#endif
             StopNgrok();
 
             _ngrokProcess = new Process();
@@ -155,9 +149,32 @@ namespace NebulaNetwork.Ngrok
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 FileName = _ngrokPath,
-                Arguments = $"tcp {_port} --authtoken {_authtoken}" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
+                Arguments = $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
             };
-            return _ngrokProcess.Start();
+
+            _ngrokProcess.OutputDataReceived += new DataReceivedEventHandler((sender, e) => { 
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    NebulaModel.Logger.Log.Info($"Ngrok Stdout: {e.Data}");
+                }
+            });
+            _ngrokProcess.ErrorDataReceived += new DataReceivedEventHandler((sender, e) => {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    NebulaModel.Logger.Log.Error($"Ngrok Stderr: {e.Data}");
+                }
+            });
+
+            var started = _ngrokProcess.Start();
+            if (IsNgrokActive())
+            {
+                // This links the process as a child process by attaching a null debugger thus ensuring that the process is killed when its parent dies.
+                new ChildProcessLinker(_ngrokProcess);
+            }
+            _ngrokProcess.BeginOutputReadLine();
+            _ngrokProcess.BeginErrorReadLine();
+
+            return started;
         }
 
         public void StopNgrok()
@@ -174,7 +191,7 @@ namespace NebulaNetwork.Ngrok
             }
         }
 
-        public bool IsNgrokStarted()
+        public bool IsNgrokActive()
         {
             if (_ngrokProcess == null)
             {
@@ -187,7 +204,7 @@ namespace NebulaNetwork.Ngrok
 
         public async Task<string> GetTunnelAddress()
         {
-            if (!IsNgrokStarted())
+            if (!IsNgrokActive())
             {
                 throw new Exception("Not able to get Ngrok tunnel address because Ngrok is not started (or exitted prematurely)");
             }
