@@ -20,6 +20,7 @@ namespace NebulaNetwork.Ngrok
         private readonly int _port;
         private readonly string _authtoken;
         private readonly string _region;
+        private readonly Task<bool> _ngrokAddressObtained = new Task<bool>(() => true);
 
         private Process _ngrokProcess;
         private string _ngrokAPIAddress;
@@ -190,6 +191,7 @@ namespace NebulaNetwork.Ngrok
                                 )
                             {
                                 NgrokAddress = url.Replace("tcp://", "");
+                                _ngrokAddressObtained.Start();
                             }
                         }
                     }
@@ -236,11 +238,22 @@ namespace NebulaNetwork.Ngrok
             return !_ngrokProcess.HasExited;
         }
 
-        public async Task<string> GetTunnelAddressFromAPI()
+        public async Task<string> GetNgrokAddressAsync()
         {
             if (!IsNgrokActive())
             {
                 throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
+            }
+
+            await await Task.WhenAny(_ngrokAddressObtained);
+            return NgrokAddress;
+        }
+
+        public async Task<string> GetTunnelAddressFromAPI()
+        {
+            if (!IsNgrokActive())
+            {
+                throw new Exception($"Not able to get Ngrok tunnel address from API because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
             }
 
             if (_ngrokAPIAddress == null)
