@@ -62,8 +62,7 @@ namespace NebulaWorld.Universe
                 {
                     foreach (INebulaConnection conn in subscribers[starIndex])
                     {
-                        //Cast to NebulaConnection so it can called the correct comparator
-                        if ((NebulaConnection)conn != (NebulaConnection)exception)
+                        if (!conn.Equals(exception))
                         {
                             conn.SendPacket(packet);
                         }

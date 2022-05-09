@@ -224,7 +224,7 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalStarId == starId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
+                    if (player.Data.LocalStarId == starId && !player.Connection.Equals(sender))
                     {
                         player.Connection.SendRawPacket(rawPacket);
                     }
@@ -239,7 +239,7 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalPlanetId == planetId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
+                    if (player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender))
                     {
                        player.Connection.SendRawPacket(rawPacket);
                     }

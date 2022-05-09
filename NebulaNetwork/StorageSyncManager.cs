@@ -19,9 +19,9 @@ namespace NebulaNetwork
             {
                 foreach (System.Collections.Generic.KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
-                    NebulaConnection connection = (NebulaConnection)kvp.Key;
+                    INebulaConnection connection = kvp.Key;
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalPlanetId == planetId && connection != originator)
+                    if (player.Data.LocalPlanetId == planetId && connection.Equals(originator))
                     {
                         connection.SendPacket(packet);
                     }
