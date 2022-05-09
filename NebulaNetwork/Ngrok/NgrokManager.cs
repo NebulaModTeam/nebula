@@ -20,7 +20,7 @@ namespace NebulaNetwork.Ngrok
         private readonly int _port;
         private readonly string _authtoken;
         private readonly string _region;
-        private readonly Task<bool> _ngrokAddressObtained = new Task<bool>(() => true);
+        private readonly TaskCompletionSource<bool> _ngrokAddressObtainedSource = new TaskCompletionSource<bool>();
 
         private Process _ngrokProcess;
         private string _ngrokAPIAddress;
@@ -60,9 +60,7 @@ namespace NebulaNetwork.Ngrok
 
                 if (!IsNgrokInstalled())
                 {
-                    var hasDownloadAndInstallBeenConfirmed = false;
-                    var downloadAndInstallConfirmation = new Task<bool>(() => true);
-                    var downloadAndInstallRejection = new Task<bool>(() => false);
+                    var downloadAndInstallConfirmationSource = new TaskCompletionSource<bool>();
 
                     UnityDispatchQueue.RunOnMainThread(() =>
                     {
@@ -71,12 +69,12 @@ namespace NebulaNetwork.Ngrok
                             "Ngrok is support is enabled, however it has not been downloaded and installed yet, do you want to automattically download and install Ngrok?",
                             "Accept",
                             "Reject",
-                            () => downloadAndInstallConfirmation.Start(),
-                            () => downloadAndInstallRejection.Start()
+                            () => downloadAndInstallConfirmationSource.TrySetResult(true),
+                            () => downloadAndInstallConfirmationSource.TrySetResult(false)
                         );
                     });
 
-                    hasDownloadAndInstallBeenConfirmed = (await Task.WhenAny(downloadAndInstallConfirmation, downloadAndInstallRejection)).Result;
+                    var hasDownloadAndInstallBeenConfirmed = await downloadAndInstallConfirmationSource.Task;
                     if (!hasDownloadAndInstallBeenConfirmed)
                     {
                         NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok, because user rejected Ngrok download and install confirmation!");
@@ -191,7 +189,7 @@ namespace NebulaNetwork.Ngrok
                                 )
                             {
                                 NgrokAddress = url.Replace("tcp://", "");
-                                _ngrokAddressObtained.Start();
+                                _ngrokAddressObtainedSource.TrySetResult(true);
                             }
                         }
                     }
@@ -247,7 +245,7 @@ namespace NebulaNetwork.Ngrok
                     throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
                 }
 
-                if (!_ngrokAddressObtained.Wait(TimeSpan.FromSeconds(15)))
+                if (!_ngrokAddressObtainedSource.Task.Wait(TimeSpan.FromSeconds(15)))
                 {
                     throw new TimeoutException($"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode}");
                 }
