@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -15,7 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive && UIVirtualStarmap_Transpiler.customBirthStar != -1)
             {
-                Debug.Log("Overwriting with " + __result.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) + " and " + __result.StarById(UIVirtualStarmap_Transpiler.customBirthStar));
+                Log.Debug("Overwriting with " + __result.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) + " and " + __result.StarById(UIVirtualStarmap_Transpiler.customBirthStar));
                 __result.birthPlanetId = UIVirtualStarmap_Transpiler.customBirthPlanet;
                 __result.birthStarId = UIVirtualStarmap_Transpiler.customBirthStar;
             }

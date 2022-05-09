@@ -5,6 +5,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -26,13 +27,17 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
             }
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
+            Multiplayer.Session.NumPlayers = packet.NumPlayers;
             Multiplayer.Session.IsInLobby = true;
+            DiscordManager.UpdateRichPresence(partyId: packet.DiscordPartyId);
 
             UIRoot.instance.galaxySelect._Open();
             UIRoot.instance.uiMainMenu._Close();
 
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
+            gameDesc.savedThemeIds = packet.SavedThemeIds;
+
             UIRoot.instance.galaxySelect.gameDesc = gameDesc;
             UIRoot.instance.galaxySelect.SetStarmapGalaxy();
         }

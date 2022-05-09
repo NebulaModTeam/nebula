@@ -3,11 +3,13 @@ using NebulaAPI;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -59,6 +61,7 @@ namespace NebulaNetwork
 #endif
 
             clientSocket = new WebSocket($"ws://{serverEndpoint}/socket");
+            clientSocket.Log.Level = LogLevel.Debug;
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
@@ -142,7 +145,7 @@ namespace NebulaNetwork
                 {
                     if (!GameMain.isFullscreenPaused)
                     {
-                        SendPacket(new PingPacket());
+                        SendPacket(new GameStateRequest());
                     }
                     gameStateUpdateTimer = 0f;
                 }

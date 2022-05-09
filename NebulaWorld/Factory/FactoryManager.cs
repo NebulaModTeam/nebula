@@ -53,6 +53,11 @@ namespace NebulaWorld.Factory
                 // We don't want to load or unload the planet we are currently on
                 if (planetId == GameMain.localPlanet?.id)
                 {
+                    if (GameMain.localPlanet != null && !GameMain.localPlanet.factoryLoaded)
+                    {
+                        // Local planet is loading, for debug purpose print a warning message
+                        Log.Warn("Local PlanetFactory is still loading!");
+                    }
                     return;
                 }
 

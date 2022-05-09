@@ -21,7 +21,7 @@ namespace NebulaPatcher.Patches.Dynamic
         private static RectTransform multiplayerSubMenu;
 
         private static RectTransform multiplayerMenu;
-        private static InputField hostIPAdressInput;
+        private static InputField hostIPAddressInput;
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIMainMenu._OnOpen))]
@@ -66,7 +66,7 @@ namespace NebulaPatcher.Patches.Dynamic
             OverrideButton(multiplayerButton, "Multiplayer", OnMultiplayerButtonClick);
         }
 
-        private static void OnMultiplayerButtonClick()
+        public static void OnMultiplayerButtonClick()
         {
             Multiplayer.IsInMultiplayerMenu = true;
             mainMenuButtonGroup.gameObject.SetActive(false);
@@ -114,7 +114,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             UIRoot.instance.CloseMainMenuUI();
             multiplayerMenu.gameObject.SetActive(true);
-            hostIPAdressInput.characterLimit = 53;
+            hostIPAddressInput.characterLimit = 53;
         }
 
         private static void OnMultiplayerBackButtonClick()
@@ -171,19 +171,19 @@ namespace NebulaPatcher.Patches.Dynamic
             Transform hostIpField = multiplayerMenu.Find("galaxy-seed");
             hostIpField.GetComponent<Localizer>().enabled = false;
             hostIpField.GetComponent<Text>().text = "Host IP Address";
-            hostIPAdressInput = hostIpField.GetComponentInChildren<InputField>();
-            hostIPAdressInput.onEndEdit.RemoveAllListeners();
-            hostIPAdressInput.onValueChanged.RemoveAllListeners();
+            hostIPAddressInput = hostIpField.GetComponentInChildren<InputField>();
+            hostIPAddressInput.onEndEdit.RemoveAllListeners();
+            hostIPAddressInput.onValueChanged.RemoveAllListeners();
             //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
             //256 will trigger an argument out of range exception
-            hostIPAdressInput.characterLimit = 255;
+            hostIPAddressInput.characterLimit = 255;
 
             string ip = "127.0.0.1";
             if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
             {
                 ip = Config.Options.LastIP;
             }
-            hostIPAdressInput.text = ip;
+            hostIPAddressInput.text = ip;
 
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
             OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null, OnJoinGameBackButtonClick);
@@ -194,7 +194,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void OnJoinGameButtonClick()
         {
-            string s = new string(hostIPAdressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
+            string s = new string(hostIPAddressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
             JoinGame(s);
         }
 
@@ -281,7 +281,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 InGamePopup.FadeOut();
                 //re-enabling the menu again after failed connect attempt
-                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to {hostIPAdressInput.text}", "OK");
+                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to {hostIPAddressInput.text}", "OK");
                 multiplayerMenu.gameObject.SetActive(true);
             }
             else

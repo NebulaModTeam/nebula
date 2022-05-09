@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace NebulaModel.Utils
 {
@@ -36,6 +37,18 @@ namespace NebulaModel.Utils
         public static string GetCurrentUserPublicKeyHash()
         {
             return Hash(GetPublicKey(GetOrCreateUserCert()));
+        }
+
+        public static string ToBase64(this string s)
+        {
+            var bytes = Encoding.UTF8.GetBytes(s);
+            return Convert.ToBase64String(bytes);
+        }
+
+        public static string FromBase64(this string s)
+        {
+            var bytes = Convert.FromBase64String(s);
+            return Encoding.UTF8.GetString(bytes);
         }
     }
 }

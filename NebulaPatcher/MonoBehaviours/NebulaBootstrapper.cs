@@ -19,7 +19,7 @@ namespace NebulaPatcher.MonoBehaviours
             //InGameChatAssetLoader.ChatManager()?.Toggle(forceClosed: true);
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             if (Multiplayer.IsActive)
             {

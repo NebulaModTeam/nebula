@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
+using NebulaWorld.SocialIntegration;
 
 namespace NebulaNetwork.PacketProcessors.Session
 {
@@ -36,11 +37,16 @@ namespace NebulaNetwork.PacketProcessors.Session
             Multiplayer.Session.IsInLobby = false;
             Multiplayer.ShouldReturnToJoinMenu = false;
 
+            // Using GameDesc.Import will break GS2, so use GameDesc.SetForNewGame instead
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
+            gameDesc.savedThemeIds = packet.SavedThemeIds;
             DSPGame.StartGameSkipPrologue(gameDesc);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
+
+            Multiplayer.Session.NumPlayers = packet.NumPlayers;
+            DiscordManager.UpdateRichPresence(partyId: packet.DiscordPartyId);
         }
     }
 }

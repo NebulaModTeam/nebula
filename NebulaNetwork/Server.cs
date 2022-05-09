@@ -10,6 +10,7 @@ using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
 using Open.Nat;
+using NebulaWorld.SocialIntegration;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -34,13 +35,18 @@ namespace NebulaNetwork
         private float warningUpdateTimer = 0;
 
         private WebSocketServer socket;
+        private Ngrok.NgrokManager ngrokManager;
 
-        private readonly int port;
+        private readonly ushort port;
         private readonly bool loadSaveFile;
 
-        public int Port => port;
+        public ushort Port => port;
+        public string NgrokAddress => ngrokManager.NgrokAddress;
+        public bool NgrokActive => ngrokManager.IsNgrokActive();
+        public bool NgrokEnabled => ngrokManager.NgrokEnabled;
+        public string NgrokLastErrorCode => ngrokManager.NgrokLastErrorCode;
 
-        public Server(int port, bool loadSaveFile = false) : base(new PlayerManager())
+        public Server(ushort port, bool loadSaveFile = false) : base(new PlayerManager())
         {
             this.port = port;
             this.loadSaveFile = loadSaveFile;
@@ -89,7 +95,11 @@ namespace NebulaNetwork
                 }).Wait();
             }
 
+            ngrokManager = new Ngrok.NgrokManager(port);                
+
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
+            socket.Log.Level = LogLevel.Debug;
+            socket.AllowForwardedRequest = true; // This is required to make the websocket play nice with tunneling services like ngrok
             DisableNagleAlgorithm(socket);
             WebSocketService.PacketProcessor = PacketProcessor;
             WebSocketService.PlayerManager = PlayerManager;
@@ -113,12 +123,29 @@ namespace NebulaNetwork
                 Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
+            Task.Run(async () =>
+            {
+                if(ngrokManager.IsNgrokActive())
+                {
+                    DiscordManager.UpdateRichPresence(ip: NgrokAddress, updateTimestamp: true);
+                }
+                else
+                {
+                    DiscordManager.UpdateRichPresence(ip: $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv6 ? await IPUtils.GetWANv4Address() : string.Empty)};" +
+                                                          $"{(Config.Options.IPConfiguration != IPUtils.IPConfiguration.IPv4 ? await IPUtils.GetWANv6Address() : string.Empty)};" +
+                                                          $"{port}",
+                                                      updateTimestamp: true);
+                }
+            });
+
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
 
         public override void Stop()
         {
             socket?.Stop();
+
+            ngrokManager?.StopNgrok();
 
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }

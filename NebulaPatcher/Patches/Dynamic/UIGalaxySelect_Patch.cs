@@ -70,7 +70,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if(UIVirtualStarmap_Transpiler.customBirthPlanet != -1)
                 {
-                    Debug.Log((GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) == null) ? "null" : "not null");
+                    Log.Debug((GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) == null) ? "null" : "not null");
                     GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet)?.UnloadFactory();
                 }
 
@@ -92,8 +92,9 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIGalaxySelect.CancelSelect))]
-        public static void CancelSelect_Prefix(UIGalaxySelect __instance)
+        [HarmonyPatch(nameof(UIGalaxySelect._OnClose))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnClose_Prefix(UIGalaxySelect __instance)
         {
             if (Multiplayer.IsInMultiplayerMenu && Multiplayer.Session.IsInLobby)
             {

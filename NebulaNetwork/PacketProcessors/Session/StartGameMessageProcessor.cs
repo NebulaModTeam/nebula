@@ -49,7 +49,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
 
                     // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
-                    PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData()); // Remove inventory from mecha data
+                    PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData(), Multiplayer.Session.NumPlayers); // Remove inventory from mecha data
                     using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                     {
                         foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
@@ -80,9 +80,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                 Multiplayer.Session.IsInLobby = false;
                 Multiplayer.ShouldReturnToJoinMenu = false;
 
-                GameDesc gameDesc = UIRoot.instance.galaxySelect.gameDesc;
-                gameDesc.SetForNewGame(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, 1, gameDesc.resourceMultiplier);
-                DSPGame.StartGameSkipPrologue(gameDesc);
+                DSPGame.StartGameSkipPrologue(UIRoot.instance.galaxySelect.gameDesc);
 
                 InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
             }
