@@ -61,6 +61,7 @@ namespace NebulaNetwork
 #endif
 
             clientSocket = new WebSocket($"ws://{serverEndpoint}/socket");
+            clientSocket.Log.Level = LogLevel.Debug;
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;

@@ -108,6 +108,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             // Add ScrollView
             RectTransform list = Object.Instantiate(tabTweeners[3].transform.Find("list").GetComponent<RectTransform>(), multiplayerContent);
+            list.name = "list";
             list.offsetMax = Vector2.zero;
             RectTransform listContent = list.Find("scroll-view/viewport/content").GetComponent<RectTransform>();
             foreach (RectTransform child in listContent)
@@ -239,6 +240,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                     return;
                 }
+
                 prop.SetValue(tempMultiplayerOptions, value, null);
 
             });
@@ -326,10 +328,26 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static void CreateStringControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
         {
+            UICharacterLimitAttribute characterLimitAttr = prop.GetCustomAttribute<UICharacterLimitAttribute>();
+            UIContentTypeAttribute contentTypeAttr = prop.GetCustomAttribute<UIContentTypeAttribute>();
+
             RectTransform element = Object.Instantiate(inputTemplate, container, false);
             SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
 
             InputField input = element.GetComponentInChildren<InputField>();
+            if (characterLimitAttr != null)
+            {
+                input.characterLimit = characterLimitAttr.Max;
+            }
+            if (contentTypeAttr != null)
+            {
+                input.contentType = contentTypeAttr.ContentType;
+            }
+            if (control?.DisplayName != null)
+            {
+                tempMultiplayerOptions.ModifyInputFieldAtCreation(control.DisplayName, ref input);
+            }
+            
             input.onValueChanged.RemoveAllListeners();
             input.onValueChanged.AddListener((value) => { prop.SetValue(tempMultiplayerOptions, value, null); });
 
