@@ -76,7 +76,7 @@ namespace NebulaNetwork.Ngrok
                         );
                     });
 
-                    hasDownloadAndInstallBeenConfirmed = await await Task.WhenAny(downloadAndInstallConfirmation, downloadAndInstallRejection);
+                    hasDownloadAndInstallBeenConfirmed = (await Task.WhenAny(downloadAndInstallConfirmation, downloadAndInstallRejection)).Result;
                     if (!hasDownloadAndInstallBeenConfirmed)
                     {
                         NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok, because user rejected Ngrok download and install confirmation!");
@@ -245,8 +245,13 @@ namespace NebulaNetwork.Ngrok
                 throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
             }
 
-            await await Task.WhenAny(_ngrokAddressObtained);
+            if (!_ngrokAddressObtained.Wait(15000))
+            {
+                throw new TimeoutException($"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode}");
+            }
+
             return NgrokAddress;
+
         }
 
         public async Task<string> GetTunnelAddressFromAPI()
