@@ -238,19 +238,19 @@ namespace NebulaNetwork.Ngrok
             return !_ngrokProcess.HasExited;
         }
 
-        public async Task<string> GetNgrokAddressAsync()
+        public Task<string> GetNgrokAddress()
         {
             if (!IsNgrokActive())
             {
                 throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
             }
 
-            if (!_ngrokAddressObtained.Wait(15000))
+            if (!_ngrokAddressObtained.Wait(TimeSpan.FromSeconds(15)))
             {
                 throw new TimeoutException($"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode}");
             }
 
-            return NgrokAddress;
+            return Task.FromResult(NgrokAddress);
 
         }
 
