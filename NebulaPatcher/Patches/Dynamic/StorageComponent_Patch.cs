@@ -99,7 +99,8 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
-                StorageSyncManager.SendToPlayersOnTheSamePlanet(packet, GameMain.data.localPlanet.id);
+                // Assume storage is on the local planet, send to all clients in local star system who may have the factory loaded
+                Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.localStar.id);
             }
             else
             {
