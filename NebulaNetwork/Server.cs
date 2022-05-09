@@ -92,7 +92,7 @@ namespace NebulaNetwork
                     {
                         NebulaModel.Logger.Log.Warn("Could not create UPnp or Pmp port mapping");
                     }
-                }).Wait();
+                });
             }
 
             ngrokManager = new Ngrok.NgrokManager(port);                

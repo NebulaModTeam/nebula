@@ -21,7 +21,7 @@ namespace NebulaModel
 
         [DisplayName("Enable UPnp/Pmp Support")]
         [Description("If enabled, attempt to automatically create a port mapping using UPnp/Pmp (only works if your router has this feature and it is enabled)")]
-        public bool EnableUPnpOrPmpSupport { get; set; } = true;
+        public bool EnableUPnpOrPmpSupport { get; set; } = false;
 
         [DisplayName("Enable Experimental Ngrok support")]
         [Description("If enabled, when hosting a server this will automatically download and install the Ngrok client and set up an Ngrok tunnel that provides an address at which the server can be joined")]
