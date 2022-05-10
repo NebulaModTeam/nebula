@@ -31,6 +31,7 @@ namespace NebulaNetwork
 
         private float mechaSynchonizationTimer = 0f;
         private float gameStateUpdateTimer = 0f;
+        private bool websocketAuthenticationFailure;
 
         public Client(string url, int port)
             : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port))
@@ -65,6 +66,25 @@ namespace NebulaNetwork
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
+
+            var currentLogOutput = clientSocket.Log.Output;
+            clientSocket.Log.Output = (logData, arg2) =>
+            {
+                currentLogOutput(logData, arg2);
+
+                // This method of detecting an authentication failure is super finicky, however there is no other way to do this in the websocket package we are currently using
+                if (logData.Level == LogLevel.Fatal && logData.Message == "Requires the authentication.")
+                {
+                    websocketAuthenticationFailure = true;
+                }
+            };
+
+            if (!string.IsNullOrEmpty(Config.Options.ClientPassword))
+            {
+                clientSocket.SetCredentials("nebula-player", Config.Options.ClientPassword, true);
+            }
+
+            websocketAuthenticationFailure = false;
 
             clientSocket.Connect();
 
@@ -179,6 +199,8 @@ namespace NebulaNetwork
         {
             serverConnection = null;
 
+            NebulaModel.Logger.Log.Warn($"WEBSOCKET ONCLOSE: {e.Code}, {e.Reason}");
+
             UnityDispatchQueue.RunOnMainThread(() =>
             {
                 // If the client is Quitting by himself, we don't have to inform him of his disconnection.
@@ -230,6 +252,16 @@ namespace NebulaNetwork
                     InGamePopup.ShowWarning(
                         "Game Version Mismatch",
                         $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
+                        "OK".Translate(),
+                        Multiplayer.LeaveGame);
+                    return;
+                }
+
+                if (e.Code == (ushort)DisconnectionReason.ProtocolError && websocketAuthenticationFailure)
+                {
+                    InGamePopup.ShowWarning(
+                        "Server Requires Password",
+                        $"Could not connect to server because you did not provide a valid Client Password (See multiplayer options in the setting menu).",
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;

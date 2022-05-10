@@ -15,6 +15,16 @@ namespace NebulaModel
         [DisplayName("Nickname")]
         public string Nickname { get; set; } = string.Empty;
 
+        [DisplayName("Server Password")]
+        [Description("If provided, this will set a password for your hosted server.")]
+        [UIContentType(InputField.ContentType.Password)]
+        public string ServerPassword { get; set; } = string.Empty;
+
+        [DisplayName("Client Password")]
+        [Description("If provided, try and use this password to join password protected servers.")]
+        [UIContentType(InputField.ContentType.Password)]
+        public string ClientPassword { get; set; } = string.Empty;
+
         [DisplayName("Host Port")]
         [UIRange(1, ushort.MaxValue)]
         public ushort HostPort { get; set; } = 8469;

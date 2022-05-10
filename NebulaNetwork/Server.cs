@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
 using WebSocketSharp;
+using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 
 namespace NebulaNetwork
@@ -78,6 +79,20 @@ namespace NebulaNetwork
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             socket.Log.Level = LogLevel.Debug;
             socket.AllowForwardedRequest = true; // This is required to make the websocket play nice with tunneling services like ngrok
+
+            if (!string.IsNullOrEmpty(Config.Options.ServerPassword))
+            {
+                socket.AuthenticationSchemes = AuthenticationSchemes.Basic;
+                socket.UserCredentialsFinder = id => {
+                    var name = id.Name;
+
+                    // Return user name, password, and roles.
+                    return name == "nebula-player"
+                           ? new NetworkCredential(name, Config.Options.ServerPassword)
+                           : null; // If the user credentials are not found.
+                };
+            }
+
             DisableNagleAlgorithm(socket);
             WebSocketService.PacketProcessor = PacketProcessor;
             WebSocketService.PlayerManager = PlayerManager;
