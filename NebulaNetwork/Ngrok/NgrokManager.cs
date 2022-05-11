@@ -16,7 +16,8 @@ namespace NebulaNetwork.Ngrok
 {
     public class NgrokManager
     {
-        private readonly string _ngrokPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/ngrok-v3-stable-windows-amd64/ngrok.exe";
+        private readonly string _ngrokPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ngrok-v3-stable-windows-amd64", "ngrok.exe");
+        private readonly string _ngrokConfigPath;
         private readonly int _port;
         private readonly string _authtoken;
         private readonly string _region;
@@ -31,6 +32,7 @@ namespace NebulaNetwork.Ngrok
 
         public NgrokManager(int port, string authtoken = null, string region = null)
         {
+            _ngrokConfigPath = Path.Combine(Path.GetDirectoryName(_ngrokPath), "ngrok.yml");
             _port = port;
             _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
             _region = region ?? Config.Options.NgrokRegion;
@@ -117,16 +119,23 @@ namespace NebulaNetwork.Ngrok
                 {
                     using (var zip = new ZipArchive(await s, ZipArchiveMode.Read))
                     {
+                        if (File.Exists(_ngrokPath))
+                        {
+                            File.Delete(_ngrokPath);
+                        }
                         zip.ExtractToDirectory(Path.GetDirectoryName(_ngrokPath));
                     }
                 }
             }
+
+            File.WriteAllLines(_ngrokConfigPath, new string[] { "version: 2" });
+
             NebulaModel.Logger.Log.WarnInform("Ngrok install completed in the plugin folder");
         }
 
         private bool IsNgrokInstalled()
         {
-            return File.Exists(_ngrokPath);
+            return File.Exists(_ngrokPath) && File.Exists(_ngrokConfigPath);
         }
 
         private bool StartNgrok()
@@ -142,7 +151,7 @@ namespace NebulaNetwork.Ngrok
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 FileName = _ngrokPath,
-                Arguments = $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
+                Arguments = $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json --config \"{_ngrokConfigPath}\"" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
             };
 
             _ngrokProcess.OutputDataReceived += new DataReceivedEventHandler(OutputDataReceivedEventHandler);
