@@ -45,17 +45,23 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        private static RectTransform multiplayerTab;
-
         // Templates
         private static RectTransform checkboxTemplate;
         private static RectTransform comboBoxTemplate;
         private static RectTransform sliderTemplate;
         private static RectTransform inputTemplate;
+        private static RectTransform subtabTemplate;
         private static RectTransform multiplayerContent;
         private static int multiplayerTabIndex;
         private static Dictionary<string, System.Action> tempToUICallbacks;
         private static MultiplayerOptions tempMultiplayerOptions = new MultiplayerOptions();
+
+        // Sub tabs
+        private readonly static List<UIButton> subtabButtons = new();
+        private readonly static List<Text> subtabTexts = new();
+        private const float subtabOffest = 160f;
+        private static Image subtabSlider;
+        private static int subtabIndex = -1;
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIOptionWindow._OnCreate))]
@@ -71,7 +77,8 @@ namespace NebulaPatcher.Patches.Dynamic
             RectTransform lastTab = tabButtons[tabButtons.Length - 1].GetComponent<RectTransform>();
             RectTransform beforeLastTab = tabButtons[tabButtons.Length - 2].GetComponent<RectTransform>();
             float tabOffset = lastTab.anchoredPosition.x - beforeLastTab.anchoredPosition.x;
-            multiplayerTab = Object.Instantiate(lastTab, lastTab.parent, true);
+            RectTransform multiplayerTab = Object.Instantiate(lastTab, lastTab.parent, true);
+            multiplayerTab.name = "tab-button-multiplayer";
             multiplayerTab.anchoredPosition = new Vector2(lastTab.anchoredPosition.x + tabOffset, lastTab.anchoredPosition.y);
             UIButton[] newTabButtons = tabButtons.AddToArray(multiplayerTab.GetComponent<UIButton>());
             __instance.tabButtons = newTabButtons;
@@ -89,7 +96,9 @@ namespace NebulaPatcher.Patches.Dynamic
             RectTransform contentTemplate = tabTweeners[0].GetComponent<RectTransform>();
             multiplayerContent = Object.Instantiate(contentTemplate, contentTemplate.parent, true);
             multiplayerContent.name = "multiplayer-content";
+            multiplayerContent.localPosition += new Vector3(0, -65, 0);
 
+            // Add revert button
             Tweener[] newContents = tabTweeners.AddToArray(multiplayerContent.GetComponent<Tweener>());
             __instance.tabTweeners = newContents;
             UIButton[] revertButtons = __instance.revertButtons;
@@ -105,6 +114,41 @@ namespace NebulaPatcher.Patches.Dynamic
                     Object.Destroy(child.gameObject);
                 }
             }
+
+            // Add subtab-bar for config catagories
+            RectTransform subtabsBar = (RectTransform)Object.Instantiate(multiplayerTab.parent, multiplayerContent);
+            subtabSlider = Object.Instantiate(__instance.tabSlider, subtabsBar);
+            subtabsBar.name = "subtab-line";
+            subtabsBar.anchoredPosition = new Vector2(0, 25);
+            subtabsBar.anchoredPosition3D = new Vector3(0, 25);
+
+            // Set up default subtab "General"
+            RectTransform subtab = null;
+            foreach (RectTransform child in subtabsBar)
+            {
+                if (child.name == "tab-button-multiplayer")
+                {
+                    subtab = child;
+                }
+                else if (child.name == "bar")
+                {
+                    subtabSlider = child.GetComponentInChildren<Image>();
+                }
+                else
+                {
+                    Object.Destroy(child.gameObject);
+                }
+            }
+            subtab.localPosition = new Vector3(20, 38, 0);
+            subtabButtons.Add(subtab.GetComponent<UIButton>());
+            subtab.name = $"tab-button-{subtabButtons.Count}";
+            Text subtabText = subtab.GetComponentInChildren<Text>();
+            subtabText.text = "General";
+            subtabTexts.Add(subtabText);
+            subtabTemplate = subtab;
+
+            // Test?
+            CreateSubtab("Network settings");
 
             // Add ScrollView
             RectTransform list = Object.Instantiate(tabTweeners[3].transform.Find("list").GetComponent<RectTransform>(), multiplayerContent);
@@ -130,6 +174,13 @@ namespace NebulaPatcher.Patches.Dynamic
             inputTemplate.gameObject.SetActive(false);
 
             AddMultiplayerOptionsProperties(listContent);
+            
+            for (int i = 0; i < subtabButtons.Count; i++)
+            {
+                subtabButtons[i].data = i;
+                subtabButtons[i].onClick += OnSubtabButtonClick;
+            }
+            SetSubtabIndex(0);
         }
 
         [HarmonyPostfix]
@@ -181,10 +232,35 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
+        private static void OnSubtabButtonClick(int idx)
+        {
+            SetSubtabIndex(idx);
+        }
+
+        private static void SetSubtabIndex(int index)
+        {
+            if (subtabIndex != index)
+            {
+                for (int i = 0; i < subtabButtons.Count; i++)
+                {
+                    if (i == index)
+                    {
+                        subtabTexts[i].color = Color.white;
+                    }
+                    else
+                    {
+                        subtabTexts[i].color = new Color(1f, 1f, 1f, 0.55f);
+                    }
+                }
+                subtabSlider.rectTransform.anchoredPosition = new Vector2((subtabOffest * index), subtabSlider.rectTransform.anchoredPosition.y);
+            }
+            subtabIndex = index;
+        }
+
         private static void AddMultiplayerOptionsProperties(RectTransform container)
         {
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
-            Vector2 anchorPosition = new Vector2(30, -20);
+            Vector2 anchorPosition = new Vector2(30, 0);
 
             foreach (PropertyInfo prop in properties)
             {
@@ -219,6 +295,17 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             container.sizeDelta = new Vector2(container.sizeDelta.x, -anchorPosition.y + 40);
+        }
+
+        private static void CreateSubtab(string subtabName)
+        {
+            RectTransform subtab = Object.Instantiate(subtabTemplate, subtabTemplate.parent);
+            subtab.anchoredPosition = new Vector2(subtabTemplate.anchoredPosition.x + (subtabOffest * subtabButtons.Count), subtabTemplate.anchoredPosition.y);
+            subtabButtons.Add(subtab.GetComponent<UIButton>());
+            subtab.name = $"tab-button-{subtabButtons.Count}";
+            Text subtabText = subtab.GetComponentInChildren<Text>();
+            subtabText.text = subtabName;
+            subtabTexts.Add(subtabText);
         }
 
         private static void CreateBooleanControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
