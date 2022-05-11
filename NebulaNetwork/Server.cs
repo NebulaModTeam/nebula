@@ -120,7 +120,7 @@ namespace NebulaNetwork
             {
                 if(ngrokManager.IsNgrokActive())
                 {
-                    DiscordManager.UpdateRichPresence(ip: NgrokAddress, updateTimestamp: true);
+                    DiscordManager.UpdateRichPresence(ip: await ngrokManager.GetNgrokAddressAsync(), updateTimestamp: true);
                 }
                 else
                 {

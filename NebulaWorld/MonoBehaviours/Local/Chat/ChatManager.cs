@@ -2,6 +2,7 @@
 using CommonAPI.Systems;
 using NebulaModel;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
 using System;
@@ -66,6 +67,12 @@ namespace NebulaWorld.MonoBehaviours.Local
             {
                 Multiplayer.Session.Network?.SendPacket(new NewChatMessagePacket(newMessage.ChatMessageType,
                     newMessage.MessageText, DateTime.Now, GetUserName()));
+            }
+
+            if (Log.LastWarnMsg != null)
+            {
+                SendChatMessage(Log.LastWarnMsg, ChatMessageType.SystemWarnMessage);
+                Log.LastWarnMsg = null;
             }
         }
 
