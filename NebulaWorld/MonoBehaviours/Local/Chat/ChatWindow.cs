@@ -134,9 +134,21 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         public ChatMessage SendLocalChatMessage(string text, ChatMessageType messageType)
         {
+
             if (!messageType.IsCommandMessage())
             {
                 text = ChatUtils.SanitizeText(text);
+            }
+            else
+            {
+                if (messageType == ChatMessageType.SystemInfoMessage && !Config.Options.EnableInfoMessage)
+                {
+                    return null;
+                }
+                if (messageType == ChatMessageType.SystemWarnMessage && !Config.Options.EnableWarnMessage)
+                {
+                    return null;
+                }
             }
 
             text = RichChatLinkRegistry.ExpandRichTextTags(text);
@@ -146,7 +158,6 @@ namespace NebulaWorld.MonoBehaviours.Local
                 messages[0].DestroyMessage();
                 messages.Remove(messages[0]);
             }
-
 
             GameObject textObj = Instantiate(textObject, chatPanel);
             ChatMessage newMsg = new ChatMessage(textObj, text, messageType);
