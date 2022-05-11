@@ -59,6 +59,8 @@ namespace NebulaPatcher.Patches.Dynamic
         // Sub tabs
         private readonly static List<UIButton> subtabButtons = new();
         private readonly static List<Text> subtabTexts = new();
+        private readonly static List<Transform> subtabContents = new();
+        private static RectTransform contentContainer;
         private const float subtabOffest = 160f;
         private static Image subtabSlider;
         private static int subtabIndex = -1;
@@ -146,9 +148,7 @@ namespace NebulaPatcher.Patches.Dynamic
             subtabText.text = "General";
             subtabTexts.Add(subtabText);
             subtabTemplate = subtab;
-
-            // Test?
-            CreateSubtab("Network settings");
+            subtabContents.Add(new GameObject("General").transform);
 
             // Add ScrollView
             RectTransform list = Object.Instantiate(tabTweeners[3].transform.Find("list").GetComponent<RectTransform>(), multiplayerContent);
@@ -159,6 +159,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 Object.Destroy(child.gameObject);
             }
+            contentContainer = listContent;
 
             // Find control templates
             checkboxTemplate = contentTemplate.Find("fullscreen").GetComponent<RectTransform>();
@@ -173,10 +174,14 @@ namespace NebulaPatcher.Patches.Dynamic
             inputField.sizeDelta = new Vector2(inputField.sizeDelta.x, 35);
             inputTemplate.gameObject.SetActive(false);
 
-            AddMultiplayerOptionsProperties(listContent);
+            AddMultiplayerOptionsProperties();
             
-            for (int i = 0; i < subtabButtons.Count; i++)
+            // Attach contents to main container
+            for (int i = 0; i < subtabContents.Count; i++)
             {
+                subtabContents[i].SetParent(listContent);
+                subtabContents[i].localPosition = Vector3.zero;
+                subtabContents[i].localScale = Vector3.one;
                 subtabButtons[i].data = i;
                 subtabButtons[i].onClick += OnSubtabButtonClick;
             }
@@ -246,10 +251,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     if (i == index)
                     {
                         subtabTexts[i].color = Color.white;
+                        subtabContents[i].gameObject.SetActive(true);
+                        contentContainer.sizeDelta = new Vector2(contentContainer.sizeDelta.x, 40 * (subtabContents[i].childCount + 1));
                     }
                     else
                     {
                         subtabTexts[i].color = new Color(1f, 1f, 1f, 0.55f);
+                        subtabContents[i].gameObject.SetActive(false);
                     }
                 }
                 subtabSlider.rectTransform.anchoredPosition = new Vector2((subtabOffest * index), subtabSlider.rectTransform.anchoredPosition.y);
@@ -257,17 +265,30 @@ namespace NebulaPatcher.Patches.Dynamic
             subtabIndex = index;
         }
 
-        private static void AddMultiplayerOptionsProperties(RectTransform container)
+        private static void AddMultiplayerOptionsProperties()
         {
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
-            Vector2 anchorPosition = new Vector2(30, 0);
 
             foreach (PropertyInfo prop in properties)
             {
                 DisplayNameAttribute displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
                 DescriptionAttribute descriptionAttr = prop.GetCustomAttribute<DescriptionAttribute>();
+                CategoryAttribute categoryAttribute = prop.GetCustomAttribute<CategoryAttribute>();
                 if (displayAttr != null)
                 {
+                    int index = 0;
+                    if (categoryAttribute != null)
+                    {
+                        index = subtabTexts.FindIndex((text) => text.text == categoryAttribute.Category);
+                        if (index == -1)
+                        {
+                            CreateSubtab(categoryAttribute.Category);
+                            index = subtabTexts.Count - 1;
+                        }
+                    }
+                    Transform container = subtabContents[index];
+                    Vector2 anchorPosition = new Vector2(30, -40 * container.childCount);
+
                     if (prop.PropertyType == typeof(bool))
                     {
                         CreateBooleanControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
@@ -289,12 +310,8 @@ namespace NebulaPatcher.Patches.Dynamic
                         Log.Warn($"MultiplayerOption property \"${prop.Name}\" of type \"{prop.PropertyType}\" not supported.");
                         continue;
                     }
-
-                    anchorPosition = new Vector2(anchorPosition.x, anchorPosition.y - 40);
                 }
             }
-
-            container.sizeDelta = new Vector2(container.sizeDelta.x, -anchorPosition.y + 40);
         }
 
         private static void CreateSubtab(string subtabName)
@@ -306,9 +323,11 @@ namespace NebulaPatcher.Patches.Dynamic
             Text subtabText = subtab.GetComponentInChildren<Text>();
             subtabText.text = subtabName;
             subtabTexts.Add(subtabText);
+
+            subtabContents.Add(new GameObject(subtabName).transform);
         }
 
-        private static void CreateBooleanControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateBooleanControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, Transform container)
         {
             RectTransform element = Object.Instantiate(checkboxTemplate, container, false);
             SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
@@ -338,7 +357,7 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateNumberControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateNumberControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, Transform container)
         {
             UIRangeAttribute rangeAttr = prop.GetCustomAttribute<UIRangeAttribute>();
             bool sliderControl = rangeAttr != null && rangeAttr.Slider;
@@ -413,7 +432,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
-        private static void CreateStringControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateStringControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, Transform container)
         {
             UICharacterLimitAttribute characterLimitAttr = prop.GetCustomAttribute<UICharacterLimitAttribute>();
             UIContentTypeAttribute contentTypeAttr = prop.GetCustomAttribute<UIContentTypeAttribute>();
@@ -444,7 +463,7 @@ namespace NebulaPatcher.Patches.Dynamic
             };
         }
 
-        private static void CreateEnumControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, RectTransform container)
+        private static void CreateEnumControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, Transform container)
         {
             RectTransform element = Object.Instantiate(comboBoxTemplate, container, false);
             SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);

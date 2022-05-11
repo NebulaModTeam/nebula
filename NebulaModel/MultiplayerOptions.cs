@@ -15,37 +15,37 @@ namespace NebulaModel
         [DisplayName("Nickname")]
         public string Nickname { get; set; } = string.Empty;
 
-        [DisplayName("Host Port")]
+        [DisplayName("Host Port"), Category("Network")]
         [UIRange(1, ushort.MaxValue)]
         public ushort HostPort { get; set; } = 8469;
 
-        [DisplayName("Enable Experimental Ngrok support")]
+        [DisplayName("Enable Experimental Ngrok support"), Category("Network")]
         [Description("If enabled, when hosting a server this will automatically download and install the Ngrok client and set up an Ngrok tunnel that provides an address at which the server can be joined")]
         public bool EnableNgrok { get; set; } = false;
 
         private const string _ngrokAuthtokenDisplayname = "Ngrok Authtoken";
-        [DisplayName(_ngrokAuthtokenDisplayname)]
+        [DisplayName(_ngrokAuthtokenDisplayname), Category("Network")]
         [Description("This is required for Ngrok support and can be obtained by creating a free account at https://ngrok.com/")]
         [UICharacterLimit(49)]
         public string NgrokAuthtoken { get; set; } = string.Empty;
 
         public string NgrokRegion { get; set; } = string.Empty;
 
-        [DisplayName("Remember Last IP")]
+        [DisplayName("Remember Last IP"), Category("Network")]
         public bool RememberLastIP { get; set; } = true;
 
-        [DisplayName("Enable Discord RPC (requires restart)")]
+        [DisplayName("Enable Discord RPC (requires restart)"), Category("Network")]
         public bool EnableDiscordRPC { get; set; } = true;
 
-        [DisplayName("Auto accept Discord join requests")]
+        [DisplayName("Auto accept Discord join requests"), Category("Network")]
         public bool AutoAcceptDiscordJoinRequests { get; set; } = false;
 
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
 
-        [DisplayName("Auto Open Chat")]
+        [DisplayName("Auto Open Chat"), Category("Chat")]
+        [Description("Auto open chat window when receiving message from other players")]
         public bool AutoOpenChat { get; set; } = true;
-
         public string LastIP { get; set; } = string.Empty;
 
         [DisplayName("Sync Ups")]
@@ -64,18 +64,18 @@ namespace NebulaModel
             set { 
                 _streamerMode = value;
 
-                InputField ngrokAuthTokenInput = GameObject.Find("list/scroll-view/viewport/content/NgrokAuthtoken")?.GetComponentInChildren<InputField>();
+                InputField ngrokAuthTokenInput = GameObject.Find("list/scroll-view/viewport/content/Network/NgrokAuthtoken")?.GetComponentInChildren<InputField>();
                 UpdateNgrokAuthtokenInputFieldContentType(ref ngrokAuthTokenInput);
             }
         }
-        
-        [DisplayName("Default chat position")]
+
+        [DisplayName("Default chat position"), Category("Chat")]
         public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
         
-        [DisplayName("Default chat size")]
+        [DisplayName("Default chat size"), Category("Chat")]
         public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
 
-        [DisplayName("Cleanup inactive sessions")]
+        [DisplayName("Cleanup inactive sessions"), Category("Network")]
         [Description("If disabled the underlying networking library will not cleanup inactive connections. This might solve issues with clients randomly disconnecting and hosts having a 'System.ObjectDisposedException'.")]
         public bool CleanupInactiveSessions { get; set; } = true;
 
