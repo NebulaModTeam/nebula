@@ -29,6 +29,8 @@ namespace NebulaModel
         [UICharacterLimit(49)]
         public string NgrokAuthtoken { get; set; } = string.Empty;
 
+        [DisplayName("Ngrok Region"), Category("Network")]
+        [Description("Available Regions: us, eu, au, ap, sa, jp, in")]
         public string NgrokRegion { get; set; } = string.Empty;
 
         [DisplayName("Remember Last IP"), Category("Network")]
@@ -40,12 +42,13 @@ namespace NebulaModel
         [DisplayName("Auto accept Discord join requests"), Category("Network")]
         public bool AutoAcceptDiscordJoinRequests { get; set; } = false;
 
+        [DisplayName("IP Configuration"), Category("Network")]
+        [Description("Configure which type of IP should be used by Discord RPC")]
+        public IPUtils.IPConfiguration IPConfiguration { get; set; }
+
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
 
-        [DisplayName("Auto Open Chat"), Category("Chat")]
-        [Description("Auto open chat window when receiving message from other players")]
-        public bool AutoOpenChat { get; set; } = true;
         public string LastIP { get; set; } = string.Empty;
 
         [DisplayName("Sync Ups")]
@@ -68,6 +71,16 @@ namespace NebulaModel
                 UpdateNgrokAuthtokenInputFieldContentType(ref ngrokAuthTokenInput);
             }
         }
+
+        [DisplayName("Auto Open Chat"), Category("Chat")]
+        [Description("Auto open chat window when receiving message from other players")]
+        public bool AutoOpenChat { get; set; } = true;
+
+        [DisplayName("Show system warn message"), Category("Chat")]
+        public bool EnableWarnMessage { get; set; } = true;
+
+        [DisplayName("Show system info message"), Category("Chat")]
+        public bool EnableInfoMessage { get; set; } = true;
 
         [DisplayName("Default chat position"), Category("Chat")]
         public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
@@ -118,8 +131,6 @@ namespace NebulaModel
         public bool BuildingWarningEnabled { get; set; } = true;
         public bool BuildingIconEnabled { get; set; } = true;
         public bool GuidingLightEnabled { get; set; } = true;
-
-        public IPUtils.IPConfiguration IPConfiguration { get; set; }
 
         public object Clone()
         {

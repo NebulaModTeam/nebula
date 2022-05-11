@@ -41,7 +41,7 @@ namespace NebulaNetwork.Ngrok
 
             if (string.IsNullOrEmpty(_authtoken))
             {
-                NebulaModel.Logger.Log.Warn("Ngrok support was enabled, however no Authtoken was provided");
+                NebulaModel.Logger.Log.WarnInform("Ngrok support was enabled, however no Authtoken was provided");
                 return;
             }
 
@@ -49,7 +49,7 @@ namespace NebulaNetwork.Ngrok
             string[] availableRegions = { "us", "eu", "au", "ap", "sa", "jp", "in" };
             if (!string.IsNullOrEmpty(_region) && !availableRegions.Any(_region.Contains))
             {
-                NebulaModel.Logger.Log.Warn("Unsupported Ngrok region was provided, defaulting to autodetection");
+                NebulaModel.Logger.Log.WarnInform("Unsupported Ngrok region was provided, defaulting to autodetection");
                 _region = null;
             }
 
@@ -88,7 +88,7 @@ namespace NebulaNetwork.Ngrok
                     }
                     catch
                     {
-                        NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok!");
+                        NebulaModel.Logger.Log.WarnInform("Failed to download or install Ngrok!");
                         throw;
                     }
 
@@ -96,13 +96,13 @@ namespace NebulaNetwork.Ngrok
 
                 if (!StartNgrok())
                 {
-                    NebulaModel.Logger.Log.Warn($"Failed to start Ngrok tunnel! LastErrorCode: {NgrokLastErrorCode}");
+                    NebulaModel.Logger.Log.WarnInform($"Failed to start Ngrok tunnel! LastErrorCode: {NgrokLastErrorCode}");
                     return;
                 }
 
                 if (!IsNgrokActive())
                 {
-                    NebulaModel.Logger.Log.Warn($"Ngrok tunnel has exited prematurely! LastErrorCode: {NgrokLastErrorCode}");
+                    NebulaModel.Logger.Log.WarnInform($"Ngrok tunnel has exited prematurely! LastErrorCode: {NgrokLastErrorCode}");
                     return;
                 }
 
@@ -122,6 +122,7 @@ namespace NebulaNetwork.Ngrok
                     }
                 }
             }
+            NebulaModel.Logger.Log.WarnInform("Ngrok install completed in the plugin folder");
         }
 
         private bool IsNgrokInstalled()
@@ -207,6 +208,7 @@ namespace NebulaNetwork.Ngrok
                 if (errorCodeMatches.Count > 0)
                 {
                     NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
+                    NebulaModel.Logger.Log.WarnInform($"Ngrok Error! Code: {NgrokLastErrorCode}");
                 }
             }
         }
