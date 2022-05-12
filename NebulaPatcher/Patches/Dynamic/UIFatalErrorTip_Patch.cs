@@ -81,7 +81,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 stringBuilder.Append(Multiplayer.Session.LocalPlayer.IsHost ? " (Host)" : " (Client)");
             }
             stringBuilder.AppendLine();
-            stringBuilder.Append("Mods use: ");
+            stringBuilder.Append("Mods used: ");
             foreach (BepInEx.PluginInfo pluginInfo in Chainloader.PluginInfos.Values)
             {
                 stringBuilder.Append('[');

@@ -57,7 +57,7 @@ namespace NebulaWorld.SocialIntegration
                 State = "In Menus",
                 Timestamps =
                 {
-                    Start = 0
+                    Start = DateTimeOffset.Now.ToUnixTimeSeconds(),
                 },
                 Party =
                 {
@@ -144,7 +144,7 @@ namespace NebulaWorld.SocialIntegration
             }
         }
 
-        public static void UpdateRichPresence(string ip = null, string partyId = null, bool secretPassthrough = false)
+        public static void UpdateRichPresence(string ip = null, string partyId = null, bool secretPassthrough = false, bool updateTimestamp = false)
         {
             if(!NebulaModel.Config.Options.EnableDiscordRPC || client == null)
             {
@@ -159,6 +159,11 @@ namespace NebulaWorld.SocialIntegration
             else
             {
                 activity.Party.Size = new();
+            }
+
+            if(updateTimestamp)
+            {
+                activity.Timestamps.Start = DateTimeOffset.Now.ToUnixTimeSeconds();
             }
 
             activity.State = Multiplayer.IsActive ? (Multiplayer.Session.IsInLobby ? "In Lobby" : "In Game") : "In Menus";

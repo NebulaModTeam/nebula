@@ -42,12 +42,17 @@ namespace NebulaModel.Logger
         public static void Warn(string message)
         {
             logger.LogWarning(message);
-            LastWarnMsg = message;
         }
 
         public static void Warn(object message)
         {
             Warn(message?.ToString());
+        }
+
+        public static void WarnInform(string message)
+        {
+            Warn(message);
+            LastWarnMsg = message;
         }
 
         public static void Error(string message)
