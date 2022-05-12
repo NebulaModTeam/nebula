@@ -48,7 +48,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.IsDedicated)
             {
-                NebulaPlugin.StartDedicatedServer();
+                NebulaPlugin.StartDedicatedServer(NebulaWorld.GameStates.GameStatesManager.ImportedSaveName);
             }
         }
     }

@@ -1,6 +1,8 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
+using NebulaModel.DataStructures;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
 using System;
 using System.Text;
@@ -30,7 +32,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIFatalErrorTip._OnOpen))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        public static void _OnOpen_Postfix()
+        public static void _OnOpen_Postfix(UIFatalErrorTip __instance)
         {
             try
             {
@@ -47,10 +49,23 @@ namespace NebulaPatcher.Patches.Dynamic
                     button.GetComponent<UIButton>().BindOnClickSafe(OnClick);
                     button.GetComponent<UIButton>().tips = new UIButton.TipSettings();
                 }
+
+                DedicatedServerReportError();
             }
             catch (Exception e)
             {
                 Log.Warn($"UIFatalErrorTip button did not patch! {e}");
+            }
+        }
+
+        private static void DedicatedServerReportError()
+        {
+            // OnOpen only run once for the first error report
+            if (Multiplayer.IsDedicated && Multiplayer.IsActive)
+            {
+                string log = "Server report an error: \n" + UIFatalErrorTip.instance.errorLogText.text;
+                Log.Warn(log);
+                Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, log, DateTime.Now, ""));
             }
         }
 
