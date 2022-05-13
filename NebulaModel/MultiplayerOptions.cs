@@ -132,6 +132,10 @@ namespace NebulaModel
         public bool BuildingIconEnabled { get; set; } = true;
         public bool GuidingLightEnabled { get; set; } = true;
 
+        public bool EnableRemoteSaveAccess { get; set; } = false;
+        public bool AutoPauseEnabled { get; set; } = true;
+
+
         public object Clone()
         {
             return MemberwiseClone();

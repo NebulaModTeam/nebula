@@ -61,12 +61,13 @@ namespace NebulaWorld.Chat.Commands
             RegisterCommand("help", new HelpCommandHandler(), "h", "?");
             RegisterCommand("who", new WhoCommandHandler(), "players", "list");
             RegisterCommand("whisper", new WhisperCommandHandler(), "w", "tell", "t");
-            RegisterCommand("info", new InfoCommandHandler(), "server");
+            RegisterCommand("info", new InfoCommandHandler());
             RegisterCommand("clear", new ClearCommandHandler(), "c");
             RegisterCommand("xconsole", new XConsoleCommandHandler(), "x");
             RegisterCommand("navigate", new NavigateCommandHandler(), "n");
             RegisterCommand("system", new SystemCommandHandler(), "s");
             RegisterCommand("reconnect", new ReconnectCommandHandler(), "r");
+            RegisterCommand("server", new ServerSaveCommandHandler());
         }
     }
 
