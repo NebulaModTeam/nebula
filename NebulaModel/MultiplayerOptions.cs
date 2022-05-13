@@ -20,7 +20,7 @@ namespace NebulaModel
         [UIContentType(InputField.ContentType.Password)]
         public string ServerPassword { get; set; } = string.Empty;
 
-        public string ClientPassword { get; set; } = string.Empty;
+        public string LastClientPassword { get; set; } = string.Empty;
 
         [DisplayName("Host Port"), Category("Network")]
         [UIRange(1, ushort.MaxValue)]
@@ -42,6 +42,9 @@ namespace NebulaModel
 
         [DisplayName("Remember Last IP"), Category("Network")]
         public bool RememberLastIP { get; set; } = true;
+
+        [DisplayName("Remember Last Client Password"), Category("Network")]
+        public bool RememberLastClientPassword { get; set; } = true;
 
         [DisplayName("Enable Discord RPC (requires restart)"), Category("Network")]
         public bool EnableDiscordRPC { get; set; } = true;

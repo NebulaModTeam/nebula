@@ -25,23 +25,26 @@ namespace NebulaNetwork
         private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private readonly IPEndPoint serverEndpoint;
+        private readonly string serverPassword;
         public IPEndPoint ServerEndpoint => serverEndpoint;
         
         private WebSocket clientSocket;
         private NebulaConnection serverConnection;
+        private bool websocketAuthenticationFailure;
+        
 
         private float mechaSynchonizationTimer = 0f;
         private float gameStateUpdateTimer = 0f;
-        private bool websocketAuthenticationFailure;
 
-        public Client(string url, int port)
-            : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port))
+        public Client(string url, int port, string password = "")
+            : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port), password)
         {
         }
 
-        public Client(IPEndPoint endpoint) : base(null)
+        public Client(IPEndPoint endpoint, string password = "") : base(null)
         {
             serverEndpoint = endpoint;
+            serverPassword = password;
 
         }
 
@@ -80,9 +83,9 @@ namespace NebulaNetwork
                 }
             };
 
-            if (!string.IsNullOrEmpty(Config.Options.ClientPassword))
+            if (!string.IsNullOrEmpty(serverPassword))
             {
-                clientSocket.SetCredentials("nebula-player", Config.Options.ClientPassword, true);
+                clientSocket.SetCredentials("nebula-player", serverPassword, true);
             }
 
             websocketAuthenticationFailure = false;
@@ -95,6 +98,12 @@ namespace NebulaNetwork
             {
                 // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
                 Config.Options.LastIP = serverEndpoint.ToString();
+                Config.SaveOptions();
+            }
+
+            if(Config.Options.RememberLastClientPassword)
+            {
+                Config.Options.LastClientPassword = serverPassword;
                 Config.SaveOptions();
             }
 
@@ -264,14 +273,13 @@ namespace NebulaNetwork
                         "Server Requires Password",
                         "Server is protected. Please enter the correct password:",
                         InputField.ContentType.Password,
-                        Config.Options.ClientPassword,
+                        serverPassword,
                         (password) =>
                         {
                             Multiplayer.ShouldReturnToJoinMenu = false;
                             Multiplayer.LeaveGame();
                             Multiplayer.ShouldReturnToJoinMenu = true;
-                            Config.Options.ClientPassword = password;
-                            Multiplayer.JoinGame(new Client(serverEndpoint));
+                            Multiplayer.JoinGame(new Client(serverEndpoint, password));
                         },
                         Multiplayer.LeaveGame
                         );
