@@ -203,7 +203,7 @@ namespace NebulaWorld
 
                     player.Destroy();
                     remotePlayersModels.Remove(playerId);
-                    if (remotePlayersModels.Count == 0)
+                    if (remotePlayersModels.Count == 0 && Config.Options.AutoPauseEnabled)
                     {
                         Multiplayer.Session.CanPause = true;
                     }
