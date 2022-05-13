@@ -262,13 +262,16 @@ namespace NebulaNetwork
                 {
                     InGamePopup.AskInput(
                         "Server Requires Password",
-                        "Server is protected. Please enter correct password:",
+                        "Server is protected. Please enter the correct password:",
                         InputField.ContentType.Password,
                         Config.Options.ClientPassword,
                         (password) =>
                         {
+                            Multiplayer.ShouldReturnToJoinMenu = false;
                             Multiplayer.LeaveGame();
+                            Multiplayer.ShouldReturnToJoinMenu = true;
                             Config.Options.ClientPassword = password;
+                            Multiplayer.JoinGame(new Client(serverEndpoint));
                         },
                         Multiplayer.LeaveGame
                         );
@@ -307,12 +310,6 @@ namespace NebulaNetwork
             {
                 tcpClient.NoDelay = true;
             }
-        }
-
-        private static void OnPasswordInput(string password)
-        {
-            Multiplayer.LeaveGame();
-            Config.Options.ClientPassword = password;
         }
     }
 }
