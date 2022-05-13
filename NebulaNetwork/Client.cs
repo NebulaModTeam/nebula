@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 using WebSocketSharp;
 
 namespace NebulaNetwork
@@ -259,11 +260,18 @@ namespace NebulaNetwork
 
                 if (e.Code == (ushort)DisconnectionReason.ProtocolError && websocketAuthenticationFailure)
                 {
-                    InGamePopup.ShowWarning(
+                    InGamePopup.AskInput(
                         "Server Requires Password",
-                        $"Could not connect to server because you did not provide a valid Client Password (See multiplayer options in the setting menu).",
-                        "OK".Translate(),
-                        Multiplayer.LeaveGame);
+                        "Server is protected. Please enter correct password:",
+                        InputField.ContentType.Password,
+                        Config.Options.ClientPassword,
+                        (password) =>
+                        {
+                            Multiplayer.LeaveGame();
+                            Config.Options.ClientPassword = password;
+                        },
+                        Multiplayer.LeaveGame
+                        );
                     return;
                 }
 
@@ -299,6 +307,12 @@ namespace NebulaNetwork
             {
                 tcpClient.NoDelay = true;
             }
+        }
+
+        private static void OnPasswordInput(string password)
+        {
+            Multiplayer.LeaveGame();
+            Config.Options.ClientPassword = password;
         }
     }
 }

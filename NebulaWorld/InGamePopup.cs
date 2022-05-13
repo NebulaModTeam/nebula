@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NebulaWorld
 {
@@ -21,6 +22,14 @@ namespace NebulaWorld
                 displayedMessage.m_MessageText.verticalOverflow = VerticalWrapMode.Overflow;
                 displayedMessage.m_MessageText.text = message;
             }
+        }
+
+        // Input
+        public static void AskInput(string title, string message, InputField.ContentType inputType, string inputText, Action<string> onConfrim, Action onCancel)
+        {
+            displayedMessage = UIMessageBox.Show(title, message, "取消".Translate(), "确定".Translate(),
+                UIMessageBox.QUESTION, () => { onCancel?.Invoke(); }, () => { onConfrim?.Invoke(GetInputField()); });
+            CreateInputField(inputType, inputText);
         }
 
         // Info
@@ -101,6 +110,22 @@ namespace NebulaWorld
         private static void Show(int type, string title, string message, string btn1, string btn2, string btn3, Action resp1, Action resp2, Action resp3)
         {
             displayedMessage = UIMessageBox.Show(title, message, btn1, btn2, btn3, type, () => { resp1?.Invoke(); }, () => { resp2?.Invoke(); }, () => { resp3?.Invoke(); });
+        }
+
+        private static void CreateInputField(InputField.ContentType contentType, string text)
+        {
+            GameObject inputObject = GameObject.Find("UI Root/Overlay Canvas/Nebula - Multiplayer Menu/galaxy-seed/InputField");
+            inputObject = UnityEngine.Object.Instantiate(inputObject, displayedMessage.transform.Find("Window/Body/Client"));
+            inputObject.name = "InputField";
+            inputObject.transform.localPosition = new Vector3(-150, 0, 0);
+            InputField inputField = inputObject.GetComponent<InputField>();
+            inputField.contentType = contentType;
+            inputField.text = text;
+        }
+
+        private static string GetInputField()
+        {
+            return displayedMessage.transform.Find("Window/Body/Client/InputField").GetComponent<InputField>().text;
         }
     }
 }
