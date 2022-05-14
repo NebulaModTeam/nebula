@@ -7,18 +7,34 @@ namespace NebulaModel.Utils
 {
     public static class CryptoUtils
     {
-        public static string KeyFile = Path.Combine(new string[] { Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), GameConfig.gameName, "player.key" });
+        private static readonly string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private static readonly string dataPath = Path.Combine(docPath, GameConfig.gameName);
+        private static readonly string keyFile = Path.Combine(docPath, dataPath, "player.key");
 
         public static RSA GetOrCreateUserCert()
         {
-            RSA rsa = RSA.Create();
-            if (File.Exists(KeyFile))
+            if(string.IsNullOrEmpty(docPath))
             {
-                rsa.FromXmlString(File.ReadAllText(KeyFile));
+                Logger.Log.Warn("Could not find documents folder! Using game directory.");
+                try
+                {
+                    Directory.CreateDirectory(dataPath);
+                }
+                catch(UnauthorizedAccessException e)
+                {
+                    Logger.Log.Error($"Unable to create directory {dataPath}, permission denied.");
+                    throw e;
+                }
+            }
+
+            RSA rsa = RSA.Create();
+            if (File.Exists(keyFile))
+            {
+                rsa.FromXmlString(File.ReadAllText(keyFile));
             }
             else
             {
-                File.WriteAllText(KeyFile, rsa.ToXmlString(true));
+                File.WriteAllText(keyFile, rsa.ToXmlString(true));
             }
             return rsa;
         }
