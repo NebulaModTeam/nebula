@@ -193,7 +193,7 @@ namespace NebulaPatcher.Patches.Dynamic
             passwordInput.contentType = InputField.ContentType.Password;
 
             passwordInput.text = "";
-            if (Config.Options.RememberLastClientPassword && !string.IsNullOrEmpty(Config.Options.LastClientPassword))
+            if (Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(Config.Options.LastClientPassword))
             {
                 passwordInput.text = Config.Options.LastClientPassword;
             }

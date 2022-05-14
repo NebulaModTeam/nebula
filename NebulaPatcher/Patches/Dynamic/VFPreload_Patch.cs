@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
 
                 string password = "";
-                if (Config.Options.RememberLastClientPassword && !string.IsNullOrEmpty(Config.Options.LastClientPassword))
+                if (Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(Config.Options.LastClientPassword))
                 {
                     password = Config.Options.LastClientPassword;
                 }

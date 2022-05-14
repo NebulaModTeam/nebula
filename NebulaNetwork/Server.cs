@@ -80,7 +80,7 @@ namespace NebulaNetwork
             socket.Log.Level = LogLevel.Debug;
             socket.AllowForwardedRequest = true; // This is required to make the websocket play nice with tunneling services like ngrok
 
-            if (!string.IsNullOrEmpty(Config.Options.ServerPassword))
+            if (!string.IsNullOrWhiteSpace(Config.Options.ServerPassword))
             {
                 socket.AuthenticationSchemes = AuthenticationSchemes.Basic;
                 socket.UserCredentialsFinder = id => {

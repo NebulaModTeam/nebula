@@ -83,7 +83,7 @@ namespace NebulaNetwork
                 }
             };
 
-            if (!string.IsNullOrEmpty(serverPassword))
+            if (!string.IsNullOrWhiteSpace(serverPassword))
             {
                 clientSocket.SetCredentials("nebula-player", serverPassword, true);
             }
@@ -101,7 +101,7 @@ namespace NebulaNetwork
                 Config.SaveOptions();
             }
 
-            if(Config.Options.RememberLastClientPassword)
+            if(Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(serverPassword))
             {
                 Config.Options.LastClientPassword = serverPassword;
                 Config.SaveOptions();
@@ -208,8 +208,6 @@ namespace NebulaNetwork
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)
         {
             serverConnection = null;
-
-            NebulaModel.Logger.Log.Warn($"WEBSOCKET ONCLOSE: {e.Code}, {e.Reason}");
 
             UnityDispatchQueue.RunOnMainThread(() =>
             {
