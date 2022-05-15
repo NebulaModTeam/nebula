@@ -87,11 +87,11 @@ namespace NebulaNetwork
                     }
                     catch (NatDeviceNotFoundException)
                     {
-                        NebulaModel.Logger.Log.Warn("No UPnp or Pmp compatible/enabled NAT device found");
+                        NebulaModel.Logger.Log.WarnInform("No UPnp or Pmp compatible/enabled NAT device found");
                     }
                     catch (MappingException)
                     {
-                        NebulaModel.Logger.Log.Warn("Could not create UPnp or Pmp port mapping");
+                        NebulaModel.Logger.Log.WarnInform("Could not create UPnp or Pmp port mapping");
                     }
                 });
             }
