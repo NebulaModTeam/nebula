@@ -1,5 +1,16 @@
 ## Changelog
 
+0.8.7:
+
+- @mmjr-x: Add Upnp/pmp support
+- @mmjr-x: Add Ngrok support
+- @mmjr-x: Add server password support
+- @PhantomGamers: Add Discord rich presence support
+- @PhantomGamers: Fix error when unable to obtain documents folder
+- @starfish: Add headless server support
+- @starfish: Add player connect/disconnect message (can be disabled in config)
+- @starfish: Fix NRE when loading a gas giant. Fix planet type mismatch caused by older saves.
+
 0.8.6:
 
 - @starfish: Bugfix regarding NRE exception in UpdateDirtyMeshes()
