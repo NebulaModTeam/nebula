@@ -9,7 +9,7 @@
 - @PhantomGamers: Fix error when unable to obtain documents folder
 - @starfish: Add headless server support
 - @starfish: Add player connect/disconnect message (can be disabled in config)
-- @starfish: Fix NRE when loading a gas giant. Fix plaent type mismatch.
+- @starfish: Fix NRE when loading a gas giant. Fix planet type mismatch caused by older saves.
 
 0.8.6:
 
