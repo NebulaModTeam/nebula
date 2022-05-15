@@ -34,7 +34,6 @@ namespace NebulaWorld
         private Text pingIndicator;
         private LocalPlayerMovement localPlayerMovement;
         private LocalPlayerAnimation localPlayerAnimation;
-        private ChatManager chatManager;
 
         public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels)
         {
@@ -62,7 +61,6 @@ namespace NebulaWorld
 
             UnityEngine.Object.Destroy(localPlayerMovement);
             UnityEngine.Object.Destroy(localPlayerAnimation);
-            UnityEngine.Object.Destroy(chatManager);
             SetPauseIndicator(true);
         }
 
@@ -150,7 +148,8 @@ namespace NebulaWorld
             // Finally we need add the local player components to the player character
             localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
             localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
-            chatManager = GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
+            // ChatManager should continuous exsit until the game is closed
+            GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
         }
 
         public void OnPlayerJoining(string Username)
@@ -185,7 +184,7 @@ namespace NebulaWorld
                     // Show conneted message
                     string planetname = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
                     string message = string.Format("[{0:HH:mm}] {1} connected ({2})", DateTime.Now, playerData.Username, planetname);
-                    ShowChatMessage(message, ChatMessageType.SystemInfoMessage);
+                    SendChatMessage(message, ChatMessageType.SystemInfoMessage);
                 }
             }
 
@@ -200,11 +199,11 @@ namespace NebulaWorld
                 {
                     // Show disconnected message
                     string message = string.Format("[{0:HH:mm}] {1} disconnected", DateTime.Now, player.Username);
-                    ShowChatMessage(message, ChatMessageType.SystemInfoMessage);
+                    SendChatMessage(message, ChatMessageType.SystemInfoMessage);
 
                     player.Destroy();
                     remotePlayersModels.Remove(playerId);
-                    if (remotePlayersModels.Count == 0)
+                    if (remotePlayersModels.Count == 0 && Config.Options.AutoPauseEnabled)
                     {
                         Multiplayer.Session.CanPause = true;
                     }
@@ -689,9 +688,9 @@ namespace NebulaWorld
             return level;
         }
 
-        public void ShowChatMessage(string text, ChatMessageType messageType)
+        public void SendChatMessage(string text, ChatMessageType messageType)
         {
-            chatManager.SendChatMessage(text, messageType);
+            ChatManager.Instance?.SendChatMessage(text, messageType);
         }
     }
 }

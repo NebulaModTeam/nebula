@@ -18,20 +18,26 @@ namespace NebulaWorld.MonoBehaviours.Local
         private void Awake()
         {
             Instance = this;
-            GameObject prefab = AssetLoader.AssetBundle.LoadAsset<GameObject>("Assets/Prefab/ChatV2.prefab");
-            var uiGameInventory = UIRoot.instance.uiGame.inventory;
-            var chatGo = Instantiate(prefab, uiGameInventory.transform.parent, false);
-            
-            RectTransform trans = (RectTransform)chatGo.transform;
-            MultiplayerOptions options = Config.Options;
+            Transform parent = UIRoot.instance.uiGame.inventory.transform.parent;
+            GameObject chatGo = parent.Find("Chat Window") ? parent.Find("Chat Window").gameObject : null;
+            if (chatGo == null)
+            {
+                // Create chat window when there is no existing one
+                GameObject prefab = AssetLoader.AssetBundle.LoadAsset<GameObject>("Assets/Prefab/ChatV2.prefab");                
+                chatGo = Instantiate(prefab, parent, false);
+                chatGo.name = "Chat Window";
 
-            Vector2 defaultPos = ChatUtils.GetDefaultPosition(options.DefaultChatPosition, options.DefaultChatSize);
-            Vector2 defaultSize = ChatUtils.GetDefaultSize(options.DefaultChatSize);
-            
-            trans.sizeDelta = defaultSize;
-            trans.anchoredPosition = defaultPos;
+                RectTransform trans = (RectTransform)chatGo.transform;
+                MultiplayerOptions options = Config.Options;
 
-            chatGo.GetComponent<UIWindowResize>().minSize = ChatUtils.GetDefaultSize(ChatSize.Small);
+                Vector2 defaultPos = ChatUtils.GetDefaultPosition(options.DefaultChatPosition, options.DefaultChatSize);
+                Vector2 defaultSize = ChatUtils.GetDefaultSize(options.DefaultChatSize);
+
+                trans.sizeDelta = defaultSize;
+                trans.anchoredPosition = defaultPos;
+
+                chatGo.GetComponent<UIWindowResize>().minSize = ChatUtils.GetDefaultSize(ChatSize.Small);
+            }
 
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
             chatWindow.userName = GetUserName();
@@ -42,6 +48,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         private void OnDestroy()
         {
             Config.OnConfigApplied -= UpdateChatPosition;
+            Instance = null;
         }
 
         public static void UpdateChatPosition()
