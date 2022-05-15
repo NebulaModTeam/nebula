@@ -2,9 +2,9 @@
 
 0.8.7:
 
-- @mmj-x: Add Upnp/pmp support
-- @mmj-x: Add Ngork support
-- @mmj-x: Add server password support
+- @mmjr-x: Add Upnp/pmp support
+- @mmjr-x: Add Ngrok support
+- @mmjr-x: Add server password support
 - @PhantomGamers: Add Discord rich presence support
 - @PhantomGamers: Fix error when unable to obtain documents folder
 - @starfish: Add headless server support
