@@ -4,6 +4,9 @@
     <Compile Remove="PacketProcessors\Session\LobbyUpdateValues.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Open.Nat" Version="2.1.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
     <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
     <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
