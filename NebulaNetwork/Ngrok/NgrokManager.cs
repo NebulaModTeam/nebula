@@ -68,7 +68,7 @@ namespace NebulaNetwork.Ngrok
                     {
                         InGamePopup.ShowWarning(
                             "Ngrok download and installation confirmation",
-                            "Ngrok is support is enabled, however it has not been downloaded and installed yet, do you want to automattically download and install Ngrok?",
+                            "Ngrok support is enabled, however it has not been downloaded and installed yet, do you want to automattically download and install Ngrok?",
                             "Accept",
                             "Reject",
                             () => downloadAndInstallConfirmationSource.TrySetResult(true),

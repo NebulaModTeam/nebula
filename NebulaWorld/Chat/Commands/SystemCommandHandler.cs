@@ -38,7 +38,7 @@ namespace NebulaWorld.Chat.Commands
                 resp = "Could not find given star '" + input + "'";
             }
 
-            window.SendLocalChatMessage(resp, ChatMessageType.CommandErrorMessage);
+            window.SendLocalChatMessage(resp, ChatMessageType.CommandOutputMessage);
         }
         public string GetDescription()
         {
