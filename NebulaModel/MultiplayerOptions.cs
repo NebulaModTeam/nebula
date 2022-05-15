@@ -15,6 +15,13 @@ namespace NebulaModel
         [DisplayName("Nickname")]
         public string Nickname { get; set; } = string.Empty;
 
+        [DisplayName("Server Password"), Category("Network")]
+        [Description("If provided, this will set a password for your hosted server.")]
+        [UIContentType(InputField.ContentType.Password)]
+        public string ServerPassword { get; set; } = string.Empty;
+
+        public string LastClientPassword { get; set; } = string.Empty;
+
         [DisplayName("Host Port"), Category("Network")]
         [UIRange(1, ushort.MaxValue)]
         public ushort HostPort { get; set; } = 8469;
@@ -35,6 +42,9 @@ namespace NebulaModel
 
         [DisplayName("Remember Last IP"), Category("Network")]
         public bool RememberLastIP { get; set; } = true;
+
+        [DisplayName("Remember Last Client Password"), Category("Network")]
+        public bool RememberLastClientPassword { get; set; } = true;
 
         [DisplayName("Enable Discord RPC (requires restart)"), Category("Network")]
         public bool EnableDiscordRPC { get; set; } = true;

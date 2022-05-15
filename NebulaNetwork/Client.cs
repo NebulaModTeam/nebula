@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 using WebSocketSharp;
 
 namespace NebulaNetwork
@@ -24,22 +25,26 @@ namespace NebulaNetwork
         private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
 
         private readonly IPEndPoint serverEndpoint;
+        private readonly string serverPassword;
         public IPEndPoint ServerEndpoint => serverEndpoint;
         
         private WebSocket clientSocket;
         private NebulaConnection serverConnection;
+        private bool websocketAuthenticationFailure;
+        
 
         private float mechaSynchonizationTimer = 0f;
         private float gameStateUpdateTimer = 0f;
 
-        public Client(string url, int port)
-            : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port))
+        public Client(string url, int port, string password = "")
+            : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port), password)
         {
         }
 
-        public Client(IPEndPoint endpoint) : base(null)
+        public Client(IPEndPoint endpoint, string password = "") : base(null)
         {
             serverEndpoint = endpoint;
+            serverPassword = password;
 
         }
 
@@ -66,6 +71,25 @@ namespace NebulaNetwork
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
 
+            var currentLogOutput = clientSocket.Log.Output;
+            clientSocket.Log.Output = (logData, arg2) =>
+            {
+                currentLogOutput(logData, arg2);
+
+                // This method of detecting an authentication failure is super finicky, however there is no other way to do this in the websocket package we are currently using
+                if (logData.Level == LogLevel.Fatal && logData.Message == "Requires the authentication.")
+                {
+                    websocketAuthenticationFailure = true;
+                }
+            };
+
+            if (!string.IsNullOrWhiteSpace(serverPassword))
+            {
+                clientSocket.SetCredentials("nebula-player", serverPassword, true);
+            }
+
+            websocketAuthenticationFailure = false;
+
             clientSocket.Connect();
 
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
@@ -74,6 +98,12 @@ namespace NebulaNetwork
             {
                 // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
                 Config.Options.LastIP = serverEndpoint.ToString();
+                Config.SaveOptions();
+            }
+
+            if(Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(serverPassword))
+            {
+                Config.Options.LastClientPassword = serverPassword;
                 Config.SaveOptions();
             }
 
@@ -232,6 +262,25 @@ namespace NebulaNetwork
                         $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
+                    return;
+                }
+
+                if (e.Code == (ushort)DisconnectionReason.ProtocolError && websocketAuthenticationFailure)
+                {
+                    InGamePopup.AskInput(
+                        "Server Requires Password",
+                        "Server is protected. Please enter the correct password:",
+                        InputField.ContentType.Password,
+                        serverPassword,
+                        (password) =>
+                        {
+                            Multiplayer.ShouldReturnToJoinMenu = false;
+                            Multiplayer.LeaveGame();
+                            Multiplayer.ShouldReturnToJoinMenu = true;
+                            Multiplayer.JoinGame(new Client(serverEndpoint, password));
+                        },
+                        Multiplayer.LeaveGame
+                        );
                     return;
                 }
 

@@ -42,7 +42,13 @@ namespace NebulaPatcher.Patches.Dynamic
                     ip = Config.Options.LastIP;
                 }
 
-                UIMainMenu_Patch.JoinGame(ip);
+                string password = "";
+                if (Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(Config.Options.LastClientPassword))
+                {
+                    password = Config.Options.LastClientPassword;
+                }
+
+                UIMainMenu_Patch.JoinGame(ip, password);
                 GameStatesManager.DuringReconnect = false;
             }
 
