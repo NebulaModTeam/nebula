@@ -32,7 +32,14 @@ namespace NebulaNetwork.PacketProcessors.Players
             }
 
             DateTime sentAt = packet.SentAt == 0 ? DateTime.Now : DateTime.FromBinary(packet.SentAt);
-            ChatManager.Instance.SendChatMessage($"[{sentAt:HH:mm}] [{packet.UserName}] : {packet.MessageText}", packet.MessageType);
+            if (string.IsNullOrEmpty(packet.UserName))
+            {
+                ChatManager.Instance.SendChatMessage($"[{sentAt:HH:mm}] {packet.MessageText}", packet.MessageType);
+            }
+            else
+            {
+                ChatManager.Instance.SendChatMessage($"[{sentAt:HH:mm}] [{packet.UserName}] : {packet.MessageText}", packet.MessageType);
+            }
         }
     }
 }

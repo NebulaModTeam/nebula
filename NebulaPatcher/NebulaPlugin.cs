@@ -27,12 +27,57 @@ namespace NebulaPatcher
     [CommonAPISubmoduleDependency(nameof(ProtoRegistry), nameof(CustomKeyBindSystem))]
     public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
+        static int command_ups = 0;
+
         private void Awake()
         {
             Log.Init(new BepInExLogger(Logger));
 
             NebulaModel.Config.ModInfo = Info;
             NebulaModel.Config.LoadOptions();
+
+            // Read command-line arguments
+            string[] args = Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "-server")
+                {
+                    Multiplayer.IsDedicated = true;
+                    Log.Info($">> Initial dedicated server");
+                }
+
+                if (args[i] == "-load" && i + 1 < args.Length)
+                {
+                    string saveName = args[i + 1];
+                    if (saveName.EndsWith(".dsv"))
+                    {
+                        saveName = saveName.Remove(saveName.Length - 4);
+                    }
+                    if (GameSave.SaveExist(saveName))
+                    {
+                        Log.Info($">> Load save {saveName}");
+                        NebulaWorld.GameStates.GameStatesManager.ImportedSaveName = saveName;
+                    }
+                    else
+                    {
+                        Log.Warn($">> Can't find save {saveName}! Exiting...");
+                        Application.Quit();
+                    }
+                }
+
+                if (args[i] == "-ups" && i + 1 < args.Length)
+                {
+                    if (int.TryParse(args[i + 1], out int value))
+                    {
+                        Log.Info($">> Set UPS {value}");
+                        command_ups = value;
+                    }
+                    else
+                    {
+                        Log.Warn($">> Can't set UPS, {args[i + 1]} is not a number");
+                    }
+                }
+            }
 
             try
             {
@@ -50,6 +95,24 @@ namespace NebulaPatcher
             AddNebulaBootstrapper();
             RegisterKeyBinds();
             DiscordManager.Setup(ActivityManager_OnActivityJoin);
+        }
+
+        public static void StartDedicatedServer(string saveName)
+        {
+            // Mimic UI buttons clicking
+            UIMainMenu_Patch.OnMultiplayerButtonClick();            
+            if (GameSave.SaveExist(saveName))
+            {
+                // Modified from DoLoadSelectedGame
+                Log.Info($"Start dedicated server, loading save : {saveName}");
+                DSPGame.StartGame(saveName);
+                Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
+                Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
+                if (command_ups != 0)
+                {
+                    FPSController.SetFixUPS(command_ups);
+                }
+            }
         }
 
         private static async void ActivityManager_OnActivityJoin(string secret)
@@ -152,7 +215,12 @@ namespace NebulaPatcher
                     Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "./mmdump");
                 }
 #endif
-                Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginInfo.PLUGIN_ID);
+                Harmony harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginInfo.PLUGIN_ID);
+                if (Multiplayer.IsDedicated)
+                {
+                    Log.Info("Patching for headless mode...");
+                    harmony.PatchAll(typeof(Dedicated_Server_Patch));
+                }
 #if DEBUG
                 Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "");
 #endif

@@ -22,6 +22,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static RectTransform multiplayerMenu;
         private static InputField hostIPAddressInput;
+        private static InputField passwordInput;
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIMainMenu._OnOpen))]
@@ -185,6 +186,18 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             hostIPAddressInput.text = ip;
 
+            Transform passwordField = Object.Instantiate(hostIpField, hostIpField.parent, false);
+            passwordField.localPosition = multiplayerMenu.Find("star-count").localPosition;
+            passwordField.GetComponent<Text>().text = "Password (optional)";
+            passwordInput = passwordField.GetComponentInChildren<InputField>();
+            passwordInput.contentType = InputField.ContentType.Password;
+
+            passwordInput.text = "";
+            if (Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(Config.Options.LastClientPassword))
+            {
+                passwordInput.text = Config.Options.LastClientPassword;
+            }
+
             OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
             OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null, OnJoinGameBackButtonClick);
             multiplayerMenu.Find("random-button").gameObject.SetActive(false);
@@ -195,10 +208,10 @@ namespace NebulaPatcher.Patches.Dynamic
         private static void OnJoinGameButtonClick()
         {
             string s = new string(hostIPAddressInput.text.ToCharArray().Where(c => !char.IsWhiteSpace(c)).ToArray());
-            JoinGame(s);
+            JoinGame(s, passwordInput.text);
         }
 
-        public static void JoinGame(string ip)
+        public static void JoinGame(string ip, string password = "")
         {
             // Remove whitespaces from connection string
             string s = ip;
@@ -266,10 +279,10 @@ namespace NebulaPatcher.Patches.Dynamic
 
             p = p == 0 ? Config.Options.HostPort : p;
 
-            UIRoot.instance.StartCoroutine(TryConnectToServer(s, p, isIP));
+            UIRoot.instance.StartCoroutine(TryConnectToServer(s, p, isIP, password));
         }
 
-        private static IEnumerator TryConnectToServer(string ip, int port, bool isIP)
+        private static IEnumerator TryConnectToServer(string ip, int port, bool isIP, string password)
         {
             InGamePopup.ShowInfo("Connecting", $"Connecting to server {ip}:{port}...", null, null);
             multiplayerMenu.gameObject.SetActive(false);
@@ -277,7 +290,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // We need to wait here to have time to display the Connecting popup since the game freezes during the connection.
             yield return new WaitForSeconds(0.5f);
 
-            if (!ConnectToServer(ip, port, isIP))
+            if (!ConnectToServer(ip, port, isIP, password))
             {
                 InGamePopup.FadeOut();
                 //re-enabling the menu again after failed connect attempt
@@ -296,18 +309,18 @@ namespace NebulaPatcher.Patches.Dynamic
             UIRoot.instance.OpenMainMenuUI();
         }
 
-        private static bool ConnectToServer(string connectionString, int serverPort, bool isIP)
+        private static bool ConnectToServer(string connectionString, int serverPort, bool isIP, string password)
         {
             if (isIP)
             {
-                Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort)));
+                Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort), password));
                 return true;
             }
 
             //trying to resolve as uri
             if (System.Uri.TryCreate(connectionString, System.UriKind.RelativeOrAbsolute, out _))
             {
-                Multiplayer.JoinGame(new Client(connectionString, serverPort));
+                Multiplayer.JoinGame(new Client(connectionString, serverPort, password));
                 return true;
             }
 

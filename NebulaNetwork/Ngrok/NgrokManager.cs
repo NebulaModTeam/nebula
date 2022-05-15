@@ -16,10 +16,12 @@ namespace NebulaNetwork.Ngrok
 {
     public class NgrokManager
     {
-        private readonly string _ngrokPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/ngrok-v3-stable-windows-amd64/ngrok.exe";
+        private readonly string _ngrokPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ngrok-v3-stable-windows-amd64", "ngrok.exe");
+        private readonly string _ngrokConfigPath;
         private readonly int _port;
         private readonly string _authtoken;
         private readonly string _region;
+        private readonly TaskCompletionSource<bool> _ngrokAddressObtainedSource = new TaskCompletionSource<bool>();
 
         private Process _ngrokProcess;
         private string _ngrokAPIAddress;
@@ -30,6 +32,7 @@ namespace NebulaNetwork.Ngrok
 
         public NgrokManager(int port, string authtoken = null, string region = null)
         {
+            _ngrokConfigPath = Path.Combine(Path.GetDirectoryName(_ngrokPath), "ngrok.yml");
             _port = port;
             _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
             _region = region ?? Config.Options.NgrokRegion;
@@ -41,7 +44,7 @@ namespace NebulaNetwork.Ngrok
 
             if (string.IsNullOrEmpty(_authtoken))
             {
-                NebulaModel.Logger.Log.Warn("Ngrok support was enabled, however no Authtoken was provided");
+                NebulaModel.Logger.Log.WarnInform("Ngrok support was enabled, however no Authtoken was provided");
                 return;
             }
 
@@ -49,7 +52,7 @@ namespace NebulaNetwork.Ngrok
             string[] availableRegions = { "us", "eu", "au", "ap", "sa", "jp", "in" };
             if (!string.IsNullOrEmpty(_region) && !availableRegions.Any(_region.Contains))
             {
-                NebulaModel.Logger.Log.Warn("Unsupported Ngrok region was provided, defaulting to autodetection");
+                NebulaModel.Logger.Log.WarnInform("Unsupported Ngrok region was provided, defaulting to autodetection");
                 _region = null;
             }
 
@@ -59,9 +62,7 @@ namespace NebulaNetwork.Ngrok
 
                 if (!IsNgrokInstalled())
                 {
-                    var hasDownloadAndInstallBeenConfirmed = false;
-                    var downloadAndInstallConfirmation = new Task<bool>(() => true);
-                    var downloadAndInstallRejection = new Task<bool>(() => false);
+                    var downloadAndInstallConfirmationSource = new TaskCompletionSource<bool>();
 
                     UnityDispatchQueue.RunOnMainThread(() =>
                     {
@@ -70,12 +71,12 @@ namespace NebulaNetwork.Ngrok
                             "Ngrok is support is enabled, however it has not been downloaded and installed yet, do you want to automattically download and install Ngrok?",
                             "Accept",
                             "Reject",
-                            () => downloadAndInstallConfirmation.Start(),
-                            () => downloadAndInstallRejection.Start()
+                            () => downloadAndInstallConfirmationSource.TrySetResult(true),
+                            () => downloadAndInstallConfirmationSource.TrySetResult(false)
                         );
                     });
 
-                    hasDownloadAndInstallBeenConfirmed = await await Task.WhenAny(downloadAndInstallConfirmation, downloadAndInstallRejection);
+                    var hasDownloadAndInstallBeenConfirmed = await downloadAndInstallConfirmationSource.Task;
                     if (!hasDownloadAndInstallBeenConfirmed)
                     {
                         NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok, because user rejected Ngrok download and install confirmation!");
@@ -88,7 +89,7 @@ namespace NebulaNetwork.Ngrok
                     }
                     catch
                     {
-                        NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok!");
+                        NebulaModel.Logger.Log.WarnInform("Failed to download or install Ngrok!");
                         throw;
                     }
 
@@ -96,13 +97,13 @@ namespace NebulaNetwork.Ngrok
 
                 if (!StartNgrok())
                 {
-                    NebulaModel.Logger.Log.Warn($"Failed to start Ngrok tunnel! LastErrorCode: {NgrokLastErrorCode}");
+                    NebulaModel.Logger.Log.WarnInform($"Failed to start Ngrok tunnel! LastErrorCode: {NgrokLastErrorCode}");
                     return;
                 }
 
                 if (!IsNgrokActive())
                 {
-                    NebulaModel.Logger.Log.Warn($"Ngrok tunnel has exited prematurely! LastErrorCode: {NgrokLastErrorCode}");
+                    NebulaModel.Logger.Log.WarnInform($"Ngrok tunnel has exited prematurely! LastErrorCode: {NgrokLastErrorCode}");
                     return;
                 }
 
@@ -118,15 +119,23 @@ namespace NebulaNetwork.Ngrok
                 {
                     using (var zip = new ZipArchive(await s, ZipArchiveMode.Read))
                     {
+                        if (File.Exists(_ngrokPath))
+                        {
+                            File.Delete(_ngrokPath);
+                        }
                         zip.ExtractToDirectory(Path.GetDirectoryName(_ngrokPath));
                     }
                 }
             }
+
+            File.WriteAllLines(_ngrokConfigPath, new string[] { "version: 2" });
+
+            NebulaModel.Logger.Log.WarnInform("Ngrok install completed in the plugin folder");
         }
 
         private bool IsNgrokInstalled()
         {
-            return File.Exists(_ngrokPath);
+            return File.Exists(_ngrokPath) && File.Exists(_ngrokConfigPath);
         }
 
         private bool StartNgrok()
@@ -142,7 +151,7 @@ namespace NebulaNetwork.Ngrok
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 FileName = _ngrokPath,
-                Arguments = $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
+                Arguments = $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json --config \"{_ngrokConfigPath}\"" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
             };
 
             _ngrokProcess.OutputDataReceived += new DataReceivedEventHandler(OutputDataReceivedEventHandler);
@@ -190,6 +199,7 @@ namespace NebulaNetwork.Ngrok
                                 )
                             {
                                 NgrokAddress = url.Replace("tcp://", "");
+                                _ngrokAddressObtainedSource.TrySetResult(true);
                             }
                         }
                     }
@@ -207,6 +217,7 @@ namespace NebulaNetwork.Ngrok
                 if (errorCodeMatches.Count > 0)
                 {
                     NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
+                    NebulaModel.Logger.Log.WarnInform($"Ngrok Error! Code: {NgrokLastErrorCode}");
                 }
             }
         }
@@ -236,11 +247,29 @@ namespace NebulaNetwork.Ngrok
             return !_ngrokProcess.HasExited;
         }
 
+        public Task<string> GetNgrokAddressAsync()
+        {
+            return Task.Run(() =>
+            {
+                if (!IsNgrokActive())
+                {
+                    throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
+                }
+
+                if (!_ngrokAddressObtainedSource.Task.Wait(TimeSpan.FromSeconds(15)))
+                {
+                    throw new TimeoutException($"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode}");
+                }
+
+                return NgrokAddress;
+            });
+        }
+
         public async Task<string> GetTunnelAddressFromAPI()
         {
             if (!IsNgrokActive())
             {
-                throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
+                throw new Exception($"Not able to get Ngrok tunnel address from API because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
             }
 
             if (_ngrokAPIAddress == null)
