@@ -28,10 +28,18 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch(typeof(GameData), nameof(GameData.OnDraw))]
         [HarmonyPatch(typeof(GameData), nameof(GameData.OnPostDraw))]
-        [HarmonyPatch(typeof(GameMain), nameof(GameMain.LateUpdate))]
         [HarmonyPatch(typeof(FactoryModel), nameof(FactoryModel.LateUpdate))]
         public static bool OnDraw_Prefix()
         {
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GameMain), nameof(GameMain.LateUpdate))]
+        public static bool OnLateUpdate()
+        {
+            // Because UIRoot._LateUpdate() doesn't run in headless mode, we need this to enable autosave
+            UIRoot.instance.uiGame.autoSave._LateUpdate();
             return false;
         }
 
