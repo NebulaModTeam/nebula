@@ -40,9 +40,14 @@ namespace NebulaWorld.Chat.Commands
                 string saveName = parameters.Length > 1 ? parameters[1] : "";
                 Multiplayer.Session.Network.SendPacket(new RemoteSaveCommandPacket(RemoteSaveCommand.ServerLoad, saveName));
             }
+            else if (parameters[0] == "info")
+            {
+                string parameter = parameters.Length > 1 ? parameters[1] : "";
+                Multiplayer.Session.Network.SendPacket(new RemoteSaveCommandPacket(RemoteSaveCommand.ServerInfo, parameter));
+            }
             else
             {
-                throw new ChatCommandUsageException("Unknown command! Available commands: {login, list, save, load}");
+                throw new ChatCommandUsageException("Unknown command! Available commands: {login, list, save, load, info}");
             }
         }
 
@@ -53,7 +58,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string[] GetUsage()
         {
-            return new string[] { "login <password>", "list [saveNum]" , "save [saveName]", "load <saveName>" };
+            return new string[] { "login <password>", "list [saveNum]" , "save [saveName]", "load <saveName>", "info" };
         }
     }
 }

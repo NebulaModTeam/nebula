@@ -5,6 +5,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
+using NebulaModel.Utils;
 using NebulaWorld;
 using System;
 using System.Collections.Generic;
@@ -70,6 +71,10 @@ namespace NebulaNetwork.PacketProcessors.Players
                         return;
                     }
                     break;
+
+                case RemoteSaveCommand.ServerInfo:
+                    Info(conn, packet.Content == "full");
+                    return;
             }
             conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemInfoMessage, respond, DateTime.Now, ""));
         }
@@ -100,7 +105,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             return "Login success!";
         }
 
-        private string List(string numString)
+        private static string List(string numString)
         {
             int num = 5;
             if (int.TryParse(numString, out int result))
@@ -114,7 +119,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             num = num < files.Length ? num : files.Length;
             for (int i = 0; i < files.Length; i++)
             {
-                FileInfo fileInfo = new FileInfo(files[i]);
+                FileInfo fileInfo = new(files[i]);
                 dates[i] = string.Format("{0:yyyy-MM-dd HH:mm}", fileInfo.LastWriteTime);
                 names[i] = fileInfo.Name.Substring(0, fileInfo.Name.Length - GameSave.saveExt.Length);
             }
@@ -145,7 +150,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             }
         }
 
-        private string Load(string saveName)
+        private static string Load(string saveName)
         {
             if (!GameSave.SaveExist(saveName))
             {
@@ -156,6 +161,16 @@ namespace NebulaNetwork.PacketProcessors.Players
             NebulaWorld.GameStates.GameStatesManager.ImportedSaveName = saveName;
             UIRoot.instance.uiGame.escMenu.OnButton5Click();
             return null;
+        }
+
+        private static void Info(NebulaConnection conn, bool full)
+        {
+            IServer server = Multiplayer.Session.Network as IServer;
+            IPUtils.GetIPInfo(server.Port).ContinueWith(async (ipInfo) =>
+            {
+                string respond = NebulaWorld.Chat.Commands.InfoCommandHandler.GetServerInfoText(server, await ipInfo, full);
+                conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemInfoMessage, respond, DateTime.Now, ""));
+            });
         }
     }
 }
