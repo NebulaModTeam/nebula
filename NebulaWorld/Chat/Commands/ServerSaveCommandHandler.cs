@@ -1,5 +1,7 @@
 ﻿using NebulaModel.Packets.Players;
 using NebulaWorld.MonoBehaviours.Local;
+using NebulaModel.Utils;
+using NebulaAPI;
 
 namespace NebulaWorld.Chat.Commands
 {
@@ -11,7 +13,15 @@ namespace NebulaWorld.Chat.Commands
             {
                 throw new ChatCommandUsageException("Not enough arguments!");
             }
-            if (parameters[0] == "list")
+            if (parameters[0] == "login")
+            {
+                string password = parameters.Length > 1 ? parameters[1] : "";
+                IPlayerData playerData = Multiplayer.Session.LocalPlayer.Data;
+                string salt = playerData.Username + playerData.PlayerId;
+                string hash = CryptoUtils.Hash(password + salt);
+                Multiplayer.Session.Network.SendPacket(new RemoteSaveCommandPacket(RemoteSaveCommand.Login, hash));
+            }
+            else if (parameters[0] == "list")
             {
                 string saveNum = parameters.Length > 1 ? parameters[1] : "";
                 Multiplayer.Session.Network.SendPacket(new RemoteSaveCommandPacket(RemoteSaveCommand.ServerList, saveNum));
@@ -32,7 +42,7 @@ namespace NebulaWorld.Chat.Commands
             }
             else
             {
-                throw new ChatCommandUsageException("Unknown command! Available commands: {list, save, load}");
+                throw new ChatCommandUsageException("Unknown command! Available commands: {login, list, save, load}");
             }
         }
 
@@ -43,7 +53,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string[] GetUsage()
         {
-            return new string[] { "list [saveNum]" , "save [saveName]", "load <saveName>" };
+            return new string[] { "login <password>", "list [saveNum]" , "save [saveName]", "load <saveName>" };
         }
     }
 }

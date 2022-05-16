@@ -18,6 +18,7 @@
     {
         ServerList = 0,
         ServerSave = 1,
-        ServerLoad = 2
+        ServerLoad = 2,
+        Login = 3
     }
 }

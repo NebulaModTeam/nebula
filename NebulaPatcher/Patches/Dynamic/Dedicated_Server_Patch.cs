@@ -17,10 +17,15 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]
         public static void GameMainBegin_Postfix()
         {
-            if (Multiplayer.IsActive && Config.Options.AutoPauseEnabled)
+            if (Multiplayer.IsActive)
             {
-                Log.Info("AutoPauseEnabled");
-                GameMain.Pause();
+                Log.Info($">> RemoteAccessEnabled: {Config.Options.RemoteAccessEnabled}");
+                Log.Info($">> RemoteAccessPassword: " + (string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword) ? "None" : "Protected"));
+                Log.Info($">> AutoPauseEnabled: {Config.Options.AutoPauseEnabled}");
+                if (Config.Options.AutoPauseEnabled)
+                {
+                    GameMain.Pause();
+                }
             }
         }
 

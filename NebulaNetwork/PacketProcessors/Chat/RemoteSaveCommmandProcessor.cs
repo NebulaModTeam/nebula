@@ -6,8 +6,8 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
-using NebulaWorld.MonoBehaviours.Local;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -17,23 +17,43 @@ namespace NebulaNetwork.PacketProcessors.Players
     internal class RemoteSaveCommmandProcessor : PacketProcessor<RemoteSaveCommandPacket>
     {
         DateTime LastSaveTime = DateTime.Now;
+        DateTime LastLoginTime = DateTime.Now;
         const int SERVERSAVE_COOLDOWN = 60;
+        const int SERVERLOGIN_COOLDOWN = 2;
+        readonly HashSet<NebulaConnection> allowedConnections = new();
 
         public override void ProcessPacket(RemoteSaveCommandPacket packet, NebulaConnection conn)
         {
-            string respond = "Unknown save command";
+            string respond = "Unknown command";
 
             // Don't run remote save command if it is not available
-            if (!Config.Options.EnableRemoteSaveAccess || !Multiplayer.IsDedicated || !IsHost)
+            if (!Config.Options.RemoteAccessEnabled || !Multiplayer.IsDedicated || !IsHost)
             {
                 respond = "Remote save access is not enabled on server";
                 conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, respond, DateTime.Now, ""));
                 return;
             }
 
-            respond = "Unknown command";
+            if (!allowedConnections.Contains(conn) && packet.Command != RemoteSaveCommand.Login)
+            {
+                if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
+                {
+                    respond = "You need to login first!";
+                    conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, respond, DateTime.Now, ""));
+                    return;
+                }
+                else
+                {
+                    allowedConnections.Add(conn);
+                }
+            }
+
             switch (packet.Command) 
             {
+               case RemoteSaveCommand.Login:
+                    respond = Login(conn, packet.Content);
+                    break;
+
                 case RemoteSaveCommand.ServerList:
                     respond = List(packet.Content);
                     break;
@@ -52,6 +72,32 @@ namespace NebulaNetwork.PacketProcessors.Players
                     break;
             }
             conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemInfoMessage, respond, DateTime.Now, ""));
+        }
+
+        private string Login(NebulaConnection conn, string passwordHash)
+        {
+            if (allowedConnections.Contains(conn))
+            {
+                return "You have already login";
+            }
+            if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
+            {
+                int cdtime = SERVERLOGIN_COOLDOWN - (int)(DateTime.Now - LastLoginTime).TotalSeconds;
+                if (cdtime > 0)
+                {
+                    return $"Cooldown: {cdtime}s";
+                }
+                LastLoginTime = DateTime.Now;
+                IPlayerData playerData = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn)?.Data;
+                string salt = playerData != null ? playerData.Username + playerData.PlayerId : "";
+                string hash = CryptoUtils.Hash(Config.Options.RemoteAccessPassword + salt);
+                if (hash != passwordHash)
+                {
+                    return "Password incorrect!";
+                }
+            }
+            allowedConnections.Add(conn);
+            return "Login success!";
         }
 
         private string List(string numString)
