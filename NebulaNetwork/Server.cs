@@ -194,6 +194,11 @@ namespace NebulaNetwork
             PlayerManager.SendPacketToStar(packet, starId);
         }
 
+        public override void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+        {
+            PlayerManager.SendPacketToOtherPlayers(packet, exclude);
+        }
+
         public override void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
         {
             PlayerManager.SendPacketToStarExcept(packet, starId, exclude);

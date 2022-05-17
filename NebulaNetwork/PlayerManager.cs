@@ -247,6 +247,21 @@ namespace NebulaNetwork
             }
         }
 
+        public void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new()
+        {
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
+                {
+                    INebulaPlayer player = kvp.Value;
+                    if (!!player.Connection.Equals(exclude))
+                    {
+                        player.SendPacket(packet);
+                    }
+                }
+            }
+        }
+
         public void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new()
         {
             using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))

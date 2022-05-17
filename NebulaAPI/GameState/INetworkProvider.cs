@@ -9,11 +9,11 @@ namespace NebulaAPI
         /// </summary>
         void SendPacket<T>(T packet) where T : class, new();
         /// <summary>
-        /// Send packet to all Clients within current star system
+        /// Broadcast packet to all Players within current star system
         /// </summary>
         void SendPacketToLocalStar<T>(T packet) where T : class, new();
         /// <summary>
-        /// Send packet to all Clients within current planet
+        /// Broadcast packet to all Players within current planet
         /// </summary>
         void SendPacketToLocalPlanet<T>(T packet) where T : class, new();
 
@@ -26,6 +26,13 @@ namespace NebulaAPI
         /// </summary>
         void SendPacketToStar<T>(T packet, int starId) where T : class, new();
 
+        /// <summary>
+        /// Send packet to all Clients except the excluded client
+        /// </summary>
+        void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new();
+        /// <summary>
+        /// Send packet to all Clients within star system except the excluded client
+        /// </summary>
         void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
 
         IPlayerManager PlayerManager { get; }

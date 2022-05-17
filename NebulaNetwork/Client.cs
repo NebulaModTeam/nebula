@@ -128,6 +128,11 @@ namespace NebulaNetwork
         {
             serverConnection?.SendPacket(packet);
         }
+        public override void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+        {
+            // Only possible from host
+            throw new System.NotImplementedException();
+        }
 
         public override void SendPacketToLocalStar<T>(T packet)
         {

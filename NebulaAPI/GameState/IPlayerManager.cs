@@ -38,6 +38,8 @@ namespace NebulaAPI
 
         void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender);
 
+        void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new();
+
         void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
 
         INebulaPlayer PlayerConnected(INebulaConnection conn);
