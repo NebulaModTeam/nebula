@@ -83,7 +83,7 @@ namespace NebulaNetwork.PacketProcessors.Players
         {
             if (allowedConnections.Contains(conn))
             {
-                return "You have already login";
+                return "You have already logged in";
             }
             if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
             {
