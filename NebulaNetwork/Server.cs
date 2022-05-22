@@ -142,7 +142,12 @@ namespace NebulaNetwork
             {
                 if(ngrokManager.IsNgrokActive())
                 {
-                    DiscordManager.UpdateRichPresence(ip: await ngrokManager.GetNgrokAddressAsync(), updateTimestamp: true);
+                    string ip = await ngrokManager.GetNgrokAddressAsync();
+                    DiscordManager.UpdateRichPresence(ip: ip, updateTimestamp: true);
+                    if (Multiplayer.IsDedicated)
+                    {
+                        NebulaModel.Logger.Log.Info($">> Ngrok address: {ip}");
+                    }
                 }
                 else
                 {

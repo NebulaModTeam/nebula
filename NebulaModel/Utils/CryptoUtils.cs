@@ -50,6 +50,12 @@ namespace NebulaModel.Utils
             return Convert.ToBase64String(hash);
         }
 
+        public static string Hash(string input)
+        {
+            byte[] hash = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(input));
+            return Convert.ToBase64String(hash);
+        }
+
         public static string GetCurrentUserPublicKeyHash()
         {
             return Hash(GetPublicKey(GetOrCreateUserCert()));
