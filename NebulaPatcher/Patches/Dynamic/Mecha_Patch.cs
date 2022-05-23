@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -37,19 +38,31 @@ namespace NebulaPatcher.Patches.Dynamic
 
         // We can't do this as client as we won't be able to get_nearestPlanet() since we do not currently have all of the factory info
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(Mecha), nameof(Mecha.AddConsumptionStat))]
         [HarmonyPatch(typeof(Mecha), nameof(Mecha.AddProductionStat))]
-        public static bool AddStat_Common_Prefix()
+        public static bool AddProductionStat_Prefix(int itemId, int itemCount)
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return true;
             }
 
-            // TODO: Send packet to host to add stat?
-            // Easy option: just have host add stat to their closest planet, though is this better than not syncing it at all?
-            // Hard option: find a way to reliably get nearest planet from client with missing data
+            // Send packet to host to add stat
+            Multiplayer.Session.Network.SendPacket(new PlayerMechaStat(itemId, itemCount));
+            return false;
+        }
 
+        // We can't do this as client as we won't be able to get_nearestPlanet() since we do not currently have all of the factory info
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Mecha), nameof(Mecha.AddConsumptionStat))]
+        public static bool AddConsumptionStat_Prefix(int itemId, int itemCount)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return true;
+            }
+
+            // Use negative itemCount to indicate that it is consumption stat
+            Multiplayer.Session.Network.SendPacket(new PlayerMechaStat(itemId, -itemCount));
             return false;
         }
     }
