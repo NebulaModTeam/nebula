@@ -97,6 +97,14 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
+            // make minimum value set at 0.5 ly
+            if (value < 2f)
+            {
+                value = 2f;
+                __instance.event_lock = true;
+                __instance.warperDistanceSlider.value = 2f;
+                __instance.event_lock = false;
+            }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.WarpDistance;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
             return Multiplayer.Session.LocalPlayer.IsHost;
