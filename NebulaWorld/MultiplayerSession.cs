@@ -39,8 +39,6 @@ namespace NebulaWorld
         public WarningManager Warning { get; private set; }
 
         // Some Patch Flags
-        public bool PlanetRefreshMissingMeshes { get; set; }
-
         public DateTime StartTime;
 
         public bool IsGameLoaded { get; set; }
