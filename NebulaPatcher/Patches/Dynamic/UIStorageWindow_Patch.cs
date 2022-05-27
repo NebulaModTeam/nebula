@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 storageUI._Free();
                 storageUI._Open();
                 storageUI.OnStorageDataChanged();
-                Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(GameMain.data.localPlanet.id, __instance.storageId));
+                Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(__instance.factoryStorage.planet.id, __instance.storageId));
                 return false;
             }
             return true;
