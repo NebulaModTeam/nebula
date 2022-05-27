@@ -32,6 +32,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 gStationPool[packet.stationGId[i]].shipDockRot = packet.DockRot[i].ToQuaternion();
 
                 gStationPool[packet.stationGId[i]].id = packet.stationId[i];
+                gStationPool[packet.stationGId[i]].name = string.IsNullOrEmpty(packet.stationName[i]) ? null : packet.stationName[i];
                 gStationPool[packet.stationGId[i]].planetId = packet.planetId[i];
                 gStationPool[packet.stationGId[i]].workShipCount = packet.workShipCount[i];
                 gStationPool[packet.stationGId[i]].idleShipCount = packet.idleShipCount[i];

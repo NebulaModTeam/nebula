@@ -52,6 +52,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 int[] stationGId = new int[countILS];
                 int[] stationMaxShipCount = new int[countILS];
                 int[] stationId = new int[countILS];
+                string[] stationName = new string[countILS];
                 Float3[] DockPos = new Float3[countILS];
                 Float4[] DockRot = new Float4[countILS];
                 int[] planetId = new int[countILS];
@@ -86,6 +87,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                         stationGId[iter] = stationComponent.gid;
                         stationMaxShipCount[iter] = stationComponent.workShipDatas.Length;
                         stationId[iter] = stationComponent.id;
+                        stationName[iter] = stationComponent.name;
                         DockPos[iter] = new Float3(stationComponent.shipDockPos);
                         DockRot[iter] = new Float4(stationComponent.shipDockRot);
                         planetId[iter] = stationComponent.planetId;
@@ -127,6 +129,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                     stationGId,
                     stationMaxShipCount,
                     stationId,
+                    stationName,
                     DockPos,
                     DockRot,
                     planetId,

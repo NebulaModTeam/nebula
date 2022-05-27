@@ -323,6 +323,19 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIStationWindow.OnNameInputSubmit))]
+        public static bool OnNameInputSubmit_Postfix(UIStationWindow __instance)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return true;
+            }
+            StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.NameInput, __instance.nameInput.text.Trim());
+            Multiplayer.Session.Network.SendPacket(packet);
+            return Multiplayer.Session.LocalPlayer.IsHost;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIStationWindow._OnOpen))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
@@ -336,6 +349,8 @@ namespace NebulaPatcher.Patches.Dynamic
             StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
             Multiplayer.Session.StationsUI.SliderBarPacket = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.None, 0);
             Multiplayer.Session.StationsUI.StorageMaxChangeId = -1;
+            // We want OnNameInputSubmit only call on nameInput.onEndEdit, so remove listener on onValueChanged
+            __instance.nameInput.onValueChanged.RemoveAllListeners();
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;

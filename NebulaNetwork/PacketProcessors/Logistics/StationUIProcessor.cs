@@ -9,11 +9,6 @@ namespace NebulaNetwork.PacketProcessors.Logistics
     [RegisterPacketProcessor]
     internal class StationUIProcessor : PacketProcessor<StationUI>
     {
-        private readonly IPlayerManager playerManager;
-        public StationUIProcessor()
-        {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
 
         public override void ProcessPacket(StationUI packet, NebulaConnection conn)
         {
@@ -24,6 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 Multiplayer.Session.StationsUI.UpdateStation(ref packet);
 
                 // broadcast to other clients 
+                IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
                 INebulaPlayer player = playerManager.GetPlayer(conn);
                 playerManager.SendPacketToOtherPlayers(packet, player);
 
