@@ -113,6 +113,16 @@ namespace NebulaWorld
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             }
+            else if (player.IsClient && player.IsNewPlayer)
+            {
+                // Fill mecha with full energy so new client won't go low energy when starting
+                GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
+                if (GameMain.history.logisticShipWarpDrive)
+                {
+                    // If warp has unlocked, give new client few warpers
+                    GameMain.mainPlayer.TryAddItemToPackage(1210, 5, 0, false);
+                }
+            }
 
             // Initialization on the host side after game is loaded
             Multiplayer.Session.Factories.InitializePrebuildRequests();
