@@ -47,6 +47,17 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 lock (PlanetModelingManager.genPlanetReqList)
                 {
                     PlanetModelingManager.genPlanetReqList.Enqueue(planet);
+
+                    int localplanetId = Multiplayer.Session.LocalPlayer.Data.LocalPlanetId;
+                    if (planet.id == localplanetId)
+                    {
+                        // Make local planet load first
+                        while (PlanetModelingManager.genPlanetReqList.Peek().id != localplanetId)
+                        {
+                            PlanetData tmp = PlanetModelingManager.genPlanetReqList.Dequeue();
+                            PlanetModelingManager.genPlanetReqList.Enqueue(tmp);
+                        }
+                    }
                 }
             }
         }
