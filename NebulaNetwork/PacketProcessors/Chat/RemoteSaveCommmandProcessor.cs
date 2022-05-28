@@ -15,7 +15,7 @@ using System.Text;
 namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    internal class RemoteSaveCommmandProcessor : PacketProcessor<RemoteSaveCommandPacket>
+    internal class RemoteServerCommmandProcessor : PacketProcessor<RemoteServerCommandPacket>
     {
         DateTime LastSaveTime = DateTime.Now;
         DateTime LastLoginTime = DateTime.Now;
@@ -23,7 +23,7 @@ namespace NebulaNetwork.PacketProcessors.Players
         const int SERVERLOGIN_COOLDOWN = 2;
         readonly HashSet<NebulaConnection> allowedConnections = new();
 
-        public override void ProcessPacket(RemoteSaveCommandPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(RemoteServerCommandPacket packet, NebulaConnection conn)
         {
             string respond = "Unknown command";
 
@@ -35,7 +35,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 return;
             }
 
-            if (!allowedConnections.Contains(conn) && packet.Command != RemoteSaveCommand.Login)
+            if (!allowedConnections.Contains(conn) && packet.Command != RemoteServerCommand.Login)
             {
                 if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
                 {
@@ -51,19 +51,19 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             switch (packet.Command) 
             {
-               case RemoteSaveCommand.Login:
+               case RemoteServerCommand.Login:
                     respond = Login(conn, packet.Content);
                     break;
 
-                case RemoteSaveCommand.ServerList:
+                case RemoteServerCommand.ServerList:
                     respond = List(packet.Content);
                     break;
 
-                case RemoteSaveCommand.ServerSave:
+                case RemoteServerCommand.ServerSave:
                     respond = Save(packet.Content);
                     break;
 
-                case RemoteSaveCommand.ServerLoad:
+                case RemoteServerCommand.ServerLoad:
                     respond = Load(packet.Content);
                     if (respond == null)
                     {
@@ -72,7 +72,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                     }
                     break;
 
-                case RemoteSaveCommand.ServerInfo:
+                case RemoteServerCommand.ServerInfo:
                     Info(conn, packet.Content == "full");
                     return;
             }
