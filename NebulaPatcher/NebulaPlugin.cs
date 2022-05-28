@@ -38,6 +38,7 @@ namespace NebulaPatcher
 
             // Read command-line arguments
             string[] args = Environment.GetCommandLineArgs();
+            (bool didLoad, bool loadArgExists, string saveName) = (false, false, string.Empty);
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-server")
@@ -48,7 +49,8 @@ namespace NebulaPatcher
 
                 if (args[i] == "-load" && i + 1 < args.Length)
                 {
-                    string saveName = args[i + 1];
+                    loadArgExists = true;
+                    saveName = args[i + 1];
                     if (saveName.EndsWith(".dsv"))
                     {
                         saveName = saveName.Remove(saveName.Length - 4);
@@ -57,11 +59,7 @@ namespace NebulaPatcher
                     {
                         Log.Info($">> Loading save {saveName}");
                         NebulaWorld.GameStates.GameStatesManager.ImportedSaveName = saveName;
-                    }
-                    else
-                    {
-                        Log.Warn($">> Can't find save with name {saveName}! Exiting...");
-                        Application.Quit();
+                        didLoad = true;
                     }
                 }
 
@@ -77,6 +75,19 @@ namespace NebulaPatcher
                         Log.Warn($">> Can't set UPS, {args[i + 1]} is not a valid number");
                     }
                 }
+            }
+
+            if (!didLoad)
+            {
+                if (loadArgExists)
+                {
+                    Log.Error($">> Can't find save with name {saveName}! Exiting...");
+                }
+                else
+                {
+                    Log.Error(">> -load argument missing! Exiting...");
+                }
+                Application.Quit();
             }
 
             try
