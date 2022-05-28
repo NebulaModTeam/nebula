@@ -125,9 +125,8 @@ namespace NebulaPatcher.Patches.Dynamic
                     if (localplanetId == -1)
                         localplanetId = UIVirtualStarmap_Transpiler.customBirthPlanet;
 
-                    if (planetsToRequest.Contains(localplanetId))
+                    if (planetsToRequest.Remove(localplanetId))
                     {
-                        planetsToRequest.Remove(localplanetId);
                         planetsToRequest.Insert(0, localplanetId);
                     }
                     Multiplayer.Session.Network.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));

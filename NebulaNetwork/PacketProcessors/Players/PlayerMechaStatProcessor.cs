@@ -19,8 +19,8 @@ namespace NebulaNetwork.PacketProcessors.Players
             INebulaPlayer player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
             if (player != null)
             {                
-                PlanetFactory factroy = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
-                if (factroy == null)
+                PlanetFactory factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
+                if (factory == null)
                 {
                     // If client is in space, find the nearest planet factory base on its position
                     // code modfied from Player.get_nearestFactory
@@ -41,13 +41,13 @@ namespace NebulaNetwork.PacketProcessors.Players
                                 if (distance < minDistance)
                                 {
                                     minDistance = distance;
-                                    factroy = planetData.factory;
+                                    factory = planetData.factory;
                                 }
                             }
                         }
                     }
 
-                    if (factroy == null)
+                    if (factory == null)
                     {
                         // find the nearest planet from all factories
                         double minDistance = double.MaxValue;
@@ -61,7 +61,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                                 if (distance < minDistance)
                                 {
                                     minDistance = distance;
-                                    factroy = factories[i];
+                                    factory = factories[i];
                                 }
                             }
                         }
@@ -70,11 +70,11 @@ namespace NebulaNetwork.PacketProcessors.Players
 
                 if (packet.ItemCount >= 0)
                 {
-                    GameMain.mainPlayer.mecha.AddProductionStat(packet.ItemId, packet.ItemCount, factroy);
+                    GameMain.mainPlayer.mecha.AddProductionStat(packet.ItemId, packet.ItemCount, factory);
                 }
                 else
                 {
-                    GameMain.mainPlayer.mecha.AddConsumptionStat(packet.ItemId, -packet.ItemCount, factroy);
+                    GameMain.mainPlayer.mecha.AddConsumptionStat(packet.ItemId, -packet.ItemCount, factory);
                 }
             }
         }

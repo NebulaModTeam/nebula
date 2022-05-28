@@ -48,11 +48,11 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 {
                     PlanetModelingManager.genPlanetReqList.Enqueue(planet);
 
-                    int localplanetId = Multiplayer.Session.LocalPlayer.Data.LocalPlanetId;
-                    if (planet.id == localplanetId)
+                    int localPlanetId = Multiplayer.Session.LocalPlayer.Data.LocalPlanetId;
+                    if (planet.id == localPlanetId)
                     {
                         // Make local planet load first
-                        while (PlanetModelingManager.genPlanetReqList.Peek().id != localplanetId)
+                        while (PlanetModelingManager.genPlanetReqList.Peek().id != localPlanetId)
                         {
                             PlanetData tmp = PlanetModelingManager.genPlanetReqList.Dequeue();
                             PlanetModelingManager.genPlanetReqList.Enqueue(tmp);
