@@ -100,15 +100,34 @@ namespace NebulaPatcher.Patches.Dynamic
             string[] subs = UIFatalErrorTip.instance.errorLogText.text.Split('\n', '\r');
             foreach (string str in subs)
             {
+                if (string.IsNullOrEmpty(str))
+                {
+                    continue;
+                }
+
                 // Nebula only: skip the message after PacketProcessor
                 if (str.StartsWith("NebulaModel.Packets.PacketProcessor"))
                 {
                     break;
                 }
-                stringBuilder.AppendLine(str);
+
+                // Remove hash string
+                int start = str.LastIndexOf(" <");
+                int end = str.LastIndexOf(">:");
+                if (start != -1 && end > start)
+                {
+                    stringBuilder.AppendLine(str.Remove(start, end - start + 2));
+                }
+                else
+                {
+                    stringBuilder.AppendLine(str);
+                }
             }
-            stringBuilder.Replace(" (at", ";(at");
+            // Apply format for ini code style
+            stringBuilder.Replace(" (at", ";(");
+            stringBuilder.Replace(" inIL_", " ;IL_");
             stringBuilder.AppendLine("```");
+
             // Copy string to clipboard
             GUIUtility.systemCopyBuffer = stringBuilder.ToString();
             UIFatalErrorTip.ClearError();
