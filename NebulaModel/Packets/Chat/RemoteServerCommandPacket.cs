@@ -1,20 +1,20 @@
 ﻿namespace NebulaModel.Packets.Players
 {
-    public class RemoteSaveCommandPacket
+    public class RemoteServerCommandPacket
     {
-        public RemoteSaveCommand Command { get; set; }
+        public RemoteServerCommand Command { get; set; }
         public string Content { get; set; }
 
-        public RemoteSaveCommandPacket () {}
+        public RemoteServerCommandPacket () {}
 
-        public RemoteSaveCommandPacket(RemoteSaveCommand comand, string content) 
+        public RemoteServerCommandPacket(RemoteServerCommand comand, string content) 
         {
             Command = comand;
             Content = content;
         }
     }
 
-    public enum RemoteSaveCommand
+    public enum RemoteServerCommand
     {
         Login,
         ServerList,
