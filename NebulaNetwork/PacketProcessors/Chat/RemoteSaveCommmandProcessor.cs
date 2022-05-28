@@ -30,7 +30,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             // Don't run remote save command if it is not available
             if (!Config.Options.RemoteAccessEnabled || !Multiplayer.IsDedicated || !IsHost)
             {
-                respond = "Remote save access is not enabled on server";
+                respond = "Remote server access is not enabled";
                 conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, respond, DateTime.Now, ""));
                 return;
             }
