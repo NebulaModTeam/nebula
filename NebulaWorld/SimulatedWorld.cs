@@ -113,16 +113,6 @@ namespace NebulaWorld
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             }
-            else if (player.IsClient && player.IsNewPlayer)
-            {
-                // Fill mecha with full energy so new client won't go low energy when starting
-                GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
-                if (GameMain.history.logisticShipWarpDrive)
-                {
-                    // If warp has unlocked, give new client few warpers
-                    GameMain.mainPlayer.TryAddItemToPackage(1210, 5, 0, false);
-                }
-            }
 
             // Initialization on the host side after game is loaded
             Multiplayer.Session.Factories.InitializePrebuildRequests();
@@ -131,6 +121,17 @@ namespace NebulaWorld
             {
                 // Update player's Mecha tech bonuses
                 ((MechaData)player.Data.Mecha).TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
+
+                if (player.IsNewPlayer)
+                {
+                    // Set mecha to full energy so new client won't have low energy when starting
+                    GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
+                    if (GameMain.history.logisticShipWarpDrive)
+                    {
+                        // If warp has unlocked, give new client few warpers
+                        GameMain.mainPlayer.TryAddItemToPackage(1210, 5, 0, false);
+                    }
+                }
 
                 // Enable Ping Indicator for Clients
                 DisplayPingIndicator();
