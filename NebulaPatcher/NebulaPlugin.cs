@@ -77,7 +77,7 @@ namespace NebulaPatcher
                 }
             }
 
-            if (!didLoad)
+            if (Multiplayer.IsDedicated && !didLoad)
             {
                 if (loadArgExists)
                 {
