@@ -26,9 +26,11 @@ namespace NebulaWorld.MonoBehaviours.Local
         
         
         internal UIWindowDrag DragTrigger;
-        private Queue<QueuedMessage> outgoingMessages = new Queue<QueuedMessage>(5);
+        private readonly Queue<QueuedMessage> outgoingMessages = new Queue<QueuedMessage>(5);
         private readonly List<ChatMessage> messages = new List<ChatMessage>();
-        
+        private readonly List<string> inputHistory = new() { "" };
+        private int inputHistoryCursor = 0;
+
         public string userName;
 
         private void Awake()
@@ -41,6 +43,18 @@ namespace NebulaWorld.MonoBehaviours.Local
             if (!chatWindow.activeSelf) return;
 
             notifierMask.sizeDelta = new Vector2(chatPanel.rect.width, notifierMask.sizeDelta.y);
+
+            if (chatBox.isFocused)
+            {
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    UseHistoryInput(-1);
+                }
+                if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    UseHistoryInput(+1);
+                }
+            }
 
             if (chatBox.text != "")
             {
@@ -78,6 +92,24 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
         }
 
+        private void UseHistoryInput(int offset)
+        {            
+            if (chatBox.text != inputHistory[inputHistoryCursor])
+            {
+                // input has changed, save to the lastest
+                inputHistoryCursor = inputHistory.Count - 1;
+                inputHistory[inputHistoryCursor] = chatBox.text;
+            }
+            int cursor = inputHistoryCursor + offset;
+            cursor = cursor < 0 ? 0 : ((cursor >= inputHistory.Count) ? inputHistory.Count - 1 : cursor);
+            if (cursor != inputHistoryCursor)
+            {
+                chatBox.text = inputHistory[cursor];
+                chatBox.MoveToEndOfLine(false, true);
+                inputHistoryCursor = cursor;
+            }
+        }
+
         private void FocusInputField()
         {
             chatBox.ActivateInputField();
@@ -87,6 +119,17 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         private void TrySendMessage()
         {
+            if (inputHistory.Count < 2 || chatBox.text != inputHistory[inputHistory.Count - 2])
+            {
+                inputHistory[inputHistory.Count - 1] = chatBox.text;
+                inputHistory.Add("");
+                if (inputHistory.Count > 10)
+                {
+                    inputHistory.RemoveAt(0);
+                }
+                inputHistoryCursor = inputHistory.Count - 1;
+            }
+
             if (chatBox.text.StartsWith(ChatCommandRegistry.CommandPrefix))
             {
                 string[] arguments = chatBox.text.Substring(1).Split(' ');

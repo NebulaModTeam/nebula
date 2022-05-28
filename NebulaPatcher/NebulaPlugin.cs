@@ -38,30 +38,28 @@ namespace NebulaPatcher
 
             // Read command-line arguments
             string[] args = Environment.GetCommandLineArgs();
+            (bool didLoad, bool loadArgExists, string saveName) = (false, false, string.Empty);
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-server")
                 {
                     Multiplayer.IsDedicated = true;
-                    Log.Info($">> Initial dedicated server");
+                    Log.Info($">> Initializing dedicated server");
                 }
 
                 if (args[i] == "-load" && i + 1 < args.Length)
                 {
-                    string saveName = args[i + 1];
+                    loadArgExists = true;
+                    saveName = args[i + 1];
                     if (saveName.EndsWith(".dsv"))
                     {
                         saveName = saveName.Remove(saveName.Length - 4);
                     }
                     if (GameSave.SaveExist(saveName))
                     {
-                        Log.Info($">> Load save {saveName}");
+                        Log.Info($">> Loading save {saveName}");
                         NebulaWorld.GameStates.GameStatesManager.ImportedSaveName = saveName;
-                    }
-                    else
-                    {
-                        Log.Warn($">> Can't find save {saveName}! Exiting...");
-                        Application.Quit();
+                        didLoad = true;
                     }
                 }
 
@@ -74,9 +72,22 @@ namespace NebulaPatcher
                     }
                     else
                     {
-                        Log.Warn($">> Can't set UPS, {args[i + 1]} is not a number");
+                        Log.Warn($">> Can't set UPS, {args[i + 1]} is not a valid number");
                     }
                 }
+            }
+
+            if (!didLoad)
+            {
+                if (loadArgExists)
+                {
+                    Log.Error($">> Can't find save with name {saveName}! Exiting...");
+                }
+                else
+                {
+                    Log.Error(">> -load argument missing! Exiting...");
+                }
+                Application.Quit();
             }
 
             try
@@ -104,7 +115,7 @@ namespace NebulaPatcher
             if (GameSave.SaveExist(saveName))
             {
                 // Modified from DoLoadSelectedGame
-                Log.Info($"Start dedicated server, loading save : {saveName}");
+                Log.Info($"Starting dedicated server, loading save : {saveName}");
                 DSPGame.StartGame(saveName);
                 Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
                 Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));

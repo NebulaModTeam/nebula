@@ -56,8 +56,17 @@ namespace NebulaNetwork
             using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
             {
                 int i = 0;
-                IPlayerData[] result = new IPlayerData[1 + connectedPlayers.Count];
-                result[i++] = Multiplayer.Session.LocalPlayer.Data;
+                IPlayerData[] result;
+                if (Multiplayer.IsDedicated)
+                {
+                    // If host is dedicated server, don't include it
+                    result = new IPlayerData[connectedPlayers.Count];
+                }
+                else
+                {
+                    result = new IPlayerData[1 + connectedPlayers.Count];
+                    result[i++] = Multiplayer.Session.LocalPlayer.Data;
+                }
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     result[i++] = kvp.Value.Data;

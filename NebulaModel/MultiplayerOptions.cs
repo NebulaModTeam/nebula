@@ -114,7 +114,8 @@ namespace NebulaModel
         public bool BuildingIconEnabled { get; set; } = true;
         public bool GuidingLightEnabled { get; set; } = true;
 
-        public bool EnableRemoteSaveAccess { get; set; } = false;
+        public bool RemoteAccessEnabled { get; set; } = false;
+        public string RemoteAccessPassword { get; set; } = "";
         public bool AutoPauseEnabled { get; set; } = true;
 
 

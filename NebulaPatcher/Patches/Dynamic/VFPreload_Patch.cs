@@ -15,6 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsDedicated)
             {
+                NebulaModel.Utils.NativeInterop.HideWindow();
                 // Logging to provide progression to user
                 Log.Info("VFPreload.InvokeOnLoad");
             }

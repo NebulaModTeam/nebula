@@ -54,7 +54,7 @@ namespace NebulaWorld.Chat.Commands
             
         }
 
-        private static string GetServerInfoText(IServer server, IPUtils.IpInfo ipInfo, bool full)
+        public static string GetServerInfoText(IServer server, IPUtils.IpInfo ipInfo, bool full)
         {
             StringBuilder sb = new("Server info:");
 

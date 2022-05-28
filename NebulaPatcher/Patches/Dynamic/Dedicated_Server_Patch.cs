@@ -17,10 +17,15 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]
         public static void GameMainBegin_Postfix()
         {
-            if (Multiplayer.IsActive && Config.Options.AutoPauseEnabled)
+            if (Multiplayer.IsActive)
             {
-                Log.Info("AutoPauseEnabled");
-                GameMain.Pause();
+                Log.Info($">> RemoteAccessEnabled: {Config.Options.RemoteAccessEnabled}");
+                Log.Info($">> RemoteAccessPassword: " + (string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword) ? "None" : "Protected"));
+                Log.Info($">> AutoPauseEnabled: {Config.Options.AutoPauseEnabled}");
+                if (Config.Options.AutoPauseEnabled)
+                {
+                    GameMain.Pause();
+                }
             }
         }
 
@@ -28,10 +33,18 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch(typeof(GameData), nameof(GameData.OnDraw))]
         [HarmonyPatch(typeof(GameData), nameof(GameData.OnPostDraw))]
-        [HarmonyPatch(typeof(GameMain), nameof(GameMain.LateUpdate))]
         [HarmonyPatch(typeof(FactoryModel), nameof(FactoryModel.LateUpdate))]
         public static bool OnDraw_Prefix()
         {
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(GameMain), nameof(GameMain.LateUpdate))]
+        public static bool OnLateUpdate()
+        {
+            // Because UIRoot._LateUpdate() doesn't run in headless mode, we need this to enable autosave
+            UIRoot.instance.uiGame.autoSave._LateUpdate();
             return false;
         }
 

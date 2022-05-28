@@ -5,44 +5,65 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
+using NebulaModel.Utils;
 using NebulaWorld;
-using NebulaWorld.MonoBehaviours.Local;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace NebulaNetwork.PacketProcessors.Players
 {
     [RegisterPacketProcessor]
-    internal class RemoteSaveCommmandProcessor : PacketProcessor<RemoteSaveCommandPacket>
+    internal class RemoteServerCommmandProcessor : PacketProcessor<RemoteServerCommandPacket>
     {
         DateTime LastSaveTime = DateTime.Now;
+        DateTime LastLoginTime = DateTime.Now;
         const int SERVERSAVE_COOLDOWN = 60;
+        const int SERVERLOGIN_COOLDOWN = 2;
+        readonly HashSet<NebulaConnection> allowedConnections = new();
 
-        public override void ProcessPacket(RemoteSaveCommandPacket packet, NebulaConnection conn)
+        public override void ProcessPacket(RemoteServerCommandPacket packet, NebulaConnection conn)
         {
-            string respond = "Unknown save command";
+            string respond = "Unknown command";
 
             // Don't run remote save command if it is not available
-            if (!Config.Options.EnableRemoteSaveAccess || !Multiplayer.IsDedicated || !IsHost)
+            if (!Config.Options.RemoteAccessEnabled || !Multiplayer.IsDedicated || !IsHost)
             {
-                respond = "Remote save access is not enabled on server";
+                respond = "Remote server access is not enabled";
                 conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, respond, DateTime.Now, ""));
                 return;
             }
 
-            respond = "Unknown command";
+            if (!allowedConnections.Contains(conn) && packet.Command != RemoteServerCommand.Login)
+            {
+                if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
+                {
+                    respond = "You need to login first!";
+                    conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, respond, DateTime.Now, ""));
+                    return;
+                }
+                else
+                {
+                    allowedConnections.Add(conn);
+                }
+            }
+
             switch (packet.Command) 
             {
-                case RemoteSaveCommand.ServerList:
+               case RemoteServerCommand.Login:
+                    respond = Login(conn, packet.Content);
+                    break;
+
+                case RemoteServerCommand.ServerList:
                     respond = List(packet.Content);
                     break;
 
-                case RemoteSaveCommand.ServerSave:
+                case RemoteServerCommand.ServerSave:
                     respond = Save(packet.Content);
                     break;
 
-                case RemoteSaveCommand.ServerLoad:
+                case RemoteServerCommand.ServerLoad:
                     respond = Load(packet.Content);
                     if (respond == null)
                     {
@@ -50,11 +71,41 @@ namespace NebulaNetwork.PacketProcessors.Players
                         return;
                     }
                     break;
+
+                case RemoteServerCommand.ServerInfo:
+                    Info(conn, packet.Content == "full");
+                    return;
             }
             conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemInfoMessage, respond, DateTime.Now, ""));
         }
 
-        private string List(string numString)
+        private string Login(NebulaConnection conn, string passwordHash)
+        {
+            if (allowedConnections.Contains(conn))
+            {
+                return "You have already logged in";
+            }
+            if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
+            {
+                int cdtime = SERVERLOGIN_COOLDOWN - (int)(DateTime.Now - LastLoginTime).TotalSeconds;
+                if (cdtime > 0)
+                {
+                    return $"Cooldown: {cdtime}s";
+                }
+                LastLoginTime = DateTime.Now;
+                IPlayerData playerData = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn)?.Data;
+                string salt = playerData != null ? playerData.Username + playerData.PlayerId : "";
+                string hash = CryptoUtils.Hash(Config.Options.RemoteAccessPassword + salt);
+                if (hash != passwordHash)
+                {
+                    return "Password incorrect!";
+                }
+            }
+            allowedConnections.Add(conn);
+            return "Login success!";
+        }
+
+        private static string List(string numString)
         {
             int num = 5;
             if (int.TryParse(numString, out int result))
@@ -68,7 +119,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             num = num < files.Length ? num : files.Length;
             for (int i = 0; i < files.Length; i++)
             {
-                FileInfo fileInfo = new FileInfo(files[i]);
+                FileInfo fileInfo = new(files[i]);
                 dates[i] = string.Format("{0:yyyy-MM-dd HH:mm}", fileInfo.LastWriteTime);
                 names[i] = fileInfo.Name.Substring(0, fileInfo.Name.Length - GameSave.saveExt.Length);
             }
@@ -99,7 +150,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             }
         }
 
-        private string Load(string saveName)
+        private static string Load(string saveName)
         {
             if (!GameSave.SaveExist(saveName))
             {
@@ -110,6 +161,16 @@ namespace NebulaNetwork.PacketProcessors.Players
             NebulaWorld.GameStates.GameStatesManager.ImportedSaveName = saveName;
             UIRoot.instance.uiGame.escMenu.OnButton5Click();
             return null;
+        }
+
+        private static void Info(NebulaConnection conn, bool full)
+        {
+            IServer server = Multiplayer.Session.Network as IServer;
+            IPUtils.GetIPInfo(server.Port).ContinueWith(async (ipInfo) =>
+            {
+                string respond = NebulaWorld.Chat.Commands.InfoCommandHandler.GetServerInfoText(server, await ipInfo, full);
+                conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemInfoMessage, respond, DateTime.Now, ""));
+            });
         }
     }
 }
