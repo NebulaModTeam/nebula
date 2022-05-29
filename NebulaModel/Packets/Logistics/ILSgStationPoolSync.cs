@@ -10,6 +10,7 @@ namespace NebulaModel.Packets.Logistics
         
         public int[] stationMaxShipCount { get; set; }
         public int[] stationId { get; set; }
+        public string[] stationName { get; set; }
         public Float3[] DockPos { get; set; }
         public Float4[] DockRot { get; set; }
         public int[] planetId { get; set; }
@@ -40,6 +41,7 @@ namespace NebulaModel.Packets.Logistics
         public ILSgStationPoolSync(int[] stationGId,
                                     int[] stationMaxShipCount,
                                     int[] stationId,
+                                    string[] stationName,
                                     Float3[] DockPos,
                                     Float4[] DockRot,
                                     int[] planetId,
@@ -69,6 +71,7 @@ namespace NebulaModel.Packets.Logistics
             this.stationGId = stationGId;
             this.stationMaxShipCount = stationMaxShipCount;
             this.stationId = stationId;
+            this.stationName = stationName;
             this.DockPos = DockPos;
             this.DockRot = DockRot;
             this.planetId = planetId;

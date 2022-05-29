@@ -221,6 +221,11 @@ namespace NebulaWorld.Logistics
                     }
                     break;
                 }
+                case StationUI.EUISettings.NameInput:
+                {
+                    stationComponent.name = packet.SettingString;
+                    break;
+                }
             }
         }
 

@@ -21,6 +21,11 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxChargePower;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                StringBuilderUtility.WriteKMG(__instance.powerServedSB, 8, (long)(3000000.0 * value + 0.5), false);
+                __instance.maxChargePowerValue.text = __instance.powerServedSB.ToString();
+            }
             return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
@@ -34,6 +39,10 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxTripDrones;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                __instance.maxTripDroneValue.text = value.ToString("0 °");
+            }
             return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
@@ -47,6 +56,23 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxTripVessel;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                float num;
+                if (value > 40.5f)
+                {
+                    num = 10000.0f;
+                }
+                else if (value > 20.5f)
+                {
+                    num = (value * 2f - 20f);
+                }
+                else
+                {
+                    num = value;
+                }
+                __instance.maxTripVesselValue.text = num < 9999.0f ? num.ToString("0 ly") : "∞";
+            }
             return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
@@ -60,6 +86,15 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MinDeliverDrone;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                int num = (int)(value * 10f + 0.5f);
+                if (num < 1)
+                {
+                    num = 1;
+                }
+                __instance.minDeliverDroneValue.text = num.ToString("0") + " %";
+            }
             return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
@@ -73,6 +108,12 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MinDeliverVessel;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                int num = (int)(value * 10f + 0.5f);
+                num = num < 1 ? 1 : num;
+                __instance.minDeliverVesselValue.text = num.ToString("0") + " %";
+            }
             return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
@@ -86,6 +127,11 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxMiningSpeed;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                int num = 10000 + (int)(value + 0.5f) * 1000;
+                __instance.maxMiningSpeedValue.text = (num / 100).ToString("0") + " %";
+            }
             return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
@@ -97,8 +143,41 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
+            // make minimum value set at 0.5 ly
+            if (value < 2f)
+            {
+                value = 2f;
+                __instance.event_lock = true;
+                __instance.warperDistanceSlider.value = 2f;
+                __instance.event_lock = false;
+            }
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.WarpDistance;
             Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                float num;
+                if (value < 1.5)
+                {
+                    num = 0.2f;
+                }
+                else if (value < 7.5)
+                {
+                    num = value * 0.5f- 0.5f;
+                }
+                else if (value < 16.5)
+                {
+                    num = value - 4f;
+                }
+                else if (value < 20.5)
+                {
+                    num = value * 2f - 20f;
+                }
+                else
+                {
+                    num = 60.0f;
+                }
+                 __instance.warperDistanceValue.text = num < 10.0 ? num.ToString("0.0 AU") : num.ToString("0 AU");
+            }
             return Multiplayer.Session.LocalPlayer.IsHost;
         }
 
@@ -244,6 +323,19 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIStationWindow.OnNameInputSubmit))]
+        public static bool OnNameInputSubmit_Postfix(UIStationWindow __instance)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return true;
+            }
+            StationUI packet = new StationUI(__instance.factory.planet.id, __instance.factory.transport.stationPool[__instance.stationId].id, __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.NameInput, __instance.nameInput.text.Trim());
+            Multiplayer.Session.Network.SendPacket(packet);
+            return Multiplayer.Session.LocalPlayer.IsHost;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIStationWindow._OnOpen))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
@@ -257,6 +349,8 @@ namespace NebulaPatcher.Patches.Dynamic
             StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
             Multiplayer.Session.StationsUI.SliderBarPacket = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.None, 0);
             Multiplayer.Session.StationsUI.StorageMaxChangeId = -1;
+            // We want OnNameInputSubmit only call on nameInput.onEndEdit, so remove listener on onValueChanged
+            __instance.nameInput.onValueChanged.RemoveAllListeners();
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 return;
@@ -308,8 +402,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
 
-            // Request for remoteOrder update every 180tick
-            if (Multiplayer.Session.LocalPlayer.IsClient && GameMain.gameTick - lastUpdateGametick > 180)
+            // Request for remoteOrder update every 60tick
+            if (Multiplayer.Session.LocalPlayer.IsClient && GameMain.gameTick - lastUpdateGametick > 60)
             {
                 int gid = __instance.transport?.stationPool?[__instance.stationId].gid ?? 0;
                 if (gid > 0)
