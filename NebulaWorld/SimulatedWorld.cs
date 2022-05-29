@@ -122,6 +122,17 @@ namespace NebulaWorld
                 // Update player's Mecha tech bonuses
                 ((MechaData)player.Data.Mecha).TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
 
+                if (player.IsNewPlayer)
+                {
+                    // Set mecha to full energy so new client won't have low energy when starting
+                    GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
+                    if (GameMain.history.logisticShipWarpDrive)
+                    {
+                        // If warp has unlocked, give new client few warpers
+                        GameMain.mainPlayer.TryAddItemToPackage(1210, 5, 0, false);
+                    }
+                }
+
                 // Enable Ping Indicator for Clients
                 DisplayPingIndicator();
 

@@ -104,22 +104,6 @@ namespace NebulaPatcher.Patches.Dynamic
             return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(GameHistoryData.AddTechHash))]
-        public static bool AddTechHash_Prefix(GameHistoryData __instance, long addcnt)
-        {
-            //Host in multiplayer can do normal research in the mecha
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                return true;
-            }
-
-            //Clients just sends contributing packet to the server
-            Multiplayer.Session.Network.SendPacket(new GameHistoryResearchContributionPacket(addcnt, __instance.currentTech));
-            return false;
-        }
-
-        [HarmonyPrefix]
         [HarmonyPatch(nameof(GameHistoryData.DequeueTech))]
         public static bool DequeueTech_Prefix()
         {

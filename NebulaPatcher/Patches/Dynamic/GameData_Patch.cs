@@ -9,6 +9,8 @@ using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using NebulaWorld.Warning;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
@@ -136,6 +138,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         planet.physics.Init();
                     }
                 }
+                RefreshMissingMeshes();
             }
             planet.onLoaded -= __instance.OnActivePlanetLoaded;
             return false;
@@ -197,8 +200,14 @@ namespace NebulaPatcher.Patches.Dynamic
                         }
                     }
                     Multiplayer.Session.Planets.PendingTerrainData.Remove(planet.id);                    
-                }
-
+                }                
+                Task.Run(() =>
+                {
+                    // This is to fix GS2 that sometimes client mecha will be stuck on ground
+                    RefreshMissingMeshes();
+                    Thread.Sleep(2000);
+                    RefreshMissingMeshes();
+                });
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
             }
 
@@ -235,6 +244,9 @@ namespace NebulaPatcher.Patches.Dynamic
                 Log.Info($"Requesting global GameData from the server");
                 Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
 
+                //Update player's position before searching for closest planet (GS2: Modeler.ModelingCoroutine)
+                __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x, Multiplayer.Session.LocalPlayer.Data.UPosition.y, Multiplayer.Session.LocalPlayer.Data.UPosition.z);
+
                 if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
                 {
                     PlanetData planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
@@ -244,10 +256,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     StarData nearestStar = null;
                     PlanetData nearestPlanet = null;
-                    //Update player's position before searching for closest star
-                    __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x, Multiplayer.Session.LocalPlayer.Data.UPosition.y, Multiplayer.Session.LocalPlayer.Data.UPosition.z);
                     GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
-
                     if (nearestStar == null)
                     {
                         // We are not in a planetary system and thus do not have a star, return.
@@ -388,6 +397,26 @@ namespace NebulaPatcher.Patches.Dynamic
                 return false;
             }
             return true;
+        }
+
+        private static void RefreshMissingMeshes()
+        {
+            PlanetData planetData = GameMain.localPlanet;
+            bool flag = false;
+
+            if (planetData.meshColliders != null)
+            {
+                for (int i = 0; i < planetData.meshColliders.Length; i++)
+                {
+                    if (planetData.meshColliders[i] != null && planetData.meshColliders[i].sharedMesh == null)
+                    {
+                        planetData.meshColliders[i].sharedMesh = planetData.meshes[i];
+                        flag = true;
+                    }
+                }
+            }
+            if (flag)
+                Log.Info("RefreshMissingMeshes");
         }
     }
 }

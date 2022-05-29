@@ -2,7 +2,7 @@
 using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Planet;
-using NebulaModel.Packets.Universe;
+using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using System.Collections.Generic;
 using System.Linq;
@@ -120,6 +120,15 @@ namespace NebulaPatcher.Patches.Dynamic
 
                 if (planetsToRequest.Any())
                 {
+                    // Make local planet load first
+                    int localPlanetId = Multiplayer.Session.LocalPlayer?.Data?.LocalPlanetId ?? -1;
+                    if (localPlanetId == -1)
+                        localPlanetId = UIVirtualStarmap_Transpiler.customBirthPlanet;
+
+                    if (planetsToRequest.Remove(localPlanetId))
+                    {
+                        planetsToRequest.Insert(0, localPlanetId);
+                    }
                     Multiplayer.Session.Network.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
                 }
             }
