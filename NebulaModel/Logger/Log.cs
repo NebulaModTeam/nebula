@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+using WebSocketSharp;
 
 namespace NebulaModel.Logger
 {
@@ -74,6 +76,24 @@ namespace NebulaModel.Logger
         {
             Error(message);
             Error(ex);
+        }
+
+        public static void SocketOutput(LogData data, string _)
+        {
+            string log = data.ToString();
+            string ipv4Regex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}";
+            string ipv6Regex = "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}";
+            log = Regex.Replace(log, ipv4Regex, "(IPv4 Address)");
+            log = Regex.Replace(log, ipv6Regex, "(IPv6 Address)");
+
+            if (data.Level >= LogLevel.Warn)
+            {
+                Warn(log);
+            }
+            else
+            {
+                Info(log);
+            }
         }
     }
 }

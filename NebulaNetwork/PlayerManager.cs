@@ -18,6 +18,7 @@ namespace NebulaNetwork
 {
     public class PlayerManager : IPlayerManager
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "TBD")]
         private sealed class ThreadSafe
         {
             internal readonly Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers = new Dictionary<INebulaConnection, INebulaPlayer>();
@@ -85,6 +86,33 @@ namespace NebulaNetwork
                 }
             }
 
+            return null;
+        }
+
+        public INebulaPlayer GetPlayerById(ushort playerId)
+        {
+            INebulaPlayer player = null;
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                if ((player = connectedPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
+                {
+                    return player;
+                }
+            }
+            using (GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers))
+            {
+                if ((player = syncingPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
+                {
+                    return player;
+                }
+            }
+            using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
+            {
+                if ((player = pendingPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
+                {
+                    return player;
+                }
+            }
             return null;
         }
 
@@ -205,9 +233,9 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalStarId == starId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
+                    if (player.Data.LocalStarId == starId && !player.Connection.Equals(sender))
                     {
-                        ((NebulaPlayer)player).SendRawPacket(rawPacket);
+                        player.Connection.SendRawPacket(rawPacket);
                     }
                 }
             }
@@ -220,9 +248,24 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (player.Data.LocalPlanetId == planetId && (NebulaConnection)player.Connection != (NebulaConnection)sender)
+                    if (player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender))
                     {
-                        ((NebulaPlayer)player).SendRawPacket(rawPacket);
+                       player.Connection.SendRawPacket(rawPacket);
+                    }
+                }
+            }
+        }
+
+        public void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new()
+        {
+            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
+            {
+                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
+                {
+                    INebulaPlayer player = kvp.Value;
+                    if (!!player.Connection.Equals(exclude))
+                    {
+                        player.SendPacket(packet);
                     }
                 }
             }
@@ -249,7 +292,7 @@ namespace NebulaNetwork
             ushort playerId = GetNextAvailablePlayerId();
 
             PlanetData birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
-            PlayerData playerData = new PlayerData(playerId, -1, Config.Options.GetMechaColors(), position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+            PlayerData playerData = new PlayerData(playerId, -1, position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
 
             INebulaPlayer newPlayer = new NebulaPlayer((NebulaConnection)conn, playerData);
             using (GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
@@ -264,6 +307,7 @@ namespace NebulaNetwork
         {
             INebulaPlayer player = null;
             bool playerWasSyncing = false;
+            bool playerWasConnected = false;
             int syncCount = -1;
             Multiplayer.Session.NumPlayers -= 1;
             DiscordManager.UpdateRichPresence();
@@ -274,6 +318,7 @@ namespace NebulaNetwork
                 {
                     player = removingPlayer;
                     connectedPlayers.Remove(conn);
+                    playerWasConnected = true;
                 }
             }
 
@@ -300,8 +345,11 @@ namespace NebulaNetwork
             if (player != null)
             {
                 SendPacketToOtherPlayers(new PlayerDisconnected(player.Id, Multiplayer.Session.NumPlayers), player);
-                NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
-                Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
+                // For sync completed player who triggered OnPlayerJoinedGame() before
+                if (playerWasConnected && !playerWasSyncing)
+                {
+                    Multiplayer.Session.World.OnPlayerLeftGame(player);
+                }
                 using (threadSafe.availablePlayerIds.GetLocked(out Queue<ushort> availablePlayerIds))
                 {
                     availablePlayerIds.Enqueue(player.Id);
@@ -328,12 +376,6 @@ namespace NebulaNetwork
                 {
                     Multiplayer.Session.Network.SendPacket(new SyncComplete());
                     Multiplayer.Session.World.OnAllPlayersSyncCompleted();
-                }
-                else if(Config.Options.SyncSoil)
-                {
-                    GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
-                    UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
-                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
                 }
             }
             else
@@ -406,26 +448,6 @@ namespace NebulaNetwork
                     }
                 }
                 Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
-            }
-        }
-
-        public void SendTechRefundPackagesToClients(int techId)
-        {
-            //send players their contributions back
-            using (GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
-            {
-                foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
-                {
-                    INebulaPlayer curPlayer = kvp.Value;
-                    long techProgress = ((NebulaPlayer)curPlayer).ReleaseResearchProgress();
-
-                    if (techProgress > 0)
-                    {
-                        Log.Info($"Sending Recover request for player {curPlayer.Id}: refunding for techId {techId} - raw progress: {curPlayer.TechProgressContributed}");
-                        GameHistoryTechRefundPacket refundPacket = new GameHistoryTechRefundPacket(techId, techProgress);
-                        curPlayer.SendPacket(refundPacket);
-                    }
-                }
             }
         }
     }

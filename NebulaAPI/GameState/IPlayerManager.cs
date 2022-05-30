@@ -18,6 +18,8 @@ namespace NebulaAPI
 
         INebulaPlayer GetSyncingPlayer(INebulaConnection conn);
 
+        INebulaPlayer GetPlayerById(ushort playerId);
+
         INebulaPlayer GetConnectedPlayerByUsername(string username);
 
         void SendPacketToAllPlayers<T>(T packet) where T : class, new();
@@ -36,6 +38,8 @@ namespace NebulaAPI
 
         void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender);
 
+        void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new();
+
         void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
 
         INebulaPlayer PlayerConnected(INebulaConnection conn);
@@ -43,8 +47,6 @@ namespace NebulaAPI
         void PlayerDisconnected(INebulaConnection conn);
 
         ushort GetNextAvailablePlayerId();
-
-        void SendTechRefundPackagesToClients(int techId);
 
         void UpdateMechaData(IMechaData mechaData, INebulaConnection conn);
 

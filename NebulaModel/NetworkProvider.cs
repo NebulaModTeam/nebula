@@ -32,6 +32,9 @@ namespace NebulaModel
 
         public abstract void SendPacketToStar<T>(T packet, int starId) where T : class, new();
 
+        public abstract void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+            where T : class, new();
+
         public abstract void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
             where T : class, new();
 

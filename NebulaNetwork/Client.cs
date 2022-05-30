@@ -67,6 +67,7 @@ namespace NebulaNetwork
 
             clientSocket = new WebSocket($"ws://{serverEndpoint}/socket");
             clientSocket.Log.Level = LogLevel.Debug;
+            clientSocket.Log.Output = Log.SocketOutput;
             clientSocket.OnOpen += ClientSocket_OnOpen;
             clientSocket.OnClose += ClientSocket_OnClose;
             clientSocket.OnMessage += ClientSocket_OnMessage;
@@ -127,6 +128,11 @@ namespace NebulaNetwork
         public override void SendPacket<T>(T packet)
         {
             serverConnection?.SendPacket(packet);
+        }
+        public override void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+        {
+            // Only possible from host
+            throw new System.NotImplementedException();
         }
 
         public override void SendPacketToLocalStar<T>(T packet)
@@ -201,8 +207,7 @@ namespace NebulaNetwork
 
             SendPacket(new LobbyRequest(
                 CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
-                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName,
-                Config.Options.GetMechaColors()));
+                !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName));
         }
 
         private void ClientSocket_OnClose(object sender, CloseEventArgs e)

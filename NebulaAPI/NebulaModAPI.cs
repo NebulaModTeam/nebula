@@ -59,43 +59,52 @@ namespace NebulaAPI
         }
 
         /// <summary>
-        /// Subscribe to receive event when new multiplayer game is started
+        /// Subscribe to receive event when new multiplayer game is started<br/>
+        /// (Host sets up a game, or Client establishes connection)
         /// </summary>
         public static Action OnMultiplayerGameStarted;
 
         /// <summary>
-        /// Subscribe to receive event when multiplayer game end
+        /// Subscribe to receive event when multiplayer game end<br/>
+        /// (Host ends the game, or Client disconnects)
         /// </summary>
         public static Action OnMultiplayerGameEnded;
 
         /// <summary>
-        /// Subscribe to receive event when a new star starts loaded<br/>
-        /// int starIndex - index of star to load
+        /// Subscribe to receive event when a new star starts loading (client)<br/>
+        /// int starIndex - index of star to load<br/>
         /// </summary>
         public static Action<int> OnStarLoadRequest;
 
         /// <summary>
-        /// Subscribe to receive event when a new planet starts loaded<br/>
-        /// int planetId - id of planet to load
+        /// Subscribe to receive event when a DysonSphere finishs loading (client)<br/>
+        /// int starIndex - index of star of dyson sphere to load<br/>
+        /// </summary>
+        public static Action<int> OnDysonSphereLoadFinished;
+
+        /// <summary>
+        /// Subscribe to receive event when a PlanetFactory starts loading (client)<br/>
+        /// int planetId - id of planet to load<br/>
         /// </summary>
         public static Action<int> OnPlanetLoadRequest;
 
         /// <summary>
-        /// Subscribe to receive event when a new planet is finished loading<br/>
+        /// Subscribe to receive event when a PlanetFactory is finished loading (client)<br/>
         /// int planetId - id of planet to load
         /// </summary>
         public static Action<int> OnPlanetLoadFinished;
 
         /// <summary>
-        /// Subscribe to receive even when a new player joins the game.
-        /// The event fires right after the player starts to load in the save data
-        /// <see cref="IPlayerData"/>> player - info about the player
+        /// Subscribe to receive even when a player joins the game (Host)<br/>
+        /// The event fires after the player sync all the data<br/>
+        /// <see cref="IPlayerData"/> - joined player data
         /// </summary>
         public static Action<IPlayerData> OnPlayerJoinedGame;
-        
+
         /// <summary>
-        /// Subscribe to receive even when a new player leaves the game
-        /// <see cref="IPlayerData"/>> player - info about the player
+        /// Subscribe to receive even when a player leaves the game (Host)<br/>
+        /// The event fires after the player disconnect<br/>
+        /// <see cref="IPlayerData"/> - left player data
         /// </summary>
         public static Action<IPlayerData> OnPlayerLeftGame;
 

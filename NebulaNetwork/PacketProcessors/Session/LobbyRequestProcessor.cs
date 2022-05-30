@@ -42,86 +42,17 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 if (GameMain.isFullscreenPaused)
                 {
+                    Log.Warn("Reject connection because server is still loading");
                     conn.Disconnect(DisconnectionReason.HostStillLoading);
                     pendingPlayers.Remove(conn);
-
                     return;
                 }
 
-                Dictionary<string, string> clientMods = new Dictionary<string, string>();
-
-                using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.ModsVersion))
+                if (!ModsVersionCheck(packet, out DisconnectionReason disconnectionReason, out string reasonString))
                 {
-                    for (int i = 0; i < packet.ModsCount; i++)
-                    {
-                        string guid = reader.BinaryReader.ReadString();
-                        string version = reader.BinaryReader.ReadString();
-
-                        if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
-                        {
-                            conn.Disconnect(DisconnectionReason.ModIsMissingOnServer, guid);
-                            pendingPlayers.Remove(conn);
-
-                            return;
-                        }
-
-                        clientMods.Add(guid, version);
-                    }
-                }
-
-                foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
-                {
-                    if (pluginInfo.Value.Instance is IMultiplayerMod mod)
-                    {
-                        if (!clientMods.ContainsKey(pluginInfo.Key))
-                        {
-                            conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
-                            pendingPlayers.Remove(conn);
-
-                            return;
-                        }
-
-                        string version = clientMods[pluginInfo.Key];
-
-                        if (mod.CheckVersion(mod.Version, version))
-                        {
-                            continue;
-                        }
-
-                        conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{version};{mod.Version}");
-                        pendingPlayers.Remove(conn);
-
-                        return;
-                    }
-                    else
-                    {
-                        foreach (BepInEx.BepInDependency dependency in pluginInfo.Value.Dependencies)
-                        {
-                            if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
-                            {
-                                string hostVersion = pluginInfo.Value.Metadata.Version.ToString();
-                                if (!clientMods.ContainsKey(pluginInfo.Key))
-                                {
-                                    conn.Disconnect(DisconnectionReason.ModIsMissing, pluginInfo.Key);
-                                    pendingPlayers.Remove(conn);
-                                    return;
-                                }
-                                if (clientMods[pluginInfo.Key] != hostVersion)
-                                {
-                                    conn.Disconnect(DisconnectionReason.ModVersionMismatch, $"{pluginInfo.Key};{clientMods[pluginInfo.Key]};{hostVersion}");
-                                    pendingPlayers.Remove(conn);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (packet.GameVersionSig != GameConfig.gameVersion.sig)
-                {
-                    conn.Disconnect(DisconnectionReason.GameVersionMismatch, $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }");
+                    Log.Warn("Reject connection because mods mismatch");
+                    conn.Disconnect(disconnectionReason, reasonString);
                     pendingPlayers.Remove(conn);
-
                     return;
                 }
             }
@@ -135,9 +66,9 @@ namespace NebulaNetwork.PacketProcessors.Session
             {
                 if (savedPlayerData.TryGetValue(clientCertHash, out IPlayerData value))
                 {
+                    IPlayerData playerData = value;
                     using (playerManager.GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
                     {
-                        IPlayerData playerData = value;
                         foreach (INebulaPlayer connectedPlayer in connectedPlayers.Values)
                         {
                             if (connectedPlayer.Data == playerData)
@@ -146,8 +77,8 @@ namespace NebulaNetwork.PacketProcessors.Session
                                 Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
                             }
                         }
-                        player.LoadUserData(playerData);
                     }
+                    player.LoadUserData(playerData);
                 }
                 else
                 {
@@ -158,9 +89,6 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             // Add the username to the player data
             player.Data.Username = !string.IsNullOrWhiteSpace(packet.Username) ? packet.Username : $"Player {player.Id}";
-
-            // Add the Mecha Color to the player data
-            player.Data.MechaColors = packet.MechaColors;
 
             Multiplayer.Session.NumPlayers += 1;
             DiscordManager.UpdateRichPresence();
@@ -181,7 +109,6 @@ namespace NebulaNetwork.PacketProcessors.Session
                 }
 
                 Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
-                NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
 
                 // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
                 PlayerJoining pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData(), Multiplayer.Session.NumPlayers); // Remove inventory from mecha data
@@ -237,5 +164,86 @@ namespace NebulaNetwork.PacketProcessors.Session
                 player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
             }
         }
+    
+    
+        private bool ModsVersionCheck(in LobbyRequest packet, out DisconnectionReason reason, out string reasonString)
+        {
+            reason = DisconnectionReason.Normal;
+            reasonString = null;
+            Dictionary<string, string> clientMods = new Dictionary<string, string>();
+
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.ModsVersion))
+            {
+                for (int i = 0; i < packet.ModsCount; i++)
+                {
+                    string guid = reader.BinaryReader.ReadString();
+                    string version = reader.BinaryReader.ReadString();
+
+                    if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(guid))
+                    {
+                        reason = DisconnectionReason.ModIsMissingOnServer;
+                        reasonString = guid;
+                        return false;
+                    }
+
+                    clientMods.Add(guid, version);
+                }
+            }
+
+            foreach (KeyValuePair<string, BepInEx.PluginInfo> pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos)
+            {
+                if (pluginInfo.Value.Instance is IMultiplayerMod mod)
+                {
+                    if (!clientMods.ContainsKey(pluginInfo.Key))
+                    {
+                        reason = DisconnectionReason.ModIsMissing;
+                        reasonString = pluginInfo.Key;
+                        return false;
+                    }
+
+                    string version = clientMods[pluginInfo.Key];
+
+                    if (mod.CheckVersion(mod.Version, version))
+                    {
+                        continue;
+                    }
+
+                    reason = DisconnectionReason.ModVersionMismatch;
+                    reasonString = $"{pluginInfo.Key};{version};{mod.Version}";
+                    return false;
+                }
+                else
+                {
+                    foreach (BepInEx.BepInDependency dependency in pluginInfo.Value.Dependencies)
+                    {
+                        if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
+                        {
+                            string hostVersion = pluginInfo.Value.Metadata.Version.ToString();
+                            if (!clientMods.ContainsKey(pluginInfo.Key))
+                            {
+                                reason = DisconnectionReason.ModIsMissing;
+                                reasonString = pluginInfo.Key;
+                                return false;
+                            }
+                            if (clientMods[pluginInfo.Key] != hostVersion)
+                            {
+                                reason = DisconnectionReason.ModVersionMismatch;
+                                reasonString = $"{pluginInfo.Key};{clientMods[pluginInfo.Key]};{hostVersion}";
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (packet.GameVersionSig != GameConfig.gameVersion.sig)
+            {
+                reason = DisconnectionReason.GameVersionMismatch;
+                reasonString = $"{ packet.GameVersionSig };{ GameConfig.gameVersion.sig }";
+                return false;
+            }
+
+            return true;
+        }    
     }
 }

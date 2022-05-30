@@ -1,4 +1,13 @@
 ## Changelog
+1.3.0:
+
+- Add a new event OnDysonSphereLoadFinished to NebulaModAPI
+- Add SendPacketExclude<T>() to INetworkProvider
+- Add GetPlayerById() to IPlayerManager
+- Add SendPacketToOtherPlayers<T>() to IPlayerManager
+- Add IEquatable interface to INebulaConnection, now it can use Equals() to test value equality.
+- Remove Float4[] MechaColors in IPlayerData
+
 1.2.0:
 
 - @kremnev8: add two new events to Nebula API for players joining and leaving the game

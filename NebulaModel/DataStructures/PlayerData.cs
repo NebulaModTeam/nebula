@@ -9,7 +9,6 @@ namespace NebulaModel.DataStructures
         public string Username { get; set; }
         public ushort PlayerId { get; set; }
         public int LocalPlanetId { get; set; }
-        public Float4[] MechaColors { get; set; }
         public Float3 LocalPlanetPosition { get; set; }
         public Double3 UPosition { get; set; }
         public Float3 Rotation { get; set; }
@@ -21,6 +20,8 @@ namespace NebulaModel.DataStructures
         public int[] DIYItemId { get; set; }
         public int[] DIYItemValue { get; set; }
 
+        private Float4[] MechaColors { get; set; } //Obsoleted by MechaAppearance
+
         public PlayerData()
         {
             Appearance = null;
@@ -28,11 +29,10 @@ namespace NebulaModel.DataStructures
             DIYItemId = new int[0];
             DIYItemValue = new int[0];
         }
-        public PlayerData(ushort playerId, int localPlanetId, Float4[] mechaColors, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
+        public PlayerData(ushort playerId, int localPlanetId, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
         {
             PlayerId = playerId;
             LocalPlanetId = localPlanetId;
-            MechaColors = mechaColors;
             Username = !string.IsNullOrWhiteSpace(username) ? username : $"Player {playerId}";
             LocalPlanetPosition = localPlanetPosition;
             UPosition = position;
@@ -202,7 +202,7 @@ namespace NebulaModel.DataStructures
 
         public IPlayerData CreateCopyWithoutMechaData()
         {
-            return new PlayerData(PlayerId, LocalPlanetId, MechaColors, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
+            return new PlayerData(PlayerId, LocalPlanetId, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
         }
     }
 }

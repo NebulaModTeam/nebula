@@ -100,6 +100,7 @@ namespace NebulaNetwork
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             socket.Log.Level = LogLevel.Debug;
+            socket.Log.Output = NebulaModel.Logger.Log.SocketOutput;
             socket.AllowForwardedRequest = true; // This is required to make the websocket play nice with tunneling services like ngrok
 
             if (!string.IsNullOrWhiteSpace(Config.Options.ServerPassword))
@@ -135,7 +136,6 @@ namespace NebulaNetwork
             ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
                 PlayerManager.GetNextAvailablePlayerId(),
                 GameMain.localPlanet?.id ?? -1,
-                Config.Options.GetMechaColors(),
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName), loadSaveFile);
 
             Task.Run(async () =>
@@ -200,9 +200,14 @@ namespace NebulaNetwork
             PlayerManager.SendPacketToStar(packet, starId);
         }
 
+        public override void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+        {
+            PlayerManager.SendPacketToOtherPlayers(packet, exclude);
+        }
+
         public override void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
         {
-            PlayerManager.SendPacketToStarExcept(packet, starId, (NebulaConnection)exclude);
+            PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
         }
 
         public override void Update()

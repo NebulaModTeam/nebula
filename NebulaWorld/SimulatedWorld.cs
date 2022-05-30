@@ -5,6 +5,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
+using NebulaModel.Packets.Universe;
 using NebulaModel.Packets.Warning;
 using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours;
@@ -79,9 +80,6 @@ namespace NebulaWorld
             }
 
             LocalPlayer player = Multiplayer.Session.LocalPlayer as LocalPlayer;
-
-            // Assign our own color
-            UpdatePlayerColor(Multiplayer.Session.LocalPlayer.Id, player.Data.MechaColors);
 
             // If not a new client, we need to update the player position to put him where he was previously
             if (player.IsClient && !player.IsNewPlayer)
@@ -174,6 +172,41 @@ namespace NebulaWorld
             }
         }
 
+        public void OnPlayerJoinedGame(INebulaPlayer player)
+        {
+            Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
+
+            // Load overriden Planet and Star names
+            player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
+
+            // add together player sand count and tell others if we are syncing soil
+            if (Config.Options.SyncSoil)
+            {
+                GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
+                Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+            }
+
+            // (Host only) Trigger when a new client added to connected players
+            Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} joined");
+            NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
+        }
+
+        public void OnPlayerLeftGame(INebulaPlayer player)
+        {
+            Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
+
+            if (Config.Options.SyncSoil)
+            {
+                GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
+                UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
+                Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+            }
+
+            // (Host only) Trigger when a connected client leave the game
+            Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} left");
+            NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
+        }
+
         public void OnAllPlayersSyncCompleted()
         {
             IsPlayerJoining = false;
@@ -198,8 +231,6 @@ namespace NebulaWorld
                     SendChatMessage(message, ChatMessageType.SystemInfoMessage);
                 }
             }
-
-            UpdatePlayerColor(playerData.PlayerId, playerData.MechaColors);
         }
 
         public void DestroyRemotePlayerModel(ushort playerId)
@@ -305,58 +336,6 @@ namespace NebulaWorld
                         GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
                     }
                     droneLogic.factory = tmpFactory;
-                }
-            }
-        }
-
-        public void UpdatePlayerColor(ushort playerId, Float4[] colors)
-        {
-            if (colors == null || colors.Length == 0)
-            {
-                return;
-            }
-
-            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
-            {
-                MechaArmorModel mechaArmorModel;
-                if (playerId == Multiplayer.Session.LocalPlayer.Id)
-                {
-                    mechaArmorModel = GameMain.data.mainPlayer.mechaArmorModel;
-                }
-                else if (remotePlayersModels.TryGetValue(playerId, out RemotePlayerModel remotePlayerModel))
-                {
-                    mechaArmorModel = remotePlayerModel.PlayerInstance.mechaArmorModel;
-                }
-                else
-                {
-                    Log.Warn("Could not find the playerAnimator for player with ID " + playerId);
-                    return;
-                }
-                
-                Log.Debug($"Changing color of player {playerId}");
-                for (int i = 0; i < colors.Length; i++)
-                {
-                    Log.Debug($"Color {i}: {colors[i]}");
-                }
-
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color", colors[0].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color2", colors[1].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_Color3", colors[2].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color", colors[0].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color2", colors[1].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_Color3", colors[2].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor", colors[5].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_mat.SetColor("_SpecularColor3", colors[6].ToColor() / 255);
-                mechaArmorModel.inst_part_ar_em_mat.SetColor("_EmissionMask", colors[3].ToColor() / 255);
-                mechaArmorModel.inst_part_sk_em_mat.SetColor("_EmissionMask", colors[4].ToColor() / 255);
-                
-                // We changed our own color, so we have to let others know
-                if (Multiplayer.Session.LocalPlayer.Id == playerId)
-                {
-                    //GameMain.mainPlayer.mecha.mainColors = Float4.ToColor32(colors);
-                    Multiplayer.Session.Network.SendPacket(new PlayerColorChanged(playerId, colors));
                 }
             }
         }

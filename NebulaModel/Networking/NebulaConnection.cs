@@ -99,6 +99,11 @@ namespace NebulaModel.Networking
             return !Equals(left, right);
         }
 
+        public bool Equals(INebulaConnection connection)
+        {
+            return connection != null && (connection as NebulaConnection).peerEndpoint.Equals(peerEndpoint);
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is null)

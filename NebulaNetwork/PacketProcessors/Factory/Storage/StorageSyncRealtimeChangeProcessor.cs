@@ -41,7 +41,8 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage
 
                     if (IsHost)
                     {
-                        StorageSyncManager.SendToOtherPlayersOnTheSamePlanet(conn, packet, packet.PlanetId);
+                        int starId = GameMain.galaxy.PlanetById(packet.PlanetId).star.id;
+                        Multiplayer.Session.Network.SendPacketToStarExclude(packet, starId, conn);
                     }
                 }
             }
