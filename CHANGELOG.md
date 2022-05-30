@@ -1,5 +1,18 @@
 ## Changelog
 
+0.8.8:
+
+- @starfi5h: Added RemoteAccessPassword setting for servers so that users can authenticate to use admin commands
+- @starfi5h: Fixed bugs related to headless servers
+- @starfi5h: Chat now stores past commands, accessible with the up and down arrow keys
+- @PhantomGamers: Fixed white window popping up while headless server is running
+- @starfi5h: Added syncing for Logistic Station names
+- @starfi5h: Fixed bug that allowed clients to reduce ILS warp distance below their minimum value
+- @starfi5h: Added syncing for Mecha energy production and consumption stats
+- @starfi5h: Made it so new clients now join the game with full energy and some warpers if the tech is unlocked
+- @starfi5h: Fixed bug when running GalacticScale that caused clients to sink into the ground
+- @starfi5h: Removed IP addresses from log output
+
 0.8.7:
 
 - @mmjr-x: Add Upnp/pmp support
