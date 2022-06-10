@@ -298,7 +298,7 @@ namespace NebulaPatcher.Patches.Dynamic
             float shipWarpSpeed = (!history.logisticShipWarpDrive) ? shipSailSpeed : history.logisticShipWarpSpeedModified;
             int shipCarries = history.logisticShipCarries;
             StationComponent[] gStationPool = __instance.galacticTransport.stationPool;
-            AstroPose[] astroPoses = __instance.galaxy.astroPoses;
+            AstroData[] astroPoses = __instance.galaxy.astrosData;
             VectorLF3 relativePos = __instance.relativePos;
             Quaternion relativeRot = __instance.relativeRot;
             bool starmap = UIGame.viewMode == EViewMode.Starmap;

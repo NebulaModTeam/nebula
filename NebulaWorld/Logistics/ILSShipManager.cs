@@ -81,7 +81,7 @@ namespace NebulaWorld.Logistics
 
                 float shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
                 float shipWarpSpeed = (GameMain.history.logisticShipWarpDrive ? GameMain.history.logisticShipWarpSpeedModified : shipSailSpeed);
-                AstroPose[] astroPoses = GameMain.galaxy.astroPoses;
+                AstroData[] astroPoses = GameMain.galaxy.astrosData;
 
                 bool canWarp = shipWarpSpeed > shipSailSpeed + 1f;
                 double trip = (astroPoses[packet.PlanetB].uPos - astroPoses[packet.PlanetA].uPos).magnitude + astroPoses[packet.PlanetB].uRadius + astroPoses[packet.PlanetA].uRadius;
