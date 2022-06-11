@@ -32,6 +32,7 @@
         SetCargoFilter = 6,
         SetTargetCargoBytes = 7,
         SetPeriodTickCount = 8,
-        SetTargetBelt = 9
+        SetTargetBelt = 9,
+        SetSpawnOperator = 10
     }
 }
