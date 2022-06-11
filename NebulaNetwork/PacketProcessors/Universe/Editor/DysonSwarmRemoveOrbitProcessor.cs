@@ -26,6 +26,10 @@ namespace NebulaNetwork.PacketProcessors.Universe
                 {
                     sphere.swarm.SetOrbitEnable(packet.OrbitId, packet.Event == SwarmRemoveOrbitEvent.Enable);
                 }
+                else if (packet.Event == SwarmRemoveOrbitEvent.RemoveSails)
+                {
+                    sphere.swarm.RemoveSailsByOrbit(packet.OrbitId);
+                }
                 NebulaWorld.Universe.DysonSphereManager.ClearSelection(packet.StarIndex);
             }
             if (IsHost)
