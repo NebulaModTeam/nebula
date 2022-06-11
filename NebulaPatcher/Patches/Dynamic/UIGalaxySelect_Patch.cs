@@ -31,6 +31,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 galaxySelectRect.Find("random-button").gameObject.SetActive(false);
                 galaxySelectRect.Find("property-multiplier").gameObject.SetActive(false);
                 galaxySelectRect.Find("seed-key").gameObject.SetActive(false);
+                galaxySelectRect.Find("sandbox-mode").gameObject.SetActive(false);
             }
             if (Multiplayer.IsActive)
             {
@@ -146,10 +147,10 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(nameof(UIGalaxySelect.SetStarmapGalaxy))]
-        public static void SetStarmapGalaxy_Postfix(UIGalaxySelect __instance)
+        [HarmonyPatch(nameof(UIGalaxySelect.UpdateParametersUIDisplay))]
+        public static void UpdateParametersUIDisplay_Postfix(UIGalaxySelect __instance)
         {
-            if(Multiplayer.IsInMultiplayerMenu && Multiplayer.Session.LocalPlayer.IsHost)
+            if (Multiplayer.IsInMultiplayerMenu && Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // syncing players are those who have not loaded into the game yet, so they might still be in the lobby. they need to check if this packet is relevant for them in the corresponding handler.
                 // just remembered others cant be in game anyways when host ist still in lobby >.>
@@ -157,7 +158,14 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     foreach(KeyValuePair<INebulaConnection, INebulaPlayer> entry in syncingPlayers)
                     {
-                        entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed, __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier));
+                        entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed, __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier, __instance.gameDesc.isSandboxMode));
+                    }
+                }
+                using (Multiplayer.Session.Network.PlayerManager.GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers))
+                {
+                    foreach (KeyValuePair<INebulaConnection, INebulaPlayer> entry in pendingPlayers)
+                    {
+                        entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed, __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier, __instance.gameDesc.isSandboxMode));
                     }
                 }
             }

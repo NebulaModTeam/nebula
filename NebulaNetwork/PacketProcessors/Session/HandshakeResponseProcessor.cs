@@ -39,8 +39,9 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             // Using GameDesc.Import will break GS2, so use GameDesc.SetForNewGame instead
             GameDesc gameDesc = new GameDesc();
-            gameDesc.SetForNewGame(packet.AlgoVersion, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
+            gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
             gameDesc.savedThemeIds = packet.SavedThemeIds;
+            gameDesc.isSandboxMode = packet.IsSandboxMode;
             DSPGame.StartGameSkipPrologue(gameDesc);
 
             InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);

@@ -17,9 +17,11 @@ namespace NebulaNetwork.PacketProcessors.Session
 
             GameDesc gameDesc = new GameDesc();
             gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
+            gameDesc.isSandboxMode = packet.IsSandboxMode;
 
             UIRoot.instance.galaxySelect.gameDesc = gameDesc;
             UIRoot.instance.galaxySelect.SetStarmapGalaxy();
+            UIRoot.instance.galaxySelect.sandboxToggle.isOn = packet.IsSandboxMode;
         }
     }
 }
