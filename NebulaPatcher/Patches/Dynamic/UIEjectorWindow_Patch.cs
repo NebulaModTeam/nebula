@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Factory.Ejector;
 using NebulaWorld;
 
@@ -27,6 +28,33 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive)
             {
                 Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorOrbitUpdatePacket(__instance.ejectorId, orbitId, GameMain.localPlanet?.id ?? -1));
+            }
+        }
+
+        static bool boost;
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIEjectorWindow.OnEjectorIdChange))]
+        public static void OnEjectorIdChange_Postfix(UIEjectorWindow __instance)
+        {
+            if (Multiplayer.IsActive && __instance.active)
+            {
+                boost = __instance.boostSwitch.isOn;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIEjectorWindow._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnUpdate_Prefix(UIEjectorWindow __instance)
+        {
+            //Notify about boost change in sandbox mode
+            NebulaModel.Logger.Log.Warn(boost);
+            if (Multiplayer.IsActive && boost != __instance.boostSwitch.isOn)
+            {
+                boost = __instance.boostSwitch.isOn;
+                Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
+                    (GameMain.localPlanet?.id ?? -1, EBoostEntityType.Ejector, __instance.ejectorId, boost));
             }
         }
     }
