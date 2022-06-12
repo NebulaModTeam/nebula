@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Factory.Assembler;
 using NebulaModel.Packets.Factory.Ejector;
@@ -177,6 +178,34 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void PlanetReformRevert_Postfix()
         {
             Multiplayer.Session.Planets.EnableVeinPacket = true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.AddVegeData))]
+        public static void AddVegeData_Postfix(PlanetFactory __instance, VegeData vege)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            {
+                using (BinaryUtils.Writer writer = new())
+                {
+                    vege.Export(writer.BinaryWriter);
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, false, writer.CloseAndGetBytes()));
+                }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.AddVeinData))]
+        public static void AddVeinData_Postfix(PlanetFactory __instance, VeinData vein)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            {
+                using (BinaryUtils.Writer writer = new())
+                {
+                    vein.Export(writer.BinaryWriter);
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, true, writer.CloseAndGetBytes()));
+                }
+            }
         }
 
         [HarmonyPostfix]
