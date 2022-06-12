@@ -26,7 +26,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
                 if (packet.IsReform)
                 {
                     // Reform whole planet
-                    planet.factory.PlanetReformAll(packet.Type, packet.Color, packet.Burry);
+                    planet.factory.PlanetReformAll(packet.Type, packet.Color, packet.Bury);
                 }
                 else
                 {
