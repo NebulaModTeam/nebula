@@ -23,7 +23,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
                 PlanetData pData = GameMain.gpuiManager.specifyPlanet;
                 GameMain.gpuiManager.specifyPlanet = planet;
                 
-                if (packet.IsRefrom)
+                if (packet.IsReform)
                 {
                     // Reform whole planet
                     planet.factory.PlanetReformAll(packet.Type, packet.Color, packet.Burry);
