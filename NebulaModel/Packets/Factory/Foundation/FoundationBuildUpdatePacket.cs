@@ -1,7 +1,7 @@
 ﻿using NebulaAPI;
 using UnityEngine;
 
-namespace NebulaModel.Packets.Factory
+namespace NebulaModel.Packets.Factory.Foundation
 {
     public class FoundationBuildUpdatePacket
     {
