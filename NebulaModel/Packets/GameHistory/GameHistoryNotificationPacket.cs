@@ -14,6 +14,7 @@
     public enum GameHistoryEvent
     {
         PauseQueue = 1,
-        ResumeQueue = 2
+        ResumeQueue = 2,
+        OneKeyUnlock = 3
     }
 }

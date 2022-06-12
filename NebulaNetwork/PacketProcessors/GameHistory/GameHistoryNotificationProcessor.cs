@@ -9,43 +9,26 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
     [RegisterPacketProcessor]
     internal class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNotificationPacket>
     {
-        private readonly IPlayerManager playerManager;
-
-        public GameHistoryNotificationProcessor()
-        {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
-
         public override void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
         {
-            bool valid = true;
-
-            if (IsHost)
+            if (IsHost && packet.Event != GameHistoryEvent.OneKeyUnlock)
             {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
-                {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
-                }
-                else
-                {
-                    valid = false;
-                }
+                Multiplayer.Session.Network.SendPacketExclude(packet, conn);
             }
 
-            if (valid)
+            using (Multiplayer.Session.History.IsIncomingRequest.On())
             {
-                using (Multiplayer.Session.History.IsIncomingRequest.On())
+                switch (packet.Event)
                 {
-                    switch (packet.Event)
-                    {
-                        case GameHistoryEvent.ResumeQueue:
-                            GameMain.history.ResumeTechQueue();
-                            break;
-                        case GameHistoryEvent.PauseQueue:
-                            GameMain.history.PauseTechQueue();
-                            break;
-                    }
+                    case GameHistoryEvent.ResumeQueue:
+                        GameMain.history.ResumeTechQueue();
+                        break;
+                    case GameHistoryEvent.PauseQueue:
+                        GameMain.history.PauseTechQueue();
+                        break;
+                    case GameHistoryEvent.OneKeyUnlock:
+                        UIRoot.instance.uiGame.techTree.Do1KeyUnlock();
+                        break;
                 }
             }
         }
