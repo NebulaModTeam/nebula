@@ -4,6 +4,8 @@
 
 - @PhantomGamers: Fixed compilation with 0.9.26
 - @starfi5h: Added syncing of all of the new Sandbox features introduced in 0.9.26
+- @starfi5h: Fixed bug that caused the host to sink into the ground
+- @starfi5h: Increased connection timeout to prevent issues with higher latency connections
 
 0.8.8:
 
