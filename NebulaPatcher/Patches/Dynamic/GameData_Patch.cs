@@ -152,6 +152,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
+            RefreshMissingMeshes();
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // Resume packet processing when local planet is loaded
@@ -205,7 +206,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     // This is to fix GS2 that sometimes client mecha will be stuck on ground
                     RefreshMissingMeshes();
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                     RefreshMissingMeshes();
                 });
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
@@ -415,8 +416,11 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                 }
             }
+
             if (flag)
-                Log.Info("RefreshMissingMeshes");
+            {
+                Log.Debug("RefreshMissingMeshes");
+            }
         }
     }
 }

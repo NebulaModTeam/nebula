@@ -18,6 +18,7 @@ using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Net;
 using WebSocketSharp.Server;
+using System;
 
 namespace NebulaNetwork
 {
@@ -122,6 +123,8 @@ namespace NebulaNetwork
             socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
             try
             {
+                // Set wait time higher for high latency network
+                socket.WaitTime = TimeSpan.FromSeconds(20);
                 socket.KeepClean = Config.Options.CleanupInactiveSessions;
                 socket.Start();
             }catch(System.InvalidOperationException e)
