@@ -137,7 +137,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                     }
 
                     GameDesc gameDesc = GameMain.data.gameDesc;
-                    player.SendPacket(new HandshakeResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
+                    player.SendPacket(new HandshakeResponse(in gameDesc, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(), count, Config.Options.SyncSoil, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
                 }
             }
             else
@@ -157,7 +157,7 @@ namespace NebulaNetwork.PacketProcessors.Session
                         }
                     }
 
-                    player.SendPacket(new LobbyResponse(gameDesc.galaxyAlgo, gameDesc.galaxySeed, gameDesc.starCount, gameDesc.resourceMultiplier, gameDesc.savedThemeIds, p.CloseAndGetBytes(), count, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
+                    player.SendPacket(new LobbyResponse(in gameDesc, p.CloseAndGetBytes(), count, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
                 }
 
                 // Send overriden Planet and Star names

@@ -48,6 +48,23 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(MonitorComponent.SetSpawnOperator))]
+        public static void SetSpawnOperator_Prefix(MonitorComponent __instance, byte __0)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.Warning.IsIncomingMonitorPacket)
+            {
+                if (__0 == __instance.spawnItemOperator)
+                {
+                    // don't send the packet if spawnItemOperator is same
+                    return;
+                }
+                int planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
+                Multiplayer.Session.Network.SendPacketToLocalStar(
+                    new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetSpawnOperator, __0));
+            }
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(MonitorComponent.SetMonitorMode))]
         public static void SetMonitorMode_Prefix(MonitorComponent __instance, int __0)
         {

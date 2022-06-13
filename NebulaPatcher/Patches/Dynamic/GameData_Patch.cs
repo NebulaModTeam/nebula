@@ -152,6 +152,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return true;
             }
+            RefreshMissingMeshes();
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {
                 // Resume packet processing when local planet is loaded
@@ -205,7 +206,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     // This is to fix GS2 that sometimes client mecha will be stuck on ground
                     RefreshMissingMeshes();
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                     RefreshMissingMeshes();
                 });
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
@@ -298,7 +299,7 @@ namespace NebulaPatcher.Patches.Dynamic
             float shipWarpSpeed = (!history.logisticShipWarpDrive) ? shipSailSpeed : history.logisticShipWarpSpeedModified;
             int shipCarries = history.logisticShipCarries;
             StationComponent[] gStationPool = __instance.galacticTransport.stationPool;
-            AstroPose[] astroPoses = __instance.galaxy.astroPoses;
+            AstroData[] astroPoses = __instance.galaxy.astrosData;
             VectorLF3 relativePos = __instance.relativePos;
             Quaternion relativeRot = __instance.relativeRot;
             bool starmap = UIGame.viewMode == EViewMode.Starmap;
@@ -415,8 +416,11 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                 }
             }
+
             if (flag)
-                Log.Info("RefreshMissingMeshes");
+            {
+                Log.Debug("RefreshMissingMeshes");
+            }
         }
     }
 }

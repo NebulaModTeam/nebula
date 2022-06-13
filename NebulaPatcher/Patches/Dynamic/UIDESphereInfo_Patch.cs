@@ -6,17 +6,6 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(UIDESphereInfo))]
     internal class UIDESphereInfo_Patch
     {
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(UIDESphereInfo._OnInit))]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        public static void _OnInit_Postfix()
-        {
-            if (Multiplayer.IsActive)
-            {
-                UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.pauseButton.button.interactable = false;
-            }
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIDESphereInfo.CalculateSailLifeDistribution))]
         public static bool CalculateSailLifeDistribution_Prefix(UIDESphereInfo __instance, int division, out float maxCount, ref float[] __result)

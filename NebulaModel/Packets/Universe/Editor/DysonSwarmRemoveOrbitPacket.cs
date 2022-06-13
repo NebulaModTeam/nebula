@@ -19,6 +19,7 @@
     {
         Remove,
         Disable,
-        Enable
+        Enable,
+        RemoveSails
     }
 }

@@ -55,6 +55,22 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(DysonSwarm.RemoveSailsByOrbit))]
+        public static void RemoveSailsByOrbit_Prefix(DysonSwarm __instance, int orbitId)
+        {
+            if (!Multiplayer.IsActive)
+            {
+                return;
+            }
+            // Notify others about manual sails cleaning.
+            // In DysonSwarm.GameTick() it will automatically clean every 21600 ticks
+            if (!Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket && GameMain.gameTick % 21600L != 0L)
+            {
+                Multiplayer.Session.Network.SendPacket(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId, SwarmRemoveOrbitEvent.RemoveSails));
+            }
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(DysonSwarm.EditOrbit))]
         public static void EditOrbit_Prefix(DysonSwarm __instance, int orbitId, float radius, Quaternion rotation)
         {

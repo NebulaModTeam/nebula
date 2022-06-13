@@ -6,6 +6,7 @@
         public int GalaxySeed { get; set; }
         public int StarCount { get; set; }
         public float ResourceMultiplier { get; set; }
+        public bool IsSandboxMode { get; set; }
         public int[] SavedThemeIds { get; set; }
         public byte[] ModsSettings { get; set; }
         public int ModsSettingsCount { get; set; }
@@ -13,13 +14,14 @@
         public string DiscordPartyId { get; set; }
 
         public LobbyResponse() { }
-        public LobbyResponse(int galaxyAlgo, int galaxySeed, int starCount, float resourceMultiplier, int[] savedThemeIds, byte[] modsSettings, int settingsCount, ushort numPlayers, string discordPartyId)
+        public LobbyResponse(in GameDesc gameDesc, byte[] modsSettings, int settingsCount, ushort numPlayers, string discordPartyId)
         {
-            GalaxyAlgo = galaxyAlgo;
-            GalaxySeed = galaxySeed;
-            StarCount = starCount;
-            ResourceMultiplier = resourceMultiplier;
-            SavedThemeIds = savedThemeIds;
+            GalaxyAlgo = gameDesc.galaxyAlgo;
+            GalaxySeed = gameDesc.galaxySeed;
+            StarCount = gameDesc.starCount;
+            ResourceMultiplier = gameDesc.resourceMultiplier;
+            IsSandboxMode = gameDesc.isSandboxMode;
+            SavedThemeIds = gameDesc.savedThemeIds;
             ModsSettings = modsSettings;
             ModsSettingsCount = settingsCount;
             NumPlayers = numPlayers;

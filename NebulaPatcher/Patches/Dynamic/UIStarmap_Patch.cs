@@ -27,5 +27,21 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.World.ClearPlayerNameTagsOnStarmap();
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIStarmap.TeleportToUPosition))]
+        public static bool TeleportToUPosition_Prefix(VectorLF3 uPos)
+        {
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                GameMain.data.QueryNearestStarPlanet(uPos, out StarData starData, out PlanetData planetData);
+                if (GameMain.localPlanet != planetData && planetData != null && planetData.type == EPlanetType.Gas)
+                {
+                    InGamePopup.ShowWarning("Unavailable", "Cannot teleport to gas giant", "OK");
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

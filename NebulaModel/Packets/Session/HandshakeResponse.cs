@@ -4,10 +4,11 @@ namespace NebulaModel.Packets.Session
 {
     public class HandshakeResponse
     {
-        public int AlgoVersion { get; set; }
+        public int GalaxyAlgo { get; set; }
         public int GalaxySeed { get; set; }
         public int StarCount { get; set; }
         public float ResourceMultiplier { get; set; }
+        public bool IsSandboxMode { get; set; }
         public int[] SavedThemeIds { get; set; }
         public bool IsNewPlayer { get; set; }
         public PlayerData LocalPlayerData { get; set; }
@@ -19,13 +20,14 @@ namespace NebulaModel.Packets.Session
 
         public HandshakeResponse() { }
 
-        public HandshakeResponse(int algoVersion, int galaxySeed, int starCount, float resourceMultiplier, int[] savedThemeIds, bool isNewPlayer, PlayerData localPlayerData, byte[] modsSettings, int settingsCount, bool syncSoil, ushort numPlayers, string discordPartyId)
+        public HandshakeResponse(in GameDesc gameDesc, bool isNewPlayer, PlayerData localPlayerData, byte[] modsSettings, int settingsCount, bool syncSoil, ushort numPlayers, string discordPartyId)
         {
-            AlgoVersion = algoVersion;
-            GalaxySeed = galaxySeed;
-            StarCount = starCount;
-            ResourceMultiplier = resourceMultiplier;
-            SavedThemeIds = savedThemeIds;
+            GalaxyAlgo = gameDesc.galaxyAlgo;
+            GalaxySeed = gameDesc.galaxySeed;
+            StarCount = gameDesc.starCount;
+            ResourceMultiplier = gameDesc.resourceMultiplier;
+            IsSandboxMode = gameDesc.isSandboxMode;
+            SavedThemeIds = gameDesc.savedThemeIds;
             IsNewPlayer = isNewPlayer;
             LocalPlayerData = localPlayerData;
             ModsSettings = modsSettings;

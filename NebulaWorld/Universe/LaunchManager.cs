@@ -182,7 +182,7 @@ namespace NebulaWorld.Universe
 
         private static void AddBullet(DysonSwarm swarm,DysonLaunchData.Projectile projectile)
         {
-            ref AstroPose[] astroPoses = ref GameMain.data.galaxy.astroPoses;
+            ref AstroData[] astroPoses = ref GameMain.data.galaxy.astrosData;
             int orbitId = projectile.TargetId; 
             if (swarm.OrbitExist(orbitId))
             {
@@ -199,7 +199,7 @@ namespace NebulaWorld.Universe
 
         private static void AddRocket(DysonSphere sphere, DysonLaunchData.Projectile projectile)
         {
-            ref AstroPose[] astroPoses = ref GameMain.data.galaxy.astroPoses;
+            ref AstroData[] astroPoses = ref GameMain.data.galaxy.astrosData;
             // Assume layerId < 16, nodeId < 4096
             int layerId = projectile.TargetId >> 12;
             int nodeId = projectile.TargetId & 0x0FFF;

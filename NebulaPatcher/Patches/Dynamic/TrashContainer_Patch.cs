@@ -26,7 +26,7 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive && !Multiplayer.Session.Trashes.NewTrashFromOtherPlayers)
             {
                 //Refresh trash to assign local planet Id and local position
-                GameMain.data.trashSystem.Gravity(ref trashData, GameMain.data.galaxy.astroPoses, 0, 0, 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.id : 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.data : null);
+                GameMain.data.trashSystem.Gravity(ref trashData, GameMain.data.galaxy.astrosData, 0, 0, 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.id : 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.data : null);
                 Multiplayer.Session.Network.SendPacket(new TrashSystemNewTrashCreatedPacket(__result, trashObj, trashData, Multiplayer.Session.LocalPlayer.Id, GameMain.mainPlayer.planetId));
             }
         }

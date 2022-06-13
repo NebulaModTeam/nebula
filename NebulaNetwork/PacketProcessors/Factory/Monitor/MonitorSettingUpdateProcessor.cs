@@ -62,6 +62,10 @@ namespace NebulaNetwork.PacketProcessors.Factory.Monitor
                             pool[packet.MonitorId].SetTargetBelt(packet.Parameter1, packet.Parameter2);
                             break;
 
+                        case MonitorSettingEvent.SetSpawnOperator:
+                            pool[packet.MonitorId].SetSpawnOperator((byte)packet.Parameter1);
+                            break;
+
                         default:
                             Log.Warn($"MonitorSettingUpdatePacket: Unkown MonitorSettingEvent {packet.Event}");
                             break;
@@ -96,6 +100,11 @@ namespace NebulaNetwork.PacketProcessors.Factory.Monitor
 
                             case MonitorSettingEvent.SetPeriodTickCount:
                                 uIMonitor.updateTimestamp = 0L;
+                                break;
+
+                            case MonitorSettingEvent.SetSpawnOperator:
+                                uIMonitor.spawnToggle.isOn = packet.Parameter1 > 0;
+                                uIMonitor.spawnSwitch.isOn = packet.Parameter1 == 1;
                                 break;
 
                             default:

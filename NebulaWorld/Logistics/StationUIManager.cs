@@ -257,6 +257,10 @@ namespace NebulaWorld.Logistics
                     planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId, packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic, (packet.ShouldRefund == true) ? GameMain.mainPlayer : null);
                     StorageMaxChangeId = -1;
                 }
+                else if (packet.ItemCount == -2)
+                {
+                    stationComponent.storage[packet.StorageIdx].keepMode = packet.KeepMode;
+                }
                 else
                 {
                     stationComponent.storage[packet.StorageIdx].count = packet.ItemCount;

@@ -164,6 +164,7 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerMenu.Find("left-group").gameObject.SetActive(false);
             multiplayerMenu.Find("property-multiplier").gameObject.SetActive(false);
             multiplayerMenu.Find("seed-key").gameObject.SetActive(false);
+            multiplayerMenu.Find("sandbox-mode").gameObject.SetActive(false);
 
             Transform topTitle = multiplayerMenu.Find("top-title");
             topTitle.GetComponent<Localizer>().enabled = false;

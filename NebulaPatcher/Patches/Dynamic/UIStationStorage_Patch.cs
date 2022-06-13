@@ -108,6 +108,24 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.Network.SendPacket(packet);
             }
         }
+
+        /*
+         * sync sandbox mode lock station storage function
+         */
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationStorage.OnKeepModeButtonClick))]
+        public static void OnKeepModeButtonClick_Postfix(UIStationStorage __instance)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return;
+            }
+            StationStore stationStore = __instance.station.storage[__instance.index];
+
+            StorageUI packet = new StorageUI(__instance.stationWindow.factory.planet.id, 
+                __instance.station.id, __instance.station.gid, __instance.index, (byte)stationStore.keepMode);
+            Multiplayer.Session.Network.SendPacket(packet);
+        }
     }
 }
 #pragma warning restore Harmony003

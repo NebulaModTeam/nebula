@@ -1,7 +1,7 @@
 ﻿using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Factory;
+using NebulaModel.Packets.Factory.Foundation;
 using NebulaWorld;
 using System;
 using UnityEngine;

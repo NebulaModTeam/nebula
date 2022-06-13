@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Factory.PowerGenerator;
 using NebulaModel.Packets.Factory.RayReceiver;
 using NebulaWorld;
@@ -65,6 +66,32 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 PowerGeneratorComponent thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
                 Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorProductUpdatePacket(thisComponent, __instance.factory.planetId));
+            }
+        }
+
+        static bool boost;
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnGeneratorIdChange))]
+        public static void OnGeneratorIdChange_Postfix(UIPowerGeneratorWindow __instance)
+        {
+            if (Multiplayer.IsActive && __instance.active)
+            {
+                boost = __instance.boostSwitch.isOn;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIPowerGeneratorWindow._OnUpdate))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static void _OnUpdate_Prefix(UIPowerGeneratorWindow __instance)
+        {
+            //Notify about boost change in sandbox mode
+            if (Multiplayer.IsActive && boost != __instance.boostSwitch.isOn)
+            {
+                boost = __instance.boostSwitch.isOn;
+                Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
+                    (GameMain.localPlanet?.id ?? -1, EBoostEntityType.ArtificialStar, __instance.generatorId, boost));
             }
         }
     }

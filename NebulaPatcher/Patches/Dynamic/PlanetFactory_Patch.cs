@@ -1,9 +1,11 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Factory.Assembler;
 using NebulaModel.Packets.Factory.Ejector;
+using NebulaModel.Packets.Factory.Foundation;
 using NebulaModel.Packets.Factory.Fractionator;
 using NebulaModel.Packets.Factory.Inserter;
 using NebulaModel.Packets.Factory.Laboratory;
@@ -140,13 +142,79 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetFactory.PlanetReformAll))]
+        public static void PlanetReformAll_Prefix(PlanetFactory __instance, int type, int color, bool bury)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, true, type, color, bury));
+            }
+            // Stop VegeMinedPacket from sending
+            Multiplayer.Session.Planets.EnableVeinPacket = false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.PlanetReformAll))]
+        public static void PlanetReformAll_Postfix()
+        {
+            Multiplayer.Session.Planets.EnableVeinPacket = true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetFactory.PlanetReformRevert))]
+        public static void PlanetReformRevert_Prefix(PlanetFactory __instance)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, false));
+            }
+            // Stop VegeMinedPacket from sending
+            Multiplayer.Session.Planets.EnableVeinPacket = false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.PlanetReformRevert))]
+        public static void PlanetReformRevert_Postfix()
+        {
+            Multiplayer.Session.Planets.EnableVeinPacket = true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.AddVegeData))]
+        public static void AddVegeData_Postfix(PlanetFactory __instance, VegeData vege)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            {
+                using (BinaryUtils.Writer writer = new())
+                {
+                    vege.Export(writer.BinaryWriter);
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, false, writer.CloseAndGetBytes()));
+                }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.AddVeinData))]
+        public static void AddVeinData_Postfix(PlanetFactory __instance, VeinData vein)
+        {
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            {
+                using (BinaryUtils.Writer writer = new())
+                {
+                    vein.Export(writer.BinaryWriter);
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, true, writer.CloseAndGetBytes()));
+                }
+            }
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlanetFactory.RemoveVegeWithComponents))]
         public static void RemoveVegeWithComponents_Postfix(PlanetFactory __instance, int id)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest && Multiplayer.Session.Planets.EnableVeinPacket)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(GameMain.localPlanet?.id ?? -1, id, 0, false));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, false));
             }
         }
 
@@ -154,7 +222,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.RemoveVeinWithComponents))]
         public static void RemoveVeinWithComponents_Postfix(PlanetFactory __instance, int id)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest && Multiplayer.Session.Planets.EnableVeinPacket)
             {
                 if (Multiplayer.Session.LocalPlayer.IsHost)
                 {

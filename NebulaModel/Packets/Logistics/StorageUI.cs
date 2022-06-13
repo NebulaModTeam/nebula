@@ -13,6 +13,7 @@
         public int ItemCount { get; set; }
         public int ItemInc { get; set; }
         public bool ShouldRefund { get; set; }
+        public byte KeepMode { get; set; }
 
         public StorageUI() { }
         public StorageUI(int planetId, int stationId, int stationGId, int storageIdx, int itemId, int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic)
@@ -38,6 +39,16 @@
             StorageIdx = storageIdx;
             ItemCount = itemCount;
             ItemInc = itemInc;
+        }
+        public StorageUI(int planetId, int stationId, int stationGId, int storageIdx, byte keepMode)
+        {
+            ItemCount = -2; //Indicate it is other settings update
+
+            PlanetId = planetId;
+            StationId = stationId;
+            StationGId = stationGId;
+            StorageIdx = storageIdx;
+            KeepMode = keepMode;
         }
     }
 }
