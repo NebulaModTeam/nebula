@@ -49,13 +49,14 @@ namespace NebulaNetwork.PacketProcessors.Planet
                     }
                     else if (factory != null)
                     {
+                        // Taken from if (!isInfiniteResource) part of PlayerAction_Mine.GameTick()
                         VeinData veinData = factory.GetVeinData(packet.VegeId);
-                        PlanetData.VeinGroup[] veinGroups = factory.planet.veinGroups;
+                        VeinGroup[] veinGroups = factory.veinGroups;
                         short groupIndex = veinData.groupIndex;
+                        NebulaModel.Logger.Log.Warn(groupIndex);
 
                         // must be a vein/oil patch (i think the game treats them same now as oil patches can run out too)
                         factory.veinPool[packet.VegeId].amount = packet.Amount;
-                        factory.planet.veinAmounts[(int)veinData.type] -= 1L;
                         veinGroups[groupIndex].amount = veinGroups[groupIndex].amount - 1L;
                     }
                     else
