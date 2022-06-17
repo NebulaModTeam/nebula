@@ -146,38 +146,50 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(PlanetFactory.PlanetReformAll))]
         public static void PlanetReformAll_Prefix(PlanetFactory __instance, int type, int color, bool bury)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            if (Multiplayer.IsActive)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, true, type, color, bury));
+                if (!Multiplayer.Session.Planets.IsIncomingRequest)
+                {
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, true, type, color, bury));
+                }
+                // Stop VegeMinedPacket from sending
+                Multiplayer.Session.Planets.EnableVeinPacket = false;
             }
-            // Stop VegeMinedPacket from sending
-            Multiplayer.Session.Planets.EnableVeinPacket = false;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlanetFactory.PlanetReformAll))]
         public static void PlanetReformAll_Postfix()
         {
-            Multiplayer.Session.Planets.EnableVeinPacket = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Planets.EnableVeinPacket = true;
+            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetFactory.PlanetReformRevert))]
         public static void PlanetReformRevert_Prefix(PlanetFactory __instance)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+            if (Multiplayer.IsActive)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, false));
+                if (!Multiplayer.Session.Planets.IsIncomingRequest)
+                {
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, false));
+                }
+                // Stop VegeMinedPacket from sending
+                Multiplayer.Session.Planets.EnableVeinPacket = false;
             }
-            // Stop VegeMinedPacket from sending
-            Multiplayer.Session.Planets.EnableVeinPacket = false;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlanetFactory.PlanetReformRevert))]
         public static void PlanetReformRevert_Postfix()
         {
-            Multiplayer.Session.Planets.EnableVeinPacket = true;
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Planets.EnableVeinPacket = true;
+            }
         }
 
         [HarmonyPostfix]
