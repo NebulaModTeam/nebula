@@ -53,7 +53,6 @@ namespace NebulaNetwork.PacketProcessors.Planet
                         VeinData veinData = factory.GetVeinData(packet.VegeId);
                         VeinGroup[] veinGroups = factory.veinGroups;
                         short groupIndex = veinData.groupIndex;
-                        NebulaModel.Logger.Log.Warn(groupIndex);
 
                         // must be a vein/oil patch (i think the game treats them same now as oil patches can run out too)
                         factory.veinPool[packet.VegeId].amount = packet.Amount;
