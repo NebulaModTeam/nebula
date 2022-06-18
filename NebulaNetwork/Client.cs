@@ -22,7 +22,7 @@ namespace NebulaNetwork
     public class Client : NetworkProvider, IClient
     {
         private const float GAME_STATE_UPDATE_INTERVAL = 1f;
-        private const int MECHA_SYNCHONIZATION_INTERVAL = 5;
+        private const float MECHA_SYNCHONIZATION_INTERVAL = 30f;
 
         private readonly IPEndPoint serverEndpoint;
         private readonly string serverPassword;
