@@ -241,6 +241,9 @@ namespace NebulaPatcher
             catch (Exception ex)
             {
                 Log.Error("Unhandled exception occurred while patching the game:", ex);
+                // Show error in UIFatalErrorTip to inform normal users
+                Harmony.CreateAndPatchAll(typeof(UIFatalErrorTip_Patch));
+                Log.Error($"Nebula Multiplayer Mod is incompatible\nUnhandled exception occurred while patching the game.");
             }
         }
 

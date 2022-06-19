@@ -40,6 +40,8 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     button = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/Dyson Sphere Editor/Dyson Editor Control Panel/hierarchy/layers/blueprint-group/blueprint-2/copy-button");
                     GameObject errorPanel = GameObject.Find("UI Root/Overlay Canvas/Fatal Error/errored-panel/");
+                    errorPanel.transform.Find("tip-text-0").GetComponent<Text>().text = Title();
+                    GameObject.Destroy(errorPanel.transform.Find("tip-text-0").GetComponent<Localizer>());
                     errorPanel.transform.Find("tip-text-1").GetComponent<Text>().text = Title();
                     GameObject.Destroy(errorPanel.transform.Find("tip-text-1").GetComponent<Localizer>());
                     button = GameObject.Instantiate(button, errorPanel.transform);
