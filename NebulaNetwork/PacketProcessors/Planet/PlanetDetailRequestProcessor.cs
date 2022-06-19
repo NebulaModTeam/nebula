@@ -35,16 +35,13 @@ namespace NebulaNetwork.PacketProcessors.Planet
                     if (planetData.type != EPlanetType.Gas)
                     {
                         planetAlgorithm.GenerateVegetables();
-                    }
-                    if (planetData.type != EPlanetType.Gas)
-                    {
                         planetAlgorithm.GenerateVeins();
                     }
                     planetData.CalculateVeinGroups();
                     planetData.GenBirthPoints();
                     planetData.NotifyCalculated();
                     conn.SendPacket(new PlanetDetailResponse(planetData.id, planetData.runtimeVeinGroups, planetData.landPercent));
-                    Log.Info($"PlanetCalculateThreadMain: {planetData.displayName} {highStopwatch.duration:F4}s");
+                    Log.Info($"PlanetCalculateThread:{planetData.displayName} time:{highStopwatch.duration:F4}s");
                 });
                 return;
             }

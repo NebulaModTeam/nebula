@@ -38,6 +38,9 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 planet.veinGroups[i].count = packet.VeinCounts[i];
                 planet.veinGroups[i].amount = packet.VeinAmounts[i];
             }
+            planet.landPercent = packet.LandPercent;
+            planet.landPercentDirty = false;
+
             //planet.NotifyCalculated();
             planet.calculating = false;
             planet.calculated = true;
