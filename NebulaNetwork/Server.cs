@@ -2,15 +2,16 @@
 using NebulaAPI;
 using NebulaModel;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
-using NebulaModel.Packets.GameStates;
-using NebulaModel.Packets.Universe;
 using NebulaModel.Utils;
 using NebulaWorld;
 using Open.Nat;
 using NebulaWorld.SocialIntegration;
+using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -84,15 +85,15 @@ namespace NebulaNetwork
                     {
                         var device = await discoverer.DiscoverDeviceAsync();
                         await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, port, port, "DSP nebula"));
-                        NebulaModel.Logger.Log.Info($"Successfully created UPnp or Pmp port mapping for {port}");
+                        Log.Info($"Successfully created UPnp or Pmp port mapping for {port}");
                     }
                     catch (NatDeviceNotFoundException)
                     {
-                        NebulaModel.Logger.Log.WarnInform("No UPnp or Pmp compatible/enabled NAT device found");
+                        Log.WarnInform("No UPnp or Pmp compatible/enabled NAT device found");
                     }
                     catch (MappingException)
                     {
-                        NebulaModel.Logger.Log.WarnInform("Could not create UPnp or Pmp port mapping");
+                        Log.WarnInform("Could not create UPnp or Pmp port mapping");
                     }
                 });
             }
@@ -101,7 +102,7 @@ namespace NebulaNetwork
 
             socket = new WebSocketServer(System.Net.IPAddress.IPv6Any, port);
             socket.Log.Level = LogLevel.Debug;
-            socket.Log.Output = NebulaModel.Logger.Log.SocketOutput;
+            socket.Log.Output = Log.SocketOutput;
             socket.AllowForwardedRequest = true; // This is required to make the websocket play nice with tunneling services like ngrok
 
             if (!string.IsNullOrWhiteSpace(Config.Options.ServerPassword))
@@ -149,7 +150,7 @@ namespace NebulaNetwork
                     DiscordManager.UpdateRichPresence(ip: ip, updateTimestamp: true);
                     if (Multiplayer.IsDedicated)
                     {
-                        NebulaModel.Logger.Log.Info($">> Ngrok address: {ip}");
+                        Log.Info($">> Ngrok address: {ip}");
                     }
                 }
                 else
@@ -271,6 +272,7 @@ namespace NebulaNetwork
         {
             public static IPlayerManager PlayerManager;
             public static NetPacketProcessor PacketProcessor;
+            public static Dictionary<int, NebulaConnection> ConnectionDictonary = new();
 
             public WebSocketService() { }
 
@@ -278,6 +280,7 @@ namespace NebulaNetwork
             {
                 PlayerManager = playerManager;
                 PacketProcessor = packetProcessor;
+                ConnectionDictonary.Clear();
             }
 
             protected override void OnOpen()
@@ -289,18 +292,29 @@ namespace NebulaNetwork
                     return;
                 }
 
-                NebulaModel.Logger.Log.Info($"Client connected ID: {ID}");
+                Log.Info($"Client connected ID: {ID}");
                 NebulaConnection conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor);
                 PlayerManager.PlayerConnected(conn);
+                ConnectionDictonary.Add(Context.UserEndPoint.GetHashCode(), conn);
             }
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor));
+                // Find created NebulaConnection
+                if (ConnectionDictonary.TryGetValue(Context.UserEndPoint.GetHashCode(), out NebulaConnection conn))
+                {
+                    PacketProcessor.EnqueuePacketForProcessing(e.RawData, conn);
+                }
+                else
+                {
+                    Log.Warn($"Unregister socket {Context.UserEndPoint.GetHashCode()}");
+                }
             }
 
             protected override void OnClose(CloseEventArgs e)
             {
+                ConnectionDictonary.Remove(Context.UserEndPoint.GetHashCode());
+
                 // If the reason of a client disconnect is because we are still loading the game,
                 // we don't need to inform the other clients since the disconnected client never
                 // joined the game in the first place.
@@ -309,7 +323,7 @@ namespace NebulaNetwork
                     return;
                 }
 
-                NebulaModel.Logger.Log.Info($"Client disconnected: {ID}, reason: {e.Reason}");
+                Log.Info($"Client disconnected: {ID}, reason: {e.Reason}");
                 UnityDispatchQueue.RunOnMainThread(() =>
                 {
                     // This is to make sure that we don't try to deal with player disconnection
@@ -323,8 +337,10 @@ namespace NebulaNetwork
 
             protected override void OnError(ErrorEventArgs e)
             {
+                ConnectionDictonary.Remove(Context.UserEndPoint.GetHashCode());
+
                 // TODO: seems like clients erroring out in the sync process can lock the host with the joining player message, maybe this fixes it
-                NebulaModel.Logger.Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
+                Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
                 UnityDispatchQueue.RunOnMainThread(() =>
                 {
                     // This is to make sure that we don't try to deal with player disconnection

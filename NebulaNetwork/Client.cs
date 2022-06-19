@@ -9,7 +9,6 @@ using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
-using NebulaWorld.SocialIntegration;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -192,7 +191,7 @@ namespace NebulaNetwork
         {
             if (!Multiplayer.IsLeavingGame)
             {
-                PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
+                PacketProcessor.EnqueuePacketForProcessing(e.RawData, serverConnection);
             }
         }
 
