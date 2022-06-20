@@ -14,8 +14,6 @@ namespace NebulaNetwork.PacketProcessors.GameStates
     [RegisterPacketProcessor]
     public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
     {
-        public float MaxUPS = 240f;
-        public float MinUPS = 30f;
         public float BUFFERING_TIME = 30f;
         public float BUFFERING_TICK = 60f;
 
@@ -68,23 +66,23 @@ namespace NebulaNetwork.PacketProcessors.GameStates
             // Adjust client's UPS to match game tick with server, range 30~120 UPS
             float UPS = diff / 1f + avaerageUPS;
             long skipTick = 0;
-            if (UPS > MaxUPS)
+            if (UPS > GameStatesManager.MaxUPS)
             {
                 // Try to disturbute game tick difference into BUFFERING_TIME (seconds)
-                if (diff / BUFFERING_TIME + avaerageUPS > MaxUPS)
+                if (diff / BUFFERING_TIME + avaerageUPS > GameStatesManager.MaxUPS)
                 {
                     // The difference is too large, need to skip ticks to catch up
-                    skipTick = (long)(UPS - MaxUPS);
+                    skipTick = (long)(UPS - GameStatesManager.MaxUPS);
                 }
-                UPS = MaxUPS;
+                UPS = GameStatesManager.MaxUPS;
             }
-            else if (UPS < MinUPS)
+            else if (UPS < GameStatesManager.MinUPS)
             {
-                if (diff + avaerageUPS - MinUPS < -BUFFERING_TICK)
+                if (diff + avaerageUPS - GameStatesManager.MinUPS < -BUFFERING_TICK)
                 {
-                    skipTick = (long)(UPS - MinUPS);
+                    skipTick = (long)(UPS - GameStatesManager.MinUPS);
                 }
-                UPS = MinUPS;
+                UPS = GameStatesManager.MinUPS;
             }
             if (skipTick != 0)
             {

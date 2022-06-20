@@ -14,6 +14,8 @@ namespace NebulaWorld.GameStates
             FragmentSize = 0;
         }
 
+        public static float MaxUPS = 240f;
+        public static float MinUPS = 30f;
         public static long RealGameTick => GameMain.gameTick;
         public static float RealUPS => (float)FPSController.currentUPS;
         public static bool DuringReconnect = false;
