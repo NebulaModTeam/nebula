@@ -123,8 +123,8 @@ function generateManifest() {
       BEPINEX_DEPENDENCY,
       `nebula-${apiPluginInfo.name}-${apiPluginInfo.version}`,
       "PhantomGamers-IlLine-1.0.0",
-      "CommonAPI-CommonAPI-1.5.1",
-      "starfi5h-BulletTime-1.2.5",
+      "CommonAPI-CommonAPI-1.5.4",
+      "starfi5h-BulletTime-1.2.6",
     ],
     website_url: "https://github.com/hubastard/nebula"
   };
