@@ -49,7 +49,6 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void _OnUpdate_Prefix(UIEjectorWindow __instance)
         {
             //Notify about boost change in sandbox mode
-            NebulaModel.Logger.Log.Warn(boost);
             if (Multiplayer.IsActive && boost != __instance.boostSwitch.isOn)
             {
                 boost = __instance.boostSwitch.isOn;

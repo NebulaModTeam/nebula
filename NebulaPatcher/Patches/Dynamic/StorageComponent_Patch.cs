@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaModel.Packets.Factory;
-using NebulaNetwork;
+using NebulaModel.Packets.Factory.Storage;
 using NebulaWorld;
 using System;
 

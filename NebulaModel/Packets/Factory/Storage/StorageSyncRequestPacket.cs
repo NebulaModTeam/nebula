@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets.Factory
+﻿namespace NebulaModel.Packets.Factory.Storage
 {
     public class StorageSyncRequestPacket
     {

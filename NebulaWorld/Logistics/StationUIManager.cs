@@ -212,12 +212,7 @@ namespace NebulaWorld.Logistics
                     if (factory != null)
                     {
                         int speed = 10000 + (int)(packet.SettingValue + 0.5f) * 1000;
-                        PrefabDesc workEnergyPrefab = LDB.items.Select(factory.entityPool[stationComponent.entityId].protoId)?.prefabDesc;
-                        if (workEnergyPrefab != null && factory.factorySystem?.minerPool != null && factory.powerSystem?.consumerPool != null)
-                        {
-                            factory.factorySystem.minerPool[stationComponent.minerId].speed = speed;
-                            factory.powerSystem.consumerPool[stationComponent.pcId].workEnergyPerTick = (long)(workEnergyPrefab.workEnergyPerTick * (speed / 10000f) * (speed / 10000f));
-                        }
+                        factory.factorySystem.minerPool[stationComponent.minerId].speed = speed;
                     }
                     break;
                 }

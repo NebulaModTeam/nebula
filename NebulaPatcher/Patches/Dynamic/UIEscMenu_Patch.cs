@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
+using NebulaModel.Packets.Players;
 using NebulaPatcher.Patches.Transpiler;
 using NebulaWorld;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,8 +43,17 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive)
             {
-                // Because GameSave.SaveAsLastExit() is disable, we have to save game here to match the vanilla behavior.
-                GameSave.SaveCurrentGame(GameSave.LastExit);
+                if (Multiplayer.Session.LocalPlayer.IsHost)
+                {
+                    // Because GameSave.SaveAsLastExit() is disable, we have to save game here to match the vanilla behavior.
+                    GameSave.SaveCurrentGame(GameSave.LastExit);
+                }
+                else if (GameMain.mainPlayer?.mecha != null)
+                {
+                    GameMain.mainPlayer.mecha.lab.ManageTakeback(); // Refund items to player package
+                    Multiplayer.Session.Network.SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+                    Thread.Sleep(100); // Wait for async packet send
+                }
                 PlanetFactory_Transpiler.CheckPopupPresent.Clear();
                 PlanetFactory_Transpiler.FaultyVeins.Clear();
                 Multiplayer.LeaveGame();

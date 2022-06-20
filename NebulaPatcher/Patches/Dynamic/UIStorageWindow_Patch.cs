@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using NebulaModel.Packets.Factory;
+using NebulaModel.Packets.Factory.Storage;
 using NebulaWorld;
 using UnityEngine.UI;
 
