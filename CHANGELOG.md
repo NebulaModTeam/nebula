@@ -1,5 +1,11 @@
 ## Changelog
 
+0.8.10:
+
+- @starfi5h: Fix compilation with 0.9.26.13034
+- @starfi5h: Fix a bug that makes advance miner power usage abnormal
+- @starfi5h: Add new chat settings NotificationDuration
+
 0.8.9:
 
 - @PhantomGamers: Fixed compilation with 0.9.26

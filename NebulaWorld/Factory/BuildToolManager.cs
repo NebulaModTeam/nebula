@@ -116,7 +116,7 @@ namespace NebulaWorld.Factory
                         if (packet.PrebuildId != Multiplayer.Session.Factories.GetNextPrebuildId(packet.PlanetId))
                         {
                             string warningText = $"PrebuildId mismatch on {packet.PlanetId} planet: {packet.PrebuildId} != {Multiplayer.Session.Factories.GetNextPrebuildId(planet.factory)}";
-                            Log.Warn(warningText);
+                            Log.WarnInform(warningText + ". Consider reconnecting");
                             NebulaWorld.Warning.WarningManager.DisplayTemporaryWarning(warningText, 5000);
                         }
                     }

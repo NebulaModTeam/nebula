@@ -102,6 +102,9 @@ namespace NebulaModel
         [DisplayName("Default chat size"), Category("Chat")]
         public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
 
+        [DisplayName("Notification duration"), Category("Chat")]
+        public int NotificationDuration { get; set; } = 15;
+
         [DisplayName("Cleanup inactive sessions"), Category("Network")]
         [Description("If disabled the underlying networking library will not cleanup inactive connections. This might solve issues with clients randomly disconnecting and hosts having a 'System.ObjectDisposedException'.")]
         public bool CleanupInactiveSessions { get; set; } = true;

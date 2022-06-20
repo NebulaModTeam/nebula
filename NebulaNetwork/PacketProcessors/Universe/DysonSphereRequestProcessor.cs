@@ -2,6 +2,7 @@
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
 using System.Collections.Generic;
@@ -45,6 +46,7 @@ namespace NebulaNetwork.PacketProcessors.Universe
                         dysonSphere.Export(writer.BinaryWriter);
                         byte[] data = writer.CloseAndGetBytes();
                         Log.Info($"Sent {data.Length} bytes of data for DysonSphereData (INDEX: {packet.StarIndex})");
+                        conn.SendPacket(new FragmentInfo(data.Length));
                         conn.SendPacket(new DysonSphereData(packet.StarIndex, data, DysonSphereRespondEvent.Load));
                         Multiplayer.Session.DysonSpheres.RegisterPlayer(conn, packet.StarIndex);
                     }

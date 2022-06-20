@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -11,7 +11,8 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameLoader.FixedUpdate))]
         public static void FixedUpdate_Postfix(int ___frame)
         {
-            InGamePopup.UpdateMessage("Loading", "Loading state from server, please wait\n" + Log.LastInfoMsg);
+            string content = GameStatesManager.FragmentSize > 0 ? GameStatesManager.LoadingMessage() : NebulaModel.Logger.Log.LastInfoMsg;
+            InGamePopup.UpdateMessage("Loading", "Loading state from server, please wait\n" + content);
             if (Multiplayer.IsActive && ___frame >= 11)
             {
                 Multiplayer.Session.OnGameLoadCompleted();

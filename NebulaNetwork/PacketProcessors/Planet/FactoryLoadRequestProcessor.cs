@@ -3,6 +3,7 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
+using NebulaModel.Packets.GameStates;
 using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.Planet
@@ -25,6 +26,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 factory.Export(writer.BinaryWriter);
                 byte[] data = writer.CloseAndGetBytes();
                 Log.Info($"Sent {data.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
+                conn.SendPacket(new FragmentInfo(data.Length + planet.data.modData.Length));
                 conn.SendPacket(new FactoryData(packet.PlanetID, data, planet.data.modData));
             }
 

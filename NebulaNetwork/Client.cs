@@ -9,7 +9,8 @@ using NebulaModel.Packets.Routers;
 using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
 using NebulaWorld;
-using NebulaWorld.SocialIntegration;
+using NebulaWorld.GameStates;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -21,6 +22,7 @@ namespace NebulaNetwork
 {
     public class Client : NetworkProvider, IClient
     {
+        private const float FRAGEMENT_UPDATE_INTERVAL = 0.1f;
         private const float GAME_STATE_UPDATE_INTERVAL = 1f;
         private const float MECHA_SYNCHONIZATION_INTERVAL = 30f;
 
@@ -32,7 +34,7 @@ namespace NebulaNetwork
         private NebulaConnection serverConnection;
         private bool websocketAuthenticationFailure;
         
-
+        private float fragmentUpdateTimer = 0f;
         private float mechaSynchonizationTimer = 0f;
         private float gameStateUpdateTimer = 0f;
 
@@ -186,13 +188,23 @@ namespace NebulaNetwork
                     gameStateUpdateTimer = 0f;
                 }
             }
+
+            fragmentUpdateTimer += Time.deltaTime;
+            if (fragmentUpdateTimer >= FRAGEMENT_UPDATE_INTERVAL)
+            {
+                if (GameStatesManager.FragmentSize > 0)
+                {
+                    GameStatesManager.UpdateBufferLength(GetFragmentBufferLength());
+                }
+                fragmentUpdateTimer = 0f;
+            }
         }
 
         private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
         {
             if (!Multiplayer.IsLeavingGame)
             {
-                PacketProcessor.EnqueuePacketForProcessing(e.RawData, new NebulaConnection(clientSocket, serverEndpoint, PacketProcessor));
+                PacketProcessor.EnqueuePacketForProcessing(e.RawData, serverConnection);
             }
         }
 
@@ -320,6 +332,19 @@ namespace NebulaNetwork
             if (tcpClient != null)
             {
                 tcpClient.NoDelay = true;
+            }
+        }
+
+        private int GetFragmentBufferLength()
+        {
+            MemoryStream buffer = (MemoryStream)AccessTools.Field(typeof(WebSocket), "_fragmentsBuffer").GetValue(clientSocket);
+            if (buffer != null)
+            {
+                return (int)buffer.Length;
+            }
+            else
+            {
+                return 0;
             }
         }
     }
