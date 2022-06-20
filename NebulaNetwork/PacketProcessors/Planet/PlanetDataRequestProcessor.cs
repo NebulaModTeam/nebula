@@ -63,8 +63,9 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 if (planet.type != EPlanetType.Gas)
                 {
                     planetAlgorithm.GenerateVegetables();
-                    planetAlgorithm.GenerateVeins(false);
+                    planetAlgorithm.GenerateVeins();
                 }
+                planet.CalculateVeinGroups();
             }
 
             byte[] data;
