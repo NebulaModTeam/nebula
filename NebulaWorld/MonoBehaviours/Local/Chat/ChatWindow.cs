@@ -208,7 +208,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             GameObject notificationMsg = Instantiate(textObj, notifier);
             newMsg.notificationText = notificationMsg.GetComponent<TMP_Text>();
             NotificationMessage message = notificationMsg.AddComponent<NotificationMessage>();
-            message.Init();
+            message.Init(Config.Options.NotificationDuration);
             
             messages.Add(newMsg);
 
