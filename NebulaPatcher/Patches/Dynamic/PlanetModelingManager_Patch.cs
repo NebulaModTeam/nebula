@@ -133,5 +133,48 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetModelingManager.RequestCalcPlanet))]
+        public static bool RequestCalcPlanet_Prefix(PlanetData planet)
+        {
+            // Run the original method if this is the master client or in single player games
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return true;
+            }
+
+            RequestCalcPlanet(planet);
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetModelingManager.RequestCalcStar))]
+        public static bool RequestCalcStar_Prefix(StarData star)
+        {
+            // Run the original method if this is the master client or in single player games
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return true;
+            }
+
+            foreach (PlanetData planet in star.planets)
+            {
+                RequestCalcPlanet(planet);
+            }
+            return false;
+        }
+
+        private static void RequestCalcPlanet(PlanetData planet)
+        {
+            if (!planet.calculated && !planet.calculating && planet.data == null)
+            {
+                if (!planet.loaded && !planet.loading)
+                {
+                    planet.calculating = true;
+                    Multiplayer.Session.Network.SendPacket(new PlanetDetailRequest(planet.id));
+                }
+            }
+        }
     }
 }

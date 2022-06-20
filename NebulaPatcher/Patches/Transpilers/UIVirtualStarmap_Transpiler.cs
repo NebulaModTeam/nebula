@@ -131,16 +131,15 @@ namespace NebulaPatcher.Patches.Transpilers
 
                             if (pData.data == null)
                             {
-                                Button button = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button").GetComponent<Button>();
-                                button.interactable = false;
-                                EPlanetType planetType = pData.type;
-                                pData.type = EPlanetType.Gas;
-                                PlanetModelingManager.genPlanetReqList.Enqueue(pData);
-                                pData.onLoaded += (PlanetData planet) =>
-                                {
-                                    pData.type = planetType;
-                                    button.interactable = true;
-                                };
+                                // Part of PlanetModelingManager.PlanetCalculateThreadMain()
+                                // Skip CalcWaterPercent() and CalculateVeinGroups() so those values won't reset
+                                pData.data = new PlanetRawData(pData.precision);
+                                pData.modData = pData.data.InitModData(pData.modData);
+                                pData.data.CalcVerts();
+                                pData.aux = new PlanetAuxData(pData);
+                                PlanetAlgorithm planetAlgorithm = PlanetModelingManager.Algorithm(pData);
+                                planetAlgorithm.GenerateTerrain(pData.mod_x, pData.mod_y);
+                                pData.GenBirthPoints();
                             }
                         }
 
@@ -275,7 +274,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 VectorLF3 pPos = GetRelativeRotatedPlanetPos(starData, pData, ref isMoon);
 
                 // request generation of planet surface data to display its details when clicked and if not already loaded
-                if(!pData.loaded) PlanetModelingManager.RequestLoadPlanet(pData);
+                if(!pData.calculated) PlanetModelingManager.RequestCalcPlanet(pData);
 
                 // create fake StarData to pass _OnLateUpdate()
                 StarData dummyStarData = new StarData

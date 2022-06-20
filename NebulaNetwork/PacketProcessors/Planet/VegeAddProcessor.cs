@@ -17,12 +17,13 @@ namespace NebulaNetwork.PacketProcessors.Planet
             using (Multiplayer.Session.Planets.IsIncomingRequest.On())
             {
                 PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-                if (planet?.factory == null)
+                PlanetFactory factory = planet?.factory;
+                if (factory == null)
                 {
                     return;
-                }
+                }                
                 Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
-                Multiplayer.Session.Factories.EventFactory = planet.factory;
+                Multiplayer.Session.Factories.EventFactory = factory;
                 Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
                 PlanetData pData = GameMain.gpuiManager.specifyPlanet;
                 GameMain.gpuiManager.specifyPlanet = planet;
@@ -36,7 +37,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
                     }
 
                     // Modify from PlayerAction_Plant.PlantVeinFinally
-                    planet.AssignGroupForVein(ref veinData);
+                    factory.AssignGroupIndexForNewVein(ref veinData);
                     int veinId = planet.factory.AddVeinData(veinData);
                     Quaternion rot = Quaternion.FromToRotation(Vector3.up, veinData.pos.normalized);
                     VeinData[] veinPool = planet.factory.veinPool;
@@ -54,10 +55,8 @@ namespace NebulaNetwork.PacketProcessors.Planet
                         veinPool[veinId].colliderId = planet.physics.AddColliderData(colliders[num2].BindToObject(veinId, veinPool[veinId].colliderId, EObjectType.Vein, veinData.pos, rot));
                         num2++;
                     }
-                    planet.factory.RefreshVeinMiningDisplay(veinId, 0, 0);
-
-                    // PlayerAction_Plant.OnPlantVein(int veinId)
-                    planet.RecalculateVeinGroupPos(planet.factory.veinPool[veinId].groupIndex);
+                    factory.RefreshVeinMiningDisplay(veinId, 0, 0);
+                    factory.RecalculateVeinGroup(veinData.groupIndex);
                 }
                 else
                 {
