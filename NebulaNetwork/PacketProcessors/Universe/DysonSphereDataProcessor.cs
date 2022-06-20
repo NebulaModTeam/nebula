@@ -4,6 +4,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 using System.Collections.Generic;
 using System.IO;
 
@@ -41,6 +42,8 @@ namespace NebulaNetwork.PacketProcessors.Universe
                     break;
 
                 case DysonSphereRespondEvent.Load:
+                    // The whole fragment is received
+                    GameStatesManager.FragmentSize = 0;
                     //Failsafe, if client does not have instantiated sphere for the star, it will create dummy one that will be replaced during import
                     GameMain.data.dysonSpheres[packet.StarIndex] = new DysonSphere();
                     GameMain.data.statistics.production.Init(GameMain.data);
