@@ -209,7 +209,15 @@ namespace NebulaPatcher.Patches.Dynamic
                     Thread.Sleep(1000);
                     RefreshMissingMeshes();
                 });
-                NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
+                
+                try
+                {
+                    NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
+                }
+                catch (Exception e) 
+                {
+                    Log.Error("NebulaModAPI.OnPlanetLoadFinished error:\n" + e); 
+                }
             }
 
             // call this here as it would not be called normally on the client, but its needed to set GameMain.data.galacticTransport.stationCursor

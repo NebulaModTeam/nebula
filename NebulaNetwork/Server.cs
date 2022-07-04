@@ -10,7 +10,6 @@ using NebulaModel.Utils;
 using NebulaWorld;
 using Open.Nat;
 using NebulaWorld.SocialIntegration;
-using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Reflection;
@@ -19,7 +18,6 @@ using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Net;
 using WebSocketSharp.Server;
-using System;
 
 namespace NebulaNetwork
 {
@@ -125,7 +123,7 @@ namespace NebulaNetwork
             try
             {
                 // Set wait time higher for high latency network
-                socket.WaitTime = TimeSpan.FromSeconds(20);
+                socket.WaitTime = System.TimeSpan.FromSeconds(20);
                 socket.KeepClean = Config.Options.CleanupInactiveSessions;
                 socket.Start();
             }catch(System.InvalidOperationException e)
@@ -162,7 +160,14 @@ namespace NebulaNetwork
                 }
             });
 
-            NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
+            try
+            {
+                NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
+            }
+            catch (System.Exception e)
+            {
+                Log.Error("NebulaModAPI.OnMultiplayerGameStarted error:\n" + e);
+            }
         }
 
         public override void Stop()
@@ -171,7 +176,14 @@ namespace NebulaNetwork
 
             ngrokManager?.StopNgrok();
 
-            NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
+            try
+            {
+                NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
+            }
+            catch (System.Exception e)
+            {
+                Log.Error("NebulaModAPI.OnMultiplayerGameEnded error:\n" + e);
+            }
         }
 
         public override void Dispose()

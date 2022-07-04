@@ -104,13 +104,20 @@ namespace NebulaNetwork
                 Config.SaveOptions();
             }
 
-            if(Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(serverPassword))
+            if (Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(serverPassword))
             {
                 Config.Options.LastClientPassword = serverPassword;
                 Config.SaveOptions();
             }
 
-            NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
+            try
+            {
+                NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
+            }
+            catch (System.Exception e)
+            {
+                Log.Error("NebulaModAPI.OnMultiplayerGameStarted error:\n" + e);
+            }
         }
 
         public override void Stop()
@@ -119,7 +126,14 @@ namespace NebulaNetwork
 
             // load settings again to dispose the temp soil setting that could have been received from server
             Config.LoadOptions();
-            NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
+            try
+            {
+                NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
+            }
+            catch (System.Exception e)
+            {
+                Log.Error("NebulaModAPI.OnMultiplayerGameEnded error:\n" + e);
+            }
         }
 
         public override void Dispose()
