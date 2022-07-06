@@ -40,7 +40,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             }
 
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
-            chatWindow.userName = GetUserName();
+            chatWindow.UserName = GetUserName();
             chatWindow.Toggle(true);
             Config.OnConfigApplied += UpdateChatPosition;
         }
