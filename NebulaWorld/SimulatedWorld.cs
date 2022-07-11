@@ -188,7 +188,14 @@ namespace NebulaWorld
 
             // (Host only) Trigger when a new client added to connected players
             Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} joined");
-            NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
+            try
+            {
+                NebulaModAPI.OnPlayerJoinedGame?.Invoke(player.Data);
+            }
+            catch (Exception e)
+            {
+                Log.Error("NebulaModAPI.OnPlayerJoinedGame error:\n" + e);
+            }
         }
 
         public void OnPlayerLeftGame(INebulaPlayer player)
@@ -204,7 +211,14 @@ namespace NebulaWorld
 
             // (Host only) Trigger when a connected client leave the game
             Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} left");
-            NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
+            try
+            {
+                NebulaModAPI.OnPlayerLeftGame?.Invoke(player.Data);
+            }
+            catch (Exception e)
+            {
+                Log.Error("NebulaModAPI.OnPlayerLeftGame error:\n" + e);
+            }
         }
 
         public void OnAllPlayersSyncCompleted()
@@ -678,7 +692,7 @@ namespace NebulaWorld
             return level;
         }
 
-        public void SendChatMessage(string text, ChatMessageType messageType)
+        public void SendChatMessage(string text, ChatMessageType messageType = ChatMessageType.SystemInfoMessage)
         {
             ChatManager.Instance?.SendChatMessage(text, messageType);
         }

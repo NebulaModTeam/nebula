@@ -7,23 +7,29 @@ namespace NebulaModel.Utils
 {
     public static class CryptoUtils
     {
+        // There are 2 places to store player.key:
+        // (1) Documents\Dyson Sphere Program\
+        // (2) .\Dyson Sphere Program\ (if MyDocuments folder doesn't exist or is inaccessible)
+
         private static readonly string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private static readonly string dataPath = Path.Combine(docPath, GameConfig.gameName);
         private static readonly string keyFile = Path.Combine(docPath, dataPath, "player.key");
+        private static readonly string dataPath2 = Path.Combine(GameConfig.gameName);
+        private static readonly string keyFile2 = Path.Combine(dataPath2, "player.key");
 
         public static RSA GetOrCreateUserCert()
         {
-            if(string.IsNullOrEmpty(docPath))
+            if (string.IsNullOrEmpty(docPath))
             {
                 Logger.Log.Warn("Could not find documents folder! Using game directory.");
                 try
                 {
                     Directory.CreateDirectory(dataPath);
                 }
-                catch(UnauthorizedAccessException e)
+                catch
                 {
                     Logger.Log.Error($"Unable to create directory {dataPath}, permission denied.");
-                    throw e;
+                    throw;
                 }
             }
 
@@ -32,9 +38,28 @@ namespace NebulaModel.Utils
             {
                 rsa.FromXmlString(File.ReadAllText(keyFile));
             }
+            else if (File.Exists(keyFile2))
+            {
+                rsa.FromXmlString(File.ReadAllText(keyFile2));
+            }
             else
             {
-                File.WriteAllText(keyFile, rsa.ToXmlString(true));
+                try
+                {
+                    Logger.Log.Info($"Store player key in {keyFile}");
+                    File.WriteAllText(keyFile, rsa.ToXmlString(true));
+                }
+                catch (Exception e)
+                {
+                    Logger.Log.Warn($"Unable to write to default path, reason: {e.GetType()}");
+                    if (!Directory.Exists(dataPath2))
+                    {
+                        Logger.Log.Info($"Create directory {dataPath2}");
+                        Directory.CreateDirectory(dataPath2);
+                    }
+                    Logger.Log.Info($"Store player key in {keyFile2}");
+                    File.WriteAllText(keyFile2, rsa.ToXmlString(true));
+                }
             }
             return rsa;
         }

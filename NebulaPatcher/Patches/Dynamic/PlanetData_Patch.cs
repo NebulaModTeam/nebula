@@ -20,6 +20,21 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetData.UpdateDirtyMesh))]
+        public static bool UpdateDirtyMesh_Prefix(PlanetData __instance, int dirtyIdx, ref bool __result)
+        {
+            // Temporary fix: skip function when the mesh is null
+            if (__instance.dirtyFlags[dirtyIdx] && __instance.meshes[dirtyIdx] == null)
+            {
+                Log.Warn(__instance == GameMain.localPlanet ? "Local" : "Remote" + $" PlanetData.UpdateDirtyMesh: meshes[{dirtyIdx}] is null");
+                __result = false;
+                return false;
+            }
+
+            return true;
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(nameof(PlanetData.UnloadMeshes))]
         public static bool UnloadMeshes_Prefix(PlanetData __instance)
         {

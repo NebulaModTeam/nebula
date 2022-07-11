@@ -79,6 +79,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ComputeShader), nameof(ComputeShader.FindKernel))]
         [HarmonyPatch(typeof(ComputeShader), nameof(ComputeShader.GetKernelThreadGroupSizes))]
+        [HarmonyPatch(typeof(ComputeShader), nameof(ComputeShader.Dispatch))]
         public static bool ComputeShader_Prefix()
         {
             return false;
@@ -111,6 +112,21 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 Log.Error("DysonSwarmGameTick_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(DysonSwarm), nameof(DysonSwarm.SetSailCapacity))]
+        public static void DysonSwarmSetSailCapacity_Prefix(DysonSwarm __instance)
+        {
+            // Skip the part of computeShader in if (this.swarmBuffer != null)
+            // (this.computeShader.SetBuffer(...), this.Dispatch_BlitBuffer())
+            if (__instance.swarmBuffer != null)
+            {
+                __instance.swarmBuffer.Release();
+                __instance.swarmInfoBuffer.Release();
+                __instance.swarmBuffer = null;
+                __instance.swarmInfoBuffer = null;
             }
         }
     }

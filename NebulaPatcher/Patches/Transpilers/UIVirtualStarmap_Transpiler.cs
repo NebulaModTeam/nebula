@@ -18,11 +18,13 @@ namespace NebulaPatcher.Patches.Transpilers
         private delegate bool IsBirthStar2(StarData starData, UIVirtualStarmap starmap);
         private delegate void TrackPlayerClick(UIVirtualStarmap starmap, int starIndex);
 
+#pragma warning disable IDE1006
         public static bool pressSpamProtector = false;
         private static readonly float orbitScaler = 5f;
 
         public static int customBirthStar = -1;
         public static int customBirthPlanet = -1;
+#pragma warning restore IDE1006
         /*
         if (flag2 && flag)
 		{

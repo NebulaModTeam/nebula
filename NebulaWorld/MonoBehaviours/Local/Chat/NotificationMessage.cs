@@ -11,8 +11,8 @@ namespace NebulaWorld.MonoBehaviours.Local
         private const long NOTIFICATION_DURATION_TICKS = TimeSpan.TicksPerSecond;
         private const long FADE_DURATION = TimeSpan.TicksPerSecond * 2;
         
-        public long notifierEndTime;
-        public TMP_Text text;
+        private long notifierEndTime;
+        private TMP_Text text;
 
         public void Init(int duration)
         {

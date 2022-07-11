@@ -46,7 +46,14 @@ namespace NebulaPatcher.Patches.Dynamic
                 PlanetModelingManager.currentFactingStage = 0;
                 return false;
             }
-            NebulaModAPI.OnPlanetLoadRequest?.Invoke(planet.id);
+            try
+            {
+                NebulaModAPI.OnPlanetLoadRequest?.Invoke(planet.id);
+            }
+            catch (System.Exception e)
+            {
+                Log.Error("NebulaModAPI.OnPlanetLoadRequest error:\n" + e);
+            }
 
             // Request factory
             Log.Info($"Requested factory for planet {planet.name} (ID: {planet.id}) from host");
@@ -93,7 +100,14 @@ namespace NebulaPatcher.Patches.Dynamic
                 Multiplayer.Session.DysonSpheres.RequestDysonSphere(star.index, false);
             }
 
-            NebulaModAPI.OnStarLoadRequest?.Invoke(star.index);
+            try
+            {
+                NebulaModAPI.OnStarLoadRequest?.Invoke(star.index);
+            }
+            catch (System.Exception e)
+            {
+                Log.Error("NebulaModAPI.OnStarLoadRequest error:\n" + e);
+            }
 
             return false;
         }

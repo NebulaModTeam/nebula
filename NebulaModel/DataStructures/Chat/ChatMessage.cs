@@ -1,10 +1,10 @@
-﻿using NebulaModel.Packets.Players;
-using NebulaModel.Utils;
+﻿using NebulaModel.Utils;
 using System;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+#pragma warning disable IDE1006
 namespace NebulaModel.DataStructures
 {
     /// <summary>
@@ -67,3 +67,4 @@ namespace NebulaModel.DataStructures
         }
     }
 }
+#pragma warning restore IDE1006

@@ -23,15 +23,15 @@ namespace NebulaWorld.MonoBehaviours.Local
         [SerializeField] private RectTransform notifierMask;
         
         [SerializeField] private GameObject chatWindow;
-        
-        
+
+
+        internal string UserName;
         internal UIWindowDrag DragTrigger;
         private readonly Queue<QueuedMessage> outgoingMessages = new Queue<QueuedMessage>(5);
         private readonly List<ChatMessage> messages = new List<ChatMessage>();
         private readonly List<string> inputHistory = new() { "" };
         private int inputHistoryCursor = 0;
 
-        public string userName;
 
         private void Awake()
         {
@@ -166,7 +166,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         private void BroadcastChatMessage(string message, ChatMessageType chatMessageType = ChatMessageType.PlayerMessage)
         {
             QueueOutgoingChatMessage(message, chatMessageType);
-            string formattedMessage = $"[{DateTime.Now:HH:mm}] [{userName}] : {message}";
+            string formattedMessage = $"[{DateTime.Now:HH:mm}] [{UserName}] : {message}";
             SendLocalChatMessage(formattedMessage, chatMessageType);
         }
 
