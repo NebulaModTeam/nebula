@@ -32,6 +32,7 @@ namespace NebulaNetwork
                     netDataWriter.Put(hash);
                     data.Value.Serialize(netDataWriter);
                 }
+                Log.Info($"Saving server data to {saveName + FILE_EXTENSION}, Revision:{REVISION} PlayerCount:{savedPlayerData.Count}");
             }
 
             //Add host's data
