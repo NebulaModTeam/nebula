@@ -34,7 +34,6 @@ namespace NebulaWorld
 
         private Text pingIndicator;
         private LocalPlayerMovement localPlayerMovement;
-        private LocalPlayerAnimation localPlayerAnimation;
 
         public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels)
         {
@@ -61,7 +60,6 @@ namespace NebulaWorld
             }
 
             UnityEngine.Object.Destroy(localPlayerMovement);
-            UnityEngine.Object.Destroy(localPlayerAnimation);
             SetPauseIndicator(true);
         }
 
@@ -156,7 +154,6 @@ namespace NebulaWorld
 
             // Finally we need add the local player components to the player character
             localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
-            localPlayerAnimation = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerAnimation>();
             // ChatManager should continuous exsit until the game is closed
             GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
         }
@@ -267,23 +264,13 @@ namespace NebulaWorld
             }
         }
 
-        public void UpdateRemotePlayerPosition(PlayerMovement packet)
+        public void UpdateRemotePlayerRealtimeState(PlayerMovement packet)
         {
             using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
                 {
                     player.Movement.UpdatePosition(packet);
-                }
-            }
-        }
-
-        public void UpdateRemotePlayerAnimation(PlayerAnimationUpdate packet)
-        {
-            using (GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
-            {
-                if (remotePlayersModels.TryGetValue(packet.PlayerId, out RemotePlayerModel player))
-                {
                     player.Animator.UpdateState(packet);
                 }
             }

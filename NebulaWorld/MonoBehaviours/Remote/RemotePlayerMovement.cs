@@ -8,7 +8,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 {
     public class RemotePlayerMovement : MonoBehaviour
     {
-        private const int BUFFERED_SNAPSHOT_COUNT = 4;
+        private const int BUFFERED_SNAPSHOT_COUNT = 3;
         private const double INTERPOLATION_TIME = (1000 / (double)LocalPlayerMovement.SEND_RATE) * (BUFFERED_SNAPSHOT_COUNT - 1);
 
         public struct Snapshot
