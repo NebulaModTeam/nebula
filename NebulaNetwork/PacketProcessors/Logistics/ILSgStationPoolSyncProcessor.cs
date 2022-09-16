@@ -40,6 +40,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 gStationPool[packet.stationGId[i]].idleShipIndices = packet.idleShipIndices[i];
                 gStationPool[packet.stationGId[i]].shipRenderers = new ShipRenderingData[packet.stationMaxShipCount[i]];
                 gStationPool[packet.stationGId[i]].shipUIRenderers = new ShipUIRenderingData[packet.stationMaxShipCount[i]];
+                gStationPool[packet.stationGId[i]].storage = System.Array.Empty<StationStore>(); // zero-length array for mod compatibility
 
                 gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[packet.stationMaxShipCount[i]];
                 gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[packet.stationMaxShipCount[i]];
