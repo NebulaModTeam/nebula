@@ -28,6 +28,7 @@ namespace NebulaModel.Packets.Players
         {
             isGrounded = 1,
             inWater = 2,
+            warping = 4
         }
 
         public PlayerMovement() { }
@@ -63,6 +64,10 @@ namespace NebulaModel.Packets.Players
             if (animator.controller.actionDrift.inWater)
             {
                 Flags |= EFlags.inWater;
+            }
+            if (animator.player.warping)
+            {
+                Flags |= EFlags.warping;
             }
         }
     }

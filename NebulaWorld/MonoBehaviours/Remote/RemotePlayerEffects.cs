@@ -291,16 +291,6 @@ namespace NebulaWorld.MonoBehaviours.Remote
             }
         }
 
-        public void StartWarp()
-        {
-            rootWarp.StartWarp();
-        }
-
-        public void StopWarp()
-        {
-            rootWarp.StopWarp();
-        }
-
         private void StopAllFlyAudio()
         {
             StopAndNullAudio(ref driftAudio);
@@ -568,7 +558,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             bool sailActive = rootAnimation.sailWeight > 0.001f;
             isGrounded = (packet.Flags & PlayerMovement.EFlags.isGrounded) == PlayerMovement.EFlags.isGrounded;
             inWater = (packet.Flags & PlayerMovement.EFlags.inWater) == PlayerMovement.EFlags.inWater;
-
+            bool warping = (packet.Flags & PlayerMovement.EFlags.warping) == PlayerMovement.EFlags.warping;
 
             if (runActive || !isGrounded || maxAltitude > 0)
             {
@@ -660,6 +650,15 @@ namespace NebulaWorld.MonoBehaviours.Remote
                     torchEffect.Stop();
                     StopAndNullAudio(ref miningAudio);
                 }
+            }
+
+            if (warping)
+            {
+                rootWarp.StartWarp();
+            }
+            else
+            {
+                rootWarp.StopWarp();
             }
         }
     }
