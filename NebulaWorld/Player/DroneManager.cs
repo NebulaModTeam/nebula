@@ -111,7 +111,7 @@ namespace NebulaWorld.Player
             }
         }
 
-        public bool AmIClosestPlayer(ref Vector3 entityPos)
+        public bool IsLocalPlayerClosestTo(ref Vector3 entityPos)
         {
             if (!Multiplayer.IsActive)
             {

@@ -22,9 +22,9 @@ namespace NebulaModel.Utils
 
 
         [DllImport("Kernel32")]
-        private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
+        private static extern bool SetConsoleCtrlHandler(CtrlHandler handler, bool add);
 
-        private delegate bool EventHandler(CtrlType sig);
+        private delegate bool CtrlHandler(CtrlType sig);
 
         private enum CtrlType
         {
@@ -61,7 +61,8 @@ namespace NebulaModel.Utils
 
         public static void SetConsoleCtrlHandler()
         {
-            bool result = SetConsoleCtrlHandler(new EventHandler(Handler), true);
+            // if the handler is no longer static, it can get GC'd because nothing is keeping a reference to the delegate.  
+            bool result = SetConsoleCtrlHandler(new CtrlHandler(Handler), true);
             Console.WriteLine("SetConsoleCtrlHandler: " + (result ? "Success" : "Fail"));
         }
     }
