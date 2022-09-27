@@ -101,8 +101,9 @@ namespace NebulaPatcher.Patches.Transpilers
             return matcher.InstructionEnumeration();
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
+        // TODO: Update for 0.9.27
+        //[HarmonyTranspiler]
+        //[HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static IEnumerable<CodeInstruction> InternalTickRemote_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             // tell client when a ship enters warp state. for some reason client gets messed up with warp counter on ships.
@@ -298,8 +299,9 @@ namespace NebulaPatcher.Patches.Transpilers
             return matcher.InstructionEnumeration();
         }
         
-        [HarmonyReversePatch]
-        [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
+        // TODO: Update for 0.9.27
+        //[HarmonyReversePatch]
+        //[HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
 

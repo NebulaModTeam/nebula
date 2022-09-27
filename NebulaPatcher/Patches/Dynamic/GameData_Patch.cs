@@ -316,7 +316,8 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if (stationComponent != null && stationComponent.isStellar && !Multiplayer.Session.IsInLobby)
                 {
-                    StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
+                    // TODO: Update for 0.9.27
+                    //StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
                 }
             }
         }

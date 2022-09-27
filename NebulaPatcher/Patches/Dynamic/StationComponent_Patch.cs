@@ -9,8 +9,9 @@ namespace NebulaPatcher.Patches.Dynamic
     [HarmonyPatch(typeof(StationComponent))]
     internal class StationComponent_Patch
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
+        // TODO: Update for 0.9.27
+        //[HarmonyPrefix]
+        //[HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static bool InternalTickRemote_Prefix(StationComponent __instance, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
