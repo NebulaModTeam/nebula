@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
                 StationStore[] storage = stationComponent?.storage;
-                if (stationComponent == null || storage == null)
+                if (stationComponent == null || storage.Length == 0)
                 {
                     return;
                 }
@@ -31,7 +31,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             {
                 StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
                 StationStore[] storage = stationComponent?.storage;
-                if (stationComponent == null || storage == null)
+                if (stationComponent == null || storage.Length == 0)
                 {
                     return;
                 }

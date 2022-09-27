@@ -148,6 +148,7 @@ namespace NebulaWorld.Logistics
             stationComponent.idleShipCount = 0;
             stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
             stationComponent.shipDockRot = Quaternion.identity; // gets updated later by server packet
+            stationComponent.storage = Array.Empty<StationStore>(); // zero-length array for mod compatibility
             if (computeDisk)
             {
                 stationComponent.shipDiskPos = new Vector3[maxShipCount];
@@ -187,7 +188,7 @@ namespace NebulaWorld.Logistics
             }
 
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGID];
-            if (stationComponent != null && stationComponent.gid == packet.StationGID && stationComponent.storage != null)
+            if (stationComponent != null && stationComponent.gid == packet.StationGID && stationComponent.storage.Length != 0)
             {
                 if (packet.AddItem)
                 {
@@ -215,7 +216,7 @@ namespace NebulaWorld.Logistics
             }
 
             StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.GId];
-            if(stationComponent != null && stationComponent.gid == packet.GId && stationComponent.storage != null)
+            if(stationComponent != null && stationComponent.gid == packet.GId && stationComponent.storage.Length != 0)
             {
                 StationStore[] obj = stationComponent.storage;
                 lock (obj)

@@ -32,7 +32,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
                 {
                     stationComponent.slots = new SlotData[packet.SlotLength[i]];
                 }
-                if (stationComponent.storage == null)
+                if (stationComponent.storage.Length == 0)
                 {
                     stationComponent.storage = new StationStore[packet.StorageLength[i]];
                 }

@@ -44,7 +44,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics
 
             for (int i = 0; i < packet.ItemId.Length; i++)
             {
-                if (stationComponent.storage == null)
+                if (stationComponent.storage.Length == 0)
                 {
                     stationComponent.storage = new StationStore[packet.ItemId.Length];
                 }

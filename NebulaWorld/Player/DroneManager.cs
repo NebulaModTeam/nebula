@@ -8,18 +8,18 @@ namespace NebulaWorld.Player
 {
     public class DroneManager : IDisposable
     {
-        public static int[] DronePriorities = new int[255];
-        public static System.Random rnd = new System.Random();
-        public static Dictionary<ushort, List<int>> PlayerDroneBuildingPlans = new Dictionary<ushort, List<int>>();
-        public static List<int> PendingBuildRequests = new List<int>();
-        public static Dictionary<ushort, Vector3> CachedPositions = new Dictionary<ushort, Vector3>();
+        private static int[] DronePriorities = new int[255];
+        private static System.Random rnd = new System.Random();
+        private static Dictionary<ushort, List<int>> PlayerDroneBuildingPlans = new Dictionary<ushort, List<int>>();
+        private static List<int> PendingBuildRequests = new List<int>();
+        private static List<Vector3> CachedPositions = new List<Vector3>();
 
         public DroneManager()
         {
             DronePriorities = new int[255];
             PlayerDroneBuildingPlans = new Dictionary<ushort, List<int>>();
             PendingBuildRequests = new List<int>();
-            CachedPositions = new Dictionary<ushort, Vector3>();
+            CachedPositions = new List<Vector3>();
         }
 
         public void Dispose()
@@ -95,16 +95,7 @@ namespace NebulaWorld.Player
         public void ClearCachedPositions()
         {
             CachedPositions.Clear();
-        }
 
-        public bool AmIClosestPlayer(ref Vector3 entityPos)
-        {
-            if (!Multiplayer.IsActive)
-            {
-                return true;
-            }
-
-            float myDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
             using (Multiplayer.Session.World.GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
             {
                 foreach (RemotePlayerModel model in remotePlayersModels.Values)
@@ -115,18 +106,28 @@ namespace NebulaWorld.Player
                         continue;
                     }
                     //Cache players positions for this looking for traget session
-                    if (!CachedPositions.ContainsKey(model.PlayerId))
-                    {
-                        CachedPositions.Add(model.PlayerId, model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3());
-                    }
-                    //If remote player is closer, ignore the entity
-                    if (myDistance > (CachedPositions[model.PlayerId] - entityPos).sqrMagnitude)
-                    {
-                        return false;
-                    }
+                    CachedPositions.Add(model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3());
                 }
             }
+        }
 
+        public bool IsLocalPlayerClosestTo(ref Vector3 entityPos)
+        {
+            if (!Multiplayer.IsActive)
+            {
+                return true;
+            }
+
+            float myDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
+
+            foreach (Vector3 playerPostion in CachedPositions)
+            {
+                //If remote player is closer, ignore the entity
+                if (myDistance > (playerPostion - entityPos).sqrMagnitude)
+                {
+                    return false;
+                }
+            }
             return true;
         }
     }

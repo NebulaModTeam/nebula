@@ -32,7 +32,7 @@ namespace NebulaWorld.Logistics
         public void UpdateStorage(StorageUI packet)
         {
             StationComponent stationComponent = GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
-            if (stationComponent == null || stationComponent.storage == null)
+            if (stationComponent == null || stationComponent.storage.Length == 0)
             {
                 return;
             }
@@ -121,7 +121,7 @@ namespace NebulaWorld.Logistics
                 case StationUI.EUISettings.SetWarperCount:
                 {
                     stationComponent.warperCount = (int)packet.SettingValue;
-                    if (stationComponent.storage != null && packet.WarperShouldTakeFromStorage)
+                    if (stationComponent.storage.Length != 0 && packet.WarperShouldTakeFromStorage)
                     {
                         for (int i = 0; i < stationComponent.storage.Length; i++)
                         {

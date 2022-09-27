@@ -84,7 +84,7 @@ namespace NebulaPatcher.Patches.Transpiler
                                     return true;
                                 }
 
-                                return Multiplayer.Session.Drones.AmIClosestPlayer(ref aVar);
+                                return Multiplayer.Session.Drones.IsLocalPlayerClosestTo(ref aVar);
                             }))
                             .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse, jumpOperand));
 

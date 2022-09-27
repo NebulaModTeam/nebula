@@ -10,7 +10,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         private RemotePlayerMovement rootMovement;
         private RemotePlayerEffects remotePlayerEffects;
         private float altitudeFactor;
-        private readonly PlayerAnimationUpdate[] packetBuffer = new PlayerAnimationUpdate[3];
+        private readonly PlayerMovement[] packetBuffer = new PlayerMovement[3];
 
         private void Awake()
         {
@@ -19,7 +19,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             remotePlayerEffects = GetComponent<RemotePlayerEffects>();
         }
 
-        public void UpdateState(PlayerAnimationUpdate packet)
+        public void UpdateState(PlayerMovement packet)
         {
             // Delay for 200 ms
             for (int i = 0; i < packetBuffer.Length - 1; ++i)
@@ -36,7 +36,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             PlayerAnimator.jumpWeight = packet.JumpWeight;
             PlayerAnimator.jumpNormalizedTime = packet.JumpNormalizedTime;
             PlayerAnimator.idleAnimIndex = packet.IdleAnimIndex;
-            PlayerAnimator.sailAnimIndex = packet.SailAnimIndex;
+            PlayerAnimator.sailAnimIndex = 0;
             PlayerAnimator.miningWeight = packet.MiningWeight;
             PlayerAnimator.miningAnimIndex = packet.MiningAnimIndex;
 
