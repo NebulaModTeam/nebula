@@ -29,7 +29,7 @@ namespace NebulaPatcher.Patches.Dynamic
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIStarmap.TeleportToUPosition))]
+        [HarmonyPatch(nameof(UIStarmap.StartFastTravelToUPosition))]
         public static bool TeleportToUPosition_Prefix(VectorLF3 uPos)
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)

@@ -24,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                         factory.powerSystem.genPool[packet.Id].SetBoost(packet.Enable);
                         if (UIRoot.instance.uiGame.generatorWindow.generatorId == packet.Id)
                         {
-                            UIRoot.instance.uiGame.generatorWindow.boostSwitch.SetImmediately(packet.Enable);
+                            UIRoot.instance.uiGame.generatorWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
                         }
                     }
                     break;
@@ -35,7 +35,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                         factory.factorySystem.ejectorPool[packet.Id].SetBoost(packet.Enable);
                         if (UIRoot.instance.uiGame.ejectorWindow.ejectorId == packet.Id)
                         {
-                            UIRoot.instance.uiGame.ejectorWindow.boostSwitch.SetImmediately(packet.Enable);
+                            UIRoot.instance.uiGame.ejectorWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
                         }
                     }
                     break;
@@ -46,7 +46,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                         factory.factorySystem.siloPool[packet.Id].SetBoost(packet.Enable);
                         if (UIRoot.instance.uiGame.siloWindow.siloId == packet.Id)
                         {
-                            UIRoot.instance.uiGame.siloWindow.boostSwitch.SetImmediately(packet.Enable);
+                            UIRoot.instance.uiGame.siloWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
                         }
                     }
                     break;

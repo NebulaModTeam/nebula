@@ -129,10 +129,10 @@ namespace NebulaWorld.Factory
                     {
                         ((BuildTool_Path)buildTool).CreatePrebuilds();
                     }
-                    else if(packet.BuildToolType == typeof(BuildTool_PathAddon).ToString())
+                    else if(packet.BuildToolType == typeof(BuildTool_Addon).ToString())
                     {
-                        ((BuildTool_PathAddon)buildTool).handbp = buildTool.buildPreviews[0]; // traffic monitors cannot be drag build atm, so its always only one.
-                        ((BuildTool_PathAddon)buildTool).CreatePrebuilds();
+                        ((BuildTool_Addon)buildTool).handbp = buildTool.buildPreviews[0]; // traffic monitors cannot be drag build atm, so its always only one.
+                        ((BuildTool_Addon)buildTool).CreatePrebuilds();
                     }
                     else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
                     {
