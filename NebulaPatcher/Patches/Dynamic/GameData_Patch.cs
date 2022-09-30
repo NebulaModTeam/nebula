@@ -301,7 +301,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 timeGene += 60;
             }
-            float dt = 0.016666668f;
             GameHistoryData history = GameMain.history;
             float shipSailSpeed = history.logisticShipSailSpeedModified;
             float shipWarpSpeed = (!history.logisticShipWarpDrive) ? shipSailSpeed : history.logisticShipWarpSpeedModified;
@@ -316,8 +315,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if (stationComponent != null && stationComponent.isStellar && !Multiplayer.Session.IsInLobby)
                 {
-                    // TODO: Update for 0.9.27
-                    //StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
+                    StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, ref relativePos, ref relativeRot, starmap, null);
                 }
             }
         }
