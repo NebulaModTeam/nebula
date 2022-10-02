@@ -256,6 +256,20 @@ namespace NebulaPatcher.Patches.Dynamic
             }
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow.OnDroneAutoReplenishButtonClick))]
+        public static void OnDroneAutoReplenishButtonClick_Postfix(UIStationWindow __instance)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return;
+            }
+
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.DroneAutoReplenish, stationComponent.droneAutoReplenish ? 1f : 0f);
+            Multiplayer.Session.Network.SendPacket(packet);
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(nameof(UIStationWindow.OnShipIconClick))]
         [HarmonyPriority(Priority.First)]
@@ -288,6 +302,20 @@ namespace NebulaPatcher.Patches.Dynamic
                     __instance.shipIconButton.button.interactable = false;
                 }
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIStationWindow.OnShipAutoReplenishButtonClick))]
+        public static void OnShipAutoReplenishButtonClick_Postfix(UIStationWindow __instance)
+        {
+            if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+            {
+                return;
+            }
+
+            StationComponent stationComponent = __instance.transport.stationPool[__instance.stationId];
+            StationUI packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid, StationUI.EUISettings.ShipAutoReplenish, stationComponent.shipAutoReplenish ? 1f : 0f);
+            Multiplayer.Session.Network.SendPacket(packet);
         }
 
         [HarmonyPrefix]

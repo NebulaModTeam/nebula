@@ -61,8 +61,11 @@ namespace NebulaNetwork.PacketProcessors.Logistics
             UIStationWindow stationWindow = UIRoot.instance.uiGame.stationWindow;
             if (stationWindow.active && stationWindow.factory?.planetId == packet.PlanetId && stationWindow.stationId == packet.StationId)
             {
-                //Trigger OnStationIdChange() to refresh window
-                stationWindow.OnStationIdChange();
+                using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
+                {
+                    //Trigger OnStationIdChange() to refresh window
+                    stationWindow.OnStationIdChange();
+                }
             }
         }
     }

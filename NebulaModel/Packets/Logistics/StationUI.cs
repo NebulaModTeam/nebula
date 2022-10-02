@@ -18,7 +18,9 @@
             SetWarperCount,
             PilerCount,
             MaxMiningSpeed,
-            NameInput
+            NameInput,
+            DroneAutoReplenish,
+            ShipAutoReplenish
         }
 
         public int PlanetId { get; set; }

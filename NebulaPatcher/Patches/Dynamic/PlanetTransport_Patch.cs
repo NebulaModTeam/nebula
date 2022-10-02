@@ -102,5 +102,35 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Multiplayer.Session.Network.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, RemovingStationGId));
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetTransport.SetDispenserFilter))]
+        public static void SetDispenserFilter_Prefix(PlanetTransport __instance, int dispenserId, int filter)
+        {
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId, EDispenserSettingEvent.SetFilter, filter));
+            }            
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetTransport.SetDispenserPlayerDeliveryMode))]
+        public static void SetDispenserPlayerDeliveryMode_Prefix(PlanetTransport __instance, int dispenserId, EPlayerDeliveryMode playerDeliveryMode)
+        {
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId, EDispenserSettingEvent.SetPlayerDeliveryMode, (int)playerDeliveryMode));
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetTransport.SetDispenserStorageDeliveryMode))]
+        public static void SetDispenserStorageDeliveryMode_Prefix(PlanetTransport __instance, int dispenserId, EStorageDeliveryMode storageDeliveryMode)
+        {
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId, EDispenserSettingEvent.SetStorageDeliveryMode, (int)storageDeliveryMode));
+            }
+        }
     }
 }
