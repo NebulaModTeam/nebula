@@ -94,8 +94,13 @@ namespace NebulaWorld
                 }
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(player.Data.Rotation.ToVector3());
 
+                // Free references to old data
+                UIRoot.instance.uiGame.inventoryWindow.deliveryPanel._OnFree();
+                UIRoot.instance.uiGame.inventoryWindow._OnUnregEvent();
+
                 // Load client's saved data from the last session.
                 GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
+                GameMain.mainPlayer.deliveryPackage = player.Data.Mecha.DeliveryPackage;
                 GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
                 GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
                 GameMain.mainPlayer.mecha.reactorEnergy = player.Data.Mecha.ReactorEnergy;
@@ -108,6 +113,9 @@ namespace NebulaWorld
                 GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+                UIRoot.instance.uiGame.inventoryWindow.deliveryPanel._OnInit();
+                UIRoot.instance.uiGame.inventoryWindow._OnRegEvent();
+                GameMain.mainPlayer.package.onStorageSizeChange += GameMain.mainPlayer.OnPackageSizeChange;
             }
 
             // Initialization on the host side after game is loaded

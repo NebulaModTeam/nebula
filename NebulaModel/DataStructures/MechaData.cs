@@ -12,6 +12,7 @@ namespace NebulaModel.DataStructures
         public double CoreEnergy { get; set; }
         public double ReactorEnergy { get; set; }
         public StorageComponent Inventory { get; set; }
+        public DeliveryPackage DeliveryPackage { get; set; }
         public StorageComponent ReactorStorage { get; set; }
         public StorageComponent WarpStorage { get; set; }
         public MechaForge Forge { get; set; }
@@ -27,7 +28,7 @@ namespace NebulaModel.DataStructures
             TechBonuses = new PlayerTechBonuses();
         }
 
-        public MechaData(int sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory, StorageComponent reactorStorage, StorageComponent warpStorage, MechaForge forge)
+        public MechaData(int sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory, DeliveryPackage deliveryPackage, StorageComponent reactorStorage, StorageComponent warpStorage, MechaForge forge)
         {
             SandCount = sandCount;
             CoreEnergy = coreEnergy;
@@ -36,6 +37,7 @@ namespace NebulaModel.DataStructures
             WarpStorage = warpStorage;
             Forge = forge;
             Inventory = inventory;
+            DeliveryPackage = deliveryPackage;
             TechBonuses = new PlayerTechBonuses();
         }
 
@@ -48,19 +50,18 @@ namespace NebulaModel.DataStructures
             writer.Put(ReactorStorage != null);
             if (ReactorStorage != null)
             {
-                using (MemoryStream ms = new MemoryStream())
+                using MemoryStream ms = new MemoryStream();
+                using (BinaryWriter wr = new BinaryWriter(ms))
                 {
-                    using (BinaryWriter wr = new BinaryWriter(ms))
-                    {
-                        Inventory.Export(wr);
-                        ReactorStorage.Export(wr);
-                        WarpStorage.Export(wr);
-                        Forge.Export(wr);
-                    }
-                    byte[] export = ms.ToArray();
-                    writer.Put(export.Length);
-                    writer.Put(export);
+                    Inventory.Export(wr);
+                    DeliveryPackage.Export(wr);
+                    ReactorStorage.Export(wr);
+                    WarpStorage.Export(wr);
+                    Forge.Export(wr);
                 }
+                byte[] export = ms.ToArray();
+                writer.Put(export.Length);
+                writer.Put(export);
             }
         }
 
@@ -68,6 +69,8 @@ namespace NebulaModel.DataStructures
         {
             TechBonuses = new PlayerTechBonuses();
             Inventory = new StorageComponent(4);
+            DeliveryPackage = new DeliveryPackage();
+            DeliveryPackage.Init();
             ReactorStorage = new StorageComponent(4);
             WarpStorage = new StorageComponent(1);
             Forge = new MechaForge
@@ -89,6 +92,45 @@ namespace NebulaModel.DataStructures
                 using (BinaryReader br = new BinaryReader(ms))
                 {
                     Inventory.Import(br);
+                    DeliveryPackage.Import(br);
+                    ReactorStorage.Import(br);
+                    WarpStorage.Import(br);
+                    Forge.Import(br);
+                }
+            }
+        }
+
+        public void Import(INetDataReader reader, int revision)
+        {
+            TechBonuses = new PlayerTechBonuses();
+            Inventory = new StorageComponent(4);
+            DeliveryPackage = new DeliveryPackage();
+            DeliveryPackage.Init();
+            ReactorStorage = new StorageComponent(4);
+            WarpStorage = new StorageComponent(1);
+            Forge = new MechaForge
+            {
+                tasks = new List<ForgeTask>(),
+                extraItems = new ItemBundle()
+            };
+            TechBonuses.Import(reader, revision);
+            SandCount = reader.GetInt();
+            CoreEnergy = reader.GetDouble();
+            ReactorEnergy = reader.GetDouble();
+            bool isPayloadPresent = reader.GetBool();
+            if (isPayloadPresent)
+            {
+                int mechaLength = reader.GetInt();
+                byte[] mechaBytes = new byte[mechaLength];
+                reader.GetBytes(mechaBytes, mechaLength);
+                using (MemoryStream ms = new MemoryStream(mechaBytes))
+                using (BinaryReader br = new BinaryReader(ms))
+                {
+                    Inventory.Import(br);
+                    if (revision >= 7)
+                    {
+                        DeliveryPackage.Import(br);
+                    }
                     ReactorStorage.Import(br);
                     WarpStorage.Import(br);
                     Forge.Import(br);

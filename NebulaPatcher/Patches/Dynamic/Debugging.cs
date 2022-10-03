@@ -1,5 +1,6 @@
 ﻿#if DEBUG
 using HarmonyLib;
+using NebulaWorld;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -10,6 +11,11 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameHistoryData.EnqueueTech))]
         public static void EnqueueTech_Postfix(GameHistoryData __instance, int techId)
         {
+            if (Multiplayer.IsActive && Multiplayer.Session.History.IsIncomingRequest)
+            {
+                //Do not run if this was triggered by incomming request
+                return;
+            }
             __instance.UnlockTech(techId);
             GameMain.mainPlayer.mecha.corePowerGen = 10000000;
         }

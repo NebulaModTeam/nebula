@@ -30,5 +30,8 @@ namespace NebulaAPI
         float droneSpeed { get; }
         int droneMovement { get; }
         int inventorySize { get; }
+        bool deliveryPackageUnlocked { get; }
+        int deliveryPackageColCount { get; set; }
+        int deliveryPackageStackSizeMultiplier { get; }
     }
 }

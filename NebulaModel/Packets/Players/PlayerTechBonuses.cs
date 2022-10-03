@@ -30,6 +30,9 @@ namespace NebulaModel.Packets.Players
         public float droneSpeed { get; set; }
         public int droneMovement { get; set; }
         public int inventorySize { get; set; }
+        public bool deliveryPackageUnlocked { get; set; }
+        public int deliveryPackageColCount { get; set; }
+        public int deliveryPackageStackSizeMultiplier { get; set; }
 
         public PlayerTechBonuses() { }
 
@@ -61,6 +64,9 @@ namespace NebulaModel.Packets.Players
             droneSpeed = source.droneSpeed;
             droneMovement = source.droneMovement;
             inventorySize = source.player.package.size;
+            deliveryPackageUnlocked = source.player.deliveryPackage.unlocked;
+            deliveryPackageColCount = source.player.deliveryPackage.colCount;
+            deliveryPackageStackSizeMultiplier = source.player.deliveryPackage.stackSizeMultiplier;
         }
 
         public void UpdateMech(Mecha destination)
@@ -94,6 +100,15 @@ namespace NebulaModel.Packets.Players
             {
                 destination.player.package.SetSize(inventorySize);
             }
+            destination.player.deliveryPackage.unlocked = deliveryPackageUnlocked;
+            int deliveryPackageRowCount = (destination.player.package.size - 1) / 10 + 1;
+            if (destination.player.deliveryPackage.rowCount != deliveryPackageRowCount || deliveryPackageColCount != destination.player.deliveryPackage.colCount)
+            {
+                destination.player.deliveryPackage.rowCount = deliveryPackageRowCount;
+                destination.player.deliveryPackage.colCount = deliveryPackageColCount;
+                destination.player.deliveryPackage.NotifySizeChange();
+            }
+            destination.player.deliveryPackage.stackSizeMultiplier = deliveryPackageStackSizeMultiplier;
         }
 
         public void Serialize(INetDataWriter writer)
@@ -124,6 +139,9 @@ namespace NebulaModel.Packets.Players
             writer.Put(droneSpeed);
             writer.Put(droneMovement);
             writer.Put(inventorySize);
+            writer.Put(deliveryPackageUnlocked);
+            writer.Put(deliveryPackageColCount);
+            writer.Put(deliveryPackageStackSizeMultiplier);
         }
 
         public void Deserialize(INetDataReader reader)
@@ -154,6 +172,45 @@ namespace NebulaModel.Packets.Players
             droneSpeed = reader.GetFloat();
             droneMovement = reader.GetInt();
             inventorySize = reader.GetInt();
+            deliveryPackageUnlocked = reader.GetBool();
+            deliveryPackageColCount = reader.GetInt();
+            deliveryPackageStackSizeMultiplier = reader.GetInt();
+        }
+
+        public void Import(INetDataReader reader, int revision)
+        {
+            coreEnergyCap = reader.GetDouble();
+            corePowerGen = reader.GetDouble();
+            reactorPowerGen = reader.GetDouble();
+            walkPower = reader.GetDouble();
+            jumpEnergy = reader.GetDouble();
+            thrustPowerPerAcc = reader.GetDouble();
+            warpKeepingPowerPerSpeed = reader.GetDouble();
+            warpStartPowerPerSpeed = reader.GetDouble();
+            miningPower = reader.GetDouble();
+            replicatePower = reader.GetDouble();
+            researchPower = reader.GetDouble();
+            droneEjectEnergy = reader.GetDouble();
+            droneEnergyPerMeter = reader.GetDouble();
+            coreLevel = reader.GetInt();
+            thrusterLevel = reader.GetInt();
+            miningSpeed = reader.GetFloat();
+            replicateSpeed = reader.GetFloat();
+            walkSpeed = reader.GetFloat();
+            jumpSpeed = reader.GetFloat();
+            maxSailSpeed = reader.GetFloat();
+            maxWarpSpeed = reader.GetFloat();
+            buildArea = reader.GetFloat();
+            droneCount = reader.GetInt();
+            droneSpeed = reader.GetFloat();
+            droneMovement = reader.GetInt();
+            inventorySize = reader.GetInt();
+            if (revision >= 7)
+            {
+                deliveryPackageUnlocked = reader.GetBool();
+                deliveryPackageColCount = reader.GetInt();
+                deliveryPackageStackSizeMultiplier = reader.GetInt();
+            }
         }
     }
 }
