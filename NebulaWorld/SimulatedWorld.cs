@@ -14,6 +14,7 @@ using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.SocialIntegration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -94,13 +95,17 @@ namespace NebulaWorld
                 }
                 GameMain.mainPlayer.uRotation = Quaternion.Euler(player.Data.Rotation.ToVector3());
 
-                // Free references to old data
-                UIRoot.instance.uiGame.inventoryWindow.deliveryPanel._OnFree();
-                UIRoot.instance.uiGame.inventoryWindow._OnUnregEvent();
-
                 // Load client's saved data from the last session.
                 GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
-                GameMain.mainPlayer.deliveryPackage = player.Data.Mecha.DeliveryPackage;
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    BinaryWriter bw = new BinaryWriter(ms);
+                    player.Data.Mecha.DeliveryPackage.Export(bw);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    BinaryReader br = new BinaryReader(ms);
+                    GameMain.mainPlayer.deliveryPackage.Import(br);
+                    player.Data.Mecha.DeliveryPackage = GameMain.mainPlayer.deliveryPackage;
+                }
                 GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
                 GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
                 GameMain.mainPlayer.mecha.reactorEnergy = player.Data.Mecha.ReactorEnergy;
@@ -113,9 +118,6 @@ namespace NebulaWorld
                 GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
                 GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
-                UIRoot.instance.uiGame.inventoryWindow.deliveryPanel._OnInit();
-                UIRoot.instance.uiGame.inventoryWindow._OnRegEvent();
-                GameMain.mainPlayer.package.onStorageSizeChange += GameMain.mainPlayer.OnPackageSizeChange;
             }
 
             // Initialization on the host side after game is loaded
@@ -135,6 +137,12 @@ namespace NebulaWorld
                         // If warp has unlocked, give new client few warpers
                         GameMain.mainPlayer.TryAddItemToPackage(1210, 5, 0, false);
                     }
+                }
+
+                // Refresh Logistics Distributor traffic for player delivery package changes
+                if (GameMain.mainPlayer.factory != null)
+                {
+                    GameMain.mainPlayer.factory.transport.RefreshDispenserTraffic(0);
                 }
 
                 // Enable Ping Indicator for Clients
