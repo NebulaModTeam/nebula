@@ -29,6 +29,7 @@ namespace NebulaWorld
         public DroneManager Drones { get; private set; }
         public GameDataHistoryManager History { get; private set; }
         public GameStatesManager State { get; private set; }
+        public CourierManager Couriers { get; set; }
         public ILSShipManager Ships { get; private set; }
         public StationUIManager StationsUI { get; private set; }
         public PlanetManager Planets { get; private set; }
@@ -70,6 +71,7 @@ namespace NebulaWorld
             Drones = new DroneManager();
             History = new GameDataHistoryManager();
             State = new GameStatesManager();
+            Couriers = new CourierManager();
             Ships = new ILSShipManager();
             StationsUI = new StationUIManager();
             Planets = new PlanetManager();
@@ -116,6 +118,9 @@ namespace NebulaWorld
 
             State?.Dispose();
             State = null;
+
+            Couriers?.Dispose();
+            Couriers = null;
 
             Ships?.Dispose();
             Ships = null;

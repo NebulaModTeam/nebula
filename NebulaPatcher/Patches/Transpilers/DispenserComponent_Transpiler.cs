@@ -32,6 +32,36 @@ namespace NebulaPatcher.Patches.Transpilers
                 .RemoveInstruction()
                 .Insert(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DispenserComponent_Transpiler), "PickFromStorage")));
 
+            //  When courier go from idle to work for player order, broadcast to all players on the same planet 
+            //  c# 107: 
+            //>>  Insert IdleCourierToWork(this) => IdleCourierToWork
+            //  this.workCourierCount++;
+            matcher
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "workCourierCount"),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "workCourierCount"))
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DispenserComponent_Transpiler), "IdleCourierToWork")));
+
+            //  c# 170: (same as above)
+            matcher
+                .Advance(8)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "workCourierCount"),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Add),
+                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "workCourierCount"))
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DispenserComponent_Transpiler), "IdleCourierToWork")));
+
             // When courier back to home, test if it recycles items from player. If true, broadcast item increase in distributor storage.
             // c# 604:
             //   bool useBan = this.orders[j].otherId >= 0;
@@ -82,6 +112,18 @@ namespace NebulaPatcher.Patches.Transpilers
                                                itemId, count, inc));
             }
             return factory.InsertIntoStorage(entityId, itemId, count, inc, out remainInc, useBan);
+        }
+
+        public static void IdleCourierToWork(DispenserComponent dispenser)
+        {
+            if (Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalPlanet(
+                    new DispenserCourierPacket(Multiplayer.Session.LocalPlayer.Id,
+                                               dispenser.id,
+                                               dispenser.workCourierDatas[dispenser.workCourierCount].itemId,
+                                               dispenser.workCourierDatas[dispenser.workCourierCount].itemCount));
+            }
         }
     }
 }

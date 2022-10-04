@@ -286,12 +286,16 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive)
             {
-                if (Multiplayer.IsActive)
-                {
-                    Multiplayer.Session.Launch.CollectProjectile();
-                }
+                return;
+            }
+
+            Multiplayer.Session.Couriers.GameTick(time);
+
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                Multiplayer.Session.Launch.CollectProjectile();
                 return;
             }
             Multiplayer.Session.Launch.LaunchProjectile();
