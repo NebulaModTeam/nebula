@@ -1,5 +1,12 @@
 ## Changelog
 
+0.8.11:
+
+- @starfi5h: Added support for DSP 0.9.27 along with syncing for the new logistics distribution system
+- @starfi5h: Optimized network traffic
+- @starfi5h: Dedicated servers will now save when gracefully exited (ctrl+c on the console window)
+- @starfi5h: Fix error when sail capacity increases in dedicated server
+
 0.8.10:
 
 - @starfi5h: Fix compilation with 0.9.26.13034

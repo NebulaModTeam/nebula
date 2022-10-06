@@ -1,4 +1,9 @@
 ## Changelog
+
+1.3.1:
+
+- Added DeliveryPackage to IMechaData and IPlayerTechBonuses
+
 1.3.0:
 
 - Add a new event OnDysonSphereLoadFinished to NebulaModAPI
