@@ -20,14 +20,12 @@ namespace NebulaModel.DataStructures
         public int[] DIYItemId { get; set; }
         public int[] DIYItemValue { get; set; }
 
-        private Float4[] MechaColors { get; set; } //Obsoleted by MechaAppearance
-
         public PlayerData()
         {
             Appearance = null;
             DIYAppearance = null;
-            DIYItemId = new int[0];
-            DIYItemValue = new int[0];
+            DIYItemId = System.Array.Empty<int>();
+            DIYItemValue = System.Array.Empty<int>();
         }
         public PlayerData(ushort playerId, int localPlanetId, string username = null, Float3 localPlanetPosition = new Float3(), Double3 position = new Double3(), Float3 rotation = new Float3(), Float3 bodyRotation = new Float3())
         {
@@ -41,8 +39,8 @@ namespace NebulaModel.DataStructures
             Mecha = new MechaData();
             Appearance = null;
             DIYAppearance = null;
-            DIYItemId = new int[0];
-            DIYItemValue = new int[0];
+            DIYItemId = System.Array.Empty<int>();
+            DIYItemValue = System.Array.Empty<int>();
         }
 
         public void Serialize(INetDataWriter writer)
@@ -50,11 +48,6 @@ namespace NebulaModel.DataStructures
             writer.Put(Username);
             writer.Put(PlayerId);
             writer.Put(LocalPlanetId);
-            writer.Put(MechaColors?.Length ?? 0);
-            for (int i = 0; i < (MechaColors?.Length ?? 0); i++)
-            {
-                MechaColors[i].Serialize(writer);
-            }
             LocalPlanetPosition.Serialize(writer);
             UPosition.Serialize(writer);
             Rotation.Serialize(writer);
@@ -101,11 +94,6 @@ namespace NebulaModel.DataStructures
             Username = reader.GetString();
             PlayerId = reader.GetUShort();
             LocalPlanetId = reader.GetInt();
-            MechaColors = new Float4[reader.GetInt()];
-            for (int i = 0; i < MechaColors.Length; i++)
-            {
-                MechaColors[i] = reader.GetFloat4();
-            }
             LocalPlanetPosition = reader.GetFloat3();
             UPosition = reader.GetDouble3();
             Rotation = reader.GetFloat3();
@@ -150,54 +138,70 @@ namespace NebulaModel.DataStructures
             }
         }
 
-        public void Deserialize_5(INetDataReader reader)
+        // Backward compatiblity for older versions
+        public void Import(INetDataReader reader, int revision)
         {
             Username = reader.GetString();
             PlayerId = reader.GetUShort();
             LocalPlanetId = reader.GetInt();
-            MechaColors = new Float4[reader.GetInt()];
-            for (int i = 0; i < MechaColors.Length; i++)
+            if (revision < 7)
             {
-                MechaColors[i] = reader.GetFloat4();
-            }
-            LocalPlanetPosition = reader.GetFloat3();
-            UPosition = reader.GetDouble3();
-            Rotation = reader.GetFloat3();
-            BodyRotation = reader.GetFloat3();
-            Mecha = new MechaData();
-            Mecha.Deserialize(reader);
-            bool isAppearancePresent = reader.GetBool();
-            if (isAppearancePresent)
-            {
-                int len = reader.GetInt();
-                byte[] data = new byte[len];
-                reader.GetBytes(data, len);
-                using (MemoryStream ms = new MemoryStream(data))
-                using (BinaryReader br = new BinaryReader(ms))
+                // MechaColors is obsoleted by MechaAppearance
+                Float4[] mechaColors = new Float4[reader.GetInt()];
+                for (int i = 0; i < mechaColors.Length; i++)
                 {
-                    Appearance = new MechaAppearance();
-                    Appearance.Init();
-                    Appearance.Import(br);
+                    mechaColors[i] = reader.GetFloat4();
                 }
             }
-        }
-
-        public void Deserialize_4(INetDataReader reader)
-        {
-            Username = reader.GetString();
-            PlayerId = reader.GetUShort();
-            LocalPlanetId = reader.GetInt();
-            MechaColors = new Float4[reader.GetInt()];
-            for (int i = 0; i < MechaColors.Length; i++)
-            {
-                MechaColors[i] = reader.GetFloat4();
-            }
             LocalPlanetPosition = reader.GetFloat3();
             UPosition = reader.GetDouble3();
             Rotation = reader.GetFloat3();
             BodyRotation = reader.GetFloat3();
-            Mecha = new MechaData();
-            Mecha.Deserialize(reader);
+            MechaData mechaData = new();
+            mechaData.Import(reader, revision);
+            Mecha = mechaData;
+            if (revision >= 5)
+            {
+                bool isAppearancePresent = reader.GetBool();
+                if (isAppearancePresent)
+                {
+                    int len = reader.GetInt();
+                    byte[] data = new byte[len];
+                    reader.GetBytes(data, len);
+                    using (MemoryStream ms = new MemoryStream(data))
+                    using (BinaryReader br = new BinaryReader(ms))
+                    {
+                        Appearance = new MechaAppearance();
+                        Appearance.Init();
+                        Appearance.Import(br);
+                    }
+                }
+            }
+            if (revision >= 6)
+            {
+                bool isDIYAppearancePresent = reader.GetBool();
+                if (isDIYAppearancePresent)
+                {
+                    int len = reader.GetInt();
+                    byte[] data = new byte[len];
+                    reader.GetBytes(data, len);
+                    using (MemoryStream ms = new MemoryStream(data))
+                    using (BinaryReader br = new BinaryReader(ms))
+                    {
+                        DIYAppearance = new MechaAppearance();
+                        DIYAppearance.Init();
+                        DIYAppearance.Import(br);
+                    }
+                }
+                int DIYItemLen = reader.GetInt();
+                DIYItemId = new int[DIYItemLen];
+                DIYItemValue = new int[DIYItemLen];
+                for (int i = 0; i < DIYItemLen; i++)
+                {
+                    DIYItemId[i] = reader.GetInt();
+                    DIYItemValue[i] = reader.GetInt();
+                }
+            }
         }
 
         public IPlayerData CreateCopyWithoutMechaData()

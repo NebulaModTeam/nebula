@@ -1,4 +1,5 @@
-﻿using NebulaModel.Logger;
+﻿using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using System;
 
@@ -9,6 +10,8 @@ namespace NebulaWorld.Logistics
         public bool UIRequestedShipDronWarpChange { get; set; } // when receiving a ship, drone or warp change only take/add items from the one issuing the request
         public StationUI SliderBarPacket { get; set; } // store the change of slider bar temporary, only send it when mouse button is released.
         public int StorageMaxChangeId { get; set; } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
+        public ToggleSwitch IsIncomingRequest { get; } = new ToggleSwitch();
+
 
         public StationUIManager()
         {
@@ -48,7 +51,10 @@ namespace NebulaWorld.Logistics
             {
                 if (stationWindow.factory?.planetId == planetId && stationWindow.stationId == stationId)
                 {
-                    stationWindow.OnStationIdChange();
+                    using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
+                    {
+                        stationWindow.OnStationIdChange();
+                    }
                 }
             }
         }
@@ -219,6 +225,16 @@ namespace NebulaWorld.Logistics
                 case StationUI.EUISettings.NameInput:
                 {
                     stationComponent.name = packet.SettingString;
+                    break;
+                }
+                case StationUI.EUISettings.DroneAutoReplenish:
+                {
+                    stationComponent.droneAutoReplenish = packet.SettingValue != 0;
+                    break;
+                }
+                case StationUI.EUISettings.ShipAutoReplenish:
+                {
+                    stationComponent.shipAutoReplenish = packet.SettingValue != 0;
                     break;
                 }
             }

@@ -93,6 +93,7 @@ namespace NebulaModel.Packets.Factory
                 isAssembler = br.ReadBoolean(),
                 isBelt = br.ReadBoolean(),
                 isCollectStation = br.ReadBoolean(),
+                isDispenser = br.ReadBoolean(),
                 isEjector = br.ReadBoolean(),
                 isFractionator = br.ReadBoolean(),
                 isInserter = br.ReadBoolean(),
@@ -103,6 +104,7 @@ namespace NebulaModel.Packets.Factory
                 isStellarStation = br.ReadBoolean(),
                 isStorage = br.ReadBoolean(),
                 isTank = br.ReadBoolean(),
+                isVeinCollector = br.ReadBoolean(),
                 minerType = (EMinerType)br.ReadInt32(),
                 modelIndex = br.ReadInt32(),
                 multiLevel = br.ReadBoolean(),
@@ -200,6 +202,7 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.desc.isAssembler);
             bw.Write(buildPreview.desc.isBelt);
             bw.Write(buildPreview.desc.isCollectStation);
+            bw.Write(buildPreview.desc.isDispenser);
             bw.Write(buildPreview.desc.isEjector);
             bw.Write(buildPreview.desc.isFractionator);
             bw.Write(buildPreview.desc.isInserter);
@@ -210,6 +213,7 @@ namespace NebulaModel.Packets.Factory
             bw.Write(buildPreview.desc.isStellarStation);
             bw.Write(buildPreview.desc.isStorage);
             bw.Write(buildPreview.desc.isTank);
+            bw.Write(buildPreview.desc.isVeinCollector);
             bw.Write((int)buildPreview.desc.minerType);
             bw.Write(buildPreview.desc.modelIndex);
             bw.Write(buildPreview.desc.multiLevel);

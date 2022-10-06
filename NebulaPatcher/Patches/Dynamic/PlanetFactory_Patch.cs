@@ -297,6 +297,12 @@ namespace NebulaPatcher.Patches.Dynamic
                         }
                     }
                 }
+                if (entityData.dispenserId > 0)
+                {
+                    int dispenserId = entityData.dispenserId;
+                    DispenserComponent[] dispenserPool = __instance.transport.dispenserPool;
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserStorePacket(__instance.planetId, in dispenserPool[dispenserId]));
+                }
                 if (entityData.ejectorId > 0)
                 {
                     int ejectorId = entityData.ejectorId;
@@ -416,6 +422,13 @@ namespace NebulaPatcher.Patches.Dynamic
                         Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(__instance.planetId, assemblerId, assemblerPool[assemblerId].served, assemblerPool[assemblerId].incServed));
                     }
                 }
+                if (entityData.dispenserId > 0)
+                {
+                    int dispenserId = entityData.dispenserId;
+                    DispenserComponent[] dispenserPool = __instance.transport.dispenserPool;
+                    int courierCount = dispenserPool[dispenserId].workCourierCount + dispenserPool[dispenserId].idleCourierCount;
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planetId, dispenserId, EDispenserSettingEvent.SetCourierCount, courierCount));
+                }
                 if (entityData.ejectorId > 0)
                 {
                     int ejectorId = entityData.ejectorId;
@@ -499,6 +512,103 @@ namespace NebulaPatcher.Patches.Dynamic
                     Multiplayer.Session.Network.SendPacketToLocalStar(new SprayerStorageUpdatePacket(spraycoaterPool[spraycoaterId], __instance.planetId));
                 }
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlanetFactory.EntityAutoReplenishIfNeeded))]
+        [HarmonyPatch(nameof(PlanetFactory.StationAutoReplenishIfNeeded))]
+        public static bool EntityAutoReplenishIfNeeded_Prefix(PlanetFactory __instance, int entityId, ref (int, int, int, int) __state)
+        {
+            if (!Multiplayer.IsActive)
+            {
+                return true;
+            }
+
+            // Don't auto replenish if it is from other player's packet
+            if (Multiplayer.Session.Factories.IsIncomingRequest.Value && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id)
+            {
+                return false;
+            }
+            if (Multiplayer.Session.StationsUI.IsIncomingRequest.Value)
+            {
+                return false;
+            }
+
+            __state.Item1 = 1;
+            ref EntityData ptr = ref __instance.entityPool[entityId];
+            if (ptr.dispenserId > 0)
+            {
+                DispenserComponent dispenserComponent = __instance.transport.dispenserPool[ptr.dispenserId];
+                __state.Item2 = dispenserComponent.idleCourierCount;
+            }
+            if (ptr.stationId > 0)
+            {
+                StationComponent stationComponent = __instance.transport.stationPool[ptr.stationId];
+                __state.Item3 = stationComponent.idleDroneCount;
+                __state.Item4 = stationComponent.idleShipCount;
+            }
+            return true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlanetFactory.EntityAutoReplenishIfNeeded))]
+        [HarmonyPatch(nameof(PlanetFactory.StationAutoReplenishIfNeeded))]
+        public static void EntityAutoReplenishIfNeeded_Postfix(PlanetFactory __instance, int entityId, ref (int, int, int, int) __state)
+        {
+            if (__state.Item1 != 1)
+            {
+                return;
+            }
+
+            ref EntityData ptr = ref __instance.entityPool[entityId];
+            if (ptr.dispenserId > 0)
+            {
+                DispenserComponent dispenserComponent = __instance.transport.dispenserPool[ptr.dispenserId];
+                if (__state.Item2 != dispenserComponent.idleCourierCount)
+                {
+                    Multiplayer.Session.Network.SendPacketToLocalStar(
+                        new DispenserSettingPacket(__instance.planetId,
+                                                   ptr.dispenserId,
+                                                   EDispenserSettingEvent.SetCourierCount,
+                                                   dispenserComponent.workCourierCount + dispenserComponent.idleCourierCount));
+                }
+            }
+            if (ptr.stationId > 0)
+            {
+                StationComponent stationComponent = __instance.transport.stationPool[ptr.stationId];
+                if (__state.Item3 != stationComponent.idleDroneCount)
+                {
+                    Multiplayer.Session.Network.SendPacket(
+                        new StationUI(__instance.planetId,
+                                      stationComponent.id,
+                                      stationComponent.gid,
+                                      StationUI.EUISettings.SetDroneCount,
+                                      stationComponent.idleDroneCount + stationComponent.workDroneCount));
+
+                    if (Multiplayer.Session.LocalPlayer.IsClient)
+                    {
+                        // Revert drone count until host verify
+                        stationComponent.idleDroneCount = __state.Item3;
+                    }
+                }
+
+                if (__state.Item4 != stationComponent.idleShipCount)
+                {
+                    Multiplayer.Session.Network.SendPacket(
+                        new StationUI(__instance.planetId,
+                                      stationComponent.id,
+                                      stationComponent.gid,
+                                      StationUI.EUISettings.SetShipCount,
+                                      stationComponent.idleShipCount + stationComponent.workShipCount));
+
+                    if (Multiplayer.Session.LocalPlayer.IsClient)
+                    {
+                        // Revert drone count until host verify
+                        stationComponent.idleShipCount = __state.Item4;
+                    }
+                }
+            }
+
         }
     }
 }

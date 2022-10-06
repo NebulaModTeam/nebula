@@ -2,7 +2,6 @@
 using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
-using UnityEngine;
 
 namespace NebulaPatcher.Patches.Dynamic
 {
@@ -11,7 +10,7 @@ namespace NebulaPatcher.Patches.Dynamic
     {
         [HarmonyPrefix]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
-        public static bool InternalTickRemote_Prefix(StationComponent __instance, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
+        public static bool InternalTickRemote_Prefix(StationComponent __instance)
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
@@ -20,6 +19,28 @@ namespace NebulaPatcher.Patches.Dynamic
                 // we dont have every PlanetFactory at hand.
                 // so iterate over the GameMain.data.galacticTransport.stationPool array which should also include the fake entries for factories we have not loaded yet.
                 // but do this at another place to not trigger it more often than needed (GameData::GameTick())
+                if (__instance.warperCount < __instance.warperMaxCount)
+                {
+                    // refill warpers from ILS storage
+                    for (int i = 0; i < __instance.storage.Length; i++)
+                    {
+                        if (__instance.storage[i].itemId == 1210 && __instance.storage[i].count > 0)
+                        {
+                            __instance.warperCount++;
+                            lock (__instance.storage)
+                            {
+                                int num = __instance.storage[i].inc / __instance.storage[i].count;
+                                StationStore[] array = __instance.storage;
+                                int num2 = i;
+                                array[num2].count = array[num2].count - 1;
+                                StationStore[] array2 = __instance.storage;
+                                int num3 = i;
+                                array2[num3].inc = array2[num3].inc - num;
+                            }
+                            break;
+                        }
+                    }
+                }
                 return false;
             }
             return true;
@@ -27,7 +48,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]
-        public static bool RematchRemotePairs_Prefix(StationComponent __instance, StationComponent[] gStationPool, int gStationCursor, int keyStationGId, int shipCarries)
+        public static bool RematchRemotePairs_Prefix()
         {
             if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
             {
@@ -39,7 +60,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(StationComponent.IdleShipGetToWork))]
-        public static void IdleShipGetToWork_Postfix(StationComponent __instance, int index)
+        public static void IdleShipGetToWork_Postfix(StationComponent __instance)
         {
             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
             {

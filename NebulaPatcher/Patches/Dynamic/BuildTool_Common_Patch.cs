@@ -13,7 +13,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CreatePrebuilds))]
         [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.CreatePrebuilds))]
-        [HarmonyPatch(typeof(BuildTool_PathAddon), nameof(BuildTool_PathAddon.CreatePrebuilds))]
+        [HarmonyPatch(typeof(BuildTool_Addon), nameof(BuildTool_Addon.CreatePrebuilds))]
         [HarmonyPatch(typeof(BuildTool_Inserter), nameof(BuildTool_Inserter.CreatePrebuilds))]
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
         public static bool CreatePrebuilds_Prefix(BuildTool __instance)
@@ -29,11 +29,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 BuildTool_BlueprintPaste bpInstance = __instance as BuildTool_BlueprintPaste;
                 previews = bpInstance.bpPool.Take(bpInstance.bpCursor).ToList();
             }
-            if(__instance is BuildTool_PathAddon)
+            if(__instance is BuildTool_Addon)
             {
                 // traffic monitors & sprayers cannot be drag build atm, so its always only one.
                 previews = new List<BuildPreview>();
-                previews.Add(((BuildTool_PathAddon)__instance).handbp);
+                previews.Add(((BuildTool_Addon)__instance).handbp);
             }
 
             // Host will just broadcast event to other players
@@ -61,7 +61,7 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CheckBuildConditions))]
         [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.CheckBuildConditions))]
-        [HarmonyPatch(typeof(BuildTool_PathAddon), nameof(BuildTool_PathAddon.CheckBuildConditions))]
+        [HarmonyPatch(typeof(BuildTool_Addon), nameof(BuildTool_Addon.CheckBuildConditions))]
         [HarmonyPatch(typeof(BuildTool_Inserter), nameof(BuildTool_Inserter.CheckBuildConditions))]
         [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
         public static bool CheckBuildConditions(ref bool __result)

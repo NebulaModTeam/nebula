@@ -18,7 +18,7 @@ namespace NebulaWorld.MonoBehaviours.Local
         private void Awake()
         {
             Instance = this;
-            Transform parent = UIRoot.instance.uiGame.inventory.transform.parent;
+            Transform parent = UIRoot.instance.uiGame.inventoryWindow.transform.parent;
             GameObject chatGo = parent.Find("Chat Window") ? parent.Find("Chat Window").gameObject : null;
             if (chatGo == null)
             {

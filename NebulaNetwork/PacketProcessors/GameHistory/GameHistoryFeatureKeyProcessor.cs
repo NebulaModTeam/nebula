@@ -30,7 +30,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
                 if (packet.FeatureId == 1100002)
                 {
                     // Update Quick Build button in dyson editor
-                    UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.overview.autoConstructSwitch.SetImmediately(packet.Add);
+                    UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.overview.autoConstructSwitch.SetToggleNoEvent(packet.Add);
                 }
             }
         }

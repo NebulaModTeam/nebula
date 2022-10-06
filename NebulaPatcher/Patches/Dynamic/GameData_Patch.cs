@@ -286,12 +286,16 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPatch(nameof(GameData.GameTick))]
         public static void GameTick_Postfix(GameData __instance, long time)
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            if (!Multiplayer.IsActive)
             {
-                if (Multiplayer.IsActive)
-                {
-                    Multiplayer.Session.Launch.CollectProjectile();
-                }
+                return;
+            }
+
+            Multiplayer.Session.Couriers.GameTick(time);
+
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                Multiplayer.Session.Launch.CollectProjectile();
                 return;
             }
             Multiplayer.Session.Launch.LaunchProjectile();
@@ -301,7 +305,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 timeGene += 60;
             }
-            float dt = 0.016666668f;
             GameHistoryData history = GameMain.history;
             float shipSailSpeed = history.logisticShipSailSpeedModified;
             float shipWarpSpeed = (!history.logisticShipWarpDrive) ? shipSailSpeed : history.logisticShipWarpSpeedModified;
@@ -316,7 +319,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 if (stationComponent != null && stationComponent.isStellar && !Multiplayer.Session.IsInLobby)
                 {
-                    StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, dt, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, relativePos, relativeRot, starmap, null);
+                    StationComponent_Transpiler.ILSUpdateShipPos(stationComponent, GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, shipSailSpeed, shipWarpSpeed, shipCarries, gStationPool, astroPoses, ref relativePos, ref relativeRot, starmap, null);
                 }
             }
         }

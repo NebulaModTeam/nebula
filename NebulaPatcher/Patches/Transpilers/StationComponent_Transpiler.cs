@@ -9,26 +9,24 @@ using UnityEngine;
 // thanks tanu and Therzok for the tipps!
 namespace NebulaPatcher.Patches.Transpilers
 {
-#pragma warning disable Harmony003 // Harmony non-ref patch parameters modified
+#pragma warning disable Harmony003, IDE0060 // Harmony non-ref patch parameters modified
     [HarmonyPatch(typeof(StationComponent))]
     public class StationComponent_Transpiler
     {
         delegate void ShipEnterWarpState(StationComponent stationComponent, int j);
-        delegate void AddItem(StationComponent stationComponent, ShipData shipData);
-        delegate void TakeItem(StationComponent stationComponent, int itemId, int itemCount, int j);
+        delegate void AddItem(StationComponent stationComponent, ref ShipData shipData);
+        delegate void TakeItem(StationComponent stationComponent, ref int itemId, ref int itemCount, int j);
         delegate void UpdateStorage(StationComponent stationComponent, int index);
-        delegate void WorkShipBackToIdle(StationComponent stationComponent, int j, ShipData shipData);
+        delegate void WorkShipBackToIdle(StationComponent stationComponent, int j, ref ShipData shipData);
 
         delegate void RematchRemotePairs(StationComponent stationComponent, int index);
         delegate void SendRematchPacket(StationComponent stationComponent);
 
-        private static int UpdateStorageMatchCounter = 0;
-
         // theese are needed to craft the ILSRematchRemotePairs packet
-        private static List<int> ShipIndex = new List<int>();
-        private static List<int> OtherGId = new List<int>();
-        private static List<int> ItemId = new List<int>();
-        private static List<int> Direction = new List<int>();
+        private static readonly List<int> ShipIndex = new List<int>();
+        private static readonly List<int> OtherGId = new List<int>();
+        private static readonly List<int> ItemId = new List<int>();
+        private static readonly List<int> Direction = new List<int>();
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]
@@ -48,7 +46,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     localMatcher
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 10))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, localMatcher.InstructionAt(-5).operand))
                         .Insert(HarmonyLib.Transpilers.EmitDelegate<RematchRemotePairs>((StationComponent stationComponent, int index) =>
                         {
                             ShipIndex.Add(index);
@@ -72,7 +70,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     localMatcher
                         .Advance(1)
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 10))
+                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, localMatcher.InstructionAt(-5).operand))
                         .Insert(HarmonyLib.Transpilers.EmitDelegate<RematchRemotePairs>((StationComponent stationComponent, int index) =>
                         {
                             ShipIndex.Add(index);
@@ -88,7 +86,7 @@ namespace NebulaPatcher.Patches.Transpilers
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                 .Insert(HarmonyLib.Transpilers.EmitDelegate<SendRematchPacket>((StationComponent stationComponent) =>
                 {
-                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost && ShipIndex.Count > 0)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost && ShipIndex.Count > 0)
                     {
                         Multiplayer.Session.Network.SendPacket(new ILSRematchRemotePairs(stationComponent.gid, ShipIndex, OtherGId, Direction, ItemId));
                     }
@@ -105,52 +103,28 @@ namespace NebulaPatcher.Patches.Transpilers
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
         public static IEnumerable<CodeInstruction> InternalTickRemote_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            // tell client when a ship enters warp state. for some reason client gets messed up with warp counter on ships.
-            CodeMatcher matcher = new CodeMatcher(instructions, il)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldind_I4),
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stind_I4),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warpState")))
-                .Advance(-1)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<ShipEnterWarpState> ((StationComponent stationComponent, int j) =>
-                {
-                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-                    {
-                        Multiplayer.Session.Network.SendPacket(new ILSShipEnterWarp(stationComponent.gid, j));
-                    }
-                }));
+            CodeMatcher matcher = new CodeMatcher(instructions, il);
 
-            // tell client about WorkShipBackToIdle here as we need to tell him j too
-            // c# 522
-            matcher.Start()
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
+            // Capture the workship index variable (j) in the big while loop
+            // c# 500:
+            //   while (j < this.workShipCount)
+            matcher.End()
+                 .MatchBack(false,
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "shipIndex")),
-                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "WorkShipBackToIdle"))
-                .Advance(1)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<WorkShipBackToIdle>((StationComponent stationComponent, int j, ShipData shipData) =>
-                {
-                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-                    {
-                        ILSWorkShipBackToIdle packet = new ILSWorkShipBackToIdle(stationComponent, shipData, j);
-                        Multiplayer.Session.Network.SendPacket(packet);
-                    }
-                }));
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "workShipCount"),
+                    new CodeMatch(OpCodes.Blt));
+            var loadWorkShipId = new CodeInstruction(matcher.Instruction.opcode, matcher.Instruction.operand); // j => (OpCodes.Ldloc_S, 66)
 
-            // tell clients about AddItem() calls on host
-            // c# 502
+            #region ILSShipAddTake
+
+            // tell clients about AddItem() calls on host            
+            // c# 537:
+            //   ...
+            //   this.AddItem(ptr3.itemId, ptr3.itemCount, ptr3.inc);
+            // >>  Insert (this, ptr3) => ILSShipAddTake packet
+            //   factory.NotifyShipDelivery(ptr3.planetB, gStationPool[ptr3.otherGId], ptr3.planetA, this, ptr3.itemId, ptr3.itemCount);
+            //   ...
             matcher.Start()
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
@@ -162,17 +136,23 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "inc")),
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
                 .Advance(2) // also skip Pop call
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<AddItem>((StationComponent stationComponent, ShipData shipData) =>
+                .InsertAndAdvance(matcher.InstructionAt(-9)) // this
+                .InsertAndAdvance(matcher.InstructionAt(-9)) // ref ShipData ptr3
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<AddItem>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         Multiplayer.Session.Network.SendPacketToStar(new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                 }));
+            int backToStationPos = matcher.Pos;
 
-            // c# 970
+            // c# 1117:
+            //   ...
+            //   stationComponent3.AddItem(ptr3.itemId, ptr3.itemCount, ptr3.inc);
+            // >>  Insert (stationComponent3, ptr3) => ILSShipAddTake packet
+            //   factory.NotifyShipDelivery(ptr3.planetA, this, ptr3.planetB, stationComponent3, ptr3.itemId, ptr3.itemCount);
+            //   ...
             matcher
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldloc_S),
@@ -182,11 +162,17 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemCount")),
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "inc")),
-                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"))
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddItem"));
+
+            // Capture local variables to use later
+            var loadOtherStation = new CodeInstruction(OpCodes.Ldloc_S, matcher.InstructionAt(-7).operand);
+            var loadCurrentShip = new CodeInstruction(OpCodes.Ldloc_S, matcher.InstructionAt(-6).operand);
+
+            matcher
                 .Advance(2) // also skip Pop call
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 147))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<AddItem>((StationComponent stationComponent, ShipData shipData) =>
+                .InsertAndAdvance(matcher.InstructionAt(-9)) // stationComponent3
+                .InsertAndAdvance(matcher.InstructionAt(-9)) // ref ShipData ptr3
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<AddItem>((StationComponent stationComponent, ref ShipData shipData) =>
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
@@ -195,55 +181,74 @@ namespace NebulaPatcher.Patches.Transpilers
                 }));
 
             // tell clients about TakeItem() calls on host
+            // c# 1208:
+            //   ...
+            //   int inc;
+            // >>  Insert (stationComponent3, itemId3, num120, j) => ILSShipAddTake packet
+            //   stationComponent3.TakeItem(ref itemId3, ref num120, out inc);
+            //  ...
             matcher
                 .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloca_S),
                     new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
                 // just before the call to TakeItem()
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 147))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemId")))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 157))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, int itemId, int itemCount, int j) =>
+                .InsertAndAdvance(matcher.InstructionAt(-4))
+                .InsertAndAdvance(matcher.InstructionAt(-4))
+                .InsertAndAdvance(matcher.InstructionAt(-4))
+                .InsertAndAdvance(loadWorkShipId)
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<TakeItem>((StationComponent stationComponent, ref int itemId, ref int itemCount, int j) =>
                 {
-                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
                         Multiplayer.Session.Network.SendPacketToStar(new ILSShipAddTake(false, itemId, itemCount, stationComponent.gid, j), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
                 }));
+            #endregion
 
-            // tell client about StationSTorage[] updates
-            // c# 17
+            #region ILSWorkShipBackToIdle
+
+            // tell client about WorkShipBackToIdle here as we need to tell him j too. 
+            // because ptr3 is reference, we need to call it before the values get overwritten
+            // c# 537:            
+            //   this.AddItem(ptr3.itemId, ptr3.itemCount, ptr3.inc);
+            // >>  Insert (this, j, ptr3) => ILSWorkShipBackToIdle packet
+            //   ...
+            //   this.WorkShipBackToIdle(shipIndex);
             matcher.Start()
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "inc")),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldind_I4),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stind_I4))
-                .Advance(1)
+                .Advance(backToStationPos + 1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 26))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<UpdateStorage>((StationComponent stationComponent, int index) =>
+                .InsertAndAdvance(loadWorkShipId)
+                .InsertAndAdvance(loadCurrentShip)
+                .Insert(HarmonyLib.Transpilers.EmitDelegate<WorkShipBackToIdle>((StationComponent stationComponent, int j, ref ShipData shipData) =>
                 {
-                    if(Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        Multiplayer.Session.Network.SendPacketToStar(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
+                        ILSWorkShipBackToIdle packet = new ILSWorkShipBackToIdle(stationComponent, shipData, j);
+                        Multiplayer.Session.Network.SendPacket(packet);
                     }
                 }));
 
-            // c# 242, 367
-            matcher
+            #endregion
+
+            #region ILSUpdateStorage
+
+            //  tell clients about StationStorage[] updates
+            //  c# 253, 378, 1181  IL# 688, 1365, 5032
+            //  lock (obj)
+            //  {
+            //      ...
+            //      StationStore[] array = this.storage; (or array = stationComponent3.storage;)
+            //      int supplyIndex = supplyDemandPair.supplyIndex; (or supplyIndex = ptr.supplyIndex;)
+            //      array[supplyIndex].inc = array[supplyIndex].inc - num;
+            //    >>  Insert (stationComponent, supplyIndex) => ILSUpdateStorage packet
+            //  }
+            matcher.Start()
                 .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
+                    new CodeMatch(OpCodes.Ldfld),
                     new CodeMatch(OpCodes.Ldelema),
                     new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "inc")),
                     new CodeMatch(OpCodes.Dup),
@@ -253,11 +258,21 @@ namespace NebulaPatcher.Patches.Transpilers
                     new CodeMatch(OpCodes.Stind_I4))
                 .Repeat(localMatcher =>
                 {
+                    CodeInstruction loadStation;
+                    if (localMatcher.InstructionAt(-10).opcode == OpCodes.Ldarg_0)
+                    {
+                        loadStation = new CodeInstruction(OpCodes.Ldarg_0, null); //this
+                    }
+                    else
+                    {
+                        loadStation = loadOtherStation; //stationComponent3
+                    }
+
                     localMatcher
                         .Advance(1)
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, UpdateStorageMatchCounter == 0 ? 30 : 52))
-                        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
+                        .InsertAndAdvance(loadStation)
+                        .InsertAndAdvance(localMatcher.InstructionAt(-10))
+                        .InsertAndAdvance(localMatcher.InstructionAt(-10))
                         .Insert(HarmonyLib.Transpilers.EmitDelegate<UpdateStorage>((StationComponent stationComponent, int index) =>
                         {
                             if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
@@ -265,92 +280,73 @@ namespace NebulaPatcher.Patches.Transpilers
                                 Multiplayer.Session.Network.SendPacketToStar(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                             }
                         }));
-
-                    UpdateStorageMatchCounter++;
                 });
-            UpdateStorageMatchCounter = 0; // resetting here as it seems our patches are done twice
-
-            // c# 1034
-            matcher.Start()
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(StationStore), "inc")),
-                    new CodeMatch(OpCodes.Dup),
-                    new CodeMatch(OpCodes.Ldind_I4),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Sub),
-                    new CodeMatch(OpCodes.Stind_I4))
-                .Advance(1)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 147))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 151))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SupplyDemandPair), "supplyIndex")))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<UpdateStorage>((StationComponent stationComponent, int index) =>
-                {
-                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-                    {
-                        Multiplayer.Session.Network.SendPacketToStar(new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count, stationComponent.storage[index].inc), GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
-                    }
-                }));
+            #endregion 
 
             return matcher.InstructionEnumeration();
         }
-        
+
         [HarmonyReversePatch]
         [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
-        public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene, double dt, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses, VectorLF3 relativePos, Quaternion relativeRot, bool starmap, int[] consumeRegister)
+        public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene, float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses, ref VectorLF3 relativePos, ref Quaternion relativeRot, bool starmap, int[] consumeRegister)
         {
 
             IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
             {
-                // find begin of ship movement computation, c# 460 IL 2090
+                // find begin of ship movement computation, remove all content in if (timeGene == this.gene) {...}
+                // remove c# 10 - 473
                 CodeMatcher matcher = new CodeMatcher(instructions, il);
                 int indexStart = matcher
                     .MatchForward(false,
-                        new CodeMatch(i => i.IsLdarg()),
+                        new CodeMatch(i => i.IsLdarg()), // float num47 = shipSailSpeed / 600f;
                         new CodeMatch(OpCodes.Ldc_R4),
                         new CodeMatch(OpCodes.Div),
-                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Sqrt"),
                         new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldloc_S), // float num48 = Mathf.Pow(num47, 0.4f);
                         new CodeMatch(OpCodes.Ldc_R4),
-                        new CodeMatch(OpCodes.Ble_Un))
+                        new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Mathf), "Pow")))
                     .Pos;
                 // cut out only that part of original function, but keep the first 5 IL lines (they create the 'bool flag' which is needed)
                 for (matcher.Start().Advance(6); matcher.Pos < indexStart;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                
-                // add null check at the beginning of the while(){} for gStationPool[shipData.otherGId] and if it is null skip this shipData until all data received from server
+
+                // c# 502: add null check at the beginning of the while(){} for gStationPool[shipData.otherGId] and if it is null skip this shipData until all data received from server
+                // 
+                // 	while (j < this.workShipCount)
+                //  {				
+                //	   ref ShipData ptr3 = ref this.workShipDatas[j];
+                //   >>  insert if (gStationPool[shipData.otherGId] == null) { j++; continue; }
                 matcher
-                    .MatchForward(true,
+                .MatchForward(true,
                         new CodeMatch(OpCodes.Br),
                         new CodeMatch(OpCodes.Ldarg_0),
                         new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "workShipDatas")),
                         new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldelem, typeof(ShipData)),
+                        new CodeMatch(OpCodes.Ldelema, typeof(ShipData)),
                         new CodeMatch(OpCodes.Stloc_S));
+
+                object shipDataRef = matcher.Instruction.operand;
+                object loopIndex = matcher.InstructionAt(-2).operand;
                 object jmpNextLoopIter = matcher.InstructionAt(-5).operand;
                 matcher.CreateLabelAt(matcher.Pos + 1, out Label jmpNormalFlow);
                 matcher
                     .Advance(1)
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 7)) // gStationPool
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 60)) // shipData
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 6)) // gStationPool
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, shipDataRef)) // shipData
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldelem, typeof(StationComponent)))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpNormalFlow))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59)) // j
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, loopIndex)) // j
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_1))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Add))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Stloc_S, 59))
+                    .InsertAndAdvance(new CodeInstruction(OpCodes.Stloc_S, loopIndex))
                     .InsertAndAdvance(new CodeInstruction(OpCodes.Br, jmpNextLoopIter));
-                
-                // remove c# 502-525 (adding item from landing ship to station and modify remote order and shifitng those arrays AND j-- (as we end up in an endless loop if not))
+
+                // remove c# 537-561 (adding item from landing ship to station and modify remote order and shifitng those arrays AND j-- (as we end up in an endless loop if not))
+                // start: this.AddItem(ptr3.itemId, ptr3.itemCount, ptr3.inc);
+                // end:   j--;
                 indexStart = matcher
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -366,7 +362,7 @@ namespace NebulaPatcher.Patches.Transpilers
                     .MatchForward(true,
                         new CodeMatch(OpCodes.Sub),
                         new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Clear"),
-                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldloc_S), // j--
                         new CodeMatch(OpCodes.Ldc_I4_1),
                         new CodeMatch(OpCodes.Sub),
                         new CodeMatch(OpCodes.Stloc_S))
@@ -377,24 +373,9 @@ namespace NebulaPatcher.Patches.Transpilers
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
 
-                // c# 621 remove warp state entering as we do this triggered by host. client always messed up here for whatever reason so just tell him what to do.
-                matcher
-                    .MatchForward(false,
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
-                        new CodeMatch(OpCodes.Dup),
-                        new CodeMatch(OpCodes.Ldind_I4),
-                        new CodeMatch(OpCodes.Ldc_I4_1),
-                        new CodeMatch(OpCodes.Sub),
-                        new CodeMatch(OpCodes.Stind_I4),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warpState")));
-                for(int i = 0; i < 15; i++)
-                {
-                    matcher.SetAndAdvance(OpCodes.Nop, null);
-                }
-
-                // remove c# 956 - 1054 (adding item from landing ship to station and modify remote order)
+                // remove c# 1103 - 1201 (adding item from landing ship to station and modify remote order)
+                // start: StationComponent stationComponent3 = gStationPool[ptr3.otherGId]; StationStore[] array21 = stationComponent3.storage;
+                // end:   if (this.remotePairCount > 0) {...}
                 indexStart = matcher
                     .MatchForward(false,
                         new CodeMatch(OpCodes.Ldarg_S),
@@ -403,11 +384,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldelem_Ref),
                         new CodeMatch(OpCodes.Stloc_S),
                         new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")),
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldarg_S),
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "planetA")))
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")))
                     .Pos;
                 indexEnd = matcher
                     .MatchForward(true,
@@ -419,25 +396,22 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Bne_Un))
                     .Pos;
-                for(matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
+                for (matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
-                
-                // remove c# 1058 - 1093 (taking item from station and modify remote order)
+
+                // remove c# 1208 - 1093 (taking item from station and modify remote order)
+                // start: stationComponent3.TakeItem(ref itemId3, ref num120, out inc);
+                // end:   lock (obj) {...}				
                 indexStart = matcher
-                    .MatchForward(false,
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemId")),
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldarg_S),
-                        new CodeMatch(OpCodes.Stloc_S),
-                        new CodeMatch(OpCodes.Ldloc_S),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(OpCodes.Ldloca_S),
-                        new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
-                    .Pos;
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
+                .Pos;
                 indexEnd = matcher
                     .MatchForward(true,
                         new CodeMatch(OpCodes.Stind_I4),
@@ -448,7 +422,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeMatch(OpCodes.Call),
                         new CodeMatch(OpCodes.Endfinally))
                     .Pos;
-                for(matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
+                for (matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
                 {
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
@@ -459,5 +433,5 @@ namespace NebulaPatcher.Patches.Transpilers
             _ = Transpiler(null, null);
         }
     }
-#pragma warning restore Harmony003 // Harmony non-ref patch parameters modified
+#pragma warning restore Harmony003, IDE0060 // Harmony non-ref patch parameters modified
 }

@@ -12,7 +12,7 @@ namespace NebulaNetwork
     public class SaveManager
     {
         private const string FILE_EXTENSION = ".server";
-        private const ushort REVISION = 6;
+        private const ushort REVISION = 7;
 
         public static void SaveServerData(string saveName)
         {
@@ -104,11 +104,11 @@ namespace NebulaNetwork
                 }
 
                 revision = netDataReader.GetUShort();
-                Log.Info($"Loading server data, revision {revision}");
+                Log.Info($"Loading server data revision {revision} (Latest {REVISION})");
                 if (revision != REVISION)
                 {
-                    // Supported revision: 4~6
-                    if (revision < 4 || revision > REVISION)
+                    // Supported revision: 5~7
+                    if (revision < 5 || revision > REVISION)
                     {
                         throw new System.Exception();
                     }
@@ -132,15 +132,10 @@ namespace NebulaNetwork
                     {
                         playerData = netDataReader.Get<PlayerData>();
                     }
-                    else if(revision == 4)
+                    else if (revision >= 5)
                     {
                         playerData = new PlayerData();
-                        playerData.Deserialize_4(netDataReader);
-                    }
-                    else if(revision == 5)
-                    {
-                        playerData = new PlayerData();
-                        playerData.Deserialize_5(netDataReader);
+                        playerData.Import(netDataReader, revision);
                     }
 
                     if (!savedPlayerData.ContainsKey(hash) && playerData != null)

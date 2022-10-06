@@ -11,7 +11,7 @@ namespace NebulaModel.Packets.Players
         public PlayerMechaData() { }
         public PlayerMechaData(Player player)
         {
-            Data = new MechaData(player.sandCount, player.mecha.coreEnergy, player.mecha.reactorEnergy, player.package, player.mecha.reactorStorage, player.mecha.warpStorage, player.mecha.forge);
+            Data = new MechaData(player.sandCount, player.mecha.coreEnergy, player.mecha.reactorEnergy, player.package, player.deliveryPackage, player.mecha.reactorStorage, player.mecha.warpStorage, player.mecha.forge);
         }
     }
 }

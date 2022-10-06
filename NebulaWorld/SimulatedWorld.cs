@@ -14,6 +14,7 @@ using NebulaWorld.MonoBehaviours.Remote;
 using NebulaWorld.SocialIntegration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -96,6 +97,15 @@ namespace NebulaWorld
 
                 // Load client's saved data from the last session.
                 GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    BinaryWriter bw = new BinaryWriter(ms);
+                    player.Data.Mecha.DeliveryPackage.Export(bw);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    BinaryReader br = new BinaryReader(ms);
+                    GameMain.mainPlayer.deliveryPackage.Import(br);
+                    player.Data.Mecha.DeliveryPackage = GameMain.mainPlayer.deliveryPackage;
+                }
                 GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
                 GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
                 GameMain.mainPlayer.mecha.reactorEnergy = player.Data.Mecha.ReactorEnergy;
@@ -127,6 +137,12 @@ namespace NebulaWorld
                         // If warp has unlocked, give new client few warpers
                         GameMain.mainPlayer.TryAddItemToPackage(1210, 5, 0, false);
                     }
+                }
+
+                // Refresh Logistics Distributor traffic for player delivery package changes
+                if (GameMain.mainPlayer.factory != null)
+                {
+                    GameMain.mainPlayer.factory.transport.RefreshDispenserTraffic(0);
                 }
 
                 // Enable Ping Indicator for Clients
