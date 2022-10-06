@@ -57,6 +57,14 @@ namespace NebulaPatcher.Patches.Dynamic
             AddMultiplayerJoinMenu();
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(UIMainMenu.OnUpdateLogButtonClick))]
+        public static void OnUpdateLogButtonClick_Postfix(UIMainMenu __instance)
+        {
+            // Return to main menu when update log is opened
+            OnMultiplayerBackButtonClick();
+        }
+
         // Main Menu
         private static void AddMultiplayerButton()
         {
