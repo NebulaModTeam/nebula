@@ -427,6 +427,34 @@ namespace NebulaPatcher.Patches.Transpilers
                     matcher.SetAndAdvance(OpCodes.Nop, null);
                 }
 
+                // Switch itemCount in ShipData when ship arrive destination to display correct color
+                // Currently the render only test if itemCount > 0 so we can give it a dummy positive value
+                // c# 1241:
+                //   ptr3.direction = -1;
+                // >>  Insert ptr3.itemCount = ptr3.itemCount > 0 ? 0 : 1;
+                matcher
+                    .MatchForward(true,
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Ldc_I4_M1),
+                        new CodeMatch(OpCodes.Stfld))
+                    .Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldloc_S, matcher.InstructionAt(-3).operand),
+                        new CodeInstruction(OpCodes.Ldloc_S, matcher.InstructionAt(-3).operand),
+                        new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemCount")),
+                        new CodeInstruction(OpCodes.Ldc_I4_0, null),
+                        new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "itemCount"))
+                    )
+                    .Advance(3) //OpCodes.Ldc_I4_0
+                    .CreateLabel(out Label labelTo0)
+                    .CreateLabelAt(matcher.Pos + 1, out Label labelEnd)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldc_I4_0, null),
+                        new CodeInstruction(OpCodes.Bgt_S, labelTo0),
+                        new CodeInstruction(OpCodes.Ldc_I4_1, null),
+                        new CodeInstruction(OpCodes.Br_S, labelEnd)
+                    );
+
                 return matcher.InstructionEnumeration();
             }
 

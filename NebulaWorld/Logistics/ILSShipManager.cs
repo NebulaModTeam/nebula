@@ -201,8 +201,7 @@ namespace NebulaWorld.Logistics
                     int Inc;
                     stationComponent.TakeItem(ref itemId, ref itemCount, out Inc);
                     // we need to update the ShipData here too, luckily our transpiler sends the workShipDatas index in the inc field
-                    stationComponent.workShipDatas[packet.Inc].itemCount = itemCount;
-                    stationComponent.workShipDatas[packet.Inc].inc = Inc;
+                    // update: ShipDatas.itemCount only use for rendering color, so we let clients handle it
                 }
             }
         }
