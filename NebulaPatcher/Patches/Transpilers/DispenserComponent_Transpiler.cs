@@ -119,7 +119,8 @@ namespace NebulaPatcher.Patches.Transpilers
             if (Multiplayer.IsActive)
             {
                 Multiplayer.Session.Network.SendPacketToLocalPlanet(
-                    new DispenserCourierPacket(Multiplayer.Session.LocalPlayer.Id,
+                    new DispenserCourierPacket(GameMain.mainPlayer.planetId,
+                                               Multiplayer.Session.LocalPlayer.Id,
                                                dispenser.id,
                                                dispenser.workCourierDatas[dispenser.workCourierCount].itemId,
                                                dispenser.workCourierDatas[dispenser.workCourierCount].itemCount));
