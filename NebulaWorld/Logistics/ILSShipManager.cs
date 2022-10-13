@@ -228,25 +228,21 @@ namespace NebulaWorld.Logistics
 
         public void UpdateSlotData(ILSUpdateSlotData packet)
         {
-            PlanetData pData = null;
+            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             StationComponent stationComponent = null;
 
-            if (packet.StationGId == 0) // PLS
+            if (factory != null) // only update station slot for loaded factories
             {
-                pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];
-            }
-            else // ILS
-            {
-                if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
-                {
-                    stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
-                }
+                stationComponent = factory.transport.stationPool[packet.StationId];
             }
 
             if (stationComponent?.slots != null)
             {
                 stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
+                if (stationComponent.gid != packet.StationGId)
+                {
+                    NebulaModel.Logger.Log.Warn($"Station gid mismatch! local:{stationComponent.gid} remote:{packet.StationGId}");
+                }
             }
         }
     }
