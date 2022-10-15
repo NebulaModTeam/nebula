@@ -21,7 +21,16 @@ namespace NebulaPatcher.Patches.Transpilers
 
             if (codeMatcher.IsInvalid)
             {
-                NebulaModel.Logger.Log.Error("UIVersionText.Refresh_Transpiler failed. Mod version not compatible with game version.");
+                // For XGP version
+                codeMatcher.Start()
+                    .MatchForward(true,
+                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_usernameAndSuffix")
+                    );
+            }
+
+            if (codeMatcher.IsInvalid)
+            {
+                NebulaModel.Logger.Log.Warn("UIVersionText.Refresh_Transpiler failed. Mod version not compatible with game version.");
                 return instructions;
             }
 
