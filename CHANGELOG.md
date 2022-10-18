@@ -1,5 +1,11 @@
 ## Changelog
 
+0.8.12:
+
+- @PhantomGamers: Remove exe targeting to support game pass version  
+- @starfi5h: Fix errors about logistic bots  
+- @starfi5h: Add -load-latest launch option for dedicated server  
+
 0.8.11:
 
 - @starfi5h: Added support for DSP 0.9.27 along with syncing for the new logistics distribution system
