@@ -201,8 +201,7 @@ namespace NebulaWorld.Logistics
                     int Inc;
                     stationComponent.TakeItem(ref itemId, ref itemCount, out Inc);
                     // we need to update the ShipData here too, luckily our transpiler sends the workShipDatas index in the inc field
-                    stationComponent.workShipDatas[packet.Inc].itemCount = itemCount;
-                    stationComponent.workShipDatas[packet.Inc].inc = Inc;
+                    // update: ShipDatas.itemCount only use for rendering color, so we let clients handle it
                 }
             }
         }
@@ -229,25 +228,21 @@ namespace NebulaWorld.Logistics
 
         public void UpdateSlotData(ILSUpdateSlotData packet)
         {
-            PlanetData pData = null;
+            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             StationComponent stationComponent = null;
 
-            if (packet.StationGId == 0) // PLS
+            if (factory != null) // only update station slot for loaded factories
             {
-                pData = GameMain.galaxy.PlanetById(packet.PlanetId);
-                stationComponent = pData?.factory?.transport?.stationPool[packet.StationId];
-            }
-            else // ILS
-            {
-                if (packet.StationGId < GameMain.data.galacticTransport.stationPool.Length)
-                {
-                    stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
-                }
+                stationComponent = factory.transport.stationPool[packet.StationId];
             }
 
             if (stationComponent?.slots != null)
             {
                 stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
+                if (stationComponent.gid != packet.StationGId)
+                {
+                    NebulaModel.Logger.Log.Warn($"Station gid mismatch! local:{stationComponent.gid} remote:{packet.StationGId}");
+                }
             }
         }
     }

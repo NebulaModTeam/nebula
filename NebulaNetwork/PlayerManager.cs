@@ -263,7 +263,7 @@ namespace NebulaNetwork
                 foreach (KeyValuePair<INebulaConnection, INebulaPlayer> kvp in connectedPlayers)
                 {
                     INebulaPlayer player = kvp.Value;
-                    if (!!player.Connection.Equals(exclude))
+                    if (!player.Connection.Equals(exclude))
                     {
                         player.SendPacket(packet);
                     }

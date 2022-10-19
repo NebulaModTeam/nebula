@@ -129,5 +129,15 @@ namespace NebulaPatcher.Patches.Dynamic
                 __instance.swarmInfoBuffer = null;
             }
         }
+
+
+        // From user report
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UnityEngine.UI.Graphic), nameof(UnityEngine.UI.Graphic.DoMeshGeneration))]
+        [HarmonyPatch(typeof(UnityEngine.UI.Graphic), nameof(UnityEngine.UI.Graphic.DoLegacyMeshGeneration))]
+        public static bool DoMeshGeneration_Prefix()
+        {
+            return false;
+        }
     }
 }

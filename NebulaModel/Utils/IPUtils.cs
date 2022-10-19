@@ -1,14 +1,13 @@
-﻿using BepInEx;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using static NebulaModel.Utils.IPUtils;
 
 namespace NebulaModel.Utils
 {
@@ -121,11 +120,50 @@ namespace NebulaModel.Utils
             {
                 string response = await client.GetStringAsync($"https://ifconfig.co/port/{port}");
                 Dictionary<string, object> jObject = MiniJson.Deserialize(response) as Dictionary<string, object>;
-                if (!IsIPv4((string)jObject["ip"]))
+                if (IsIPv4((string)jObject["ip"]))
                 {
-                    return Status.Unsupported.ToString();
+                    return (bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed.ToString() + "(IPv4)";
                 }
-                return (bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed.ToString();
+                else
+                {
+                    // if client has IPv6, extra test for IPv4 port status
+                    string result = ((bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed.ToString()) + "(IPv6) ";
+                    try
+                    {
+                        IPAddress iPv4Address = null;
+                        foreach (IPAddress ip in Dns.GetHostEntry(string.Empty).AddressList)
+                        {
+                            if (ip.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                string str = ip.ToString();
+                                if (!str.StartsWith("127.0") && !str.StartsWith("192.168"))
+                                {
+                                    iPv4Address = ip;
+                                    break;
+                                }
+                            }
+                        }
+                        if (iPv4Address != null)
+                        {
+                            // TODO: More respect about rate limit?
+                            HttpWebRequest httpWebRequest = HttpWebRequest.Create($"https://ifconfig.co/port/{port}") as HttpWebRequest;
+                            httpWebRequest.Timeout = 5000;
+                            httpWebRequest.ServicePoint.BindIPEndPointDelegate = (servicePoint, remoteEndPoint, retryCount) => new IPEndPoint(iPv4Address, 0);
+
+                            using WebResponse webResponse = await httpWebRequest.GetResponseAsync();
+                            using Stream stream = webResponse.GetResponseStream();
+                            using StreamReader readStream = new(stream, Encoding.UTF8);
+                            response = readStream.ReadToEnd();
+                            jObject = MiniJson.Deserialize(response) as Dictionary<string, object>;
+                            result += ((bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed.ToString()) + "(IPv4)";
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.Log.Warn(e);
+                    }
+                    return result;
+                }
             }
             catch (Exception e)
             {

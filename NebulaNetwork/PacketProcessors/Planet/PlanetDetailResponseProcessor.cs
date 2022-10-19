@@ -28,15 +28,18 @@ namespace NebulaNetwork.PacketProcessors.Planet
                 planet = GameMain.galaxy.PlanetById(packet.PlanetDataID);
             }
 
-            if (planet.veinGroups == null || planet.veinGroups.Length != packet.VeinCounts.Length)
+            if (packet.VeinCounts.Length > 0)
             {
-                planet.veinGroups = new VeinGroup[packet.VeinCounts.Length];
-            }
-            for (int i = 1; i < planet.veinGroups.Length; i++)
-            {
-                planet.veinGroups[i].type = (EVeinType)packet.VeinTypes[i];
-                planet.veinGroups[i].count = packet.VeinCounts[i];
-                planet.veinGroups[i].amount = packet.VeinAmounts[i];
+                if (planet.veinGroups == null || planet.veinGroups.Length != packet.VeinCounts.Length)
+                {
+                    planet.veinGroups = new VeinGroup[packet.VeinCounts.Length];
+                }
+                for (int i = 1; i < planet.veinGroups.Length; i++)
+                {
+                    planet.veinGroups[i].type = (EVeinType)packet.VeinTypes[i];
+                    planet.veinGroups[i].count = packet.VeinCounts[i];
+                    planet.veinGroups[i].amount = packet.VeinAmounts[i];
+                }
             }
             planet.landPercent = packet.LandPercent;
             planet.landPercentDirty = false;

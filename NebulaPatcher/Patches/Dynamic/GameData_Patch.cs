@@ -291,7 +291,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 return;
             }
 
-            Multiplayer.Session.Couriers.GameTick(time);
+            Multiplayer.Session.Couriers.GameTick();
 
             if (Multiplayer.Session.LocalPlayer.IsHost)
             {

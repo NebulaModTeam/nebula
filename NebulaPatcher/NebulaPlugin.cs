@@ -13,16 +13,13 @@ using NebulaWorld;
 using NebulaWorld.SocialIntegration;
 using System;
 using System.Net;
-#if DEBUG
 using System.IO;
-#endif
 using System.Reflection;
 using UnityEngine;
 
 namespace NebulaPatcher
 {
     [BepInPlugin(PluginInfo.PLUGIN_ID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInProcess("DSPGAME.exe")]
     [BepInDependency(CommonAPIPlugin.GUID)]
     [CommonAPISubmoduleDependency(nameof(ProtoRegistry), nameof(CustomKeyBindSystem))]
     public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
@@ -63,6 +60,28 @@ namespace NebulaPatcher
                     }
                 }
 
+                if (args[i] == "-load-latest")
+                {
+                    loadArgExists = true;
+                    string[] files = Directory.GetFiles(GameConfig.gameSaveFolder, "*" + GameSave.saveExt, SearchOption.TopDirectoryOnly);
+                    long[] times = new long[files.Length];
+                    string[] names = new string[files.Length];
+                    for (int j = 0; j < files.Length; j++)
+                    {
+                        FileInfo fileInfo = new(files[j]);
+                        times[j] = fileInfo.LastWriteTime.ToFileTime();
+                        names[j] = fileInfo.Name.Substring(0, fileInfo.Name.Length - GameSave.saveExt.Length);
+                    }                    
+                    if (files.Length > 0)
+                    {
+                        Array.Sort(times, names);
+                        saveName = names[files.Length - 1];
+                        Log.Info($">> Loading save {saveName}");
+                        NebulaWorld.GameStates.GameStatesManager.ImportedSaveName = saveName;
+                        didLoad = true;
+                    }
+                }
+
                 if (args[i] == "-ups" && i + 1 < args.Length)
                 {
                     if (int.TryParse(args[i + 1], out int value))
@@ -81,7 +100,14 @@ namespace NebulaPatcher
             {
                 if (loadArgExists)
                 {
-                    Log.Error($">> Can't find save with name {saveName}! Exiting...");
+                    if (saveName != string.Empty)
+                    {
+                        Log.Error($">> Can't find save with name {saveName}! Exiting...");
+                    }
+                    else
+                    {
+                        Log.Error($">> Can't find any save in the folder! Exiting...");
+                    }
                 }
                 else
                 {
