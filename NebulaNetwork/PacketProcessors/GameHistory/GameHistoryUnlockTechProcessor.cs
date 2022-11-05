@@ -12,34 +12,18 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
     {
         public override void ProcessPacket(GameHistoryUnlockTechPacket packet, NebulaConnection conn)
         {
-            Log.Info($"Unlocking tech (ID: {packet.TechId})");
             using (Multiplayer.Session.History.IsIncomingRequest.On())
             {
                 // Let the default method give back the items
                 GameMain.mainPlayer.mecha.lab.ManageTakeback();
 
-                // Update techState 
-                TechProto techProto = LDB.techs.Select(packet.TechId);
+                // Update techState
                 TechState techState = GameMain.history.techStates[packet.TechId];
-                if (techState.curLevel >= techState.maxLevel)
-                {
-                    techState.curLevel = techState.maxLevel;
-                    techState.hashUploaded = techState.hashNeeded;
-                    techState.unlocked = true;
-                }
-                else
-                {
-                    techState.curLevel++;
-                    techState.hashUploaded = 0L;
-                    techState.hashNeeded = techProto.GetHashNeeded(techState.curLevel);
-                }
-                // UnlockTech() unlocks tech to techState.maxLevel, so change it to curLevel temporarily
-                int maxLevl = techState.maxLevel;
-                techState.maxLevel = techState.curLevel;
+                Log.Info($"Unlocking tech={packet.TechId} local:{techState.curLevel} remote:{packet.Level}");
+                techState.curLevel = packet.Level;
                 GameMain.history.techStates[packet.TechId] = techState;
-                GameMain.history.UnlockTech(packet.TechId);
-                techState.maxLevel = maxLevl;
-                GameMain.history.techStates[packet.TechId] = techState;
+
+                GameMain.history.UnlockTechUnlimited(packet.TechId, false);
                 GameMain.history.DequeueTech();                
             }
         }
