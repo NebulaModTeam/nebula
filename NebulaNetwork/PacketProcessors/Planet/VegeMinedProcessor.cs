@@ -13,11 +13,12 @@ namespace NebulaNetwork.PacketProcessors.Planet
     {
         public override void ProcessPacket(VegeMinedPacket packet, NebulaConnection conn)
         {
-            if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null && GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.vegePool != null)
+            PlanetData planetData = GameMain.galaxy.PlanetById(packet.PlanetId);
+            PlanetFactory factory = planetData?.factory;
+            if (factory != null && factory?.vegePool != null)
             {
                 using (Multiplayer.Session.Planets.IsIncomingRequest.On())
                 {
-                    PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
                     if (packet.Amount == 0 && factory != null)
                     {
                         if (packet.IsVein)
@@ -26,8 +27,8 @@ namespace NebulaNetwork.PacketProcessors.Planet
                             VeinProto veinProto = LDB.veins.Select((int)veinData.type);
 
                             factory.RemoveVeinWithComponents(packet.VegeId);
-
-                            if (veinProto != null)
+                            
+                            if (veinProto != null && GameMain.localPlanet == planetData)
                             {
                                 VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
                                 VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true, 0, -1, -1L);
@@ -40,7 +41,7 @@ namespace NebulaNetwork.PacketProcessors.Planet
 
                             factory.RemoveVegeWithComponents(packet.VegeId);
 
-                            if (vegeProto != null)
+                            if (vegeProto != null && GameMain.localPlanet == planetData)
                             {
                                 VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
                                 VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true, 0, -1, -1L);
