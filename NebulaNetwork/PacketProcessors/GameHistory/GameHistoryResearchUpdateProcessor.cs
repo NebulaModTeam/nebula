@@ -2,6 +2,7 @@
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
+using NebulaWorld;
 
 namespace NebulaNetwork.PacketProcessors.GameHistory
 {
@@ -22,6 +23,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             state.hashUploaded = packet.HashUploaded;
             state.hashNeeded = packet.HashNeeded;
             data.techStates[data.currentTech] = state;
+            Multiplayer.Session.Statistics.TechHashedFor10Frames = packet.TechHashedFor10Frames;
         }
     }
 }

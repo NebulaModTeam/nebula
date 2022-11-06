@@ -28,6 +28,8 @@ namespace NebulaWorld.Statistics
         public bool IsStatisticsNeeded { get; set; }
         public long[] PowerEnergyStoredData { get; set; }
         public int FactoryCount { get; set; }
+        public int TechHashedFor10Frames { get; set; }
+
         private PlanetData[] planetDataMap;
         private Dictionary<int, int> factoryIndexMap;
 
