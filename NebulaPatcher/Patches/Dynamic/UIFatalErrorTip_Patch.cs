@@ -49,7 +49,10 @@ namespace NebulaPatcher.Patches.Dynamic
                     button.transform.localPosition = errorPanel.transform.Find("icon").localPosition + new Vector3(30, -35, 0); //-885 -30 //-855 -60
                     button.GetComponent<Image>().color = new Color(0.3113f, 0f, 0.0097f, 0.6f);
                     button.GetComponent<UIButton>().BindOnClickSafe(OnClick);
-                    button.GetComponent<UIButton>().tips = new UIButton.TipSettings();
+                    ref UIButton.TipSettings tips = ref button.GetComponent<UIButton>().tips;
+                    tips.tipTitle = "Copy & Close Error";
+                    tips.tipText = "Copy the message to clipboard and close error.";
+                    tips.corner = 1;
                 }
 
                 DedicatedServerReportError();
@@ -83,7 +86,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 stringBuilder.Append(Multiplayer.Session.LocalPlayer.IsHost ? " (Host)" : " (Client)");
             }
             stringBuilder.AppendLine();
-            stringBuilder.Append("Mods used: ");
+            stringBuilder.Append(Chainloader.PluginInfos.Values.Count + " Mods used: ");
             foreach (BepInEx.PluginInfo pluginInfo in Chainloader.PluginInfos.Values)
             {
                 stringBuilder.Append('[');
