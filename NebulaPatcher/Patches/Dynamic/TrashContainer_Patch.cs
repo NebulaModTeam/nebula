@@ -20,7 +20,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(TrashContainer.NewTrash))]
-        public static void NewTrash_Postfix(int __result, TrashObject trashObj, TrashData trashData)
+        public static void NewTrash_Postfix(TrashContainer __instance, int __result, TrashObject trashObj, TrashData trashData)
         {
             //Notify other that trash was created 
             if (Multiplayer.IsActive && !Multiplayer.Session.Trashes.NewTrashFromOtherPlayers)
@@ -28,6 +28,11 @@ namespace NebulaPatcher.Patches.Dynamic
                 //Refresh trash to assign local planet Id and local position
                 GameMain.data.trashSystem.Gravity(ref trashData, GameMain.data.galaxy.astrosData, 0, 0, 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.id : 0, (GameMain.data.localPlanet != null) ? GameMain.data.localPlanet.data : null);
                 Multiplayer.Session.Network.SendPacket(new TrashSystemNewTrashCreatedPacket(__result, trashObj, trashData, Multiplayer.Session.LocalPlayer.Id, GameMain.mainPlayer.planetId));
+            }
+            // Wait until WarningDataPacket to assign warningId
+            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                __instance.trashDataPool[__result].warningId = -1;
             }
         }
     }

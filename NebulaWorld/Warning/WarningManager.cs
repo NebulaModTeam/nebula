@@ -134,6 +134,10 @@ namespace NebulaWorld.Warning
                     bw.Write(data.localPos.x);
                     bw.Write(data.localPos.y);
                     bw.Write(data.localPos.z);
+
+                    int trashId = data.factoryId == WarningData.TRASH_SYSTEM ? data.objectId : -1;
+                    bw.Write(trashId);
+
                     activeWarningCount++;
                 }                
             }
@@ -158,14 +162,23 @@ namespace NebulaWorld.Warning
             //index start from 1 in warningPool
             for (int i = 1; i <= activeWarningCount; i++)
             {
+                // factoryId is not synced to skip WarningLogic update in client
                 warningPool[i].id = i;
                 warningPool[i].state = 1;
                 warningPool[i].signalId = br.ReadInt32();
                 warningPool[i].detailId = br.ReadInt32();
+                // localPos is base on astroId
                 warningPool[i].astroId = br.ReadInt32();
                 warningPool[i].localPos.x = br.ReadSingle();
                 warningPool[i].localPos.y = br.ReadSingle();
                 warningPool[i].localPos.z = br.ReadSingle();
+
+                // reassign warningId for trash
+                int trashId = br.ReadInt32();
+                if (trashId >= 0 && trashId < GameMain.data.trashSystem.container.trashCursor)
+                {
+                    GameMain.data.trashSystem.container.trashDataPool[trashId].warningId = i;                   
+                }
             }
         }
 
