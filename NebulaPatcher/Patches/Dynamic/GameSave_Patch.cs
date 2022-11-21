@@ -59,5 +59,30 @@ namespace NebulaPatcher.Patches.Dynamic
             // Only save if in single player, since multiplayer requires to load from the Load Save Window
             return (!Multiplayer.IsActive && !Multiplayer.IsLeavingGame);
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameSave.LoadCurrentGame))]
+        public static void LoadCurrentGame_Postfix(bool __result)
+        {
+            // If loading success, check and correct offset for all inserters
+            if (__result)
+            {
+                for (int index = 0; index < GameMain.data.factoryCount; index++)
+                {
+                    PlanetFactory factory = GameMain.data.factories[index];
+                    EntityData[] entityPool = factory.entityPool;
+                    CargoTraffic traffic = factory.factorySystem.traffic;
+                    BeltComponent[] beltPool = factory.factorySystem.traffic.beltPool;
+                    for (int i = 1; i < factory.factorySystem.inserterCursor; i++)
+                    {
+                        ref InserterComponent inserter = ref factory.factorySystem.inserterPool[i];
+                        if (inserter.id == i)
+                        {
+                            inserter.InternalOffsetCorrection(entityPool, traffic, beltPool);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
