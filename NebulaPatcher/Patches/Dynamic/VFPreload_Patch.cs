@@ -15,6 +15,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsDedicated)
             {
+                VFAudio.audioVolume = 0f;
                 NebulaModel.Utils.NativeInterop.HideWindow();
                 NebulaModel.Utils.NativeInterop.SetConsoleCtrlHandler();
                 // Logging to provide progression to user
@@ -56,7 +57,18 @@ namespace NebulaPatcher.Patches.Dynamic
 
             if (Multiplayer.IsDedicated)
             {
-                NebulaPlugin.StartDedicatedServer(NebulaWorld.GameStates.GameStatesManager.ImportedSaveName);
+                if (GameStatesManager.ImportedSaveName != null)
+                {
+                    NebulaPlugin.StartDedicatedServer(GameStatesManager.ImportedSaveName);
+                }
+                else if (GameStatesManager.NewGameDesc != null)
+                {
+                    NebulaPlugin.StartDedicatedServer(GameStatesManager.NewGameDesc);
+                }
+                else
+                {
+                    Log.Warn("No game start option provided!");
+                }
             }
         }
     }

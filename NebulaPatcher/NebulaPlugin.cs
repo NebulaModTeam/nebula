@@ -35,7 +35,8 @@ namespace NebulaPatcher
 
             // Read command-line arguments
             string[] args = Environment.GetCommandLineArgs();
-            (bool didLoad, bool loadArgExists, string saveName) = (false, false, string.Empty);
+            bool batchmode = false;
+            (bool didLoad, bool loadArgExists, bool newgameArgExists, string saveName) = (false, false, false, string.Empty);
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-server")
@@ -43,6 +44,39 @@ namespace NebulaPatcher
                     Multiplayer.IsDedicated = true;
                     Log.Info($">> Initializing dedicated server");
                 }
+
+                if (args[i] == "-batchmode")
+                {
+                    batchmode = true;
+                }
+
+                if (args[i] == "-newgame")
+                {
+                    newgameArgExists = true;
+                    if (i + 3 < args.Length)
+                    {
+                        if (!int.TryParse(args[i + 1], out int seed))
+                        {
+                            Log.Warn($">> Can't set galaxy seed: {args[i + 1]} is not a integer");
+                        }
+                        else if (!int.TryParse(args[i + 2], out int starCount))
+                        {
+                            Log.Warn($">> Can't set star count: {args[i + 2]} is not a integer");
+                        }
+                        else if (!float.TryParse(args[i + 3], out float resourceMultiplier))
+                        {
+                            Log.Warn($">> Can't set resource multiplier: {args[i + 3]} is not a floating point number");
+                        }
+                        else
+                        {
+                            Log.Info($">> Creating new game ({seed}, {starCount}, {resourceMultiplier:F1})");
+                            GameDesc gameDesc = new GameDesc();
+                            gameDesc.SetForNewGame(UniverseGen.algoVersion, seed, starCount, 1, resourceMultiplier);
+                            NebulaWorld.GameStates.GameStatesManager.NewGameDesc = gameDesc;
+                            didLoad = true;
+                        }
+                    }
+                } 
 
                 if (args[i] == "-load" && i + 1 < args.Length)
                 {
@@ -109,11 +143,23 @@ namespace NebulaPatcher
                         Log.Error($">> Can't find any save in the folder! Exiting...");
                     }
                 }
+                else if (newgameArgExists)
+                {
+                    Log.Error($">> New game parameters incorrect! Exiting...\nExpect: -newgame seed starCount resourceMltiplier");
+                }
                 else
                 {
-                    Log.Error(">> -load argument missing! Exiting...");
+                    Log.Error(">> -load or -newgame argument missing! Exiting...");
                 }
                 Application.Quit();
+            }
+
+            if (Multiplayer.IsDedicated)
+            {
+                if (!batchmode)
+                {
+                    Log.Warn("Dedicate server should start with -batchmode argument");
+                }
             }
 
             try
@@ -143,6 +189,25 @@ namespace NebulaPatcher
                 // Modified from DoLoadSelectedGame
                 Log.Info($"Starting dedicated server, loading save : {saveName}");
                 DSPGame.StartGame(saveName);
+                Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
+                Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
+                if (command_ups != 0)
+                {
+                    FPSController.SetFixUPS(command_ups);
+                }
+            }
+        }
+
+        public static void StartDedicatedServer(GameDesc gameDesc)
+        {
+            // Mimic UI buttons clicking
+            UIMainMenu_Patch.OnMultiplayerButtonClick();
+            if (gameDesc != null)
+            {
+                // Modified from DoLoadSelectedGame
+                Log.Info($"Starting dedicated server, create new game from parameters:");
+                Log.Info($"seed={gameDesc.galaxySeed} starCount={gameDesc.starCount} resourceMultiplier={gameDesc.resourceMultiplier:F1}");
+                DSPGame.StartGameSkipPrologue(gameDesc);
                 Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
                 Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
                 if (command_ups != 0)
