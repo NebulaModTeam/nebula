@@ -315,6 +315,16 @@ namespace NebulaNetwork
                     return;
                 }
 
+                if (e.Code == (ushort)DisconnectionReason.HostStillLoading)
+                {
+                    InGamePopup.ShowWarning(
+                        "Server Busy",
+                        "Server is not ready to join. Please try again later.",
+                        "OK".Translate(),
+                        Multiplayer.LeaveGame);
+                    return;
+                }
+
                 if (Multiplayer.Session.IsGameLoaded || Multiplayer.Session.IsInLobby)
                 {
                     InGamePopup.ShowWarning(
@@ -331,6 +341,7 @@ namespace NebulaNetwork
                 }
                 else
                 {
+                    Log.Warn("Disconnect code: " + e.Code + ", reason:" + e.Reason);
                     InGamePopup.ShowWarning(
                         "Server Unavailable",
                         $"Could not reach the server, please try again later.",
@@ -349,17 +360,11 @@ namespace NebulaNetwork
             }
         }
 
+        private readonly AccessTools.FieldRef<WebSocket, MemoryStream> fragmentsBufferRef = AccessTools.FieldRefAccess<WebSocket, MemoryStream>("_fragmentsBuffer");
         private int GetFragmentBufferLength()
         {
-            MemoryStream buffer = (MemoryStream)AccessTools.Field(typeof(WebSocket), "_fragmentsBuffer").GetValue(clientSocket);
-            if (buffer != null)
-            {
-                return (int)buffer.Length;
-            }
-            else
-            {
-                return 0;
-            }
+            MemoryStream fragmentsBuffer = fragmentsBufferRef(clientSocket);
+            return (int)(fragmentsBuffer?.Length ?? 0);
         }
     }
 }
