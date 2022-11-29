@@ -27,7 +27,11 @@ namespace NebulaWorld.MonoBehaviours.Remote
                 packetBuffer[i] = packetBuffer[i + 1];
             }
             packetBuffer[packetBuffer.Length - 1] = packet;
-            packet = packetBuffer[0];
+        }
+
+        private void Update()
+        {
+            PlayerMovement packet = packetBuffer[0];
             if (packet == null || PlayerAnimator == null)
             {
                 return;
