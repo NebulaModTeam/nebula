@@ -114,7 +114,7 @@ namespace NebulaWorld
 
         private static void CreateInputField(InputField.ContentType contentType, string text)
         {
-            GameObject inputObject = GameObject.Find("UI Root/Overlay Canvas/Nebula - Multiplayer Menu/galaxy-seed/InputField");
+            GameObject inputObject = GameObject.Find("UI Root/Overlay Canvas/Nebula - Multiplayer Menu/Host IP Address/InputField");
             inputObject = UnityEngine.Object.Instantiate(inputObject, displayedMessage.transform.Find("Window/Body/Client"));
             inputObject.name = "InputField";
             inputObject.transform.localPosition = new Vector3(-150, 0, 0);
