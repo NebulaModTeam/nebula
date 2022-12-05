@@ -24,6 +24,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory
             {
                 GameMain.data.history.Import(reader.BinaryReader);
             }
+            GameMain.sandboxToolsEnabled = packet.SandboxToolsEnabled;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
             {
                 GameMain.history.Export(writer.BinaryWriter);
-                conn.SendPacket(new GameHistoryDataResponse(writer.CloseAndGetBytes()));
+                conn.SendPacket(new GameHistoryDataResponse(writer.CloseAndGetBytes(), GameMain.sandboxToolsEnabled));
             }
 
             using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
