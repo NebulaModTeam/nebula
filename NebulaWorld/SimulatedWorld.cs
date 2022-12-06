@@ -167,7 +167,8 @@ namespace NebulaWorld
             {
                 player.Data.Mecha.SandCount = GameMain.mainPlayer.sandCount;
             }
-
+            // Set the name of local player in starmap from Icarus to user name
+            GameMain.mainPlayer.mecha.appearance.overrideName = " " + player.Data.Username + " ";
             // Finally we need add the local player components to the player character
             localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
             // ChatManager should continuous exsit until the game is closed
