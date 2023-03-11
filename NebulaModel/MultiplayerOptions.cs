@@ -75,14 +75,17 @@ namespace NebulaModel
 
         private bool _streamerMode = false;
         [DisplayName("Streamer mode")]
-        [Description("If enabled specific personal information like your IP address is hidden from the ingame chat.")]
+        [Description("If enabled specific personal information like your IP address is hidden from the ingame chat and input fields.")]
         public bool StreamerMode { 
             get => _streamerMode; 
             set { 
                 _streamerMode = value;
 
                 InputField ngrokAuthTokenInput = GameObject.Find("list/scroll-view/viewport/content/Network/NgrokAuthtoken")?.GetComponentInChildren<InputField>();
-                UpdateNgrokAuthtokenInputFieldContentType(ref ngrokAuthTokenInput);
+                UpdateInputFieldContentType(ref ngrokAuthTokenInput);
+
+                InputField hostIpInput = GameObject.Find("UI Root/Overlay Canvas/Nebula - Multiplayer Menu/Host IP Address/InputField")?.GetComponentInChildren<InputField>();
+                UpdateInputFieldContentType(ref hostIpInput);
             }
         }
 
@@ -127,19 +130,19 @@ namespace NebulaModel
             return MemberwiseClone();
         }
 
-        private void UpdateNgrokAuthtokenInputFieldContentType(ref InputField ngrokAuthTokenInput)
+        private void UpdateInputFieldContentType(ref InputField inputField)
         {
-            if (ngrokAuthTokenInput != null)
+            if (inputField != null)
             {
                 if (StreamerMode)
                 {
-                    ngrokAuthTokenInput.contentType = InputField.ContentType.Password;
+                    inputField.contentType = InputField.ContentType.Password;
                 }
                 else
                 {
-                    ngrokAuthTokenInput.contentType = InputField.ContentType.Standard;
+                    inputField.contentType = InputField.ContentType.Standard;
                 }
-                ngrokAuthTokenInput.UpdateLabel();
+                inputField.UpdateLabel();
             }
         }
 
@@ -149,7 +152,7 @@ namespace NebulaModel
             {
                 case _ngrokAuthtokenDisplayname:
                     {
-                        UpdateNgrokAuthtokenInputFieldContentType(ref inputField);
+                        UpdateInputFieldContentType(ref inputField);
                         break;
                     }
             }

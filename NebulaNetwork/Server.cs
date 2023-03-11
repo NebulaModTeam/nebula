@@ -130,6 +130,7 @@ namespace NebulaNetwork
             {
                 InGamePopup.ShowError("Error", "An error occurred while hosting the game: " + e.Message, "Close");
                 Stop();
+                Multiplayer.LeaveGame();
                 return;
             }
 

@@ -94,7 +94,7 @@ namespace NebulaWorld
             PlayerInstance = null;
             if (StarmapTracker != null)
             {
-                Object.Destroy(StarmapTracker);
+                Object.Destroy(StarmapTracker.gameObject);
             }
 
             if (StarmapNameText != null)

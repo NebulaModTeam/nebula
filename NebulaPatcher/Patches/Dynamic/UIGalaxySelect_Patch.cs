@@ -174,13 +174,19 @@ namespace NebulaPatcher.Patches.Dynamic
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIGalaxySelect._OnUpdate))]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        public static void _OnUpdate_Postfix()
+        public static void _OnUpdate_Postfix(UIGalaxySelect __instance)
         {
             if (Multiplayer.IsInMultiplayerMenu)
             {
                 // as we need to load and generate planets for the detail view in the lobby, update the loading process here
                 PlanetModelingManager.ModelingPlanetCoroutine();
                 UIRoot.instance.uiGame.planetDetail._OnUpdate();
+                if (Input.mouseScrollDelta.y != 0)
+                {
+                    // zoom in/out when scrolling
+                    float delta = (Input.mouseScrollDelta.y < 0 ? 1f : -1f) * (VFInput.shift ? 1f : 0.1f);
+                    __instance.cameraPoser.distRatio += delta;
+                }
             }
         }
 

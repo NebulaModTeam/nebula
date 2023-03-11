@@ -230,6 +230,24 @@ namespace NebulaPatcher.Patches.Transpilers
                 }
             }));
 
+            // show all star/planet name when alt is pressed
+            matcher.End()
+                .SetOpcodeAndAdvance(OpCodes.Ldarg_0)
+                .Insert(
+                    HarmonyLib.Transpilers.EmitDelegate<Action<UIVirtualStarmap>>((UIVirtualStarmap starmap) =>
+                    {
+                        if (VFInput.alt)
+                        {
+                            int count = starmap.clickText == "" ? starmap.starPool.Count : starmap.starPool[0].starData?.planetCount + 1 ?? 0;
+                            for (int i = 1; i < count; i++)
+                            {
+                                starmap.starPool[i].nameText.gameObject.SetActive(true);
+                            }
+                        }
+                    }),
+                    new CodeInstruction(OpCodes.Ret)
+                );
+
             return matcher.InstructionEnumeration();
         }
 

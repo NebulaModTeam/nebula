@@ -59,7 +59,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(UIMainMenu.OnUpdateLogButtonClick))]
-        public static void OnUpdateLogButtonClick_Postfix(UIMainMenu __instance)
+        public static void OnUpdateLogButtonClick_Postfix()
         {
             // Return to main menu when update log is opened
             OnMultiplayerBackButtonClick();
@@ -166,38 +166,55 @@ namespace NebulaPatcher.Patches.Dynamic
             Object.Destroy(multiplayerMenu.gameObject.GetComponent<UIGalaxySelect>());
 
             multiplayerMenu.gameObject.name = "Nebula - Multiplayer Menu";
-            multiplayerMenu.Find("star-count").gameObject.SetActive(false);
-            multiplayerMenu.Find("resource-multiplier").gameObject.SetActive(false);
-            multiplayerMenu.Find("right-group").gameObject.SetActive(false);
-            multiplayerMenu.Find("left-group").gameObject.SetActive(false);
-            multiplayerMenu.Find("property-multiplier").gameObject.SetActive(false);
-            multiplayerMenu.Find("seed-key").gameObject.SetActive(false);
-            multiplayerMenu.Find("sandbox-mode").gameObject.SetActive(false);
-
-            Transform topTitle = multiplayerMenu.Find("top-title");
-            topTitle.GetComponent<Localizer>().enabled = false;
-            topTitle.GetComponent<Text>().text = "Multiplayer";
-
-            Transform hostIpField = multiplayerMenu.Find("galaxy-seed");
-            hostIpField.GetComponent<Localizer>().enabled = false;
-            hostIpField.GetComponent<Text>().text = "Host IP Address";
-            hostIPAddressInput = hostIpField.GetComponentInChildren<InputField>();
-            hostIPAddressInput.onEndEdit.RemoveAllListeners();
-            hostIPAddressInput.onValueChanged.RemoveAllListeners();
-            //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
-            //256 will trigger an argument out of range exception
-            hostIPAddressInput.characterLimit = 255;
-
-            string ip = "127.0.0.1";
-            if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+            for (int i = 0; i < multiplayerMenu.childCount; i++)
             {
-                ip = Config.Options.LastIP;
-            }
-            hostIPAddressInput.text = ip;
+                Transform child = multiplayerMenu.GetChild(i);
+                if (child.name == "top-title")
+                {
+                    Transform topTitle = child;
+                    topTitle.GetComponent<Localizer>().enabled = false;
+                    topTitle.GetComponent<Text>().text = "Multiplayer";
+                }
+                else if (child.name == "galaxy-seed")
+                {
+                    Transform hostIpField = child;
+                    hostIpField.GetComponent<Localizer>().enabled = false;
+                    hostIpField.GetComponent<Text>().text = "Host IP Address";
+                    hostIpField.name = "Host IP Address";
+                    hostIPAddressInput = hostIpField.GetComponentInChildren<InputField>();
+                    hostIPAddressInput.onEndEdit.RemoveAllListeners();
+                    hostIPAddressInput.onValueChanged.RemoveAllListeners();
+                    //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
+                    //256 will trigger an argument out of range exception
+                    hostIPAddressInput.characterLimit = 255;
 
-            Transform passwordField = Object.Instantiate(hostIpField, hostIpField.parent, false);
-            passwordField.localPosition = multiplayerMenu.Find("star-count").localPosition;
+                    string ip = "127.0.0.1";
+                    if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+                    {
+                        ip = Config.Options.LastIP;
+                    }
+                    hostIPAddressInput.text = ip;
+                    hostIPAddressInput.contentType = Config.Options.StreamerMode ? InputField.ContentType.Password : InputField.ContentType.Standard;
+
+                }
+                else if (child.name == "start-button")
+                {
+                    OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
+                }
+                else if (child.name == "cancel-button")
+                {
+                    OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null, OnJoinGameBackButtonClick);
+                }
+                else
+                {
+                    // Remove all unused elements that may be added by other mods
+                    GameObject.Destroy(child.gameObject);
+                }
+            }
+            Transform passwordField = Object.Instantiate(multiplayerMenu.Find("Host IP Address"), multiplayerMenu, false);
+            passwordField.localPosition = galaxySelectTemplate.Find("star-count").localPosition;
             passwordField.GetComponent<Text>().text = "Password (optional)";
+            passwordField.name = "Password (optional)";
             passwordInput = passwordField.GetComponentInChildren<InputField>();
             passwordInput.contentType = InputField.ContentType.Password;
 
@@ -206,10 +223,6 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 passwordInput.text = Config.Options.LastClientPassword;
             }
-
-            OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
-            OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null, OnJoinGameBackButtonClick);
-            multiplayerMenu.Find("random-button").gameObject.SetActive(false);
 
             multiplayerMenu.gameObject.SetActive(false);
         }
@@ -293,7 +306,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static IEnumerator TryConnectToServer(string ip, int port, bool isIP, string password)
         {
-            InGamePopup.ShowInfo("Connecting", $"Connecting to server {ip}:{port}...", null, null);
+            InGamePopup.ShowInfo("Connecting", $"Connecting to server...", null, null);
             multiplayerMenu.gameObject.SetActive(false);
 
             // We need to wait here to have time to display the Connecting popup since the game freezes during the connection.
@@ -303,7 +316,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 InGamePopup.FadeOut();
                 //re-enabling the menu again after failed connect attempt
-                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to {hostIPAddressInput.text}", "OK");
+                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to server", "OK");
                 multiplayerMenu.gameObject.SetActive(true);
             }
             else
