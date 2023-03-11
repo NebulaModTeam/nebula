@@ -19,6 +19,12 @@ namespace NebulaNetwork.PacketProcessors.Trash
             {
                 GameMain.data.trashSystem.Import(reader.BinaryReader);
             }
+            // Wait until WarningDataPacket to assign warningId
+            TrashContainer container = GameMain.data.trashSystem.container;
+            for (int i = 0; i < container.trashCursor; i++)
+            {
+                container.trashDataPool[i].warningId = -1;
+            }
         }
     }
 }

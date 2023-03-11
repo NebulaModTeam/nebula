@@ -26,6 +26,14 @@ namespace NebulaPatcher.Patches.Dynamic
             Multiplayer.Session.Network.SendPacket(new GameHistoryEnqueueTechPacket(techId));
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
+        public static void RemoveTechInQueue_Prefix(int index, out int __state)
+        {
+            __state = GameMain.history.techQueue[index];
+            Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
         public static void RemoveTechInQueue_Postfix(int index, int __state)
@@ -119,12 +127,19 @@ namespace NebulaPatcher.Patches.Dynamic
             return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
-        public static void RemoveTechInQueue_Prefix(int index, out int __state)
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameHistoryData.NotifyTechUnlock))]
+        public static void NotifyTechUnlock_Postfix(int _techId, int _level)
         {
-            __state = GameMain.history.techQueue[index];
-            Log.Info($"RemoveTechInQueue: remove tech at index {index} with techId { __state}");
+            Log.Info($"NotifyTechUnlock techId={_techId} level={_level}");
+            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return;
+            }
+            // Synchronize unlocking techs
+            Log.Info($"Sending Tech Unlocked notification");
+            GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
+            Multiplayer.Session.Network.SendPacket(new GameHistoryUnlockTechPacket(_techId, _level));
         }
     }
 }

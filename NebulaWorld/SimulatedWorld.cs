@@ -137,6 +137,25 @@ namespace NebulaWorld
                         // If warp has unlocked, give new client few warpers
                         GameMain.mainPlayer.TryAddItemToPackage(1210, 5, 0, false);
                     }
+                    // Make new client spawn higher to avoid collision
+                    float magnitude = GameMain.mainPlayer.transform.localPosition.magnitude;
+                    if (magnitude > 0)
+                    {
+                        GameMain.mainPlayer.transform.localPosition *= (magnitude + 20f) / magnitude;
+                    }
+                }
+                else
+                {
+                    // Prevent old client from dropping into gas gaint
+                    PlanetData planet = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId);                    
+                    if (planet != null)
+                    {
+                        float altitude = GameMain.mainPlayer.transform.localPosition.magnitude - planet.realRadius;
+                        if (altitude > 5f || planet.type == EPlanetType.Gas)
+                        {
+                            GameMain.mainPlayer.movementState = EMovementState.Fly;
+                        }
+                    }
                 }
 
                 // Refresh Logistics Distributor traffic for player delivery package changes

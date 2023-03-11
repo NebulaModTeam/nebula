@@ -244,7 +244,7 @@ namespace NebulaNetwork
                     if (GameMain.data.history.currentTech != 0)
                     {
                         TechState state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
-                        SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded));
+                        SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded, state.hashNeeded, GameMain.statistics.techHashedFor10Frames));
                     }
                 }
 
