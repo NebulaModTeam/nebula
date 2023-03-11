@@ -1,5 +1,13 @@
 ## Changelog
 
+0.8.13:
+
+- @starfi5h: Fix compilation with 0.9.27.15466  
+- @starfi5h: Add -newgame launch option for dedicated server   
+
+<details>
+<summary>All changes</summary>
+
 0.8.12:
 
 - @PhantomGamers: Remove exe targeting to support game pass version  
@@ -239,3 +247,5 @@
 0.2.0:
 
 - initial release on thunderstore
+
+</details>
