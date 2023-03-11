@@ -14,6 +14,7 @@ Please do keep in mind that this mod is still in heavy development, it may still
 
 - Stable version of the mod can be downloaded from [Thunderstore](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) (Recommended).
 - If you want to install the latest version of the mod, you can install pre-release versions be following the [installation guide](https://github.com/hubastard/nebula/wiki/Installing-a-pre-release-version).
+- To connect, check [hosting and joining guide](https://github.com/hubastard/nebula/wiki/Hosting-and-Joining).
 
 ## API Documentation
 
@@ -25,9 +26,10 @@ The chat window can opened/closed using Alt + Backtick (configurable in game set
 
 ## What is the current status?
 
-The mod is in very early stages of development and still in a proof of concept state. Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.
+Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.
 
-Here is a short list of what is currently implemented
+<details>
+<summary>Here is a short list of what is currently implemented</summary>
 
 - [x] Server / Client communication
 - [x] Custom Multiplayer menu in-game
@@ -57,6 +59,8 @@ Here is a short list of what is currently implemented
 - [x] Foundation syncing (terrain deformation)
 - [x] Server state persistence
 - [x] Power network syncing
+
+</details>
 
 ## How can I contribute?
 

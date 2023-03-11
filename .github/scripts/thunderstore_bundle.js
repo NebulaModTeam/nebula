@@ -79,7 +79,7 @@ async function main() {
   copyApiIcon();
   copyReadme();
   copyApiReadme();
-  appendChangelog();
+  copyChangelog();
   appendApiChangelog();
   copyLicenses();
   copyApiLicense();
@@ -123,8 +123,8 @@ function generateManifest() {
       BEPINEX_DEPENDENCY,
       `nebula-${apiPluginInfo.name}-${apiPluginInfo.version}`,
       "PhantomGamers-IlLine-1.0.0",
-      "CommonAPI-CommonAPI-1.5.6",
-      "starfi5h-BulletTime-1.2.9",
+      "CommonAPI-CommonAPI-1.5.7",
+      "starfi5h-BulletTime-1.2.10",
     ],
     website_url: "https://github.com/hubastard/nebula"
   };
@@ -172,11 +172,8 @@ function copyApiReadme() {
   );
 }
 
-function appendChangelog() {
-  appendFileSync(
-    join(DIST_NEBULA_FOLDER, README_PATH),
-    "\n" + readFileSync(CHANGELOG_PATH)
-  );
+function copyChangelog() {
+  copyFileSync(CHANGELOG_PATH, join(DIST_NEBULA_FOLDER, CHANGELOG_PATH));
 }
 
 function appendApiChangelog() {
