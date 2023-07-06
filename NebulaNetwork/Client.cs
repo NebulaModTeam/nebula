@@ -257,8 +257,8 @@ namespace NebulaNetwork
                 if (e.Code == (ushort)DisconnectionReason.ModIsMissing)
                 {
                     InGamePopup.ShowWarning(
-                        "Mod Mismatch",
-                        $"You are missing mod {e.Reason}",
+                        "Mod Mismatch".Translate(),
+                        string.Format("You are missing mod {0}".Translate(), e.Reason),
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
@@ -267,8 +267,8 @@ namespace NebulaNetwork
                 if (e.Code == (ushort)DisconnectionReason.ModIsMissingOnServer)
                 {
                     InGamePopup.ShowWarning(
-                        "Mod Mismatch",
-                        $"Server is missing mod {e.Reason}",
+                        "Mod Mismatch".Translate(),
+                        string.Format("Server is missing mod {0}".Translate(), e.Reason),
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
@@ -278,8 +278,8 @@ namespace NebulaNetwork
                 {
                     string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
-                        "Mod Version Mismatch",
-                        $"Your mod {versions[0]} version is not the same as the Host version.\nYou:{versions[1]} - Remote:{versions[2]}",
+                        "Mod Version Mismatch".Translate(),
+                        string.Format("Your mod {0} version is not the same as the Host version.\nYou:{1} - Remote:{2}".Translate(), versions[0], versions[1], versions[2]),
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
@@ -289,8 +289,8 @@ namespace NebulaNetwork
                 {
                     string[] versions = e.Reason.Split(';');
                     InGamePopup.ShowWarning(
-                        "Game Version Mismatch",
-                        $"Your version of the game is not the same as the one used by the Host.\nYou:{versions[0]} - Remote:{versions[1]}",
+                        "Game Version Mismatch".Translate(),
+                        string.Format("Your version of the game is not the same as the one used by the Host.\nYou:{0} - Remote:{1}".Translate(), versions[0], versions[1]),
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
@@ -299,8 +299,8 @@ namespace NebulaNetwork
                 if (e.Code == (ushort)DisconnectionReason.ProtocolError && websocketAuthenticationFailure)
                 {
                     InGamePopup.AskInput(
-                        "Server Requires Password",
-                        "Server is protected. Please enter the correct password:",
+                        "Server Requires Password".Translate(),
+                        "Server is protected. Please enter the correct password:".Translate(),
                         InputField.ContentType.Password,
                         serverPassword,
                         (password) =>
@@ -318,8 +318,8 @@ namespace NebulaNetwork
                 if (e.Code == (ushort)DisconnectionReason.HostStillLoading)
                 {
                     InGamePopup.ShowWarning(
-                        "Server Busy",
-                        "Server is not ready to join. Please try again later.",
+                        "Server Busy".Translate(),
+                        "Server is not ready to join. Please try again later.".Translate(),
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                     return;
@@ -328,8 +328,8 @@ namespace NebulaNetwork
                 if (Multiplayer.Session.IsGameLoaded || Multiplayer.Session.IsInLobby)
                 {
                     InGamePopup.ShowWarning(
-                        "Connection Lost",
-                        $"You have been disconnected from the server.\n{e.Reason}",
+                        "Connection Lost".Translate(),
+                        "You have been disconnected from the server.".Translate() + "\n" + e.Reason,
                         "Quit",
                         Multiplayer.LeaveGame);
                     if (Multiplayer.Session.IsInLobby)
@@ -343,8 +343,8 @@ namespace NebulaNetwork
                 {
                     Log.Warn("Disconnect code: " + e.Code + ", reason:" + e.Reason);
                     InGamePopup.ShowWarning(
-                        "Server Unavailable",
-                        $"Could not reach the server, please try again later.",
+                        "Server Unavailable".Translate(),
+                        "Could not reach the server, please try again later.".Translate(),
                         "OK".Translate(),
                         Multiplayer.LeaveGame);
                 }

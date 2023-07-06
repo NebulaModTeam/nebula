@@ -81,11 +81,11 @@ namespace NebulaNetwork.PacketProcessors.Session
 
                 DSPGame.StartGameSkipPrologue(UIRoot.instance.galaxySelect.gameDesc);
 
-                InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
+                InGamePopup.ShowInfo("Loading".Translate(), "Loading state from server, please wait".Translate(), null);
             }
             else
             {
-                InGamePopup.ShowInfo("Please Wait", "The host is not ready to let you in, please wait!", "Okay");
+                InGamePopup.ShowInfo("Unavailable".Translate(), "The host is not ready to let you in, please wait!".Translate(), "OK".Translate());
             }
         }
     }

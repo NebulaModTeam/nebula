@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic
         public static void FixedUpdate_Postfix(int ___frame)
         {
             string content = GameStatesManager.FragmentSize > 0 ? GameStatesManager.LoadingMessage() : NebulaModel.Logger.Log.LastInfoMsg;
-            InGamePopup.UpdateMessage("Loading", "Loading state from server, please wait\n" + content);
+            InGamePopup.UpdateMessage("Loading".Translate(), "Loading state from server, please wait".Translate() + "\n" + content);
             if (Multiplayer.IsActive && ___frame >= 11)
             {
                 Multiplayer.Session.OnGameLoadCompleted();

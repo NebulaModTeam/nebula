@@ -87,11 +87,11 @@ namespace NebulaNetwork
                     }
                     catch (NatDeviceNotFoundException)
                     {
-                        Log.WarnInform("No UPnp or Pmp compatible/enabled NAT device found");
+                        Log.WarnInform("No UPnp or Pmp compatible/enabled NAT device found".Translate());
                     }
                     catch (MappingException)
                     {
-                        Log.WarnInform("Could not create UPnp or Pmp port mapping");
+                        Log.WarnInform("Could not create UPnp or Pmp port mapping".Translate());
                     }
                 });
             }
@@ -128,7 +128,7 @@ namespace NebulaNetwork
                 socket.Start();
             }catch(System.InvalidOperationException e)
             {
-                InGamePopup.ShowError("Error", "An error occurred while hosting the game: " + e.Message, "Close");
+                InGamePopup.ShowError("Error", "An error occurred while hosting the game: ".Translate() + e.Message, "Close".Translate());
                 Stop();
                 Multiplayer.LeaveGame();
                 return;
@@ -301,7 +301,7 @@ namespace NebulaNetwork
                 if (Multiplayer.Session.IsGameLoaded == false && Multiplayer.Session.IsInLobby == false)
                 {
                     // Reject any connection that occurs while the host's game is loading.
-                    Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.");
+                    Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading, "Host still loading, please try again later.".Translate());
                     return;
                 }
 

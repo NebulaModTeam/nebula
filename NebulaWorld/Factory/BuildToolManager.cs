@@ -115,7 +115,7 @@ namespace NebulaWorld.Factory
                     {
                         if (packet.PrebuildId != Multiplayer.Session.Factories.GetNextPrebuildId(packet.PlanetId))
                         {
-                            string warningText = $"(Desync) PrebuildId mismatch on {packet.PlanetId} planet: {packet.PrebuildId} != {Multiplayer.Session.Factories.GetNextPrebuildId(planet.factory)}. Please reconnect!";
+                            string warningText = string.Format("(Desync) PrebuildId mismatch {0} != {1} on planet {2}. Please reconnect!", packet.PrebuildId, Multiplayer.Session.Factories.GetNextPrebuildId(planet.factory), planet.displayName);
                             Log.WarnInform(warningText);
                             NebulaWorld.Warning.WarningManager.DisplayTemporaryWarning(warningText, 15000);
                         }
@@ -272,7 +272,7 @@ namespace NebulaWorld.Factory
             if ((now - LastCheckTime) < WAIT_TIME && LastPosition == pos)
             {
                 //Stop client from sending prebuilds at the same position
-                UIRealtimeTip.Popup("Please wait for server respond");
+                UIRealtimeTip.Popup("Please wait for server respond".Translate());
                 return false;
             }
             LastCheckTime = now;

@@ -49,7 +49,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     }
                     else
                     {
-                        InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", null);
+                        InGamePopup.ShowInfo("Loading".Translate(), string.Format("Loading Dyson sphere {0}, please wait".Translate(), starData.displayName), null);
                     }
                     // Restore comboBox back to original star
                     UIComboBox dysonBox = UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.dysonBox;

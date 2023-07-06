@@ -38,14 +38,20 @@ namespace NebulaPatcher.Patches.Dynamic
                 // show lobby hints if needed
                 if (Config.Options.ShowLobbyHints)
                 {
-                    InGamePopup.ShowInfo("The Lobby",
-                        "We changed the start of a new multiplayer game a bit and want to give you a quick overview of the new feature.\n\n" +
+                    string message;
+                    if ("Nebula_LobbyMessage".Translate() != "Nebula_LobbyMessage") // Translation exists
+                        message = "Nebula_LobbyMessage".Translate();
+                    else
+                        message = "We changed the start of a new multiplayer game a bit and want to give you a quick overview of the new feature.\n\n" +
                         "Clients can now join while the host is in the galaxy selection screen, and they will also land there if it is their first time connecting to the currently hosted save.\n\n" +
                         "You can now click on any star to bring up the solar system preview. From there you can click on any planet to bring up its details.\n" +
                         "Note that when using GalacticScale 2 this process can take a bit longer.\n\n" +
-                        "By clicking a planet while having its detail panel open you will set it as your birth planet.\n\n" +
-                        "By clicking into outer space you will go one detail level up.\n\n" +
-                        "We hope you enjoy this new feature!",
+                        "By clicking a planet while having its detail panel open you will set it as your birth planet.\n" +
+                        "By clicking into outer space you will go one detail level up. Scroll to zoom in/out. Press Alt to see star names.\n\n" +
+                        "We hope you enjoy this new feature!";
+
+                    InGamePopup.ShowInfo("The Lobby".Translate(),
+                        message,
                         "Okay, cool :)",
                         CloseLobbyInfo);
                 }

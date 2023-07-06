@@ -41,7 +41,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity
                     GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
                     if (packet.EntityId != -1 && packet.EntityId != NebulaWorld.Factory.FactoryManager.GetNextEntityId(planet.factory))
                     {
-                        string warningText = $"(Desync) EntityId mismatch {packet.EntityId} != {NebulaWorld.Factory.FactoryManager.GetNextEntityId(planet.factory)} on planet {planet.id}. Clients should reconnect!";
+                        string warningText = string.Format("(Desync) EntityId mismatch {0} != {1} on planet {2}. Clients should reconnect!".Translate(), packet.EntityId, NebulaWorld.Factory.FactoryManager.GetNextEntityId(planet.factory), planet.displayName);
                         Log.WarnInform(warningText);
                         NebulaWorld.Warning.WarningManager.DisplayTemporaryWarning(warningText, 5000);
                     }

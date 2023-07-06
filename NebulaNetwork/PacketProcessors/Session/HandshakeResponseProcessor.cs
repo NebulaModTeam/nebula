@@ -44,7 +44,7 @@ namespace NebulaNetwork.PacketProcessors.Session
             gameDesc.isSandboxMode = packet.IsSandboxMode;
             DSPGame.StartGameSkipPrologue(gameDesc);
 
-            InGamePopup.ShowInfo("Loading", "Loading state from server, please wait", null);
+            InGamePopup.ShowInfo("Loading".Translate(), "Loading state from server, please wait".Translate(), null);
 
             Multiplayer.Session.NumPlayers = packet.NumPlayers;
             DiscordManager.UpdateRichPresence(partyId: packet.DiscordPartyId);
