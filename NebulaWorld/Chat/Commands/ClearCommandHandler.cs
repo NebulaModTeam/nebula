@@ -26,7 +26,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string GetDescription()
         {
-            return "Clear all chat messages (locally)";
+            return "Clear all chat messages (locally)".Translate();
         }
     }
 }

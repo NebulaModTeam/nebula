@@ -33,7 +33,7 @@ namespace NebulaNetwork.PacketProcessors.Players
                 {
                     Log.Warn($"Recipient not found {packet.RecipientUsername}");
                     INebulaPlayer sender = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
-                    sender.SendPacket(new ChatCommandWhisperPacket("SYSTEM", packet.SenderUsername, $"User not found {packet.RecipientUsername}"));
+                    sender.SendPacket(new ChatCommandWhisperPacket("SYSTEM".Translate(), packet.SenderUsername, string.Format("User not found {0}".Translate(), packet.RecipientUsername)));
                     return;
                 }
 

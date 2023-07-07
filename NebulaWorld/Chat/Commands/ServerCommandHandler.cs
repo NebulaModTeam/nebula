@@ -11,7 +11,7 @@ namespace NebulaWorld.Chat.Commands
         {
             if (parameters.Length < 1)
             {
-                throw new ChatCommandUsageException("Not enough arguments!");
+                throw new ChatCommandUsageException("Not enough arguments!".Translate());
             }
             if (parameters[0] == "login")
             {
@@ -47,13 +47,13 @@ namespace NebulaWorld.Chat.Commands
             }
             else
             {
-                throw new ChatCommandUsageException("Unknown command! Available commands: {login, list, save, load, info}");
+                throw new ChatCommandUsageException("Unknown command! Available commands: {login, list, save, load, info}".Translate());
             }
         }
 
         public string GetDescription()
         {
-            return "Tell dedicated server to save/load";
+            return "Tell remote server to save/load".Translate();
         }
 
         public string[] GetUsage()

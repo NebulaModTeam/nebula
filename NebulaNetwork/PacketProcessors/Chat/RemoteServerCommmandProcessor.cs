@@ -25,12 +25,12 @@ namespace NebulaNetwork.PacketProcessors.Players
 
         public override void ProcessPacket(RemoteServerCommandPacket packet, NebulaConnection conn)
         {
-            string respond = "Unknown command";
+            string respond = "Unknown command".Translate();
 
             // Don't run remote save command if it is not available
             if (!Config.Options.RemoteAccessEnabled || !Multiplayer.IsDedicated || !IsHost)
             {
-                respond = "Remote server access is not enabled";
+                respond = "Remote server access is not enabled".Translate();
                 conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, respond, DateTime.Now, ""));
                 return;
             }
@@ -39,7 +39,7 @@ namespace NebulaNetwork.PacketProcessors.Players
             {
                 if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
                 {
-                    respond = "You need to login first!";
+                    respond = "You need to login first!".Translate();
                     conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, respond, DateTime.Now, ""));
                     return;
                 }
@@ -83,14 +83,14 @@ namespace NebulaNetwork.PacketProcessors.Players
         {
             if (allowedConnections.Contains(conn))
             {
-                return "You have already logged in";
+                return "You have already logged in".Translate();
             }
             if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
             {
                 int cdtime = SERVERLOGIN_COOLDOWN - (int)(DateTime.Now - LastLoginTime).TotalSeconds;
                 if (cdtime > 0)
                 {
-                    return $"Cooldown: {cdtime}s";
+                    return string.Format("Cooldown: {0}s".Translate(), cdtime);
                 }
                 LastLoginTime = DateTime.Now;
                 IPlayerData playerData = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn)?.Data;
@@ -98,11 +98,11 @@ namespace NebulaNetwork.PacketProcessors.Players
                 string hash = CryptoUtils.Hash(Config.Options.RemoteAccessPassword + salt);
                 if (hash != passwordHash)
                 {
-                    return "Password incorrect!";
+                    return "Password incorrect!".Translate();
                 }
             }
             allowedConnections.Add(conn);
-            return "Login success!";
+            return "Login success!".Translate();
         }
 
         private static string List(string numString)
@@ -126,7 +126,7 @@ namespace NebulaNetwork.PacketProcessors.Players
 
             Array.Sort(dates, names);
             StringBuilder sb = new();
-            sb.AppendLine($"Save list on server: ({num}/{files.Length})");
+            sb.AppendLine(string.Format("Save list on server: ({0}/{1})".Translate(), num, files.Length));
             for (int i = files.Length - num; i < files.Length; i++)
             {
                 sb.AppendLine($"{dates[i]} {names[i]}");
@@ -142,11 +142,11 @@ namespace NebulaNetwork.PacketProcessors.Players
                 // Save game and report result to the client
                 LastSaveTime = DateTime.Now;
                 saveName = string.IsNullOrEmpty(saveName) ? GameSave.LastExit : saveName;
-                return $"Save {saveName} : " + (GameSave.SaveCurrentGame(saveName) ? "Success" : "Fail");
+                return string.Format("Save {0} : {1}".Translate(), saveName, GameSave.SaveCurrentGame(saveName) ? "Success".Translate() : "Fail".Translate());
             }
             else
             {
-                return $"Cooldown: {countDown}s";
+                return string.Format("Cooldown: {0}s".Translate(), countDown);
             }
         }
 
@@ -154,7 +154,7 @@ namespace NebulaNetwork.PacketProcessors.Players
         {
             if (!GameSave.SaveExist(saveName))
             {
-                return $"{saveName} doesn't exist";
+                return string.Format("{0} doesn't exist".Translate(), saveName);
             }
 
             Log.Info($"Received command to load {saveName}");

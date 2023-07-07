@@ -34,7 +34,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string GetDescription()
         {
-            return "Test command";
+            return "Test command".Translate();
         }
 
         public string[] GetUsage()

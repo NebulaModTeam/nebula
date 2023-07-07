@@ -19,7 +19,7 @@ namespace NebulaWorld.Chat.Commands
 
                     PlanetData planet = GameMain.galaxy.PlanetById(astroID);
                     StarData star = GameMain.galaxy.StarById(astroID);
-                    window.SendLocalChatMessage("Starting navigation to " + ((planet != null) ? planet.displayName : star.displayName), ChatMessageType.CommandOutputMessage);
+                    window.SendLocalChatMessage("Starting navigation to ".Translate() + ((planet != null) ? planet.displayName : star.displayName), ChatMessageType.CommandOutputMessage);
                     return;
                 }
             }
@@ -28,7 +28,7 @@ namespace NebulaWorld.Chat.Commands
                 if(parameters[0] == "clear" || parameters[0] == "c")
                 {
                     GameMain.mainPlayer.navigation.indicatorAstroId = 0;
-                    window.SendLocalChatMessage("navigation cleared", ChatMessageType.CommandOutputMessage);
+                    window.SendLocalChatMessage("navigation cleared".Translate(), ChatMessageType.CommandOutputMessage);
                     return;
                 }
                 if(parameters[0] == "player" || parameters[0] == "p")
@@ -46,7 +46,7 @@ namespace NebulaWorld.Chat.Commands
                                 {
                                     // handle indicator position update in RemotePlayerMovement.cs
                                     GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + ID;
-                                    window.SendLocalChatMessage("Starting navigation to " + model.Value.Movement.Username, ChatMessageType.CommandOutputMessage);
+                                    window.SendLocalChatMessage("Starting navigation to ".Translate() + model.Value.Movement.Username, ChatMessageType.CommandOutputMessage);
                                     return;
                                 }
                             }
@@ -63,7 +63,7 @@ namespace NebulaWorld.Chat.Commands
                                 {
                                     // handle indicator position update in RemotePlayerMovement.cs
                                     GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
-                                    window.SendLocalChatMessage("Starting navigation to " + model.Value.Movement.Username, ChatMessageType.CommandOutputMessage);
+                                    window.SendLocalChatMessage("Starting navigation to ".Translate() + model.Value.Movement.Username, ChatMessageType.CommandOutputMessage);
                                     return;
                                 }
                             }
@@ -84,19 +84,19 @@ namespace NebulaWorld.Chat.Commands
                         if(planet.displayName == parameters[0])
                         {
                             GameMain.mainPlayer.navigation.indicatorAstroId = planet.id;
-                            window.SendLocalChatMessage("Starting navigation to " + planet.displayName, ChatMessageType.CommandOutputMessage);
+                            window.SendLocalChatMessage("Starting navigation to ".Translate() + planet.displayName, ChatMessageType.CommandOutputMessage);
                             return;
                         }
                     }
                 }
             }
 
-            window.SendLocalChatMessage("Failed to start navigation, please check your input.", ChatMessageType.CommandErrorMessage);
+            window.SendLocalChatMessage("Failed to start navigation, please check your input.".Translate(), ChatMessageType.CommandErrorMessage);
         }
 
         public string GetDescription()
         {
-            return "Start navigating to a specified destination";
+            return "Start navigating to a specified destination".Translate();
         }
         public string[] GetUsage()
         {
