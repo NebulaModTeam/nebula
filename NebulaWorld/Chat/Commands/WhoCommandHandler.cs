@@ -3,6 +3,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using NebulaWorld.MonoBehaviours.Local;
 using System.Text;
+using static NebulaWorld.Chat.NavigateChatLinkHandler;
 
 namespace NebulaWorld.Chat.Commands
 {
@@ -26,9 +27,9 @@ namespace NebulaWorld.Chat.Commands
 
         public string GetDescription()
         {
-            return "List all players";
+            return "List all players and their locations".Translate();
         }
-        
+
         public string[] GetUsage()
         {
             return new string[] { "" };
@@ -36,7 +37,7 @@ namespace NebulaWorld.Chat.Commands
 
         public static string BuildResultPayload(IPlayerData[] allPlayers, ILocalPlayer hostPlayer)
         {
-            StringBuilder sb = new StringBuilder($"/who results: ({allPlayers.Length} players)\r\n");
+            StringBuilder sb = new StringBuilder(string.Format("/who results: ({0} players)\r\n".Translate(), allPlayers.Length));
             foreach (IPlayerData playerData in allPlayers)
             {
                 sb.Append(BuildWhoMessageTextForPlayer(playerData, hostPlayer)).Append("\r\n");
@@ -47,10 +48,10 @@ namespace NebulaWorld.Chat.Commands
 
         private static string BuildWhoMessageTextForPlayer(IPlayerData playerData, ILocalPlayer localPlayer)
         {
-            StringBuilder sb = new StringBuilder($"Player {playerData.Username} ({playerData.PlayerId})");
+            StringBuilder sb = new StringBuilder(string.Format("[{0}] {1}", playerData.PlayerId, FormatNavigateString(playerData.Username)));
             if (localPlayer.Id == playerData.PlayerId)
             {
-                sb.Append(" (host)");
+                sb.Append(" (host)".Translate());
             }
 
             string playerPlanetString = null;
@@ -59,7 +60,7 @@ namespace NebulaWorld.Chat.Commands
                 PlanetData playerPlanet = GameMain.galaxy.PlanetById(playerData.LocalPlanetId);
                 if (playerPlanet != null)
                 {
-                    playerPlanetString = $", planet {playerPlanet.name}";
+                    playerPlanetString = ", " + playerPlanet.name;
                 }
             }
 
@@ -69,7 +70,7 @@ namespace NebulaWorld.Chat.Commands
                 StarData starData = GameMain.galaxy.StarById(playerData.LocalStarId);
                 if (starData != null)
                 {
-                    playerSystemString = $", in system {starData.name}";
+                    playerSystemString = ", " + starData.name;
                 }
             }
 
@@ -80,7 +81,7 @@ namespace NebulaWorld.Chat.Commands
             }
             else
             {
-                sb.Append(", in space");
+                sb.Append(", in space".Translate());
             }
 
             if (!string.IsNullOrWhiteSpace(playerSystemString))
@@ -89,7 +90,7 @@ namespace NebulaWorld.Chat.Commands
             }
             else
             {
-                sb.Append($", at coordinates {playerData.UPosition}");
+                sb.Append(", at coordinates ".Translate() + playerData.UPosition);
             }
 
             return sb.ToString();
