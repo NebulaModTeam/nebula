@@ -14,7 +14,6 @@ namespace NebulaPatcher.Patches.Dynamic
             if (Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value && objId > 0)
             {
                 Vector3 pos = __instance.planet.factory.entityPool[objId].pos;
-                NebulaModel.Logger.Log.Debug((pos - GameMain.mainPlayer.position).sqrMagnitude + " " + (__instance.planet.radius * __instance.planet.radius / 4));
                 if ((pos - GameMain.mainPlayer.position).sqrMagnitude > (__instance.planet.radius * __instance.planet.radius / 4))
                 {
                     // Don't make sounds if distance is over half of the planet radius
