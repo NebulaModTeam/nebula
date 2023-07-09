@@ -77,7 +77,7 @@ namespace NebulaWorld.Chat
         public string GetDisplayRichText(string data)
         {
             int signalId = GetSignalId(data);
-            if (signalId <= 0) return "";
+            if (signalId <= 0) return string.Empty;
 
             return $"<link=\"signal {signalId}\">[<sprite name=\"{signalId}\"> <color=\"green\">{ProtoUtils.GetSignalDisplayName(signalId)}</color>]</link>";
         }

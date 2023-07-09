@@ -25,7 +25,7 @@ namespace NebulaWorld.Chat
         }
         public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
         {
-            if (!data.Equals(""))
+            if (!string.IsNullOrEmpty(data))
             {
                 UpdateTip(trigger, ref tipObject);
             }
@@ -60,7 +60,7 @@ namespace NebulaWorld.Chat
                 buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2, offset, 0, rect, "", "");
             }
 
-            if (buttonTip != null && buttonTip.isActiveAndEnabled && !buttonTip.titleComp.Equals("Navigate"))
+            if (buttonTip.isActiveAndEnabled && !buttonTip.titleComp.text.Equals("Navigate"))
             {
                 buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2, offset, 0, rect, "", "");
             }
@@ -69,7 +69,7 @@ namespace NebulaWorld.Chat
 
         public string GetIconName(string data)
         {
-            return "";
+            return string.Empty;
         }
         public string GetDisplayRichText(string data)
         {

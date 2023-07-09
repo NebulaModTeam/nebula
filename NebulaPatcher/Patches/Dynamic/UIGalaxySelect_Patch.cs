@@ -48,7 +48,7 @@ namespace NebulaPatcher.Patches.Dynamic
                         "Note that when using GalacticScale 2 this process can take a bit longer.\n\n" +
                         "By clicking a planet while having its detail panel open you will set it as your birth planet.\n" +
                         "By clicking into outer space you will go one detail level up. Scroll to zoom in/out. Press Alt to see star names.\n\n" +
-                        "We hope you enjoy this new feature!";
+                        "Alt + ~ can open in-game chat. We hope you enjoy this new feature!";
 
                     InGamePopup.ShowInfo("The Lobby".Translate(),
                         message,

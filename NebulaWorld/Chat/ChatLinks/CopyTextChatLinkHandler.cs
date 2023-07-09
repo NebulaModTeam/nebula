@@ -16,7 +16,7 @@ namespace NebulaWorld.Chat
 
         public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
         {
-            if (!data.Equals(""))
+            if (!string.IsNullOrEmpty(data))
             {
                 UpdateTip(trigger, ref tipObject);
             }
@@ -51,7 +51,7 @@ namespace NebulaWorld.Chat
                 buttonTip.SetTip(false, "Copy".Translate(), "Click to copy to clipboard".Translate(), Corner, offset, 0, rect, "", "");
             }
 
-            if (buttonTip != null && buttonTip.isActiveAndEnabled && !buttonTip.titleComp.Equals("Copy"))
+            if (buttonTip.isActiveAndEnabled && !buttonTip.titleComp.text.Equals("Copy"))
             {
                 buttonTip.SetTip(false, "Copy".Translate(), "Click to copy to clipboard".Translate(), Corner, offset, 0, rect, "", "");
             }
