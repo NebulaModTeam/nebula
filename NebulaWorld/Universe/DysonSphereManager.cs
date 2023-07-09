@@ -153,7 +153,7 @@ namespace NebulaWorld.Universe
             ClearSelection(starIndex);
             if (showInfo)
             {
-                InGamePopup.ShowInfo("Loading", $"Loading Dyson sphere {starData.displayName}, please wait...", null);
+                InGamePopup.ShowInfo("Loading".Translate(), string.Format("Loading Dyson sphere {0}, please wait".Translate(), starData.displayName), null);
             }
         }
 
@@ -186,8 +186,8 @@ namespace NebulaWorld.Universe
                 if (IsNormal)
                 {
                     IsNormal = false;
-                    InGamePopup.ShowWarning("Desync", $"Dyson sphere id[{starIndex}] {GameMain.galaxy.stars[starIndex].displayName} is desynced.",
-                        "Reload", () => RequestDysonSphere(starIndex));
+                    InGamePopup.ShowWarning("Desync".Translate(), string.Format("Dyson sphere id[{0}] {1} is desynced.".Translate(), starIndex, GameMain.galaxy.stars[starIndex].displayName),
+                        "Reload".Translate(), () => RequestDysonSphere(starIndex));
                 }
             }
         }

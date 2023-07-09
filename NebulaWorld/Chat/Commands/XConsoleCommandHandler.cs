@@ -16,7 +16,7 @@ namespace NebulaWorld.Chat.Commands
                 string output = xConsole.consoleText;
                 if (output.EndsWith("Bad command.</color>\r\n"))
                 {
-                    output = $">> {commandText}\n>> Bad command. Use /x -help to get list of known commands.";
+                    output = $">> {commandText}\n" + ">> Bad command. Use /x -help to get list of known commands.".Translate();
                     window.SendLocalChatMessage(output, ChatMessageType.CommandErrorMessage);
                 }
                 else
@@ -30,7 +30,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string GetDescription()
         {
-            return "Execute developer console command";
+            return "Execute developer console command".Translate();
         }
 
         public string[] GetUsage()

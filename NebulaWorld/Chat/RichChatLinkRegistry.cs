@@ -80,6 +80,7 @@ namespace NebulaWorld.Chat
         {
             RegisterChatLinkHandler("signal", new SignalChatLinkHandler());
             RegisterChatLinkHandler("copytext", new CopyTextChatLinkHandler());
+            RegisterChatLinkHandler("navigate", new NavigateChatLinkHandler());
         }
     }
 }

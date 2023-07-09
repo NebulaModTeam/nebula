@@ -10,7 +10,7 @@ namespace NebulaWorld.Chat.Commands
         {
             if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
             {
-                window.SendLocalChatMessage("This command can only be used in multiplayer and as client!", ChatMessageType.CommandErrorMessage);
+                window.SendLocalChatMessage("This command can only be used in multiplayer and as client!".Translate(), ChatMessageType.CommandErrorMessage);
                 return;
             }
             GameStatesManager.DoFastReconnect();
@@ -23,7 +23,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string GetDescription()
         {
-            return "performs a reconnect.";
+            return "Perform a reconnect.".Translate();
         }
     }
 }

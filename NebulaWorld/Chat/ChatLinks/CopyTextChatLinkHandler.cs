@@ -16,7 +16,7 @@ namespace NebulaWorld.Chat
 
         public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
         {
-            if (!data.Equals(""))
+            if (!string.IsNullOrEmpty(data))
             {
                 UpdateTip(trigger, ref tipObject);
             }
@@ -36,7 +36,7 @@ namespace NebulaWorld.Chat
             UIButtonTip buttonTip = tipObject as UIButtonTip;
             if (buttonTip == null)
             {
-                buttonTip = UIButtonTip.Create(false, "Copy", "Click to copy to clipboard", Corner, offset, 0, rect, "", "");
+                buttonTip = UIButtonTip.Create(false, "Copy".Translate(), "Click to copy to clipboard".Translate(), Corner, offset, 0, rect, "", "");
                 if (tipObject != null)
                 {
                     Object.Destroy(tipObject.gameObject);
@@ -48,12 +48,12 @@ namespace NebulaWorld.Chat
             if (!buttonTip.gameObject.activeSelf)
             {
                 buttonTip.gameObject.SetActive(true);
-                buttonTip.SetTip(false, "Copy", "Click to copy to clipboard", Corner, offset, 0, rect, "", "");
+                buttonTip.SetTip(false, "Copy".Translate(), "Click to copy to clipboard".Translate(), Corner, offset, 0, rect, "", "");
             }
 
-            if (buttonTip != null && buttonTip.isActiveAndEnabled && !buttonTip.titleComp.Equals("Copy"))
+            if (buttonTip.isActiveAndEnabled && !buttonTip.titleComp.text.Equals("Copy"))
             {
-                buttonTip.SetTip(false, "Copy", "Click to copy to clipboard", Corner, offset, 0, rect, "", "");
+                buttonTip.SetTip(false, "Copy".Translate(), "Click to copy to clipboard".Translate(), Corner, offset, 0, rect, "", "");
             }
         }
         

@@ -18,7 +18,7 @@ namespace NebulaWorld.Chat.Commands
         {
             if (!Multiplayer.IsActive)
             {
-                window.SendLocalChatMessage("This command can only be used in multiplayer!", ChatMessageType.CommandErrorMessage);
+                window.SendLocalChatMessage("This command can only be used in multiplayer!".Translate(), ChatMessageType.CommandErrorMessage);
                 return;
             }
             
@@ -29,10 +29,10 @@ namespace NebulaWorld.Chat.Commands
                 string output = GetServerInfoText(
                     server, 
                     new IPUtils.IpInfo {
-                        LANAddress = "Pending...",
-                        WANv4Address = "Pending...",
-                        WANv6Address = "Pending...",
-                        PortStatus = "Pending...",
+                        LANAddress = "Pending...".Translate(),
+                        WANv4Address = "Pending...".Translate(),
+                        WANv6Address = "Pending...".Translate(),
+                        PortStatus = "Pending...".Translate(),
                         DataState = IPUtils.DataState.Unset
                     }, 
                     full
@@ -56,38 +56,38 @@ namespace NebulaWorld.Chat.Commands
 
         public static string GetServerInfoText(IServer server, IPUtils.IpInfo ipInfo, bool full)
         {
-            StringBuilder sb = new("Server info:");
+            StringBuilder sb = new("Server info:".Translate());
 
             string lan = ipInfo.LANAddress;
             if (IPUtils.IsIPv4(lan))
             {
                 lan = $"{FormatCopyString($"{ipInfo.LANAddress}:{server.Port}")}";
             }
-            sb.Append($"\n  Local IP address: {lan}");
+            sb.Append("\n  ").Append("Local IP address: ".Translate()).Append(lan);
 
             string wanv4 = ipInfo.WANv4Address;
             if(IPUtils.IsIPv4(wanv4))
             {
                 wanv4 = $"{FormatCopyString($"{ipInfo.WANv4Address}:{server.Port}", true, IPFilter)}";
             }
-            sb.Append($"\n  WANv4 IP address: {wanv4}");
+            sb.Append("\n  ").Append("WANv4 IP address: ".Translate()).Append(wanv4);
 
             string wanv6 = ipInfo.WANv6Address;
             if (IPUtils.IsIPv6(wanv6))
             {
                 wanv6 = $"{FormatCopyString($"{ipInfo.WANv6Address}:{server.Port}", true, IPFilter)}";
             }
-            sb.Append($"\n  WANv6 IP address: {wanv6}");
+            sb.Append("\n  ").Append("WANv6 IP address: ".Translate()).Append(wanv6);
 
             if (server.NgrokEnabled)
             {
                 if (server.NgrokActive)
                 {
-                    sb.Append($"\n  Ngrok address: {FormatCopyString(server.NgrokAddress, true, NgrokAddressFilter)}");
+                    sb.Append("\n  ").Append("Ngrok address: ".Translate()).Append(FormatCopyString(server.NgrokAddress, true, NgrokAddressFilter));
                 }
                 else
                 {
-                    sb.Append($"\n  Ngrok address: Tunnel Inactive!");
+                    sb.Append("\n ").Append("Ngrok address: Tunnel Inactive!".Translate());
                 }
 
                 if (server.NgrokLastErrorCode != null)
@@ -96,26 +96,27 @@ namespace NebulaWorld.Chat.Commands
                 }
             }
 
-            sb.Append($"\n  Port status: {ipInfo.PortStatus}");
-            sb.Append($"\n  Data State: {ipInfo.DataState}");
+            sb.Append("\n  ").Append("Port status: ".Translate()).Append(ipInfo.PortStatus);
+            sb.Append("\n  ").Append("Data state: ".Translate()).Append(ipInfo.DataState);
             TimeSpan timeSpan = DateTime.Now.Subtract(Multiplayer.Session.StartTime);
-            sb.Append($"\n  Uptime: {(int) Math.Round(timeSpan.TotalHours)}:{timeSpan.Minutes}:{timeSpan.Seconds} up");
+            sb.Append("\n  ").Append("Uptime: ".Translate()).Append($"{(int) Math.Round(timeSpan.TotalHours)}:{timeSpan.Minutes}:{timeSpan.Seconds}");
 
-            sb.Append("\n\nGame info:");
-            sb.Append($"\n  Game Version: {GameConfig.gameVersion.ToFullString()}");
-            sb.Append($"\n  Mod Version: {ThisAssembly.AssemblyFileVersion}");
+            sb.Append("\n\n").Append("Game info:".Translate());
+            sb.Append("\n  ").Append("Game Version: ".Translate()).Append(GameConfig.gameVersion.ToFullString());
+            sb.Append("\n  ").Append("Mod Version: ".Translate()).Append(ThisAssembly.AssemblyFileVersion);
 
             if (full)
             {
-                sb.Append("\n\nMods installed:");
+                sb.Append("\n\n").Append("Mods installed:".Translate());
+                int index = 1;
                 foreach (var kv in Chainloader.PluginInfos)
                 {
-                    sb.Append($"\n  {kv.Key} - {kv.Value.Metadata.Version}");
+                    sb.Append($"\n[{index++:D2}] {kv.Value.Metadata.Name} - {kv.Value.Metadata.Version}");
                 }
             }
             else
             {
-                sb.Append($"\nUse '{ChatCommandRegistry.CommandPrefix}info full' to see mod list.");
+                sb.Append('\n').Append("Use '/info full' to see mod list.".Translate());
             }
 
             return sb.ToString();
@@ -123,25 +124,26 @@ namespace NebulaWorld.Chat.Commands
 
         private static string GetClientInfoText(IClient client, bool full)
         {
-            StringBuilder sb = new("Client info:");
+            StringBuilder sb = new("Client info:".Translate());
 
             string ipAddress = client.ServerEndpoint.ToString();
 
-            sb.Append($"\n  Host IP address: {FormatCopyString(ipAddress, true)}");
-            sb.Append($"\n  Game Version: {GameConfig.gameVersion.ToFullString()}");
-            sb.Append($"\n  Mod Version: {ThisAssembly.AssemblyFileVersion}");
+            sb.Append("\n  ").Append("Host IP address: ".Translate()).Append(FormatCopyString(ipAddress, true));
+            sb.Append("\n  ").Append("Game Version: ".Translate()).Append(GameConfig.gameVersion.ToFullString());
+            sb.Append("\n  ").Append("Mod Version: ".Translate()).Append(ThisAssembly.AssemblyFileVersion);
 
             if (full)
             {
-                sb.Append("\n\nMods installed:");
+                sb.Append("\n\n").Append("Mods installed:".Translate());
+                int index = 1;
                 foreach (var kv in Chainloader.PluginInfos)
                 {
-                    sb.Append($"\n  {kv.Key} - {kv.Value.Metadata.Version}");
+                    sb.Append($"\n[{index++:D2}] {kv.Value.Metadata.Name} - {kv.Value.Metadata.Version}");
                 }
             }
             else
             {
-                sb.Append($"\nUse '{ChatCommandRegistry.CommandPrefix}info full' to see mod list.");
+                sb.Append('\n').Append("Use '/info full' to see mod list.".Translate());
             }
 
             return sb.ToString();
@@ -201,7 +203,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string GetDescription()
         {
-            return "Get information about server";
+            return "Get information about server".Translate();
         }
         
         public string[] GetUsage()

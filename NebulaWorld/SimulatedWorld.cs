@@ -201,7 +201,7 @@ namespace NebulaWorld
                 IsPlayerJoining = true;
                 Multiplayer.Session.CanPause = true;
                 GameMain.isFullscreenPaused = true;
-                InGamePopup.ShowInfo("Loading", Username + " joining the game, please wait\n(Use BulletTime mod to unfreeze the game)", null);
+                InGamePopup.ShowInfo("Loading".Translate(), string.Format("{0} joining the game, please wait\n(Use BulletTime mod to unfreeze the game)".Translate(), Username), null);
             }
         }
 
@@ -274,7 +274,7 @@ namespace NebulaWorld
 
                     // Show conneted message
                     string planetname = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
-                    string message = string.Format("[{0:HH:mm}] {1} connected ({2})", DateTime.Now, playerData.Username, planetname);
+                    string message = string.Format("[{0:HH:mm}] {1} connected ({2})".Translate(), DateTime.Now, playerData.Username, planetname);
                     SendChatMessage(message, ChatMessageType.SystemInfoMessage);
                 }
             }
@@ -287,7 +287,7 @@ namespace NebulaWorld
                 if (remotePlayersModels.TryGetValue(playerId, out RemotePlayerModel player))
                 {
                     // Show disconnected message
-                    string message = string.Format("[{0:HH:mm}] {1} disconnected", DateTime.Now, player.Username);
+                    string message = string.Format("[{0:HH:mm}] {1} disconnected".Translate(), DateTime.Now, player.Username);
                     SendChatMessage(message, ChatMessageType.SystemInfoMessage);
 
                     player.Destroy();

@@ -28,21 +28,21 @@ namespace NebulaWorld.Chat.Commands
                 {
                     foreach (PlanetData planet in star.planets)
                     {
-                        resp += planet.displayName + " (" + planet.id + ")" + ((planet.orbitAroundPlanet != null) ? " (moon)" : "") + "\r\n";
+                        resp += planet.displayName + " (" + planet.id + ")" + ((planet.orbitAroundPlanet != null) ? " (moon)".Translate() : "") + "\r\n";
                     }
                 }
             }
 
             if (resp == "")
             {
-                resp = "Could not find given star '" + input + "'";
+                resp = string.Format("Could not find given star '{0}'".Translate(), input);
             }
 
             window.SendLocalChatMessage(resp, ChatMessageType.CommandOutputMessage);
         }
         public string GetDescription()
         {
-            return "List planets in a system";
+            return "List planets in a system".Translate();
         }
         public string[] GetUsage()
         {

@@ -27,7 +27,7 @@ namespace NebulaPatcher.Patches.Dynamic
         {
             if (Multiplayer.IsActive)
             {
-                InGamePopup.ShowInfo("Access Denied", "Milky Way is disabled in multiplayer game.", "OK");
+                InGamePopup.ShowInfo("Unavailable".Translate(), "Milky Way is disabled in multiplayer game.".Translate(), "OK".Translate());
                 return false;
             }
             return true;

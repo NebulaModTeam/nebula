@@ -88,7 +88,7 @@ namespace NebulaPatcher.Patches.Dynamic
             // Update multiplayer tab text
             Text tabText = multiplayerTab.GetComponentInChildren<Text>();
             tabText.GetComponent<Localizer>().enabled = false;
-            tabText.text = "Multiplayer";
+            tabText.text = "Multiplayer".Translate();
             Text[] tabTexts = __instance.tabTexts;
             Text[] newTabTexts = tabTexts.AddToArray(tabText);
             __instance.tabTexts = newTabTexts;
@@ -145,7 +145,7 @@ namespace NebulaPatcher.Patches.Dynamic
             subtabButtons.Add(subtab.GetComponent<UIButton>());
             subtab.name = $"tab-button-{subtabButtons.Count}";
             Text subtabText = subtab.GetComponentInChildren<Text>();
-            subtabText.text = "General";
+            subtabText.text = "General".Translate();
             subtabTexts.Add(subtabText);
             subtabTemplate = subtab;
             subtabContents.Add(new GameObject("General").transform);
@@ -279,10 +279,10 @@ namespace NebulaPatcher.Patches.Dynamic
                     int index = 0;
                     if (categoryAttribute != null)
                     {
-                        index = subtabTexts.FindIndex((text) => text.text == categoryAttribute.Category);
+                        index = subtabTexts.FindIndex((text) => text.text.Translate() == categoryAttribute.Category.Translate());
                         if (index == -1)
                         {
-                            CreateSubtab(categoryAttribute.Category);
+                            CreateSubtab(categoryAttribute.Category.Translate());
                             index = subtabTexts.Count - 1;
                         }
                     }
@@ -342,7 +342,7 @@ namespace NebulaPatcher.Patches.Dynamic
                     if(value != (bool)prop.GetValue(tempMultiplayerOptions, null))
                     {
                         toggle.isOn = !value;
-                        InGamePopup.ShowInfo("Info", "This setting can only be changed while not in game", "Okay");
+                        InGamePopup.ShowInfo("Unavailable".Translate(), "This setting can only be changed while not in game".Translate(), "OK".Translate());
                     }
                     return;
                 }
@@ -487,11 +487,11 @@ namespace NebulaPatcher.Patches.Dynamic
             if(descriptionAttr != null)
             {
                 element.gameObject.AddComponent<Tooltip>();
-                element.gameObject.GetComponent<Tooltip>().Title = display.DisplayName;
-                element.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description;
+                element.gameObject.GetComponent<Tooltip>().Title = display.DisplayName.Translate();
+                element.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description.Translate();
             }
             element.GetComponent<Localizer>().enabled = false;
-            element.GetComponent<Text>().text = display.DisplayName;
+            element.GetComponent<Text>().text = display.DisplayName.Translate();
         }
     }
 }

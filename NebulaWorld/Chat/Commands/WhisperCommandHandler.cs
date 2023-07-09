@@ -13,13 +13,13 @@ namespace NebulaWorld.Chat.Commands
         {
             if (parameters.Length < 2)
             {
-                throw new ChatCommandUsageException("Not enough arguments!");
+                throw new ChatCommandUsageException("Not enough arguments!".Translate());
             }
 
             string senderUsername = Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "UNKNOWN";
             if (senderUsername == "UNKNOWN" || Multiplayer.Session == null || Multiplayer.Session.LocalPlayer == null )
             {
-                window.SendLocalChatMessage("Not connected, can't send message", ChatMessageType.CommandErrorMessage);
+                window.SendLocalChatMessage("Not connected, can't send message".Translate(), ChatMessageType.CommandErrorMessage);
                 return;
             }
             
@@ -35,7 +35,7 @@ namespace NebulaWorld.Chat.Commands
                 INebulaPlayer recipient = Multiplayer.Session.Network.PlayerManager.GetConnectedPlayerByUsername(recipientUserName);
                 if (recipient == null)
                 {
-                    window.SendLocalChatMessage($"Player not found: {recipientUserName}", ChatMessageType.CommandErrorMessage);
+                    window.SendLocalChatMessage("Player not found: ".Translate() + recipientUserName, ChatMessageType.CommandErrorMessage);
                     return;
                 }
 
@@ -49,7 +49,7 @@ namespace NebulaWorld.Chat.Commands
 
         public string GetDescription()
         {
-            return $"Send direct message to player. Use {ChatCommandRegistry.CommandPrefix}who for valid user names";
+            return string.Format("Send direct message to player. Use /who for valid user names".Translate());
         }
 
         public string[] GetUsage()

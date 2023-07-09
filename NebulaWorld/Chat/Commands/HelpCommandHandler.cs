@@ -23,7 +23,7 @@ namespace NebulaWorld.Chat.Commands
                 }
                 else
                 {
-                    output = $"Command {FullCommandName(commandName)} was not found! Use {FullCommandName("help")} to get list of known commands.";
+                    output = string.Format("Command {0} was not found! Use /help to get list of known commands.".Translate(), FullCommandName(commandName));
                     window.SendLocalChatMessage(output, ChatMessageType.CommandErrorMessage);
                 }
                 return;
@@ -43,18 +43,18 @@ namespace NebulaWorld.Chat.Commands
             string aliasList = ChatCommandRegistry.GetCommandAliases(commandName).Join(FullCommandName);
 
             StringBuilder sb = new StringBuilder();
-            sb.Append($"Command {commandName} - {handler.GetDescription()}\n");
-            sb.Append($"Aliases: {aliasList}\n");
+            sb.Append("Command ".Translate()).Append(commandName).Append(" - ").Append(handler.GetDescription()).Append('\n');
+            sb.Append("Aliases: ".Translate()).Append(aliasList).Append('\n');
             foreach (string usage in handler.GetUsage())
             {
-                sb.Append($"Usage: {FullCommandName(commandName)} {usage}\n");
+                sb.Append("Usage: ".Translate()).Append(FullCommandName(commandName)).Append(' ').Append(usage).Append('\n');
             }
             return sb.ToString();
         }
         
         private static string GetCommandListOutput()
         {
-            StringBuilder sb = new StringBuilder("Known commands:");
+            StringBuilder sb = new StringBuilder("Known commands:".Translate());
 
             foreach (var kv in ChatCommandRegistry.commands)
             {
@@ -69,7 +69,7 @@ namespace NebulaWorld.Chat.Commands
                 sb.Append($" - {kv.Value.GetDescription()}");
             }
 
-            sb.Append($"\nFor detailed information about command use {FullCommandName("help")} <command name>");
+            sb.Append('\n').Append("For detailed information about command use /help <command name>".Translate());
 
             string output = sb.ToString();
             return output;
@@ -82,7 +82,7 @@ namespace NebulaWorld.Chat.Commands
         
         public string GetDescription()
         {
-            return "Get list of existing commands and their usage";
+            return "Get list of existing commands and their usage".Translate();
         }
         
         public string[] GetUsage()

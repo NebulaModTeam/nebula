@@ -72,7 +72,7 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerButton = Object.Instantiate(buttonTemplate, mainMenuButtonGroup, false);
             multiplayerButton.name = "button-multiplayer";
             multiplayerButton.anchoredPosition = new Vector2(multiplayerButton.anchoredPosition.x, multiplayerButton.anchoredPosition.y + multiplayerButton.sizeDelta.y + 10);
-            OverrideButton(multiplayerButton, "Multiplayer", OnMultiplayerButtonClick);
+            OverrideButton(multiplayerButton, "Multiplayer".Translate(), OnMultiplayerButtonClick);
         }
 
         public static void OnMultiplayerButtonClick()
@@ -88,10 +88,10 @@ namespace NebulaPatcher.Patches.Dynamic
             multiplayerSubMenu = Object.Instantiate(mainMenuButtonGroup, mainMenuButtonGroup.parent, true);
             multiplayerSubMenu.name = "multiplayer-menu";
 
-            OverrideButton(multiplayerSubMenu.Find("button-multiplayer").GetComponent<RectTransform>(), "New Game (Host)", OnMultiplayerNewGameButtonClick);
-            OverrideButton(multiplayerSubMenu.Find("button-new").GetComponent<RectTransform>(), "Load Game (Host)", OnMultiplayerLoadGameButtonClick);
-            OverrideButton(multiplayerSubMenu.Find("button-continue").GetComponent<RectTransform>(), "Join Game", OnMultiplayerJoinGameButtonClick);
-            OverrideButton(multiplayerSubMenu.Find("button-load").GetComponent<RectTransform>(), "Back", OnMultiplayerBackButtonClick);
+            OverrideButton(multiplayerSubMenu.Find("button-multiplayer").GetComponent<RectTransform>(), "New Game (Host)".Translate(), OnMultiplayerNewGameButtonClick);
+            OverrideButton(multiplayerSubMenu.Find("button-new").GetComponent<RectTransform>(), "Load Game (Host)".Translate(), OnMultiplayerLoadGameButtonClick);
+            OverrideButton(multiplayerSubMenu.Find("button-continue").GetComponent<RectTransform>(), "Join Game".Translate(), OnMultiplayerJoinGameButtonClick);
+            OverrideButton(multiplayerSubMenu.Find("button-load").GetComponent<RectTransform>(), "Back".Translate(), OnMultiplayerBackButtonClick);
 
             multiplayerSubMenu.Find("button-options").gameObject.SetActive(false);
             multiplayerSubMenu.Find("button-credits").gameObject.SetActive(false);
@@ -173,13 +173,13 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     Transform topTitle = child;
                     topTitle.GetComponent<Localizer>().enabled = false;
-                    topTitle.GetComponent<Text>().text = "Multiplayer";
+                    topTitle.GetComponent<Text>().text = "Multiplayer".Translate();
                 }
                 else if (child.name == "galaxy-seed")
                 {
                     Transform hostIpField = child;
                     hostIpField.GetComponent<Localizer>().enabled = false;
-                    hostIpField.GetComponent<Text>().text = "Host IP Address";
+                    hostIpField.GetComponent<Text>().text = "Host IP Address".Translate();
                     hostIpField.name = "Host IP Address";
                     hostIPAddressInput = hostIpField.GetComponentInChildren<InputField>();
                     hostIPAddressInput.onEndEdit.RemoveAllListeners();
@@ -199,7 +199,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 }
                 else if (child.name == "start-button")
                 {
-                    OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game", OnJoinGameButtonClick);
+                    OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game".Translate(), OnJoinGameButtonClick);
                 }
                 else if (child.name == "cancel-button")
                 {
@@ -213,7 +213,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             Transform passwordField = Object.Instantiate(multiplayerMenu.Find("Host IP Address"), multiplayerMenu, false);
             passwordField.localPosition = galaxySelectTemplate.Find("star-count").localPosition;
-            passwordField.GetComponent<Text>().text = "Password (optional)";
+            passwordField.GetComponent<Text>().text = "Password (optional)".Translate();
             passwordField.name = "Password (optional)";
             passwordInput = passwordField.GetComponentInChildren<InputField>();
             passwordInput.contentType = InputField.ContentType.Password;
@@ -306,7 +306,7 @@ namespace NebulaPatcher.Patches.Dynamic
 
         private static IEnumerator TryConnectToServer(string ip, int port, bool isIP, string password)
         {
-            InGamePopup.ShowInfo("Connecting", $"Connecting to server...", null, null);
+            InGamePopup.ShowInfo("Connecting".Translate(), "Connecting to server...".Translate(), null, null);
             multiplayerMenu.gameObject.SetActive(false);
 
             // We need to wait here to have time to display the Connecting popup since the game freezes during the connection.
@@ -316,7 +316,7 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 InGamePopup.FadeOut();
                 //re-enabling the menu again after failed connect attempt
-                InGamePopup.ShowWarning("Connect failed", $"Was not able to connect to server", "OK");
+                InGamePopup.ShowWarning("Connect failed".Translate(), "Was not able to connect to server".Translate(), "OK");
                 multiplayerMenu.gameObject.SetActive(true);
             }
             else
