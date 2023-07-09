@@ -11,7 +11,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
     [RegisterPacketProcessor]
     internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
     {
-        private readonly Vector3[] reformPoints = new Vector3[100];
+        private Vector3[] reformPoints = new Vector3[100];
 
         public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
         {
@@ -19,6 +19,11 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation
             PlanetFactory factory = IsHost ? GameMain.data.GetOrCreateFactory(planet) : planet?.factory;
             if (factory != null)
             {
+                // Increase reformPoints for mods that increase brush size over 10
+                if (packet.ReformSize * packet.ReformSize > reformPoints.Length)
+                {
+                    reformPoints = new Vector3[packet.ReformSize * packet.ReformSize];
+                }
                 Array.Clear(reformPoints, 0, reformPoints.Length);
 
                 //Check if some mandatory variables are missing
