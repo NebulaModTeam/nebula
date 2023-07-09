@@ -1,12 +1,18 @@
 ## Changelog
 
+0.8.14:
+- @starfi5h: Fix mecha animation when player count > 2  
+- @starfi5h: Fix UIPerformance save test in multiplayer  
+- @starfi5h: Disable build/dismantle sounds when too far away  
+- @starfi5h: Convert strings to string.Translate() to enable translation  
+
+<details>
+<summary>All changes</summary>
+
 0.8.13:
 
 - @starfi5h: Fix compilation with 0.9.27.15466  
 - @starfi5h: Add -newgame launch option for dedicated server   
-
-<details>
-<summary>All changes</summary>
 
 0.8.12:
 

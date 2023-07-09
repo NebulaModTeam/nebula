@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic
             }
 
             // Only save if in single player or if you are the host
-            return (!Multiplayer.IsActive && !Multiplayer.IsLeavingGame) || Multiplayer.Session.LocalPlayer.IsHost;
+            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
         }
 
         [HarmonyPostfix]

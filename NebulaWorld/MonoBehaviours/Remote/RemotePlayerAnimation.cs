@@ -6,11 +6,25 @@ namespace NebulaWorld.MonoBehaviours.Remote
     // TODO: Missing client side interpolation
     public class RemotePlayerAnimation : MonoBehaviour
     {
+        public struct Snapshot
+        {
+            public EMovementState MovementState { get; set; }
+            public float HorzSpeed { get; set; }
+            public float VertSpeed { get; set; }
+            public float Turning { get; set; }
+            public float JumpWeight { get; set; }
+            public float JumpNormalizedTime { get; set; }
+            public byte IdleAnimIndex { get; set; }
+            public byte MiningAnimIndex { get; set; }
+            public float MiningWeight { get; set; }
+            public PlayerMovement.EFlags Flags { get; set; }
+        }
+
         public PlayerAnimator PlayerAnimator;
         private RemotePlayerMovement rootMovement;
         private RemotePlayerEffects remotePlayerEffects;
         private float altitudeFactor;
-        private readonly PlayerMovement[] packetBuffer = new PlayerMovement[3];
+        private readonly Snapshot[] packetBuffer = new Snapshot[3];
 
         private void Awake()
         {
@@ -26,13 +40,25 @@ namespace NebulaWorld.MonoBehaviours.Remote
             {
                 packetBuffer[i] = packetBuffer[i + 1];
             }
-            packetBuffer[packetBuffer.Length - 1] = packet;
+            packetBuffer[packetBuffer.Length - 1] = new Snapshot()
+            {
+                MovementState = packet.MovementState,
+                HorzSpeed = packet.HorzSpeed,
+                VertSpeed = packet.VertSpeed,
+                Turning = packet.Turning,
+                JumpWeight = packet.JumpWeight,
+                JumpNormalizedTime = packet.JumpNormalizedTime,
+                IdleAnimIndex = packet.IdleAnimIndex,
+                MiningAnimIndex = packet.MiningAnimIndex,
+                MiningWeight = packet.MiningWeight,
+                Flags = packet.Flags
+            };
         }
 
         private void Update()
         {
-            PlayerMovement packet = packetBuffer[0];
-            if (packet == null || PlayerAnimator == null)
+            ref Snapshot packet = ref packetBuffer[0];
+            if (PlayerAnimator == null)
             {
                 return;
             }
@@ -72,7 +98,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             PlayerAnimator.AnimateSkills(deltaTime);
             AnimateRenderers(PlayerAnimator);
 
-            remotePlayerEffects.UpdateState(packet);
+            remotePlayerEffects.UpdateState(ref packet);
         }
 
         private void CalculateMovementStateWeights(PlayerAnimator animator, float dt)
