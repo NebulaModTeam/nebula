@@ -474,7 +474,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
         }
 
         // collision with vegetation, landing sound effect
-        private void UpdateExtraSoundEffects(PlayerMovement packet)
+        private void UpdateExtraSoundEffects(ref RemotePlayerAnimation.Snapshot packet)
         {
             if (rootMovement.localPlanetId < 0)
             {
@@ -550,7 +550,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
             vegeCollideColdTime = (vegeCollideColdTime > 0) ? vegeCollideColdTime - Time.deltaTime * 2 : 0;
         }
 
-        public void UpdateState(PlayerMovement packet)
+        public void UpdateState(ref RemotePlayerAnimation.Snapshot packet)
         {
             bool runActive = rootAnimation.runWeight > 0.001f;
             bool driftActive = rootAnimation.driftWeight > 0.001f;
@@ -562,7 +562,7 @@ namespace NebulaWorld.MonoBehaviours.Remote
 
             if (runActive || !isGrounded || maxAltitude > 0)
             {
-                UpdateExtraSoundEffects(packet);
+                UpdateExtraSoundEffects(ref packet);
             }
             if (runActive && isGrounded)
             {
