@@ -1,4 +1,5 @@
-﻿using NebulaAPI;
+﻿using BepInEx.Configuration;
+using NebulaAPI;
 using NebulaModel.Attributes;
 using NebulaModel.DataStructures;
 using NebulaModel.Utils;
@@ -88,6 +89,10 @@ namespace NebulaModel
                 UpdateInputFieldContentType(ref hostIpInput);
             }
         }
+
+        [DisplayName("Chat Hotkey"), Category("Chat")]
+        [Description("Keyboard shortcut to toggle the chat window")]
+        public KeyboardShortcut ChatHotkey { get; set; } = new KeyboardShortcut(KeyCode.BackQuote, KeyCode.LeftAlt);
 
         [DisplayName("Auto Open Chat"), Category("Chat")]
         [Description("Auto open chat window when receiving message from other players")]

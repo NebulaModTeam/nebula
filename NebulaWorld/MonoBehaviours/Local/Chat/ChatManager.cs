@@ -1,6 +1,4 @@
-﻿using CommonAPI;
-using CommonAPI.Systems;
-using NebulaModel;
+﻿using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
@@ -35,8 +33,6 @@ namespace NebulaWorld.MonoBehaviours.Local
 
                 trans.sizeDelta = defaultSize;
                 trans.anchoredPosition = defaultPos;
-
-                chatGo.GetComponent<UIWindowResize>().minSize = ChatUtils.GetDefaultSize(ChatSize.Small);
             }
 
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
@@ -64,7 +60,7 @@ namespace NebulaWorld.MonoBehaviours.Local
 
         void Update()
         {
-            if (CustomKeyBindSystem.GetKeyBind("NebulaChatWindow").keyValue)
+            if (Config.Options.ChatHotkey.IsDown())
             {
                 chatWindow.Toggle();
             }
