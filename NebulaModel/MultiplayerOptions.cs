@@ -61,6 +61,10 @@ namespace NebulaModel
         [Description("Configure which type of IP should be used by Discord RPC")]
         public IPUtils.IPConfiguration IPConfiguration { get; set; }
 
+        [DisplayName("Cleanup inactive sessions"), Category("Network")]
+        [Description("If disabled the underlying networking library will not cleanup inactive connections. This might solve issues with clients randomly disconnecting and hosts having a 'System.ObjectDisposedException'.")]
+        public bool CleanupInactiveSessions { get; set; } = false;
+
         [DisplayName("Show Lobby Hints")]
         public bool ShowLobbyHints { get; set; } = true;
 
@@ -111,11 +115,12 @@ namespace NebulaModel
         public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
 
         [DisplayName("Notification duration"), Category("Chat")]
+        [Description("How long should the active message stay on the screen in seconds")]
         public int NotificationDuration { get; set; } = 15;
 
-        [DisplayName("Cleanup inactive sessions"), Category("Network")]
-        [Description("If disabled the underlying networking library will not cleanup inactive connections. This might solve issues with clients randomly disconnecting and hosts having a 'System.ObjectDisposedException'.")]
-        public bool CleanupInactiveSessions { get; set; } = true;
+        [DisplayName("Chat Window Opacity"), Category("Chat")]
+        [UIRange(0f, 1.0f, true)]
+        public float ChatWindowOpacity { get; set; } = 0.8f;
 
         // Detail function group buttons
         public bool PowerGridEnabled { get; set; } = false;
