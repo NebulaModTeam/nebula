@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -294,6 +295,7 @@ public class StationComponent_Transpiler
 
     [HarmonyReversePatch]
     [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
+    [SuppressMessage("Style", "IDE0060:Remove unused parameter")]
     public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene,
         float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses,
         ref VectorLF3 relativePos, ref Quaternion relativeRot, bool starmap, int[] consumeRegister)
