@@ -2,10 +2,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
 using HarmonyLib;
+// ReSharper disable UnassignedField.Global
+// ReSharper disable InconsistentNaming
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable IdentifierTypo
 
 #endregion
 
@@ -13,6 +18,7 @@ namespace NebulaAPI;
 
 [BepInPlugin(API_GUID, API_NAME, ThisAssembly.AssemblyFileVersion)]
 [BepInDependency(NEBULA_MODID, BepInDependency.DependencyFlags.SoftDependency)]
+[SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible")]
 public class NebulaModAPI : BaseUnityPlugin
 {
     public const string NEBULA_MODID = "dsp.nebula-multiplayer";
@@ -50,7 +56,7 @@ public class NebulaModAPI : BaseUnityPlugin
     public static Action<int> OnStarLoadRequest;
 
     /// <summary>
-    ///     Subscribe to receive event when a DysonSphere finishs loading (client)<br />
+    ///     Subscribe to receive event when a DysonSphere finishes loading (client)<br />
     ///     int starIndex - index of star of dyson sphere to load<br />
     /// </summary>
     public static Action<int> OnDysonSphereLoadFinished;
@@ -86,6 +92,7 @@ public class NebulaModAPI : BaseUnityPlugin
     /// <summary>
     ///     Is this session in multiplayer
     /// </summary>
+    // ReSharper disable once UnusedMember.Global
     public static bool IsMultiplayerActive
     {
         get
@@ -95,7 +102,7 @@ public class NebulaModAPI : BaseUnityPlugin
                 return false;
             }
 
-            return (bool)multiplayer.GetProperty("IsActive").GetValue(null);
+            return (bool)multiplayer.GetProperty("IsActive")?.GetValue(null)!;
         }
     }
 
@@ -111,7 +118,7 @@ public class NebulaModAPI : BaseUnityPlugin
                 return null;
             }
 
-            return (IMultiplayerSession)multiplayer.GetProperty("Session").GetValue(null);
+            return (IMultiplayerSession)multiplayer.GetProperty("Session")?.GetValue(null);
         }
     }
 
@@ -162,12 +169,13 @@ public class NebulaModAPI : BaseUnityPlugin
             return null;
         }
 
-        return (IWriterProvider)binaryWriter.GetConstructor(new Type[0]).Invoke(new object[0]);
+        return (IWriterProvider)binaryWriter.GetConstructor(Type.EmptyTypes)?.Invoke(Array.Empty<object>());
     }
 
     /// <summary>
     ///     Provides access to BinaryReader with LZ4 compression
     /// </summary>
+    // ReSharper disable once UnusedMember.Global
     public static IReaderProvider GetBinaryReader(byte[] bytes)
     {
         if (!NebulaIsInstalled)
@@ -175,6 +183,6 @@ public class NebulaModAPI : BaseUnityPlugin
             return null;
         }
 
-        return (IReaderProvider)binaryReader.GetConstructor(new[] { typeof(byte[]) }).Invoke(new object[] { bytes });
+        return (IReaderProvider)binaryReader.GetConstructor(new[] { typeof(byte[]) })?.Invoke(new object[] { bytes });
     }
 }
