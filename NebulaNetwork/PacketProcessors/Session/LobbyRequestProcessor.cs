@@ -1,8 +1,12 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using BepInEx.Bootstrap;
 using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
@@ -22,14 +26,9 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
 {
-    private readonly IPlayerManager playerManager;
+    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
 
-    public LobbyRequestProcessor()
-    {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
-    }
-
-    public override void ProcessPacket(LobbyRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(LobbyRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -75,13 +74,10 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
                 var playerData = value;
                 using (playerManager.GetConnectedPlayers(out var connectedPlayers))
                 {
-                    foreach (var connectedPlayer in connectedPlayers.Values)
+                    foreach (var connectedPlayer in connectedPlayers.Values.Where(connectedPlayer => connectedPlayer.Data == playerData))
                     {
-                        if (connectedPlayer.Data == playerData)
-                        {
-                            playerData = value.CreateCopyWithoutMechaData();
-                            Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
-                        }
+                        playerData = value.CreateCopyWithoutMechaData();
+                        Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
                     }
                 }
                 player.LoadUserData(playerData);
@@ -130,23 +126,22 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
             //Add current tech bonuses to the connecting player based on the Host's mecha
             ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
-            using (var p = new BinaryUtils.Writer())
+            using var p = new BinaryUtils.Writer();
+            var count = 0;
+            foreach (var pluginInfo in Chainloader.PluginInfos)
             {
-                var count = 0;
-                foreach (var pluginInfo in Chainloader.PluginInfos)
+                if (pluginInfo.Value.Instance is not IMultiplayerModWithSettings mod)
                 {
-                    if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
-                    {
-                        p.BinaryWriter.Write(pluginInfo.Key);
-                        mod.Export(p.BinaryWriter);
-                        count++;
-                    }
+                    continue;
                 }
-
-                var gameDesc = GameMain.data.gameDesc;
-                player.SendPacket(new HandshakeResponse(in gameDesc, isNewUser, (PlayerData)player.Data, p.CloseAndGetBytes(),
-                    count, Config.Options.SyncSoil, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
+                p.BinaryWriter.Write(pluginInfo.Key);
+                mod.Export(p.BinaryWriter);
+                count++;
             }
+
+            var gameDesc = GameMain.data.gameDesc;
+            player.SendPacket(new HandshakeResponse(in gameDesc, false, (PlayerData)player.Data, p.CloseAndGetBytes(),
+                count, Config.Options.SyncSoil, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
         }
         else
         {
@@ -157,12 +152,13 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
                 var count = 0;
                 foreach (var pluginInfo in Chainloader.PluginInfos)
                 {
-                    if (pluginInfo.Value.Instance is IMultiplayerModWithSettings mod)
+                    if (pluginInfo.Value.Instance is not IMultiplayerModWithSettings mod)
                     {
-                        p.BinaryWriter.Write(pluginInfo.Key);
-                        mod.Export(p.BinaryWriter);
-                        count++;
+                        continue;
                     }
+                    p.BinaryWriter.Write(pluginInfo.Key);
+                    mod.Export(p.BinaryWriter);
+                    count++;
                 }
 
                 player.SendPacket(new LobbyResponse(in gameDesc, p.CloseAndGetBytes(), count, Multiplayer.Session.NumPlayers,
@@ -170,12 +166,12 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
             }
 
             // Send overriden Planet and Star names
-            player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
+            player.SendPacket(new NameInputPacket(GameMain.galaxy));
         }
     }
 
 
-    private bool ModsVersionCheck(in LobbyRequest packet, out DisconnectionReason reason, out string reasonString)
+    private static bool ModsVersionCheck(in LobbyRequest packet, out DisconnectionReason reason, out string reasonString)
     {
         reason = DisconnectionReason.Normal;
         reasonString = null;
@@ -203,52 +199,52 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
         {
             if (pluginInfo.Value.Instance is IMultiplayerMod mod)
             {
-                if (!clientMods.ContainsKey(pluginInfo.Key))
+                if (!clientMods.TryGetValue(pluginInfo.Key, out var value))
                 {
                     reason = DisconnectionReason.ModIsMissing;
                     reasonString = pluginInfo.Key;
                     return false;
                 }
 
-                var version = clientMods[pluginInfo.Key];
-
-                if (mod.CheckVersion(mod.Version, version))
+                if (mod.CheckVersion(mod.Version, value))
                 {
                     continue;
                 }
 
                 reason = DisconnectionReason.ModVersionMismatch;
-                reasonString = $"{pluginInfo.Key};{version};{mod.Version}";
+                reasonString = $"{pluginInfo.Key};{value};{mod.Version}";
                 return false;
             }
             foreach (var dependency in pluginInfo.Value.Dependencies)
             {
-                if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
+                if (dependency.DependencyGUID != NebulaModAPI.API_GUID)
                 {
-                    var hostVersion = pluginInfo.Value.Metadata.Version.ToString();
-                    if (!clientMods.ContainsKey(pluginInfo.Key))
-                    {
-                        reason = DisconnectionReason.ModIsMissing;
-                        reasonString = pluginInfo.Key;
-                        return false;
-                    }
-                    if (clientMods[pluginInfo.Key] != hostVersion)
-                    {
-                        reason = DisconnectionReason.ModVersionMismatch;
-                        reasonString = $"{pluginInfo.Key};{clientMods[pluginInfo.Key]};{hostVersion}";
-                        return false;
-                    }
+                    continue;
                 }
+                var hostVersion = pluginInfo.Value.Metadata.Version.ToString();
+                if (!clientMods.TryGetValue(pluginInfo.Key, out var value))
+                {
+                    reason = DisconnectionReason.ModIsMissing;
+                    reasonString = pluginInfo.Key;
+                    return false;
+                }
+                if (value == hostVersion)
+                {
+                    continue;
+                }
+                reason = DisconnectionReason.ModVersionMismatch;
+                reasonString = $"{pluginInfo.Key};{value};{hostVersion}";
+                return false;
             }
         }
 
-        if (packet.GameVersionSig != GameConfig.gameVersion.sig)
+        if (packet.GameVersionSig == GameConfig.gameVersion.sig)
         {
-            reason = DisconnectionReason.GameVersionMismatch;
-            reasonString = $"{packet.GameVersionSig};{GameConfig.gameVersion.sig}";
-            return false;
+            return true;
         }
+        reason = DisconnectionReason.GameVersionMismatch;
+        reasonString = $"{packet.GameVersionSig};{GameConfig.gameVersion.sig}";
+        return false;
 
-        return true;
     }
 }

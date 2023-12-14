@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Utils;
@@ -76,10 +77,10 @@ public static class PacketUtils
         var processors = assembly.GetTypes()
             .Where(t => t.GetCustomAttributes(typeof(RegisterPacketProcessorAttribute), true).Length > 0);
 
-        var method = packetProcessor.GetType().GetMethods()
+        var method = packetProcessor.GetType()
+            .GetMethods()
             .Where(m => m.Name == nameof(NetPacketProcessor.SubscribeReusable))
-            .Where(m => m.IsGenericMethod && m.GetGenericArguments().Length == 2)
-            .FirstOrDefault();
+            .FirstOrDefault(m => m.IsGenericMethod && m.GetGenericArguments().Length == 2);
 
         var isAPIAssemblies = NebulaModAPI.TargetAssemblies.Contains(assembly);
         foreach (var type in processors)

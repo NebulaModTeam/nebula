@@ -1,8 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
-using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 
 #endregion
 
@@ -10,7 +9,7 @@ namespace NebulaModel;
 
 public class NebulaPlayer : INebulaPlayer
 {
-    public NebulaPlayer(NebulaConnection connection, PlayerData data)
+    public NebulaPlayer(INebulaConnection connection, IPlayerData data)
     {
         Connection = connection;
         Data = data;

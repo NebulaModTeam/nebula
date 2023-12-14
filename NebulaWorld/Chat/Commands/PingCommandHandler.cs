@@ -2,8 +2,7 @@
 
 using System.Threading.Tasks;
 using BepInEx;
-using NebulaModel.DataStructures;
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaModel.DataStructures.Chat;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
@@ -38,7 +37,7 @@ public class PingCommandHandler : IChatCommandHandler
         return new[] { "[time delay (seconds)]" };
     }
 
-    private async Task DelayedResponse(int time)
+    private static async Task DelayedResponse(int time)
     {
         await Task.Delay(time * 1000);
         ThreadingHelper.Instance.StartSyncInvoke(() =>

@@ -1,8 +1,8 @@
 ﻿#region
 
-using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using NebulaWorld.GameStates;
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 

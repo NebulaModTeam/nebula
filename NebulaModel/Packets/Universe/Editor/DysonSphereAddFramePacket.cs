@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets.Universe;
+﻿namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonSphereAddFramePacket
 {
@@ -15,11 +15,11 @@ public class DysonSphereAddFramePacket
         Euler = euler;
     }
 
-    public int StarIndex { get; set; }
-    public int LayerId { get; set; }
-    public int FrameId { get; set; }
-    public int ProtoId { get; set; }
-    public int NodeAId { get; set; }
-    public int NodeBId { get; set; }
-    public bool Euler { get; set; }
+    public int StarIndex { get; }
+    public int LayerId { get; }
+    public int FrameId { get; }
+    public int ProtoId { get; }
+    public int NodeAId { get; }
+    public int NodeBId { get; }
+    public bool Euler { get; }
 }

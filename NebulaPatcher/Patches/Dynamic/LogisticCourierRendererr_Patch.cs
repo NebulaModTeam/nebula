@@ -28,20 +28,22 @@ internal class LogisticCourierRendererr_Patch
         for (var i = 1; i < __instance.transport.dispenserCursor; i++)
         {
             var dispenserComponent = __instance.transport.dispenserPool[i];
-            if (dispenserComponent != null && dispenserComponent.id == i)
+            if (dispenserComponent == null || dispenserComponent.id != i)
             {
-                var num = __instance.courierCount + dispenserComponent.workCourierCount;
-                if (num > 0)
-                {
-                    while (__instance.capacity < num)
-                    {
-                        __instance.Expand2x();
-                    }
-                    Array.Copy(dispenserComponent.workCourierDatas, 0, __instance.couriersArr, __instance.courierCount,
-                        dispenserComponent.workCourierCount);
-                    __instance.courierCount = num;
-                }
+                continue;
             }
+            var num = __instance.courierCount + dispenserComponent.workCourierCount;
+            if (num <= 0)
+            {
+                continue;
+            }
+            while (__instance.capacity < num)
+            {
+                __instance.Expand2x();
+            }
+            Array.Copy(dispenserComponent.workCourierDatas, 0, __instance.couriersArr, __instance.courierCount,
+                dispenserComponent.workCourierCount);
+            __instance.courierCount = num;
         }
 
         // Add remote couriers animation
@@ -57,10 +59,7 @@ internal class LogisticCourierRendererr_Patch
             __instance.courierCount = courierCount;
         }
 
-        if (__instance.couriersBuffer != null)
-        {
-            __instance.couriersBuffer.SetData(__instance.couriersArr, 0, 0, __instance.courierCount);
-        }
+        __instance.couriersBuffer?.SetData(__instance.couriersArr, 0, 0, __instance.courierCount);
         return false;
     }
 }

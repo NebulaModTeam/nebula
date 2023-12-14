@@ -2,10 +2,8 @@
 
 using System;
 using System.Linq;
-using NebulaAPI;
-using NebulaModel.DataStructures;
-using NebulaModel.Packets.Players;
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaModel.DataStructures.Chat;
+using NebulaModel.Packets.Chat;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
@@ -38,7 +36,7 @@ public class WhisperCommandHandler : IChatCommandHandler
 
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
-            INebulaPlayer recipient = Multiplayer.Session.Network.PlayerManager.GetConnectedPlayerByUsername(recipientUserName);
+            var recipient = Multiplayer.Session.Network.PlayerManager.GetConnectedPlayerByUsername(recipientUserName);
             if (recipient == null)
             {
                 window.SendLocalChatMessage("Player not found: ".Translate() + recipientUserName,

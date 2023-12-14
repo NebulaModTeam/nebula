@@ -11,7 +11,7 @@ public class BeltSignalIconPacket
         PlanetId = planetId;
     }
 
-    public int EntityId { get; set; }
-    public int SignalId { get; set; }
-    public int PlanetId { get; set; }
+    public int EntityId { get; }
+    public int SignalId { get; }
+    public int PlanetId { get; }
 }

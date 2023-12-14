@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Planet;
 [RegisterPacketProcessor]
 public class FactoryDataProcessor : PacketProcessor<FactoryData>
 {
-    public override void ProcessPacket(FactoryData packet, NebulaConnection conn)
+    protected override void ProcessPacket(FactoryData packet, NebulaConnection conn)
     {
         if (IsHost)
         {

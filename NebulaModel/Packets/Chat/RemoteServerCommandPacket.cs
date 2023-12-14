@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets.Players;
+﻿namespace NebulaModel.Packets.Chat;
 
 public class RemoteServerCommandPacket
 {
@@ -10,8 +10,8 @@ public class RemoteServerCommandPacket
         Content = content;
     }
 
-    public RemoteServerCommand Command { get; set; }
-    public string Content { get; set; }
+    public RemoteServerCommand Command { get; }
+    public string Content { get; }
 }
 
 public enum RemoteServerCommand

@@ -1,10 +1,10 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld;
+using NebulaWorld.Logistics;
 
 #endregion
 
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class ILSWorkShipBackToIdleProcessor : PacketProcessor<ILSWorkShipBackToIdle>
 {
-    public override void ProcessPacket(ILSWorkShipBackToIdle packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSWorkShipBackToIdle packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -22,7 +22,7 @@ public class ILSWorkShipBackToIdleProcessor : PacketProcessor<ILSWorkShipBackToI
 
         if (IsClient)
         {
-            Multiplayer.Session.Ships.WorkShipBackToIdle(packet);
+            ILSShipManager.WorkShipBackToIdle(packet);
         }
     }
 }

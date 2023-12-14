@@ -9,5 +9,5 @@ public class GameHistoryEnqueueTechPacket
         TechId = techId;
     }
 
-    public int TechId { get; set; }
+    public int TechId { get; }
 }

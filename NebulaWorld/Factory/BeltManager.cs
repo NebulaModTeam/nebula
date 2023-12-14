@@ -12,21 +12,15 @@ namespace NebulaWorld.Factory;
 public class BeltManager : IDisposable
 {
     private const int MAX_PUTDOWN_WAIT_TICK = 30;
-    private List<BeltUpdate> beltPickupUpdates;
-    private List<BeltUpdatePutItemOnPacket> beltPutdownPackets;
-    private int putDownTimer;
-
-    public BeltManager()
-    {
-        beltPickupUpdates = new List<BeltUpdate>();
-        beltPutdownPackets = new List<BeltUpdatePutItemOnPacket>();
-        putDownTimer = 0;
-    }
+    private List<BeltUpdate> beltPickupUpdates = new();
+    private List<BeltUpdatePutItemOnPacket> beltPutdownPackets = new();
+    private int putDownTimer = 0;
 
     public void Dispose()
     {
         beltPickupUpdates = null;
         beltPutdownPackets = null;
+        GC.SuppressFinalize(this);
     }
 
     public void BeltPickupStarted()
@@ -53,15 +47,15 @@ public class BeltManager : IDisposable
         beltPickupUpdates.Clear();
     }
 
-    public bool TryPutItemOnBelt(BeltUpdatePutItemOnPacket packet)
+    public static bool TryPutItemOnBelt(BeltUpdatePutItemOnPacket packet)
     {
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {
             var cargoTraffic = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic;
-            var ret = false;
+            bool ret;
             if (cargoTraffic == null)
             {
-                // Ignore events on factroies not loaded yet
+                // Ignore events on factories not loaded yet
                 return true;
             }
             if (packet.ItemCount == 1)
@@ -69,12 +63,13 @@ public class BeltManager : IDisposable
                 ret = cargoTraffic.PutItemOnBelt(packet.BeltId, packet.ItemId, packet.ItemInc);
                 return ret;
             }
-            if (cargoTraffic.beltPool[packet.BeltId].id != 0 && cargoTraffic.beltPool[packet.BeltId].id == packet.BeltId)
+            if (cargoTraffic.beltPool[packet.BeltId].id == 0 || cargoTraffic.beltPool[packet.BeltId].id != packet.BeltId)
             {
-                var index = cargoTraffic.beltPool[packet.BeltId].segIndex + cargoTraffic.beltPool[packet.BeltId].segPivotOffset;
-                ret = cargoTraffic.GetCargoPath(cargoTraffic.beltPool[packet.BeltId].segPathId)
-                    .TryInsertItem(index, packet.ItemId, packet.ItemCount, packet.ItemInc);
+                return false;
             }
+            var index = cargoTraffic.beltPool[packet.BeltId].segIndex + cargoTraffic.beltPool[packet.BeltId].segPivotOffset;
+            ret = cargoTraffic.GetCargoPath(cargoTraffic.beltPool[packet.BeltId].segPathId)
+                .TryInsertItem(index, packet.ItemId, packet.ItemCount, packet.ItemInc);
             return ret;
         }
     }

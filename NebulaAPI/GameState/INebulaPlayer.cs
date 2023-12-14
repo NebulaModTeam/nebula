@@ -1,4 +1,10 @@
-﻿namespace NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
+
+#endregion
+
+namespace NebulaAPI.GameState;
 
 public interface INebulaPlayer
 {

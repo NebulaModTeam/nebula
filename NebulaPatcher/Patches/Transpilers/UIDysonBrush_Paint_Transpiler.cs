@@ -3,10 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 
 #endregion
@@ -21,26 +22,27 @@ internal class UIDysonBrush_Paint_Transpiler
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static IEnumerable<CodeInstruction> _OnUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            int pos1, pos2;
-            var matcher = new CodeMatcher(instructions);
+            var matcher = new CodeMatcher(codeInstructions);
 
             matcher.MatchForward(false, new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(DysonNode), "color")));
-            pos1 = matcher.Pos;
+            var pos1 = matcher.Pos;
             matcher.MatchBack(false, new CodeMatch(OpCodes.Ldloc_S));
-            pos2 = matcher.Pos;
+            var pos2 = matcher.Pos;
             matcher.Advance(pos1 - pos2 + 1)
                 .Insert(
                     new CodeInstruction(matcher.InstructionAt(pos2 - pos1 - 1)),
                     HarmonyLib.Transpilers.EmitDelegate<Action<DysonNode>>(node =>
                     {
-                        if (Multiplayer.IsActive)
+                        if (!Multiplayer.IsActive)
                         {
-                            var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
-                            Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, node.layerId,
-                                node.color, DysonSphereColorChangePacket.ComponentType.Node, node.id));
+                            return;
                         }
+                        var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
+                        Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, node.layerId,
+                            node.color, DysonSphereColorChangePacket.ComponentType.Node, node.id));
                     })
                 );
 
@@ -53,12 +55,13 @@ internal class UIDysonBrush_Paint_Transpiler
                     new CodeInstruction(matcher.InstructionAt(pos2 - pos1 - 1)),
                     HarmonyLib.Transpilers.EmitDelegate<Action<DysonFrame>>(frame =>
                     {
-                        if (Multiplayer.IsActive)
+                        if (!Multiplayer.IsActive)
                         {
-                            var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
-                            Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, frame.layerId,
-                                frame.color, DysonSphereColorChangePacket.ComponentType.Frame, frame.id));
+                            return;
                         }
+                        var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
+                        Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, frame.layerId,
+                            frame.color, DysonSphereColorChangePacket.ComponentType.Frame, frame.id));
                     })
                 );
 
@@ -71,12 +74,13 @@ internal class UIDysonBrush_Paint_Transpiler
                     new CodeInstruction(matcher.InstructionAt(pos2 - pos1 - 1)),
                     HarmonyLib.Transpilers.EmitDelegate<Action<DysonShell>>(shell =>
                     {
-                        if (Multiplayer.IsActive)
+                        if (!Multiplayer.IsActive)
                         {
-                            var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
-                            Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, shell.layerId,
-                                shell.color, DysonSphereColorChangePacket.ComponentType.Shell, shell.id));
+                            return;
                         }
+                        var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
+                        Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, shell.layerId,
+                            shell.color, DysonSphereColorChangePacket.ComponentType.Shell, shell.id));
                     })
                 );
 
@@ -85,7 +89,7 @@ internal class UIDysonBrush_Paint_Transpiler
         catch
         {
             Log.Error("UIDysonBrush_Paint._OnUpdate_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 }

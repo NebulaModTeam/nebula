@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
 
 #endregion
 
@@ -79,9 +79,8 @@ public class NetSerializer
             BindingFlags.GetProperty |
             BindingFlags.SetProperty);
         var serializers = new List<FastCall<T>>();
-        for (var i = 0; i < props.Length; i++)
+        foreach (var property in props)
         {
-            var property = props[i];
             var propertyType = property.PropertyType;
 
             var elementType = propertyType.IsArray ? propertyType.GetElementType() : propertyType;
@@ -180,10 +179,13 @@ public class NetSerializer
             }
             else
             {
-                _registeredTypes.TryGetValue(elementType, out var customType);
-                if (customType != null)
+                if (elementType != null)
                 {
-                    serialzer = customType.Get<T>();
+                    _registeredTypes.TryGetValue(elementType, out var customType);
+                    if (customType != null)
+                    {
+                        serialzer = customType.Get<T>();
+                    }
                 }
             }
 
@@ -267,10 +269,7 @@ public class NetSerializer
     /// <returns>byte array with serialized data</returns>
     public byte[] Serialize<T>(T obj) where T : class, new()
     {
-        if (_writer == null)
-        {
-            _writer = new NetDataWriter();
-        }
+        _writer ??= new NetDataWriter();
 
         _writer.Reset();
         Serialize(_writer, obj);
@@ -307,10 +306,10 @@ public class NetSerializer
     {
         protected Func<TClass, TProperty> Getter;
         protected Func<TClass, TProperty[]> GetterArr;
-        protected Func<TClass, List<TProperty>> GetterList;
+        private Func<TClass, List<TProperty>> GetterList;
         protected Action<TClass, TProperty> Setter;
         protected Action<TClass, TProperty[]> SetterArr;
-        protected Action<TClass, List<TProperty>> SetterList;
+        private Action<TClass, List<TProperty>> SetterList;
 
         public override void ReadArray(TClass inf, NetDataReader r)
         {
@@ -352,11 +351,12 @@ public class NetSerializer
         {
             len = r.GetUShort();
             var list = GetterList(inf);
-            if (list == null)
+            if (list != null)
             {
-                list = new List<TProperty>(len);
-                SetterList(inf, list);
+                return list;
             }
+            list = new List<TProperty>(len);
+            SetterList(inf, list);
             return list;
         }
 
@@ -391,6 +391,7 @@ public class NetSerializer
                     SetterList = (Action<TClass, List<TProperty>>)Delegate.CreateDelegate(
                         typeof(Action<TClass, List<TProperty>>), setMethod);
                     break;
+                case CallType.Basic:
                 default:
                     Getter = (Func<TClass, TProperty>)Delegate.CreateDelegate(typeof(Func<TClass, TProperty>), getMethod);
                     Setter = (Action<TClass, TProperty>)Delegate.CreateDelegate(typeof(Action<TClass, TProperty>), setMethod);
@@ -589,10 +590,7 @@ public class NetSerializer
         public override void Write(TClass inf, NetDataWriter w)
         {
             var p = Getter(inf);
-            if (p != null)
-            {
-                p.Serialize(w);
-            }
+            p?.Serialize(w);
         }
 
         public override void ReadList(TClass inf, NetDataReader r)
@@ -861,17 +859,18 @@ public class NetSerializer
             for (var i = 0; i < _membersCount; i++)
             {
                 var s = _serializers[i];
-                if (s.Type == CallType.Basic)
+                switch (s.Type)
                 {
-                    s.Write(obj, writer);
-                }
-                else if (s.Type == CallType.Array)
-                {
-                    s.WriteArray(obj, writer);
-                }
-                else
-                {
-                    s.WriteList(obj, writer);
+                    case CallType.Basic:
+                        s.Write(obj, writer);
+                        break;
+                    case CallType.Array:
+                        s.WriteArray(obj, writer);
+                        break;
+                    case CallType.List:
+                    default:
+                        s.WriteList(obj, writer);
+                        break;
                 }
             }
         }
@@ -881,17 +880,18 @@ public class NetSerializer
             for (var i = 0; i < _membersCount; i++)
             {
                 var s = _serializers[i];
-                if (s.Type == CallType.Basic)
+                switch (s.Type)
                 {
-                    s.Read(obj, reader);
-                }
-                else if (s.Type == CallType.Array)
-                {
-                    s.ReadArray(obj, reader);
-                }
-                else
-                {
-                    s.ReadList(obj, reader);
+                    case CallType.Basic:
+                        s.Read(obj, reader);
+                        break;
+                    case CallType.Array:
+                        s.ReadArray(obj, reader);
+                        break;
+                    case CallType.List:
+                    default:
+                        s.ReadList(obj, reader);
+                        break;
                 }
             }
         }

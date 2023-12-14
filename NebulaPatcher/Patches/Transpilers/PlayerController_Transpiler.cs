@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -21,23 +22,22 @@ internal class PlayerController_Transpiler
         // Change: if (this.gameData.localPlanet != null)
         // To:     if (this.gameData.localPlanet != null && this.gameData.localPlanet.loaded)
 
-        var codeMatcher = new CodeMatcher(instructions)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions)
             .MatchForward(false,
                 new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "get_localPlanet"),
                 new CodeMatch(i => i.opcode == OpCodes.Brfalse)
             );
 
-        if (codeMatcher.IsInvalid)
+        if (!codeMatcher.IsInvalid)
         {
-            Log.Error("PlayerController_Transpiler.RigidbodySafer failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeMatcher
+                .SetInstruction(
+                    HarmonyLib.Transpilers.EmitDelegate<Func<GameData, bool>>(gamedata => gamedata.localPlanet is
+                    { loaded: true }))
+                .InstructionEnumeration();
         }
-
-        return codeMatcher
-            .SetInstruction(HarmonyLib.Transpilers.EmitDelegate<Func<GameData, bool>>(gamedata =>
-            {
-                return gamedata.localPlanet != null && gamedata.localPlanet.loaded;
-            }))
-            .InstructionEnumeration();
+        Log.Error("PlayerController_Transpiler.RigidbodySafer failed. Mod version not compatible with game version.");
+        return codeInstructions;
     }
 }

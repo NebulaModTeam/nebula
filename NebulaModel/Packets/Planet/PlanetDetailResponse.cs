@@ -19,9 +19,9 @@ public class PlanetDetailResponse
         LandPercent = landPercent;
     }
 
-    public int PlanetDataID { get; set; }
-    public byte[] VeinTypes { get; set; }
-    public int[] VeinCounts { get; set; }
-    public long[] VeinAmounts { get; set; }
-    public float LandPercent { get; set; }
+    public int PlanetDataID { get; }
+    public byte[] VeinTypes { get; }
+    public int[] VeinCounts { get; }
+    public long[] VeinAmounts { get; }
+    public float LandPercent { get; }
 }

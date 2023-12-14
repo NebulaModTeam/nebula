@@ -37,15 +37,16 @@ internal class UIStarmap_Patch
     [HarmonyPatch(nameof(UIStarmap.StartFastTravelToUPosition))]
     public static bool TeleportToUPosition_Prefix(VectorLF3 uPos)
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsClient)
         {
-            GameMain.data.QueryNearestStarPlanet(uPos, out var starData, out var planetData);
-            if (GameMain.localPlanet != planetData && planetData != null && planetData.type == EPlanetType.Gas)
-            {
-                InGamePopup.ShowWarning("Unavailable", "Cannot teleport to gas giant", "OK");
-                return false;
-            }
+            return true;
         }
-        return true;
+        GameMain.data.QueryNearestStarPlanet(uPos, out var starData, out var planetData);
+        if (GameMain.localPlanet == planetData || planetData is not { type: EPlanetType.Gas })
+        {
+            return true;
+        }
+        InGamePopup.ShowWarning("Unavailable", "Cannot teleport to gas giant", "OK");
+        return false;
     }
 }

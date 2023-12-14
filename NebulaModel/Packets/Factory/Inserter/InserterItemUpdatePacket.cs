@@ -14,10 +14,10 @@ public class InserterItemUpdatePacket
         PlanetId = planetId;
     }
 
-    public int InserterIndex { get; set; }
-    public int ItemId { get; set; }
-    public short ItemCount { get; set; }
-    public short ItemInc { get; set; }
-    public int StackCount { get; set; }
-    public int PlanetId { get; set; }
+    public int InserterIndex { get; }
+    public int ItemId { get; }
+    public short ItemCount { get; }
+    public short ItemInc { get; }
+    public int StackCount { get; }
+    public int PlanetId { get; }
 }

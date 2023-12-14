@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.DataStructures;
@@ -21,9 +22,10 @@ internal class SiloComponent_Transpiler
     private static IEnumerable<CodeInstruction> InternalUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         // Store projectile data after sphere.AddDysonRocket(dysonRocket, autoDysonNode) if IsUpdateNeeded == true
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            var matcher = new CodeMatcher(instructions)
+            var matcher = new CodeMatcher(codeInstructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Callvirt,
                         AccessTools.Method(typeof(DysonSphere), nameof(DysonSphere.AddDysonRocket))) //IL#310
@@ -61,7 +63,7 @@ internal class SiloComponent_Transpiler
         catch
         {
             Log.Error("SiloComponent.InternalUpdate_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 }

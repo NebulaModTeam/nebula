@@ -27,18 +27,12 @@ internal class BuildTool_Common_Patch
             return true;
         }
 
-        var previews = __instance.buildPreviews;
-        if (__instance is BuildTool_BlueprintPaste)
+        var previews = __instance switch
         {
-            var bpInstance = __instance as BuildTool_BlueprintPaste;
-            previews = bpInstance.bpPool.Take(bpInstance.bpCursor).ToList();
-        }
-        if (__instance is BuildTool_Addon)
-        {
-            // traffic monitors & sprayers cannot be drag build atm, so its always only one.
-            previews = new List<BuildPreview>();
-            previews.Add(((BuildTool_Addon)__instance).handbp);
-        }
+            BuildTool_BlueprintPaste bpInstance => bpInstance.bpPool.Take(bpInstance.bpCursor).ToList(),
+            BuildTool_Addon addon => new List<BuildPreview> { addon.handbp },
+            _ => __instance.buildPreviews
+        };
 
         // Host will just broadcast event to other players
         if (Multiplayer.Session.LocalPlayer.IsHost)
@@ -54,19 +48,22 @@ internal class BuildTool_Common_Patch
         }
 
         //If client builds, he need to first send request to the host and wait for reply
-        if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        if (Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            if (Multiplayer.Session.BuildTools.InitialCheck(previews[0].lpos))
+            return true;
+        }
+        {
+            if (!Multiplayer.Session.BuildTools.InitialCheck(previews[0].lpos))
             {
-                var authorId = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE
-                    ? Multiplayer.Session.LocalPlayer.Id
-                    : Multiplayer.Session.Factories.PacketAuthor;
-                Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews,
-                    authorId, __instance.GetType().ToString(), -1));
+                return false;
             }
+            var authorId = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE
+                ? Multiplayer.Session.LocalPlayer.Id
+                : Multiplayer.Session.Factories.PacketAuthor;
+            Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews,
+                authorId, __instance.GetType().ToString(), -1));
             return false;
         }
-        return true;
     }
 
     [HarmonyPrefix]
@@ -77,11 +74,11 @@ internal class BuildTool_Common_Patch
     [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CheckBuildConditions))]
     public static bool CheckBuildConditions(ref bool __result)
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            __result = true;
-            return false;
+            return true;
         }
-        return true;
+        __result = true;
+        return false;
     }
 }

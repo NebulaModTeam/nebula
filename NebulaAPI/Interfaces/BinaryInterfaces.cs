@@ -5,7 +5,7 @@ using System.IO;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.Interfaces;
 
 /// <summary>
 ///     Provides access to BinaryWriter with LZ4 compression

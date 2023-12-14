@@ -30,7 +30,7 @@ public class RemotePlayerModel
 
             // Add remote player components
             Movement = PlayerTransform.gameObject.AddComponent<RemotePlayerMovement>();
-            Effects = PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
+            PlayerTransform.gameObject.AddComponent<RemotePlayerEffects>();
             Animator = PlayerTransform.gameObject.AddComponent<RemotePlayerAnimation>();
 
             Movement.Username = username;
@@ -40,32 +40,43 @@ public class RemotePlayerModel
             PlayerTransform.GetComponent<PlayerAnimator>().enabled = false;
         }
 
-        PlayerTransform.gameObject.name = $"Remote Player ({playerId})";
-
-        PlayerInstance = new global::Player();
-        PlayerInstance.transform = PlayerTransform;
-        Animator.PlayerAnimator.player = PlayerInstance;
-        MechaInstance = new Mecha();
-        PlayerInstance.mecha = MechaInstance;
-        MechaInstance.Init(PlayerInstance);
-
-        //Fix MechaDroneRenderers
-        MechaInstance.droneRenderer.mat_0 = new Material(Configs.builtin.mechaDroneMat.shader);
-        var mat = MechaInstance.droneRenderer.mat_0;
-        mat.CopyPropertiesFromMaterial(Configs.builtin.mechaDroneMat);
-
-        //Fix MechaArmorModel
-        PlayerInstance.mechaArmorModel = PlayerModelTransform.GetComponent<MechaArmorModel>();
-        var mechaArmorModel = PlayerInstance.mechaArmorModel;
-        mechaArmorModel.data = PlayerInstance;
-        mechaArmorModel.player = PlayerInstance;
-        mechaArmorModel.mecha = MechaInstance;
-        mechaArmorModel._OnCreate();
-        mechaArmorModel._OnInit();
-
-        for (var i = 0; i < PlayerModelTransform.childCount; i++)
+        if (PlayerTransform != null)
         {
-            PlayerModelTransform.GetChild(i).gameObject.SetActive(true);
+            PlayerTransform.gameObject.name = $"Remote Player ({playerId})";
+
+            PlayerInstance = new global::Player { transform = PlayerTransform };
+        }
+        if (Animator != null)
+        {
+            Animator.PlayerAnimator.player = PlayerInstance;
+        }
+        MechaInstance = new Mecha();
+        if (PlayerInstance != null)
+        {
+            PlayerInstance.mecha = MechaInstance;
+            MechaInstance.Init(PlayerInstance);
+
+            //Fix MechaDroneRenderers
+            MechaInstance.droneRenderer.mat_0 = new Material(Configs.builtin.mechaDroneMat.shader);
+            var mat = MechaInstance.droneRenderer.mat_0;
+            mat.CopyPropertiesFromMaterial(Configs.builtin.mechaDroneMat);
+
+            //Fix MechaArmorModel
+            if (PlayerModelTransform != null)
+            {
+                PlayerInstance.mechaArmorModel = PlayerModelTransform.GetComponent<MechaArmorModel>();
+                var mechaArmorModel = PlayerInstance.mechaArmorModel;
+                mechaArmorModel.data = PlayerInstance;
+                mechaArmorModel.player = PlayerInstance;
+                mechaArmorModel.mecha = MechaInstance;
+                mechaArmorModel._OnCreate();
+                mechaArmorModel._OnInit();
+
+                for (var i = 0; i < PlayerModelTransform.childCount; i++)
+                {
+                    PlayerModelTransform.GetChild(i).gameObject.SetActive(true);
+                }
+            }
         }
 
         PlayerId = playerId;
@@ -74,17 +85,16 @@ public class RemotePlayerModel
 
     public string Username { get; }
     public ushort PlayerId { get; }
-    public Transform PlayerTransform { get; set; }
-    public Transform PlayerModelTransform { get; set; }
-    public RemotePlayerMovement Movement { get; set; }
-    public RemotePlayerAnimation Animator { get; set; }
-    public RemotePlayerEffects Effects { get; set; }
+    public Transform PlayerTransform { get; private set; }
+    public Transform PlayerModelTransform { get; private set; }
+    public RemotePlayerMovement Movement { get; private set; }
+    public RemotePlayerAnimation Animator { get; private set; }
     public GameObject InGameNameText { get; set; }
     public Text StarmapNameText { get; set; }
     public Transform StarmapTracker { get; set; }
 
-    public global::Player PlayerInstance { get; set; }
-    public Mecha MechaInstance { get; set; }
+    public global::Player PlayerInstance { get; private set; }
+    public Mecha MechaInstance { get; }
 
     public void Destroy()
     {
@@ -93,7 +103,6 @@ public class RemotePlayerModel
         PlayerModelTransform = null;
         Movement = null;
         Animator = null;
-        Effects = null;
         PlayerInstance.Free();
         PlayerInstance = null;
         if (StarmapTracker != null)

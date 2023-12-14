@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -19,7 +20,8 @@ internal class UIVersionText_Transpiler
     [HarmonyPatch(nameof(UIVersionText.Refresh))]
     public static IEnumerable<CodeInstruction> Refresh_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
     {
-        var codeMatcher = new CodeMatcher(instructions, iL)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions, iL)
             .MatchForward(true,
                 new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "userName")
             );
@@ -33,22 +35,22 @@ internal class UIVersionText_Transpiler
                 );
         }
 
-        if (codeMatcher.IsInvalid)
+        if (!codeMatcher.IsInvalid)
         {
-            Log.Warn("UIVersionText.Refresh_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
-        }
-
-        return codeMatcher
-            .Advance(1)
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<string, string>>(text =>
-            {
-                if (Multiplayer.IsActive)
+            return codeMatcher
+                .Advance(1)
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<string, string>>(text =>
                 {
-                    text = $"{PluginInfo.PLUGIN_SHORT_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}\r\n{text}";
-                }
-                return text;
-            }))
-            .InstructionEnumeration();
+                    if (Multiplayer.IsActive)
+                    {
+                        text = $"{PluginInfo.PLUGIN_SHORT_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}\r\n{text}";
+                    }
+                    return text;
+                }))
+                .InstructionEnumeration();
+        }
+        Log.Warn("UIVersionText.Refresh_Transpiler failed. Mod version not compatible with game version.");
+        return codeInstructions;
+
     }
 }

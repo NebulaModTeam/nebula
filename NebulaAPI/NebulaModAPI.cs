@@ -3,10 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
 using HarmonyLib;
+using NebulaAPI.GameState;
+using NebulaAPI.Interfaces;
 // ReSharper disable UnassignedField.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
@@ -126,13 +129,10 @@ public class NebulaModAPI : BaseUnityPlugin
     {
         NebulaIsInstalled = false;
 
-        foreach (var pluginInfo in Chainloader.PluginInfos)
+        foreach (var unused in Chainloader.PluginInfos.Where(pluginInfo => pluginInfo.Value.Metadata.GUID == NEBULA_MODID))
         {
-            if (pluginInfo.Value.Metadata.GUID == NEBULA_MODID)
-            {
-                NebulaIsInstalled = true;
-                break;
-            }
+            NebulaIsInstalled = true;
+            break;
         }
 
         if (!NebulaIsInstalled)

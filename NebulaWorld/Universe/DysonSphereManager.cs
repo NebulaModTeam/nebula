@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using NebulaAPI;
+using System.Linq;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Universe;
@@ -21,14 +23,15 @@ public class DysonSphereManager : IDisposable
     private readonly ThreadSafe threadSafe = new();
 
     public bool IsNormal { get; set; } = true; //Client side: is the spheres data normal or desynced
-    public bool InBlueprint { get; set; } = false; //In the processing of importing blueprint
+    public bool InBlueprint { get; set; } //In the processing of importing blueprint
     public int RequestingIndex { get; set; } = -1; //StarIndex of the dyson sphere requesting
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 
-    public Locker GetSubscribers(out Dictionary<int, List<INebulaConnection>> subscribers)
+    private Locker GetSubscribers(out Dictionary<int, List<INebulaConnection>> subscribers)
     {
         return threadSafe.Subscribers.GetLocked(out subscribers);
     }
@@ -40,12 +43,13 @@ public class DysonSphereManager : IDisposable
     {
         using (GetSubscribers(out var subscribers))
         {
-            if (subscribers.ContainsKey(starIndex))
+            if (!subscribers.TryGetValue(starIndex, out var value))
             {
-                foreach (var conn in subscribers[starIndex])
-                {
-                    conn.SendPacket(packet);
-                }
+                return;
+            }
+            foreach (var conn in value)
+            {
+                conn.SendPacket(packet);
             }
         }
     }
@@ -54,73 +58,70 @@ public class DysonSphereManager : IDisposable
     {
         using (GetSubscribers(out var subscribers))
         {
-            if (subscribers.ContainsKey(starIndex))
+            if (!subscribers.TryGetValue(starIndex, out var value))
             {
-                foreach (var conn in subscribers[starIndex])
-                {
-                    if (!conn.Equals(exception))
-                    {
-                        conn.SendPacket(packet);
-                    }
-                }
+                return;
+            }
+            foreach (var conn in value.Where(conn => !conn.Equals(exception)))
+            {
+                conn.SendPacket(packet);
             }
         }
     }
 
     public void RegisterPlayer(INebulaConnection conn, int starIndex)
     {
-        using (GetSubscribers(out var subscribers))
+        using var locker = GetSubscribers(out var subscribers);
+        if (!subscribers.TryGetValue(starIndex, out var value))
         {
-            if (!subscribers.ContainsKey(starIndex))
-            {
-                subscribers.Add(starIndex, new List<INebulaConnection>());
-                statusPackets.Add(new DysonSphereStatusPacket(GameMain.data.dysonSpheres[starIndex]));
-                Multiplayer.Session.Launch.Register(starIndex);
-            }
-            if (!subscribers[starIndex].Contains(conn))
-            {
-                subscribers[starIndex].Add(conn);
-                conn.SendPacket(statusPackets.Find(x => x.StarIndex == starIndex));
-            }
+            value = new List<INebulaConnection>();
+            subscribers.Add(starIndex, value);
+            statusPackets.Add(new DysonSphereStatusPacket(GameMain.data.dysonSpheres[starIndex]));
+            Multiplayer.Session.Launch.Register(starIndex);
         }
+        if (value.Contains(conn))
+        {
+            return;
+        }
+        value.Add(conn);
+        conn.SendPacket(statusPackets.Find(x => x.StarIndex == starIndex));
     }
 
     public void UnRegisterPlayer(INebulaConnection conn, int starIndex)
     {
-        using (GetSubscribers(out var subscribers))
+        using var locker = GetSubscribers(out var subscribers);
+        if (!subscribers.TryGetValue(starIndex, out var value))
         {
-            if (subscribers.ContainsKey(starIndex))
-            {
-                subscribers[starIndex].Remove(conn);
-                if (subscribers[starIndex].Count == 0)
-                {
-                    subscribers.Remove(starIndex);
-                    statusPackets.Remove(statusPackets.Find(x => x.StarIndex == starIndex));
-                    Multiplayer.Session.Launch.Unregister(starIndex);
-                }
-            }
+            return;
         }
+
+        value.Remove(conn);
+        if (value.Count != 0)
+        {
+            return;
+        }
+        subscribers.Remove(starIndex);
+        statusPackets.Remove(statusPackets.Find(x => x.StarIndex == starIndex));
+        Multiplayer.Session.Launch.Unregister(starIndex);
     }
 
     public void UnRegisterPlayer(INebulaConnection conn)
     {
-        using (GetSubscribers(out var subscribers))
+        using var locker = GetSubscribers(out var subscribers);
+        var removals = new List<int>();
+        foreach (var item in subscribers)
         {
-            var removals = new List<int>();
-            foreach (var item in subscribers)
+            item.Value.Remove(conn);
+            if (item.Value.Count == 0)
             {
-                item.Value.Remove(conn);
-                if (item.Value.Count == 0)
-                {
-                    removals.Add(item.Key);
-                }
+                removals.Add(item.Key);
             }
-            foreach (var starIndex in removals)
-            {
-                subscribers.Remove(starIndex);
-                statusPackets.Remove(statusPackets.Find(x => x.StarIndex == starIndex));
-                Multiplayer.Session.Launch.Unregister(starIndex);
-            }
+        }
+        foreach (var starIndex in removals)
+        {
+            subscribers.Remove(starIndex);
+            statusPackets.Remove(statusPackets.Find(x => x.StarIndex == starIndex));
+            Multiplayer.Session.Launch.Unregister(starIndex);
         }
     }
 
@@ -130,15 +131,16 @@ public class DysonSphereManager : IDisposable
         {
             var dysonSphere = GameMain.data.dysonSpheres[packet.StarIndex];
             //Update dyson sphere when the status changes
-            if (packet.GrossRadius != dysonSphere.grossRadius ||
-                packet.EnergyReqCurrentTick != dysonSphere.energyReqCurrentTick ||
-                packet.EnergyGenCurrentTick != dysonSphere.energyGenCurrentTick)
+            if (Math.Abs(packet.GrossRadius - dysonSphere.grossRadius) < 0.000000001 &&
+                packet.EnergyReqCurrentTick == dysonSphere.energyReqCurrentTick &&
+                packet.EnergyGenCurrentTick == dysonSphere.energyGenCurrentTick)
             {
-                packet.GrossRadius = dysonSphere.grossRadius;
-                packet.EnergyReqCurrentTick = dysonSphere.energyReqCurrentTick;
-                packet.EnergyGenCurrentTick = dysonSphere.energyGenCurrentTick;
-                SendPacketToDysonSphere(packet, packet.StarIndex);
+                continue;
             }
+            packet.GrossRadius = dysonSphere.grossRadius;
+            packet.EnergyReqCurrentTick = dysonSphere.energyReqCurrentTick;
+            packet.EnergyGenCurrentTick = dysonSphere.energyGenCurrentTick;
+            SendPacketToDysonSphere(packet, packet.StarIndex);
         }
     }
 
@@ -162,12 +164,13 @@ public class DysonSphereManager : IDisposable
         var currentId = GameMain.localStar?.index ?? UIRoot.instance.uiGame.dysonEditor.selection.viewStar?.index ?? -1;
         for (var i = 0; i < GameMain.data.dysonSpheres.Length; i++)
         {
-            if (GameMain.data.dysonSpheres[i] != null && i != currentId)
+            if (GameMain.data.dysonSpheres[i] == null || i == currentId)
             {
-                Log.Info($"Unload DysonSphere at system {GameMain.galaxy.stars[i].displayName} (Index: {i})");
-                Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(i, DysonSphereRequestEvent.Unload));
-                GameMain.data.dysonSpheres[i] = null;
+                continue;
             }
+            Log.Info($"Unload DysonSphere at system {GameMain.galaxy.stars[i].displayName} (Index: {i})");
+            Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(i, DysonSphereRequestEvent.Unload));
+            GameMain.data.dysonSpheres[i] = null;
         }
         IsNormal = true;
     }
@@ -182,14 +185,15 @@ public class DysonSphereManager : IDisposable
         else
         {
             //Notify client that desync happened
-            if (IsNormal)
+            if (!IsNormal)
             {
-                IsNormal = false;
-                InGamePopup.ShowWarning("Desync".Translate(),
-                    string.Format("Dyson sphere id[{0}] {1} is desynced.".Translate(), starIndex,
-                        GameMain.galaxy.stars[starIndex].displayName),
-                    "Reload".Translate(), () => RequestDysonSphere(starIndex));
+                return;
             }
+            IsNormal = false;
+            InGamePopup.ShowWarning("Desync".Translate(),
+                string.Format("Dyson sphere id[{0}] {1} is desynced.".Translate(), starIndex,
+                    GameMain.galaxy.stars[starIndex].displayName),
+                "Reload".Translate(), () => RequestDysonSphere(starIndex));
         }
     }
 
@@ -199,11 +203,12 @@ public class DysonSphereManager : IDisposable
         var orbitId = swarm.orbitCursor <= 20 ? swarm.orbitCursor : -1;
         for (var i = 1; i < swarm.orbitCursor; i++)
         {
-            if (swarm.orbits[i].id == 0)
+            if (swarm.orbits[i].id != 0)
             {
-                orbitId = i;
-                break;
+                continue;
             }
+            orbitId = i;
+            break;
         }
         return orbitId;
     }
@@ -211,16 +216,17 @@ public class DysonSphereManager : IDisposable
     public static void ClearSelection(int starIndex, int layerId = -1)
     {
         var selection = UIRoot.instance.uiGame.dysonEditor.selection;
-        if (selection.viewStar != null && selection.viewStar.index == starIndex)
+        if (selection.viewStar == null || selection.viewStar.index != starIndex)
         {
-            if (layerId == -1)
-            {
-                selection.ClearAllSelection();
-            }
-            else if (selection.IsLayerSelected(layerId))
-            {
-                selection.ClearComponentSelection();
-            }
+            return;
+        }
+        if (layerId == -1)
+        {
+            selection.ClearAllSelection();
+        }
+        else if (selection.IsLayerSelected(layerId))
+        {
+            selection.ClearComponentSelection();
         }
     }
 

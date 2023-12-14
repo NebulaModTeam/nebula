@@ -42,16 +42,16 @@ public class StorageUI
         KeepMode = keepMode;
     }
 
-    public int PlanetId { get; set; }
-    public int StationId { get; set; }
-    public int StationGId { get; set; }
-    public int StorageIdx { get; set; }
-    public int ItemId { get; set; }
-    public int ItemCountMax { get; set; }
-    public ELogisticStorage LocalLogic { get; set; }
-    public ELogisticStorage RemoteLogic { get; set; }
-    public int ItemCount { get; set; }
-    public int ItemInc { get; set; }
+    public int PlanetId { get; }
+    public int StationId { get; }
+    public int StationGId { get; }
+    public int StorageIdx { get; }
+    public int ItemId { get; }
+    public int ItemCountMax { get; }
+    public ELogisticStorage LocalLogic { get; }
+    public ELogisticStorage RemoteLogic { get; }
+    public int ItemCount { get; }
+    public int ItemInc { get; }
     public bool ShouldRefund { get; set; }
-    public byte KeepMode { get; set; }
+    public byte KeepMode { get; }
 }

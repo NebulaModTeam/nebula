@@ -13,9 +13,9 @@ public class TankStorageUpdatePacket
         PlanetId = planetId;
     }
 
-    public int TankIndex { get; set; }
-    public int FluidId { get; set; }
-    public int FluidCount { get; set; }
-    public int FluidInc { get; set; }
-    public int PlanetId { get; set; }
+    public int TankIndex { get; }
+    public int FluidId { get; }
+    public int FluidCount { get; }
+    public int FluidInc { get; }
+    public int PlanetId { get; }
 }

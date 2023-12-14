@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
@@ -14,12 +15,13 @@ namespace NebulaWorld.Factory;
 
 public class BuildToolManager : IDisposable
 {
-    public const long WAIT_TIME = 10000;
-    public long LastCheckTime;
-    public Vector3 LastPosition;
+    private const long WAIT_TIME = 10000;
+    private long LastCheckTime;
+    private Vector3 LastPosition;
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 
     public void CreatePrebuildsRequest(CreatePrebuildsRequest packet)
@@ -38,117 +40,113 @@ public class BuildToolManager : IDisposable
         }
 
         var pab = GameMain.mainPlayer.controller != null ? GameMain.mainPlayer.controller.actionBuild : null;
-        var buildTools = pab.tools;
-        BuildTool buildTool = null;
-        for (var i = 0; i < buildTools.Length; i++)
+        if (pab == null)
         {
-            if (buildTools[i].GetType().ToString() == packet.BuildToolType)
+            return;
+        }
+        var buildTools = pab.tools;
+        var buildTool = buildTools.FirstOrDefault(t => t.GetType().ToString() == packet.BuildToolType);
+
+        if (buildTool == null)
+        {
+            return;
+        }
+        Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+        Multiplayer.Session.Factories.PacketAuthor = packet.AuthorId;
+
+        PlanetFactory tmpFactory = null;
+        NearColliderLogic tmpNearcdLogic = null;
+        PlanetPhysics tmpPlanetPhysics = null;
+        var loadExternalPlanetData = GameMain.localPlanet?.id != planet.id;
+
+        if (loadExternalPlanetData)
+        {
+            //Make backup of values that are overwritten
+            tmpFactory = buildTool.factory;
+            tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
+            tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
+            Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
+        }
+
+        var incomingBlueprintEvent = packet.BuildToolType == typeof(BuildTool_BlueprintPaste).ToString();
+        var pos = Vector3.zero;
+
+        //Create Prebuilds from incoming packet and prepare new position
+        var tmpList = new List<BuildPreview>();
+        if (!incomingBlueprintEvent)
+        {
+            tmpList.AddRange(buildTool.buildPreviews);
+            buildTool.buildPreviews.Clear();
+            buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
+            pos = buildTool.buildPreviews[0].lpos;
+        }
+
+        Multiplayer.Session.Factories.EventFactory = planet.factory;
+
+        //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
+        buildTool.factory = planet.factory;
+        pab.factory = planet.factory;
+        pab.noneTool.factory = planet.factory;
+        if (Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            // Only the server needs to set these
+            pab.planetPhysics = planet.physics;
+            pab.nearcdLogic = planet.physics.nearColliderLogic;
+        }
+
+        //Check if prebuilds can be build (collision check, height check, etc)
+        var canBuild = false;
+        if (Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
+            canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool,
+                planet.factory.prebuildPool);
+            if (!canBuild)
             {
-                buildTool = buildTools[i];
-                break;
+                Log.Warn($"CreatePrebuildsRequest: request do not pass connections test on planet {planet.id}");
             }
         }
 
-        if (pab != null && buildTool != null)
+        if (canBuild || Multiplayer.Session.LocalPlayer.IsClient)
         {
-            Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
-            Multiplayer.Session.Factories.PacketAuthor = packet.AuthorId;
-
-            PlanetFactory tmpFactory = null;
-            NearColliderLogic tmpNearcdLogic = null;
-            PlanetPhysics tmpPlanetPhysics = null;
-            var loadExternalPlanetData = GameMain.localPlanet?.id != planet.id;
-
-            if (loadExternalPlanetData)
+            if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
             {
-                //Make backup of values that are overwritten
-                tmpFactory = buildTool.factory;
-                tmpNearcdLogic = buildTool.actionBuild.nearcdLogic;
-                tmpPlanetPhysics = buildTool.actionBuild.planetPhysics;
-                Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
+                CheckAndFixConnections(buildTool, planet);
             }
-
-            var incomingBlueprintEvent = packet.BuildToolType == typeof(BuildTool_BlueprintPaste).ToString();
-            var pos = Vector3.zero;
-
-            //Create Prebuilds from incoming packet and prepare new position
-            var tmpList = new List<BuildPreview>();
-            if (!incomingBlueprintEvent)
+            if (Multiplayer.Session.LocalPlayer.IsClient)
             {
-                tmpList.AddRange(buildTool.buildPreviews);
-                buildTool.buildPreviews.Clear();
-                buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
-                pos = buildTool.buildPreviews[0].lpos;
-            }
-
-            Multiplayer.Session.Factories.EventFactory = planet.factory;
-
-            //Set temporary Local Planet / Factory data that are needed for original methods CheckBuildConditions() and CreatePrebuilds()
-            buildTool.factory = planet.factory;
-            pab.factory = planet.factory;
-            pab.noneTool.factory = planet.factory;
-            if (Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                // Only the server needs to set these
-                pab.planetPhysics = planet.physics;
-                pab.nearcdLogic = planet.physics.nearColliderLogic;
-            }
-
-            //Check if prebuilds can be build (collision check, height check, etc)
-            var canBuild = false;
-            if (Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                GameMain.mainPlayer.mecha.buildArea = float.MaxValue;
-                canBuild = CheckBuildingConnections(buildTool.buildPreviews, planet.factory.entityPool,
-                    planet.factory.prebuildPool);
-                if (!canBuild)
+                if (packet.PrebuildId != Multiplayer.Session.Factories.GetNextPrebuildId(packet.PlanetId))
                 {
-                    Log.Warn($"CreatePrebuildsRequest: request do not pass connections test on planet {planet.id}");
+                    var warningText =
+                        $"(Desync) PrebuildId mismatch {packet.PrebuildId} != {Multiplayer.Session.Factories.GetNextPrebuildId(planet.factory)} on planet {planet.displayName}. Please reconnect!";
+                    Log.WarnInform(warningText);
+                    WarningManager.DisplayTemporaryWarning(warningText, 15000);
                 }
             }
 
-            if (canBuild || Multiplayer.Session.LocalPlayer.IsClient)
+            if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
             {
-                if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
+                ((BuildTool_Click)buildTool).CreatePrebuilds();
+            }
+            else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
+            {
+                ((BuildTool_Path)buildTool).CreatePrebuilds();
+            }
+            else if (packet.BuildToolType == typeof(BuildTool_Addon).ToString())
+            {
+                ((BuildTool_Addon)buildTool).handbp =
+                    buildTool.buildPreviews[0]; // traffic monitors cannot be drag build atm, so its always only one.
+                ((BuildTool_Addon)buildTool).CreatePrebuilds();
+            }
+            else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
+            {
+                ((BuildTool_Inserter)buildTool).CreatePrebuilds();
+            }
+            else if (incomingBlueprintEvent)
+            {
+                // Cache the current data before performing the requested CreatePrebuilds();
+                if (buildTool is BuildTool_BlueprintPaste bpTool)
                 {
-                    CheckAndFixConnections(buildTool, planet);
-                }
-                if (Multiplayer.Session.LocalPlayer.IsClient)
-                {
-                    if (packet.PrebuildId != Multiplayer.Session.Factories.GetNextPrebuildId(packet.PlanetId))
-                    {
-                        var warningText =
-                            string.Format("(Desync) PrebuildId mismatch {0} != {1} on planet {2}. Please reconnect!",
-                                packet.PrebuildId, Multiplayer.Session.Factories.GetNextPrebuildId(planet.factory),
-                                planet.displayName);
-                        Log.WarnInform(warningText);
-                        WarningManager.DisplayTemporaryWarning(warningText, 15000);
-                    }
-                }
-
-                if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
-                {
-                    ((BuildTool_Click)buildTool).CreatePrebuilds();
-                }
-                else if (packet.BuildToolType == typeof(BuildTool_Path).ToString())
-                {
-                    ((BuildTool_Path)buildTool).CreatePrebuilds();
-                }
-                else if (packet.BuildToolType == typeof(BuildTool_Addon).ToString())
-                {
-                    ((BuildTool_Addon)buildTool).handbp =
-                        buildTool.buildPreviews[0]; // traffic monitors cannot be drag build atm, so its always only one.
-                    ((BuildTool_Addon)buildTool).CreatePrebuilds();
-                }
-                else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
-                {
-                    ((BuildTool_Inserter)buildTool).CreatePrebuilds();
-                }
-                else if (incomingBlueprintEvent)
-                {
-                    var bpTool = buildTool as BuildTool_BlueprintPaste;
-
-                    // Cache the current data before performing the requested CreatePrebuilds();
                     var previousCursor = bpTool.bpCursor;
                     var previousPool = bpTool.bpPool;
 
@@ -164,109 +162,109 @@ public class BuildToolManager : IDisposable
                     bpTool.bpPool = previousPool;
                 }
             }
+        }
 
-            //Revert changes back to the original planet
-            if (loadExternalPlanetData)
-            {
-                buildTool.factory = tmpFactory;
-                pab.factory = tmpFactory;
-                pab.noneTool.factory = tmpFactory;
-                pab.planetPhysics = tmpPlanetPhysics;
-                pab.nearcdLogic = tmpNearcdLogic;
-            }
+        //Revert changes back to the original planet
+        if (loadExternalPlanetData)
+        {
+            buildTool.factory = tmpFactory;
+            pab.factory = tmpFactory;
+            pab.noneTool.factory = tmpFactory;
+            pab.planetPhysics = tmpPlanetPhysics;
+            pab.nearcdLogic = tmpNearcdLogic;
+        }
 
-            GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
-            Multiplayer.Session.Factories.EventFactory = null;
+        GameMain.mainPlayer.mecha.buildArea = Configs.freeMode.mechaBuildArea;
+        Multiplayer.Session.Factories.EventFactory = null;
 
-            if (!incomingBlueprintEvent)
-            {
-                buildTool.buildPreviews.Clear();
-                buildTool.buildPreviews.AddRange(tmpList);
-            }
+        if (!incomingBlueprintEvent)
+        {
+            buildTool.buildPreviews.Clear();
+            buildTool.buildPreviews.AddRange(tmpList);
+        }
 
-            Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
-            Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
+        Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
+        Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;
 
-            if (pos == LastPosition)
-            {
-                //Reset check timer on client
-                LastCheckTime = 0;
-            }
+        if (pos == LastPosition)
+        {
+            //Reset check timer on client
+            LastCheckTime = 0;
         }
     }
 
-    public void CheckAndFixConnections(BuildTool buildTool, PlanetData planet)
+    private static void CheckAndFixConnections(BuildTool buildTool, PlanetData planet)
     {
         foreach (var preview in buildTool.buildPreviews)
         {
             //Check only, if buildPreview has some connection to another prebuild
-            if (preview.coverObjId < 0)
+            if (preview.coverObjId >= 0)
             {
-                var tmpVector = preview.lpos;
-                if (planet.factory.prebuildPool[-preview.coverObjId].id != 0)
+                continue;
+            }
+            var tmpVector = preview.lpos;
+            if (planet.factory.prebuildPool[-preview.coverObjId].id != 0)
+            {
+                //Prebuild exists, check if it is same prebuild that client wants by comparing prebuild positions
+                if (tmpVector == planet.factory.prebuildPool[-preview.coverObjId].pos)
                 {
-                    //Prebuild exists, check if it is same prebuild that client wants by comparing prebuild positions
-                    if (tmpVector == planet.factory.prebuildPool[-preview.coverObjId].pos)
-                    {
-                        //Position of prebuilds are same, everything is OK.
-                        continue;
-                    }
+                    //Position of prebuilds are same, everything is OK.
+                    continue;
                 }
-                // Prebuild does not exists, check what is the new ID of the finished building that was constructed from prebuild
-                // or
-                // Positions of prebuilds are different, which means this is different prebuild and we need to find ID of contructed building
-                foreach (var entity in planet.factory.entityPool)
+            }
+            // Prebuild does not exists, check what is the new ID of the finished building that was constructed from prebuild
+            // or
+            // Positions of prebuilds are different, which means this is different prebuild and we need to find ID of contructed building
+            foreach (var entity in planet.factory.entityPool)
+            {
+                // `entity.pos == tmpVector` does not work in every cases (rounding errors?).
+                if (!((entity.pos - tmpVector).sqrMagnitude < 0.1f))
                 {
-                    // `entity.pos == tmpVector` does not work in every cases (rounding errors?).
-                    if ((entity.pos - tmpVector).sqrMagnitude < 0.1f)
-                    {
-                        Log.Info($"CheckAndFixConnections: {entity.pos} {tmpVector}");
-                        preview.coverObjId = entity.id;
-                        break;
-                    }
+                    continue;
                 }
+                Log.Info($"CheckAndFixConnections: {entity.pos} {tmpVector}");
+                preview.coverObjId = entity.id;
+                break;
             }
         }
     }
 
-    public bool CheckBuildingConnections(List<BuildPreview> buildPreviews, EntityData[] entityPool, PrebuildData[] prebuildPool)
+    private static bool CheckBuildingConnections(List<BuildPreview> buildPreviews, IList<EntityData> entityPool,
+        IList<PrebuildData> prebuildPool)
     {
         //Check if some entity that is suppose to be connected to this building is missing
-        for (var i = 0; i < buildPreviews.Count; i++)
+        foreach (var buildPreview in buildPreviews)
         {
-            var buildPreview = buildPreviews[i];
             var inputObjId = buildPreview.inputObjId;
-            if (inputObjId > 0)
+            switch (inputObjId)
             {
-                if (inputObjId >= entityPool.Length || entityPool[inputObjId].id == 0)
-                {
+                case > 0 when inputObjId >= entityPool.Count || entityPool[inputObjId].id == 0:
                     return false;
-                }
-            }
-            else if (inputObjId < 0)
-            {
-                inputObjId = -inputObjId;
-                if (inputObjId >= prebuildPool.Length || prebuildPool[inputObjId].id == 0)
-                {
-                    return false;
-                }
+                case < 0:
+                    {
+                        inputObjId = -inputObjId;
+                        if (inputObjId >= prebuildPool.Count || prebuildPool[inputObjId].id == 0)
+                        {
+                            return false;
+                        }
+                        break;
+                    }
             }
 
             var outputObjId = buildPreview.outputObjId;
-            if (outputObjId > 0)
+            switch (outputObjId)
             {
-                if (outputObjId >= entityPool.Length || entityPool[outputObjId].id == 0)
-                {
+                case > 0 when outputObjId >= entityPool.Count || entityPool[outputObjId].id == 0:
                     return false;
-                }
-            }
-            else if (outputObjId < 0)
-            {
-                outputObjId = -outputObjId;
-                if (outputObjId >= prebuildPool.Length || prebuildPool[outputObjId].id == 0)
-                {
-                    return false;
-                }
+                case < 0:
+                    {
+                        outputObjId = -outputObjId;
+                        if (outputObjId >= prebuildPool.Count || prebuildPool[outputObjId].id == 0)
+                        {
+                            return false;
+                        }
+                        break;
+                    }
             }
         }
         return true;

@@ -14,5 +14,6 @@ public class GameDataHistoryManager : IDisposable
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

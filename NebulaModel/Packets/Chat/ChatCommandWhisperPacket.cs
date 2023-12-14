@@ -1,4 +1,4 @@
-namespace NebulaModel.Packets.Players;
+namespace NebulaModel.Packets.Chat;
 
 public class ChatCommandWhisperPacket
 {
@@ -11,7 +11,7 @@ public class ChatCommandWhisperPacket
         Message = message;
     }
 
-    public string SenderUsername { get; set; }
-    public string RecipientUsername { get; set; }
-    public string Message { get; set; }
+    public string SenderUsername { get; }
+    public string RecipientUsername { get; }
+    public string Message { get; }
 }

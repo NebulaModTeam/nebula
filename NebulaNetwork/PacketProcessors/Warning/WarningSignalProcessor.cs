@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Warning;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Warning;
 [RegisterPacketProcessor]
 internal class WarningSignalProcessor : PacketProcessor<WarningSignalPacket>
 {
-    public override void ProcessPacket(WarningSignalPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(WarningSignalPacket packet, NebulaConnection conn)
     {
         var ws = GameMain.data.warningSystem;
         Array.Clear(ws.warningCounts, 0, ws.warningCounts.Length);

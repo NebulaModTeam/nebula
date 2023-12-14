@@ -15,26 +15,27 @@ public static class InGamePopup
 
     public static void FadeOut()
     {
-        displayedMessage?.FadeOut();
+        displayedMessage.FadeOut();
         displayedMessage = null;
     }
 
     public static void UpdateMessage(in string title, string message)
     {
-        if (displayedMessage != null && displayedMessage.m_TitleText.text == title)
+        if (displayedMessage == null || displayedMessage.m_TitleText.text != title)
         {
-            displayedMessage.m_MessageText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            displayedMessage.m_MessageText.verticalOverflow = VerticalWrapMode.Overflow;
-            displayedMessage.m_MessageText.text = message;
+            return;
         }
+        displayedMessage.m_MessageText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        displayedMessage.m_MessageText.verticalOverflow = VerticalWrapMode.Overflow;
+        displayedMessage.m_MessageText.text = message;
     }
 
     // Input
     public static void AskInput(string title, string message, InputField.ContentType inputType, string inputText,
-        Action<string> onConfrim, Action onCancel)
+        Action<string> onConfirm, Action onCancel)
     {
         displayedMessage = UIMessageBox.Show(title, message, "取消".Translate(), "确定".Translate(),
-            UIMessageBox.QUESTION, () => { onCancel?.Invoke(); }, () => { onConfrim?.Invoke(GetInputField()); });
+            UIMessageBox.QUESTION, () => { onCancel?.Invoke(); }, () => { onConfirm?.Invoke(GetInputField()); });
         CreateInputField(inputType, inputText);
     }
 

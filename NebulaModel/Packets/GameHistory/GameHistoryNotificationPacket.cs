@@ -9,7 +9,7 @@ public class GameHistoryNotificationPacket
         this.Event = Event;
     }
 
-    public GameHistoryEvent Event { get; set; }
+    public GameHistoryEvent Event { get; }
 }
 
 public enum GameHistoryEvent

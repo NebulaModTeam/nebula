@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -20,7 +21,7 @@ public class PlayerMovementProcessor : PacketProcessor<PlayerMovement>
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    public override void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
     {
         var valid = true;
         if (IsHost)

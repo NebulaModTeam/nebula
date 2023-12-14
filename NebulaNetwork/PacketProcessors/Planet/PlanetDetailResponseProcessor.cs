@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Planet;
 [RegisterPacketProcessor]
 public class PlanetDetailResponseProcessor : PacketProcessor<PlanetDetailResponse>
 {
-    public override void ProcessPacket(PlanetDetailResponse packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlanetDetailResponse packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -21,16 +21,9 @@ public class PlanetDetailResponseProcessor : PacketProcessor<PlanetDetailRespons
         }
 
 
-        PlanetData planet = null;
-
-        if (Multiplayer.Session.IsInLobby)
-        {
-            planet = UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID);
-        }
-        else
-        {
-            planet = GameMain.galaxy.PlanetById(packet.PlanetDataID);
-        }
+        var planet = Multiplayer.Session.IsInLobby
+            ? UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID)
+            : GameMain.galaxy.PlanetById(packet.PlanetDataID);
 
         if (packet.VeinCounts.Length > 0)
         {

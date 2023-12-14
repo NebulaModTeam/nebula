@@ -13,17 +13,10 @@ namespace NebulaWorld.Universe;
 
 public class LaunchManager
 {
-    private HashSet<int> planetIds; //Client side
+    private HashSet<int> planetIds = new(); //Client side
 
-    public LaunchManager()
-    {
-        ProjectileBag = new ConcurrentBag<DysonLaunchData.Projectile>();
-        Snapshots = new ConcurrentDictionary<int, DysonLaunchData>();
-        planetIds = new HashSet<int>();
-    }
-
-    public ConcurrentBag<DysonLaunchData.Projectile> ProjectileBag { get; private set; }
-    public ConcurrentDictionary<int, DysonLaunchData> Snapshots { get; private set; }
+    public ConcurrentBag<DysonLaunchData.Projectile> ProjectileBag { get; private set; } = new();
+    public ConcurrentDictionary<int, DysonLaunchData> Snapshots { get; private set; } = new();
 
     public void Dispose()
     {
@@ -37,10 +30,7 @@ public class LaunchManager
         if (Snapshots.IsEmpty)
         {
             // Clear remaining projectile data in bag
-            while (ProjectileBag.TryTake(out _))
-            {
-                ;
-            }
+            while (ProjectileBag.TryTake(out _)) { }
         }
         Snapshots.TryAdd(starIndex, new DysonLaunchData(starIndex));
     }
@@ -106,7 +96,7 @@ public class LaunchManager
             }
         }
 
-        // Clear sanpshots
+        // Clear snapshots
         foreach (var snapshot in Snapshots.Values)
         {
             snapshot.BulletList.Clear();
@@ -191,20 +181,21 @@ public class LaunchManager
     {
         ref var astroPoses = ref GameMain.data.galaxy.astrosData;
         int orbitId = projectile.TargetId;
-        if (swarm.OrbitExist(orbitId))
+        if (!swarm.OrbitExist(orbitId))
         {
-            var starPos = astroPoses[projectile.PlanetId / 100 * 100].uPos;
-            SailBullet bullet = default;
-            bullet.lBegin = projectile.LocalPos;
-            bullet.uBegin = astroPoses[projectile.PlanetId].uPos +
-                            Maths.QRotateLF(astroPoses[projectile.PlanetId].uRot, projectile.LocalPos);
-            bullet.uEnd = starPos + VectorLF3.Cross(swarm.orbits[orbitId].up, starPos - bullet.uBegin).normalized *
-                swarm.orbits[orbitId].radius;
-            bullet.maxt = (float)((bullet.uEnd - bullet.uBegin).magnitude / 4000.0);
-            bullet.uEndVel = VectorLF3.Cross(bullet.uEnd - starPos, swarm.orbits[orbitId].up).normalized *
-                             Math.Sqrt(swarm.dysonSphere.gravity / swarm.orbits[orbitId].radius);
-            swarm.AddBullet(bullet, orbitId);
+            return;
         }
+        var starPos = astroPoses[projectile.PlanetId / 100 * 100].uPos;
+        SailBullet bullet = default;
+        bullet.lBegin = projectile.LocalPos;
+        bullet.uBegin = astroPoses[projectile.PlanetId].uPos +
+                        Maths.QRotateLF(astroPoses[projectile.PlanetId].uRot, projectile.LocalPos);
+        bullet.uEnd = starPos + VectorLF3.Cross(swarm.orbits[orbitId].up, starPos - bullet.uBegin).normalized *
+            swarm.orbits[orbitId].radius;
+        bullet.maxt = (float)((bullet.uEnd - bullet.uBegin).magnitude / 4000.0);
+        bullet.uEndVel = VectorLF3.Cross(bullet.uEnd - starPos, swarm.orbits[orbitId].up).normalized *
+                         Math.Sqrt(swarm.dysonSphere.gravity / swarm.orbits[orbitId].radius);
+        swarm.AddBullet(bullet, orbitId);
     }
 
     private static void AddRocket(DysonSphere sphere, DysonLaunchData.Projectile projectile)
@@ -214,18 +205,19 @@ public class LaunchManager
         var layerId = projectile.TargetId >> 12;
         var nodeId = projectile.TargetId & 0x0FFF;
         var node = sphere.FindNode(layerId, nodeId);
-        if (node != null)
+        if (node == null)
         {
-            DysonRocket rocket = default;
-            rocket.planetId = projectile.PlanetId;
-            rocket.uPos = astroPoses[projectile.PlanetId].uPos + Maths.QRotateLF(astroPoses[projectile.PlanetId].uRot,
-                projectile.LocalPos + projectile.LocalPos.normalized * 6.1f);
-            rocket.uRot = astroPoses[projectile.PlanetId].uRot * Maths.SphericalRotation(projectile.LocalPos, 0f) *
-                          Quaternion.Euler(-90f, 0f, 0f);
-            rocket.uVel = rocket.uRot * Vector3.forward;
-            rocket.uSpeed = 0f;
-            rocket.launch = projectile.LocalPos.normalized;
-            sphere.AddDysonRocket(rocket, node);
+            return;
         }
+        DysonRocket rocket = default;
+        rocket.planetId = projectile.PlanetId;
+        rocket.uPos = astroPoses[projectile.PlanetId].uPos + Maths.QRotateLF(astroPoses[projectile.PlanetId].uRot,
+            projectile.LocalPos + projectile.LocalPos.normalized * 6.1f);
+        rocket.uRot = astroPoses[projectile.PlanetId].uRot * Maths.SphericalRotation(projectile.LocalPos, 0f) *
+                      Quaternion.Euler(-90f, 0f, 0f);
+        rocket.uVel = rocket.uRot * Vector3.forward;
+        rocket.uSpeed = 0f;
+        rocket.launch = projectile.LocalPos.normalized;
+        sphere.AddDysonRocket(rocket, node);
     }
 }

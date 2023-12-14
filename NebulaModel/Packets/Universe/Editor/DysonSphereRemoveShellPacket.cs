@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets.Universe;
+﻿namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonSphereRemoveShellPacket
 {
@@ -11,7 +11,7 @@ public class DysonSphereRemoveShellPacket
         ShellId = shellId;
     }
 
-    public int StarIndex { get; set; }
-    public int LayerId { get; set; }
-    public int ShellId { get; set; }
+    public int StarIndex { get; }
+    public int LayerId { get; }
+    public int ShellId { get; }
 }

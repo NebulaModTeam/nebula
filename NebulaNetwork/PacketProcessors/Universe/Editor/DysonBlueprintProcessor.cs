@@ -1,21 +1,21 @@
 ﻿#region
 
 using System.Text;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Universe;
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
 
 [RegisterPacketProcessor]
 internal class DysonBlueprintProcessor : PacketProcessor<DysonBlueprintPacket>
 {
-    public override void ProcessPacket(DysonBlueprintPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonBlueprintPacket packet, NebulaConnection conn)
     {
         var sphere = GameMain.data.dysonSpheres[packet.StarIndex];
         if (sphere == null)

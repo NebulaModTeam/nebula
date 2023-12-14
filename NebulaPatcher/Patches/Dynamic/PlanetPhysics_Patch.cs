@@ -15,11 +15,7 @@ internal class PlanetPhysics_Patch
     public static bool RemoveLinkedColliderData_Prefix(PlanetPhysics __instance)
     {
         //Collider does not need to be removed if player is not on the planet
-        if (Multiplayer.IsActive && __instance.planet.id != GameMain.mainPlayer.planetId)
-        {
-            return false;
-        }
-        return true;
+        return !Multiplayer.IsActive || __instance.planet.id == GameMain.mainPlayer.planetId;
     }
 
     [HarmonyPrefix]
@@ -27,10 +23,6 @@ internal class PlanetPhysics_Patch
     public static bool RemoveColliderData_Prefix(PlanetPhysics __instance)
     {
         //Collider does not need to be removed if player is not on the planet
-        if (Multiplayer.IsActive && __instance.planet.id != GameMain.mainPlayer.planetId)
-        {
-            return false;
-        }
-        return true;
+        return !Multiplayer.IsActive || __instance.planet.id == GameMain.mainPlayer.planetId;
     }
 }

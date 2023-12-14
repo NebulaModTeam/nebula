@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Interfaces;
 
 #endregion
 

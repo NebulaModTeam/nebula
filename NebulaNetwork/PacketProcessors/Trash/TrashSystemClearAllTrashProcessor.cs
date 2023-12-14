@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
@@ -20,7 +21,7 @@ internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemCl
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    public override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
     {
         var valid = true;
         if (IsHost)
@@ -36,12 +37,13 @@ internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemCl
             }
         }
 
-        if (valid)
+        if (!valid)
         {
-            using (Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers.On())
-            {
-                GameMain.data.trashSystem.ClearAllTrash();
-            }
+            return;
+        }
+        using (Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers.On())
+        {
+            GameMain.data.trashSystem.ClearAllTrash();
         }
     }
 }

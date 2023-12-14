@@ -16,24 +16,24 @@ internal class UIStorageWindow_Patch
     [HarmonyPatch(nameof(UIStorageWindow.OnStorageIdChange))]
     public static bool OnStorageIdChange_Prefix(UIStorageWindow __instance)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Storage.WindowOpened)
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Storage.WindowOpened)
         {
-            var storageUI = __instance.storageUI;
-            Multiplayer.Session.Storage.ActiveUIStorageGrid = storageUI;
-            var titleText = __instance.titleText;
-            Multiplayer.Session.Storage.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
-            Multiplayer.Session.Storage.ActiveWindowTitle = titleText;
-            Multiplayer.Session.Storage.ActiveBansSlider = __instance.bansSlider;
-            Multiplayer.Session.Storage.ActiveBansValueText = __instance.bansValueText;
-            titleText.text = "Loading...";
-            storageUI._Free();
-            storageUI._Open();
-            storageUI.OnStorageDataChanged();
-            Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(__instance.factoryStorage.planet.id,
-                __instance.storageId));
-            return false;
+            return true;
         }
-        return true;
+        var storageUI = __instance.storageUI;
+        Multiplayer.Session.Storage.ActiveUIStorageGrid = storageUI;
+        var titleText = __instance.titleText;
+        Multiplayer.Session.Storage.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
+        Multiplayer.Session.Storage.ActiveWindowTitle = titleText;
+        Multiplayer.Session.Storage.ActiveBansSlider = __instance.bansSlider;
+        Multiplayer.Session.Storage.ActiveBansValueText = __instance.bansValueText;
+        titleText.text = "Loading...";
+        storageUI._Free();
+        storageUI._Open();
+        storageUI.OnStorageDataChanged();
+        Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(__instance.factoryStorage.planet.id,
+            __instance.storageId));
+        return false;
     }
 
     [HarmonyPrefix]
@@ -54,10 +54,11 @@ internal class UIStorageWindow_Patch
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnClose_Prefix()
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            Multiplayer.Session.Storage.WindowOpened = false;
-            Multiplayer.Session.Storage.ActiveStorageComponent = null;
+            return;
         }
+        Multiplayer.Session.Storage.WindowOpened = false;
+        Multiplayer.Session.Storage.ActiveStorageComponent = null;
     }
 }

@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
 
 #endregion
 

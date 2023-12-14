@@ -1,6 +1,8 @@
 ﻿#region
 
-using NebulaAPI;
+using System;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
@@ -13,14 +15,9 @@ namespace NebulaNetwork.PacketProcessors.Statistics;
 [RegisterPacketProcessor]
 internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
 {
-    private readonly IPlayerManager playerManager;
+    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
 
-    public StatisticsRequestEventProcessor()
-    {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
-    }
-
-    public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
+    protected override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -28,22 +25,26 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
         }
 
         var player = playerManager.GetPlayer(conn);
-        if (player != null)
+        if (player == null)
         {
-            if (packet.Event == StatisticEvent.WindowOpened)
-            {
-                Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
-
-                using (var writer = new BinaryUtils.Writer())
+            return;
+        }
+        switch (packet.Event)
+        {
+            case StatisticEvent.WindowOpened:
                 {
+                    Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
+
+                    using var writer = new BinaryUtils.Writer();
                     Multiplayer.Session.Statistics.ExportAllData(writer.BinaryWriter);
                     conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
+                    break;
                 }
-            }
-            else if (packet.Event == StatisticEvent.WindowClosed)
-            {
+            case StatisticEvent.WindowClosed:
                 Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
-            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(packet), "Unknown event type: " + packet.Event);
         }
     }
 }

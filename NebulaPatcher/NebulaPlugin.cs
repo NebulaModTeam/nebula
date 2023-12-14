@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using BepInEx;
 using HarmonyLib;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
 using NebulaModel.Logger;
 using NebulaModel.Utils;
 using NebulaNetwork;
@@ -37,7 +37,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
         // Read command-line arguments
         var args = Environment.GetCommandLineArgs();
         var batchmode = false;
-        (var didLoad, var loadArgExists, var newgameArgExists, var saveName) = (false, false, false, string.Empty);
+        var (didLoad, loadArgExists, newgameArgExists, saveName) = (false, false, false, string.Empty);
         for (var i = 0; i < args.Length; i++)
         {
             if (args[i] == "-server")
@@ -118,17 +118,18 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
                 }
             }
 
-            if (args[i] == "-ups" && i + 1 < args.Length)
+            if (args[i] != "-ups" || i + 1 >= args.Length)
             {
-                if (int.TryParse(args[i + 1], out var value))
-                {
-                    Log.Info($">> Set UPS {value}");
-                    command_ups = value;
-                }
-                else
-                {
-                    Log.Warn($">> Can't set UPS, {args[i + 1]} is not a valid number");
-                }
+                continue;
+            }
+            if (int.TryParse(args[i + 1], out var value))
+            {
+                Log.Info($">> Set UPS {value}");
+                command_ups = value;
+            }
+            else
+            {
+                Log.Warn($">> Can't set UPS, {args[i + 1]} is not a valid number");
             }
         }
 
@@ -136,14 +137,9 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
         {
             if (loadArgExists)
             {
-                if (saveName != string.Empty)
-                {
-                    Log.Error($">> Can't find save with name {saveName}! Exiting...");
-                }
-                else
-                {
-                    Log.Error(">> Can't find any save in the folder! Exiting...");
-                }
+                Log.Error(saveName != string.Empty
+                    ? $">> Can't find save with name {saveName}! Exiting..."
+                    : ">> Can't find any save in the folder! Exiting...");
             }
             else if (newgameArgExists)
             {
@@ -200,17 +196,18 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
         // Mimic UI buttons clicking
         UIMainMenu_Patch.OnMultiplayerButtonClick();
-        if (GameSave.SaveExist(saveName))
+        if (!GameSave.SaveExist(saveName))
         {
-            // Modified from DoLoadSelectedGame
-            Log.Info($"Starting dedicated server, loading save : {saveName}");
-            DSPGame.StartGame(saveName);
-            Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
-            Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
-            if (command_ups != 0)
-            {
-                FPSController.SetFixUPS(command_ups);
-            }
+            return;
+        }
+        // Modified from DoLoadSelectedGame
+        Log.Info($"Starting dedicated server, loading save : {saveName}");
+        DSPGame.StartGame(saveName);
+        Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
+        Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
+        if (command_ups != 0)
+        {
+            FPSController.SetFixUPS(command_ups);
         }
     }
 
@@ -218,19 +215,20 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
         // Mimic UI buttons clicking
         UIMainMenu_Patch.OnMultiplayerButtonClick();
-        if (gameDesc != null)
+        if (gameDesc == null)
         {
-            // Modified from DoLoadSelectedGame
-            Log.Info("Starting dedicated server, create new game from parameters:");
-            Log.Info(
-                $"seed={gameDesc.galaxySeed} starCount={gameDesc.starCount} resourceMultiplier={gameDesc.resourceMultiplier:F1}");
-            DSPGame.StartGameSkipPrologue(gameDesc);
-            Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
-            Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
-            if (command_ups != 0)
-            {
-                FPSController.SetFixUPS(command_ups);
-            }
+            return;
+        }
+        // Modified from DoLoadSelectedGame
+        Log.Info("Starting dedicated server, create new game from parameters:");
+        Log.Info(
+            $"seed={gameDesc.galaxySeed} starCount={gameDesc.starCount} resourceMultiplier={gameDesc.resourceMultiplier:F1}");
+        DSPGame.StartGameSkipPrologue(gameDesc);
+        Log.Info($"Listening server on port {NebulaModel.Config.Options.HostPort}");
+        Multiplayer.HostGame(new Server(NebulaModel.Config.Options.HostPort, true));
+        if (command_ups != 0)
+        {
+            FPSController.SetFixUPS(command_ups);
         }
     }
 

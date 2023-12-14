@@ -62,7 +62,8 @@ internal class UIOptionWindow_Patch
         var tabOffset = lastTab.anchoredPosition.x - beforeLastTab.anchoredPosition.x;
         var multiplayerTab = Object.Instantiate(lastTab, lastTab.parent, true);
         multiplayerTab.name = "tab-button-multiplayer";
-        multiplayerTab.anchoredPosition = new Vector2(lastTab.anchoredPosition.x + tabOffset, lastTab.anchoredPosition.y);
+        var anchoredPosition = lastTab.anchoredPosition;
+        multiplayerTab.anchoredPosition = new Vector2(anchoredPosition.x + tabOffset, anchoredPosition.y);
         var newTabButtons = tabButtons.AddToArray(multiplayerTab.GetComponent<UIButton>());
         __instance.tabButtons = newTabButtons;
 
@@ -109,26 +110,29 @@ internal class UIOptionWindow_Patch
         RectTransform subtab = null;
         foreach (RectTransform child in subtabsBar)
         {
-            if (child.name == "tab-button-multiplayer")
+            switch (child.name)
             {
-                subtab = child;
-            }
-            else if (child.name == "bar")
-            {
-                subtabSlider = child.GetComponentInChildren<Image>();
-            }
-            else
-            {
-                Object.Destroy(child.gameObject);
+                case "tab-button-multiplayer":
+                    subtab = child;
+                    break;
+                case "bar":
+                    subtabSlider = child.GetComponentInChildren<Image>();
+                    break;
+                default:
+                    Object.Destroy(child.gameObject);
+                    break;
             }
         }
-        subtab.localPosition = new Vector3(20, 38, 0);
-        subtabButtons.Add(subtab.GetComponent<UIButton>());
-        subtab.name = $"tab-button-{subtabButtons.Count}";
-        var subtabText = subtab.GetComponentInChildren<Text>();
-        subtabText.text = "General".Translate();
-        subtabTexts.Add(subtabText);
-        subtabTemplate = subtab;
+        if (subtab != null)
+        {
+            subtab.localPosition = new Vector3(20, 38, 0);
+            subtabButtons.Add(subtab.GetComponent<UIButton>());
+            subtab.name = $"tab-button-{subtabButtons.Count}";
+            var subtabText = subtab.GetComponentInChildren<Text>();
+            subtabText.text = "General".Translate();
+            subtabTexts.Add(subtabText);
+            subtabTemplate = subtab;
+        }
         subtabContents.Add(new GameObject("General").transform);
 
         // Add ScrollView
@@ -259,46 +263,47 @@ internal class UIOptionWindow_Patch
             var displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
             var descriptionAttr = prop.GetCustomAttribute<DescriptionAttribute>();
             var categoryAttribute = prop.GetCustomAttribute<CategoryAttribute>();
-            if (displayAttr != null)
+            if (displayAttr == null)
             {
-                var index = 0;
-                if (categoryAttribute != null)
+                continue;
+            }
+            var index = 0;
+            if (categoryAttribute != null)
+            {
+                index = subtabTexts.FindIndex(text => text.text.Translate() == categoryAttribute.Category.Translate());
+                if (index == -1)
                 {
-                    index = subtabTexts.FindIndex(text => text.text.Translate() == categoryAttribute.Category.Translate());
-                    if (index == -1)
-                    {
-                        CreateSubtab(categoryAttribute.Category.Translate());
-                        index = subtabTexts.Count - 1;
-                    }
+                    CreateSubtab(categoryAttribute.Category.Translate());
+                    index = subtabTexts.Count - 1;
                 }
-                var container = subtabContents[index];
-                var anchorPosition = new Vector2(30, -40 * container.childCount);
+            }
+            var container = subtabContents[index];
+            var anchorPosition = new Vector2(30, -40 * container.childCount);
 
-                if (prop.PropertyType == typeof(bool))
-                {
-                    CreateBooleanControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-                }
-                else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) ||
-                         prop.PropertyType == typeof(ushort))
-                {
-                    CreateNumberControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-                }
-                else if (prop.PropertyType == typeof(string))
-                {
-                    CreateStringControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-                }
-                else if (prop.PropertyType.IsEnum)
-                {
-                    CreateEnumControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-                }
-                else if (prop.PropertyType == typeof(KeyboardShortcut))
-                {
-                    CreateHotkeyControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-                }
-                else
-                {
-                    Log.Warn($"MultiplayerOption property \"${prop.Name}\" of type \"{prop.PropertyType}\" not supported.");
-                }
+            if (prop.PropertyType == typeof(bool))
+            {
+                CreateBooleanControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+            }
+            else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) ||
+                     prop.PropertyType == typeof(ushort))
+            {
+                CreateNumberControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+            }
+            else if (prop.PropertyType == typeof(string))
+            {
+                CreateStringControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+            }
+            else if (prop.PropertyType.IsEnum)
+            {
+                CreateEnumControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+            }
+            else if (prop.PropertyType == typeof(KeyboardShortcut))
+            {
+                CreateHotkeyControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+            }
+            else
+            {
+                Log.Warn($"MultiplayerOption property \"${prop.Name}\" of type \"{prop.PropertyType}\" not supported.");
             }
         }
     }
@@ -306,8 +311,9 @@ internal class UIOptionWindow_Patch
     private static void CreateSubtab(string subtabName)
     {
         var subtab = Object.Instantiate(subtabTemplate, subtabTemplate.parent);
-        subtab.anchoredPosition = new Vector2(subtabTemplate.anchoredPosition.x + subtabOffest * subtabButtons.Count,
-            subtabTemplate.anchoredPosition.y);
+        var anchoredPosition = subtabTemplate.anchoredPosition;
+        subtab.anchoredPosition = new Vector2(anchoredPosition.x + subtabOffest * subtabButtons.Count,
+            anchoredPosition.y);
         subtabButtons.Add(subtab.GetComponent<UIButton>());
         subtab.name = $"tab-button-{subtabButtons.Count}";
         var subtabText = subtab.GetComponentInChildren<Text>();
@@ -330,12 +336,13 @@ internal class UIOptionWindow_Patch
             if (control.DisplayName == "Sync Soil" && Multiplayer.IsActive)
             {
                 // reset to saved value if needed
-                if (value != (bool)prop.GetValue(tempMultiplayerOptions, null))
+                if (value == (bool)prop.GetValue(tempMultiplayerOptions, null))
                 {
-                    toggle.isOn = !value;
-                    InGamePopup.ShowInfo("Unavailable".Translate(),
-                        "This setting can only be changed while not in game".Translate(), "OK".Translate());
+                    return;
                 }
+                toggle.isOn = !value;
+                InGamePopup.ShowInfo("Unavailable".Translate(),
+                    "This setting can only be changed while not in game".Translate(), "OK".Translate());
                 return;
             }
 
@@ -352,7 +359,7 @@ internal class UIOptionWindow_Patch
         PropertyInfo prop, Vector2 anchorPosition, Transform container)
     {
         var rangeAttr = prop.GetCustomAttribute<UIRangeAttribute>();
-        var sliderControl = rangeAttr != null && rangeAttr.Slider;
+        var sliderControl = rangeAttr is { Slider: true };
 
         var element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, container, false);
         SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
@@ -495,19 +502,20 @@ internal class UIOptionWindow_Patch
         input.onValueChanged.RemoveAllListeners();
         input.onValueChanged.AddListener(value =>
         {
-            if (!string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
-                var hotkey = KeyboardShortcut.Deserialize(value);
-                if (hotkey.Equals(KeyboardShortcut.Empty))
-                {
-                    // Show text color in red when the shortcut is not valid
-                    input.textComponent.color = Color.red;
-                }
-                else
-                {
-                    input.textComponent.color = Color.white;
-                    prop.SetValue(tempMultiplayerOptions, hotkey, null);
-                }
+                return;
+            }
+            var hotkey = KeyboardShortcut.Deserialize(value);
+            if (hotkey.Equals(KeyboardShortcut.Empty))
+            {
+                // Show text color in red when the shortcut is not valid
+                input.textComponent.color = Color.red;
+            }
+            else
+            {
+                input.textComponent.color = Color.white;
+                prop.SetValue(tempMultiplayerOptions, hotkey, null);
             }
         });
 

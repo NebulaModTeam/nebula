@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 public class PlayerDisconnectedProcessor : PacketProcessor<PlayerDisconnected>
 {
-    public override void ProcessPacket(PlayerDisconnected packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlayerDisconnected packet, NebulaConnection conn)
     {
         Multiplayer.Session.NumPlayers = packet.NumPlayers;
         DiscordManager.UpdateRichPresence();

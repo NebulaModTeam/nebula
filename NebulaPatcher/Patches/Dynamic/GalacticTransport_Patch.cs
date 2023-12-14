@@ -25,13 +25,9 @@ internal class GalacticTransport_Patch
     [HarmonyPatch(nameof(GalacticTransport.AddStationComponent))]
     public static bool AddStationComponent_Prefix(StationComponent station)
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient && station.gid == 0)
-        {
-            // When client build a new station (gid == 0), we will let host decide the value of gid
-            // ILS will be added when ILSAddStationComponent from host arrived
-            return false;
-        }
-        return true;
+        return !Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsClient || station.gid != 0;
+        // When client build a new station (gid == 0), we will let host decide the value of gid
+        // ILS will be added when ILSAddStationComponent from host arrived
     }
 
     [HarmonyPrefix]

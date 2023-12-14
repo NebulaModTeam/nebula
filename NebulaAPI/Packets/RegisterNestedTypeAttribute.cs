@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.Packets;
 
 /// <summary>
 ///     Registers custom data structure serializer. Make sure to register your assembly using NebulaModAPI.RegisterPackets

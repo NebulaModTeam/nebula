@@ -1,32 +1,31 @@
 ﻿#region
 
-using NebulaAPI;
-using NebulaModel.DataStructures;
+using NebulaAPI.Packets;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Chat;
 using NebulaWorld;
 using NebulaWorld.Chat.Commands;
-using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Players;
+namespace NebulaNetwork.PacketProcessors.Chat;
 
 [RegisterPacketProcessor]
 internal class ChatCommandWhoProcessor : PacketProcessor<ChatCommandWhoPacket>
 {
-    public override void ProcessPacket(ChatCommandWhoPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(ChatCommandWhoPacket packet, NebulaConnection conn)
     {
+        var recipient = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
         if (IsHost)
         {
-            IPlayerData[] playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
-            ILocalPlayer hostPlayer = Multiplayer.Session.LocalPlayer;
+            var playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
+            var hostPlayer = Multiplayer.Session.LocalPlayer;
             var resultPayload = WhoCommandHandler.BuildResultPayload(playerDatas, hostPlayer);
 
-            INebulaPlayer recipient = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
             recipient.SendPacket(new ChatCommandWhoPacket(false, resultPayload));
         }
         else

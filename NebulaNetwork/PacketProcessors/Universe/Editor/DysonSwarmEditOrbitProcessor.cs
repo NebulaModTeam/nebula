@@ -1,20 +1,21 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Universe;
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
 
 [RegisterPacketProcessor]
 internal class DysonSwarmEditOrbitProcessor : PacketProcessor<DysonSwarmEditOrbitPacket>
 {
-    public override void ProcessPacket(DysonSwarmEditOrbitPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSwarmEditOrbitPacket packet, NebulaConnection conn)
     {
         var sphere = GameMain.data.dysonSpheres[packet.StarIndex];
         if (sphere == null)

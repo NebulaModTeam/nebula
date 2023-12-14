@@ -1,7 +1,8 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -16,7 +17,7 @@ namespace NebulaNetwork.PacketProcessors.Universe;
 [RegisterPacketProcessor]
 public class DysonSphereRequestProcessor : PacketProcessor<DysonSphereLoadRequest>
 {
-    public override void ProcessPacket(DysonSphereLoadRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSphereLoadRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -59,6 +60,8 @@ public class DysonSphereRequestProcessor : PacketProcessor<DysonSphereLoadReques
             case DysonSphereRequestEvent.Unload:
                 Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn, packet.StarIndex);
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(packet), "Unknown DysonSphereRequestEvent: " + packet.Event);
         }
     }
 }

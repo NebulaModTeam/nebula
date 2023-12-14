@@ -32,7 +32,8 @@ public class PlayerControlGizmo_Transpiler
         var jmpPos = matcher.Operand;
         matcher.Advance(1)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this => Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this =>
+                Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
             .Insert(new CodeInstruction(OpCodes.Brtrue, jmpPos));
 
         matcher.MatchForward(true,
@@ -45,7 +46,8 @@ public class PlayerControlGizmo_Transpiler
         jmpPos = matcher.Operand;
         matcher.Advance(1)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this => Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this =>
+                Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
             .Insert(new CodeInstruction(OpCodes.Brtrue, jmpPos));
 
         matcher.MatchForward(true,
@@ -58,7 +60,8 @@ public class PlayerControlGizmo_Transpiler
         jmpPos = matcher.Operand;
         matcher.Advance(1)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this => Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this =>
+                Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
             .Insert(new CodeInstruction(OpCodes.Brtrue, jmpPos));
 
         return matcher.InstructionEnumeration();

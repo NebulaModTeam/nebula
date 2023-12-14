@@ -1,13 +1,14 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Transpiler;
+namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch(typeof(PostEffectController))]
 internal class PostEffectController_Transpiler
@@ -20,7 +21,8 @@ internal class PostEffectController_Transpiler
         // Change: if (localPlanet.type != EPlanetType.Gas)
         // To:     if (localPlanet.type != EPlanetType.Gas && localPlanet.factoryloaded)
 
-        var matcher = new CodeMatcher(instructions, il)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions, il)
             .MatchForward(true,
                 new CodeMatch(i => i.IsLdloc()),
                 new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.type))),
@@ -31,17 +33,14 @@ internal class PostEffectController_Transpiler
         if (matcher.IsInvalid)
         {
             Log.Error("PostEffectController.Update_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var jumpOperand = matcher.Instruction.operand;
 
         return matcher
             .Advance(1)
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() =>
-            {
-                return GameMain.localPlanet.factoryLoaded;
-            }))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() => GameMain.localPlanet.factoryLoaded))
             .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse, jumpOperand))
             .InstructionEnumeration();
     }

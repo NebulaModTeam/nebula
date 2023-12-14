@@ -28,11 +28,12 @@ internal class UIPowerExchangerWindow_Patch
     public static void OnEmptyOrFullUIButtonClick_Postfix(UIPowerExchangerWindow __instance)
     {
         //Notify other about taking or inserting accumulators
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var powerExchangerComponent = __instance.powerSystem.excPool[__instance.exchangerId];
-            Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId,
-                powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.id ?? -1));
+            return;
         }
+        var powerExchangerComponent = __instance.powerSystem.excPool[__instance.exchangerId];
+        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId,
+            powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.id ?? -1));
     }
 }

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using WebSocketSharp;
@@ -51,23 +51,24 @@ public class NebulaConnection : INebulaConnection
 
     public bool Equals(INebulaConnection connection)
     {
-        return connection != null && (connection as NebulaConnection).peerEndpoint.Equals(peerEndpoint);
+        return connection != null && ((NebulaConnection)connection).peerEndpoint.Equals(peerEndpoint);
     }
 
     private void ProcessPacketQueue()
     {
-        if (enable && pendingPackets.Count > 0)
+        if (!enable || pendingPackets.Count <= 0)
         {
-            var packet = pendingPackets.Dequeue();
-            if (peerSocket.ReadyState == WebSocketState.Open)
-            {
-                peerSocket.SendAsync(packet, OnSendCompleted);
-                enable = false;
-            }
-            else
-            {
-                Log.Warn($"Cannot send packet to a {peerSocket.ReadyState} connection {peerEndpoint.GetHashCode()}");
-            }
+            return;
+        }
+        var packet = pendingPackets.Dequeue();
+        if (peerSocket.ReadyState == WebSocketState.Open)
+        {
+            peerSocket.SendAsync(packet, OnSendCompleted);
+            enable = false;
+        }
+        else
+        {
+            Log.Warn($"Cannot send packet to a {peerSocket.ReadyState} connection {peerEndpoint.GetHashCode()}");
         }
     }
 
@@ -119,11 +120,7 @@ public class NebulaConnection : INebulaConnection
         {
             return true;
         }
-        if (obj.GetType() != GetType())
-        {
-            return false;
-        }
-        return (obj as NebulaConnection).peerEndpoint.Equals(peerEndpoint);
+        return obj.GetType() == GetType() && ((NebulaConnection)obj).peerEndpoint.Equals(peerEndpoint);
     }
 
     public override int GetHashCode()

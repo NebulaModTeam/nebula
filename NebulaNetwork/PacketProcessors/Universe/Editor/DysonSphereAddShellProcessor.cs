@@ -1,21 +1,21 @@
 ﻿#region
 
 using System.Collections.Generic;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Universe;
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
 
 [RegisterPacketProcessor]
 internal class DysonSphereAddShellProcessor : PacketProcessor<DysonSphereAddShellPacket>
 {
-    public override void ProcessPacket(DysonSphereAddShellPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSphereAddShellPacket packet, NebulaConnection conn)
     {
         var layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
         if (layer == null)

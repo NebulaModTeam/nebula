@@ -10,6 +10,6 @@ public class StorageSyncRequestPacket
         StorageId = storageId;
     }
 
-    public int PlanetId { get; set; }
-    public int StorageId { get; set; }
+    public int PlanetId { get; }
+    public int StorageId { get; }
 }

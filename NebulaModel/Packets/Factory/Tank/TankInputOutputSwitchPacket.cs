@@ -12,8 +12,8 @@ public class TankInputOutputSwitchPacket
         PlanetId = planetId;
     }
 
-    public int TankIndex { get; set; }
-    public bool IsInput { get; set; }
-    public bool IsClosed { get; set; }
-    public int PlanetId { get; set; }
+    public int TankIndex { get; }
+    public bool IsInput { get; }
+    public bool IsClosed { get; }
+    public int PlanetId { get; }
 }

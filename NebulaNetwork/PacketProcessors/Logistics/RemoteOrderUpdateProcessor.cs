@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class RemoteOrderUpdateProcessor : PacketProcessor<RemoteOrderUpdate>
 {
-    public override void ProcessPacket(RemoteOrderUpdate packet, NebulaConnection conn)
+    protected override void ProcessPacket(RemoteOrderUpdate packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -30,7 +30,10 @@ public class RemoteOrderUpdateProcessor : PacketProcessor<RemoteOrderUpdate>
             packet.RemoteOrder = remoteOrder;
             conn.SendPacket(packet);
         }
-        if (IsClient)
+        if (!IsClient)
+        {
+            return;
+        }
         {
             var stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGId];
             var storage = stationComponent?.storage;

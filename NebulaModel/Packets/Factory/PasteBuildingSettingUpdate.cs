@@ -25,23 +25,23 @@ public class PasteBuildingSettingUpdate
         PlanetId = planetId;
     }
 
-    public int ObjectId { get; set; }
-    public BuildingType Type { get; set; }
-    public int ItemId { get; set; }
-    public int ModelIndex { get; set; }
-    public float Yaw { get; set; }
-    public ERecipeType RecipeType { get; set; }
-    public int RecipeId { get; set; }
-    public int FilterId { get; set; }
-    public int Mode0 { get; set; }
-    public int Mode1 { get; set; }
-    public int Mode2 { get; set; }
-    public int Mode3 { get; set; }
-    public int[] Parameters { get; set; }
-    public int[] InserterItemIds { get; set; }
-    public int[] InserterLengths { get; set; }
-    public int[] InserterFilters { get; set; }
-    public int PlanetId { get; set; }
+    public int ObjectId { get; }
+    private BuildingType Type { get; }
+    private int ItemId { get; }
+    private int ModelIndex { get; }
+    private float Yaw { get; }
+    private ERecipeType RecipeType { get; }
+    private int RecipeId { get; }
+    private int FilterId { get; }
+    private int Mode0 { get; }
+    private int Mode1 { get; }
+    private int Mode2 { get; }
+    private int Mode3 { get; }
+    private int[] Parameters { get; }
+    private int[] InserterItemIds { get; }
+    private int[] InserterLengths { get; }
+    private int[] InserterFilters { get; }
+    public int PlanetId { get; }
 
     public BuildingParameters GetBuildingSettings()
     {

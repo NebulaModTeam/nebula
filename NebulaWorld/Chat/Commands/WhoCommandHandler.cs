@@ -1,11 +1,11 @@
 ﻿#region
 
 using System.Text;
-using NebulaAPI;
-using NebulaModel.DataStructures;
-using NebulaModel.Packets.Players;
-using NebulaWorld.MonoBehaviours.Local;
-using static NebulaWorld.Chat.NavigateChatLinkHandler;
+using NebulaAPI.GameState;
+using NebulaModel.DataStructures.Chat;
+using NebulaModel.Packets.Chat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
+using static NebulaWorld.Chat.ChatLinks.NavigateChatLinkHandler;
 
 #endregion
 
@@ -22,8 +22,8 @@ public class WhoCommandHandler : IChatCommandHandler
         }
         else
         {
-            IPlayerData[] playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
-            ILocalPlayer hostPlayer = Multiplayer.Session.LocalPlayer;
+            var playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
+            var hostPlayer = Multiplayer.Session.LocalPlayer;
             var messageContent = BuildResultPayload(playerDatas, hostPlayer);
             window.SendLocalChatMessage(messageContent, ChatMessageType.CommandOutputMessage);
         }
@@ -52,7 +52,7 @@ public class WhoCommandHandler : IChatCommandHandler
 
     private static string BuildWhoMessageTextForPlayer(IPlayerData playerData, ILocalPlayer localPlayer)
     {
-        var sb = new StringBuilder(string.Format("[{0}] {1}", playerData.PlayerId, FormatNavigateString(playerData.Username)));
+        var sb = new StringBuilder($"[{playerData.PlayerId}] {FormatNavigateString(playerData.Username)}");
         if (localPlayer.Id == playerData.PlayerId)
         {
             sb.Append(" (host)".Translate());
@@ -79,14 +79,7 @@ public class WhoCommandHandler : IChatCommandHandler
         }
 
 
-        if (!string.IsNullOrWhiteSpace(playerPlanetString))
-        {
-            sb.Append(playerPlanetString);
-        }
-        else
-        {
-            sb.Append(", in space".Translate());
-        }
+        sb.Append(!string.IsNullOrWhiteSpace(playerPlanetString) ? playerPlanetString : ", in space".Translate());
 
         if (!string.IsNullOrWhiteSpace(playerSystemString))
         {

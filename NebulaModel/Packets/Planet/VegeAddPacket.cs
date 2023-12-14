@@ -11,7 +11,7 @@ public class VegeAddPacket
         Data = data;
     }
 
-    public int PlanetId { get; set; }
-    public bool IsVein { get; set; }
-    public byte[] Data { get; set; }
+    public int PlanetId { get; }
+    public bool IsVein { get; }
+    public byte[] Data { get; }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -12,15 +13,15 @@ using UnityEngine;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Transpiler;
+namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch(typeof(PlanetFactory))]
 internal class PlanetFactory_Transpiler
 {
     public delegate bool BoundsChecker(PlanetFactory factory, int index);
 
-    public static List<int> CheckPopupPresent = new();
-    public static Dictionary<int, List<int>> FaultyVeins = new();
+    public static readonly List<int> CheckPopupPresent = new();
+    public static readonly Dictionary<int, List<int>> FaultyVeins = new();
 
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(PlanetFactory.OnBeltBuilt))]
@@ -33,7 +34,8 @@ internal class PlanetFactory_Transpiler
          * After
          * this.factorySystem.SetInserterPickTarget(inserterId, num6, num5 - num7);
          */
-        var codeMatcher = new CodeMatcher(instructions, iLGenerator)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions, iLGenerator)
             .MatchForward(true,
                 new CodeMatch(i => i.opcode == OpCodes.Callvirt &&
                                    ((MethodInfo)i.operand).Name == nameof(FactorySystem.SetInserterPickTarget)
@@ -43,7 +45,7 @@ internal class PlanetFactory_Transpiler
         if (codeMatcher.IsInvalid)
         {
             Log.Error("PlanetFactory_Transpiler.OnBeltBuilt 1 failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var setInserterTargetInsts = codeMatcher.InstructionsWithOffsets(-5, -1); // inserterId, pickTarget, offset
@@ -131,21 +133,22 @@ internal class PlanetFactory_Transpiler
                     .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<CatchBeltFastFillIn>(
                         (result, factory, beltId, offset, itemId, itemCount, itemInc) =>
                         {
-                            if (Multiplayer.IsActive && result)
+                            if (!Multiplayer.IsActive || !result)
                             {
-                                if (Multiplayer.Session.LocalPlayer.IsHost)
-                                {
-                                    Multiplayer.Session.Network.SendPacketToStar(
-                                        new BeltUpdatePutItemOnPacket(beltId, itemId, itemCount, itemInc, factory.planetId),
-                                        factory.planet.star.id);
-                                }
-                                else
-                                {
-                                    Multiplayer.Session.Network.SendPacket(new BeltUpdatePutItemOnPacket(beltId, itemId,
-                                        itemCount, itemInc, factory.planetId));
-                                }
+                                return result;
                             }
-                            return result;
+                            if (Multiplayer.Session.LocalPlayer.IsHost)
+                            {
+                                Multiplayer.Session.Network.SendPacketToStar(
+                                    new BeltUpdatePutItemOnPacket(beltId, itemId, itemCount, itemInc, factory.planetId),
+                                    factory.planet.star.id);
+                            }
+                            else
+                            {
+                                Multiplayer.Session.Network.SendPacket(new BeltUpdatePutItemOnPacket(beltId, itemId,
+                                    itemCount, itemInc, factory.planetId));
+                            }
+                            return true;
                         }));
                 matchCounter++;
             });
@@ -171,24 +174,25 @@ internal class PlanetFactory_Transpiler
                     .Insert(HarmonyLib.Transpilers.EmitDelegate<CatchBeltFastTakeOut>(
                         (result, factory, beltId, itemId, count) =>
                         {
-                            if (Multiplayer.IsActive)
+                            if (!Multiplayer.IsActive)
                             {
-                                var bUpdate = new BeltUpdate[1];
+                                return result;
+                            }
+                            var bUpdate = new BeltUpdate[1];
 
-                                bUpdate[0].ItemId = itemId;
-                                bUpdate[0].Count = count;
-                                bUpdate[0].BeltId = beltId;
+                            bUpdate[0].ItemId = itemId;
+                            bUpdate[0].Count = count;
+                            bUpdate[0].BeltId = beltId;
 
-                                if (Multiplayer.Session.LocalPlayer.IsHost)
-                                {
-                                    Multiplayer.Session.Network.SendPacketToStar(
-                                        new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId), factory.planet.star.id);
-                                }
-                                else
-                                {
-                                    Multiplayer.Session.Network.SendPacket(
-                                        new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId));
-                                }
+                            if (Multiplayer.Session.LocalPlayer.IsHost)
+                            {
+                                Multiplayer.Session.Network.SendPacketToStar(
+                                    new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId), factory.planet.star.id);
+                            }
+                            else
+                            {
+                                Multiplayer.Session.Network.SendPacket(
+                                    new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId));
                             }
                             return result;
                         }));

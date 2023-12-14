@@ -3,12 +3,13 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NebulaModel.Logger;
+using NebulaWorld.Chat.ChatLinks;
 
 #endregion
 
 namespace NebulaWorld.Chat;
 
-public class RichChatLinkRegistry
+public static class RichChatLinkRegistry
 {
     private static readonly Dictionary<string, IChatLinkHandler> handlers = new();
 
@@ -19,7 +20,7 @@ public class RichChatLinkRegistry
         RegisterChatLinkHandler("navigate", new NavigateChatLinkHandler());
     }
 
-    public static void RegisterChatLinkHandler(string linkID, IChatLinkHandler handler)
+    private static void RegisterChatLinkHandler(string linkID, IChatLinkHandler handler)
     {
         if (handler == null)
         {
@@ -50,52 +51,31 @@ public class RichChatLinkRegistry
 
     public static IChatLinkHandler GetChatLinkHandler(string linkID)
     {
-        if (handlers.ContainsKey(linkID))
-        {
-            var handler = handlers[linkID];
-            return handler;
-        }
-
-        return null;
+        return handlers.TryGetValue(linkID, out var handler) ? handler : null;
     }
 
     public static string ExpandRichTextTags(string text)
     {
-        var regex = new Regex(@"<sprite name=""(\w+)"" color=""([^""]+)"">");
+        var regex = new Regex("""<sprite name="(\w+)" color="([^"]+)">""");
 
         return regex.Replace(text, match =>
         {
             var data = match.Groups[2].Value;
-            if (!string.IsNullOrEmpty(data))
-            {
-                return FormatFullRichText(data);
-            }
-
-            return match.Value;
+            return !string.IsNullOrEmpty(data) ? FormatFullRichText(data) : match.Value;
         });
     }
 
-    public static string FormatFullRichText(string linkString)
+    private static string FormatFullRichText(string linkString)
     {
         var linkID = ParseRichText(linkString, out var linkData);
         var handler = GetChatLinkHandler(linkID);
-        if (handler == null)
-        {
-            return "";
-        }
-
-        return handler.GetDisplayRichText(linkData);
+        return handler == null ? "" : handler.GetDisplayRichText(linkData);
     }
 
     public static string FormatShortRichText(string linkString)
     {
         var linkID = ParseRichText(linkString, out var linkData);
         var handler = GetChatLinkHandler(linkID);
-        if (handler == null)
-        {
-            return "";
-        }
-
-        return $"<sprite name=\"{handler.GetIconName(linkData)}\" color=\"{linkString}\">";
+        return handler == null ? "" : $"<sprite name=\"{handler.GetIconName(linkData)}\" color=\"{linkString}\">";
     }
 }

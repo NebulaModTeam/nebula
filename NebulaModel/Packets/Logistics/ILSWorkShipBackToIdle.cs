@@ -13,9 +13,9 @@ public class ILSWorkShipBackToIdle
         WorkShipIndex = workShipIndex;
     }
 
-    public int GId { get; set; }
-    public int PlanetA { get; set; }
-    public int StationMaxShipCount { get; set; }
-    public int ShipIndex { get; set; }
-    public int WorkShipIndex { get; set; }
+    public int GId { get; }
+    public int PlanetA { get; }
+    public int StationMaxShipCount { get; }
+    public int ShipIndex { get; }
+    public int WorkShipIndex { get; }
 }

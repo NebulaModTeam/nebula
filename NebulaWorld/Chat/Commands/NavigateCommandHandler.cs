@@ -1,8 +1,8 @@
 ﻿#region
 
-using System.Collections.Generic;
-using NebulaModel.DataStructures;
-using NebulaWorld.MonoBehaviours.Local;
+using System.Linq;
+using NebulaModel.DataStructures.Chat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -31,56 +31,55 @@ public class NavigateCommandHandler : IChatCommandHandler
         }
         else
         {
-            if (parameters[0] == "clear" || parameters[0] == "c")
+            switch (parameters[0])
             {
-                GameMain.mainPlayer.navigation.indicatorAstroId = 0;
-                window.SendLocalChatMessage("navigation cleared".Translate(), ChatMessageType.CommandOutputMessage);
-                return;
-            }
-            if (parameters[0] == "player" || parameters[0] == "p")
-            {
-                isNumeric = int.TryParse(parameters[1], out var ID);
+                case "clear":
+                case "c":
+                    GameMain.mainPlayer.navigation.indicatorAstroId = 0;
+                    window.SendLocalChatMessage("navigation cleared".Translate(), ChatMessageType.CommandOutputMessage);
+                    return;
+                case "player":
+                case "p":
+                    {
+                        isNumeric = int.TryParse(parameters[1], out var ID);
 
-                if (isNumeric)
-                {
-                    // assume its a player id
-                    using (Multiplayer.Session.World.GetRemotePlayersModels(
-                               out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
-                    {
-                        foreach (var model in remotePlayersModels)
+                        if (isNumeric)
                         {
-                            if (model.Value.Movement.PlayerID == ID)
+                            // assume its a player id
+                            using (Multiplayer.Session.World.GetRemotePlayersModels(
+                                       out var remotePlayersModels))
                             {
-                                // handle indicator position update in RemotePlayerMovement.cs
-                                GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + ID;
-                                window.SendLocalChatMessage(
-                                    "Starting navigation to ".Translate() + model.Value.Movement.Username,
-                                    ChatMessageType.CommandOutputMessage);
-                                return;
+                                foreach (var model in remotePlayersModels.Where(model => model.Value.Movement.PlayerID == ID))
+                                {
+                                    // handle indicator position update in RemotePlayerMovement.cs
+                                    GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + ID;
+                                    window.SendLocalChatMessage(
+                                        "Starting navigation to ".Translate() + model.Value.Movement.Username,
+                                        ChatMessageType.CommandOutputMessage);
+                                    return;
+                                }
                             }
                         }
-                    }
-                }
-                else
-                {
-                    // assume its a player name
-                    using (Multiplayer.Session.World.GetRemotePlayersModels(
-                               out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
-                    {
-                        foreach (var model in remotePlayersModels)
+                        else
                         {
-                            if (model.Value.Movement.Username == parameters[1])
+                            // assume its a player name
+                            using (Multiplayer.Session.World.GetRemotePlayersModels(
+                                       out var remotePlayersModels))
                             {
-                                // handle indicator position update in RemotePlayerMovement.cs
-                                GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
-                                window.SendLocalChatMessage(
-                                    "Starting navigation to ".Translate() + model.Value.Movement.Username,
-                                    ChatMessageType.CommandOutputMessage);
-                                return;
+                                foreach (var model in
+                                         remotePlayersModels.Where(model => model.Value.Movement.Username == parameters[1]))
+                                {
+                                    // handle indicator position update in RemotePlayerMovement.cs
+                                    GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
+                                    window.SendLocalChatMessage(
+                                        "Starting navigation to ".Translate() + model.Value.Movement.Username,
+                                        ChatMessageType.CommandOutputMessage);
+                                    return;
+                                }
                             }
                         }
+                        break;
                     }
-                }
             }
 
             // try to find star or planet with that id
@@ -93,13 +92,14 @@ public class NavigateCommandHandler : IChatCommandHandler
                 }
                 foreach (var planet in star.planets)
                 {
-                    if (planet.displayName == parameters[0])
+                    if (planet.displayName != parameters[0])
                     {
-                        GameMain.mainPlayer.navigation.indicatorAstroId = planet.id;
-                        window.SendLocalChatMessage("Starting navigation to ".Translate() + planet.displayName,
-                            ChatMessageType.CommandOutputMessage);
-                        return;
+                        continue;
                     }
+                    GameMain.mainPlayer.navigation.indicatorAstroId = planet.id;
+                    window.SendLocalChatMessage("Starting navigation to ".Translate() + planet.displayName,
+                        ChatMessageType.CommandOutputMessage);
+                    return;
                 }
             }
         }

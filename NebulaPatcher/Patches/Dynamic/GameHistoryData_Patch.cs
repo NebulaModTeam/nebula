@@ -119,7 +119,7 @@ internal class GameHistoryData_Patch
     [HarmonyPatch(nameof(GameHistoryData.DequeueTech))]
     public static bool DequeueTech_Prefix()
     {
-        ///Wait for the authoritative packet for dequeing tech in multiplayer for clients
+        // Wait for the authoritative packet for dequeuing tech in multiplayer for clients
         return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
     }
 

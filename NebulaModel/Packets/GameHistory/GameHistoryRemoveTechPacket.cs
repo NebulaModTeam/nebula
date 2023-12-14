@@ -9,5 +9,5 @@ public class GameHistoryRemoveTechPacket
         TechId = techId;
     }
 
-    public int TechId { get; set; }
+    public int TechId { get; }
 }

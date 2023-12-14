@@ -13,9 +13,9 @@ public class PowerTowerUserLoadingRequest
         this.Charging = Charging;
     }
 
-    public int PlanetId { get; set; }
-    public int NetId { get; set; }
-    public int NodeId { get; set; }
-    public int PowerAmount { get; set; }
-    public bool Charging { get; set; }
+    public int PlanetId { get; }
+    public int NetId { get; }
+    public int NodeId { get; }
+    public int PowerAmount { get; }
+    public bool Charging { get; }
 }

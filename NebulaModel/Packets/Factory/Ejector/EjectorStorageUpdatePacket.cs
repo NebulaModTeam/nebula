@@ -12,8 +12,8 @@ public class EjectorStorageUpdatePacket
         PlanetId = planetId;
     }
 
-    public int EjectorIndex { get; set; }
-    public int ItemCount { get; set; }
-    public int ItemInc { get; set; }
-    public int PlanetId { get; set; }
+    public int EjectorIndex { get; }
+    public int ItemCount { get; }
+    public int ItemInc { get; }
+    public int PlanetId { get; }
 }

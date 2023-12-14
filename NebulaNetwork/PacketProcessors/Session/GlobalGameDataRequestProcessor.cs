@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRequest>
 {
-    public override void ProcessPacket(GlobalGameDataRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(GlobalGameDataRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {

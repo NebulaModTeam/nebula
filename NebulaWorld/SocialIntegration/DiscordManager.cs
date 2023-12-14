@@ -12,7 +12,7 @@ using NebulaModel.Utils;
 
 namespace NebulaWorld.SocialIntegration;
 
-public class DiscordManager
+public static class DiscordManager
 {
     private static Discord.Discord client;
 
@@ -47,10 +47,13 @@ public class DiscordManager
         ActivityManager.RegisterCommand(Environment.CommandLine);
 
         var gameDir = new FileInfo(Environment.GetCommandLineArgs()[0]);
-        var steamAppIdFile = Path.Combine(gameDir.DirectoryName, "steam_appid.txt");
-        if (!File.Exists(steamAppIdFile))
+        if (gameDir.DirectoryName != null)
         {
-            File.WriteAllText(steamAppIdFile, "1366540");
+            var steamAppIdFile = Path.Combine(gameDir.DirectoryName, "steam_appid.txt");
+            if (!File.Exists(steamAppIdFile))
+            {
+                File.WriteAllText(steamAppIdFile, "1366540");
+            }
         }
 
         Log.Info("Initialized Discord RPC");
@@ -80,30 +83,24 @@ public class DiscordManager
 
         ActivityManager.SendRequestReply(user.Id, ActivityJoinRequestReply.Yes, result =>
         {
-            if (result == Result.Ok)
-            {
-                Log.Info("Accepted request.");
-            }
-            else
-            {
-                Log.Info("Could not accept request.");
-            }
+            Log.Info(result == Result.Ok ? "Accepted request." : "Could not accept request.");
         });
     }
 
     public static void Update()
     {
-        if (Config.Options.EnableDiscordRPC && client != null)
+        if (!Config.Options.EnableDiscordRPC || client == null)
         {
-            try
-            {
-                client.RunCallbacks();
-            }
-            catch (ResultException e) // RunCallbacks throws an exception when Discord is not running.
-            {
-                Log.Warn(e);
-                Cleanup();
-            }
+            return;
+        }
+        try
+        {
+            client.RunCallbacks();
+        }
+        catch (ResultException e) // RunCallbacks throws an exception when Discord is not running.
+        {
+            Log.Warn(e);
+            Cleanup();
         }
     }
 
@@ -131,12 +128,13 @@ public class DiscordManager
 
     public static void Cleanup()
     {
-        if (client != null)
+        if (client == null)
         {
-            client.Dispose();
-            client = null;
-            Log.Info("Disposed Discord RPC");
+            return;
         }
+        client.Dispose();
+        client = null;
+        Log.Info("Disposed Discord RPC");
     }
 
     public static void UpdateRichPresence(string ip = null, string partyId = null, bool secretPassthrough = false,

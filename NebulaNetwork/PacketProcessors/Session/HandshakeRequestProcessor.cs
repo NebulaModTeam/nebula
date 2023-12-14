@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -17,24 +18,18 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
 {
-    private readonly IPlayerManager playerManager;
+    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
 
-    public HandshakeRequestProcessor()
-    {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
-    }
-
-    public override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {
             return;
         }
 
-        INebulaPlayer player;
         using (playerManager.GetPendingPlayers(out var pendingPlayers))
         {
-            if (!pendingPlayers.TryGetValue(conn, out player))
+            if (!pendingPlayers.TryGetValue(conn, out _))
             {
                 conn.Disconnect(DisconnectionReason.InvalidData);
                 Log.Warn(

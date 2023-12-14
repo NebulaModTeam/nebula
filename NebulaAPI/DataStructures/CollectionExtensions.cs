@@ -6,7 +6,7 @@ using System.Threading;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.DataStructures;
 
 public static class CollectionExtensions
 {

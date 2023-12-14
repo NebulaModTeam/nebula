@@ -1,4 +1,11 @@
-﻿namespace NebulaAPI;
+﻿#region
+
+using NebulaAPI.DataStructures;
+using NebulaAPI.Interfaces;
+
+#endregion
+
+namespace NebulaAPI.GameState;
 
 public interface IPlayerData : INetSerializable
 {

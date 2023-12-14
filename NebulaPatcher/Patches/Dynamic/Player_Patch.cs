@@ -17,26 +17,27 @@ internal class Player_Patch
     [HarmonyPatch(nameof(Player.SetSandCount))]
     public static bool SetSandCount_Prefix(int newSandCount)
     {
-        if (Config.Options.SyncSoil)
+        if (!Config.Options.SyncSoil)
+        {
+            return !Multiplayer.IsActive || Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id ||
+                   Multiplayer.Session.LocalPlayer.IsHost &&
+                   Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ||
+                   !Multiplayer.Session.Factories.IsIncomingRequest.Value;
+        }
+        switch (Multiplayer.IsActive)
         {
             //Soil should be given in singleplayer or to the host who then syncs it back to all players.
-            if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-            {
+            case true when Multiplayer.Session.LocalPlayer.IsHost:
                 Multiplayer.Session.Network.PlayerManager.UpdateSyncedSandCount(newSandCount - GameMain.mainPlayer.sandCount);
                 Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
-            }
+                break;
             //Or client that use reform tool
-            else if (Multiplayer.IsActive && GameMain.mainPlayer.controller.actionBuild.reformTool.drawing)
-            {
+            case true when GameMain.mainPlayer.controller.actionBuild.reformTool.drawing:
                 Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
-            }
-            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
+                break;
         }
+        return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
         //Soil should be given in singleplayer or to the player who is author of the "Build" request, or to the host if there is no author.
-        return !Multiplayer.IsActive || Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id ||
-               Multiplayer.Session.LocalPlayer.IsHost &&
-               Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ||
-               !Multiplayer.Session.Factories.IsIncomingRequest.Value;
     }
 
     [HarmonyPrefix]
@@ -49,14 +50,14 @@ internal class Player_Patch
         }
 
         // We should only add items to player if player requested
-        if (Multiplayer.Session.Factories.IsIncomingRequest.Value &&
-            Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id)
+        if (!Multiplayer.Session.Factories.IsIncomingRequest.Value ||
+            Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
         {
-            __result = 0;
-            return false;
+            return true;
         }
+        __result = 0;
+        return false;
 
-        return true;
     }
 
     [HarmonyPrefix]
@@ -70,13 +71,13 @@ internal class Player_Patch
         }
 
         // We should only take items to player if player requested
-        if (Multiplayer.Session.Factories.IsIncomingRequest.Value &&
-            Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id)
+        if (!Multiplayer.Session.Factories.IsIncomingRequest.Value ||
+            Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
         {
-            __result = 1;
-            return false;
+            return true;
         }
+        __result = 1;
+        return false;
 
-        return true;
     }
 }

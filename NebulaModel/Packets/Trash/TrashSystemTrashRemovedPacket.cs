@@ -9,5 +9,5 @@ public class TrashSystemTrashRemovedPacket
         TrashId = trashId;
     }
 
-    public int TrashId { get; set; }
+    public int TrashId { get; }
 }

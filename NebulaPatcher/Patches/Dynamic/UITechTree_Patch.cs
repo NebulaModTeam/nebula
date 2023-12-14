@@ -16,13 +16,13 @@ public class UITechTree_Patch
     [HarmonyPatch(nameof(UITechTree.Do1KeyUnlock))]
     public static bool Do1KeyUnlock_Prefix()
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsClient)
         {
-            // Let host run one key unlock function
-            Multiplayer.Session.Network.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.OneKeyUnlock));
-            Log.Info("Sent OneKeyUnlock request to host");
-            return false;
+            return true;
         }
-        return true;
+        // Let host run one key unlock function
+        Multiplayer.Session.Network.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.OneKeyUnlock));
+        Log.Info("Sent OneKeyUnlock request to host");
+        return false;
     }
 }

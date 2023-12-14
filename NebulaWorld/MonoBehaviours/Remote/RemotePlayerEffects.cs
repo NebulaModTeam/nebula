@@ -11,6 +11,9 @@ namespace NebulaWorld.MonoBehaviours.Remote;
 
 public class RemoteWarpEffect : MonoBehaviour
 {
+    private static readonly int s_multiplier = Shader.PropertyToID("_Multiplier");
+    private static readonly int s_distortionStrength = Shader.PropertyToID("_DistortionStrength");
+    private static readonly int s_warpRotations = Shader.PropertyToID("_WarpRotations");
     public float WarpState;
     private Material astrosMat;
     private float astrosMul;
@@ -85,10 +88,10 @@ public class RemoteWarpEffect : MonoBehaviour
         astrosRenderer.sharedMaterial = astrosMat;
         nebulasRenderer.sharedMaterial = nebulasMat;
 
-        tunnelMul = tunnelMat.GetFloat("_Multiplier");
-        distortMul = distortMat.GetFloat("_DistortionStrength");
-        astrosMul = astrosMat.GetFloat("_Multiplier");
-        nebulasMul = nebulasMat.GetFloat("_Multiplier");
+        tunnelMul = tunnelMat.GetFloat(s_multiplier);
+        distortMul = distortMat.GetFloat(s_distortionStrength);
+        astrosMul = astrosMat.GetFloat(s_multiplier);
+        nebulasMul = nebulasMat.GetFloat(s_multiplier);
 
         for (var i = 0; i < warpRotations.Length; i++)
         {
@@ -117,21 +120,25 @@ public class RemoteWarpEffect : MonoBehaviour
             }
         }
 
-        var playerRot = new Vector4(rootTransform.rotation.x, rootTransform.rotation.y, rootTransform.rotation.z,
-            rootTransform.rotation.w);
-        if (WarpState > 0.001f && !warpEffectActivated)
+        var rotation = rootTransform.rotation;
+        var playerRot = new Vector4(rotation.x, rotation.y, rotation.z,
+            rotation.w);
+        switch (WarpState)
         {
-            for (var i = 0; i < warpRotations.Length; i++)
-            {
-                warpRotations[i] = playerRot;
-            }
-            ToggleEffect(true);
-            //skip "warp-begin" VFAudio for now
-        }
-        else if (WarpState == 0 && warpEffectActivated)
-        {
-            ToggleEffect(false);
-            //skip "warp-end" VFAudio for now
+            case > 0.001f when !warpEffectActivated:
+                {
+                    for (var i = 0; i < warpRotations.Length; i++)
+                    {
+                        warpRotations[i] = playerRot;
+                    }
+                    ToggleEffect(true);
+                    //skip "warp-begin" VFAudio for now
+                    break;
+                }
+            case 0 when warpEffectActivated:
+                ToggleEffect(false);
+                //skip "warp-end" VFAudio for now
+                break;
         }
 
         Array.Copy(warpRotations, 0, warpRotations, 1, warpRotations.Length - 1);
@@ -150,17 +157,18 @@ public class RemoteWarpEffect : MonoBehaviour
         velocityOverTime.y = lhs.y;
         velocityOverTime.z = lhs.z;
         shape.position = lhs * 10000.0f;
-        shape.rotation = rootTransform.rotation.eulerAngles;
+        var rotation1 = rootTransform.rotation;
+        shape.rotation = rotation1.eulerAngles;
 
-        distortRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
-        nebulasRenderer.GetComponent<Transform>().localRotation = rootTransform.rotation;
+        distortRenderer.GetComponent<Transform>().localRotation = rotation1;
+        nebulasRenderer.GetComponent<Transform>().localRotation = rotation1;
         var num1 = intensByState.Evaluate(WarpState);
         var num2 = intensByState_astro.Evaluate(WarpState);
-        tunnelMat.SetFloat("_Multiplier", tunnelMul * num1);
-        tunnelMat.SetVectorArray("_WarpRotations", warpRotations);
-        distortMat.SetFloat("_DistortionStrength", distortMul * num1);
-        astrosMat.SetFloat("_Multiplier", astrosMul * num2);
-        nebulasMat.SetFloat("_Multiplier", nebulasMul * num2);
+        tunnelMat.SetFloat(s_multiplier, tunnelMul * num1);
+        tunnelMat.SetVectorArray(s_warpRotations, warpRotations);
+        distortMat.SetFloat(s_distortionStrength, distortMul * num1);
+        astrosMat.SetFloat(s_multiplier, astrosMul * num2);
+        nebulasMat.SetFloat(s_multiplier, nebulasMul * num2);
     }
 
     public void UpdateVelocity(Vector3 vel)
@@ -213,7 +221,7 @@ public class RemoteWarpEffect : MonoBehaviour
 
 public class RemotePlayerEffects : MonoBehaviour
 {
-    private readonly string[] solidSoundEvents = new string[4] { "footsteps-0", "footsteps-1", "footsteps-2", "footsteps-3" };
+    private readonly string[] solidSoundEvents = { "footsteps-0", "footsteps-1", "footsteps-2", "footsteps-3" };
     private readonly string waterSoundEvent = "footsteps-6";
     private Collider[] collider;
     private VFAudio driftAudio;
@@ -291,13 +299,14 @@ public class RemotePlayerEffects : MonoBehaviour
         StopAndNullAudio(ref miningAudio);
     }
 
-    public void StopAndNullAudio(ref VFAudio vfAudio)
+    private static void StopAndNullAudio(ref VFAudio vfAudio)
     {
-        if (vfAudio != null)
+        if (vfAudio == null)
         {
-            vfAudio.Stop();
-            vfAudio = null;
+            return;
         }
+        vfAudio.Stop();
+        vfAudio = null;
     }
 
     private void StopAllFlyAudio()
@@ -312,43 +321,45 @@ public class RemotePlayerEffects : MonoBehaviour
         var moveWeight = Mathf.Max(1f, Mathf.Pow(rootAnimation.run_slow.weight + rootAnimation.run_fast.weight, 2f));
         var trigger = (rootAnimation.run_slow.enabled || rootAnimation.run_fast.enabled) && moveWeight > 0.15f;
 
-        if (trigger)
+        if (!trigger)
         {
-            var normalizedTime = Mathf.FloorToInt(rootAnimation.run_fast.normalizedTime * 2f - 0.02f);
-            var normalizedTimeDiff = rootAnimation.run_fast.normalizedTime * 2f - 0.02f - normalizedTime;
-            var timeIsEven = normalizedTime % 2 == 0;
+            return;
+        }
+        var normalizedTime = Mathf.FloorToInt(rootAnimation.run_fast.normalizedTime * 2f - 0.02f);
+        var normalizedTimeDiff = rootAnimation.run_fast.normalizedTime * 2f - 0.02f - normalizedTime;
+        var timeIsEven = normalizedTime % 2 == 0;
 
-            if (lastTriggeredFoot != normalizedTime)
-            {
-                lastTriggeredFoot = normalizedTime;
+        if (lastTriggeredFoot == normalizedTime)
+        {
+            return;
+        }
+        lastTriggeredFoot = normalizedTime;
 
-                var dustPos = (!timeIsEven ? FootEffect[1] : FootEffect[0]).transform.position;
-                var dustPosNormalized = dustPos.normalized;
-                dustPos += dustPos.normalized;
+        var dustPos = (!timeIsEven ? FootEffect[1] : FootEffect[0]).transform.position;
+        var dustPosNormalized = dustPos.normalized;
+        dustPos += dustPos.normalized;
 
-                var ray = new Ray(dustPos, -dustPosNormalized);
-                float rDist1 = 100f, rDist2 = 100f;
-                var biomo = -1f;
+        var ray = new Ray(dustPos, -dustPosNormalized);
+        float rDist1 = 100f, rDist2 = 100f;
+        var biomo = -1f;
 
-                if (Physics.Raycast(ray, out var rHit1, 2f, 512, QueryTriggerInteraction.Collide))
-                {
-                    rDist1 = rHit1.distance;
-                    biomo = rHit1.textureCoord2.x;
-                }
-                if (Physics.Raycast(ray, out var rHit2, 2f, 16, QueryTriggerInteraction.Collide))
-                {
-                    rDist2 = rHit2.distance + 0.1f;
-                }
+        if (Physics.Raycast(ray, out var rHit1, 2f, 512, QueryTriggerInteraction.Collide))
+        {
+            rDist1 = rHit1.distance;
+            biomo = rHit1.textureCoord2.x;
+        }
+        if (Physics.Raycast(ray, out var rHit2, 2f, 16, QueryTriggerInteraction.Collide))
+        {
+            rDist2 = rHit2.distance + 0.1f;
+        }
 
-                if (normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFoot || normalizedTime < 2))
-                {
-                    PlayFootstepSound(biomo, rDist2 < rDist1);
-                }
-                if (normalizedTimeDiff < 0.5f && moveWeight > 0.5f && (rDist1 < 3f || rDist2 < 3f))
-                {
-                    PlayFootstepEffect(timeIsEven, biomo, rDist2 < rDist1);
-                }
-            }
+        if (normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFoot || normalizedTime < 2))
+        {
+            PlayFootstepSound(biomo, rDist2 < rDist1);
+        }
+        if (normalizedTimeDiff < 0.5f && moveWeight > 0.5f && (rDist1 < 3f || rDist2 < 3f))
+        {
+            PlayFootstepEffect(timeIsEven, biomo, rDist2 < rDist1);
         }
     }
 
@@ -409,50 +420,50 @@ public class RemotePlayerEffects : MonoBehaviour
 
         if (!water)
         {
-            if (biomo <= 0f)
+            switch (biomo)
             {
-                color = ambientDesc.biomoDustColor0;
-                dustStrength = ambientDesc.biomoDustStrength0;
-            }
-            else if (biomo <= 1f)
-            {
-                color = Color.Lerp(ambientDesc.biomoDustColor0, ambientDesc.biomoColor1, biomo);
-                dustStrength = Mathf.Lerp(ambientDesc.biomoDustStrength0, ambientDesc.biomoDustStrength1, biomo);
-            }
-            else if (biomo <= 2f)
-            {
-                color = Color.Lerp(ambientDesc.biomoDustColor1, ambientDesc.biomoColor2, biomo - 1f);
-                dustStrength = Mathf.Lerp(ambientDesc.biomoDustStrength1, ambientDesc.biomoDustStrength2, biomo - 1f);
-            }
-            else
-            {
-                color = ambientDesc.biomoDustColor2;
-                dustStrength = ambientDesc.biomoDustStrength2;
+                case <= 0f:
+                    color = ambientDesc.biomoDustColor0;
+                    dustStrength = ambientDesc.biomoDustStrength0;
+                    break;
+                case <= 1f:
+                    color = Color.Lerp(ambientDesc.biomoDustColor0, ambientDesc.biomoColor1, biomo);
+                    dustStrength = Mathf.Lerp(ambientDesc.biomoDustStrength0, ambientDesc.biomoDustStrength1, biomo);
+                    break;
+                case <= 2f:
+                    color = Color.Lerp(ambientDesc.biomoDustColor1, ambientDesc.biomoColor2, biomo - 1f);
+                    dustStrength = Mathf.Lerp(ambientDesc.biomoDustStrength1, ambientDesc.biomoDustStrength2, biomo - 1f);
+                    break;
+                default:
+                    color = ambientDesc.biomoDustColor2;
+                    dustStrength = ambientDesc.biomoDustStrength2;
+                    break;
             }
         }
-        if (biomo >= 0f || water)
+        if (!(biomo >= 0f) && !water)
         {
-            var main = waterParticle.main;
-            main.startColor = !water ? Color.clear : Color.white;
-            foreach (var p in smokeParticle)
-            {
-                main = p.main;
-                main.startColor = color;
-            }
-            foreach (var p in FootSmallSmoke)
-            {
-                main = p.main;
-                main.startLifetime = 0.8f + 0.2f * dustStrength;
-                main.startSize = 1.1f + 0.2f * dustStrength;
-            }
-            foreach (var p in FootLargeSmoke)
-            {
-                main = p.main;
-                main.startLifetime = 1.2f * dustStrength;
-                main.startSize = 2.2f + 2.4f * dustStrength;
-            }
-            footEffect.Play();
+            return;
         }
+        var main = waterParticle.main;
+        main.startColor = !water ? Color.clear : Color.white;
+        foreach (var p in smokeParticle)
+        {
+            main = p.main;
+            main.startColor = color;
+        }
+        foreach (var p in FootSmallSmoke)
+        {
+            main = p.main;
+            main.startLifetime = 0.8f + 0.2f * dustStrength;
+            main.startSize = 1.1f + 0.2f * dustStrength;
+        }
+        foreach (var p in FootLargeSmoke)
+        {
+            main = p.main;
+            main.startLifetime = 1.2f * dustStrength;
+            main.startSize = 2.2f + 2.4f * dustStrength;
+        }
+        footEffect.Play();
     }
 
     private bool CheckPlayerInReform()
@@ -478,6 +489,7 @@ public class RemotePlayerEffects : MonoBehaviour
         }
         catch
         {
+            // TODO: Why empty catch?
         }
         return result;
     }
@@ -485,78 +497,88 @@ public class RemotePlayerEffects : MonoBehaviour
     // collision with vegetation, landing sound effect
     private void UpdateExtraSoundEffects(ref RemotePlayerAnimation.Snapshot packet)
     {
-        if (rootMovement.localPlanetId < 0)
+        switch (rootMovement.localPlanetId)
         {
-            return;
-        }
-
-        if (rootMovement.localPlanetId > 0)
-        {
-            var pData = GameMain.galaxy.PlanetById(rootMovement.localPlanetId);
-            var pPhys = pData?.physics;
-            var pFactory = pData?.factory;
-            var tmpMaxAltitude = rootTransform.localPosition.magnitude - pData.realRadius;
-            if (tmpMaxAltitude > 1000f)
-            {
-                tmpMaxAltitude = 1000f;
-            }
-
-            if (rootAnimation.movementState < EMovementState.Fly)
-            {
-                if (inWater)
+            case < 0:
+                return;
+            case > 0:
                 {
-                    if (maxAltitude > 1f && pData.waterItemId > 0)
+                    var pData = GameMain.galaxy.PlanetById(rootMovement.localPlanetId);
+                    var pPhys = pData?.physics;
+                    var pFactory = pData?.factory;
+                    if (pData != null)
                     {
-                        var audio = VFAudio.Create("landing-water", transform, Vector3.zero);
-                        audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 5f + 0.5f);
-                        audio.Play();
-                        PlayFootstepEffect(true, 0f, true);
-                        PlayFootstepEffect(false, 0f, true);
-                    }
-                    maxAltitude = 0f;
-                }
-                if (isGrounded)
-                {
-                    if (maxAltitude > 3f)
-                    {
-                        var audio = VFAudio.Create("landing", transform, Vector3.zero);
-                        audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 25f + 0.5f);
-                        audio.Play();
-                    }
-                    maxAltitude = 0f;
-                }
-                if (!isGrounded && tmpMaxAltitude > maxAltitude)
-                {
-                    maxAltitude = tmpMaxAltitude;
-                }
-            }
-            else
-            {
-                maxAltitude = 15f;
-            }
-
-            // NOTE: the pPhys can only be loaded if the player trying to load it has the planet actually loaded (meaning he is on the same planet or near it)
-            if (pPhys != null && pFactory != null && packet.HorzSpeed > 5f)
-            {
-                var number = Physics.OverlapSphereNonAlloc(transform.localPosition, 1.8f, collider, 1024,
-                    QueryTriggerInteraction.Collide);
-                for (var i = 0; i < number; i++)
-                {
-                    var colId = pPhys.nearColliderLogic.FindColliderId(collider[i]);
-                    var cData = pPhys.GetColliderData(colId);
-                    if (cData.objType == EObjectType.Vegetable && cData.objId > 0)
-                    {
-                        var vData = pFactory.vegePool[cData.objId];
-                        var vProto = LDB.veges.Select(vData.protoId);
-                        if (vProto != null && vProto.CollideAudio > 0 && vegeCollideColdTime <= 0)
+                        var tmpMaxAltitude = rootTransform.localPosition.magnitude - pData.realRadius;
+                        if (tmpMaxAltitude > 1000f)
                         {
+                            tmpMaxAltitude = 1000f;
+                        }
+
+                        if (rootAnimation.movementState < EMovementState.Fly)
+                        {
+                            if (inWater)
+                            {
+                                if (maxAltitude > 1f && pData.waterItemId > 0)
+                                {
+                                    var audio = VFAudio.Create("landing-water", transform, Vector3.zero);
+                                    audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 5f + 0.5f);
+                                    audio.Play();
+                                    PlayFootstepEffect(true, 0f, true);
+                                    PlayFootstepEffect(false, 0f, true);
+                                }
+                                maxAltitude = 0f;
+                            }
+                            switch (isGrounded)
+                            {
+                                case true:
+                                    {
+                                        if (maxAltitude > 3f)
+                                        {
+                                            var audio = VFAudio.Create("landing", transform, Vector3.zero);
+                                            audio.volumeMultiplier = Mathf.Clamp01(maxAltitude / 25f + 0.5f);
+                                            audio.Play();
+                                        }
+                                        maxAltitude = 0f;
+                                        break;
+                                    }
+                                case false when tmpMaxAltitude > maxAltitude:
+                                    maxAltitude = tmpMaxAltitude;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            maxAltitude = 15f;
+                        }
+                    }
+
+                    // NOTE: the pPhys can only be loaded if the player trying to load it has the planet actually loaded (meaning he is on the same planet or near it)
+                    if (pPhys != null && pFactory != null && packet.HorzSpeed > 5f)
+                    {
+                        var number = Physics.OverlapSphereNonAlloc(transform.localPosition, 1.8f, collider, 1024,
+                            QueryTriggerInteraction.Collide);
+                        for (var i = 0; i < number; i++)
+                        {
+                            var colId = pPhys.nearColliderLogic.FindColliderId(collider[i]);
+                            var cData = pPhys.GetColliderData(colId);
+                            if (cData.objType != EObjectType.Vegetable || cData.objId <= 0)
+                            {
+                                continue;
+                            }
+                            var vData = pFactory.vegePool[cData.objId];
+                            var vProto = LDB.veges.Select(vData.protoId);
+                            if (vProto is not { CollideAudio: > 0 } || !(vegeCollideColdTime <= 0))
+                            {
+                                continue;
+                            }
                             VFAudio.Create(vProto.CollideAudio, transform, Vector3.zero, true);
                             vegeCollideColdTime = Random.value * 0.23f + 0.1f;
                         }
                     }
+                    break;
                 }
-            }
         }
+
         vegeCollideColdTime = vegeCollideColdTime > 0 ? vegeCollideColdTime - Time.deltaTime * 2 : 0;
     }
 
@@ -580,32 +602,28 @@ public class RemotePlayerEffects : MonoBehaviour
         }
         if (driftActive || flyActive || sailActive || !isGrounded)
         {
-            for (var i = 0; i < psys.Length; i++)
+            foreach (var t in psys)
             {
-                if (!psys[i].isPlaying)
+                if (!t.isPlaying)
                 {
-                    psys[i].Play();
+                    t.Play();
                 }
             }
-            for (var i = 0; i < psysr.Length; i++)
+            foreach (var t in psysr)
             {
                 if (runActive)
                 {
-                    if (rootAnimation.run_fast.weight != 0)
-                    {
-                        // when flying over the planet
-                        psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.04f);
-                    }
-                    else
-                    {
+                    // when flying over the planet
+                    t.lengthScale = rootAnimation.run_fast.weight != 0
+                        ? Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.04f)
+                        :
                         // when "walking" over water and moving in air without button press or while "walking" over water
-                        psysr[i].lengthScale = Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
-                    }
+                        Mathf.Lerp(-3.5f, -8f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
                 }
                 if (driftActive)
                 {
                     // when in air without pressing spacebar
-                    psysr[i].lengthScale = -3.5f;
+                    t.lengthScale = -3.5f;
                     driftAudio = driftAudio != null ? driftAudio : VFAudio.Create("drift", transform, Vector3.zero, true);
                 }
                 else
@@ -615,7 +633,7 @@ public class RemotePlayerEffects : MonoBehaviour
                 if (flyActive)
                 {
                     // when pressing spacebar but also when landing (Drift is disabled when landing)
-                    psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
+                    t.lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 0.03f);
                     flyAudio0 = flyAudio0 != null ? flyAudio0 : VFAudio.Create("fly-atmos", transform, Vector3.zero, true);
                 }
                 else
@@ -624,7 +642,7 @@ public class RemotePlayerEffects : MonoBehaviour
                 }
                 if (sailActive)
                 {
-                    psysr[i].lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 15f);
+                    t.lengthScale = Mathf.Lerp(-3.5f, -10f, Mathf.Max(packet.HorzSpeed, packet.VertSpeed) * 15f);
                     flyAudio1 = flyAudio1 != null ? flyAudio1 : VFAudio.Create("fly-space", transform, Vector3.zero, true);
                 }
                 else
@@ -635,11 +653,11 @@ public class RemotePlayerEffects : MonoBehaviour
         }
         else
         {
-            for (var i = 0; i < psys.Length; i++)
+            foreach (var t in psys)
             {
-                if (psys[i].isPlaying)
+                if (t.isPlaying)
                 {
-                    psys[i].Stop();
+                    t.Stop();
                 }
             }
             StopAllFlyAudio();

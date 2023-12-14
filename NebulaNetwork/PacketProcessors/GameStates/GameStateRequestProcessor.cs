@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates;
 [RegisterPacketProcessor]
 internal class GameStateRequestProcessor : PacketProcessor<GameStateRequest>
 {
-    public override void ProcessPacket(GameStateRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameStateRequest packet, NebulaConnection conn)
     {
         if (IsHost)
         {

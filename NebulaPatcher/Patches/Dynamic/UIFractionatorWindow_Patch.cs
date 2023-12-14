@@ -15,11 +15,12 @@ internal class UIFractionatorWindow_Patch
     [HarmonyPatch(nameof(UIFractionatorWindow.OnProductUIButtonClick))]
     public static void OnTakeBackPointerUp_Postfix(UIFractionatorWindow __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var fractionator = __instance.factorySystem.fractionatorPool[__instance.fractionatorId];
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new FractionatorStorageUpdatePacket(in fractionator, __instance.factory.planetId));
+            return;
         }
+        var fractionator = __instance.factorySystem.fractionatorPool[__instance.fractionatorId];
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new FractionatorStorageUpdatePacket(in fractionator, __instance.factory.planetId));
     }
 }

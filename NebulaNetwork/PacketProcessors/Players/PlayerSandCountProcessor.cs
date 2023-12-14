@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 public class PlayerSandCountProcessor : PacketProcessor<PlayerSandCount>
 {
-    public override void ProcessPacket(PlayerSandCount packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlayerSandCount packet, NebulaConnection conn)
     {
         if (IsHost)
         {

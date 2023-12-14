@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.DataStructures;
 
 #endregion
@@ -17,5 +17,5 @@ public class DysonLaunchDataPacket
         Data = data;
     }
 
-    public DysonLaunchData Data { get; set; }
+    public DysonLaunchData Data { get; }
 }

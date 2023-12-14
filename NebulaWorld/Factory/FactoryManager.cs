@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Timers;
 using BepInEx;
 using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.GameState;
+using NebulaAPI.Interfaces;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.Inserter;
@@ -19,20 +22,15 @@ public class FactoryManager : IFactoryManager
     private readonly ToggleSwitch isIncomingRequest = new();
     private readonly ThreadSafe threadSafe = new();
 
-    public FactoryManager()
-    {
-        PacketAuthor = NebulaModAPI.AUTHOR_NONE;
-        TargetPlanet = NebulaModAPI.PLANET_NONE;
-    }
-
     public IToggle IsIncomingRequest => isIncomingRequest;
 
     public PlanetFactory EventFactory { get; set; }
-    public int PacketAuthor { get; set; }
-    public int TargetPlanet { get; set; }
+    public int PacketAuthor { get; set; } = NebulaModAPI.AUTHOR_NONE;
+    public int TargetPlanet { get; set; } = NebulaModAPI.PLANET_NONE;
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 
     public void AddPlanetTimer(int planetId)
@@ -51,7 +49,7 @@ public class FactoryManager : IFactoryManager
             }
 
             // .NET Framework 4.7.2 does not have TryAdd so we must make sure the dictionary does not already contain the planet
-            if (!planetTimers.ContainsKey(planetId))
+            if (!planetTimers.TryGetValue(planetId, out var value))
             {
                 // We haven't loaded this planet, let's load it
                 LoadPlanetData(planetId);
@@ -69,9 +67,8 @@ public class FactoryManager : IFactoryManager
             {
                 // Reload the planet if it is unloaded by game.
                 LoadPlanetData(planetId);
-
-                planetTimers[planetId].Stop();
-                planetTimers[planetId].Start();
+                value.Stop();
+                value.Start();
             }
         }
     }
@@ -80,16 +77,13 @@ public class FactoryManager : IFactoryManager
     {
         var planet = GameMain.galaxy.PlanetById(planetId);
 
-        if (planet.physics == null || planet.physics.colChunks == null)
+        if (planet.physics?.colChunks == null)
         {
             planet.physics = new PlanetPhysics(planet);
             planet.physics.Init();
         }
 
-        if (planet.aux == null)
-        {
-            planet.aux = new PlanetAuxData(planet);
-        }
+        planet.aux ??= new PlanetAuxData(planet);
 
         if (planet.audio == null)
         {
@@ -112,7 +106,7 @@ public class FactoryManager : IFactoryManager
             return;
         }
 
-        int tmpTargetPlanet = Multiplayer.Session.Factories.TargetPlanet;
+        var tmpTargetPlanet = Multiplayer.Session.Factories.TargetPlanet;
         Multiplayer.Session.Factories.TargetPlanet = planetId;
 
         var planet = GameMain.galaxy.PlanetById(planetId);
@@ -137,22 +131,24 @@ public class FactoryManager : IFactoryManager
     public void InitializePrebuildRequests()
     {
         //Load existing prebuilds to the dictionary so it will be ready to build
-        if (Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.Session.LocalPlayer.IsHost)
         {
-            using (GetPrebuildRequests(out var prebuildRequests))
+            return;
+        }
+        using (GetPrebuildRequests(out var prebuildRequests))
+        {
+            foreach (var factory in GameMain.data.factories)
             {
-                foreach (var factory in GameMain.data.factories)
+                if (factory == null)
                 {
-                    if (factory != null)
+                    continue;
+                }
+                for (var i = 0; i < factory.prebuildCursor; i++)
+                {
+                    if (factory.prebuildPool[i].id != 0)
                     {
-                        for (var i = 0; i < factory.prebuildCursor; i++)
-                        {
-                            if (factory.prebuildPool[i].id != 0)
-                            {
-                                prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[i].id)] =
-                                    Multiplayer.Session.LocalPlayer.Id;
-                            }
-                        }
+                        prebuildRequests[new PrebuildOwnerKey(factory.planetId, factory.prebuildPool[i].id)] =
+                            Multiplayer.Session.LocalPlayer.Id;
                     }
                 }
             }
@@ -186,13 +182,13 @@ public class FactoryManager : IFactoryManager
     public int GetNextPrebuildId(int planetId)
     {
         var planet = GameMain.galaxy.PlanetById(planetId);
-        if (planet == null)
+        if (planet != null)
         {
-            Log.Error($"Planet with id: {planetId} could not be found!!");
-            return -1;
+            return GetNextPrebuildId(planet.factory);
         }
+        Log.Error($"Planet with id: {planetId} could not be found!!");
+        return -1;
 
-        return GetNextPrebuildId(planet.factory);
     }
 
     public int GetNextPrebuildId(PlanetFactory factory)
@@ -278,8 +274,8 @@ public class FactoryManager : IFactoryManager
 
 internal readonly struct PrebuildOwnerKey : IEquatable<PrebuildOwnerKey>
 {
-    public readonly int PlanetId;
-    public readonly int PrebuildId;
+    private readonly int PlanetId;
+    private readonly int PrebuildId;
 
     public PrebuildOwnerKey(int planetId, int prebuildId)
     {
@@ -295,5 +291,10 @@ internal readonly struct PrebuildOwnerKey : IEquatable<PrebuildOwnerKey>
     public bool Equals(PrebuildOwnerKey other)
     {
         return other.PlanetId == PlanetId && other.PrebuildId == PrebuildId;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is PrebuildOwnerKey key && Equals(key);
     }
 }

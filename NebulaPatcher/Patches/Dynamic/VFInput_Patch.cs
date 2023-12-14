@@ -3,7 +3,6 @@
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NebulaWorld;
-using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 using TMPro;
 using UnityEngine.EventSystems;
@@ -19,13 +18,13 @@ internal class VFInput_Patch
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static bool _buildConfirm_Prefix(ref VFInput.InputValue __result)
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            __result = default;
-            __result.onDown = true;
-            return false;
+            return true;
         }
-        return true;
+        __result = default;
+        __result.onDown = true;
+        return false;
     }
 
     [HarmonyPatch(nameof(VFInput.UpdateGameStates))]

@@ -10,6 +10,6 @@ public class ILSShipEnterWarp
         WorkShipIndex = workShipIndex;
     }
 
-    public int ThisGId { get; set; }
-    public int WorkShipIndex { get; set; }
+    public int ThisGId { get; }
+    public int WorkShipIndex { get; }
 }

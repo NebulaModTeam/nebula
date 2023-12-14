@@ -5,7 +5,7 @@ using System.Net;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.Interfaces;
 
 public interface INetSerializable
 {

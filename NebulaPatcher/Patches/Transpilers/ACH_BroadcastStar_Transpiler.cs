@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -24,9 +25,10 @@ internal class ACH_BroadcastStar_Transpiler
     [HarmonyPatch(nameof(ACH_BroadcastStar.OnGameTick))]
     private static IEnumerable<CodeInstruction> OnGameTick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
     {
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            var codeMatcher = new CodeMatcher(instructions, il)
+            var codeMatcher = new CodeMatcher(codeInstructions, il)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "gameData"),
@@ -51,13 +53,8 @@ internal class ACH_BroadcastStar_Transpiler
                             return true;
                         }
 
-                        if (instance.gameData.factories[factoryId]?.powerSystem?.genPool[generatorId] == null ||
-                            instance.gameData.factories[factoryId].index == -1)
-                        {
-                            return false;
-                        }
-
-                        return true;
+                        return instance.gameData.factories[factoryId]?.powerSystem?.genPool[generatorId] != null &&
+                               instance.gameData.factories[factoryId].index != -1;
                     }))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, label))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ret))
@@ -66,7 +63,7 @@ internal class ACH_BroadcastStar_Transpiler
         catch
         {
             Log.Error("ACH_BroadcastStar.OnGameTick_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 }

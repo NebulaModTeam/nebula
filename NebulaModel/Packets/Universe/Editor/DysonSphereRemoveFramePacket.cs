@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets.Universe;
+﻿namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonSphereRemoveFramePacket
 {
@@ -11,7 +11,7 @@ public class DysonSphereRemoveFramePacket
         FrameId = frameId;
     }
 
-    public int StarIndex { get; set; }
-    public int LayerId { get; set; }
-    public int FrameId { get; set; }
+    public int StarIndex { get; }
+    public int LayerId { get; }
+    public int FrameId { get; }
 }

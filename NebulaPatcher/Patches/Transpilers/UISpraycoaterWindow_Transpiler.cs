@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
@@ -21,9 +22,10 @@ internal class UISpraycoaterWindow_Transpiler
     {
         // Replace: if (cargoPath.TryInsertItem(Mathf.Max(4, beltComponent.segIndex + beltComponent.segPivotOffset - 20), this.player.inhandItemId, 1, (byte)num))
         // To:      if (this.traffic.PutItemOnBelt(spraycoaterComponent.cargoBeltId, this.player.inhandItemId, (byte)num))
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            var matcher = new CodeMatcher(instructions)
+            var matcher = new CodeMatcher(codeInstructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(CargoPath), nameof(CargoPath.TryInsertItem))))
                 .InsertAndAdvance(
@@ -47,7 +49,7 @@ internal class UISpraycoaterWindow_Transpiler
         catch
         {
             Log.Error("UISpraycoaterWindow._OnUpdate_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 }

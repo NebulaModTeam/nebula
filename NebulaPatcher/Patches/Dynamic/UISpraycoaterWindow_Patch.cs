@@ -21,7 +21,7 @@ internal class UISpraycoaterWindow_Patch
         }
     }
 
-    public static void SendPacket(UISpraycoaterWindow window)
+    private static void SendPacket(UISpraycoaterWindow window)
     {
         var spraycoater = window.traffic.spraycoaterPool[window._spraycoaterId];
         var planetId = window.traffic.planet.id;

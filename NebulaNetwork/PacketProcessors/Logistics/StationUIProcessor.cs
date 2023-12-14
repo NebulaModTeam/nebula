@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class StationUIProcessor : PacketProcessor<StationUI>
 {
-    public override void ProcessPacket(StationUI packet, NebulaConnection conn)
+    protected override void ProcessPacket(StationUI packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -23,7 +23,7 @@ internal class StationUIProcessor : PacketProcessor<StationUI>
             StationUIManager.UpdateStation(ref packet);
 
             // broadcast to other clients 
-            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+            var playerManager = Multiplayer.Session.Network.PlayerManager;
             var player = playerManager.GetPlayer(conn);
             playerManager.SendPacketToOtherPlayers(packet, player);
 

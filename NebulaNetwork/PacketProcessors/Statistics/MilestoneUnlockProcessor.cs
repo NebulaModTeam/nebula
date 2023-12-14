@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
@@ -13,9 +13,9 @@ namespace NebulaNetwork.PacketProcessors.Statistics;
 [RegisterPacketProcessor]
 internal class MilestoneUnlockProcessor : PacketProcessor<MilestoneUnlockPacket>
 {
-    public override void ProcessPacket(MilestoneUnlockPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(MilestoneUnlockPacket packet, NebulaConnection conn)
     {
-        IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+        var playerManager = Multiplayer.Session.Network.PlayerManager;
         var valid = true;
 
         if (IsHost)
@@ -31,17 +31,19 @@ internal class MilestoneUnlockProcessor : PacketProcessor<MilestoneUnlockPacket>
             }
         }
 
-        if (valid)
+        if (!valid)
         {
-            using (Multiplayer.Session.Statistics.IsIncomingRequest.On())
+            return;
+        }
+        using (Multiplayer.Session.Statistics.IsIncomingRequest.On())
+        {
+            if (!GameMain.data.milestoneSystem.milestoneDatas.TryGetValue(packet.Id, out var milestoneData))
             {
-                if (GameMain.data.milestoneSystem.milestoneDatas.TryGetValue(packet.Id, out var milestoneData))
-                {
-                    milestoneData.journalData.patternId = packet.PatternId;
-                    milestoneData.journalData.parameters = packet.Parameters;
-                    GameMain.data.milestoneSystem.UnlockMilestone(packet.Id, packet.UnlockTick);
-                }
+                return;
             }
+            milestoneData.journalData.patternId = packet.PatternId;
+            milestoneData.journalData.parameters = packet.Parameters;
+            GameMain.data.milestoneSystem.UnlockMilestone(packet.Id, packet.UnlockTick);
         }
     }
 }

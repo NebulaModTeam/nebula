@@ -10,12 +10,20 @@ namespace NebulaWorld.Logistics;
 
 public class StationUIManager : IDisposable
 {
-    public bool UIRequestedShipDroneWarpChange { get; set; } // when receiving a ship, drone or warp change only take/add items from the one issuing the request
+    public bool
+        UIRequestedShipDroneWarpChange
+    {
+        get;
+        set;
+    } // when receiving a ship, drone or warp change only take/add items from the one issuing the request
 
     public StationUI SliderBarPacket { get; set; } // store the change of slider bar temporary, only send it when mouse button is released.
 
     public int StorageMaxChangeId
-    { get; set; } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
+    {
+        get;
+        set;
+    } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
 
     public ToggleSwitch IsIncomingRequest { get; } = new();
 
@@ -66,6 +74,7 @@ public class StationUIManager : IDisposable
 
     /**
      * Updates to a given station that should happen in the background.
+     * <exception cref="ArgumentOutOfRangeException"></exception>
      */
     private static void UpdateSettingsUI(StationComponent stationComponent, ref StationUI packet)
     {
@@ -136,11 +145,12 @@ public class StationUIManager : IDisposable
                     {
                         for (var i = 0; i < stationComponent.storage.Length; i++)
                         {
-                            if (stationComponent.storage[i].itemId == 1210 && stationComponent.storage[i].count > 0)
+                            if (stationComponent.storage[i].itemId != 1210 || stationComponent.storage[i].count <= 0)
                             {
-                                stationComponent.storage[i].count--;
-                                break;
+                                continue;
                             }
+                            stationComponent.storage[i].count--;
+                            break;
                         }
                     }
                     break;
@@ -153,14 +163,12 @@ public class StationUIManager : IDisposable
             case StationUI.EUISettings.MaxTripVessel:
                 {
                     double value = packet.SettingValue;
-                    if (value > 40.5)
+                    value = value switch
                     {
-                        value = 10000.0;
-                    }
-                    else if (value > 20.5)
-                    {
-                        value = value * 2f - 20f;
-                    }
+                        > 40.5 => 10000.0,
+                        > 20.5 => value * 2f - 20f,
+                        _ => value
+                    };
                     stationComponent.tripRangeShips = 2400000.0 * value;
                     break;
                 }
@@ -179,25 +187,23 @@ public class StationUIManager : IDisposable
             case StationUI.EUISettings.WarpDistance:
                 {
                     double value = packet.SettingValue;
-                    if (value < 1.5)
+                    switch (value)
                     {
-                        value = 0.2;
-                    }
-                    else if (value < 7.5)
-                    {
-                        value = value * 0.5 - 0.5;
-                    }
-                    else if (value < 16.5)
-                    {
-                        value -= 4f;
-                    }
-                    else if (value < 20.5)
-                    {
-                        value = value * 2f - 20f;
-                    }
-                    else
-                    {
-                        value = 60;
+                        case < 1.5:
+                            value = 0.2;
+                            break;
+                        case < 7.5:
+                            value = value * 0.5 - 0.5;
+                            break;
+                        case < 16.5:
+                            value -= 4f;
+                            break;
+                        case < 20.5:
+                            value = value * 2f - 20f;
+                            break;
+                        default:
+                            value = 60;
+                            break;
                     }
                     stationComponent.warpEnableDist = 40000.0 * value;
                     break;
@@ -242,6 +248,10 @@ public class StationUIManager : IDisposable
                     stationComponent.shipAutoReplenish = packet.SettingValue != 0;
                     break;
                 }
+            case StationUI.EUISettings.None:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(packet), "Unknown setting index: " + packet.SettingIndex);
         }
     }
 

@@ -37,12 +37,13 @@ public class UnityDispatchQueue : MonoBehaviour
             _instance = FindObjectOfType<UnityDispatchQueue>();
         }
 
-        if (!_instance)
+        if (_instance)
         {
-            var go = new GameObject(nameof(UnityDispatchQueue));
-            _instance = go.AddComponent<UnityDispatchQueue>();
-            DontDestroyOnLoad(_instance);
+            return _instance;
         }
+        var go = new GameObject(nameof(UnityDispatchQueue));
+        _instance = go.AddComponent<UnityDispatchQueue>();
+        DontDestroyOnLoad(_instance);
 
         return _instance;
     }

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -45,7 +46,8 @@ internal class UIVirtualStarmap_Transpiler
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static IEnumerable<CodeInstruction> _OnLateUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var matcher = new CodeMatcher(instructions)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions)
             .MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(UIVirtualStarmap), "starPool")),
@@ -59,7 +61,7 @@ internal class UIVirtualStarmap_Transpiler
         if (matcher.IsInvalid)
         {
             Log.Warn("UIVirtualStarmap transpiler could not find injection point, not patching!");
-            return instructions;
+            return codeInstructions;
         }
 
         matcher.Advance(1)
@@ -91,9 +93,8 @@ internal class UIVirtualStarmap_Transpiler
                 else if (Multiplayer.Session != null && Multiplayer.Session.IsInLobby && starmap.clickText != "")
                 {
                     var split = starmap.clickText.Split(' ');
-                    var starId = 0;
 
-                    starId = Convert.ToInt32(split[0]);
+                    var starId = Convert.ToInt32(split[0]);
 
                     var starData = starmap._galaxyData.StarById(starId); // no increment as we stored the actual id in there
                     if (starData == null ||
@@ -144,7 +145,7 @@ internal class UIVirtualStarmap_Transpiler
                     starmap.clickText = split[0] + " " + starIndex;
                     UIRoot.instance.uiGame.SetPlanetDetail(pData);
 
-                    GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/right-group")?.SetActive(false);
+                    GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/right-group").SetActive(false);
 
                     UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(true);
                     UIRoot.instance.uiGame.planetDetail.gameObject.GetComponent<RectTransform>().parent.gameObject
@@ -188,10 +189,8 @@ internal class UIVirtualStarmap_Transpiler
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 5))
             .Insert(HarmonyLib.Transpilers.EmitDelegate<IsBirthStar>((starmap, starIndex) =>
-            {
-                return starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthStarId &&
-                       starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthPlanetId;
-            }));
+                starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthStarId &&
+                starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthPlanetId));
 
         // listen for general mouse clicks to deselect planet / solar system
         matcher.Start();
@@ -213,22 +212,23 @@ internal class UIVirtualStarmap_Transpiler
             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TrackPlayerClick>((starmap, starIndex) =>
             {
                 var pressing = VFInput.rtsConfirm.pressing;
-                if (pressing && !pressSpamProtector && starIndex == -1)
+                if (!pressing || pressSpamProtector || starIndex != -1)
                 {
-                    if (starmap.clickText != "" &&
-                        UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide planet details
-                    {
-                        GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/right-group").SetActive(true);
-                        UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
-                    }
-                    else if (starmap.clickText != "" &&
-                             !UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide solar system details
-                    {
-                        starmap.clickText = "";
-                        starmap.OnGalaxyDataReset();
-                    }
-                    pressSpamProtector = true;
+                    return;
                 }
+                if (starmap.clickText != "" &&
+                    UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide planet details
+                {
+                    GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/right-group").SetActive(true);
+                    UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
+                }
+                else if (starmap.clickText != "" &&
+                         !UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide solar system details
+                {
+                    starmap.clickText = "";
+                    starmap.OnGalaxyDataReset();
+                }
+                pressSpamProtector = true;
             }));
 
         // show all star/planet name when alt is pressed
@@ -237,15 +237,16 @@ internal class UIVirtualStarmap_Transpiler
             .Insert(
                 HarmonyLib.Transpilers.EmitDelegate<Action<UIVirtualStarmap>>(starmap =>
                 {
-                    if (VFInput.alt)
+                    if (!VFInput.alt)
                     {
-                        var count = starmap.clickText == ""
-                            ? starmap.starPool.Count
-                            : starmap.starPool[0].starData?.planetCount + 1 ?? 0;
-                        for (var i = 1; i < count; i++)
-                        {
-                            starmap.starPool[i].nameText.gameObject.SetActive(true);
-                        }
+                        return;
+                    }
+                    var count = starmap.clickText == ""
+                        ? starmap.starPool.Count
+                        : starmap.starPool[0].starData?.planetCount + 1 ?? 0;
+                    for (var i = 1; i < count; i++)
+                    {
+                        starmap.starPool[i].nameText.gameObject.SetActive(true);
                     }
                 }),
                 new CodeInstruction(OpCodes.Ret)
@@ -291,7 +292,7 @@ internal class UIVirtualStarmap_Transpiler
             // add planets
             var pData = starData.planets[i];
             var color = starmap.neutronStarColor;
-            var scaleFactor = 0.6f;
+            const float ScaleFactor = 0.6f;
             var isMoon = false;
 
             var pPos = GetRelativeRotatedPlanetPos(starData, pData, ref isMoon);
@@ -305,7 +306,7 @@ internal class UIVirtualStarmap_Transpiler
             // create fake StarData to pass _OnLateUpdate()
             var dummyStarData = new StarData { position = pPos, color = starData.color, id = pData.id };
 
-            var scale = pData.realRadius / 100 * scaleFactor * Vector3.one;
+            var scale = pData.realRadius / 100 * ScaleFactor * Vector3.one;
             if (scale.x > 3 || scale.y > 3 || scale.z > 3)
             {
                 scale = new Vector3(3, 3, 3);
@@ -313,7 +314,7 @@ internal class UIVirtualStarmap_Transpiler
 
             starmap.starPool[i + 1].active = true;
             starmap.starPool[i + 1].starData = dummyStarData;
-            starmap.starPool[i + 1].pointRenderer.material.SetColor("_TintColor", color);
+            starmap.starPool[i + 1].pointRenderer.material.SetColor(s_tintColor, color);
             starmap.starPool[i + 1].pointRenderer.transform.localPosition = pPos;
             starmap.starPool[i + 1].pointRenderer.transform.localScale = scale;
             starmap.starPool[i + 1].pointRenderer.gameObject.SetActive(true);
@@ -328,7 +329,7 @@ internal class UIVirtualStarmap_Transpiler
 
             // add orbit renderer
             starmap.connPool[i].active = true;
-            starmap.connPool[i].lineRenderer.material.SetColor("_LineColorA", Color.Lerp(color, Color.white, 0.65f));
+            starmap.connPool[i].lineRenderer.material.SetColor(s_lineColorA, Color.Lerp(color, Color.white, 0.65f));
 
             if (starmap.connPool[i].lineRenderer.positionCount != 61)
             {
@@ -397,70 +398,71 @@ internal class UIVirtualStarmap_Transpiler
     private static void AddStarToStarmap(UIVirtualStarmap starmap, StarData starData)
     {
         var color = starmap.starColors.Evaluate(starData.color);
-        if (starData.type == EStarType.NeutronStar)
+        switch (starData.type)
         {
-            color = starmap.neutronStarColor;
-        }
-        else if (starData.type == EStarType.WhiteDwarf)
-        {
-            color = starmap.whiteDwarfColor;
-        }
-        else if (starData.type == EStarType.BlackHole)
-        {
-            color = starmap.blackholeColor;
+            case EStarType.NeutronStar:
+                color = starmap.neutronStarColor;
+                break;
+            case EStarType.WhiteDwarf:
+                color = starmap.whiteDwarfColor;
+                break;
+            case EStarType.BlackHole:
+                color = starmap.blackholeColor;
+                break;
+            case EStarType.MainSeqStar:
+                break;
+            case EStarType.GiantStar:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(starData), "Unknown star type: " + starData.type);
         }
         var num2 = 1.2f;
-        if (starData.type == EStarType.GiantStar)
+        switch (starData.type)
         {
-            num2 = 3f;
-        }
-        else if (starData.type == EStarType.WhiteDwarf)
-        {
-            num2 = 0.6f;
-        }
-        else if (starData.type == EStarType.NeutronStar)
-        {
-            num2 = 0.6f;
-        }
-        else if (starData.type == EStarType.BlackHole)
-        {
-            num2 = 0.8f;
+            case EStarType.GiantStar:
+                num2 = 3f;
+                break;
+            case EStarType.WhiteDwarf:
+            case EStarType.NeutronStar:
+                num2 = 0.6f;
+                break;
+            case EStarType.BlackHole:
+                num2 = 0.8f;
+                break;
+            case EStarType.MainSeqStar:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(starData), "Unknown star type: " + starData.type);
         }
         var text = starData.displayName + "  ";
-        if (starData.type == EStarType.GiantStar)
+        switch (starData.type)
         {
-            if (starData.spectr <= ESpectrType.K)
-            {
+            case EStarType.GiantStar when starData.spectr <= ESpectrType.K:
                 text += "红巨星".Translate();
-            }
-            else if (starData.spectr <= ESpectrType.F)
-            {
+                break;
+            case EStarType.GiantStar when starData.spectr <= ESpectrType.F:
                 text += "黄巨星".Translate();
-            }
-            else if (starData.spectr == ESpectrType.A)
-            {
+                break;
+            case EStarType.GiantStar when starData.spectr == ESpectrType.A:
                 text += "白巨星".Translate();
-            }
-            else
-            {
+                break;
+            case EStarType.GiantStar:
                 text += "蓝巨星".Translate();
-            }
-        }
-        else if (starData.type == EStarType.WhiteDwarf)
-        {
-            text += "白矮星".Translate();
-        }
-        else if (starData.type == EStarType.NeutronStar)
-        {
-            text += "中子星".Translate();
-        }
-        else if (starData.type == EStarType.BlackHole)
-        {
-            text += "黑洞".Translate();
-        }
-        else if (starData.type == EStarType.MainSeqStar)
-        {
-            text = text + starData.spectr + "型恒星".Translate();
+                break;
+            case EStarType.WhiteDwarf:
+                text += "白矮星".Translate();
+                break;
+            case EStarType.NeutronStar:
+                text += "中子星".Translate();
+                break;
+            case EStarType.BlackHole:
+                text += "黑洞".Translate();
+                break;
+            case EStarType.MainSeqStar:
+                text = text + starData.spectr + "型恒星".Translate();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(starData), "Unknown star type: " + starData.type);
         }
         if (starData.index == (customBirthStar != -1 ? customBirthStar - 1 : starmap._galaxyData.birthStarId - 1))
         {
@@ -468,7 +470,7 @@ internal class UIVirtualStarmap_Transpiler
         }
         starmap.starPool[0].active = true;
         starmap.starPool[0].starData = starData;
-        starmap.starPool[0].pointRenderer.material.SetColor("_TintColor", color);
+        starmap.starPool[0].pointRenderer.material.SetColor(s_tintColor, color);
         starmap.starPool[0].pointRenderer.transform.localPosition = starData.position;
         starmap.starPool[0].pointRenderer.transform.localScale = 2 * num2 * Vector3.one;
         starmap.starPool[0].pointRenderer.gameObject.SetActive(true);
@@ -522,5 +524,7 @@ internal class UIVirtualStarmap_Transpiler
 
     public static int customBirthStar = -1;
     public static int customBirthPlanet = -1;
+    private static readonly int s_tintColor = Shader.PropertyToID("_TintColor");
+    private static readonly int s_lineColorA = Shader.PropertyToID("_LineColorA");
 #pragma warning restore IDE1006
 }

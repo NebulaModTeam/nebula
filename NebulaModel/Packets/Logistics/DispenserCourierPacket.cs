@@ -13,9 +13,9 @@ public class DispenserCourierPacket
         ItemCount = itemCount;
     }
 
-    public int PlanetId { get; set; }
-    public int PlayerId { get; set; }
-    public int DispenserId { get; set; }
-    public int ItemId { get; set; }
-    public int ItemCount { get; set; }
+    public int PlanetId { get; }
+    public int PlayerId { get; }
+    public int DispenserId { get; }
+    public int ItemId { get; }
+    public int ItemCount { get; }
 }

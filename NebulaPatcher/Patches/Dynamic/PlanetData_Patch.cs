@@ -17,12 +17,13 @@ internal class PlanetData_Patch
     [HarmonyPatch(nameof(PlanetData.LoadFactory))]
     public static void LoadFactory_Prefix()
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            // Stop packet processing for host until factory is loaded
-            ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
-            Log.Info("Pause PacketProcessor (PlanetData.LoadFactory)");
+            return;
         }
+        // Stop packet processing for host until factory is loaded
+        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
+        Log.Info("Pause PacketProcessor (PlanetData.LoadFactory)");
     }
 
     [HarmonyPrefix]
@@ -30,16 +31,16 @@ internal class PlanetData_Patch
     public static bool UpdateDirtyMesh_Prefix(PlanetData __instance, int dirtyIdx, ref bool __result)
     {
         // Temporary fix: skip function when the mesh is null
-        if (__instance.dirtyFlags[dirtyIdx] && __instance.meshes[dirtyIdx] == null)
+        if (!__instance.dirtyFlags[dirtyIdx] || __instance.meshes[dirtyIdx] != null)
         {
-            Log.Warn(__instance == GameMain.localPlanet
-                ? "Local"
-                : "Remote" + $" PlanetData.UpdateDirtyMesh: meshes[{dirtyIdx}] is null");
-            __result = false;
-            return false;
+            return true;
         }
+        Log.Warn(__instance == GameMain.localPlanet
+            ? "Local"
+            : "Remote" + $" PlanetData.UpdateDirtyMesh: meshes[{dirtyIdx}] is null");
+        __result = false;
+        return false;
 
-        return true;
     }
 
     [HarmonyPrefix]
@@ -47,30 +48,25 @@ internal class PlanetData_Patch
     public static bool UnloadMeshes_Prefix(PlanetData __instance)
     {
         //Host should not unload planet meshes, since he need to permorm all terrain operations
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            //Do not unload meshes, just hide them so it is not visible
-            UnloadVisuals(__instance);
-            return false;
+            return true;
         }
+        //Do not unload meshes, just hide them so it is not visible
+        UnloadVisuals(__instance);
+        return false;
 
-        return true;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetData.UnloadData))]
     public static bool UnloadData_Prefix()
     {
-        //Host should not unload planet data, since he need to permorm all operations from users
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-        {
-            return false;
-        }
-
-        return true;
+        //Host should not unload planet data, since they need to perform all operations from users
+        return !Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost;
     }
 
-    public static void UnloadVisuals(PlanetData __instance)
+    private static void UnloadVisuals(PlanetData __instance)
     {
         if (__instance.gameObject != null)
         {
@@ -101,10 +97,11 @@ internal class PlanetData_Patch
             Object.Destroy(__instance.reformMaterial0);
             __instance.reformMaterial0 = null;
         }
-        if (__instance.reformMaterial1 != null)
+        if (__instance.reformMaterial1 == null)
         {
-            Object.Destroy(__instance.reformMaterial1);
-            __instance.reformMaterial1 = null;
+            return;
         }
+        Object.Destroy(__instance.reformMaterial1);
+        __instance.reformMaterial1 = null;
     }
 }

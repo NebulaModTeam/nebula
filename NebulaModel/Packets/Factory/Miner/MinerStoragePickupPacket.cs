@@ -10,6 +10,6 @@ public class MinerStoragePickupPacket
         PlanetId = planetId;
     }
 
-    public int MinerIndex { get; set; }
-    public int PlanetId { get; set; }
+    public int MinerIndex { get; }
+    public int PlanetId { get; }
 }

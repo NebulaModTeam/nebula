@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -21,7 +22,7 @@ internal class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    public override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -29,13 +30,14 @@ internal class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
         }
 
         var player = playerManager.GetPlayer(conn);
-        if (player != null)
+        if (player == null)
         {
-            //Forward packet to other users
-            playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
-            //Forward packet to the host
-            ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor
-                .EnqueuePacketForProcessing(packet.PacketObject, conn);
+            return;
         }
+        //Forward packet to other users
+        playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
+        //Forward packet to the host
+        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor
+            .EnqueuePacketForProcessing(packet.PacketObject, conn);
     }
 }

@@ -1,11 +1,11 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaModel.Packets.Universe;
+namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonSphereEditLayerPacket
 {
@@ -18,7 +18,7 @@ public class DysonSphereEditLayerPacket
         OrbitRotation = new Float4(orbitRotation);
     }
 
-    public int StarIndex { get; set; }
-    public int LayerId { get; set; }
-    public Float4 OrbitRotation { get; set; }
+    public int StarIndex { get; }
+    public int LayerId { get; }
+    public Float4 OrbitRotation { get; }
 }

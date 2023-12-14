@@ -1,11 +1,12 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+using NebulaWorld.Logistics;
 
 #endregion
 
@@ -14,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class ILSAddStationComponentProcessor : PacketProcessor<ILSAddStationComponent>
 {
-    public override void ProcessPacket(ILSAddStationComponent packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSAddStationComponent packet, NebulaConnection conn)
     {
         Log.Info(
             $"ILSAddStationComponentProcessor processing packet for planet {packet.PlanetId}, station {packet.StationId} with gId of {packet.StationGId}");
@@ -35,7 +36,7 @@ public class ILSAddStationComponentProcessor : PacketProcessor<ILSAddStationComp
             {
                 // If we haven't loaded the factory the new station was create on, we need to create a 
                 // "fake" station that we can put into the GalacticTransport.stationPool instead of a real on
-                Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId, packet.PlanetId, packet.MaxShipCount);
+                ILSShipManager.CreateFakeStationComponent(packet.StationGId, packet.PlanetId, packet.MaxShipCount);
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -16,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class ILSRemoveStationComponentProcessor : PacketProcessor<ILSRemoveStationComponent>
 {
-    public override void ProcessPacket(ILSRemoveStationComponent packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSRemoveStationComponent packet, NebulaConnection conn)
     {
         var pData = GameMain.galaxy.PlanetById(packet.PlanetId);
         if (pData?.factory?.transport != null && packet.StationId < pData.factory.transport.stationPool.Length)
@@ -29,12 +29,13 @@ internal class ILSRemoveStationComponentProcessor : PacketProcessor<ILSRemoveSta
         else
         {
             var gStationPool = GameMain.data.galacticTransport.stationPool;
-            if (packet.StationGId < gStationPool.Length)
+            if (packet.StationGId >= gStationPool.Length)
             {
-                using (Multiplayer.Session.Ships.PatchLockILS.On())
-                {
-                    GameMain.data.galacticTransport.RemoveStationComponent(packet.StationGId);
-                }
+                return;
+            }
+            using (Multiplayer.Session.Ships.PatchLockILS.On())
+            {
+                GameMain.data.galacticTransport.RemoveStationComponent(packet.StationGId);
             }
         }
     }

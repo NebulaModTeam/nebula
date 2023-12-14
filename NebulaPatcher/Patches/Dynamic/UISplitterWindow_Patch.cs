@@ -19,7 +19,7 @@ internal class UISplitterWindow_Patch
         if (Multiplayer.IsActive)
         {
             Multiplayer.Session.Network.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId,
-                item != null ? item.ID : 0, GameMain.localPlanet?.id ?? -1));
+                item?.ID ?? 0, GameMain.localPlanet?.id ?? -1));
         }
     }
 

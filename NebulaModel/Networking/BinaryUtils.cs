@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 using K4os.Compression.LZ4.Streams;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
 
 #endregion
 
@@ -58,7 +58,7 @@ public static class BinaryUtils
             BinaryReader = new BinaryReader(bs);
         }
 
-        public MemoryStream MemoryStream { get; }
+        private MemoryStream MemoryStream { get; }
 
         public BinaryReader BinaryReader { get; }
 

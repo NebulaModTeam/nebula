@@ -9,7 +9,7 @@ public class StatisticsRequestEvent
         this.Event = Event;
     }
 
-    public StatisticEvent Event { get; set; }
+    public StatisticEvent Event { get; }
 }
 
 public enum StatisticEvent

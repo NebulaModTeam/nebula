@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.DataStructures;
+﻿namespace NebulaModel.DataStructures.Chat;
 
 public enum ChatMessageType
 {

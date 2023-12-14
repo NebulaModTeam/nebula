@@ -1,7 +1,7 @@
 ﻿#region
 
 using BepInEx;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Planet;
 [RegisterPacketProcessor]
 public class PlanetDataRequestProcessor : PacketProcessor<PlanetDataRequest>
 {
-    public override void ProcessPacket(PlanetDataRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlanetDataRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -32,7 +32,7 @@ public class PlanetDataRequestProcessor : PacketProcessor<PlanetDataRequest>
         }
     }
 
-    public static void OnActivePlanetLoaded(PlanetData planet)
+    private static void OnActivePlanetLoaded(PlanetData planet)
     {
         planet.Unload();
         planet.onLoaded -= OnActivePlanetLoaded;

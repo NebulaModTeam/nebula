@@ -1,7 +1,9 @@
 ﻿#region
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using NebulaAPI;
+using NebulaAPI.GameState;
 using NebulaModel.DataStructures;
 
 #endregion
@@ -12,22 +14,22 @@ public class SyncComplete
 {
     public SyncComplete()
     {
-        AllPlayers = new PlayerData[] { };
-        ClientCert = new byte[] { };
+        AllPlayers = Array.Empty<PlayerData>();
+        ClientCert = Array.Empty<byte>();
     }
 
-    public SyncComplete(IPlayerData[] otherPlayers)
+    public SyncComplete(IEnumerable<IPlayerData> otherPlayers)
     {
         AllPlayers = otherPlayers.Select(data => (PlayerData)data).ToArray();
-        ClientCert = new byte[] { };
+        ClientCert = Array.Empty<byte>();
     }
 
     public SyncComplete(byte[] clientCert)
     {
-        AllPlayers = new PlayerData[] { };
+        AllPlayers = Array.Empty<PlayerData>();
         ClientCert = clientCert;
     }
 
-    public PlayerData[] AllPlayers { get; set; }
-    public byte[] ClientCert { get; set; }
+    public PlayerData[] AllPlayers { get; }
+    public byte[] ClientCert { get; }
 }

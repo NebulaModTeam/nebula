@@ -5,9 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using BepInEx.Bootstrap;
 using HarmonyLib;
-using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
-using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Chat;
 using NebulaWorld;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,11 +28,12 @@ internal class UIFatalErrorTip_Patch
     public static void _OnRegEvent_Postfix()
     {
         // If there is errer message before game begin, we will show to user here
-        if (Log.LastErrorMsg != null)
+        if (Log.LastErrorMsg == null)
         {
-            UIFatalErrorTip.instance.ShowError("[Nebula Error] " + Log.LastErrorMsg, "");
-            Log.LastErrorMsg = null;
+            return;
         }
+        UIFatalErrorTip.instance.ShowError("[Nebula Error] " + Log.LastErrorMsg, "");
+        Log.LastErrorMsg = null;
     }
 
     [HarmonyPostfix]
@@ -74,13 +75,14 @@ internal class UIFatalErrorTip_Patch
     private static void DedicatedServerReportError()
     {
         // OnOpen only run once for the first error report
-        if (Multiplayer.IsDedicated && Multiplayer.IsActive)
+        if (!Multiplayer.IsDedicated || !Multiplayer.IsActive)
         {
-            var log = "Server report an error: \n" + UIFatalErrorTip.instance.errorLogText.text;
-            Log.Warn(log);
-            Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, log,
-                DateTime.Now, ""));
+            return;
         }
+        var log = "Server report an error: \n" + UIFatalErrorTip.instance.errorLogText.text;
+        Log.Warn(log);
+        Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, log,
+            DateTime.Now, ""));
     }
 
     private static string Title()
@@ -126,8 +128,8 @@ internal class UIFatalErrorTip_Patch
             }
 
             // Remove hash string
-            var start = str.LastIndexOf(" <");
-            var end = str.LastIndexOf(">:");
+            var start = str.LastIndexOf(" <", StringComparison.Ordinal);
+            var end = str.LastIndexOf(">:", StringComparison.Ordinal);
             if (start != -1 && end > start)
             {
                 stringBuilder.AppendLine(str.Remove(start, end - start + 2));

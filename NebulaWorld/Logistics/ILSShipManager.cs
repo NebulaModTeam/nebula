@@ -20,83 +20,80 @@ public class ILSShipManager
     public int ItemSlotStationGId = 0;
     public int ItemSlotStationId = 0;
 
-    public void Dispose()
-    {
-    }
-
     /*
      * When the host notifies the client that a ship started its travel client needs to check if he got both ILS in his gStationPool
      * if not we create a fake entry (which gets updated to the full one when client arrives that planet) and also request the stations dock position
      */
-    public void IdleShipGetToWork(ILSIdleShipBackToWork packet)
+    public static void IdleShipGetToWork(ILSIdleShipBackToWork packet)
     {
         var planetA = GameMain.galaxy.PlanetById(packet.PlanetA);
         var planetB = GameMain.galaxy.PlanetById(packet.PlanetB);
 
-        if (planetA != null && planetB != null)
+        if (planetA == null || planetB == null)
         {
-            if (GameMain.data.galacticTransport.stationCapacity <= packet.ThisGId)
-            {
-                CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
-            }
-            else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId] == null)
-            {
-                CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
-            }
-            else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
-            {
-                RequestgStationDockPos(packet.ThisGId);
-            }
-            if (GameMain.data.galacticTransport.stationCapacity <= packet.OtherGId)
-            {
-                CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
-            }
-            else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId] == null)
-            {
-                CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
-            }
-            else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId].shipDockPos == Vector3.zero)
-            {
-                RequestgStationDockPos(packet.OtherGId);
-            }
-
-            var stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
-
-            stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
-            stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
-            stationComponent.workShipDatas[stationComponent.workShipCount].planetB = packet.PlanetB;
-            stationComponent.workShipDatas[stationComponent.workShipCount].otherGId = packet.OtherGId;
-            stationComponent.workShipDatas[stationComponent.workShipCount].direction = 1;
-            stationComponent.workShipDatas[stationComponent.workShipCount].t = 0f;
-            stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.ItemId;
-            stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.ItemCount;
-            stationComponent.workShipDatas[stationComponent.workShipCount].inc = packet.Inc;
-            stationComponent.workShipDatas[stationComponent.workShipCount].gene = packet.Gene;
-            stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.ShipIndex;
-            stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
-            stationComponent.warperCount = packet.StationWarperCount;
-
-            stationComponent.workShipCount++;
-            stationComponent.idleShipCount--;
-            stationComponent.IdleShipGetToWork(packet.ShipIndex);
-
-            var shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
-            var shipWarpSpeed = GameMain.history.logisticShipWarpDrive
-                ? GameMain.history.logisticShipWarpSpeedModified
-                : shipSailSpeed;
-            var astroPoses = GameMain.galaxy.astrosData;
-
-            var canWarp = shipWarpSpeed > shipSailSpeed + 1f;
-            var trip = (astroPoses[packet.PlanetB].uPos - astroPoses[packet.PlanetA].uPos).magnitude +
-                       astroPoses[packet.PlanetB].uRadius + astroPoses[packet.PlanetA].uRadius;
-            stationComponent.energy -= stationComponent.CalcTripEnergyCost(trip, shipSailSpeed, canWarp);
+            return;
         }
+        if (GameMain.data.galacticTransport.stationCapacity <= packet.ThisGId)
+        {
+            CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
+        }
+        else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId] == null)
+        {
+            CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
+        }
+        else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
+        {
+            RequestStationDockPos(packet.ThisGId);
+        }
+        if (GameMain.data.galacticTransport.stationCapacity <= packet.OtherGId)
+        {
+            CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
+        }
+        else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId] == null)
+        {
+            CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
+        }
+        else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId].shipDockPos == Vector3.zero)
+        {
+            RequestStationDockPos(packet.OtherGId);
+        }
+
+        var stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
+
+        stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
+        stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
+        stationComponent.workShipDatas[stationComponent.workShipCount].planetB = packet.PlanetB;
+        stationComponent.workShipDatas[stationComponent.workShipCount].otherGId = packet.OtherGId;
+        stationComponent.workShipDatas[stationComponent.workShipCount].direction = 1;
+        stationComponent.workShipDatas[stationComponent.workShipCount].t = 0f;
+        stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.ItemId;
+        stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.ItemCount;
+        stationComponent.workShipDatas[stationComponent.workShipCount].inc = packet.Inc;
+        stationComponent.workShipDatas[stationComponent.workShipCount].gene = packet.Gene;
+        stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.ShipIndex;
+        stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
+        stationComponent.warperCount = packet.StationWarperCount;
+
+        stationComponent.workShipCount++;
+        stationComponent.idleShipCount--;
+        stationComponent.IdleShipGetToWork(packet.ShipIndex);
+
+        var shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
+        var shipWarpSpeed = GameMain.history.logisticShipWarpDrive
+            ? GameMain.history.logisticShipWarpSpeedModified
+            : shipSailSpeed;
+        var astroPoses = GameMain.galaxy.astrosData;
+
+        var canWarp = shipWarpSpeed > shipSailSpeed + 1f;
+        var trip = (astroPoses[packet.PlanetB].uPos - astroPoses[packet.PlanetA].uPos).magnitude +
+                   astroPoses[packet.PlanetB].uRadius + astroPoses[packet.PlanetA].uRadius;
+        stationComponent.energy -= stationComponent.CalcTripEnergyCost(trip, shipSailSpeed, canWarp);
     }
 
     /*
      * this is also triggered by server and called once a ship lands back to the dock station
      */
-    public void WorkShipBackToIdle(ILSWorkShipBackToIdle packet)
+    public static void WorkShipBackToIdle(ILSWorkShipBackToIdle packet)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
         {
@@ -113,7 +110,7 @@ public class ILSShipManager
         }
         else if (GameMain.data.galacticTransport.stationPool[packet.GId].shipDockPos == Vector3.zero)
         {
-            RequestgStationDockPos(packet.GId);
+            RequestStationDockPos(packet.GId);
         }
 
         var stationComponent = GameMain.data.galacticTransport.stationPool[packet.GId];
@@ -132,7 +129,7 @@ public class ILSShipManager
      * The information is needed in StationComponent.InternalTickRemote(), but we use a reverse patched version of that
      * which is stripped down to the ship movement and rendering part.
      */
-    public void CreateFakeStationComponent(int GId, int planetId, int maxShipCount, bool computeDisk = true)
+    public static void CreateFakeStationComponent(int GId, int planetId, int maxShipCount, bool computeDisk = true)
     {
         // it may be needed to make additional room for the new ILS
         while (GameMain.data.galacticTransport.stationCapacity <= GId)
@@ -172,7 +169,7 @@ public class ILSShipManager
                                                   stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
             }
 
-            RequestgStationDockPos(GId);
+            RequestStationDockPos(GId);
         }
 
         GameMain.data.galacticTransport.stationCursor = Math.Max(GameMain.data.galacticTransport.stationCursor, GId + 1);
@@ -181,13 +178,13 @@ public class ILSShipManager
     /*
      * As StationComponent.InternalTickRemote() needs to have the dock position to correctly compute ship movement we request it here from server.
      */
-    private void RequestgStationDockPos(int GId)
+    private static void RequestStationDockPos(int gId)
     {
-        Multiplayer.Session.Network.SendPacket(new ILSRequestShipDock(GId));
+        Multiplayer.Session.Network.SendPacket(new ILSRequestShipDock(gId));
     }
 
     // This is triggered by server when InternalTickRemote() calls AddItem() or TakeItem()
-    public void AddTakeItem(ILSShipAddTake packet)
+    public static void AddTakeItem(ILSShipAddTake packet)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost ||
             GameMain.data.galacticTransport.stationPool.Length <= packet.StationGID)
@@ -196,26 +193,26 @@ public class ILSShipManager
         }
 
         var stationComponent = GameMain.data.galacticTransport.stationPool[packet.StationGID];
-        if (stationComponent != null && stationComponent.gid == packet.StationGID && stationComponent.storage.Length != 0)
+        if (stationComponent == null || stationComponent.gid != packet.StationGID || stationComponent.storage.Length == 0)
         {
-            if (packet.AddItem)
-            {
-                stationComponent.AddItem(packet.ItemId, packet.ItemCount, packet.Inc);
-            }
-            else
-            {
-                var itemId = packet.ItemId;
-                var itemCount = packet.ItemCount;
-                int Inc;
-                stationComponent.TakeItem(ref itemId, ref itemCount, out Inc);
-                // we need to update the ShipData here too, luckily our transpiler sends the workShipDatas index in the inc field
-                // update: ShipDatas.itemCount only use for rendering color, so we let clients handle it
-            }
+            return;
+        }
+        if (packet.AddItem)
+        {
+            stationComponent.AddItem(packet.ItemId, packet.ItemCount, packet.Inc);
+        }
+        else
+        {
+            var itemId = packet.ItemId;
+            var itemCount = packet.ItemCount;
+            stationComponent.TakeItem(ref itemId, ref itemCount, out _);
+            // we need to update the ShipData here too, luckily our transpiler sends the workShipDatas index in the inc field
+            // update: ShipDatas.itemCount only use for rendering color, so we let clients handle it
         }
     }
 
     // is triggered by server when InternalTickRemote() updates the StationComponent.storage array
-    public void UpdateStorage(ILSUpdateStorage packet)
+    public static void UpdateStorage(ILSUpdateStorage packet)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost ||
             GameMain.data.galacticTransport.stationPool.Length <= packet.GId)
@@ -224,18 +221,19 @@ public class ILSShipManager
         }
 
         var stationComponent = GameMain.data.galacticTransport.stationPool[packet.GId];
-        if (stationComponent != null && stationComponent.gid == packet.GId && stationComponent.storage.Length != 0)
+        if (stationComponent == null || stationComponent.gid != packet.GId || stationComponent.storage.Length == 0)
         {
-            var obj = stationComponent.storage;
-            lock (obj)
-            {
-                stationComponent.storage[packet.Index].count = packet.Count;
-                stationComponent.storage[packet.Index].inc = packet.Inc;
-            }
+            return;
+        }
+        var obj = stationComponent.storage;
+        lock (obj)
+        {
+            stationComponent.storage[packet.Index].count = packet.Count;
+            stationComponent.storage[packet.Index].inc = packet.Inc;
         }
     }
 
-    public void UpdateSlotData(ILSUpdateSlotData packet)
+    public static void UpdateSlotData(ILSUpdateSlotData packet)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         StationComponent stationComponent = null;
@@ -245,13 +243,14 @@ public class ILSShipManager
             stationComponent = factory.transport.stationPool[packet.StationId];
         }
 
-        if (stationComponent?.slots != null)
+        if (stationComponent?.slots == null)
         {
-            stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
-            if (stationComponent.gid != packet.StationGId)
-            {
-                Log.Warn($"Station gid mismatch! local:{stationComponent.gid} remote:{packet.StationGId}");
-            }
+            return;
+        }
+        stationComponent.slots[packet.Index].storageIdx = packet.StorageIdx;
+        if (stationComponent.gid != packet.StationGId)
+        {
+            Log.Warn($"Station gid mismatch! local:{stationComponent.gid} remote:{packet.StationGId}");
         }
     }
 }

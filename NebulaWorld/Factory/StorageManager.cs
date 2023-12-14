@@ -10,7 +10,7 @@ namespace NebulaWorld.Factory;
 
 public class StorageManager : IDisposable
 {
-    public readonly ToggleSwitch IsIncomingRequest;
+    public readonly ToggleSwitch IsIncomingRequest = new();
     public Slider ActiveBansSlider;
     public Text ActiveBansValueText;
     public StorageComponent ActiveStorageComponent;
@@ -19,12 +19,8 @@ public class StorageManager : IDisposable
     public bool IsHumanInput = false;
     public bool WindowOpened = false;
 
-    public StorageManager()
-    {
-        IsIncomingRequest = new ToggleSwitch();
-    }
-
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

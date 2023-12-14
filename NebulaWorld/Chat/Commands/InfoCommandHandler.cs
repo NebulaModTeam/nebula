@@ -6,11 +6,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using BepInEx.Bootstrap;
 using NebulaModel;
-using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Networking;
 using NebulaModel.Utils;
-using NebulaWorld.MonoBehaviours.Local;
-using static NebulaWorld.Chat.CopyTextChatLinkHandler;
+using NebulaWorld.MonoBehaviours.Local.Chat;
+using static NebulaWorld.Chat.ChatLinks.CopyTextChatLinkHandler;
 
 #endregion
 
@@ -18,6 +18,8 @@ namespace NebulaWorld.Chat.Commands;
 
 public class InfoCommandHandler : IChatCommandHandler
 {
+    private static readonly string[] s_separator = { "]:" };
+
     public void Execute(ChatWindow window, string[] parameters)
     {
         if (!Multiplayer.IsActive)
@@ -29,33 +31,38 @@ public class InfoCommandHandler : IChatCommandHandler
 
         var full = parameters.Length > 0 && parameters[0].Equals("full");
 
-        if (Multiplayer.Session.Network is IServer server)
+        switch (Multiplayer.Session.Network)
         {
-            var output = GetServerInfoText(
-                server,
-                new IPUtils.IpInfo
+            case IServer server:
                 {
-                    LANAddress = "Pending...".Translate(),
-                    WANv4Address = "Pending...".Translate(),
-                    WANv6Address = "Pending...".Translate(),
-                    PortStatus = "Pending...".Translate(),
-                    DataState = IPUtils.DataState.Unset
-                },
-                full
-            );
-            var message = window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                    var output = GetServerInfoText(
+                        server,
+                        new IPUtils.IpInfo
+                        {
+                            LANAddress = "Pending...".Translate(),
+                            WANv4Address = "Pending...".Translate(),
+                            WANv6Address = "Pending...".Translate(),
+                            PortStatus = "Pending...".Translate(),
+                            DataState = IPUtils.DataState.Unset
+                        },
+                        full
+                    );
+                    var message = window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
 
-            // This will cause the temporary (Pending...) info to be dynamically replaced with the correct info once it is in
-            IPUtils.GetIPInfo(server.Port).ContinueWith(async ipInfo =>
-            {
-                var newOutput = GetServerInfoText(server, await ipInfo, full);
-                message.Text = newOutput;
-            });
-        }
-        else if (Multiplayer.Session.Network is IClient client)
-        {
-            var output = GetClientInfoText(client, full);
-            window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                    // This will cause the temporary (Pending...) info to be dynamically replaced with the correct info once it is in
+                    IPUtils.GetIPInfo(server.Port).ContinueWith(async ipInfo =>
+                    {
+                        var newOutput = GetServerInfoText(server, await ipInfo, full);
+                        message.Text = newOutput;
+                    });
+                    break;
+                }
+            case IClient client:
+                {
+                    var output = GetClientInfoText(client, full);
+                    window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                    break;
+                }
         }
     }
 
@@ -114,7 +121,7 @@ public class InfoCommandHandler : IChatCommandHandler
 
         sb.Append("\n  ").Append("Port status: ".Translate()).Append(ipInfo.PortStatus);
         sb.Append("\n  ").Append("Data state: ".Translate()).Append(ipInfo.DataState);
-        TimeSpan timeSpan = DateTime.Now.Subtract(Multiplayer.Session.StartTime);
+        var timeSpan = DateTime.Now.Subtract(Multiplayer.Session.StartTime);
         sb.Append("\n  ").Append("Uptime: ".Translate())
             .Append($"{(int)Math.Round(timeSpan.TotalHours)}:{timeSpan.Minutes}:{timeSpan.Seconds}");
 
@@ -177,42 +184,28 @@ public class InfoCommandHandler : IChatCommandHandler
         {
             var parts = ip.Split(':');
             var safeIp = ip;
-            if (parts.Length == 2)
-            {
-                safeIp = $"{Regex.Replace(parts[0], @"\w", "*")}:{parts[1]}";
-            }
-            else
-            {
-                safeIp = Regex.Replace(safeIp, @"\w", "*");
-            }
+            safeIp = parts.Length == 2
+                ? $"{Regex.Replace(parts[0], @"\w", "*")}:{parts[1]}"
+                : Regex.Replace(safeIp, @"\w", "*");
             return safeIp;
         }
         else
         {
-            var parts = ip.Split(new[] { "]:" }, StringSplitOptions.None);
+            var parts = ip.Split(s_separator, StringSplitOptions.None);
             var safeIp = ip;
-            if (parts.Length == 2)
-            {
-                safeIp = $"{Regex.Replace(parts[0], @"\w", "*")}]:{parts[1]}";
-            }
-            else
-            {
-                safeIp = Regex.Replace(safeIp, @"\w", "*");
-            }
+            safeIp = parts.Length == 2
+                ? $"{Regex.Replace(parts[0], @"\w", "*")}]:{parts[1]}"
+                : Regex.Replace(safeIp, @"\w", "*");
             return safeIp;
         }
     }
 
     private static string NgrokAddressFilter(string address)
     {
-        if (!Config.Options.StreamerMode)
-        {
-            return address;
-        }
-
-        return Regex.Replace(address, @"\w", "*");
+        return !Config.Options.StreamerMode ? address : Regex.Replace(address, @"\w", "*");
     }
 
+    //TODO: Unused?
     private static string ReplaceChars(string s, string targetSymbols, char newVal)
     {
         StringBuilder sb = new(s);

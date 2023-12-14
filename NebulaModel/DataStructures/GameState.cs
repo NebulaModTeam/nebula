@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 
 #endregion
 
@@ -9,8 +10,8 @@ namespace NebulaModel.DataStructures;
 [RegisterNestedType]
 public struct GameState : INetSerializable
 {
-    public long timestamp;
-    public long gameTick;
+    private long timestamp;
+    private long gameTick;
 
     public GameState(long timestamp, long gameTick)
     {

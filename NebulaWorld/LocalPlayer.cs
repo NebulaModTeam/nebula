@@ -1,18 +1,19 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.GameState;
 using NebulaModel.DataStructures;
 
 #endregion
 
 namespace NebulaWorld;
 
-public class LocalPlayer : IDisposable, ILocalPlayer
+public class LocalPlayer : ILocalPlayer
 {
     public void Dispose()
     {
         Data = null;
+        GC.SuppressFinalize(this);
     }
 
     public bool IsInitialDataReceived { get; private set; }
@@ -27,14 +28,15 @@ public class LocalPlayer : IDisposable, ILocalPlayer
         Data = data;
         IsNewPlayer = isNewPlayer;
 
-        if (!IsInitialDataReceived)
+        if (IsInitialDataReceived)
         {
-            IsInitialDataReceived = true;
+            return;
+        }
+        IsInitialDataReceived = true;
 
-            if (Multiplayer.Session.IsGameLoaded)
-            {
-                Multiplayer.Session.World.SetupInitialPlayerState();
-            }
+        if (Multiplayer.Session.IsGameLoaded)
+        {
+            Multiplayer.Session.World.SetupInitialPlayerState();
         }
     }
 }

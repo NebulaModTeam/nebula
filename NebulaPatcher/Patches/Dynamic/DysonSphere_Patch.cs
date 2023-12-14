@@ -1,7 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using UnityEngine;
 
@@ -21,32 +21,34 @@ internal class DysonSphere_Patch
             return true;
         }
         //Update swarm and layer energy generation stats every 120 frames
-        if (times % 120 == 0)
+        if (times % 120 != 0)
         {
-            __instance.swarm.energyGenCurrentTick = __instance.swarm.sailCount * __instance.energyGenPerSail;
-            for (var i = 0; i < 10; i++)
+            return false;
+        }
+        __instance.swarm.energyGenCurrentTick = __instance.swarm.sailCount * __instance.energyGenPerSail;
+        for (var i = 0; i < 10; i++)
+        {
+            var dysonSphereLayer = __instance.layersSorted[i];
+            if (dysonSphereLayer == null)
             {
-                var dysonSphereLayer = __instance.layersSorted[i];
-                if (dysonSphereLayer != null)
+                continue;
+            }
+            dysonSphereLayer.energyGenCurrentTick = 0L;
+            var nodePool = dysonSphereLayer.nodePool;
+            var shellPool = dysonSphereLayer.shellPool;
+            for (var j = 1; j < dysonSphereLayer.nodeCursor; j++)
+            {
+                if (nodePool[j] != null && nodePool[j].id == j)
                 {
-                    dysonSphereLayer.energyGenCurrentTick = 0L;
-                    var nodePool = dysonSphereLayer.nodePool;
-                    var shellPool = dysonSphereLayer.shellPool;
-                    for (var j = 1; j < dysonSphereLayer.nodeCursor; j++)
-                    {
-                        if (nodePool[j] != null && nodePool[j].id == j)
-                        {
-                            dysonSphereLayer.energyGenCurrentTick += nodePool[j]
-                                .EnergyGenCurrentTick(__instance.energyGenPerNode, __instance.energyGenPerFrame, 0L);
-                        }
-                    }
-                    for (var k = 1; k < dysonSphereLayer.shellCursor; k++)
-                    {
-                        if (shellPool[k] != null && shellPool[k].id == k)
-                        {
-                            dysonSphereLayer.energyGenCurrentTick += shellPool[k].cellPoint * __instance.energyGenPerShell;
-                        }
-                    }
+                    dysonSphereLayer.energyGenCurrentTick += nodePool[j]
+                        .EnergyGenCurrentTick(__instance.energyGenPerNode, __instance.energyGenPerFrame, 0L);
+                }
+            }
+            for (var k = 1; k < dysonSphereLayer.shellCursor; k++)
+            {
+                if (shellPool[k] != null && shellPool[k].id == k)
+                {
+                    dysonSphereLayer.energyGenCurrentTick += shellPool[k].cellPoint * __instance.energyGenPerShell;
                 }
             }
         }
@@ -91,7 +93,7 @@ internal class DysonSphere_Patch
         }
     }
 
-    public static void RemoveLayer(int id, int starIndex)
+    private static void RemoveLayer(int id, int starIndex)
     {
         //If local is the author and not in the process of importing blueprint
         if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest && !Multiplayer.Session.DysonSpheres.InBlueprint)

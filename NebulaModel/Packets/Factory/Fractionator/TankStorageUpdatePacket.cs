@@ -13,9 +13,9 @@ public class FractionatorStorageUpdatePacket
         PlanetId = planetId;
     }
 
-    public int FractionatorId { get; set; }
-    public int ProductOutputCount { get; set; }
-    public int FluidOutputCount { get; set; }
-    public int FluidOutputInc { get; set; }
-    public int PlanetId { get; set; }
+    public int FractionatorId { get; }
+    public int ProductOutputCount { get; }
+    public int FluidOutputCount { get; }
+    public int FluidOutputInc { get; }
+    public int PlanetId { get; }
 }

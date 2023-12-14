@@ -15,12 +15,13 @@ internal class UITankWindow_Patch
     [HarmonyPatch(nameof(UITankWindow.OnTakeBackPointerUp))]
     public static void OnTakeBackPointerUp_Postfix(UITankWindow __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var thisTank = __instance.storage.tankPool[__instance.tankId];
-            Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in thisTank,
-                GameMain.localPlanet?.id ?? -1));
+            return;
         }
+        var thisTank = __instance.storage.tankPool[__instance.tankId];
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in thisTank,
+            GameMain.localPlanet?.id ?? -1));
     }
 
     [HarmonyPostfix]

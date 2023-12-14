@@ -15,13 +15,13 @@ internal class GPUInstancingManager_Patch
     public static bool AddModel_Prefix(ref int __result)
     {
         //Do not add model to the GPU queue if player is not on the same planet as building that was build
-        if (Multiplayer.IsActive && Multiplayer.Session.Factories.EventFactory != null &&
-            Multiplayer.Session.Factories.EventFactory.planet != GameMain.localPlanet)
+        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.EventFactory == null ||
+            Multiplayer.Session.Factories.EventFactory.planet == GameMain.localPlanet)
         {
-            __result = 0;
-            return false;
+            return true;
         }
-        return true;
+        __result = 0;
+        return false;
     }
 
     [HarmonyPrefix]
@@ -29,12 +29,12 @@ internal class GPUInstancingManager_Patch
     public static bool AddPrebuildModel_Prefix(ref int __result)
     {
         //Do not add model to the GPU queue if player is not on the same planet as building that was build
-        if (Multiplayer.IsActive && Multiplayer.Session.Factories.EventFactory != null &&
-            Multiplayer.Session.Factories.EventFactory.planet != GameMain.localPlanet)
+        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.EventFactory == null ||
+            Multiplayer.Session.Factories.EventFactory.planet == GameMain.localPlanet)
         {
-            __result = 0;
-            return false;
+            return true;
         }
-        return true;
+        __result = 0;
+        return false;
     }
 }

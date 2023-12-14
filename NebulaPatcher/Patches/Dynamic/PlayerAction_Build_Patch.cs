@@ -61,13 +61,8 @@ internal class PlayerAction_Build_Patch
             return true;
         }
 
-        if (Multiplayer.Session.Factories.IsIncomingRequest.Value &&
-            Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id &&
-            Multiplayer.Session.Factories.TargetPlanet != GameMain.localPlanet?.id)
-        {
-            return false;
-        }
-
-        return true;
+        return !Multiplayer.Session.Factories.IsIncomingRequest.Value ||
+               Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id ||
+               Multiplayer.Session.Factories.TargetPlanet == GameMain.localPlanet?.id;
     }
 }

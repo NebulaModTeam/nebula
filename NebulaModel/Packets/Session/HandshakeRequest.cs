@@ -2,6 +2,8 @@
 
 using BepInEx.Bootstrap;
 using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Interfaces;
 using NebulaModel.Networking;
 
 #endregion
@@ -35,11 +37,12 @@ public class HandshakeRequest
                 {
                     foreach (var dependency in pluginInfo.Value.Dependencies)
                     {
-                        if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
+                        if (dependency.DependencyGUID != NebulaModAPI.API_GUID)
                         {
-                            writer.BinaryWriter.Write(pluginInfo.Key);
-                            writer.BinaryWriter.Write(pluginInfo.Value.Metadata.Version.ToString());
+                            continue;
                         }
+                        writer.BinaryWriter.Write(pluginInfo.Key);
+                        writer.BinaryWriter.Write(pluginInfo.Value.Metadata.Version.ToString());
                     }
                 }
             }

@@ -2,8 +2,8 @@
 
 using System.Collections.Generic;
 using HarmonyLib;
-using NebulaAPI;
-using NebulaModel.Packets.Universe;
+using NebulaAPI.DataStructures;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using UnityEngine;
 
@@ -18,28 +18,30 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.NewDysonNode))]
     public static void NewDysonNode_Prefix(DysonSphereLayer __instance, int protoId, Vector3 pos)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest)
         {
-            var nodeId = __instance.nodeRecycleCursor > 0
-                ? __instance.nodeRecycle[__instance.nodeRecycleCursor - 1]
-                : __instance.nodeCursor;
-            Multiplayer.Session.Network.SendPacket(new DysonSphereAddNodePacket(__instance.starData.index, __instance.id,
-                nodeId, protoId, new Float3(pos)));
+            return;
         }
+        var nodeId = __instance.nodeRecycleCursor > 0
+            ? __instance.nodeRecycle[__instance.nodeRecycleCursor - 1]
+            : __instance.nodeCursor;
+        Multiplayer.Session.Network.SendPacket(new DysonSphereAddNodePacket(__instance.starData.index, __instance.id,
+            nodeId, protoId, new Float3(pos)));
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(DysonSphereLayer.NewDysonFrame))]
     public static void NewDysonFrame_Prefix(DysonSphereLayer __instance, int protoId, int nodeAId, int nodeBId, bool euler)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest)
         {
-            var frameId = __instance.frameRecycleCursor > 0
-                ? __instance.frameRecycle[__instance.frameRecycleCursor - 1]
-                : __instance.frameCursor;
-            Multiplayer.Session.Network.SendPacket(new DysonSphereAddFramePacket(__instance.starData.index, __instance.id,
-                frameId, protoId, nodeAId, nodeBId, euler));
+            return;
         }
+        var frameId = __instance.frameRecycleCursor > 0
+            ? __instance.frameRecycle[__instance.frameRecycleCursor - 1]
+            : __instance.frameCursor;
+        Multiplayer.Session.Network.SendPacket(new DysonSphereAddFramePacket(__instance.starData.index, __instance.id,
+            frameId, protoId, nodeAId, nodeBId, euler));
     }
 
     [HarmonyPrefix]
@@ -68,14 +70,15 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.NewDysonShell))]
     public static void NewDysonShell_Prefix(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest)
         {
-            var shellId = __instance.shellRecycleCursor > 0
-                ? __instance.shellRecycle[__instance.shellRecycleCursor - 1]
-                : __instance.shellCursor;
-            Multiplayer.Session.Network.SendPacket(new DysonSphereAddShellPacket(__instance.starData.index, __instance.id,
-                shellId, protoId, nodeIds));
+            return;
         }
+        var shellId = __instance.shellRecycleCursor > 0
+            ? __instance.shellRecycle[__instance.shellRecycleCursor - 1]
+            : __instance.shellCursor;
+        Multiplayer.Session.Network.SendPacket(new DysonSphereAddShellPacket(__instance.starData.index, __instance.id,
+            shellId, protoId, nodeIds));
     }
 
     [HarmonyPrefix]
@@ -93,14 +96,15 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.InitOrbitRotation))]
     public static void InitOrbitRotation_Prefix(DysonSphereLayer __instance, Quaternion __1)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest)
         {
-            //Send only when it's trigger by UIDELayerInfo.OnEditConfirmClick()
-            if (UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.orbitEditMode)
-            {
-                Multiplayer.Session.Network.SendPacket(new DysonSphereEditLayerPacket(__instance.starData.index, __instance.id,
-                    __1));
-            }
+            return;
+        }
+        //Send only when it's trigger by UIDELayerInfo.OnEditConfirmClick()
+        if (UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.orbitEditMode)
+        {
+            Multiplayer.Session.Network.SendPacket(new DysonSphereEditLayerPacket(__instance.starData.index, __instance.id,
+                __1));
         }
     }
 }

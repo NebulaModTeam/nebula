@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 #endregion
 
-namespace NebulaWorld.MonoBehaviours.Local;
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
 
 public class EmojiPicker : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -208,15 +208,15 @@ public class EmojiPicker : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private void RefreshIcons(string search)
     {
         ClearEmojiDisplay();
-        if (EmojiDataManager.emojies.ContainsKey(currentCategory))
+        if (EmojiDataManager.emojies.TryGetValue(currentCategory, out var value))
         {
             if (search.Equals(""))
             {
-                lastUsedList = EmojiDataManager.emojies[currentCategory];
+                lastUsedList = value;
             }
             else
             {
-                lastUsedList = EmojiDataManager.emojies[currentCategory];
+                lastUsedList = value;
                 lastUsedList = lastUsedList.Where(emoji => emoji.ShortName.Contains(search, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }

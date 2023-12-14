@@ -1,21 +1,21 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Chat;
 using NebulaWorld;
 using NebulaWorld.Chat.Commands;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Players;
+namespace NebulaNetwork.PacketProcessors.Chat;
 
 [RegisterPacketProcessor]
 internal class ChatCommandWhisperProcessor : PacketProcessor<ChatCommandWhisperPacket>
 {
-    public override void ProcessPacket(ChatCommandWhisperPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(ChatCommandWhisperPacket packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -31,12 +31,12 @@ internal class ChatCommandWhisperProcessor : PacketProcessor<ChatCommandWhisperP
             }
 
             // second case, relay message to recipient
-            INebulaPlayer recipient = Multiplayer.Session.Network
+            var recipient = Multiplayer.Session.Network
                 .PlayerManager.GetConnectedPlayerByUsername(packet.RecipientUsername);
             if (recipient == null)
             {
                 Log.Warn($"Recipient not found {packet.RecipientUsername}");
-                INebulaPlayer sender = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
+                var sender = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
                 sender.SendPacket(new ChatCommandWhisperPacket("SYSTEM".Translate(), packet.SenderUsername,
                     string.Format("User not found {0}".Translate(), packet.RecipientUsername)));
                 return;

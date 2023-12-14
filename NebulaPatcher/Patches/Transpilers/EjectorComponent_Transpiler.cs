@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.DataStructures;
@@ -21,9 +22,10 @@ internal class EjectorComponent_Transpiler
     private static IEnumerable<CodeInstruction> InternalUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         // Store projectile data after swarm.AddBullet(sailBullet, orbitId) if IsUpdateNeeded == true
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            var matcher = new CodeMatcher(instructions)
+            var matcher = new CodeMatcher(codeInstructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(SailBullet), nameof(SailBullet.lBegin))) //IL#638
                 );
@@ -64,7 +66,7 @@ internal class EjectorComponent_Transpiler
         catch
         {
             Log.Error("EjectorComponent.InternalUpdate_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 }

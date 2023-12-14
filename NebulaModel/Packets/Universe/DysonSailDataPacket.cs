@@ -20,16 +20,16 @@ public class DysonSailDataPacket
         gs = sail.gs;
     }
 
-    public int StarIndex { get; set; }
-    public int OrbitId { get; set; }
-    public long ExpiryTime { get; set; }
-    public float st { get; set; }
-    public float px { get; set; }
-    public float py { get; set; }
-    public float pz { get; set; }
-    public float vx { get; set; }
-    public float vy { get; set; }
-    public float vz { get; set; }
-    public float gs { get; set; }
+    public int StarIndex { get; }
+    public int OrbitId { get; }
+    public long ExpiryTime { get; }
+    public float st { get; }
+    public float px { get; }
+    public float py { get; }
+    public float pz { get; }
+    public float vx { get; }
+    public float vy { get; }
+    public float vz { get; }
+    public float gs { get; }
 }
 #pragma warning restore IDE1006

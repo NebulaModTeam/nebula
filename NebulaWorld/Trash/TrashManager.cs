@@ -15,9 +15,10 @@ public class TrashManager : IDisposable
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 
-    public void SwitchTrashWithIds(int itemId1, int itemId2)
+    public static void SwitchTrashWithIds(int itemId1, int itemId2)
     {
         var container = GameMain.data.trashSystem.container;
         var to = container.trashObjPool[itemId1];

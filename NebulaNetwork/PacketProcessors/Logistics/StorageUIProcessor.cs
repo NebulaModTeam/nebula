@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -13,14 +14,9 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class StorageUIProcessor : PacketProcessor<StorageUI>
 {
-    private readonly IPlayerManager playerManager;
+    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
 
-    public StorageUIProcessor()
-    {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
-    }
-
-    public override void ProcessPacket(StorageUI packet, NebulaConnection conn)
+    protected override void ProcessPacket(StorageUI packet, NebulaConnection conn)
     {
         if (IsHost)
         {

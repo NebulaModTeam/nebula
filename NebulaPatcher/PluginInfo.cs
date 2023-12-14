@@ -41,5 +41,6 @@ internal static class PluginInfo
     public const string PLUGIN_VERSION = ThisAssembly.AssemblyFileVersion;
 
     public const string PLUGIN_DISPLAY_VERSION =
+        // ReSharper disable once HeuristicUnreachableCode
         ThisAssembly.IsPublicRelease ? ThisAssembly.AssemblyVersion : ThisAssembly.AssemblyInformationalVersion;
 }

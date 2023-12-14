@@ -22,41 +22,39 @@ public class CreatePrebuildsRequest
         using (var writer = new BinaryUtils.Writer())
         {
             writer.BinaryWriter.Write(buildPreviews.Count);
-            for (var i = 0; i < buildPreviews.Count; i++)
+            foreach (var t in buildPreviews)
             {
-                SerializeBuildPreview(buildPreviews[i], buildPreviews, writer.BinaryWriter);
+                SerializeBuildPreview(t, buildPreviews, writer.BinaryWriter);
             }
             BuildPreviewData = writer.CloseAndGetBytes();
         }
         PrebuildId = prebuildId;
     }
 
-    public int PlanetId { get; set; }
-    public byte[] BuildPreviewData { get; set; }
-    public int AuthorId { get; set; }
-    public string BuildToolType { get; set; }
-    public int PrebuildId { get; set; }
+    public int PlanetId { get; }
+    private byte[] BuildPreviewData { get; }
+    public int AuthorId { get; }
+    public string BuildToolType { get; }
+    public int PrebuildId { get; }
 
     public List<BuildPreview> GetBuildPreviews()
     {
         var result = new List<BuildPreview>();
 
-        using (var reader = new BinaryUtils.Reader(BuildPreviewData))
+        using var reader = new BinaryUtils.Reader(BuildPreviewData);
+        var previewCount = reader.BinaryReader.ReadInt32();
+        for (var i = 0; i < previewCount; i++)
         {
-            var previewCount = reader.BinaryReader.ReadInt32();
-            for (var i = 0; i < previewCount; i++)
-            {
-                result.Add(new BuildPreview());
-            }
-            for (var i = 0; i < previewCount; i++)
-            {
-                DeserializeBuildPreview(result[i], result, reader.BinaryReader);
-            }
+            result.Add(new BuildPreview());
+        }
+        for (var i = 0; i < previewCount; i++)
+        {
+            DeserializeBuildPreview(result[i], result, reader.BinaryReader);
         }
         return result;
     }
 
-    private static void DeserializeBuildPreview(BuildPreview buildPreview, List<BuildPreview> list, BinaryReader br)
+    private static void DeserializeBuildPreview(BuildPreview buildPreview, IReadOnlyList<BuildPreview> list, BinaryReader br)
     {
         var outputRef = br.ReadInt32();
         buildPreview.output = outputRef == -1 ? null : list[outputRef];
@@ -67,7 +65,10 @@ public class CreatePrebuildsRequest
         buildPreview.nearestPowerObjId = num == 0 ? null : new int[num];
         for (var i = 0; i < num; i++)
         {
-            buildPreview.nearestPowerObjId[i] = br.ReadInt32();
+            if (buildPreview.nearestPowerObjId != null)
+            {
+                buildPreview.nearestPowerObjId[i] = br.ReadInt32();
+            }
         }
         buildPreview.coverObjId = br.ReadInt32();
         buildPreview.willRemoveCover = br.ReadBoolean();
@@ -164,16 +165,16 @@ public class CreatePrebuildsRequest
         buildPreview.condition = (EBuildCondition)br.ReadInt32();
     }
 
-    private static void SerializeBuildPreview(BuildPreview buildPreview, List<BuildPreview> list, BinaryWriter bw)
+    private static void SerializeBuildPreview(BuildPreview buildPreview, IList<BuildPreview> list, BinaryWriter bw)
     {
         bw.Write(list.IndexOf(buildPreview.output));
         bw.Write(list.IndexOf(buildPreview.input));
         bw.Write(buildPreview.objId);
-        var num = buildPreview.nearestPowerObjId == null ? 0 : buildPreview.nearestPowerObjId.Length;
+        var num = buildPreview.nearestPowerObjId?.Length ?? 0;
         bw.Write(num);
         for (var i = 0; i < num; i++)
         {
-            bw.Write(buildPreview.nearestPowerObjId[i]);
+            bw.Write(buildPreview.nearestPowerObjId![i]);
         }
         bw.Write(buildPreview.coverObjId);
         bw.Write(buildPreview.willRemoveCover);

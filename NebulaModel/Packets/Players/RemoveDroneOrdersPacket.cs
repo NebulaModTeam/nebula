@@ -1,4 +1,4 @@
-﻿namespace NebulaNetwork.PacketProcessors.Players;
+﻿namespace NebulaModel.Packets.Players;
 
 public class RemoveDroneOrdersPacket
 {
@@ -9,5 +9,5 @@ public class RemoveDroneOrdersPacket
         QueuedEntityIds = queuedEntityIds;
     }
 
-    public int[] QueuedEntityIds { get; set; }
+    public int[] QueuedEntityIds { get; }
 }

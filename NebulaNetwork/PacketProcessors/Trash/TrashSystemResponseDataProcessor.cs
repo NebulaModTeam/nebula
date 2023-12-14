@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Trash;
 [RegisterPacketProcessor]
 internal class TrashSystemResponseDataProcessor : PacketProcessor<TrashSystemResponseDataPacket>
 {
-    public override void ProcessPacket(TrashSystemResponseDataPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(TrashSystemResponseDataPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {

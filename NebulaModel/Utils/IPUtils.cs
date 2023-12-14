@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -31,19 +32,6 @@ public static class IPUtils
         IPv6
     }
 
-    public enum PortStatus
-    {
-        Open,
-        Closed
-    }
-
-    public enum Status
-    {
-        None,
-        Unsupported,
-        Unavailable
-    }
-
     private static readonly HttpClient client = new();
 
     private static IpInfo ipInfo;
@@ -57,12 +45,15 @@ public static class IPUtils
         client.Timeout = TimeSpan.FromSeconds(15);
     }
 
-    public static string GetLocalAddress()
+    private static string GetLocalAddress()
     {
         using Socket socket = new(AddressFamily.InterNetwork, SocketType.Dgram, 0);
         socket.Connect("8.8.8.8", 65530);
-        var endPoint = socket.LocalEndPoint as IPEndPoint;
-        return endPoint.Address.ToString();
+        if (socket.LocalEndPoint is IPEndPoint endPoint)
+        {
+            return endPoint.Address.ToString();
+        }
+        return string.Empty;
     }
 
     public static async Task<string> GetWANv4Address()
@@ -71,12 +62,7 @@ public static class IPUtils
         {
             var response = await client.GetStringAsync("https://api.ipify.org");
 
-            if (IsIPv4(response))
-            {
-                return response;
-            }
-
-            return Status.Unsupported.ToString();
+            return IsIPv4(response) ? response : Status.Unsupported.ToString();
         }
         catch (Exception e)
         {
@@ -91,12 +77,7 @@ public static class IPUtils
         {
             var response = await client.GetStringAsync("https://api64.ipify.org");
 
-            if (IsIPv6(response))
-            {
-                return $"[{response}]";
-            }
-
-            return Status.Unsupported.ToString();
+            return IsIPv6(response) ? $"[{response}]" : Status.Unsupported.ToString();
         }
         catch (Exception e)
         {
@@ -105,47 +86,48 @@ public static class IPUtils
         }
     }
 
-    public static async Task<string> GetPortStatus(ushort port)
+    private static async Task<string> GetPortStatus(ushort port)
     {
         try
         {
             var response = await client.GetStringAsync($"https://ifconfig.co/port/{port}");
             var jObject = MiniJson.Deserialize(response) as Dictionary<string, object>;
-            if (IsIPv4((string)jObject["ip"]))
+            if (jObject != null && IsIPv4((string)jObject["ip"]))
             {
                 return (bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed + "(IPv4)";
             }
             // if client has IPv6, extra test for IPv4 port status
-            var result = ((bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed.ToString()) + "(IPv6) ";
+            var result = (jObject != null && (bool)jObject["reachable"]
+                ? PortStatus.Open.ToString()
+                : PortStatus.Closed.ToString()) + "(IPv6) ";
             try
             {
-                IPAddress iPv4Address = null;
-                foreach (var ip in Dns.GetHostEntry(string.Empty).AddressList)
-                {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        var str = ip.ToString();
-                        if (!str.StartsWith("127.0") && !str.StartsWith("192.168"))
-                        {
-                            iPv4Address = ip;
-                            break;
-                        }
-                    }
-                }
+                var iPv4Address = (await Dns.GetHostEntryAsync(string.Empty)).AddressList
+                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                    .Select(ip => new { ip, str = ip.ToString() })
+                    .Where(@t => !@t.str.StartsWith("127.0") && !@t.str.StartsWith("192.168"))
+                    .Select(@t => @t.ip).FirstOrDefault();
                 if (iPv4Address != null)
                 {
                     // TODO: More respect about rate limit?
-                    var httpWebRequest = WebRequest.Create($"https://ifconfig.co/port/{port}") as HttpWebRequest;
-                    httpWebRequest.Timeout = 5000;
-                    httpWebRequest.ServicePoint.BindIPEndPointDelegate = (servicePoint, remoteEndPoint, retryCount) =>
-                        new IPEndPoint(iPv4Address, 0);
+                    if (WebRequest.Create($"https://ifconfig.co/port/{port}") is HttpWebRequest httpWebRequest)
+                    {
+                        httpWebRequest.Timeout = 5000;
+                        httpWebRequest.ServicePoint.BindIPEndPointDelegate = (servicePoint, remoteEndPoint, retryCount) =>
+                            new IPEndPoint(iPv4Address, 0);
 
-                    using var webResponse = await httpWebRequest.GetResponseAsync();
-                    using var stream = webResponse.GetResponseStream();
-                    using StreamReader readStream = new(stream, Encoding.UTF8);
-                    response = readStream.ReadToEnd();
+                        using var webResponse = await httpWebRequest.GetResponseAsync();
+                        using var stream = webResponse.GetResponseStream();
+                        if (stream != null)
+                        {
+                            using StreamReader readStream = new(stream, Encoding.UTF8);
+                            response = await readStream.ReadToEndAsync();
+                        }
+                    }
                     jObject = MiniJson.Deserialize(response) as Dictionary<string, object>;
-                    result += ((bool)jObject["reachable"] ? PortStatus.Open.ToString() : PortStatus.Closed.ToString()) +
+                    result += (jObject != null && (bool)jObject["reachable"]
+                                  ? PortStatus.Open.ToString()
+                                  : PortStatus.Closed.ToString()) +
                               "(IPv4)";
                 }
             }
@@ -174,10 +156,9 @@ public static class IPUtils
             LANAddress = GetLocalAddress(),
             WANv4Address = await GetWANv4Address(),
             WANv6Address = await GetWANv6Address(),
-            DataState = DataState.Fresh
+            DataState = DataState.Fresh,
+            PortStatus = await GetPortStatus(port)
         };
-
-        rawInfo.PortStatus = await GetPortStatus(port);
 
         ipInfo = rawInfo;
         ipInfo.DataState = DataState.Cached;
@@ -207,6 +188,19 @@ public static class IPUtils
     public static async Task<bool> IsIPv6Supported()
     {
         return IsIPv6(await GetWANv6Address());
+    }
+
+    private enum PortStatus
+    {
+        Open,
+        Closed
+    }
+
+    private enum Status
+    {
+        None,
+        Unsupported,
+        Unavailable
     }
 
     public struct IpInfo

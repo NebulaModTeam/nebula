@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 
 #endregion
 
@@ -18,7 +18,7 @@ public class GameStateUpdate
         UnitsPerSecond = unitsPerSecond;
     }
 
-    public long SentTime { get; set; }
-    public long GameTick { get; set; }
-    public float UnitsPerSecond { get; set; }
+    public long SentTime { get; }
+    public long GameTick { get; }
+    public float UnitsPerSecond { get; }
 }

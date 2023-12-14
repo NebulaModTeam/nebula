@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -20,7 +21,7 @@ internal class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLo
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    public override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
     {
         if (IsClient)
         {

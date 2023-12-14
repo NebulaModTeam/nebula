@@ -1,11 +1,11 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaModel.Packets.Universe;
+namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonSwarmAddOrbitPacket
 {
@@ -19,8 +19,8 @@ public class DysonSwarmAddOrbitPacket
         Rotation = new Float4(rotation);
     }
 
-    public int StarIndex { get; set; }
-    public int OrbitId { get; set; }
-    public float Radius { get; set; }
-    public Float4 Rotation { get; set; }
+    public int StarIndex { get; }
+    public int OrbitId { get; }
+    public float Radius { get; }
+    public Float4 Rotation { get; }
 }

@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using System;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNotificationPacket>
 {
-    public override void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameHistoryNotificationPacket packet, NebulaConnection conn)
     {
         if (IsHost && packet.Event != GameHistoryEvent.OneKeyUnlock)
         {
@@ -33,6 +34,8 @@ internal class GameHistoryNotificationProcessor : PacketProcessor<GameHistoryNot
                 case GameHistoryEvent.OneKeyUnlock:
                     UIRoot.instance.uiGame.techTree.Do1KeyUnlock();
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(packet), "Unknown GameHistoryNotificationPacket type: " + packet.Event);
             }
         }
     }

@@ -12,15 +12,14 @@ public class NameInputPacket
 {
     public NameInputPacket() { }
 
-    public NameInputPacket(string name, int starId, int planetId, int authorId)
+    public NameInputPacket(string name, int starId, int planetId)
     {
-        Names = new string[1] { name };
-        StarIds = new int[1] { starId };
-        PlanetIds = new int[1] { planetId };
-        AuthorId = authorId;
+        Names = new[] { name };
+        StarIds = new[] { starId };
+        PlanetIds = new[] { planetId };
     }
 
-    public NameInputPacket(in GalaxyData galaxy, int authorId)
+    public NameInputPacket(in GalaxyData galaxy)
     {
         var names = new List<string>();
         var starIds = new List<int>();
@@ -36,23 +35,22 @@ public class NameInputPacket
             }
             foreach (var p in s.planets)
             {
-                if (!string.IsNullOrEmpty(p.overrideName))
+                if (string.IsNullOrEmpty(p.overrideName))
                 {
-                    names.Add(p.overrideName);
-                    starIds.Add(NebulaModAPI.STAR_NONE);
-                    planetIds.Add(p.id);
+                    continue;
                 }
+                names.Add(p.overrideName);
+                starIds.Add(NebulaModAPI.STAR_NONE);
+                planetIds.Add(p.id);
             }
         }
 
         Names = names.ToArray();
         StarIds = starIds.ToArray();
         PlanetIds = planetIds.ToArray();
-        AuthorId = authorId;
     }
 
-    public string[] Names { get; set; }
-    public int[] PlanetIds { get; set; }
-    public int[] StarIds { get; set; }
-    public int AuthorId { get; set; }
+    public string[] Names { get; }
+    public int[] PlanetIds { get; }
+    public int[] StarIds { get; }
 }

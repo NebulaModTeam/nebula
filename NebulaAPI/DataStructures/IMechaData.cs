@@ -1,4 +1,10 @@
-﻿namespace NebulaAPI;
+﻿#region
+
+using NebulaAPI.Interfaces;
+
+#endregion
+
+namespace NebulaAPI.DataStructures;
 
 public interface IMechaData : INetSerializable
 {

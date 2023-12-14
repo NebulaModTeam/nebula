@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -16,16 +16,17 @@ using UnityEngine;
 namespace NebulaNetwork.PacketProcessors.GameStates;
 
 [RegisterPacketProcessor]
+// ReSharper disable once UnusedType.Global
 public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
 {
+    private readonly float BUFFERING_TICK = 60f;
+    private readonly float BUFFERING_TIME = 30f;
     private float avaerageUPS = 60f;
 
     private int averageRTT;
-    public float BUFFERING_TICK = 60f;
-    public float BUFFERING_TIME = 30f;
     private bool hasChanged;
 
-    public override void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameStateUpdate packet, NebulaConnection conn)
     {
         var rtt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - packet.SentTime;
         averageRTT = (int)(averageRTT * 0.8 + rtt * 0.2);
@@ -40,7 +41,7 @@ public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
         // Discard abnormal packet (usually after host saving the file)
         if (rtt > 2 * averageRTT || avaerageUPS - packet.UnitsPerSecond > 15)
         {
-            // Initial connetion
+            // Initial connection
             if (GameMain.gameTick < 1200L)
             {
                 averageRTT = (int)rtt;
@@ -60,34 +61,40 @@ public class GameStateUpdateProcessor : PacketProcessor<GameStateUpdate>
                 GameMain.gameTick = currentGameTick;
             }
             // Reset FixUPS when user turns off the option
-            if (hasChanged)
+            if (!hasChanged)
             {
-                FPSController.SetFixUPS(0);
-                hasChanged = false;
+                return;
             }
+            FPSController.SetFixUPS(0);
+            hasChanged = false;
             return;
         }
 
         // Adjust client's UPS to match game tick with server, range 30~120 UPS
         var UPS = diff / 1f + avaerageUPS;
         long skipTick = 0;
-        if (UPS > GameStatesManager.MaxUPS)
+        switch (UPS)
         {
-            // Try to disturbute game tick difference into BUFFERING_TIME (seconds)
-            if (diff / BUFFERING_TIME + avaerageUPS > GameStatesManager.MaxUPS)
-            {
-                // The difference is too large, need to skip ticks to catch up
-                skipTick = (long)(UPS - GameStatesManager.MaxUPS);
-            }
-            UPS = GameStatesManager.MaxUPS;
-        }
-        else if (UPS < GameStatesManager.MinUPS)
-        {
-            if (diff + avaerageUPS - GameStatesManager.MinUPS < -BUFFERING_TICK)
-            {
-                skipTick = (long)(UPS - GameStatesManager.MinUPS);
-            }
-            UPS = GameStatesManager.MinUPS;
+            case > GameStatesManager.MaxUPS:
+                {
+                    // Try to disturbute game tick difference into BUFFERING_TIME (seconds)
+                    if (diff / BUFFERING_TIME + avaerageUPS > GameStatesManager.MaxUPS)
+                    {
+                        // The difference is too large, need to skip ticks to catch up
+                        skipTick = (long)(UPS - GameStatesManager.MaxUPS);
+                    }
+                    UPS = GameStatesManager.MaxUPS;
+                    break;
+                }
+            case < GameStatesManager.MinUPS:
+                {
+                    if (diff + avaerageUPS - GameStatesManager.MinUPS < -BUFFERING_TICK)
+                    {
+                        skipTick = (long)(UPS - GameStatesManager.MinUPS);
+                    }
+                    UPS = GameStatesManager.MinUPS;
+                    break;
+                }
         }
         if (skipTick != 0)
         {

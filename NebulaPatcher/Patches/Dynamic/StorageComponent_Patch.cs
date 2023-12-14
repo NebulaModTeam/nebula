@@ -100,17 +100,17 @@ internal class StorageComponent_Patch
         }
 
         // We should only take items to player if player requested
-        if (Multiplayer.Session.Factories.IsIncomingRequest.Value &&
-            Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id)
+        if (!Multiplayer.Session.Factories.IsIncomingRequest.Value ||
+            Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
         {
-            count = 1;
-            return false;
+            return true;
         }
+        count = 1;
+        return false;
 
-        return true;
     }
 
-    public static void HandleUserInteraction<T>(StorageComponent __instance, T packet) where T : class, new()
+    private static void HandleUserInteraction<T>(StorageComponent __instance, T packet) where T : class, new()
     {
         //Skip if change was done in player's inventory
         if (__instance.entityId == 0 && __instance.id == 0)

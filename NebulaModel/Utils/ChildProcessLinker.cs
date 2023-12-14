@@ -25,26 +25,26 @@ public class ChildProcessLinker
     // see http://csharptest.net/1051/managed-anti-debugging-how-to-prevent-users-from-attaching-a-debugger/
     // see https://stackoverflow.com/a/24012744/2982757
 
-    public Process ChildProcess { get; set; }
+    private Process ChildProcess { get; }
 
     private void NullDebugger(object arg)
     {
         // Attach to the process we provided the thread as an argument
         if (DebugActiveProcess((int)arg))
         {
-            var debugEvent = new DEBUG_EVENT { bytes = new byte[1024] };
             while (!ChildProcess.HasExited)
             {
-                if (WaitForDebugEvent(out debugEvent, 1000))
+                if (!WaitForDebugEvent(out var debugEvent, 1000))
                 {
-                    // return DBG_CONTINUE for all events but the exception type
-                    var continueFlag = DBG_CONTINUE;
-                    if (debugEvent.dwDebugEventCode == DebugEventType.EXCEPTION_DEBUG_EVENT)
-                    {
-                        continueFlag = DBG_EXCEPTION_NOT_HANDLED;
-                    }
-                    ContinueDebugEvent(debugEvent.dwProcessId, debugEvent.dwThreadId, continueFlag);
+                    continue;
                 }
+                // return DBG_CONTINUE for all events but the exception type
+                var continueFlag = DBG_CONTINUE;
+                if (debugEvent.dwDebugEventCode == DebugEventType.EXCEPTION_DEBUG_EVENT)
+                {
+                    continueFlag = DBG_EXCEPTION_NOT_HANDLED;
+                }
+                ContinueDebugEvent(debugEvent.dwProcessId, debugEvent.dwThreadId, continueFlag);
             }
         }
         else
@@ -124,7 +124,7 @@ public class ChildProcessLinker
     private static extern bool ContinueDebugEvent(int dwProcessId, int dwThreadId, int dwContinueStatus);
 
     [DllImport("Kernel32.dll", SetLastError = true)]
-    public static extern bool IsDebuggerPresent();
+    private static extern bool IsDebuggerPresent();
 
     #endregion
 }

@@ -12,8 +12,8 @@ public class VegeMinedPacket
         IsVein = isVein;
     }
 
-    public int PlanetId { get; set; }
-    public int VegeId { get; set; }
-    public int Amount { get; set; } // the current amount, if 0 remove vege
-    public bool IsVein { get; set; }
+    public int PlanetId { get; }
+    public int VegeId { get; }
+    public int Amount { get; } // the current amount, if 0 remove vege
+    public bool IsVein { get; }
 }

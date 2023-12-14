@@ -19,25 +19,21 @@ internal class PlanetTransport_Patch
     public static bool SetStationStorage_Prefix(PlanetTransport __instance, int stationId, int storageIdx, int itemId,
         int itemCountMax, ELogisticStorage localLogic, ELogisticStorage remoteLogic)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.Ships.PatchLockILS)
+        if (!Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
         {
-            var stationComponent = __instance.stationPool[stationId];
-
-            if (stationComponent != null)
-            {
-                var packet = new StorageUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId,
-                    itemCountMax, localLogic, remoteLogic);
-                Multiplayer.Session.Network.SendPacket(packet);
-            }
-
-            if (Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                return true;
-            }
-
-            return false;
+            return true;
         }
-        return true;
+        var stationComponent = __instance.stationPool[stationId];
+
+        if (stationComponent == null)
+        {
+            return Multiplayer.Session.LocalPlayer.IsHost;
+        }
+        var packet = new StorageUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId,
+            itemCountMax, localLogic, remoteLogic);
+        Multiplayer.Session.Network.SendPacket(packet);
+
+        return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
     [HarmonyPostfix]
@@ -56,16 +52,17 @@ internal class PlanetTransport_Patch
             __result.planetId = __instance.planet.id;
         }
 
-        if (__result.gid > 0 && Multiplayer.Session.LocalPlayer.IsHost)
+        if (__result.gid <= 0 || !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
-            // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
-            // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
-            Log.Info(
-                $"Send AddStationComponen to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
-            Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid,
-                _desc.stationMaxShipCount));
+            return;
         }
+        // After host has added the StationComponent it has planetId, id and gId, now we can inform all clients about this station
+        // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
+        // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
+        Log.Info(
+            $"Send AddStationComponen to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
+        Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid,
+            _desc.stationMaxShipCount));
     }
 
     [HarmonyPostfix]
@@ -78,7 +75,7 @@ internal class PlanetTransport_Patch
         }
         foreach (var stationComponent in __instance.stationPool)
         {
-            if (stationComponent != null && stationComponent.planetId == 0 && !stationComponent.isStellar)
+            if (stationComponent is { planetId: 0, isStellar: false })
             {
                 stationComponent.planetId = __instance.planet.id;
             }

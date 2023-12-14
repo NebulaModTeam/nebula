@@ -1,21 +1,21 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using UnityEngine;
 // ReSharper disable RedundantCast
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Universe;
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
 
 [RegisterPacketProcessor]
 public class DysonSpherePaintCellsProcessor : PacketProcessor<DysonSpherePaintCellsPacket>
 {
-    public override void ProcessPacket(DysonSpherePaintCellsPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSpherePaintCellsPacket packet, NebulaConnection conn)
     {
         var sphere = GameMain.data.dysonSpheres[packet.StarIndex];
         if (sphere == null)
@@ -45,19 +45,19 @@ public class DysonSpherePaintCellsProcessor : PacketProcessor<DysonSpherePaintCe
 
             // UIDysonPaintingGrid.PaintCells()
             var paint = packet.Paint.ToColor32();
-            for (var i = 0; i < packet.CursorCells.Length; i++)
+            foreach (var cid in packet.CursorCells)
             {
-                var cid = packet.CursorCells[i];
-                if (cid >= 0)
+                if (cid < 0)
                 {
-                    var color = cellColors[cid];
-                    color.a -= (color.a <= 127) ? (byte)0 : (byte)127;
-                    color.a *= 2;
-                    var color2 = Color32.Lerp(color, paint, packet.Strength);
-                    color2.a /= 2;
-                    color2.a += ((paint.a > 0) ? (packet.SuperBrightMode ? (byte)127 : (byte)0) : (byte)0);
-                    cellColors[cid] = color2;
+                    continue;
                 }
+                var color = cellColors[cid];
+                color.a -= color.a <= 127 ? (byte)0 : (byte)127;
+                color.a *= 2;
+                var color2 = Color32.Lerp(color, paint, packet.Strength);
+                color2.a /= 2;
+                color2.a += paint.a > 0 ? packet.SuperBrightMode ? (byte)127 : (byte)0 : (byte)0;
+                cellColors[cid] = color2;
             }
             layer.SetPaintingData(cellColors);
         }

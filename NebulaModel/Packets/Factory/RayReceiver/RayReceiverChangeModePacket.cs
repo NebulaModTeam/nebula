@@ -11,9 +11,9 @@ public class RayReceiverChangeModePacket
         PlanetId = planetId;
     }
 
-    public int GeneratorId { get; set; }
-    public RayReceiverMode Mode { get; set; }
-    public int PlanetId { get; set; }
+    public int GeneratorId { get; }
+    public RayReceiverMode Mode { get; }
+    public int PlanetId { get; }
 }
 
 public enum RayReceiverMode

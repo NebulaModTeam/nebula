@@ -20,12 +20,13 @@ internal class UISiloWindow_Patch
     public static void OnManualServingContentChange_Postfix(UISiloWindow __instance)
     {
         //Notify about manual rockets inserting / withdrawing change
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var storage = __instance.servingStorage;
-            Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId,
-                storage.grids[0].count, storage.grids[0].inc, GameMain.localPlanet?.id ?? -1));
+            return;
         }
+        var storage = __instance.servingStorage;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId,
+            storage.grids[0].count, storage.grids[0].inc, GameMain.localPlanet?.id ?? -1));
     }
 
     [HarmonyPostfix]
@@ -44,11 +45,12 @@ internal class UISiloWindow_Patch
     public static void _OnUpdate_Prefix(UISiloWindow __instance)
     {
         //Notify about boost change in sandbox mode
-        if (Multiplayer.IsActive && boost != __instance.boostSwitch.isOn)
+        if (!Multiplayer.IsActive || boost == __instance.boostSwitch.isOn)
         {
-            boost = __instance.boostSwitch.isOn;
-            Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
-                (GameMain.localPlanet?.id ?? -1, EBoostEntityType.Silo, __instance.siloId, boost));
+            return;
         }
+        boost = __instance.boostSwitch.isOn;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
+            (GameMain.localPlanet?.id ?? -1, EBoostEntityType.Silo, __instance.siloId, boost));
     }
 }

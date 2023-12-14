@@ -5,7 +5,7 @@ public class SpeakerSettingUpdatePacket
     public SpeakerSettingUpdatePacket() { }
 
     public SpeakerSettingUpdatePacket(int planetId, int speakerId, SpeakerSettingEvent settingEvent, int parameter1,
-        int parameter2)
+        int parameter2 = 0)
     {
         PlanetId = planetId;
         SpeakerId = speakerId;
@@ -14,16 +14,11 @@ public class SpeakerSettingUpdatePacket
         Parameter2 = parameter2;
     }
 
-    public SpeakerSettingUpdatePacket(int planetId, int speakerId, SpeakerSettingEvent settingEvent, int parameter)
-        : this(planetId, speakerId, settingEvent, parameter, 0)
-    {
-    }
-
-    public int PlanetId { get; set; }
-    public int SpeakerId { get; set; }
-    public SpeakerSettingEvent Event { get; set; }
-    public int Parameter1 { get; set; }
-    public int Parameter2 { get; set; }
+    public int PlanetId { get; }
+    public int SpeakerId { get; }
+    public SpeakerSettingEvent Event { get; }
+    public int Parameter1 { get; }
+    public int Parameter2 { get; }
 }
 
 public enum SpeakerSettingEvent

@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using NebulaAPI;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
@@ -13,7 +12,7 @@ using NebulaWorld;
 
 namespace NebulaNetwork;
 
-public class SaveManager
+public static class SaveManager
 {
     private const string FILE_EXTENSION = ".server";
     private const ushort REVISION = 7;
@@ -21,7 +20,7 @@ public class SaveManager
     public static void SaveServerData(string saveName)
     {
         var path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
-        IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+        var playerManager = Multiplayer.Session.Network.PlayerManager;
         var netDataWriter = new NetDataWriter();
         netDataWriter.Put("REV");
         netDataWriter.Put(REVISION);
@@ -61,37 +60,38 @@ public class SaveManager
         var str4 = GameConfig.gameSaveFolder + GameSave.AutoSave2 + FILE_EXTENSION;
         var str5 = GameConfig.gameSaveFolder + GameSave.AutoSave3 + FILE_EXTENSION;
 
-        if (File.Exists(str1))
+        if (!File.Exists(str1))
         {
-            if (File.Exists(str5))
-            {
-                File.Delete(str5);
-            }
-
-            if (File.Exists(str4))
-            {
-                File.Move(str4, str5);
-            }
-
-            if (File.Exists(str3))
-            {
-                File.Move(str3, str4);
-            }
-
-            if (File.Exists(str2))
-            {
-                File.Move(str2, str3);
-            }
-
-            File.Move(str1, str2);
+            return;
         }
+        if (File.Exists(str5))
+        {
+            File.Delete(str5);
+        }
+
+        if (File.Exists(str4))
+        {
+            File.Move(str4, str5);
+        }
+
+        if (File.Exists(str3))
+        {
+            File.Move(str3, str4);
+        }
+
+        if (File.Exists(str2))
+        {
+            File.Move(str2, str3);
+        }
+
+        File.Move(str1, str2);
     }
 
     public static void LoadServerData()
     {
         var path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
 
-        IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+        var playerManager = Multiplayer.Session.Network.PlayerManager;
         if (!File.Exists(path) || playerManager == null)
         {
             return;
@@ -99,7 +99,7 @@ public class SaveManager
 
         var source = File.ReadAllBytes(path);
         var netDataReader = new NetDataReader(source);
-        ushort revision = 0;
+        ushort revision;
         try
         {
             var revString = netDataReader.GetString();
@@ -113,7 +113,7 @@ public class SaveManager
             if (revision != REVISION)
             {
                 // Supported revision: 5~7
-                if (revision < 5 || revision > REVISION)
+                if (revision is < 5 or > REVISION)
                 {
                     throw new Exception();
                 }
@@ -133,14 +133,15 @@ public class SaveManager
             {
                 var hash = netDataReader.GetString();
                 PlayerData playerData = null;
-                if (revision == REVISION)
+                switch (revision)
                 {
-                    playerData = netDataReader.Get<PlayerData>();
-                }
-                else if (revision >= 5)
-                {
-                    playerData = new PlayerData();
-                    playerData.Import(netDataReader, revision);
+                    case REVISION:
+                        playerData = netDataReader.Get<PlayerData>();
+                        break;
+                    case >= 5:
+                        playerData = new PlayerData();
+                        playerData.Import(netDataReader, revision);
+                        break;
                 }
 
                 if (!savedPlayerData.ContainsKey(hash) && playerData != null)

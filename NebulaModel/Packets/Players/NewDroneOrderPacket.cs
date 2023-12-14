@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
 using UnityEngine;
 
 #endregion
@@ -23,11 +23,11 @@ public class NewDroneOrderPacket
         EntityPos = entityPos.ToFloat3();
     }
 
-    public int PlanetId { get; set; }
-    public int DroneId { get; set; }
-    public int EntityId { get; set; }
-    public ushort PlayerId { get; set; }
-    public int Stage { get; set; }
-    public int Priority { get; set; }
-    public Float3 EntityPos { get; set; }
+    public int PlanetId { get; }
+    public int DroneId { get; }
+    public int EntityId { get; }
+    public ushort PlayerId { get; }
+    public int Stage { get; }
+    public int Priority { get; }
+    public Float3 EntityPos { get; }
 }

@@ -12,10 +12,10 @@ public class EntityBoostSwitchPacket
         Enable = enable;
     }
 
-    public int PlanetId { get; set; }
-    public EBoostEntityType EntityType { get; set; }
-    public int Id { get; set; }
-    public bool Enable { get; set; }
+    public int PlanetId { get; }
+    public EBoostEntityType EntityType { get; }
+    public int Id { get; }
+    public bool Enable { get; }
 }
 
 public enum EBoostEntityType

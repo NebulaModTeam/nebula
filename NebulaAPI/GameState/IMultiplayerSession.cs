@@ -1,4 +1,4 @@
-﻿namespace NebulaAPI;
+﻿namespace NebulaAPI.GameState;
 
 public interface IMultiplayerSession
 {

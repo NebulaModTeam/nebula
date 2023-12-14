@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -12,18 +12,20 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class ILSShipEnterWarpProcessor : PacketProcessor<ILSShipEnterWarp>
 {
-    public override void ProcessPacket(ILSShipEnterWarp packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSShipEnterWarp packet, NebulaConnection conn)
     {
-        if (IsClient)
+        if (!IsClient)
         {
-            if (packet.ThisGId <= GameMain.data.galacticTransport.stationCursor)
-            {
-                var stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
-                if (stationComponent != null && packet.WorkShipIndex < stationComponent.workShipCount)
-                {
-                    stationComponent.workShipDatas[packet.WorkShipIndex].warpState += 0.016666668f;
-                }
-            }
+            return;
+        }
+        if (packet.ThisGId > GameMain.data.galacticTransport.stationCursor)
+        {
+            return;
+        }
+        var stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
+        if (stationComponent != null && packet.WorkShipIndex < stationComponent.workShipCount)
+        {
+            stationComponent.workShipDatas[packet.WorkShipIndex].warpState += 0.016666668f;
         }
     }
 }

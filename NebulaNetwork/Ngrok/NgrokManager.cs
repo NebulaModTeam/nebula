@@ -30,13 +30,14 @@ public class NgrokManager
 
     private readonly int _port;
     private readonly string _region;
+    public readonly bool NgrokEnabled = Config.Options.EnableNgrok;
     private string _ngrokAPIAddress;
 
     private Process _ngrokProcess;
 
     public string NgrokAddress;
-    public bool NgrokEnabled = Config.Options.EnableNgrok;
     public string NgrokLastErrorCode;
+    private static readonly string[] contents = { "version: 2" };
 
     public NgrokManager(int port, string authtoken = null, string region = null)
     {
@@ -136,7 +137,7 @@ public class NgrokManager
             }
         }
 
-        File.WriteAllLines(_ngrokConfigPath, new[] { "version: 2" });
+        File.WriteAllLines(_ngrokConfigPath, contents);
 
         Log.WarnInform("Ngrok install completed in the plugin folder".Translate());
     }
@@ -186,67 +187,75 @@ public class NgrokManager
 
     private void OutputDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Data))
+        if (string.IsNullOrEmpty(e.Data))
         {
-            Log.Debug($"Ngrok Stdout: {e.Data}");
+            return;
+        }
+        Log.Debug($"Ngrok Stdout: {e.Data}");
 
-            var json = MiniJson.Deserialize(e.Data) as Dictionary<string, object>;
-            if (json != null)
-            {
-                var lvl = json["lvl"] as string;
-                if (lvl == "info")
+        if (MiniJson.Deserialize(e.Data) is not Dictionary<string, object> json)
+        {
+            return;
+        }
+        var lvl = json["lvl"] as string;
+        if (lvl != "info")
+        {
+            return;
+        }
+        var msg = json["msg"] as string;
+        switch (msg)
+        {
+            case "starting web service":
+                _ngrokAPIAddress = json["addr"] as string;
+                break;
+            case "started tunnel":
                 {
-                    var msg = json["msg"] as string;
-                    if (msg == "starting web service")
+                    var addr = json["addr"] as string;
+                    if (
+                        json["url"] is string url &&
+                        (addr == $"//localhost:{_port}" || addr == $"//127.0.0.1:{_port}" ||
+                         addr == $"//0.0.0.0:{_port}") &&
+                        url.StartsWith("tcp://")
+                    )
                     {
-                        _ngrokAPIAddress = json["addr"] as string;
+                        NgrokAddress = url.Replace("tcp://", "");
+                        _ngrokAddressObtainedSource.TrySetResult(true);
                     }
-                    else if (msg == "started tunnel")
-                    {
-                        var addr = json["addr"] as string;
-                        var url = json["url"] as string;
-                        if (
-                            (addr == $"//localhost:{_port}" || addr == $"//127.0.0.1:{_port}" ||
-                             addr == $"//0.0.0.0:{_port}") &&
-                            url.StartsWith("tcp://")
-                        )
-                        {
-                            NgrokAddress = url.Replace("tcp://", "");
-                            _ngrokAddressObtainedSource.TrySetResult(true);
-                        }
-                    }
+                    break;
                 }
-            }
         }
     }
 
     private void ErrorDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(e.Data))
+        if (string.IsNullOrEmpty(e.Data))
         {
-            Log.Warn($"Ngrok Stderr: {e.Data}");
-
-            var errorCodeMatches = Regex.Matches(e.Data, @"ERR_NGROK_\d+");
-            if (errorCodeMatches.Count > 0)
-            {
-                NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
-                Log.WarnInform(string.Format("Ngrok Error! Code: {0}".Translate(), NgrokLastErrorCode));
-            }
+            return;
         }
+        Log.Warn($"Ngrok Stderr: {e.Data}");
+
+        var errorCodeMatches = Regex.Matches(e.Data, @"ERR_NGROK_\d+");
+        if (errorCodeMatches.Count <= 0)
+        {
+            return;
+        }
+        NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
+        Log.WarnInform(string.Format("Ngrok Error! Code: {0}".Translate(), NgrokLastErrorCode));
     }
 
     public void StopNgrok()
     {
-        if (_ngrokProcess != null)
+        if (_ngrokProcess == null)
         {
-            _ngrokProcess.Refresh();
-            if (!_ngrokProcess.HasExited)
-            {
-                _ngrokProcess.Kill();
-                _ngrokProcess.Close();
-            }
-            _ngrokProcess = null;
+            return;
         }
+        _ngrokProcess.Refresh();
+        if (!_ngrokProcess.HasExited)
+        {
+            _ngrokProcess.Kill();
+            _ngrokProcess.Close();
+        }
+        _ngrokProcess = null;
     }
 
     public bool IsNgrokActive()
@@ -293,37 +302,30 @@ public class NgrokManager
             throw new Exception("Not able to get Ngrok tunnel address because Ngrok API address is not (yet) known!");
         }
 
-        using (var client = new HttpClient())
+        using var client = new HttpClient();
+        var response = await client.GetAsync($"http://{_ngrokAPIAddress}/api/tunnels");
+        if (!response.IsSuccessStatusCode)
         {
-            var response = await client.GetAsync($"http://{_ngrokAPIAddress}/api/tunnels");
-            if (response.IsSuccessStatusCode)
-            {
-                var body = await response.Content.ReadAsStringAsync();
-
-                var json = MiniJson.Deserialize(body) as Dictionary<string, object>;
-
-                var tunnels = json["tunnels"] as List<object>;
-
-                string publicUrl = null;
-                foreach (Dictionary<string, object> tunnel in tunnels)
-                {
-                    if (tunnel["proto"] as string == "tcp" &&
-                        (tunnel["config"] as Dictionary<string, object>)["addr"] as string == $"localhost:{_port}")
-                    {
-                        publicUrl = tunnel["public_url"] as string;
-                        break;
-                    }
-                }
-
-                if (publicUrl == null)
-                {
-                    throw new Exception(
-                        "Not able to get Ngrok tunnel address because no matching tunnel was found in API response");
-                }
-
-                return publicUrl.Replace("tcp://", "");
-            }
             throw new Exception("Could not access the ngrok API");
         }
+        var body = await response.Content.ReadAsStringAsync();
+
+        if (MiniJson.Deserialize(body) is not Dictionary<string, object> json)
+        {
+            throw new Exception(
+                "Not able to get Ngrok tunnel address because response contained invalid json");
+        }
+        var tunnels = json["tunnels"] as List<object>;
+
+        var publicUrl =
+            (from Dictionary<string, object> tunnel in tunnels
+             where tunnel["proto"] as string == "tcp" &&
+                      (tunnel["config"] as Dictionary<string, object>)?["addr"] as string == $"localhost:{_port}"
+             select tunnel["public_url"] as string).FirstOrDefault();
+
+        return publicUrl == null
+            ? throw new Exception(
+                "Not able to get Ngrok tunnel address because no matching tunnel was found in API response")
+            : publicUrl.Replace("tcp://", "");
     }
 }

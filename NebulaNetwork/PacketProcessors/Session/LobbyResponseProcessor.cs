@@ -1,7 +1,8 @@
 ﻿#region
 
 using BepInEx.Bootstrap;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -15,7 +16,7 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 internal class LobbyResponseProcessor : PacketProcessor<LobbyResponse>
 {
-    public override void ProcessPacket(LobbyResponse packet, NebulaConnection conn)
+    protected override void ProcessPacket(LobbyResponse packet, NebulaConnection conn)
     {
         using (var p = new BinaryUtils.Reader(packet.ModsSettings))
         {

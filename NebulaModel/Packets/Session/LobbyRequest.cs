@@ -2,6 +2,7 @@
 
 using BepInEx.Bootstrap;
 using NebulaAPI;
+using NebulaAPI.Interfaces;
 using NebulaModel.Networking;
 
 #endregion
@@ -31,12 +32,13 @@ public class LobbyRequest
                 {
                     foreach (var dependency in pluginInfo.Value.Dependencies)
                     {
-                        if (dependency.DependencyGUID == NebulaModAPI.API_GUID)
+                        if (dependency.DependencyGUID != NebulaModAPI.API_GUID)
                         {
-                            writer.BinaryWriter.Write(pluginInfo.Key);
-                            writer.BinaryWriter.Write(pluginInfo.Value.Metadata.Version.ToString());
-                            count++;
+                            continue;
                         }
+                        writer.BinaryWriter.Write(pluginInfo.Key);
+                        writer.BinaryWriter.Write(pluginInfo.Value.Metadata.Version.ToString());
+                        count++;
                     }
                 }
             }
@@ -49,9 +51,9 @@ public class LobbyRequest
         ClientCert = clientCert;
     }
 
-    public string Username { get; set; }
-    public byte[] ModsVersion { get; set; }
-    public int ModsCount { get; set; }
-    public int GameVersionSig { get; set; }
-    public byte[] ClientCert { get; set; }
+    public string Username { get; }
+    public byte[] ModsVersion { get; }
+    public int ModsCount { get; }
+    public int GameVersionSig { get; }
+    public byte[] ClientCert { get; }
 }

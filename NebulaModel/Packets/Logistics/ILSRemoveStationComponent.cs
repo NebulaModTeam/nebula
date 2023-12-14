@@ -11,7 +11,7 @@ public class ILSRemoveStationComponent
         StationGId = stationGId;
     }
 
-    public int StationId { get; set; }
-    public int PlanetId { get; set; }
-    public int StationGId { get; set; }
+    public int StationId { get; }
+    public int PlanetId { get; }
+    public int StationGId { get; }
 }

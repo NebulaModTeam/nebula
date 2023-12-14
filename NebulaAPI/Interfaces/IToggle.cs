@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.Interfaces;
 
 public interface IToggle
 {

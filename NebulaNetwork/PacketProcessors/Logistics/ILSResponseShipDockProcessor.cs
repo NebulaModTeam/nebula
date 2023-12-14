@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -18,7 +19,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class ILSResponseShipDockProcessor : PacketProcessor<ILSShipDock>
 {
-    public override void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSShipDock packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -51,15 +52,16 @@ internal class ILSResponseShipDockProcessor : PacketProcessor<ILSShipDock>
              * for some reason shipOtherGId can be 0 in some cases.
              * i thought about idle ships not having it set but im not sure. However checking for a 0 here fixes the issue.
              */
-            if (packet.shipOtherGId[i] > 0 && packet.shipOtherGId[i] < GameMain.data.galacticTransport.stationPool.Length)
+            if (packet.shipOtherGId[i] <= 0 || packet.shipOtherGId[i] >= GameMain.data.galacticTransport.stationPool.Length)
             {
-                stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];
-
-                stationComponent.workShipDatas[packet.shipIndex[i]].uPos = packet.shipPos[i].ToVectorLF3();
-                stationComponent.workShipDatas[packet.shipIndex[i]].uRot = packet.shipRot[i].ToQuaternion();
-                stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = packet.shipPPosTemp[i].ToVectorLF3();
-                stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = packet.shipPRotTemp[i].ToQuaternion();
+                continue;
             }
+            stationComponent = GameMain.data.galacticTransport.stationPool[packet.shipOtherGId[i]];
+
+            stationComponent.workShipDatas[packet.shipIndex[i]].uPos = packet.shipPos[i].ToVectorLF3();
+            stationComponent.workShipDatas[packet.shipIndex[i]].uRot = packet.shipRot[i].ToQuaternion();
+            stationComponent.workShipDatas[packet.shipIndex[i]].pPosTemp = packet.shipPPosTemp[i].ToVectorLF3();
+            stationComponent.workShipDatas[packet.shipIndex[i]].pRotTemp = packet.shipPRotTemp[i].ToQuaternion();
         }
     }
 }

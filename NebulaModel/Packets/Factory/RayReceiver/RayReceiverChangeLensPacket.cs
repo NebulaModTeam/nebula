@@ -12,8 +12,8 @@ public class RayReceiverChangeLensPacket
         PlanetId = planetId;
     }
 
-    public int GeneratorId { get; set; }
-    public int LensCount { get; set; }
-    public int LensInc { get; set; }
-    public int PlanetId { get; set; }
+    public int GeneratorId { get; }
+    public int LensCount { get; }
+    public int LensInc { get; }
+    public int PlanetId { get; }
 }

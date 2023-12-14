@@ -11,18 +11,18 @@ namespace NebulaWorld.Chat;
 
 public struct Emoji
 {
-    public string ShortName;
-    public string Category;
-    public string UnifiedCode;
+    public readonly string ShortName;
+    public string _category;
+    public readonly string UnifiedCode;
 
-    public int SheetX;
-    public int SheetY;
-    public int SortOrder;
+    public readonly int SheetX;
+    public readonly int SheetY;
+    public readonly int SortOrder;
 
-    public Emoji(Dictionary<string, object> dict)
+    public Emoji(IReadOnlyDictionary<string, object> dict)
     {
         ShortName = (string)dict["short_name"];
-        Category = (string)dict["category"];
+        _category = (string)dict["category"];
         UnifiedCode = (string)dict["unified"];
 
         SheetX = (int)(long)dict["sheet_x"];
@@ -34,18 +34,18 @@ public struct Emoji
 
 public static class EmojiDataManager
 {
-    public static Dictionary<string, List<Emoji>> emojies = new();
+    public static readonly Dictionary<string, List<Emoji>> emojies = new();
     private static bool isLoaded;
 
     private static void Add(Emoji emoji)
     {
-        if (emojies.ContainsKey(emoji.Category))
+        if (emojies.TryGetValue(emoji._category, out var emojy))
         {
-            emojies[emoji.Category].Add(emoji);
+            emojy.Add(emoji);
         }
         else
         {
-            emojies[emoji.Category] = new List<Emoji>(new[] { emoji });
+            emojies[emoji._category] = new List<Emoji>(new[] { emoji });
         }
     }
 
@@ -61,20 +61,20 @@ public static class EmojiDataManager
 
         if (MiniJson.Deserialize(json) is Dictionary<string, object> jObject)
         {
-            var array = jObject.ContainsKey("frames") ? jObject["frames"] as IList : null;
+            var array = jObject.TryGetValue("frames", out var value) ? value as IList : null;
             if (array != null)
             {
                 foreach (var rawJObject in array)
                 {
-                    if (!(rawJObject is Dictionary<string, object> emojiData))
+                    if (rawJObject is not Dictionary<string, object> emojiData)
                     {
                         continue;
                     }
 
                     var emoji = new Emoji(emojiData);
-                    if (emoji.Category.Equals("People & Body"))
+                    if (emoji._category.Equals("People & Body"))
                     {
-                        emoji.Category = "Smileys & Emotion";
+                        emoji._category = "Smileys & Emotion";
                     }
                     Add(emoji);
                 }

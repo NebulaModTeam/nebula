@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryResearchUpdateProcessor : PacketProcessor<GameHistoryResearchUpdatePacket>
 {
-    public override void ProcessPacket(GameHistoryResearchUpdatePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameHistoryResearchUpdatePacket packet, NebulaConnection conn)
     {
         var data = GameMain.data.history;
         if (packet.TechId != data.currentTech)

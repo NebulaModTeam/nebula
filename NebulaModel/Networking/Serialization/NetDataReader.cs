@@ -3,7 +3,7 @@
 using System;
 using System.Net;
 using System.Text;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
 
 #endregion
 
@@ -11,10 +11,6 @@ namespace NebulaModel.Networking.Serialization;
 
 public class NetDataReader : INetDataReader
 {
-    protected byte[] _data;
-    protected int _dataSize;
-    protected int _position;
-
     public NetDataReader()
     {
     }
@@ -39,64 +35,64 @@ public class NetDataReader : INetDataReader
         SetSource(source, offset, maxSize);
     }
 
-    public byte[] RawData => _data;
+    private byte[] RawData { get; set; }
 
-    public int RawDataSize => _dataSize;
+    private int RawDataSize { get; set; }
 
-    public int UserDataOffset { get; private set; }
+    private int UserDataOffset { get; set; }
 
-    public int UserDataSize => _dataSize - UserDataOffset;
+    public int UserDataSize => RawDataSize - UserDataOffset;
 
-    public bool IsNull => _data == null;
+    public bool IsNull => RawData == null;
 
-    public int Position => _position;
+    private int Position { get; set; }
 
-    public bool EndOfData => _position == _dataSize;
+    public bool EndOfData => Position == RawDataSize;
 
-    public int AvailableBytes => _dataSize - _position;
+    public int AvailableBytes => RawDataSize - Position;
 
     public void SkipBytes(int count)
     {
-        _position += count;
+        Position += count;
     }
 
-    public void SetSource(NetDataWriter dataWriter)
+    private void SetSource(NetDataWriter dataWriter)
     {
-        _data = dataWriter.Data;
-        _position = 0;
+        RawData = dataWriter.Data;
+        Position = 0;
         UserDataOffset = 0;
-        _dataSize = dataWriter.Length;
+        RawDataSize = dataWriter.Length;
     }
 
-    public void SetSource(byte[] source)
+    private void SetSource(byte[] source)
     {
-        _data = source;
-        _position = 0;
+        RawData = source;
+        Position = 0;
         UserDataOffset = 0;
-        _dataSize = source.Length;
+        RawDataSize = source.Length;
     }
 
-    public void SetSource(byte[] source, int offset)
+    private void SetSource(byte[] source, int offset)
     {
-        _data = source;
-        _position = offset;
+        RawData = source;
+        Position = offset;
         UserDataOffset = offset;
-        _dataSize = source.Length;
+        RawDataSize = source.Length;
     }
 
-    public void SetSource(byte[] source, int offset, int maxSize)
+    private void SetSource(byte[] source, int offset, int maxSize)
     {
-        _data = source;
-        _position = offset;
+        RawData = source;
+        Position = offset;
         UserDataOffset = offset;
-        _dataSize = maxSize;
+        RawDataSize = maxSize;
     }
 
     public void Clear()
     {
-        _position = 0;
-        _dataSize = 0;
-        _data = null;
+        Position = 0;
+        RawDataSize = 0;
+        RawData = null;
     }
 
     #region GetMethods
@@ -110,112 +106,112 @@ public class NetDataReader : INetDataReader
 
     public byte GetByte()
     {
-        var res = _data[_position];
-        _position += 1;
+        var res = RawData[Position];
+        Position += 1;
         return res;
     }
 
     public sbyte GetSByte()
     {
-        var b = (sbyte)_data[_position];
-        _position++;
+        var b = (sbyte)RawData[Position];
+        Position++;
         return b;
     }
 
     public bool[] GetBoolArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new bool[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size);
-        _position += size;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size);
+        Position += size;
         return arr;
     }
 
     public ushort[] GetUShortArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new ushort[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 2);
-        _position += size * 2;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 2);
+        Position += size * 2;
         return arr;
     }
 
     public short[] GetShortArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new short[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 2);
-        _position += size * 2;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 2);
+        Position += size * 2;
         return arr;
     }
 
     public long[] GetLongArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new long[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
-        _position += size * 8;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 8);
+        Position += size * 8;
         return arr;
     }
 
     public ulong[] GetULongArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new ulong[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
-        _position += size * 8;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 8);
+        Position += size * 8;
         return arr;
     }
 
     public int[] GetIntArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new int[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
-        _position += size * 4;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 4);
+        Position += size * 4;
         return arr;
     }
 
     public uint[] GetUIntArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new uint[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
-        _position += size * 4;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 4);
+        Position += size * 4;
         return arr;
     }
 
     public float[] GetFloatArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new float[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 4);
-        _position += size * 4;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 4);
+        Position += size * 4;
         return arr;
     }
 
     public double[] GetDoubleArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new double[size];
-        Buffer.BlockCopy(_data, _position, arr, 0, size * 8);
-        _position += size * 8;
+        Buffer.BlockCopy(RawData, Position, arr, 0, size * 8);
+        Position += size * 8;
         return arr;
     }
 
     public string[] GetStringArray()
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new string[size];
         for (var i = 0; i < size; i++)
         {
@@ -226,8 +222,8 @@ public class NetDataReader : INetDataReader
 
     public string[] GetStringArray(int maxStringLength)
     {
-        var size = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var size = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         var arr = new string[size];
         for (var i = 0; i < size; i++)
         {
@@ -238,71 +234,71 @@ public class NetDataReader : INetDataReader
 
     public bool GetBool()
     {
-        var res = _data[_position] > 0;
-        _position += 1;
+        var res = RawData[Position] > 0;
+        Position += 1;
         return res;
     }
 
     public char GetChar()
     {
-        var result = BitConverter.ToChar(_data, _position);
-        _position += 2;
+        var result = BitConverter.ToChar(RawData, Position);
+        Position += 2;
         return result;
     }
 
     public ushort GetUShort()
     {
-        var result = BitConverter.ToUInt16(_data, _position);
-        _position += 2;
+        var result = BitConverter.ToUInt16(RawData, Position);
+        Position += 2;
         return result;
     }
 
     public short GetShort()
     {
-        var result = BitConverter.ToInt16(_data, _position);
-        _position += 2;
+        var result = BitConverter.ToInt16(RawData, Position);
+        Position += 2;
         return result;
     }
 
     public long GetLong()
     {
-        var result = BitConverter.ToInt64(_data, _position);
-        _position += 8;
+        var result = BitConverter.ToInt64(RawData, Position);
+        Position += 8;
         return result;
     }
 
     public ulong GetULong()
     {
-        var result = BitConverter.ToUInt64(_data, _position);
-        _position += 8;
+        var result = BitConverter.ToUInt64(RawData, Position);
+        Position += 8;
         return result;
     }
 
     public int GetInt()
     {
-        var result = BitConverter.ToInt32(_data, _position);
-        _position += 4;
+        var result = BitConverter.ToInt32(RawData, Position);
+        Position += 4;
         return result;
     }
 
     public uint GetUInt()
     {
-        var result = BitConverter.ToUInt32(_data, _position);
-        _position += 4;
+        var result = BitConverter.ToUInt32(RawData, Position);
+        Position += 4;
         return result;
     }
 
     public float GetFloat()
     {
-        var result = BitConverter.ToSingle(_data, _position);
-        _position += 4;
+        var result = BitConverter.ToSingle(RawData, Position);
+        Position += 4;
         return result;
     }
 
     public double GetDouble()
     {
-        var result = BitConverter.ToDouble(_data, _position);
-        _position += 8;
+        var result = BitConverter.ToDouble(RawData, Position);
+        Position += 8;
         return result;
     }
 
@@ -314,14 +310,14 @@ public class NetDataReader : INetDataReader
             return string.Empty;
         }
 
-        var charCount = Encoding.UTF8.GetCharCount(_data, _position, bytesCount);
+        var charCount = Encoding.UTF8.GetCharCount(RawData, Position, bytesCount);
         if (charCount > maxLength)
         {
             return string.Empty;
         }
 
-        var result = Encoding.UTF8.GetString(_data, _position, bytesCount);
-        _position += bytesCount;
+        var result = Encoding.UTF8.GetString(RawData, Position, bytesCount);
+        Position += bytesCount;
         return result;
     }
 
@@ -333,15 +329,15 @@ public class NetDataReader : INetDataReader
             return string.Empty;
         }
 
-        var result = Encoding.UTF8.GetString(_data, _position, bytesCount);
-        _position += bytesCount;
+        var result = Encoding.UTF8.GetString(RawData, Position, bytesCount);
+        Position += bytesCount;
         return result;
     }
 
     public ArraySegment<byte> GetRemainingBytesSegment()
     {
-        var segment = new ArraySegment<byte>(_data, _position, AvailableBytes);
-        _position = _data.Length;
+        var segment = new ArraySegment<byte>(RawData, Position, AvailableBytes);
+        Position = RawData.Length;
         return segment;
     }
 
@@ -355,29 +351,29 @@ public class NetDataReader : INetDataReader
     public byte[] GetRemainingBytes()
     {
         var outgoingData = new byte[AvailableBytes];
-        Buffer.BlockCopy(_data, _position, outgoingData, 0, AvailableBytes);
-        _position = _data.Length;
+        Buffer.BlockCopy(RawData, Position, outgoingData, 0, AvailableBytes);
+        Position = RawData.Length;
         return outgoingData;
     }
 
     public void GetBytes(byte[] destination, int start, int count)
     {
-        Buffer.BlockCopy(_data, _position, destination, start, count);
-        _position += count;
+        Buffer.BlockCopy(RawData, Position, destination, start, count);
+        Position += count;
     }
 
     public void GetBytes(byte[] destination, int count)
     {
-        Buffer.BlockCopy(_data, _position, destination, 0, count);
-        _position += count;
+        Buffer.BlockCopy(RawData, Position, destination, 0, count);
+        Position += count;
     }
 
     public sbyte[] GetSBytesWithLength()
     {
         var length = GetInt();
         var outgoingData = new sbyte[length];
-        Buffer.BlockCopy(_data, _position, outgoingData, 0, length);
-        _position += length;
+        Buffer.BlockCopy(RawData, Position, outgoingData, 0, length);
+        Position += length;
         return outgoingData;
     }
 
@@ -385,8 +381,8 @@ public class NetDataReader : INetDataReader
     {
         var length = GetInt();
         var outgoingData = new byte[length];
-        Buffer.BlockCopy(_data, _position, outgoingData, 0, length);
-        _position += length;
+        Buffer.BlockCopy(RawData, Position, outgoingData, 0, length);
+        Position += length;
         return outgoingData;
     }
 
@@ -396,91 +392,91 @@ public class NetDataReader : INetDataReader
 
     public byte PeekByte()
     {
-        return _data[_position];
+        return RawData[Position];
     }
 
     public sbyte PeekSByte()
     {
-        return (sbyte)_data[_position];
+        return (sbyte)RawData[Position];
     }
 
     public bool PeekBool()
     {
-        return _data[_position] > 0;
+        return RawData[Position] > 0;
     }
 
     public char PeekChar()
     {
-        return BitConverter.ToChar(_data, _position);
+        return BitConverter.ToChar(RawData, Position);
     }
 
     public ushort PeekUShort()
     {
-        return BitConverter.ToUInt16(_data, _position);
+        return BitConverter.ToUInt16(RawData, Position);
     }
 
     public short PeekShort()
     {
-        return BitConverter.ToInt16(_data, _position);
+        return BitConverter.ToInt16(RawData, Position);
     }
 
     public long PeekLong()
     {
-        return BitConverter.ToInt64(_data, _position);
+        return BitConverter.ToInt64(RawData, Position);
     }
 
     public ulong PeekULong()
     {
-        return BitConverter.ToUInt64(_data, _position);
+        return BitConverter.ToUInt64(RawData, Position);
     }
 
-    public int PeekInt()
+    private int PeekInt()
     {
-        return BitConverter.ToInt32(_data, _position);
+        return BitConverter.ToInt32(RawData, Position);
     }
 
     public uint PeekUInt()
     {
-        return BitConverter.ToUInt32(_data, _position);
+        return BitConverter.ToUInt32(RawData, Position);
     }
 
     public float PeekFloat()
     {
-        return BitConverter.ToSingle(_data, _position);
+        return BitConverter.ToSingle(RawData, Position);
     }
 
     public double PeekDouble()
     {
-        return BitConverter.ToDouble(_data, _position);
+        return BitConverter.ToDouble(RawData, Position);
     }
 
     public string PeekString(int maxLength)
     {
-        var bytesCount = BitConverter.ToInt32(_data, _position);
+        var bytesCount = BitConverter.ToInt32(RawData, Position);
         if (bytesCount <= 0 || bytesCount > maxLength * 2)
         {
             return string.Empty;
         }
 
-        var charCount = Encoding.UTF8.GetCharCount(_data, _position + 4, bytesCount);
+        var charCount = Encoding.UTF8.GetCharCount(RawData, Position + 4, bytesCount);
         if (charCount > maxLength)
         {
             return string.Empty;
         }
 
-        var result = Encoding.UTF8.GetString(_data, _position + 4, bytesCount);
+        var result = Encoding.UTF8.GetString(RawData, Position + 4, bytesCount);
         return result;
     }
 
     public string PeekString()
     {
-        var bytesCount = BitConverter.ToInt32(_data, _position);
+        var bytesCount = BitConverter.ToInt32(RawData, Position);
         if (bytesCount <= 0)
         {
             return string.Empty;
         }
 
-        var result = Encoding.UTF8.GetString(_data, _position + 4, bytesCount);
+        var result = Encoding.UTF8.GetString(RawData, Position + 4, bytesCount);
         return result;
     }
 
@@ -543,7 +539,7 @@ public class NetDataReader : INetDataReader
         return false;
     }
 
-    public bool TryGetUShort(out ushort result)
+    private bool TryGetUShort(out ushort result)
     {
         if (AvailableBytes >= 2)
         {
@@ -620,7 +616,7 @@ public class NetDataReader : INetDataReader
         return false;
     }
 
-    public bool TryGetString(out string result)
+    private bool TryGetString(out string result)
     {
         if (AvailableBytes >= 4)
         {
@@ -646,11 +642,12 @@ public class NetDataReader : INetDataReader
         result = new string[size];
         for (var i = 0; i < size; i++)
         {
-            if (!TryGetString(out result[i]))
+            if (TryGetString(out result[i]))
             {
-                result = null;
-                return false;
+                continue;
             }
+            result = null;
+            return false;
         }
 
         return true;

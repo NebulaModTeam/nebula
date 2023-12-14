@@ -1,14 +1,15 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking.Serialization;
 
 #endregion
 
 namespace NebulaModel;
 
-public abstract class NetworkProvider : IDisposable, INetworkProvider
+public abstract class NetworkProvider : INetworkProvider
 {
     protected NetworkProvider(IPlayerManager playerManager)
     {
@@ -16,7 +17,7 @@ public abstract class NetworkProvider : IDisposable, INetworkProvider
         PlayerManager = playerManager;
     }
 
-    public NetPacketProcessor PacketProcessor { get; protected set; }
+    public NetPacketProcessor PacketProcessor { get; }
 
     public abstract void Dispose();
 

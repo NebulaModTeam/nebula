@@ -16,17 +16,17 @@ internal class GameSave_Patch
     [HarmonyPatch(nameof(GameSave.SaveCurrentGame))]
     public static bool SaveCurrentGame_Prefix(string saveName)
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            // temp revert sand count back to original value before saving if we sync it (see SimulatedWorld.SetupInitialPlayerState() )
-            if (Config.Options.SyncSoil)
-            {
-                var tmp = GameMain.mainPlayer.sandCount;
-                GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
-                Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount = tmp;
-            }
-            SaveManager.SaveServerData(saveName);
+            return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
         }
+        // temp revert sand count back to original value before saving if we sync it (see SimulatedWorld.SetupInitialPlayerState() )
+        if (Config.Options.SyncSoil)
+        {
+            (GameMain.mainPlayer.sandCount, Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount) = (
+                Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount, GameMain.mainPlayer.sandCount);
+        }
+        SaveManager.SaveServerData(saveName);
 
         // Only save if in single player or if you are the host
         return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
@@ -36,15 +36,15 @@ internal class GameSave_Patch
     [HarmonyPatch(nameof(GameSave.SaveCurrentGame))]
     public static void SaveCurrentGame_Postfix()
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            // if we sync soil we need to revert changes from above after saving the game
-            if (Config.Options.SyncSoil)
-            {
-                var tmp = GameMain.mainPlayer.sandCount;
-                GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
-                Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount = tmp;
-            }
+            return;
+        }
+        // if we sync soil we need to revert changes from above after saving the game
+        if (Config.Options.SyncSoil)
+        {
+            (GameMain.mainPlayer.sandCount, Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount) = (
+                Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount, GameMain.mainPlayer.sandCount);
         }
     }
 
@@ -69,21 +69,22 @@ internal class GameSave_Patch
     public static void LoadCurrentGame_Postfix(bool __result)
     {
         // If loading success, check and correct offset for all inserters
-        if (__result)
+        if (!__result)
         {
-            for (var index = 0; index < GameMain.data.factoryCount; index++)
+            return;
+        }
+        for (var index = 0; index < GameMain.data.factoryCount; index++)
+        {
+            var factory = GameMain.data.factories[index];
+            var entityPool = factory.entityPool;
+            var traffic = factory.factorySystem.traffic;
+            var beltPool = factory.factorySystem.traffic.beltPool;
+            for (var i = 1; i < factory.factorySystem.inserterCursor; i++)
             {
-                var factory = GameMain.data.factories[index];
-                var entityPool = factory.entityPool;
-                var traffic = factory.factorySystem.traffic;
-                var beltPool = factory.factorySystem.traffic.beltPool;
-                for (var i = 1; i < factory.factorySystem.inserterCursor; i++)
+                ref var inserter = ref factory.factorySystem.inserterPool[i];
+                if (inserter.id == i)
                 {
-                    ref var inserter = ref factory.factorySystem.inserterPool[i];
-                    if (inserter.id == i)
-                    {
-                        inserter.InternalOffsetCorrection(entityPool, traffic, beltPool);
-                    }
+                    inserter.InternalOffsetCorrection(entityPool, traffic, beltPool);
                 }
             }
         }

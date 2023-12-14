@@ -18,45 +18,48 @@ internal class UIDispenserWindow_Patch
     [HarmonyPatch(nameof(UIDispenserWindow.OnCourierIconClick))]
     public static void OnCourierIconClick_Postfix(UIDispenserWindow __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new DispenserSettingPacket(__instance.factory.planetId,
-                    __instance.dispenserId,
-                    EDispenserSettingEvent.SetCourierCount,
-                    dispenserComponent.workCourierCount + dispenserComponent.idleCourierCount));
+            return;
         }
+        var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new DispenserSettingPacket(__instance.factory.planetId,
+                __instance.dispenserId,
+                EDispenserSettingEvent.SetCourierCount,
+                dispenserComponent.workCourierCount + dispenserComponent.idleCourierCount));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIDispenserWindow.OnCourierAutoReplenishButtonClick))]
     public static void OnCourierAutoReplenishButtonClick_Postfix(UIDispenserWindow __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new DispenserSettingPacket(__instance.factory.planetId,
-                    __instance.dispenserId,
-                    EDispenserSettingEvent.ToggleAutoReplenish,
-                    dispenserComponent.courierAutoReplenish ? 1 : 0));
+            return;
         }
+        var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new DispenserSettingPacket(__instance.factory.planetId,
+                __instance.dispenserId,
+                EDispenserSettingEvent.ToggleAutoReplenish,
+                dispenserComponent.courierAutoReplenish ? 1 : 0));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIDispenserWindow.OnHoldupItemClick))]
     public static void OnHoldupItemClick_Postfix(UIDispenserWindow __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
-            if (__instance.player.inhandItemId == 0 && __instance.player.inhandItemCount == 0)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(
-                    new DispenserStorePacket(__instance.factory.planetId,
-                        in dispenserComponent));
-            }
+            return;
+        }
+        var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
+        if (__instance.player.inhandItemId == 0 && __instance.player.inhandItemCount == 0)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new DispenserStorePacket(__instance.factory.planetId,
+                    in dispenserComponent));
         }
     }
 
@@ -87,45 +90,47 @@ internal class UIDispenserWindow_Patch
         {
             return false;
         }
-        var pointerEventData = evt as PointerEventData;
-        if (pointerEventData == null)
+        if (evt is not PointerEventData pointerEventData)
         {
             return false;
         }
 
         if (__instance.player.inhandItemId == 0)
         {
-            if (pointerEventData.button == PointerEventData.InputButton.Right)
+            if (pointerEventData.button != PointerEventData.InputButton.Right)
             {
-                __instance.CalculateStorageTotalCount(dispenserComponent, out var count, out var _);
-                if (count > 0)
-                {
-                    UIRoot.instance.uiGame.OpenGridSplit(dispenserComponent.filter, count, Input.mousePosition);
-                    __instance.insplit = true;
-                    return false;
-                }
+                return false;
             }
+            __instance.CalculateStorageTotalCount(dispenserComponent, out var count, out _);
+            if (count <= 0)
+            {
+                return false;
+            }
+            UIRoot.instance.uiGame.OpenGridSplit(dispenserComponent.filter, count, Input.mousePosition);
+            __instance.insplit = true;
+            return false;
         }
-        else if (__instance.player.inhandItemId == dispenserComponent.filter && dispenserComponent.filter > 0 &&
-                 pointerEventData.button == PointerEventData.InputButton.Left)
+        if (__instance.player.inhandItemId != dispenserComponent.filter || dispenserComponent.filter <= 0 ||
+            pointerEventData.button != PointerEventData.InputButton.Left)
         {
-            var entityId = dispenserComponent.storage.bottomStorage.entityId;
-            var itemCount = __instance.factory.InsertIntoStorage(entityId, __instance.player.inhandItemId,
-                __instance.player.inhandItemCount, __instance.player.inhandItemInc, out var handItemInc_Unsafe, false);
+            return false;
+        }
+        var entityId = dispenserComponent.storage.bottomStorage.entityId;
+        var itemCount = __instance.factory.InsertIntoStorage(entityId, __instance.player.inhandItemId,
+            __instance.player.inhandItemCount, __instance.player.inhandItemInc, out var handItemInc_Unsafe, false);
 
-            // Player put itemCount into storage, broadcast the change to all users
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new DispenserAddTakePacket(__instance.factory.planetId,
-                    entityId,
-                    EDispenserAddTakeEvent.ManualAdd,
-                    __instance.player.inhandItemId, itemCount, __instance.player.inhandItemInc));
+        // Player put itemCount into storage, broadcast the change to all users
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new DispenserAddTakePacket(__instance.factory.planetId,
+                entityId,
+                EDispenserAddTakeEvent.ManualAdd,
+                __instance.player.inhandItemId, itemCount, __instance.player.inhandItemInc));
 
-            __instance.player.AddHandItemCount_Unsafe(-itemCount);
-            __instance.player.SetHandItemInc_Unsafe(handItemInc_Unsafe);
-            if (__instance.player.inhandItemCount <= 0)
-            {
-                __instance.player.SetHandItems(0, 0);
-            }
+        __instance.player.AddHandItemCount_Unsafe(-itemCount);
+        __instance.player.SetHandItemInc_Unsafe(handItemInc_Unsafe);
+        if (__instance.player.inhandItemCount <= 0)
+        {
+            __instance.player.SetHandItems(0, 0);
         }
 
         return false;
@@ -145,27 +150,28 @@ internal class UIDispenserWindow_Patch
             return false;
         }
 
-        if (__instance.insplit)
+        if (!__instance.insplit)
         {
-            var count = UIRoot.instance.uiGame.CloseGridSplit();
-            if (__instance.player.inhandItemId == 0 && __instance.player.inhandItemCount == 0 && dispenserComponent.filter > 0)
-            {
-                var entityId = dispenserComponent.storage.bottomStorage.entityId;
-                var handItemCount_Unsafe = __instance.factory.PickFromStorage(entityId, dispenserComponent.filter, count,
-                    out var handItemInc_Unsafe);
-                __instance.player.SetHandItemId_Unsafe(dispenserComponent.filter);
-                __instance.player.SetHandItemCount_Unsafe(handItemCount_Unsafe);
-                __instance.player.SetHandItemInc_Unsafe(handItemInc_Unsafe);
-
-                // Player grab itemCount from storage, broadcast the change to all users
-                Multiplayer.Session.Network.SendPacketToLocalStar(
-                    new DispenserAddTakePacket(__instance.factory.planetId,
-                        entityId,
-                        EDispenserAddTakeEvent.ManualTake,
-                        __instance.player.inhandItemId, __instance.player.inhandItemCount, 0));
-            }
-            __instance.insplit = false;
+            return false;
         }
+        var count = UIRoot.instance.uiGame.CloseGridSplit();
+        if (__instance.player.inhandItemId == 0 && __instance.player.inhandItemCount == 0 && dispenserComponent.filter > 0)
+        {
+            var entityId = dispenserComponent.storage.bottomStorage.entityId;
+            var handItemCount_Unsafe = __instance.factory.PickFromStorage(entityId, dispenserComponent.filter, count,
+                out var handItemInc_Unsafe);
+            __instance.player.SetHandItemId_Unsafe(dispenserComponent.filter);
+            __instance.player.SetHandItemCount_Unsafe(handItemCount_Unsafe);
+            __instance.player.SetHandItemInc_Unsafe(handItemInc_Unsafe);
+
+            // Player grab itemCount from storage, broadcast the change to all users
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new DispenserAddTakePacket(__instance.factory.planetId,
+                    entityId,
+                    EDispenserAddTakeEvent.ManualTake,
+                    __instance.player.inhandItemId, __instance.player.inhandItemCount, 0));
+        }
+        __instance.insplit = false;
 
         return false;
     }

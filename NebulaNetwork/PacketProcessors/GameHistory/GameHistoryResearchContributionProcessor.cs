@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryResearchContributionProcessor : PacketProcessor<GameHistoryResearchContributionPacket>
 {
-    public override void ProcessPacket(GameHistoryResearchContributionPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameHistoryResearchContributionPacket packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -25,7 +25,7 @@ internal class GameHistoryResearchContributionProcessor : PacketProcessor<GameHi
         if (packet.TechId == GameMain.history.currentTech)
         {
             GameMain.history.AddTechHash(packet.Hashes);
-            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+            var playerManager = Multiplayer.Session.Network.PlayerManager;
             Log.Debug(
                 $"ProcessPacket researchContribution: playerid by: {playerManager.GetPlayer(conn).Id} - hashes {packet.Hashes}");
         }

@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using System;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
@@ -12,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity;
 [RegisterPacketProcessor]
 internal class EntityBoostSwitchProcessor : PacketProcessor<EntityBoostSwitchPacket>
 {
-    public override void ProcessPacket(EntityBoostSwitchPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(EntityBoostSwitchPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null)
@@ -54,6 +55,8 @@ internal class EntityBoostSwitchProcessor : PacketProcessor<EntityBoostSwitchPac
                     }
                 }
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(packet), "Unknown EntityBoostSwitchPacket type: " + packet.EntityType);
         }
     }
 }

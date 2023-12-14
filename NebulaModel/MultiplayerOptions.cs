@@ -4,7 +4,7 @@ using System;
 using System.ComponentModel;
 using BepInEx.Configuration;
 using NebulaModel.Attributes;
-using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -96,7 +96,7 @@ public class MultiplayerOptions : ICloneable
     [DisplayName("Sync Soil")]
     [Description(
         "If enabled the soil count of each players is added together and used as one big pool for everyone. Note that this is a server side setting applied to all clients.")]
-    public bool SyncSoil { get; set; } = false;
+    public bool SyncSoil { get; set; }
 
     [DisplayName("Streamer mode")]
     [Description(
@@ -108,12 +108,12 @@ public class MultiplayerOptions : ICloneable
         {
             _streamerMode = value;
 
-            var ngrokAuthTokenInput = GameObject.Find("list/scroll-view/viewport/content/Network/NgrokAuthtoken")
-                ?.GetComponentInChildren<InputField>();
+            var ngrokAuthTokenInput = GameObject.Find("list/scroll-view/viewport/content/Network/NgrokAuthtoken")?
+                .GetComponentInChildren<InputField>();
             UpdateInputFieldContentType(ref ngrokAuthTokenInput);
 
-            var hostIpInput = GameObject.Find("UI Root/Overlay Canvas/Nebula - Multiplayer Menu/Host IP Address/InputField")
-                ?.GetComponentInChildren<InputField>();
+            var hostIpInput = GameObject.Find("UI Root/Overlay Canvas/Nebula - Multiplayer Menu/Host IP Address/InputField")?
+                .GetComponentInChildren<InputField>();
             UpdateInputFieldContentType(ref hostIpInput);
         }
     }
@@ -155,8 +155,8 @@ public class MultiplayerOptions : ICloneable
     public float ChatWindowOpacity { get; set; } = 0.8f;
 
     // Detail function group buttons
-    public bool PowerGridEnabled { get; set; } = false;
-    public bool VeinDistributionEnabled { get; set; } = false;
+    public bool PowerGridEnabled { get; set; }
+    public bool VeinDistributionEnabled { get; set; }
     public bool SpaceNavigationEnabled { get; set; } = true;
     public bool BuildingWarningEnabled { get; set; } = true;
     public bool BuildingIconEnabled { get; set; } = true;
@@ -174,18 +174,12 @@ public class MultiplayerOptions : ICloneable
 
     private void UpdateInputFieldContentType(ref InputField inputField)
     {
-        if (inputField != null)
+        if (inputField == null)
         {
-            if (StreamerMode)
-            {
-                inputField.contentType = InputField.ContentType.Password;
-            }
-            else
-            {
-                inputField.contentType = InputField.ContentType.Standard;
-            }
-            inputField.UpdateLabel();
+            return;
         }
+        inputField.contentType = StreamerMode ? InputField.ContentType.Password : InputField.ContentType.Standard;
+        inputField.UpdateLabel();
     }
 
     public void ModifyInputFieldAtCreation(string displayName, ref InputField inputField)

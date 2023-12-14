@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -16,20 +16,22 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class ILSRematchRemotePairsProcessor : PacketProcessor<ILSRematchRemotePairs>
 {
-    public override void ProcessPacket(ILSRematchRemotePairs packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSRematchRemotePairs packet, NebulaConnection conn)
     {
         var gTransport = GameMain.data.galacticTransport;
-        if (packet.GId < gTransport.stationCursor)
+        if (packet.GId >= gTransport.stationCursor)
         {
-            for (var i = 0; i < packet.ShipIndex.Length; i++)
+            return;
+        }
+        for (var i = 0; i < packet.ShipIndex.Length; i++)
+        {
+            if (gTransport.stationPool[packet.GId] == null)
             {
-                if (gTransport.stationPool[packet.GId] != null)
-                {
-                    gTransport.stationPool[packet.GId].workShipDatas[packet.ShipIndex[i]].otherGId = packet.OtherGId[i];
-                    gTransport.stationPool[packet.GId].workShipDatas[packet.ShipIndex[i]].direction = packet.Direction[i];
-                    gTransport.stationPool[packet.GId].workShipDatas[packet.ShipIndex[i]].itemId = packet.ItemId[i];
-                }
+                continue;
             }
+            gTransport.stationPool[packet.GId].workShipDatas[packet.ShipIndex[i]].otherGId = packet.OtherGId[i];
+            gTransport.stationPool[packet.GId].workShipDatas[packet.ShipIndex[i]].direction = packet.Direction[i];
+            gTransport.stationPool[packet.GId].workShipDatas[packet.ShipIndex[i]].itemId = packet.ItemId[i];
         }
     }
 }

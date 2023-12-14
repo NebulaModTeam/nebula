@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 #endregion
 
 #pragma warning disable IDE1006
-namespace NebulaModel.DataStructures;
+namespace NebulaModel.DataStructures.Chat;
 
 /// <summary>
 ///     This is what is rendered in the chat area (already sent chat messages)

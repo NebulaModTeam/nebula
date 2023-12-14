@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 
 #endregion
 
@@ -16,8 +17,8 @@ public class BeltUpdatePickupItemsPacket
         PlanetId = planetId;
     }
 
-    public int PlanetId { get; set; }
-    public BeltUpdate[] BeltUpdates { get; set; }
+    public int PlanetId { get; }
+    public BeltUpdate[] BeltUpdates { get; }
 }
 
 [RegisterNestedType]

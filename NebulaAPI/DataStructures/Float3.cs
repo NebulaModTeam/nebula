@@ -1,10 +1,12 @@
 ﻿#region
 
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.DataStructures;
 
 [RegisterNestedType]
 public struct Float3 : INetSerializable

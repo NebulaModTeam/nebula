@@ -1,13 +1,13 @@
 ﻿#region
 
-using NebulaModel.DataStructures;
-using NebulaWorld.MonoBehaviours.Local;
+using System.Linq;
+using NebulaModel.DataStructures.Chat;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaWorld.Chat;
+namespace NebulaWorld.Chat.ChatLinks;
 
 public class NavigateChatLinkHandler : IChatLinkHandler
 {
@@ -15,16 +15,13 @@ public class NavigateChatLinkHandler : IChatLinkHandler
     {
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var model in remotePlayersModels)
+            foreach (var model in remotePlayersModels.Where(model => model.Value.Movement.Username == data))
             {
-                if (model.Value.Movement.Username == data)
-                {
-                    // handle indicator position update in RemotePlayerMovement.cs
-                    GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
-                    ChatManager.Instance.SendChatMessage("Starting navigation to ".Translate() + model.Value.Movement.Username,
-                        ChatMessageType.CommandOutputMessage);
-                    return;
-                }
+                // handle indicator position update in RemotePlayerMovement.cs
+                GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
+                ChatManager.Instance.SendChatMessage("Starting navigation to ".Translate() + model.Value.Movement.Username,
+                    ChatMessageType.CommandOutputMessage);
+                return;
             }
         }
     }

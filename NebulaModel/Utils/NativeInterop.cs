@@ -9,7 +9,7 @@ using BepInEx;
 
 namespace NebulaModel.Utils;
 
-public class NativeInterop
+public static class NativeInterop
 {
     private const int SW_HIDE = 0;
 
@@ -48,6 +48,14 @@ public class NativeInterop
                 Console.WriteLine("Saving completed!");
                 Thread.Sleep(1000);
                 return false;
+            case CtrlType.CTRL_CLOSE_EVENT:
+                break;
+            case CtrlType.CTRL_LOGOFF_EVENT:
+                break;
+            case CtrlType.CTRL_SHUTDOWN_EVENT:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(sig), "Unknown CtrlType: " + sig);
         }
         Thread.Sleep(500);
         return false;

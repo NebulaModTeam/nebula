@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.Inserter;
 
@@ -14,12 +14,13 @@ internal class InserterOffsetCorrectionProcessor : BasePacketProcessor<InserterO
     public override void ProcessPacket(InserterOffsetCorrectionPacket packet, INebulaConnection conn)
     {
         var pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.inserterPool;
-        if (pool != null)
+        if (pool == null)
         {
-            Log.Warn(
-                $"{packet.PlanetId} Fix inserter{packet.InserterId} pickOffset->{packet.PickOffset} insertOffset->{packet.InsertOffset}");
-            pool[packet.InserterId].pickOffset = packet.PickOffset;
-            pool[packet.InserterId].insertOffset = packet.InsertOffset;
+            return;
         }
+        Log.Warn(
+            $"{packet.PlanetId} Fix inserter{packet.InserterId} pickOffset->{packet.PickOffset} insertOffset->{packet.InsertOffset}");
+        pool[packet.InserterId].pickOffset = packet.PickOffset;
+        pool[packet.InserterId].insertOffset = packet.InsertOffset;
     }
 }

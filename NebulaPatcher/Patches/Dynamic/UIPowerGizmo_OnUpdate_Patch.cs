@@ -14,7 +14,7 @@ using NebulaWorld;
  */
 namespace NebulaPatcher.Patches.Dynamic;
 
-internal class UIPowerGizmo_OnUpdate_Patch
+internal static class UIPowerGizmo_OnUpdate_Patch
 {
     [HarmonyPatch(typeof(UIPowerGizmo))]
     private class OnUpdatePatch

@@ -4,9 +4,9 @@ using UnityEngine;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.DataStructures;
 
-public static class DataStructureExtenstions
+public static class DataStructureExtensions
 {
     public static Vector3 ToVector3(this Float3 value)
     {

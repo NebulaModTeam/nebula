@@ -18,19 +18,10 @@ public class WarningManager : IDisposable
     public readonly ToggleSwitch IsIncomingMonitorPacket = new();
     private int idleCycle;
 
-    private ConcurrentBag<NebulaConnection> requesters;
-    private WarningDataPacket warningDataPacket;
-    private WarningSignalPacket warningSignalPacket;
+    private ConcurrentBag<NebulaConnection> requesters = new();
+    private WarningDataPacket warningDataPacket = new();
+    private WarningSignalPacket warningSignalPacket = new() { Signals = new int[8], Counts = new int[8] };
     private WarningSystem ws;
-
-    public WarningManager()
-    {
-        requesters = new ConcurrentBag<NebulaConnection>();
-        warningSignalPacket = new WarningSignalPacket();
-        warningSignalPacket.Signals = new int[8];
-        warningSignalPacket.Counts = new int[8];
-        warningDataPacket = new WarningDataPacket();
-    }
 
     public int TickSignal { get; set; }
     public int TickData { get; set; }
@@ -41,6 +32,7 @@ public class WarningManager : IDisposable
         requesters = null;
         warningSignalPacket = null;
         warningDataPacket = null;
+        GC.SuppressFinalize(this);
     }
 
     public void HandleRequest(WarningDataRequest packet, NebulaConnection conn)
@@ -84,22 +76,23 @@ public class WarningManager : IDisposable
                 idleCycle = 0;
             }
         }
-        if (!requesters.IsEmpty)
+        if (requesters.IsEmpty)
         {
-            using (var writer = new BinaryUtils.Writer())
-            {
-                warningDataPacket.ActiveWarningCount = ExportBinaryData(writer.BinaryWriter);
-                warningDataPacket.BinaryData = writer.CloseAndGetBytes();
-                warningDataPacket.Tick = warningSignalPacket.Tick;
-            }
-            while (requesters.TryTake(out var conn))
-            {
-                conn.SendPacket(warningDataPacket);
-            }
+            return;
+        }
+        using (var writer = new BinaryUtils.Writer())
+        {
+            warningDataPacket.ActiveWarningCount = ExportBinaryData(writer.BinaryWriter);
+            warningDataPacket.BinaryData = writer.CloseAndGetBytes();
+            warningDataPacket.Tick = warningSignalPacket.Tick;
+        }
+        while (requesters.TryTake(out var conn))
+        {
+            conn.SendPacket(warningDataPacket);
         }
     }
 
-    public bool CheckAndUpdateSignal()
+    private bool CheckAndUpdateSignal()
     {
         var hasChanged = warningSignalPacket.SignalCount != ws.warningSignalCount;
         warningSignalPacket.SignalCount = ws.warningSignalCount;
@@ -112,18 +105,19 @@ public class WarningManager : IDisposable
         for (var i = 0; i < ws.warningSignalCount; i++)
         {
             var signalId = ws.warningSignals[i];
-            if (warningSignalPacket.Signals[i] != signalId || warningSignalPacket.Counts[i] != ws.warningCounts[signalId])
+            if (warningSignalPacket.Signals[i] == signalId && warningSignalPacket.Counts[i] == ws.warningCounts[signalId])
             {
-                warningSignalPacket.Signals[i] = signalId;
-                warningSignalPacket.Counts[i] = ws.warningCounts[signalId];
-                hasChanged = true;
+                continue;
             }
+            warningSignalPacket.Signals[i] = signalId;
+            warningSignalPacket.Counts[i] = ws.warningCounts[signalId];
+            hasChanged = true;
         }
 
         return hasChanged;
     }
 
-    public int ExportBinaryData(BinaryWriter bw)
+    private int ExportBinaryData(BinaryWriter bw)
     {
         var activeWarningCount = 0;
         var warningPool = ws.warningPool;
@@ -131,20 +125,21 @@ public class WarningManager : IDisposable
         for (var i = 1; i < ws.warningCursor; i++)
         {
             var data = warningPool[i];
-            if (data.id == i && data.state > 0)
+            if (data.id != i || data.state <= 0)
             {
-                bw.Write(data.signalId);
-                bw.Write(data.detailId);
-                bw.Write(data.astroId);
-                bw.Write(data.localPos.x);
-                bw.Write(data.localPos.y);
-                bw.Write(data.localPos.z);
-
-                var trashId = data.factoryId == WarningData.TRASH_SYSTEM ? data.objectId : -1;
-                bw.Write(trashId);
-
-                activeWarningCount++;
+                continue;
             }
+            bw.Write(data.signalId);
+            bw.Write(data.detailId);
+            bw.Write(data.astroId);
+            bw.Write(data.localPos.x);
+            bw.Write(data.localPos.y);
+            bw.Write(data.localPos.z);
+
+            var trashId = data.factoryId == WarningData.TRASH_SYSTEM ? data.objectId : -1;
+            bw.Write(trashId);
+
+            activeWarningCount++;
         }
         return activeWarningCount;
     }
@@ -193,37 +188,35 @@ public class WarningManager : IDisposable
         ThreadingHelper.Instance.StartAsyncInvoke(() =>
         {
             Thread.Sleep(millisecond);
-            return () =>
-            {
-                RemoveCriticalWarning();
-            };
+            return RemoveCriticalWarning;
         });
     }
 
     public static void DisplayCriticalWarning(string warningText)
     {
         var warningSystem = GameMain.data.warningSystem;
-        var id = ECriticalWarning.Null;
+        const ECriticalWarning id = ECriticalWarning.Null;
 
-        if (warningSystem.criticalWarnings.ContainsKey(id))
+        if (warningSystem.criticalWarnings.TryGetValue(id, out var value))
         {
-            if (warningSystem.criticalWarnings[id].warningParam != 0)
+            if (value.warningParam == 0)
             {
-                warningSystem.criticalWarnings[id].warningParam = 0;
-                warningSystem.criticalWarnings[id].Update();
-                warningSystem.UpdateCriticalWarningText();
+                return;
             }
+
+            value.warningParam = 0;
+            value.Update();
+            warningSystem.UpdateCriticalWarningText();
         }
         else
         {
-            var data = new CriticalWarningData(id, 0);
-            data.warningText = warningText;
+            var data = new CriticalWarningData(id, 0) { warningText = warningText };
             warningSystem.criticalWarnings.Add(id, data);
             warningSystem.UpdateCriticalWarningText();
         }
     }
 
-    public static void RemoveCriticalWarning()
+    private static void RemoveCriticalWarning()
     {
         GameMain.data.warningSystem.UnsetCriticalWarning(ECriticalWarning.Null);
     }

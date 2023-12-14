@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Warning;
@@ -13,12 +13,10 @@ namespace NebulaNetwork.PacketProcessors.Warning;
 [RegisterPacketProcessor]
 internal class WarningDataProcessor : PacketProcessor<WarningDataPacket>
 {
-    public override void ProcessPacket(WarningDataPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(WarningDataPacket packet, NebulaConnection conn)
     {
         Multiplayer.Session.Warning.TickData = packet.Tick;
-        using (var reader = new BinaryUtils.Reader(packet.BinaryData))
-        {
-            Multiplayer.Session.Warning.ImportBinaryData(reader.BinaryReader, packet.ActiveWarningCount);
-        }
+        using var reader = new BinaryUtils.Reader(packet.BinaryData);
+        Multiplayer.Session.Warning.ImportBinaryData(reader.BinaryReader, packet.ActiveWarningCount);
     }
 }

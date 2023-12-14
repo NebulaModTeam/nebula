@@ -12,8 +12,8 @@ public class AssemblerUpdateStoragePacket
         IncServed = incServed;
     }
 
-    public int PlanetId { get; set; }
-    public int AssemblerIndex { get; set; }
-    public int[] Served { get; set; }
-    public int[] IncServed { get; set; }
+    public int PlanetId { get; }
+    public int AssemblerIndex { get; }
+    public int[] Served { get; }
+    public int[] IncServed { get; }
 }

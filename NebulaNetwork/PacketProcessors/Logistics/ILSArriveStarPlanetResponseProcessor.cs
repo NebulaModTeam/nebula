@@ -1,10 +1,10 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld;
+using NebulaWorld.Logistics;
 
 #endregion
 
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class ILSArriveStarPlanetResponseProcessor : PacketProcessor<ILSArriveStarPlanetResponse>
 {
-    public override void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSArriveStarPlanetResponse packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -28,7 +28,7 @@ internal class ILSArriveStarPlanetResponseProcessor : PacketProcessor<ILSArriveS
         {
             if (packet.StationGId[i] >= gStationPool.Length || gStationPool[packet.StationGId[i]] == null)
             {
-                Multiplayer.Session.Ships.CreateFakeStationComponent(packet.StationGId[i], packet.StationPId[i],
+                ILSShipManager.CreateFakeStationComponent(packet.StationGId[i], packet.StationPId[i],
                     packet.StationMaxShips[i]);
             }
 

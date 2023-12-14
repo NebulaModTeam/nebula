@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.Packets;
 
 // Use Equals() to check value equality
 public interface INebulaConnection : IEquatable<INebulaConnection>

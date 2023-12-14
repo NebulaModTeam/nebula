@@ -5,7 +5,7 @@ public class MonitorSettingUpdatePacket
     public MonitorSettingUpdatePacket() { }
 
     public MonitorSettingUpdatePacket(int planetId, int monitorId, MonitorSettingEvent settingEvent, int parameter1,
-        int parameter2)
+        int parameter2 = 0)
     {
         PlanetId = planetId;
         MonitorId = monitorId;
@@ -14,16 +14,11 @@ public class MonitorSettingUpdatePacket
         Parameter2 = parameter2;
     }
 
-    public MonitorSettingUpdatePacket(int planetId, int monitorId, MonitorSettingEvent settingEvent, int parameter)
-        : this(planetId, monitorId, settingEvent, parameter, 0)
-    {
-    }
-
-    public int PlanetId { get; set; }
-    public int MonitorId { get; set; }
-    public MonitorSettingEvent Event { get; set; }
-    public int Parameter1 { get; set; }
-    public int Parameter2 { get; set; }
+    public int PlanetId { get; }
+    public int MonitorId { get; }
+    public MonitorSettingEvent Event { get; }
+    public int Parameter1 { get; }
+    public int Parameter2 { get; }
 }
 
 public enum MonitorSettingEvent

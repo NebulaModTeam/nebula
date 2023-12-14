@@ -1,4 +1,11 @@
-﻿namespace NebulaAPI;
+﻿#region
+
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
+
+#endregion
+
+namespace NebulaAPI.DataStructures;
 
 [RegisterNestedType]
 public struct Double3 : INetSerializable

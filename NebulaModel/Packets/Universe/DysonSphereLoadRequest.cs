@@ -10,8 +10,8 @@ public class DysonSphereLoadRequest
         Event = requestEvent;
     }
 
-    public int StarIndex { get; set; }
-    public DysonSphereRequestEvent Event { get; set; }
+    public int StarIndex { get; }
+    public DysonSphereRequestEvent Event { get; }
 }
 
 public enum DysonSphereRequestEvent

@@ -8,8 +8,8 @@ namespace NebulaWorld.GameStates;
 
 public class GameStatesManager : IDisposable
 {
-    public static float MaxUPS = 240f;
-    public static float MinUPS = 30f;
+    public const float MaxUPS = 240f;
+    public const float MinUPS = 30f;
     public static bool DuringReconnect;
     private static int bufferLength;
 
@@ -22,6 +22,7 @@ public class GameStatesManager : IDisposable
     public void Dispose()
     {
         FragmentSize = 0;
+        GC.SuppressFinalize(this);
     }
 
 #pragma warning disable IDE0060
@@ -39,11 +40,12 @@ public class GameStatesManager : IDisposable
 
     public static void UpdateBufferLength(int length)
     {
-        if (length > 0)
+        if (length <= 0)
         {
-            bufferLength = length;
-            Multiplayer.Session.World.UpdatePingIndicator(LoadingMessage());
+            return;
         }
+        bufferLength = length;
+        Multiplayer.Session.World.UpdatePingIndicator(LoadingMessage());
     }
 
     public static string LoadingMessage()

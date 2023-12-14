@@ -14,13 +14,13 @@ internal class FactoryModel_Patch
     [HarmonyPatch(nameof(FactoryModel.SetGlobalRenderState))]
     public static bool SetGlobalRenderState_Prefix(FactoryModel __instance)
     {
-        if (GameMain.mainPlayer == null && GameMain.data == null)
+        if (GameMain.mainPlayer != null || GameMain.data != null)
         {
-            // GameMain.data is destroyed while loading into the game, but we had the planets factory loaded in galaxy select when selecting a custom birth planet.
-            // thus unload the data here to prevent nre spam.
-            __instance.planet.UnloadFactory();
-            return false;
+            return true;
         }
-        return true;
+        // GameMain.data is destroyed while loading into the game, but we had the planets factory loaded in galaxy select when selecting a custom birth planet.
+        // thus unload the data here to prevent nre spam.
+        __instance.planet.UnloadFactory();
+        return false;
     }
 }

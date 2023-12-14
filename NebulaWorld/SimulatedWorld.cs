@@ -3,9 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.GameState;
 using NebulaModel;
 using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
@@ -36,12 +40,7 @@ public class SimulatedWorld : IDisposable
 
     private Text pingIndicator;
 
-    public SimulatedWorld()
-    {
-        threadSafe = new ThreadSafe();
-    }
-
-    public bool IsPlayerJoining { get; set; }
+    private bool IsPlayerJoining { get; set; }
 
     public void Dispose()
     {
@@ -57,6 +56,7 @@ public class SimulatedWorld : IDisposable
 
         Object.Destroy(localPlayerMovement);
         SetPauseIndicator(true);
+        GC.SuppressFinalize(this);
     }
 
     public Locker GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels)
@@ -81,7 +81,7 @@ public class SimulatedWorld : IDisposable
         var player = Multiplayer.Session.LocalPlayer as LocalPlayer;
 
         // If not a new client, we need to update the player position to put him where he was previously
-        if (player.IsClient && !player.IsNewPlayer)
+        if (player is { IsClient: true, IsNewPlayer: false })
         {
             GameMain.mainPlayer.planetId = player.Data.LocalPlanetId;
             if (player.Data.LocalPlanetId == -1)
@@ -126,7 +126,7 @@ public class SimulatedWorld : IDisposable
         // Initialization on the host side after game is loaded
         Multiplayer.Session.Factories.InitializePrebuildRequests();
 
-        if (player.IsClient)
+        if (player is { IsClient: true })
         {
             // Update player's Mecha tech bonuses
             ((MechaData)player.Data.Mecha).TechBonuses.UpdateMech(GameMain.mainPlayer.mecha);
@@ -162,10 +162,7 @@ public class SimulatedWorld : IDisposable
             }
 
             // Refresh Logistics Distributor traffic for player delivery package changes
-            if (GameMain.mainPlayer.factory != null)
-            {
-                GameMain.mainPlayer.factory.transport.RefreshDispenserTraffic();
-            }
+            GameMain.mainPlayer.factory?.transport.RefreshDispenserTraffic();
 
             // Enable Ping Indicator for Clients
             DisplayPingIndicator();
@@ -187,35 +184,42 @@ public class SimulatedWorld : IDisposable
         // store original sand count of host if we are syncing it to preserve it when saving the game
         if (Config.Options.SyncSoil)
         {
-            player.Data.Mecha.SandCount = GameMain.mainPlayer.sandCount;
+            if (player != null)
+            {
+                player.Data.Mecha.SandCount = GameMain.mainPlayer.sandCount;
+            }
         }
         // Set the name of local player in starmap from Icarus to user name
-        GameMain.mainPlayer.mecha.appearance.overrideName = " " + player.Data.Username + " ";
+        if (player != null)
+        {
+            GameMain.mainPlayer.mecha.appearance.overrideName = " " + player.Data.Username + " ";
+        }
         // Finally we need add the local player components to the player character
         localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
         // ChatManager should continuous exsit until the game is closed
         GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
     }
 
-    public void OnPlayerJoining(string Username)
+    public void OnPlayerJoining(string username)
     {
-        if (!IsPlayerJoining)
+        if (IsPlayerJoining)
         {
-            IsPlayerJoining = true;
-            Multiplayer.Session.CanPause = true;
-            GameMain.isFullscreenPaused = true;
-            InGamePopup.ShowInfo("Loading".Translate(),
-                string.Format("{0} joining the game, please wait\n(Use BulletTime mod to unfreeze the game)".Translate(),
-                    Username), null);
+            return;
         }
+        IsPlayerJoining = true;
+        Multiplayer.Session.CanPause = true;
+        GameMain.isFullscreenPaused = true;
+        InGamePopup.ShowInfo("Loading".Translate(),
+            string.Format("{0} joining the game, please wait\n(Use BulletTime mod to unfreeze the game)".Translate(),
+                username), null);
     }
 
-    public void OnPlayerJoinedGame(INebulaPlayer player)
+    public static void OnPlayerJoinedGame(INebulaPlayer player)
     {
         Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
 
         // Load overriden Planet and Star names
-        player.SendPacket(new NameInputPacket(GameMain.galaxy, Multiplayer.Session.LocalPlayer.Id));
+        player.SendPacket(new NameInputPacket(GameMain.galaxy));
 
         // add together player sand count and tell others if we are syncing soil
         if (Config.Options.SyncSoil)
@@ -236,7 +240,7 @@ public class SimulatedWorld : IDisposable
         }
     }
 
-    public void OnPlayerLeftGame(INebulaPlayer player)
+    public static void OnPlayerLeftGame(INebulaPlayer player)
     {
         Multiplayer.Session.World.DestroyRemotePlayerModel(player.Id);
 
@@ -271,18 +275,19 @@ public class SimulatedWorld : IDisposable
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (!remotePlayersModels.ContainsKey(playerData.PlayerId))
+            if (remotePlayersModels.ContainsKey(playerData.PlayerId))
             {
-                Log.Info($"Spawn player model {playerData.PlayerId} {playerData.Username}");
-                var model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
-                remotePlayersModels.Add(playerData.PlayerId, model);
-
-                // Show conneted message
-                var planetname = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
-                var message = string.Format("[{0:HH:mm}] {1} connected ({2})".Translate(), DateTime.Now, playerData.Username,
-                    planetname);
-                SendChatMessage(message);
+                return;
             }
+            Log.Info($"Spawn player model {playerData.PlayerId} {playerData.Username}");
+            var model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
+            remotePlayersModels.Add(playerData.PlayerId, model);
+
+            // Show conneted message
+            var planetname = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
+            var message = string.Format("[{0:HH:mm}] {1} connected ({2})".Translate(), DateTime.Now, playerData.Username,
+                planetname);
+            SendChatMessage(message);
         }
     }
 
@@ -290,18 +295,19 @@ public class SimulatedWorld : IDisposable
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (remotePlayersModels.TryGetValue(playerId, out var player))
+            if (!remotePlayersModels.TryGetValue(playerId, out var player))
             {
-                // Show disconnected message
-                var message = string.Format("[{0:HH:mm}] {1} disconnected".Translate(), DateTime.Now, player.Username);
-                SendChatMessage(message);
+                return;
+            }
+            // Show disconnected message
+            var message = string.Format("[{0:HH:mm}] {1} disconnected".Translate(), DateTime.Now, player.Username);
+            SendChatMessage(message);
 
-                player.Destroy();
-                remotePlayersModels.Remove(playerId);
-                if (remotePlayersModels.Count == 0 && Config.Options.AutoPauseEnabled)
-                {
-                    Multiplayer.Session.CanPause = true;
-                }
+            player.Destroy();
+            remotePlayersModels.Remove(playerId);
+            if (remotePlayersModels.Count == 0 && Config.Options.AutoPauseEnabled)
+            {
+                Multiplayer.Session.CanPause = true;
             }
         }
     }
@@ -310,11 +316,12 @@ public class SimulatedWorld : IDisposable
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
+            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
             {
-                player.Movement.UpdatePosition(packet);
-                player.Animator.UpdateState(packet);
+                return;
             }
+            player.Movement.UpdatePosition(packet);
+            player.Animator.UpdateState(packet);
         }
     }
 
@@ -322,42 +329,43 @@ public class SimulatedWorld : IDisposable
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
+            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
             {
-                //Setup drone of remote player based on the drone data
-                ref var drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
-                var droneLogic = player.PlayerInstance.mecha.droneLogic;
-                var tmpFactory = droneLogic.factory;
-
-                droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
-
-                // factory can sometimes be null when transitioning to or from a planet, in this case we do not want to continue
-                if (droneLogic.factory == null)
-                {
-                    droneLogic.factory = tmpFactory;
-                    return;
-                }
-
-                drone.stage = packet.Stage;
-                drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
-                drone.movement = droneLogic.player.mecha.droneMovement;
-                if (packet.Stage == 1)
-                {
-                    drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
-                }
-                drone.target = droneLogic._obj_hpos(packet.EntityId);
-                drone.initialVector = drone.position + drone.position.normalized * 4.5f +
-                                      ((drone.target - drone.position).normalized + Random.insideUnitSphere) * 1.5f;
-                drone.forward = drone.initialVector;
-                drone.progress = 0f;
-                player.MechaInstance.droneCount = GameMain.mainPlayer.mecha.droneCount;
-                player.MechaInstance.droneSpeed = GameMain.mainPlayer.mecha.droneSpeed;
-                if (packet.Stage == 3)
-                {
-                    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
-                }
-                droneLogic.factory = tmpFactory;
+                return;
             }
+            //Setup drone of remote player based on the drone data
+            ref var drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
+            var droneLogic = player.PlayerInstance.mecha.droneLogic;
+            var tmpFactory = droneLogic.factory;
+
+            droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
+
+            // factory can sometimes be null when transitioning to or from a planet, in this case we do not want to continue
+            if (droneLogic.factory == null)
+            {
+                droneLogic.factory = tmpFactory;
+                return;
+            }
+
+            drone.stage = packet.Stage;
+            drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
+            drone.movement = droneLogic.player.mecha.droneMovement;
+            if (packet.Stage == 1)
+            {
+                drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
+            }
+            drone.target = droneLogic._obj_hpos(packet.EntityId);
+            drone.initialVector = drone.position + drone.position.normalized * 4.5f +
+                                  ((drone.target - drone.position).normalized + Random.insideUnitSphere) * 1.5f;
+            drone.forward = drone.initialVector;
+            drone.progress = 0f;
+            player.MechaInstance.droneCount = GameMain.mainPlayer.mecha.droneCount;
+            player.MechaInstance.droneSpeed = GameMain.mainPlayer.mecha.droneSpeed;
+            if (packet.Stage == 3)
+            {
+                GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
+            }
+            droneLogic.factory = tmpFactory;
         }
     }
 
@@ -365,45 +373,41 @@ public class SimulatedWorld : IDisposable
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
+            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
             {
-                var trashData = packet.GetTrashData();
-                //Calculate trash position based on the current player's model position
-                var lastPosition = player.Movement.GetLastPosition();
-                if (lastPosition.LocalPlanetId < 1)
-                {
-                    trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y,
-                        lastPosition.UPosition.z);
-                }
-                else
-                {
-                    trashData.lPos = lastPosition.LocalPlanetPosition.ToVector3();
-                    var planet = GameMain.galaxy.PlanetById(lastPosition.LocalPlanetId);
-                    trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
-                }
+                return 0;
+            }
+            var trashData = packet.GetTrashData();
+            //Calculate trash position based on the current player's model position
+            var lastPosition = player.Movement.GetLastPosition();
+            if (lastPosition.LocalPlanetId < 1)
+            {
+                trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y,
+                    lastPosition.UPosition.z);
+            }
+            else
+            {
+                trashData.lPos = lastPosition.LocalPlanetPosition.ToVector3();
+                var planet = GameMain.galaxy.PlanetById(lastPosition.LocalPlanetId);
+                trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
+            }
 
-                using (Multiplayer.Session.Trashes.NewTrashFromOtherPlayers.On())
-                {
-                    var myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
-                    return myId;
-                }
+            using (Multiplayer.Session.Trashes.NewTrashFromOtherPlayers.On())
+            {
+                var myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
+                return myId;
             }
         }
-
-        return 0;
     }
 
     public void OnDronesDraw()
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var remoteModel in remotePlayersModels)
+            foreach (var remoteModel in remotePlayersModels.Where(remoteModel =>
+                         GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId))
             {
-                //Render drones of players only on the local planet
-                if (GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
-                {
-                    remoteModel.Value.MechaInstance.droneRenderer.Draw();
-                }
+                remoteModel.Value.MechaInstance.droneRenderer.Draw();
             }
         }
     }
@@ -428,16 +432,18 @@ public class SimulatedWorld : IDisposable
                 for (var i = 0; i < droneCount; i++)
                 {
                     //Update only moving drones of players on the same planet
-                    if (drones[i].stage != 0 && GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId)
+                    if (drones[i].stage == 0 || GameMain.mainPlayer.planetId != remoteModel.Value.Movement.localPlanetId)
                     {
-                        if (drones[i].Update(prebuildPool, remotePosition, dt, ref tmp, ref tmp2, 0) != 0)
-                        {
-                            //Reset drone and release lock
-                            drones[i].stage = 3;
-                            GameMain.mainPlayer.mecha.droneLogic.serving.Remove(drones[i].targetObject);
-                            drones[i].targetObject = 0;
-                        }
+                        continue;
                     }
+                    if (drones[i].Update(prebuildPool, remotePosition, dt, ref tmp, ref tmp2, 0) == 0)
+                    {
+                        continue;
+                    }
+                    //Reset drone and release lock
+                    drones[i].stage = 3;
+                    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(drones[i].targetObject);
+                    drones[i].targetObject = 0;
                 }
                 remoteMecha.droneRenderer.Update();
             }
@@ -452,10 +458,8 @@ public class SimulatedWorld : IDisposable
 
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var player in remotePlayersModels)
+            foreach (var playerModel in remotePlayersModels.Select(player => player.Value))
             {
-                var playerModel = player.Value;
-
                 Text nameText;
                 Transform starmapTracker;
                 if (playerModel.StarmapNameText != null && playerModel.StarmapTracker != null)
@@ -556,10 +560,8 @@ public class SimulatedWorld : IDisposable
 
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var player in remotePlayersModels)
+            foreach (var playerModel in remotePlayersModels.Select(player => player.Value))
             {
-                var playerModel = player.Value;
-
                 GameObject playerNameText;
                 if (playerModel.InGameNameText != null)
                 {
@@ -605,33 +607,34 @@ public class SimulatedWorld : IDisposable
                 }
 
                 // Make sure the text is pointing at the camera
-                playerNameText.transform.rotation = GameCamera.main.transform.rotation;
+                var transform = GameCamera.main.transform;
+                playerNameText.transform.rotation = transform.rotation;
 
                 // Resizes the text based on distance from camera for better visual quality
                 var distanceFromCamera =
-                    Vector3.Distance(playerNameText.transform.position, GameCamera.main.transform.position);
+                    Vector3.Distance(playerNameText.transform.position, transform.position);
                 var nameTextMesh = playerNameText.GetComponent<TextMesh>();
 
-                if (distanceFromCamera > 100f)
+                switch (distanceFromCamera)
                 {
-                    nameTextMesh.characterSize = 0.2f;
-                    nameTextMesh.fontSize = 60;
-                }
-                else if (distanceFromCamera > 50f)
-                {
-                    nameTextMesh.characterSize = 0.15f;
-                    nameTextMesh.fontSize = 48;
-                }
-                else
-                {
-                    nameTextMesh.characterSize = 0.1f;
-                    nameTextMesh.fontSize = 36;
+                    case > 100f:
+                        nameTextMesh.characterSize = 0.2f;
+                        nameTextMesh.fontSize = 60;
+                        break;
+                    case > 50f:
+                        nameTextMesh.characterSize = 0.15f;
+                        nameTextMesh.fontSize = 48;
+                        break;
+                    default:
+                        nameTextMesh.characterSize = 0.1f;
+                        nameTextMesh.fontSize = 36;
+                        break;
                 }
             }
         }
     }
 
-    public void DisplayPingIndicator()
+    private void DisplayPingIndicator()
     {
         var previousObject = GameObject.Find("Ping Indicator");
         if (previousObject == null)
@@ -671,24 +674,29 @@ public class SimulatedWorld : IDisposable
         }
     }
 
-    public void SetPauseIndicator(bool canPause)
+    public static void SetPauseIndicator(bool canPause)
     {
         //Tell the user if the game is paused or not
         var targetObject = GameObject.Find("UI Root/Overlay Canvas/In Game/Esc Menu/pause-text");
-        var pauseText = targetObject?.GetComponent<Text>();
-        var pauseLocalizer = targetObject?.GetComponent<Localizer>();
-        if (pauseText && pauseLocalizer)
+        if (targetObject == null)
         {
-            if (!canPause)
-            {
-                pauseText.text = "--  Nebula Multiplayer  --".Translate();
-                pauseLocalizer.stringKey = "--  Nebula Multiplayer  --".Translate();
-            }
-            else
-            {
-                pauseText.text = "游戏已暂停".Translate();
-                pauseLocalizer.stringKey = "游戏已暂停".Translate();
-            }
+            return;
+        }
+        var pauseText = targetObject.GetComponent<Text>();
+        var pauseLocalizer = targetObject.GetComponent<Localizer>();
+        if (!pauseText || !pauseLocalizer)
+        {
+            return;
+        }
+        if (!canPause)
+        {
+            pauseText.text = "--  Nebula Multiplayer  --".Translate();
+            pauseLocalizer.stringKey = "--  Nebula Multiplayer  --".Translate();
+        }
+        else
+        {
+            pauseText.text = "游戏已暂停".Translate();
+            pauseLocalizer.stringKey = "游戏已暂停".Translate();
         }
     }
 
@@ -698,19 +706,20 @@ public class SimulatedWorld : IDisposable
         // the tech ids of the 4 tiers of Universe Exploration from https://dsp-wiki.com/Upgrades
         for (var i = 4104; i >= 4101; i--)
         {
-            if (GameMain.history.TechUnlocked(i))
+            if (!GameMain.history.TechUnlocked(i))
             {
-                // set level to last digit of tech id
-                level = i % 10;
-                break;
+                continue;
             }
+            // set level to last digit of tech id
+            level = i % 10;
+            break;
         }
         return level;
     }
 
-    public void SendChatMessage(string text, ChatMessageType messageType = ChatMessageType.SystemInfoMessage)
+    private static void SendChatMessage(string text, ChatMessageType messageType = ChatMessageType.SystemInfoMessage)
     {
-        ChatManager.Instance?.SendChatMessage(text, messageType);
+        ChatManager.Instance.SendChatMessage(text, messageType);
     }
 
     private sealed class ThreadSafe

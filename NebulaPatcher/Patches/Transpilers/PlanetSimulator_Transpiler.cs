@@ -33,11 +33,7 @@ internal class PlanetSimulator_Transpiler
             .SetAndAdvance(OpCodes.Nop, null)
             .SetAndAdvance(OpCodes.Nop, null)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .Insert(HarmonyLib.Transpilers.EmitDelegate<Func<PlanetSimulator, bool>>(_this =>
-            {
-                // this just removes 'this.planetData.factoryLoading' from the if(){} at line 13
-                return false;
-            }))
+            .Insert(HarmonyLib.Transpilers.EmitDelegate<Func<PlanetSimulator, bool>>(_ => false))
             .InstructionEnumeration();
         return instructions;
     }

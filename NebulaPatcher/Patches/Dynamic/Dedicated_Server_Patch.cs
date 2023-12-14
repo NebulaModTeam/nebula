@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel;
@@ -23,16 +24,17 @@ internal class Dedicated_Server_Patch
     [HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]
     public static void GameMainBegin_Postfix()
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            Log.Info($">> RemoteAccessEnabled: {Config.Options.RemoteAccessEnabled}");
-            Log.Info(">> RemoteAccessPassword: " +
-                     (string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword) ? "None" : "Protected"));
-            Log.Info($">> AutoPauseEnabled: {Config.Options.AutoPauseEnabled}");
-            if (Config.Options.AutoPauseEnabled)
-            {
-                GameMain.Pause();
-            }
+            return;
+        }
+        Log.Info($">> RemoteAccessEnabled: {Config.Options.RemoteAccessEnabled}");
+        Log.Info(">> RemoteAccessPassword: " +
+                 (string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword) ? "None" : "Protected"));
+        Log.Info($">> AutoPauseEnabled: {Config.Options.AutoPauseEnabled}");
+        if (Config.Options.AutoPauseEnabled)
+        {
+            GameMain.Pause();
         }
     }
 
@@ -108,9 +110,10 @@ internal class Dedicated_Server_Patch
     {
         // Remove first part of the functions about computeShader
         // (this.computeShader.Set..., this.Dispatch_UpdateVel, this.Dispatch_UpdatePos)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            var matcher = new CodeMatcher(instructions)
+            var matcher = new CodeMatcher(codeInstructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(DysonSwarm), nameof(DysonSwarm.Dispatch_UpdatePos))));
             var num = matcher.Pos + 1;
@@ -121,7 +124,7 @@ internal class Dedicated_Server_Patch
         catch
         {
             Log.Error("DysonSwarmGameTick_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 
@@ -131,13 +134,14 @@ internal class Dedicated_Server_Patch
     {
         // Skip the part of computeShader in if (this.swarmBuffer != null)
         // (this.computeShader.SetBuffer(...), this.Dispatch_BlitBuffer())
-        if (__instance.swarmBuffer != null)
+        if (__instance.swarmBuffer == null)
         {
-            __instance.swarmBuffer.Release();
-            __instance.swarmInfoBuffer.Release();
-            __instance.swarmBuffer = null;
-            __instance.swarmInfoBuffer = null;
+            return;
         }
+        __instance.swarmBuffer.Release();
+        __instance.swarmInfoBuffer.Release();
+        __instance.swarmBuffer = null;
+        __instance.swarmInfoBuffer = null;
     }
 
 

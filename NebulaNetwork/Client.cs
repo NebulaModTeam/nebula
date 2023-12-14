@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -145,6 +146,7 @@ public class Client : NetworkProvider, IClient
     public override void Dispose()
     {
         Stop();
+        GC.SuppressFinalize(this);
     }
 
     public override void SendPacket<T>(T packet)
@@ -211,14 +213,15 @@ public class Client : NetworkProvider, IClient
         }
 
         fragmentUpdateTimer += Time.deltaTime;
-        if (fragmentUpdateTimer >= FRAGEMENT_UPDATE_INTERVAL)
+        if (!(fragmentUpdateTimer >= FRAGEMENT_UPDATE_INTERVAL))
         {
-            if (GameStatesManager.FragmentSize > 0)
-            {
-                GameStatesManager.UpdateBufferLength(GetFragmentBufferLength());
-            }
-            fragmentUpdateTimer = 0f;
+            return;
         }
+        if (GameStatesManager.FragmentSize > 0)
+        {
+            GameStatesManager.UpdateBufferLength(GetFragmentBufferLength());
+        }
+        fragmentUpdateTimer = 0f;
     }
 
     private void ClientSocket_OnMessage(object sender, MessageEventArgs e)
@@ -261,93 +264,84 @@ public class Client : NetworkProvider, IClient
                 GameMain.instance._paused = true;
             }
 
-            if (e.Code == (ushort)DisconnectionReason.ModIsMissing)
+            switch (e.Code)
             {
-                InGamePopup.ShowWarning(
-                    "Mod Mismatch".Translate(),
-                    string.Format("You are missing mod {0}".Translate(), e.Reason),
-                    "OK".Translate(),
-                    Multiplayer.LeaveGame);
-                return;
-            }
-
-            if (e.Code == (ushort)DisconnectionReason.ModIsMissingOnServer)
-            {
-                InGamePopup.ShowWarning(
-                    "Mod Mismatch".Translate(),
-                    string.Format("Server is missing mod {0}".Translate(), e.Reason),
-                    "OK".Translate(),
-                    Multiplayer.LeaveGame);
-                return;
-            }
-
-            if (e.Code == (ushort)DisconnectionReason.ModVersionMismatch)
-            {
-                var versions = e.Reason.Split(';');
-                InGamePopup.ShowWarning(
-                    "Mod Version Mismatch".Translate(),
-                    string.Format("Your mod {0} version is not the same as the Host version.\nYou:{1} - Remote:{2}".Translate(),
-                        versions[0], versions[1], versions[2]),
-                    "OK".Translate(),
-                    Multiplayer.LeaveGame);
-                return;
-            }
-
-            if (e.Code == (ushort)DisconnectionReason.GameVersionMismatch)
-            {
-                var versions = e.Reason.Split(';');
-                InGamePopup.ShowWarning(
-                    "Game Version Mismatch".Translate(),
-                    string.Format(
-                        "Your version of the game is not the same as the one used by the Host.\nYou:{0} - Remote:{1}"
-                            .Translate(), versions[0], versions[1]),
-                    "OK".Translate(),
-                    Multiplayer.LeaveGame);
-                return;
-            }
-
-            if (e.Code == (ushort)DisconnectionReason.ProtocolError && websocketAuthenticationFailure)
-            {
-                InGamePopup.AskInput(
-                    "Server Requires Password".Translate(),
-                    "Server is protected. Please enter the correct password:".Translate(),
-                    InputField.ContentType.Password,
-                    serverPassword,
-                    password =>
+                case (ushort)DisconnectionReason.ModIsMissing:
+                    InGamePopup.ShowWarning(
+                        "Mod Mismatch".Translate(),
+                        string.Format("You are missing mod {0}".Translate(), e.Reason),
+                        "OK".Translate(),
+                        Multiplayer.LeaveGame);
+                    return;
+                case (ushort)DisconnectionReason.ModIsMissingOnServer:
+                    InGamePopup.ShowWarning(
+                        "Mod Mismatch".Translate(),
+                        string.Format("Server is missing mod {0}".Translate(), e.Reason),
+                        "OK".Translate(),
+                        Multiplayer.LeaveGame);
+                    return;
+                case (ushort)DisconnectionReason.ModVersionMismatch:
                     {
-                        Multiplayer.ShouldReturnToJoinMenu = false;
-                        Multiplayer.LeaveGame();
-                        Multiplayer.ShouldReturnToJoinMenu = true;
-                        Multiplayer.JoinGame(new Client(ServerEndpoint, password));
-                    },
-                    Multiplayer.LeaveGame
-                );
-                return;
+                        var versions = e.Reason.Split(';');
+                        InGamePopup.ShowWarning(
+                            "Mod Version Mismatch".Translate(),
+                            string.Format("Your mod {0} version is not the same as the Host version.\nYou:{1} - Remote:{2}".Translate(),
+                                versions[0], versions[1], versions[2]),
+                            "OK".Translate(),
+                            Multiplayer.LeaveGame);
+                        return;
+                    }
+                case (ushort)DisconnectionReason.GameVersionMismatch:
+                    {
+                        var versions = e.Reason.Split(';');
+                        InGamePopup.ShowWarning(
+                            "Game Version Mismatch".Translate(),
+                            string.Format(
+                                "Your version of the game is not the same as the one used by the Host.\nYou:{0} - Remote:{1}"
+                                    .Translate(), versions[0], versions[1]),
+                            "OK".Translate(),
+                            Multiplayer.LeaveGame);
+                        return;
+                    }
+                case (ushort)DisconnectionReason.ProtocolError when websocketAuthenticationFailure:
+                    InGamePopup.AskInput(
+                        "Server Requires Password".Translate(),
+                        "Server is protected. Please enter the correct password:".Translate(),
+                        InputField.ContentType.Password,
+                        serverPassword,
+                        password =>
+                        {
+                            Multiplayer.ShouldReturnToJoinMenu = false;
+                            Multiplayer.LeaveGame();
+                            Multiplayer.ShouldReturnToJoinMenu = true;
+                            Multiplayer.JoinGame(new Client(ServerEndpoint, password));
+                        },
+                        Multiplayer.LeaveGame
+                    );
+                    return;
+                case (ushort)DisconnectionReason.HostStillLoading:
+                    InGamePopup.ShowWarning(
+                        "Server Busy".Translate(),
+                        "Server is not ready to join. Please try again later.".Translate(),
+                        "OK".Translate(),
+                        Multiplayer.LeaveGame);
+                    return;
             }
 
-            if (e.Code == (ushort)DisconnectionReason.HostStillLoading)
-            {
-                InGamePopup.ShowWarning(
-                    "Server Busy".Translate(),
-                    "Server is not ready to join. Please try again later.".Translate(),
-                    "OK".Translate(),
-                    Multiplayer.LeaveGame);
-                return;
-            }
-
-            if (Multiplayer.Session.IsGameLoaded || Multiplayer.Session.IsInLobby)
+            if (Multiplayer.Session != null && (Multiplayer.Session.IsGameLoaded || Multiplayer.Session.IsInLobby))
             {
                 InGamePopup.ShowWarning(
                     "Connection Lost".Translate(),
                     "You have been disconnected from the server.".Translate() + "\n" + e.Reason,
                     "Quit",
                     Multiplayer.LeaveGame);
-                if (Multiplayer.Session.IsInLobby)
+                if (!Multiplayer.Session.IsInLobby)
                 {
-                    Multiplayer.ShouldReturnToJoinMenu = false;
-                    Multiplayer.Session.IsInLobby = false;
-                    UIRoot.instance.galaxySelect.CancelSelect();
+                    return;
                 }
+                Multiplayer.ShouldReturnToJoinMenu = false;
+                Multiplayer.Session.IsInLobby = false;
+                UIRoot.instance.galaxySelect.CancelSelect();
             }
             else
             {

@@ -1,10 +1,11 @@
 ﻿#region
 
 using System;
+using NebulaAPI.Packets;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.GameState;
 
 public interface INetworkProvider : IDisposable
 {

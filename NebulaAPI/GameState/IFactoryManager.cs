@@ -1,11 +1,12 @@
 ﻿#region
 
 using System;
+using NebulaAPI.Interfaces;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.GameState;
 
 /// <summary>
 ///     Represents data about factory

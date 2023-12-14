@@ -1,7 +1,8 @@
 ﻿#region
 
 using BepInEx.Bootstrap;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -16,7 +17,7 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 public class HandshakeResponseProcessor : PacketProcessor<HandshakeResponse>
 {
-    public override void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
+    protected override void ProcessPacket(HandshakeResponse packet, NebulaConnection conn)
     {
         using (var p = new BinaryUtils.Reader(packet.ModsSettings))
         {

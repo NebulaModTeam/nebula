@@ -17,10 +17,11 @@ internal class UILoadGameWindow_Patch
     [HarmonyPatch(nameof(UILoadGameWindow.DoLoadSelectedGame))]
     public static void DoLoadSelectedGame_Postfix()
     {
-        if (Multiplayer.IsInMultiplayerMenu)
+        if (!Multiplayer.IsInMultiplayerMenu)
         {
-            Log.Info($"Listening server on port {Config.Options.HostPort}");
-            Multiplayer.HostGame(new Server(Config.Options.HostPort, true));
+            return;
         }
+        Log.Info($"Listening server on port {Config.Options.HostPort}");
+        Multiplayer.HostGame(new Server(Config.Options.HostPort, true));
     }
 }

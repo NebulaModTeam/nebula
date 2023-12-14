@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -22,9 +23,10 @@ internal class UISplitterWindow_Transpiler
     private static IEnumerable<CodeInstruction> SetPriority_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         // Intercept SetPriority() with warper to broadcast the change
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            var matcher = new CodeMatcher(instructions)
+            var matcher = new CodeMatcher(codeInstructions)
                 .MatchForward(false,
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "SetPriority"))
                 .Repeat(matcher => matcher
@@ -35,7 +37,7 @@ internal class UISplitterWindow_Transpiler
         catch
         {
             Log.Error("UISpraycoaterWindow.SetPriority_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 

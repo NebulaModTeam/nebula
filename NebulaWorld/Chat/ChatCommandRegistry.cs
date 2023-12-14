@@ -3,10 +3,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using NebulaModel.Logger;
+using NebulaWorld.Chat.Commands;
 
 #endregion
 
-namespace NebulaWorld.Chat.Commands;
+namespace NebulaWorld.Chat;
 
 public static class ChatCommandRegistry
 {
@@ -28,7 +29,7 @@ public static class ChatCommandRegistry
         RegisterCommand("server", new ServerCommandHandler());
     }
 
-    public static void RegisterCommand(string commandName, IChatCommandHandler commandHandlerHandler, params string[] aliases)
+    private static void RegisterCommand(string commandName, IChatCommandHandler commandHandlerHandler, params string[] aliases)
     {
         if (commandHandlerHandler == null)
         {
@@ -51,14 +52,14 @@ public static class ChatCommandRegistry
         return chatCommandKey != null ? commands[chatCommandKey] : null;
     }
 
-    public static string[] GetCommandAliases(string commandOrAlias)
+    public static IEnumerable<string> GetCommandAliases(string commandOrAlias)
     {
         var chatCommandKey = commands.Keys
             .FirstOrDefault(command => command.RespondsTo(commandOrAlias.ToLowerInvariant()));
         return chatCommandKey?.Aliases.ToArray();
     }
 
-    private static bool NameOrAliasRegistered(string commandName, string[] aliases)
+    private static bool NameOrAliasRegistered(string commandName, IEnumerable<string> aliases)
     {
         if (commands.Keys.Any(command => command.RespondsTo(commandName)))
         {
@@ -66,15 +67,7 @@ public static class ChatCommandRegistry
         }
 
         var aliasesSet = new HashSet<string>(aliases);
-        foreach (var command in commands.Keys)
-        {
-            if (aliasesSet.Overlaps(command.Aliases))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return commands.Keys.Any(command => aliasesSet.Overlaps(command.Aliases));
     }
 }
 
@@ -83,7 +76,7 @@ public class ChatCommandKey
     public readonly HashSet<string> Aliases;
     public readonly string Name;
 
-    public ChatCommandKey(string commandName, string[] aliases)
+    public ChatCommandKey(string commandName, IEnumerable<string> aliases)
     {
         Name = commandName;
         Aliases = new HashSet<string>(aliases);

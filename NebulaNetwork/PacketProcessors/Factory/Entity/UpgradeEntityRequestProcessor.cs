@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity;
 [RegisterPacketProcessor]
 public class UpgradeEntityRequestProcessor : PacketProcessor<UpgradeEntityRequest>
 {
-    public override void ProcessPacket(UpgradeEntityRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(UpgradeEntityRequest packet, NebulaConnection conn)
     {
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {

@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.GameState;
 
 /// <summary>
 ///     Represents local player. Allows to send packets.

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -19,12 +20,13 @@ public class PlanetTransport_Transpiler
     public static IEnumerable<CodeInstruction> RefreshDispenserOnStoragePrebuildBuild_Transpiler(
         IEnumerable<CodeInstruction> instructions)
     {
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
             // factoryModel.gpuiManager is null for remote planets, so we need to use GameMain.gpuiManager which is initialized by nebula
             // replace : this.factory.planet.factoryModel.gpuiManager
             // with    : GameMain.gpuiManager
-            var codeMatcher = new CodeMatcher(instructions)
+            var codeMatcher = new CodeMatcher(codeInstructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
@@ -43,7 +45,7 @@ public class PlanetTransport_Transpiler
         {
             Log.Error("RefreshDispenserOnStoragePrebuildBuild_Transpiler fail!");
             Log.Error(e);
-            return instructions;
+            return codeInstructions;
         }
     }
 }

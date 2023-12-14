@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.GameStates;
 [RegisterPacketProcessor]
 public class FragmentInfoProcessor : PacketProcessor<FragmentInfo>
 {
-    public override void ProcessPacket(FragmentInfo packet, NebulaConnection conn)
+    protected override void ProcessPacket(FragmentInfo packet, NebulaConnection conn)
     {
         if (IsClient)
         {

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -33,7 +34,7 @@ public static class NetUtils
         return new IPEndPoint(ResolveAddress(hostStr), port);
     }
 
-    public static IPAddress ResolveAddress(string hostStr)
+    private static IPAddress ResolveAddress(string hostStr)
     {
         if (hostStr == "localhost")
         {
@@ -44,11 +45,8 @@ public static class NetUtils
         {
             // We can assume true because the version of unity is new enough (2018.4)
             //if (NetSocket.IPv6Support)
-            ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetworkV6);
-            if (ipAddress == null)
-            {
-                ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetwork);
-            }
+            ipAddress = ResolveAddress(hostStr, AddressFamily.InterNetworkV6) ??
+                        ResolveAddress(hostStr, AddressFamily.InterNetwork);
         }
         if (ipAddress == null)
         {
@@ -61,22 +59,15 @@ public static class NetUtils
     private static IPAddress ResolveAddress(string hostStr, AddressFamily addressFamily)
     {
         var addresses = ResolveAddresses(hostStr);
-        foreach (var ip in addresses)
-        {
-            if (ip.AddressFamily == addressFamily)
-            {
-                return ip;
-            }
-        }
-        return null;
+        return addresses.FirstOrDefault(ip => ip.AddressFamily == addressFamily);
     }
 
     private static IPAddress[] ResolveAddresses(string hostStr)
     {
 #if NETSTANDARD || NETCOREAPP
-            var hostTask = Dns.GetHostEntryAsync(hostStr);
-            hostTask.GetAwaiter().GetResult();
-            var host = hostTask.Result;
+        var hostTask = Dns.GetHostEntryAsync(hostStr);
+        hostTask.GetAwaiter().GetResult();
+        var host = hostTask.Result;
 #else
         var host = Dns.GetHostEntry(hostStr);
 #endif
@@ -100,7 +91,7 @@ public static class NetUtils
     /// </summary>
     /// <param name="targetList">result list</param>
     /// <param name="addrType">type of address (IPv4, IPv6 or both)</param>
-    public static void GetLocalIpList(IList<string> targetList, LocalAddrType addrType)
+    private static void GetLocalIpList(List<string> targetList, LocalAddrType addrType)
     {
         var ipv4 = (addrType & LocalAddrType.IPv4) == LocalAddrType.IPv4;
         var ipv6 = (addrType & LocalAddrType.IPv6) == LocalAddrType.IPv6;
@@ -123,46 +114,33 @@ public static class NetUtils
                     continue;
                 }
 
-                foreach (var ip in ipProps.UnicastAddresses)
-                {
-                    var address = ip.Address;
-                    if (ipv4 && address.AddressFamily == AddressFamily.InterNetwork ||
-                        ipv6 && address.AddressFamily == AddressFamily.InterNetworkV6)
-                    {
-                        targetList.Add(address.ToString());
-                    }
-                }
+                targetList.AddRange(from ip in ipProps.UnicastAddresses select ip.Address into address where ipv4 && address.AddressFamily == AddressFamily.InterNetwork || ipv6 && address.AddressFamily == AddressFamily.InterNetworkV6 select address.ToString());
             }
         }
         catch
         {
             //ignored
+            //todo: should this catch be ignored?
         }
 
         //Fallback mode (unity android)
         if (targetList.Count == 0)
         {
             var addresses = ResolveAddresses(Dns.GetHostName());
-            foreach (var ip in addresses)
-            {
-                if (ipv4 && ip.AddressFamily == AddressFamily.InterNetwork ||
-                    ipv6 && ip.AddressFamily == AddressFamily.InterNetworkV6)
-                {
-                    targetList.Add(ip.ToString());
-                }
-            }
+            targetList.AddRange(from ip in addresses where ipv4 && ip.AddressFamily == AddressFamily.InterNetwork || ipv6 && ip.AddressFamily == AddressFamily.InterNetworkV6 select ip.ToString());
         }
-        if (targetList.Count == 0)
+        if (targetList.Count != 0)
         {
-            if (ipv4)
-            {
-                targetList.Add("127.0.0.1");
-            }
+            return;
+        }
+        if (ipv4)
+        {
+            targetList.Add("127.0.0.1");
+        }
 
-            if (ipv6)
-            {
-                targetList.Add("::1");
-            }
+        if (ipv6)
+        {
+            targetList.Add("::1");
         }
     }
 

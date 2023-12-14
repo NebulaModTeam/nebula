@@ -1,21 +1,21 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using NebulaWorld.Universe;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Universe;
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
 
 [RegisterPacketProcessor]
 internal class DysonSphereRemoveNodeProcessor : PacketProcessor<DysonSphereRemoveNodePacket>
 {
-    public override void ProcessPacket(DysonSphereRemoveNodePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSphereRemoveNodePacket packet, NebulaConnection conn)
     {
         var layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
         if (layer == null)
@@ -56,10 +56,6 @@ internal class DysonSphereRemoveNodeProcessor : PacketProcessor<DysonSphereRemov
             return true;
         }
         //Make sure that shells and frames connected to the node are removed first.
-        if (node.frames.Count > 0)
-        {
-            return false;
-        }
-        return true;
+        return node.frames.Count <= 0;
     }
 }

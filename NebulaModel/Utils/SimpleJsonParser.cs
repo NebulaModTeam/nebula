@@ -58,18 +58,13 @@ public static class MiniJson
     public static object Deserialize(string json)
     {
         // save the string for debug information
-        if (json == null)
-        {
-            return null;
-        }
-
-        return Parser.Parse(json);
+        return json == null ? null : Parser.Parse(json);
     }
 
     /// <summary>
     ///     Converts a IDictionary / IList object or a simple type (string, int, etc.) into a JSON string
     /// </summary>
-    /// <param name="json">A Dictionary&lt;string, object&gt; / List&lt;object&gt;</param>
+    /// <param name="obj">A Dictionary&lt;string, object&gt; / List&lt;object&gt;</param>
     /// <returns>A JSON encoded string, or null if object 'json' is not serializable</returns>
     public static string Serialize(object obj)
     {
@@ -155,17 +150,13 @@ public static class MiniJson
                         return TOKEN.NUMBER;
                 }
 
-                switch (NextWord)
+                return NextWord switch
                 {
-                    case "false":
-                        return TOKEN.FALSE;
-                    case "true":
-                        return TOKEN.TRUE;
-                    case "null":
-                        return TOKEN.NULL;
-                }
-
-                return TOKEN.NONE;
+                    "false" => TOKEN.FALSE,
+                    "true" => TOKEN.TRUE,
+                    "null" => TOKEN.NULL,
+                    _ => TOKEN.NONE
+                };
             }
         }
 
@@ -175,17 +166,15 @@ public static class MiniJson
             json = null;
         }
 
-        public static bool IsWordBreak(char c)
+        private static bool IsWordBreak(char c)
         {
             return char.IsWhiteSpace(c) || WORD_BREAK.IndexOf(c) != -1;
         }
 
         public static object Parse(string jsonString)
         {
-            using (var instance = new Parser(jsonString))
-            {
-                return instance.ParseValue();
-            }
+            using var instance = new Parser(jsonString);
+            return instance.ParseValue();
         }
 
         private Dictionary<string, object> ParseObject()
@@ -206,6 +195,15 @@ public static class MiniJson
                         continue;
                     case TOKEN.CURLY_CLOSE:
                         return table;
+                    case TOKEN.CURLY_OPEN:
+                    case TOKEN.SQUARED_OPEN:
+                    case TOKEN.SQUARED_CLOSE:
+                    case TOKEN.COLON:
+                    case TOKEN.STRING:
+                    case TOKEN.NUMBER:
+                    case TOKEN.TRUE:
+                    case TOKEN.FALSE:
+                    case TOKEN.NULL:
                     default:
                         // name
                         var name = ParseString();
@@ -251,6 +249,15 @@ public static class MiniJson
                     case TOKEN.SQUARED_CLOSE:
                         parsing = false;
                         break;
+                    case TOKEN.CURLY_OPEN:
+                    case TOKEN.CURLY_CLOSE:
+                    case TOKEN.SQUARED_OPEN:
+                    case TOKEN.COLON:
+                    case TOKEN.STRING:
+                    case TOKEN.NUMBER:
+                    case TOKEN.TRUE:
+                    case TOKEN.FALSE:
+                    case TOKEN.NULL:
                     default:
                         var value = ParseByToken(nextToken);
 
@@ -270,31 +277,22 @@ public static class MiniJson
 
         private object ParseByToken(TOKEN token)
         {
-            switch (token)
+            return token switch
             {
-                case TOKEN.STRING:
-                    return ParseString();
-                case TOKEN.NUMBER:
-                    return ParseNumber();
-                case TOKEN.CURLY_OPEN:
-                    return ParseObject();
-                case TOKEN.SQUARED_OPEN:
-                    return ParseArray();
-                case TOKEN.TRUE:
-                    return true;
-                case TOKEN.FALSE:
-                    return false;
-                case TOKEN.NULL:
-                    return null;
-                default:
-                    return null;
-            }
+                TOKEN.STRING => ParseString(),
+                TOKEN.NUMBER => ParseNumber(),
+                TOKEN.CURLY_OPEN => ParseObject(),
+                TOKEN.SQUARED_OPEN => ParseArray(),
+                TOKEN.TRUE => true,
+                TOKEN.FALSE => false,
+                TOKEN.NULL => null,
+                _ => null
+            };
         }
 
         private string ParseString()
         {
             var s = new StringBuilder();
-            char c;
 
             // ditch opening quote
             json.Read();
@@ -304,11 +302,10 @@ public static class MiniJson
             {
                 if (json.Peek() == -1)
                 {
-                    parsing = false;
                     break;
                 }
 
-                c = NextChar;
+                var c = NextChar;
                 switch (c)
                 {
                     case '"':
@@ -371,14 +368,18 @@ public static class MiniJson
 
             if (number.IndexOf('.') == -1)
             {
-                long parsedInt;
-                long.TryParse(number, out parsedInt);
-                return parsedInt;
+                if (long.TryParse(number, out var parsedInt))
+                {
+                    return parsedInt;
+                }
             }
 
-            double parsedDouble;
-            double.TryParse(number, out parsedDouble);
-            return parsedDouble;
+            if (double.TryParse(number, out var parsedDouble))
+            {
+                return parsedDouble;
+            }
+
+            return null;
         }
 
         private void EatWhitespace()
@@ -443,9 +444,9 @@ public static class MiniJson
             {
                 SerializeString(asStr);
             }
-            else if (value is bool)
+            else if (value is bool b)
             {
-                builder.Append((bool)value ? "true" : "false");
+                builder.Append(b ? "true" : "false");
             }
             else if ((asList = value as IList) != null)
             {
@@ -455,9 +456,9 @@ public static class MiniJson
             {
                 SerializeObject(asDict);
             }
-            else if (value is char)
+            else if (value is char c)
             {
-                SerializeString(new string((char)value, 1));
+                SerializeString(new string(c, 1));
             }
             else
             {
@@ -489,7 +490,7 @@ public static class MiniJson
             builder.Append('}');
         }
 
-        private void SerializeArray(IList anArray)
+        private void SerializeArray(IEnumerable anArray)
         {
             builder.Append('[');
 
@@ -523,7 +524,7 @@ public static class MiniJson
                         builder.Append("\\\"");
                         break;
                     case '\\':
-                        builder.Append("\\\\");
+                        builder.Append(@"\\");
                         break;
                     case '\b':
                         builder.Append("\\b");
@@ -542,7 +543,7 @@ public static class MiniJson
                         break;
                     default:
                         var codepoint = Convert.ToInt32(c);
-                        if (codepoint >= 32 && codepoint <= 126)
+                        if (codepoint is >= 32 and <= 126)
                         {
                             builder.Append(c);
                         }
@@ -560,32 +561,31 @@ public static class MiniJson
 
         private void SerializeOther(object value)
         {
-            // NOTE: decimals lose precision during serialization.
-            // They always have, I'm just letting you know.
-            // Previously floats and doubles lost precision too.
-            if (value is float)
+            switch (value)
             {
-                builder.Append(((float)value).ToString("R"));
-            }
-            else if (value is int
-                     || value is uint
-                     || value is long
-                     || value is sbyte
-                     || value is byte
-                     || value is short
-                     || value is ushort
-                     || value is ulong)
-            {
-                builder.Append(value);
-            }
-            else if (value is double
-                     || value is decimal)
-            {
-                builder.Append(Convert.ToDouble(value).ToString("R"));
-            }
-            else
-            {
-                SerializeString(value.ToString());
+                // NOTE: decimals lose precision during serialization.
+                // They always have, I'm just letting you know.
+                // Previously floats and doubles lost precision too.
+                case float f:
+                    builder.Append(f.ToString("R"));
+                    break;
+                case int:
+                case uint:
+                case long:
+                case sbyte:
+                case byte:
+                case short:
+                case ushort:
+                case ulong:
+                    builder.Append(value);
+                    break;
+                case double:
+                case decimal:
+                    builder.Append(Convert.ToDouble(value).ToString("R"));
+                    break;
+                default:
+                    SerializeString(value.ToString());
+                    break;
             }
         }
     }

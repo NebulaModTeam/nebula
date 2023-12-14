@@ -16,9 +16,9 @@ public class ILSShipAddTake
         Inc = inc;
     }
 
-    public bool AddItem { get; set; }
-    public int ItemId { get; set; }
-    public int ItemCount { get; set; }
-    public int StationGID { get; set; }
-    public int Inc { get; set; } // if TakeItem() is called this holds the workShipDatas index needed to update the ShipData
+    public bool AddItem { get; }
+    public int ItemId { get; }
+    public int ItemCount { get; }
+    public int StationGID { get; }
+    public int Inc { get; } // if TakeItem() is called this holds the workShipDatas index needed to update the ShipData
 }

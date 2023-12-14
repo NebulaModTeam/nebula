@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.DataStructures;
 using NebulaModel.Packets.Players;
 using NebulaWorld.MonoBehaviours.Local;
 using UnityEngine;
@@ -85,7 +85,8 @@ public class RemotePlayerMovement : MonoBehaviour
             {
                 var isFront = Vector3.Dot(UIRoot.instance.uiGame.planetGlobe.minimapControl.cam.transform.localPosition,
                     rootTransform.localPosition) > 0;
-                textMesh.color = new Color(textMesh.color.r, textMesh.color.g, textMesh.color.b, isFront ? 1f : 0.2f);
+                var color = textMesh.color;
+                textMesh.color = new Color(color.r, color.g, color.b, isFront ? 1f : 0.2f);
             }
 
             playerDot.transform.localPosition = rootTransform.position * (float)(0.5 / GameMain.localPlanet.realRadius);
@@ -144,21 +145,23 @@ public class RemotePlayerMovement : MonoBehaviour
     {
         var origPlayerDot = UIRoot.instance.uiGame.planetGlobe.minimapControl.playerDot.gameObject;
         var uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
-        if (origPlayerDot != null && uiSailIndicator_targetText != null)
+        if (origPlayerDot == null || uiSailIndicator_targetText == null)
         {
-            playerDot = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
-            playerName = Instantiate(origPlayerDot, origPlayerDot.transform.parent, false);
-            playerName.name = "playerName(Clone)";
-
-            Destroy(playerName.GetComponent<MeshFilter>());
-
-            var meshRenderer = playerName.GetComponent<MeshRenderer>();
-            playerName.AddComponent<TextMesh>();
-
-            meshRenderer.sharedMaterial = uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
-
-            playerName.SetActive(true);
+            return;
         }
+        var parent = origPlayerDot.transform.parent;
+        playerDot = Instantiate(origPlayerDot, parent, false);
+        playerName = Instantiate(origPlayerDot, parent, false);
+        playerName.name = "playerName(Clone)";
+
+        Destroy(playerName.GetComponent<MeshFilter>());
+
+        var meshRenderer = playerName.GetComponent<MeshRenderer>();
+        playerName.AddComponent<TextMesh>();
+
+        meshRenderer.sharedMaterial = uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
+
+        playerName.SetActive(true);
     }
 
     private void OnDisable()
@@ -175,40 +178,41 @@ public class RemotePlayerMovement : MonoBehaviour
 
     private void UpdateNavigationGizmo()
     {
-        if (PlayerID == GameMain.mainPlayer.navigation.indicatorAstroId - 100000)
+        if (PlayerID != GameMain.mainPlayer.navigation.indicatorAstroId - 100000)
         {
-            var gizmo = GameMain.mainPlayer.gizmo;
-            var starmap = UIRoot.instance.uiGame.starmap;
-
-            if (gizmo.naviIndicatorGizmo == null)
-            {
-                gizmo.naviIndicatorGizmo = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
-                gizmo.naviIndicatorGizmo.autoRefresh = true;
-                gizmo.naviIndicatorGizmo.multiplier = 1.5f;
-                gizmo.naviIndicatorGizmo.alphaMultiplier = 0.6f;
-                gizmo.naviIndicatorGizmo.width = 1.8f;
-                gizmo.naviIndicatorGizmo.color = Configs.builtin.gizmoColors[4];
-                gizmo.naviIndicatorGizmo.spherical = gizmo.player.planetId == localPlanetId;
-                gizmo.naviIndicatorGizmo.Open();
-            }
-            if (gizmo.naviIndicatorGizmoStarmap == null)
-            {
-                gizmo.naviIndicatorGizmoStarmap = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
-                gizmo.naviIndicatorGizmoStarmap.autoRefresh = true;
-                gizmo.naviIndicatorGizmoStarmap.multiplier = 1.5f;
-                gizmo.naviIndicatorGizmoStarmap.alphaMultiplier = 0.3f;
-                gizmo.naviIndicatorGizmoStarmap.width = 0.01f;
-                gizmo.naviIndicatorGizmoStarmap.color = Configs.builtin.gizmoColors[4];
-                gizmo.naviIndicatorGizmoStarmap.spherical = false;
-                gizmo.naviIndicatorGizmoStarmap.Open();
-            }
-
-            gizmo.naviIndicatorGizmo.startPoint = gizmo.player.position;
-            gizmo.naviIndicatorGizmo.endPoint = rootTransform.position;
-            gizmo.naviIndicatorGizmoStarmap.startPoint = (gizmo.player.uPosition - starmap.viewTargetUPos) * 0.00025;
-            gizmo.naviIndicatorGizmoStarmap.endPoint = (absolutePosition - starmap.viewTargetUPos) * 0.00025;
-            gizmo.naviIndicatorGizmoStarmap.gameObject.layer = 20;
+            return;
         }
+        var gizmo = GameMain.mainPlayer.gizmo;
+        var starmap = UIRoot.instance.uiGame.starmap;
+
+        if (gizmo.naviIndicatorGizmo == null)
+        {
+            gizmo.naviIndicatorGizmo = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
+            gizmo.naviIndicatorGizmo.autoRefresh = true;
+            gizmo.naviIndicatorGizmo.multiplier = 1.5f;
+            gizmo.naviIndicatorGizmo.alphaMultiplier = 0.6f;
+            gizmo.naviIndicatorGizmo.width = 1.8f;
+            gizmo.naviIndicatorGizmo.color = Configs.builtin.gizmoColors[4];
+            gizmo.naviIndicatorGizmo.spherical = gizmo.player.planetId == localPlanetId;
+            gizmo.naviIndicatorGizmo.Open();
+        }
+        if (gizmo.naviIndicatorGizmoStarmap == null)
+        {
+            gizmo.naviIndicatorGizmoStarmap = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
+            gizmo.naviIndicatorGizmoStarmap.autoRefresh = true;
+            gizmo.naviIndicatorGizmoStarmap.multiplier = 1.5f;
+            gizmo.naviIndicatorGizmoStarmap.alphaMultiplier = 0.3f;
+            gizmo.naviIndicatorGizmoStarmap.width = 0.01f;
+            gizmo.naviIndicatorGizmoStarmap.color = Configs.builtin.gizmoColors[4];
+            gizmo.naviIndicatorGizmoStarmap.spherical = false;
+            gizmo.naviIndicatorGizmoStarmap.Open();
+        }
+
+        gizmo.naviIndicatorGizmo.startPoint = gizmo.player.position;
+        gizmo.naviIndicatorGizmo.endPoint = rootTransform.position;
+        gizmo.naviIndicatorGizmoStarmap.startPoint = (gizmo.player.uPosition - starmap.viewTargetUPos) * 0.00025;
+        gizmo.naviIndicatorGizmoStarmap.endPoint = (absolutePosition - starmap.viewTargetUPos) * 0.00025;
+        gizmo.naviIndicatorGizmoStarmap.gameObject.layer = 20;
     }
 
     public void UpdatePosition(PlayerMovement movement)
@@ -243,14 +247,14 @@ public class RemotePlayerMovement : MonoBehaviour
 
         localPlanetId = current.LocalPlanetId;
 
-        rootTransform.position = Vector3.Lerp(previousRelativePosition, currentRelativePosition, ratio);
-        rootTransform.rotation = Quaternion.Slerp(previous.Rotation, current.Rotation, ratio);
+        rootTransform.SetPositionAndRotation(Vector3.Lerp(previousRelativePosition, currentRelativePosition, ratio),
+            Quaternion.Slerp(previous.Rotation, current.Rotation, ratio));
         bodyTransform.rotation = Quaternion.Slerp(previous.BodyRotation, current.BodyRotation, ratio);
 
         absolutePosition = Vector3.Lerp(previousAbsolutePosition, currentAbsolutePosition, ratio);
     }
 
-    private Vector3 GetRelativePosition(Snapshot snapshot)
+    private static Vector3 GetRelativePosition(Snapshot snapshot)
     {
         if (GameMain.data == null)
         {
@@ -268,7 +272,7 @@ public class RemotePlayerMovement : MonoBehaviour
         return Maths.QInvRotateLF(GameMain.data.relativeRot, uPosition - GameMain.data.relativePos);
     }
 
-    private Vector3 GetAbsolutePosition(Snapshot snapshot)
+    private static Vector3 GetAbsolutePosition(Snapshot snapshot)
     {
         // We only need to bother with uPos for this part for now
         return new VectorLF3(snapshot.UPosition.x, snapshot.UPosition.y, snapshot.UPosition.z);

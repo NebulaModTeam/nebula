@@ -4,7 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 
 #endregion
@@ -21,8 +22,8 @@ public class NetPacketProcessor
     private readonly Queue<PendingPacket> pendingPackets = new();
 
     private readonly Random simulationRandom = new();
-    public int SimulatedMaxLatency = 50;
-    public int SimulatedMinLatency = 20;
+    private readonly int SimulatedMaxLatency = 50;
+    private readonly int SimulatedMinLatency = 20;
 
     public bool SimulateLatency = false;
 
@@ -118,10 +119,13 @@ public class NetPacketProcessor
 
         var hash = 14695981039346656037UL; //offset
         var typeName = typeof(T).FullName;
-        for (var i = 0; i < typeName.Length; i++)
+        if (typeName != null)
         {
-            hash ^= typeName[i];
-            hash *= 1099511628211UL; //prime
+            foreach (var t in typeName)
+            {
+                hash ^= t;
+                hash *= 1099511628211UL; //prime
+            }
         }
         HashCache<T>.Initialized = true;
         HashCache<T>.Id = hash;
@@ -219,16 +223,6 @@ public class NetPacketProcessor
         }
     }
 
-    /// <summary>
-    ///     Reads one packet from NetDataReader and calls OnReceive delegate
-    /// </summary>
-    /// <param name="reader">NetDataReader with packet</param>
-    /// <exception cref="ParseException">Malformed packet</exception>
-    public void ReadPacket(NetDataReader reader)
-    {
-        ReadPacket(reader, null);
-    }
-
     /*        public void Send<T>(NetPeer peer, T packet, DeliveryMethod options) where T : class, new()
             {
                 _netDataWriter.Reset();
@@ -297,7 +291,7 @@ public class NetPacketProcessor
     /// <param name="reader">NetDataReader with packet</param>
     /// <param name="userData">Argument that passed to OnReceivedEvent</param>
     /// <exception cref="ParseException">Malformed packet</exception>
-    public void ReadPacket(NetDataReader reader, object userData)
+    private void ReadPacket(NetDataReader reader, object userData = null)
     {
         GetCallbackFromData(reader)(reader, userData);
     }

@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.GameState;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaWorld.Factory;
@@ -27,7 +27,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     // Some Patch Flags
     public DateTime StartTime;
 
-    public MultiplayerSession(NetworkProvider networkProvider)
+    public MultiplayerSession(NebulaAPI.GameState.INetworkProvider networkProvider)
     {
         Network = networkProvider;
 
@@ -59,10 +59,10 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     public PowerTowerManager PowerTowers { get; private set; }
     public BeltManager Belts { get; private set; }
     public BuildToolManager BuildTools { get; private set; }
-    public DroneManager Drones { get; private set; }
+    private DroneManager Drones { get; set; }
     public GameDataHistoryManager History { get; private set; }
-    public GameStatesManager State { get; private set; }
-    public CourierManager Couriers { get; set; }
+    private GameStatesManager State { get; set; }
+    public CourierManager Couriers { get; private set; }
     public ILSShipManager Ships { get; private set; }
     public StationUIManager StationsUI { get; private set; }
     public PlanetManager Planets { get; private set; }
@@ -79,7 +79,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         set
         {
             canPause = value;
-            World?.SetPauseIndicator(value);
+            SimulatedWorld.SetPauseIndicator(value);
         }
     }
 
@@ -123,7 +123,6 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         Couriers?.Dispose();
         Couriers = null;
 
-        Ships?.Dispose();
         Ships = null;
 
         StationsUI?.Dispose();
@@ -146,33 +145,36 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
 
         Warning?.Dispose();
         Warning = null;
+
+        GC.SuppressFinalize(this);
     }
 
-    public NebulaAPI.INetworkProvider Network { get; private set; }
+    public NebulaAPI.GameState.INetworkProvider Network { get; private set; }
     public ILocalPlayer LocalPlayer { get; private set; }
     public IFactoryManager Factories { get; private set; }
 
-    public bool IsGameLoaded { get; set; }
+    public bool IsGameLoaded { get; private set; }
 
     public void OnGameLoadCompleted()
     {
-        if (!IsGameLoaded)
+        if (IsGameLoaded)
         {
-            Log.Info("Game load completed");
-            IsGameLoaded = true;
-            DiscordManager.UpdateRichPresence();
-            ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
-            Log.Info("OnGameLoadCompleted: Resume PacketProcessor");
+            return;
+        }
+        Log.Info("Game load completed");
+        IsGameLoaded = true;
+        DiscordManager.UpdateRichPresence();
+        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+        Log.Info("OnGameLoadCompleted: Resume PacketProcessor");
 
-            if (Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
-            }
+        if (Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
+        }
 
-            if (Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
-            {
-                Multiplayer.Session.World.SetupInitialPlayerState();
-            }
+        if (Multiplayer.Session.LocalPlayer.IsInitialDataReceived)
+        {
+            Multiplayer.Session.World.SetupInitialPlayerState();
         }
     }
 }

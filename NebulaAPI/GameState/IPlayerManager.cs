@@ -1,10 +1,12 @@
 ﻿#region
 
 using System.Collections.Generic;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.GameState;
 
 public interface IPlayerManager
 {

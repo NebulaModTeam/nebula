@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
@@ -8,7 +9,7 @@ using NebulaWorld;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Transpiler;
+namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch(typeof(GameMain))]
 internal class GameMain_Transpiler
@@ -24,7 +25,8 @@ internal class GameMain_Transpiler
     private static IEnumerable<CodeInstruction> FixedUpdate_Transpiler(IEnumerable<CodeInstruction> instructions,
         ILGenerator iL)
     {
-        var codeMatcher = new CodeMatcher(instructions, iL)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions, iL)
             .MatchForward(true,
                 new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(Player), "ApplyGamePauseState")),
                 new CodeMatch(OpCodes.Ldarg_0),
@@ -35,7 +37,7 @@ internal class GameMain_Transpiler
         if (codeMatcher.IsInvalid)
         {
             Log.Error("GameMain.FixedUpdate_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
         var skipLabel1 = codeMatcher.Instruction.operand;
         codeMatcher
@@ -60,7 +62,7 @@ internal class GameMain_Transpiler
         if (codeMatcher.IsInvalid)
         {
             Log.Error("GameMain.FixedUpdate_Transpiler 2 failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var skipLabel2 = codeMatcher.Instruction.operand;

@@ -1,7 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using UnityEngine;
 
@@ -17,12 +17,13 @@ internal class UIDysonPaintingGrid_Patch
     public static void PaintCells_Postfix(UIDysonPaintingGrid __instance, Color32 paint)
     {
         var layer = __instance.editor.selection.singleSelectedLayer;
-        if (Multiplayer.IsActive && __instance.cursorCells != null && layer != null)
+        if (!Multiplayer.IsActive || __instance.cursorCells == null || layer == null)
         {
-            var strength = __instance.editor.brush_paint.strength;
-            var superBrightMode = __instance.editor.brush_paint.superBrightMode;
-            Multiplayer.Session.Network.SendPacket(new DysonSpherePaintCellsPacket(layer.starData.index, layer.id, paint,
-                strength, superBrightMode, __instance.cursorCells, __instance.cellCount));
+            return;
         }
+        var strength = __instance.editor.brush_paint.strength;
+        var superBrightMode = __instance.editor.brush_paint.superBrightMode;
+        Multiplayer.Session.Network.SendPacket(new DysonSpherePaintCellsPacket(layer.starData.index, layer.id, paint,
+            strength, superBrightMode, __instance.cursorCells, __instance.cellCount));
     }
 }

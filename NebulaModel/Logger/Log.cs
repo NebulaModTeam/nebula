@@ -12,7 +12,7 @@ namespace NebulaModel.Logger;
 public static class Log
 {
     private static ILogger logger;
-    public static string LastInfoMsg { get; set; }
+    public static string LastInfoMsg { get; private set; }
     public static string LastWarnMsg { get; set; }
     public static string LastErrorMsg { get; set; }
 
@@ -84,8 +84,8 @@ public static class Log
     public static void SocketOutput(LogData data, string _)
     {
         var log = data.ToString();
-        var ipv4Regex = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}";
-        var ipv6Regex = "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}";
+        const string ipv4Regex = @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}";
+        const string ipv6Regex = "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}";
         log = Regex.Replace(log, ipv4Regex, "(IPv4 Address)");
         log = Regex.Replace(log, ipv6Regex, "(IPv6 Address)");
 

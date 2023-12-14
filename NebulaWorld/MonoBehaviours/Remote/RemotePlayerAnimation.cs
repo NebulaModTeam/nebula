@@ -10,6 +10,7 @@ namespace NebulaWorld.MonoBehaviours.Remote;
 // TODO: Missing client side interpolation
 public class RemotePlayerAnimation : MonoBehaviour
 {
+    private static readonly int s_initPositionSet = Shader.PropertyToID("_InitPositionSet");
     public PlayerAnimator PlayerAnimator;
     private readonly Snapshot[] packetBuffer = new Snapshot[3];
     private float altitudeFactor;
@@ -99,7 +100,7 @@ public class RemotePlayerAnimation : MonoBehaviour
         };
     }
 
-    private void CalculateMovementStateWeights(PlayerAnimator animator, float dt)
+    private static void CalculateMovementStateWeights(PlayerAnimator animator, float dt)
     {
         var runTarget = animator.horzSpeed > 0.15f ? 1f : 0f;
         var driftTarget = animator.movementState >= EMovementState.Drift ? 1f : 0f;
@@ -116,7 +117,7 @@ public class RemotePlayerAnimation : MonoBehaviour
         }
     }
 
-    private void CalculateDirectionWeights(PlayerAnimator animator)
+    private static void CalculateDirectionWeights(PlayerAnimator animator)
     {
         animator.leftWeight = Mathf.InverseLerp(-animator.minTurningAngle, -animator.maxTurningAngle, animator.turning);
         animator.rightWeight = Mathf.InverseLerp(animator.minTurningAngle, animator.maxTurningAngle, animator.turning);
@@ -143,13 +144,14 @@ public class RemotePlayerAnimation : MonoBehaviour
         animator.fly_f.speed = 0.44f;
         animator.fly_l.speed = 0.44f;
         animator.fly_r.speed = 0.44f;
-        if (!flag)
+        if (flag)
         {
-            animator.fly_0.normalizedTime = 0f;
-            animator.fly_f.normalizedTime = 0f;
-            animator.fly_l.normalizedTime = 0f;
-            animator.fly_r.normalizedTime = 0f;
+            return;
         }
+        animator.fly_0.normalizedTime = 0f;
+        animator.fly_f.normalizedTime = 0f;
+        animator.fly_l.normalizedTime = 0f;
+        animator.fly_r.normalizedTime = 0f;
     }
 
     public void AnimateSailState(PlayerAnimator animator)
@@ -170,11 +172,12 @@ public class RemotePlayerAnimation : MonoBehaviour
     public void AnimateRenderers(PlayerAnimator animator)
     {
         //animator.player.mechaArmorModel.inst_armor_mat.SetVector("_InitPositionSet", transform.position);
-        animator.player.mechaArmorModel.inst_part_ar_mat.SetVector("_InitPositionSet", transform.position);
-        animator.player.mechaArmorModel.inst_part_sk_mat.SetVector("_InitPositionSet", transform.position);
+        var position = transform.position;
+        animator.player.mechaArmorModel.inst_part_ar_mat.SetVector(s_initPositionSet, position);
+        animator.player.mechaArmorModel.inst_part_sk_mat.SetVector(s_initPositionSet, position);
         for (var i = 0; i < 8; i++)
         {
-            animator.player.mechaArmorModel.bone_mats_inst[i].SetVector("_InitPositionSet", transform.position);
+            animator.player.mechaArmorModel.bone_mats_inst[i].SetVector(s_initPositionSet, transform.position);
         }
     }
 

@@ -1,10 +1,10 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld;
+using NebulaWorld.Logistics;
 
 #endregion
 
@@ -13,8 +13,8 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class ILSUpdateSlotDataProcessor : PacketProcessor<ILSUpdateSlotData>
 {
-    public override void ProcessPacket(ILSUpdateSlotData packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSUpdateSlotData packet, NebulaConnection conn)
     {
-        Multiplayer.Session.Ships.UpdateSlotData(packet);
+        ILSShipManager.UpdateSlotData(packet);
     }
 }

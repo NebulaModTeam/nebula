@@ -1,7 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using NebulaWorld.Universe;
 using UnityEngine;
@@ -24,12 +24,13 @@ internal class DysonSwarm_Patch
             return;
         }
         //If local is the author and not in the process of importing blueprint
-        if (!Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket && !Multiplayer.Session.DysonSpheres.InBlueprint)
+        if (Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket || Multiplayer.Session.DysonSpheres.InBlueprint)
         {
-            var orbitId = DysonSphereManager.QueryOrbitId(__instance);
-            Multiplayer.Session.Network.SendPacket(new DysonSwarmAddOrbitPacket(__instance.starData.index, orbitId, radius,
-                rotation));
+            return;
         }
+        var orbitId = DysonSphereManager.QueryOrbitId(__instance);
+        Multiplayer.Session.Network.SendPacket(new DysonSwarmAddOrbitPacket(__instance.starData.index, orbitId, radius,
+            rotation));
     }
 
     [HarmonyPrefix]
@@ -96,13 +97,15 @@ internal class DysonSwarm_Patch
     [HarmonyPatch(nameof(DysonSwarm.SetOrbitColor))]
     public static void SetOrbitColor_Prefix(DysonSwarm __instance, int orbitId, Vector4 hsva)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket)
         {
-            if (storedHsva != hsva)
-            {
-                Multiplayer.Session.Network.SendPacket(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, hsva));
-                storedHsva = hsva;
-            }
+            return;
         }
+        if (storedHsva == hsva)
+        {
+            return;
+        }
+        Multiplayer.Session.Network.SendPacket(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, hsva));
+        storedHsva = hsva;
     }
 }

@@ -1,10 +1,10 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
 
 #endregion
 
-namespace NebulaModel.Packets.Universe;
+namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonSphereAddNodePacket
 {
@@ -19,9 +19,9 @@ public class DysonSphereAddNodePacket
         Position = position;
     }
 
-    public int StarIndex { get; set; }
-    public int LayerId { get; set; }
-    public int NodeId { get; set; }
-    public int NodeProtoId { get; set; }
-    public Float3 Position { get; set; }
+    public int StarIndex { get; }
+    public int LayerId { get; }
+    public int NodeId { get; }
+    public int NodeProtoId { get; }
+    public Float3 Position { get; }
 }

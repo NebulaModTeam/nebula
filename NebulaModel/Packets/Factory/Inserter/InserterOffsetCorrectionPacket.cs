@@ -12,8 +12,8 @@ public class InserterOffsetCorrectionPacket
         PlanetId = planetId;
     }
 
-    public int InserterId { get; set; }
-    public short PickOffset { get; set; }
-    public short InsertOffset { get; set; }
-    public int PlanetId { get; set; }
+    public int InserterId { get; }
+    public short PickOffset { get; }
+    public short InsertOffset { get; }
+    public int PlanetId { get; }
 }

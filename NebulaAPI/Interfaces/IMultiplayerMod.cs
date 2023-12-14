@@ -4,7 +4,7 @@ using System.IO;
 
 #endregion
 
-namespace NebulaAPI;
+namespace NebulaAPI.Interfaces;
 
 /// <summary>
 ///     Implement this interface to make sure your mod will be the same version on the host

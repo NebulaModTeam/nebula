@@ -21,7 +21,7 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaWorld.Factory;
-using UnityEngine;
+using NebulaWorld.Player;
 
 #endregion
 
@@ -80,9 +80,9 @@ internal class PlanetFactory_patch
         }
 
         if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value &&
-            !Multiplayer.Session.Drones.IsPendingBuildRequest(-prebuildId))
+            !DroneManager.IsPendingBuildRequest(-prebuildId))
         {
-            Multiplayer.Session.Drones.AddBuildRequestSent(-prebuildId);
+            DroneManager.AddBuildRequestSent(-prebuildId);
         }
 
         return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;
@@ -161,16 +161,17 @@ internal class PlanetFactory_patch
     [HarmonyPatch(nameof(PlanetFactory.PlanetReformAll))]
     public static void PlanetReformAll_Prefix(PlanetFactory __instance, int type, int color, bool bury)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            if (!Multiplayer.Session.Planets.IsIncomingRequest)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, true, type, color,
-                    bury));
-            }
-            // Stop VegeMinedPacket from sending
-            Multiplayer.Session.Planets.EnableVeinPacket = false;
+            return;
         }
+        if (!Multiplayer.Session.Planets.IsIncomingRequest)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, true, type, color,
+                bury));
+        }
+        // Stop VegeMinedPacket from sending
+        Multiplayer.Session.Planets.EnableVeinPacket = false;
     }
 
     [HarmonyPostfix]
@@ -187,15 +188,16 @@ internal class PlanetFactory_patch
     [HarmonyPatch(nameof(PlanetFactory.PlanetReformRevert))]
     public static void PlanetReformRevert_Prefix(PlanetFactory __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            if (!Multiplayer.Session.Planets.IsIncomingRequest)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, false));
-            }
-            // Stop VegeMinedPacket from sending
-            Multiplayer.Session.Planets.EnableVeinPacket = false;
+            return;
         }
+        if (!Multiplayer.Session.Planets.IsIncomingRequest)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(new PlanetReformPacket(__instance.planetId, false));
+        }
+        // Stop VegeMinedPacket from sending
+        Multiplayer.Session.Planets.EnableVeinPacket = false;
     }
 
     [HarmonyPostfix]
@@ -212,30 +214,28 @@ internal class PlanetFactory_patch
     [HarmonyPatch(nameof(PlanetFactory.AddVegeData))]
     public static void AddVegeData_Postfix(PlanetFactory __instance, VegeData vege)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.Planets.IsIncomingRequest)
         {
-            using (BinaryUtils.Writer writer = new())
-            {
-                vege.Export(writer.BinaryWriter);
-                Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, false,
-                    writer.CloseAndGetBytes()));
-            }
+            return;
         }
+        using BinaryUtils.Writer writer = new();
+        vege.Export(writer.BinaryWriter);
+        Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, false,
+            writer.CloseAndGetBytes()));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(PlanetFactory.AddVeinData))]
     public static void AddVeinData_Postfix(PlanetFactory __instance, VeinData vein)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.Planets.IsIncomingRequest)
         {
-            using (BinaryUtils.Writer writer = new())
-            {
-                vein.Export(writer.BinaryWriter);
-                Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, true,
-                    writer.CloseAndGetBytes()));
-            }
+            return;
         }
+        using BinaryUtils.Writer writer = new();
+        vein.Export(writer.BinaryWriter);
+        Multiplayer.Session.Network.SendPacketToLocalStar(new VegeAddPacket(__instance.planetId, true,
+            writer.CloseAndGetBytes()));
     }
 
     [HarmonyPostfix]
@@ -253,18 +253,19 @@ internal class PlanetFactory_patch
     [HarmonyPatch(nameof(PlanetFactory.RemoveVeinWithComponents))]
     public static void RemoveVeinWithComponents_Postfix(PlanetFactory __instance, int id)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest &&
-            Multiplayer.Session.Planets.EnableVeinPacket)
+        if (!Multiplayer.IsActive || Multiplayer.Session.Planets.IsIncomingRequest ||
+            !Multiplayer.Session.Planets.EnableVeinPacket)
         {
-            if (Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                Multiplayer.Session.Network.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true),
-                    __instance.planet.star.id);
-            }
-            else
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
-            }
+            return;
+        }
+        if (Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            Multiplayer.Session.Network.SendPacketToStar(new VegeMinedPacket(__instance.planetId, id, 0, true),
+                __instance.planet.star.id);
+        }
+        else
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(__instance.planetId, id, 0, true));
         }
     }
 
@@ -272,16 +273,17 @@ internal class PlanetFactory_patch
     [HarmonyPatch(nameof(PlanetFactory.EnableEntityWarning))]
     public static void EnableEntityWarning_Postfix(PlanetFactory __instance, int entityId)
     {
-        if (Multiplayer.IsActive && entityId > 0 && __instance.entityPool[entityId].id == entityId)
+        if (!Multiplayer.IsActive || entityId <= 0 || __instance.entityPool[entityId].id != entityId)
         {
-            if (Multiplayer.Session.LocalPlayer.IsClient)
-            {
-                //Becasue WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
-                __instance.entityPool[entityId].warningId = 1;
-            }
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new EntityWarningSwitchPacket(__instance.planetId, entityId, true));
+            return;
         }
+        if (Multiplayer.Session.LocalPlayer.IsClient)
+        {
+            //Becasue WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
+            __instance.entityPool[entityId].warningId = 1;
+        }
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new EntityWarningSwitchPacket(__instance.planetId, entityId, true));
     }
 
     [HarmonyPostfix]
@@ -303,136 +305,139 @@ internal class PlanetFactory_patch
         // storage: sync in StorageComponent.TakeItemFromGrid
         // powerNode, powerCon, powerAcc: no fill in interaction
 
-        if (Multiplayer.IsActive && entityId > 0 && __instance.entityPool[entityId].id == entityId)
+        if (!Multiplayer.IsActive || entityId <= 0 || __instance.entityPool[entityId].id != entityId)
         {
-            var entityData = __instance.entityPool[entityId];
+            return;
+        }
+        var entityData = __instance.entityPool[entityId];
 
-            if (entityData.assemblerId > 0)
+        if (entityData.assemblerId > 0)
+        {
+            var assemblerId = entityData.assemblerId;
+            var assemblerPool = __instance.factorySystem.assemblerPool;
+            if (assemblerPool[assemblerId].recipeId > 0)
             {
-                var assemblerId = entityData.assemblerId;
-                var assemblerPool = __instance.factorySystem.assemblerPool;
-                if (assemblerPool[assemblerId].recipeId > 0)
-                {
-                    var produced = assemblerPool[assemblerId].produced;
-                    for (var j = 0; j < produced.Length; j++)
-                    {
-                        Multiplayer.Session.Network.SendPacketToLocalStar(
-                            new AssemblerUpdateProducesPacket(j, produced[j], __instance.planetId, assemblerId));
-                    }
-                }
-            }
-            if (entityData.dispenserId > 0)
-            {
-                var dispenserId = entityData.dispenserId;
-                var dispenserPool = __instance.transport.dispenserPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserStorePacket(__instance.planetId,
-                    in dispenserPool[dispenserId]));
-            }
-            if (entityData.ejectorId > 0)
-            {
-                var ejectorId = entityData.ejectorId;
-                var ejectorPool = __instance.factorySystem.ejectorPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorStorageUpdatePacket(ejectorId,
-                    ejectorPool[ejectorId].bulletCount, ejectorPool[ejectorId].bulletInc, __instance.planetId));
-            }
-            if (entityData.inserterId > 0)
-            {
-                var inserterId = entityData.inserterId;
-                var inserterPool = __instance.factorySystem.inserterPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterItemUpdatePacket(in inserterPool[inserterId],
-                    __instance.planetId));
-            }
-            if (entityData.fractionatorId > 0)
-            {
-                var fractionatorId = entityData.fractionatorId;
-                var fractionatorPool = __instance.factorySystem.fractionatorPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(
-                    new FractionatorStorageUpdatePacket(in fractionatorPool[fractionatorId], __instance.planetId));
-            }
-            if (entityData.labId > 0)
-            {
-                var labId = entityData.labId;
-                var labPool = __instance.factorySystem.labPool;
-                if (labPool[labId].matrixMode)
+                var produced = assemblerPool[assemblerId].produced;
+                for (var j = 0; j < produced.Length; j++)
                 {
                     Multiplayer.Session.Network.SendPacketToLocalStar(
-                        new LaboratoryUpdateEventPacket(-3, labId, __instance.planetId));
+                        new AssemblerUpdateProducesPacket(j, produced[j], __instance.planetId, assemblerId));
                 }
-            }
-            if (entityData.minerId > 0)
-            {
-                var minerId = entityData.minerId;
-                var minerPool = __instance.factorySystem.minerPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new MinerStoragePickupPacket(minerId, __instance.planetId));
-            }
-            if (entityData.powerExcId > 0)
-            {
-                var powerExcId = entityData.powerExcId;
-                var excPool = __instance.powerSystem.excPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
-                    excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId));
-            }
-            if (entityData.powerGenId > 0)
-            {
-                var powerGenId = entityData.powerGenId;
-                var genPool = __instance.powerSystem.genPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(powerGenId,
-                    genPool[powerGenId].fuelId, genPool[powerGenId].fuelCount, genPool[powerGenId].fuelInc,
-                    __instance.planetId));
-                if (genPool[powerGenId].productId > 0)
-                {
-                    Multiplayer.Session.Network.SendPacketToLocalStar(
-                        new PowerGeneratorProductUpdatePacket(in genPool[powerGenId], __instance.planetId));
-                }
-            }
-            if (entityData.stationId > 0)
-            {
-                var stationId = entityData.stationId;
-                var stationComponent = __instance.transport.stationPool[stationId];
-                for (var i = 0; i < stationComponent.storage.Length; i++)
-                {
-                    if (stationComponent.storage[i].itemId > 0)
-                    {
-                        var packet = new StorageUI(__instance.planetId, stationComponent.id, stationComponent.gid, i,
-                            stationComponent.storage[i].count, stationComponent.storage[i].inc);
-                        Multiplayer.Session.Network.SendPacket(packet);
-                    }
-                }
-                if (!stationComponent.isCollector && !stationComponent.isVeinCollector)
-                {
-                    var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
-                        StationUI.EUISettings.SetDroneCount, stationComponent.idleDroneCount + stationComponent.workDroneCount);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-                if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector)
-                {
-                    var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
-                        StationUI.EUISettings.SetShipCount, stationComponent.idleShipCount + stationComponent.workShipCount);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-                if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector &&
-                    __instance.gameData.history.logisticShipWarpDrive)
-                {
-                    var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
-                        StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-            }
-            if (entityData.siloId > 0)
-            {
-                var siloId = entityData.siloId;
-                var siloPool = __instance.factorySystem.siloPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(siloId,
-                    siloPool[siloId].bulletCount, siloPool[siloId].bulletInc, __instance.planetId));
-            }
-            if (entityData.tankId > 0)
-            {
-                var tankId = entityData.tankId;
-                var tankPool = __instance.factoryStorage.tankPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in tankPool[tankId],
-                    __instance.planetId));
             }
         }
+        if (entityData.dispenserId > 0)
+        {
+            var dispenserId = entityData.dispenserId;
+            var dispenserPool = __instance.transport.dispenserPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserStorePacket(__instance.planetId,
+                in dispenserPool[dispenserId]));
+        }
+        if (entityData.ejectorId > 0)
+        {
+            var ejectorId = entityData.ejectorId;
+            var ejectorPool = __instance.factorySystem.ejectorPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorStorageUpdatePacket(ejectorId,
+                ejectorPool[ejectorId].bulletCount, ejectorPool[ejectorId].bulletInc, __instance.planetId));
+        }
+        if (entityData.inserterId > 0)
+        {
+            var inserterId = entityData.inserterId;
+            var inserterPool = __instance.factorySystem.inserterPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new InserterItemUpdatePacket(in inserterPool[inserterId],
+                __instance.planetId));
+        }
+        if (entityData.fractionatorId > 0)
+        {
+            var fractionatorId = entityData.fractionatorId;
+            var fractionatorPool = __instance.factorySystem.fractionatorPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new FractionatorStorageUpdatePacket(in fractionatorPool[fractionatorId], __instance.planetId));
+        }
+        if (entityData.labId > 0)
+        {
+            var labId = entityData.labId;
+            var labPool = __instance.factorySystem.labPool;
+            if (labPool[labId].matrixMode)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(
+                    new LaboratoryUpdateEventPacket(-3, labId, __instance.planetId));
+            }
+        }
+        if (entityData.minerId > 0)
+        {
+            var minerId = entityData.minerId;
+            var minerPool = __instance.factorySystem.minerPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new MinerStoragePickupPacket(minerId, __instance.planetId));
+        }
+        if (entityData.powerExcId > 0)
+        {
+            var powerExcId = entityData.powerExcId;
+            var excPool = __instance.powerSystem.excPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
+                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId));
+        }
+        if (entityData.powerGenId > 0)
+        {
+            var powerGenId = entityData.powerGenId;
+            var genPool = __instance.powerSystem.genPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(powerGenId,
+                genPool[powerGenId].fuelId, genPool[powerGenId].fuelCount, genPool[powerGenId].fuelInc,
+                __instance.planetId));
+            if (genPool[powerGenId].productId > 0)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(
+                    new PowerGeneratorProductUpdatePacket(in genPool[powerGenId], __instance.planetId));
+            }
+        }
+        if (entityData.stationId > 0)
+        {
+            var stationId = entityData.stationId;
+            var stationComponent = __instance.transport.stationPool[stationId];
+            for (var i = 0; i < stationComponent.storage.Length; i++)
+            {
+                if (stationComponent.storage[i].itemId <= 0)
+                {
+                    continue;
+                }
+                var packet = new StorageUI(__instance.planetId, stationComponent.id, stationComponent.gid, i,
+                    stationComponent.storage[i].count, stationComponent.storage[i].inc);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+            if (!stationComponent.isCollector && !stationComponent.isVeinCollector)
+            {
+                var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
+                    StationUI.EUISettings.SetDroneCount, stationComponent.idleDroneCount + stationComponent.workDroneCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+            if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector)
+            {
+                var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
+                    StationUI.EUISettings.SetShipCount, stationComponent.idleShipCount + stationComponent.workShipCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+            if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector &&
+                __instance.gameData.history.logisticShipWarpDrive)
+            {
+                var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
+                    StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+        }
+        if (entityData.siloId > 0)
+        {
+            var siloId = entityData.siloId;
+            var siloPool = __instance.factorySystem.siloPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(siloId,
+                siloPool[siloId].bulletCount, siloPool[siloId].bulletInc, __instance.planetId));
+        }
+        if (entityData.tankId <= 0)
+        {
+            return;
+        }
+        var tankId = entityData.tankId;
+        var tankPool = __instance.factoryStorage.tankPool;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in tankPool[tankId],
+            __instance.planetId));
     }
 
     [HarmonyPostfix]
@@ -443,134 +448,137 @@ internal class PlanetFactory_patch
         // storage: sync in StorageComponent.AddItemStacked
         // inserter, powerNode, powerCon, powerAcc: no fill in interaction
 
-        if (Multiplayer.IsActive && entityId > 0 && __instance.entityPool[entityId].id == entityId)
+        if (!Multiplayer.IsActive || entityId <= 0 || __instance.entityPool[entityId].id != entityId)
         {
-            var entityData = __instance.entityPool[entityId];
+            return;
+        }
+        var entityData = __instance.entityPool[entityId];
 
-            if (entityData.tankId > 0)
+        if (entityData.tankId > 0)
+        {
+            var tankId = entityData.tankId;
+            var tankPool = __instance.factoryStorage.tankPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in tankPool[tankId],
+                __instance.planetId));
+        }
+        if (entityData.assemblerId > 0)
+        {
+            var assemblerId = entityData.assemblerId;
+            var assemblerPool = __instance.factorySystem.assemblerPool;
+            if (assemblerPool[assemblerId].recipeId > 0)
             {
-                var tankId = entityData.tankId;
-                var tankPool = __instance.factoryStorage.tankPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in tankPool[tankId],
-                    __instance.planetId));
-            }
-            if (entityData.assemblerId > 0)
-            {
-                var assemblerId = entityData.assemblerId;
-                var assemblerPool = __instance.factorySystem.assemblerPool;
-                if (assemblerPool[assemblerId].recipeId > 0)
-                {
-                    Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(__instance.planetId,
-                        assemblerId, assemblerPool[assemblerId].served, assemblerPool[assemblerId].incServed));
-                }
-            }
-            if (entityData.dispenserId > 0)
-            {
-                var dispenserId = entityData.dispenserId;
-                var dispenserPool = __instance.transport.dispenserPool;
-                var courierCount = dispenserPool[dispenserId].workCourierCount + dispenserPool[dispenserId].idleCourierCount;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planetId, dispenserId,
-                    EDispenserSettingEvent.SetCourierCount, courierCount));
-            }
-            if (entityData.ejectorId > 0)
-            {
-                var ejectorId = entityData.ejectorId;
-                var ejectorPool = __instance.factorySystem.ejectorPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorStorageUpdatePacket(ejectorId,
-                    ejectorPool[ejectorId].bulletCount, ejectorPool[ejectorId].bulletInc, __instance.planetId));
-            }
-            if (entityData.siloId > 0)
-            {
-                var siloId = entityData.siloId;
-                var siloPool = __instance.factorySystem.siloPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(siloId,
-                    siloPool[siloId].bulletCount, siloPool[siloId].bulletInc, __instance.planetId));
-            }
-            if (entityData.labId > 0)
-            {
-                var labId = entityData.labId;
-                var labPool = __instance.factorySystem.labPool;
-
-                if (labPool[labId].researchMode)
-                {
-                    for (var matrixId = 0; matrixId < LabComponent.matrixIds.Length; matrixId++)
-                    {
-                        Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(
-                            labPool[labId].matrixServed[matrixId], labPool[labId].matrixIncServed[matrixId], matrixId, labId,
-                            __instance.planetId));
-                    }
-                }
-                else if (labPool[labId].matrixMode)
-                {
-                    for (var m = 0; m < labPool[labId].served.Length; m++)
-                    {
-                        Multiplayer.Session.Network.SendPacketToLocalStar(
-                            new LaboratoryUpdateStoragePacket(labPool[labId].served[m], labPool[labId].incServed[m], m, labId,
-                                __instance.planetId));
-                    }
-                }
-            }
-            if (entityData.stationId > 0)
-            {
-                var stationId = entityData.stationId;
-                var stationComponent = __instance.transport.stationPool[stationId];
-                for (var i = 0; i < stationComponent.storage.Length; i++)
-                {
-                    if (stationComponent.storage[i].itemId > 0)
-                    {
-                        var packet = new StorageUI(__instance.planetId, stationComponent.id, stationComponent.gid, i,
-                            stationComponent.storage[i].count, stationComponent.storage[i].inc);
-                        Multiplayer.Session.Network.SendPacket(packet);
-                    }
-                }
-                if (!stationComponent.isCollector && !stationComponent.isVeinCollector)
-                {
-                    var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
-                        StationUI.EUISettings.SetDroneCount, stationComponent.idleDroneCount + stationComponent.workDroneCount);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-                if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector)
-                {
-                    var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
-                        StationUI.EUISettings.SetShipCount, stationComponent.idleShipCount + stationComponent.workShipCount);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-                if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector &&
-                    __instance.gameData.history.logisticShipWarpDrive)
-                {
-                    var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
-                        StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
-                    Multiplayer.Session.Network.SendPacket(packet);
-                }
-            }
-            if (entityData.powerGenId > 0)
-            {
-                var powerGenId = entityData.powerGenId;
-                var genPool = __instance.powerSystem.genPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(powerGenId,
-                    genPool[powerGenId].fuelId, genPool[powerGenId].fuelCount, genPool[powerGenId].fuelInc,
-                    __instance.planetId));
-                if (genPool[powerGenId].gamma)
-                {
-                    Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeLensPacket(powerGenId,
-                        genPool[powerGenId].catalystPoint, genPool[powerGenId].catalystIncPoint, __instance.planetId));
-                }
-            }
-            if (entityData.powerExcId > 0)
-            {
-                var powerExcId = entityData.powerExcId;
-                var excPool = __instance.powerSystem.excPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
-                    excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId));
-            }
-            if (entityData.spraycoaterId > 0)
-            {
-                var spraycoaterId = entityData.spraycoaterId;
-                var spraycoaterPool = __instance.cargoTraffic.spraycoaterPool;
-                Multiplayer.Session.Network.SendPacketToLocalStar(
-                    new SprayerStorageUpdatePacket(spraycoaterPool[spraycoaterId], __instance.planetId));
+                Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(__instance.planetId,
+                    assemblerId, assemblerPool[assemblerId].served, assemblerPool[assemblerId].incServed));
             }
         }
+        if (entityData.dispenserId > 0)
+        {
+            var dispenserId = entityData.dispenserId;
+            var dispenserPool = __instance.transport.dispenserPool;
+            var courierCount = dispenserPool[dispenserId].workCourierCount + dispenserPool[dispenserId].idleCourierCount;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planetId, dispenserId,
+                EDispenserSettingEvent.SetCourierCount, courierCount));
+        }
+        if (entityData.ejectorId > 0)
+        {
+            var ejectorId = entityData.ejectorId;
+            var ejectorPool = __instance.factorySystem.ejectorPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorStorageUpdatePacket(ejectorId,
+                ejectorPool[ejectorId].bulletCount, ejectorPool[ejectorId].bulletInc, __instance.planetId));
+        }
+        if (entityData.siloId > 0)
+        {
+            var siloId = entityData.siloId;
+            var siloPool = __instance.factorySystem.siloPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(siloId,
+                siloPool[siloId].bulletCount, siloPool[siloId].bulletInc, __instance.planetId));
+        }
+        if (entityData.labId > 0)
+        {
+            var labId = entityData.labId;
+            var labPool = __instance.factorySystem.labPool;
+
+            if (labPool[labId].researchMode)
+            {
+                for (var matrixId = 0; matrixId < LabComponent.matrixIds.Length; matrixId++)
+                {
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(
+                        labPool[labId].matrixServed[matrixId], labPool[labId].matrixIncServed[matrixId], matrixId, labId,
+                        __instance.planetId));
+                }
+            }
+            else if (labPool[labId].matrixMode)
+            {
+                for (var m = 0; m < labPool[labId].served.Length; m++)
+                {
+                    Multiplayer.Session.Network.SendPacketToLocalStar(
+                        new LaboratoryUpdateStoragePacket(labPool[labId].served[m], labPool[labId].incServed[m], m, labId,
+                            __instance.planetId));
+                }
+            }
+        }
+        if (entityData.stationId > 0)
+        {
+            var stationId = entityData.stationId;
+            var stationComponent = __instance.transport.stationPool[stationId];
+            for (var i = 0; i < stationComponent.storage.Length; i++)
+            {
+                if (stationComponent.storage[i].itemId <= 0)
+                {
+                    continue;
+                }
+                var packet = new StorageUI(__instance.planetId, stationComponent.id, stationComponent.gid, i,
+                    stationComponent.storage[i].count, stationComponent.storage[i].inc);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+            if (!stationComponent.isCollector && !stationComponent.isVeinCollector)
+            {
+                var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
+                    StationUI.EUISettings.SetDroneCount, stationComponent.idleDroneCount + stationComponent.workDroneCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+            if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector)
+            {
+                var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
+                    StationUI.EUISettings.SetShipCount, stationComponent.idleShipCount + stationComponent.workShipCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+            if (stationComponent.isStellar && !stationComponent.isCollector && !stationComponent.isVeinCollector &&
+                __instance.gameData.history.logisticShipWarpDrive)
+            {
+                var packet = new StationUI(__instance.planetId, stationComponent.id, stationComponent.gid,
+                    StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
+        }
+        if (entityData.powerGenId > 0)
+        {
+            var powerGenId = entityData.powerGenId;
+            var genPool = __instance.powerSystem.genPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(powerGenId,
+                genPool[powerGenId].fuelId, genPool[powerGenId].fuelCount, genPool[powerGenId].fuelInc,
+                __instance.planetId));
+            if (genPool[powerGenId].gamma)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeLensPacket(powerGenId,
+                    genPool[powerGenId].catalystPoint, genPool[powerGenId].catalystIncPoint, __instance.planetId));
+            }
+        }
+        if (entityData.powerExcId > 0)
+        {
+            var powerExcId = entityData.powerExcId;
+            var excPool = __instance.powerSystem.excPool;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
+                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId));
+        }
+        if (entityData.spraycoaterId <= 0)
+        {
+            return;
+        }
+        var spraycoaterId = entityData.spraycoaterId;
+        var spraycoaterPool = __instance.cargoTraffic.spraycoaterPool;
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new SprayerStorageUpdatePacket(spraycoaterPool[spraycoaterId], __instance.planetId));
     }
 
     [HarmonyPrefix]
@@ -602,12 +610,13 @@ internal class PlanetFactory_patch
             var dispenserComponent = __instance.transport.dispenserPool[ptr.dispenserId];
             __state.Item2 = dispenserComponent.idleCourierCount;
         }
-        if (ptr.stationId > 0)
+        if (ptr.stationId <= 0)
         {
-            var stationComponent = __instance.transport.stationPool[ptr.stationId];
-            __state.Item3 = stationComponent.idleDroneCount;
-            __state.Item4 = stationComponent.idleShipCount;
+            return true;
         }
+        var stationComponent = __instance.transport.stationPool[ptr.stationId];
+        __state.Item3 = stationComponent.idleDroneCount;
+        __state.Item4 = stationComponent.idleShipCount;
         return true;
     }
 
@@ -635,40 +644,42 @@ internal class PlanetFactory_patch
                         dispenserComponent.workCourierCount + dispenserComponent.idleCourierCount));
             }
         }
-        if (ptr.stationId > 0)
+        if (ptr.stationId <= 0)
         {
-            var stationComponent = __instance.transport.stationPool[ptr.stationId];
-            if (__state.Item3 != stationComponent.idleDroneCount)
+            return;
+        }
+        var stationComponent = __instance.transport.stationPool[ptr.stationId];
+        if (__state.Item3 != stationComponent.idleDroneCount)
+        {
+            Multiplayer.Session.Network.SendPacket(
+                new StationUI(__instance.planetId,
+                    stationComponent.id,
+                    stationComponent.gid,
+                    StationUI.EUISettings.SetDroneCount,
+                    stationComponent.idleDroneCount + stationComponent.workDroneCount));
+
+            if (Multiplayer.Session.LocalPlayer.IsClient)
             {
-                Multiplayer.Session.Network.SendPacket(
-                    new StationUI(__instance.planetId,
-                        stationComponent.id,
-                        stationComponent.gid,
-                        StationUI.EUISettings.SetDroneCount,
-                        stationComponent.idleDroneCount + stationComponent.workDroneCount));
-
-                if (Multiplayer.Session.LocalPlayer.IsClient)
-                {
-                    // Revert drone count until host verify
-                    stationComponent.idleDroneCount = __state.Item3;
-                }
+                // Revert drone count until host verify
+                stationComponent.idleDroneCount = __state.Item3;
             }
+        }
 
-            if (__state.Item4 != stationComponent.idleShipCount)
-            {
-                Multiplayer.Session.Network.SendPacket(
-                    new StationUI(__instance.planetId,
-                        stationComponent.id,
-                        stationComponent.gid,
-                        StationUI.EUISettings.SetShipCount,
-                        stationComponent.idleShipCount + stationComponent.workShipCount));
+        if (__state.Item4 == stationComponent.idleShipCount)
+        {
+            return;
+        }
+        Multiplayer.Session.Network.SendPacket(
+            new StationUI(__instance.planetId,
+                stationComponent.id,
+                stationComponent.gid,
+                StationUI.EUISettings.SetShipCount,
+                stationComponent.idleShipCount + stationComponent.workShipCount));
 
-                if (Multiplayer.Session.LocalPlayer.IsClient)
-                {
-                    // Revert drone count until host verify
-                    stationComponent.idleShipCount = __state.Item4;
-                }
-            }
+        if (Multiplayer.Session.LocalPlayer.IsClient)
+        {
+            // Revert drone count until host verify
+            stationComponent.idleShipCount = __state.Item4;
         }
     }
 }

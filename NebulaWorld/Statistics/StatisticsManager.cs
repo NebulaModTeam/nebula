@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using NebulaAPI;
+using NebulaAPI.DataStructures;
 using NebulaModel.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Statistics;
@@ -16,23 +16,15 @@ public class StatisticsManager : IDisposable
 {
     public readonly ToggleSwitch IsIncomingRequest = new();
     private readonly ThreadSafe threadSafe = new();
-    private Dictionary<int, int> factoryIndexMap;
+    private Dictionary<int, int> factoryIndexMap = new();
 
-    private PlanetData[] planetDataMap;
+    private PlanetData[] planetDataMap = new PlanetData[GameMain.data.factories.Length];
 
-    private List<StatisticalSnapShot> statisticalSnapShots;
-
-    public StatisticsManager()
-    {
-        statisticalSnapShots = new List<StatisticalSnapShot>();
-        planetDataMap = new PlanetData[GameMain.data.factories.Length];
-        factoryIndexMap = new Dictionary<int, int>();
-        FactoryCount = 0;
-    }
+    private List<StatisticalSnapShot> statisticalSnapShots = new();
 
     public bool IsStatisticsNeeded { get; set; }
     public long[] PowerEnergyStoredData { get; set; }
-    public int FactoryCount { get; set; }
+    public int FactoryCount { get; private set; }
     public int TechHashedFor10Frames { get; set; }
 
     public void Dispose()
@@ -40,14 +32,15 @@ public class StatisticsManager : IDisposable
         statisticalSnapShots = null;
         planetDataMap = null;
         factoryIndexMap = null;
+        GC.SuppressFinalize(this);
     }
 
-    public Locker GetRequestors(out Dictionary<ushort, NebulaConnection> requestors)
+    private Locker GetRequestors(out Dictionary<ushort, NebulaConnection> requestors)
     {
         return threadSafe.Requestors.GetLocked(out requestors);
     }
 
-    public void ClearCapturedData()
+    private void ClearCapturedData()
     {
         statisticalSnapShots.Clear();
     }
@@ -60,10 +53,9 @@ public class StatisticsManager : IDisposable
         }
         var factoryNum = GameMain.data.factoryCount;
         var snapshot = new StatisticalSnapShot(GameMain.gameTick, factoryNum);
-        FactoryProductionStat stat;
         for (ushort i = 0; i < factoryNum; i++)
         {
-            stat = GameMain.statistics.production.factoryStatPool[i];
+            var stat = GameMain.statistics.production.factoryStatPool[i];
             //Collect only those that really changed:
             for (ushort j = 0; j < stat.productRegister.Length; j++)
             {
@@ -108,48 +100,49 @@ public class StatisticsManager : IDisposable
         }
         using (GetRequestors(out var requestors))
         {
-            if (requestors.Count > 0)
+            if (requestors.Count <= 0)
             {
-                if (FactoryCount == GameMain.data.factoryCount)
-                {
-                    //Export and prepare update packet
-                    StatisticUpdateDataPacket updatePacket;
-                    using (var writer = new BinaryUtils.Writer())
-                    {
-                        ExportCurrentTickData(writer.BinaryWriter);
-                        updatePacket = new StatisticUpdateDataPacket(writer.CloseAndGetBytes());
-                    }
-                    //Broadcast the update packet to the people with opened statistic window
-                    foreach (var player in requestors)
-                    {
-                        player.Value.SendPacket(updatePacket);
-                    }
-                }
-                else
-                {
-                    //When new planetFactories are added, resend the whole data
-                    StatisticsDataPacket dataPacket;
-                    using (var writer = new BinaryUtils.Writer())
-                    {
-                        ExportAllData(writer.BinaryWriter);
-                        dataPacket = new StatisticsDataPacket(writer.CloseAndGetBytes());
-                    }
-                    foreach (var player in requestors)
-                    {
-                        player.Value.SendPacket(dataPacket);
-                    }
-                }
-                ClearCapturedData();
+                return;
             }
+            if (FactoryCount == GameMain.data.factoryCount)
+            {
+                //Export and prepare update packet
+                StatisticUpdateDataPacket updatePacket;
+                using (var writer = new BinaryUtils.Writer())
+                {
+                    ExportCurrentTickData(writer.BinaryWriter);
+                    updatePacket = new StatisticUpdateDataPacket(writer.CloseAndGetBytes());
+                }
+                //Broadcast the update packet to the people with opened statistic window
+                foreach (var player in requestors)
+                {
+                    player.Value.SendPacket(updatePacket);
+                }
+            }
+            else
+            {
+                //When new planetFactories are added, resend the whole data
+                StatisticsDataPacket dataPacket;
+                using (var writer = new BinaryUtils.Writer())
+                {
+                    ExportAllData(writer.BinaryWriter);
+                    dataPacket = new StatisticsDataPacket(writer.CloseAndGetBytes());
+                }
+                foreach (var player in requestors)
+                {
+                    player.Value.SendPacket(dataPacket);
+                }
+            }
+            ClearCapturedData();
         }
     }
 
-    public void ExportCurrentTickData(BinaryWriter bw)
+    private void ExportCurrentTickData(BinaryWriter bw)
     {
         bw.Write(statisticalSnapShots.Count);
-        for (var i = 0; i < statisticalSnapShots.Count; i++)
+        foreach (var t in statisticalSnapShots)
         {
-            statisticalSnapShots[i].Export(bw);
+            t.Export(bw);
         }
     }
 
@@ -160,11 +153,12 @@ public class StatisticsManager : IDisposable
             requestors.Add(playerId, nebulaConnection);
         }
 
-        if (!IsStatisticsNeeded)
+        if (IsStatisticsNeeded)
         {
-            ClearCapturedData();
-            IsStatisticsNeeded = true;
+            return;
         }
+        ClearCapturedData();
+        IsStatisticsNeeded = true;
     }
 
     public void UnRegisterPlayer(ushort playerId)
@@ -198,9 +192,9 @@ public class StatisticsManager : IDisposable
 
         //Export Research statistics
         bw.Write(Stats.techHashedHistory.Length);
-        for (var i = 0; i < Stats.techHashedHistory.Length; i++)
+        foreach (var t in Stats.techHashedHistory)
         {
-            bw.Write(Stats.techHashedHistory[i]);
+            bw.Write(t);
         }
     }
 
@@ -213,11 +207,12 @@ public class StatisticsManager : IDisposable
         for (var i = 0; i < FactoryCount; i++)
         {
             var pd = GameMain.galaxy.PlanetById(br.ReadInt32());
-            if (planetDataMap[i] == null || planetDataMap[i] != pd)
+            if (planetDataMap[i] != null && planetDataMap[i] == pd)
             {
-                planetDataMap[i] = pd;
-                factoryIndexMap[pd.id] = i;
+                continue;
             }
+            planetDataMap[i] = pd;
+            factoryIndexMap[pd.id] = i;
         }
 
         //Import Factory statistics
@@ -231,7 +226,7 @@ public class StatisticsManager : IDisposable
             Stats.production.factoryStatPool[i].Import(br);
         }
 
-        //Import Reserach Statistics
+        //Import Research Statistics
         var num = br.ReadInt32();
         if (num > Stats.techHashedHistory.Length)
         {

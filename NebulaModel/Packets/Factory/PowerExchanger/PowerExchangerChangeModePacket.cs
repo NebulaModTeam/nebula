@@ -11,7 +11,7 @@ public class PowerExchangerChangeModePacket
         PlanetId = planetId;
     }
 
-    public int PowerExchangerIndex { get; set; }
-    public int Mode { get; set; }
-    public int PlanetId { get; set; }
+    public int PowerExchangerIndex { get; }
+    public int Mode { get; }
+    public int PlanetId { get; }
 }

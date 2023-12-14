@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Storage;
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage;
 [RegisterPacketProcessor]
 internal class StorageSyncSetBansProcessor : PacketProcessor<StorageSyncSetBansPacket>
 {
-    public override void ProcessPacket(StorageSyncSetBansPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(StorageSyncSetBansPacket packet, NebulaConnection conn)
     {
         StorageComponent storage = null;
         var pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.storagePool;
@@ -22,12 +22,13 @@ internal class StorageSyncSetBansProcessor : PacketProcessor<StorageSyncSetBansP
             storage = pool[packet.StorageIndex];
         }
 
-        if (storage != null)
+        if (storage == null)
         {
-            using (Multiplayer.Session.Storage.IsIncomingRequest.On())
-            {
-                storage.SetBans(packet.Bans);
-            }
+            return;
+        }
+        using (Multiplayer.Session.Storage.IsIncomingRequest.On())
+        {
+            storage.SetBans(packet.Bans);
         }
     }
 }

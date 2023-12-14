@@ -50,24 +50,24 @@ public class StationUIInitialSync
         RemoteOrder = remoteOrder;
     }
 
-    public int PlanetId { get; set; }
-    public int StationGId { get; set; }
-    public int StationId { get; set; }
-    public double TripRangeDrones { get; set; }
-    public double TripRangeShips { get; set; }
-    public int DeliveryDrones { get; set; }
-    public int DeliveryShips { get; set; }
-    public double WarperEnableDistance { get; set; }
-    public bool WarperNecessary { get; set; }
-    public bool IncludeOrbitCollector { get; set; }
-    public long Energy { get; set; }
-    public long EnergyPerTick { get; set; }
-    public int PilerCount { get; set; }
-    public int[] ItemId { get; set; }
-    public int[] ItemCountMax { get; set; }
-    public int[] ItemCount { get; set; }
-    public int[] ItemInc { get; set; }
-    public int[] LocalLogic { get; set; }
-    public int[] RemoteLogic { get; set; }
-    public int[] RemoteOrder { get; set; }
+    public int PlanetId { get; }
+    public int StationGId { get; }
+    public int StationId { get; }
+    public double TripRangeDrones { get; }
+    public double TripRangeShips { get; }
+    public int DeliveryDrones { get; }
+    public int DeliveryShips { get; }
+    public double WarperEnableDistance { get; }
+    public bool WarperNecessary { get; }
+    public bool IncludeOrbitCollector { get; }
+    public long Energy { get; }
+    public long EnergyPerTick { get; }
+    public int PilerCount { get; }
+    public int[] ItemId { get; }
+    public int[] ItemCountMax { get; }
+    public int[] ItemCount { get; }
+    public int[] ItemInc { get; }
+    public int[] LocalLogic { get; }
+    public int[] RemoteLogic { get; }
+    public int[] RemoteOrder { get; }
 }

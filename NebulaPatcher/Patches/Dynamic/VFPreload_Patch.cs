@@ -18,14 +18,15 @@ internal class VFPreload_Patch
     [HarmonyPatch(typeof(VFPreload), nameof(VFPreload.InvokeOnLoad))]
     public static void InvokeOnLoad_Postfix()
     {
-        if (Multiplayer.IsDedicated)
+        if (!Multiplayer.IsDedicated)
         {
-            VFAudio.audioVolume = 0f;
-            NativeInterop.HideWindow();
-            NativeInterop.SetConsoleCtrlHandler();
-            // Logging to provide progression to user
-            Log.Info("VFPreload.InvokeOnLoad");
+            return;
         }
+        VFAudio.audioVolume = 0f;
+        NativeInterop.HideWindow();
+        NativeInterop.SetConsoleCtrlHandler();
+        // Logging to provide progression to user
+        Log.Info("VFPreload.InvokeOnLoad");
     }
 
     [HarmonyPostfix]
@@ -60,20 +61,21 @@ internal class VFPreload_Patch
             GameStatesManager.DuringReconnect = false;
         }
 
-        if (Multiplayer.IsDedicated)
+        if (!Multiplayer.IsDedicated)
         {
-            if (GameStatesManager.ImportedSaveName != null)
-            {
-                NebulaPlugin.StartDedicatedServer(GameStatesManager.ImportedSaveName);
-            }
-            else if (GameStatesManager.NewGameDesc != null)
-            {
-                NebulaPlugin.StartDedicatedServer(GameStatesManager.NewGameDesc);
-            }
-            else
-            {
-                Log.Warn("No game start option provided!");
-            }
+            return;
+        }
+        if (GameStatesManager.ImportedSaveName != null)
+        {
+            NebulaPlugin.StartDedicatedServer(GameStatesManager.ImportedSaveName);
+        }
+        else if (GameStatesManager.NewGameDesc != null)
+        {
+            NebulaPlugin.StartDedicatedServer(GameStatesManager.NewGameDesc);
+        }
+        else
+        {
+            Log.Warn("No game start option provided!");
         }
     }
 }

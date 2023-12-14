@@ -64,16 +64,16 @@ public class StorageSyncRealtimeChangePacket
         PlanetId = GameMain.localPlanet?.id ?? -1;
     }
 
-    public StorageSyncRealtimeChangeEvent StorageEvent { get; set; }
-    public int ItemId { get; set; }
-    public int Count { get; set; }
-    public bool UseBan { get; set; }
-    public int StartIndex { get; set; }
-    public int Length { get; set; }
-    public int[] Needs { get; set; }
-    public int StorageIndex { get; set; }
-    public int Inc { get; set; }
-    public int PlanetId { get; set; }
+    public StorageSyncRealtimeChangeEvent StorageEvent { get; }
+    public int ItemId { get; }
+    public int Count { get; }
+    public bool UseBan { get; }
+    public int StartIndex { get; }
+    public int Length { get; }
+    public int[] Needs { get; }
+    public int StorageIndex { get; }
+    public int Inc { get; }
+    public int PlanetId { get; }
 }
 
 public enum StorageSyncRealtimeChangeEvent

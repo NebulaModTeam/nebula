@@ -12,7 +12,7 @@ using UnityEngine;
 
 // thanks tanu and Therzok for the tipps!
 namespace NebulaPatcher.Patches.Transpilers;
-#pragma warning disable Harmony003, IDE0060 // Harmony non-ref patch parameters modified
+
 [HarmonyPatch(typeof(StationComponent))]
 public class StationComponent_Transpiler
 {
@@ -230,11 +230,12 @@ public class StationComponent_Transpiler
             .Insert(HarmonyLib.Transpilers.EmitDelegate<WorkShipBackToIdle>(
                 (StationComponent stationComponent, int j, ref ShipData shipData) =>
                 {
-                    if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                    if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        var packet = new ILSWorkShipBackToIdle(stationComponent, shipData, j);
-                        Multiplayer.Session.Network.SendPacket(packet);
+                        return;
                     }
+                    var packet = new ILSWorkShipBackToIdle(stationComponent, shipData, j);
+                    Multiplayer.Session.Network.SendPacket(packet);
                 }));
 
         #endregion
@@ -264,15 +265,10 @@ public class StationComponent_Transpiler
                 new CodeMatch(OpCodes.Stind_I4))
             .Repeat(localMatcher =>
             {
-                CodeInstruction loadStation;
-                if (localMatcher.InstructionAt(-10).opcode == OpCodes.Ldarg_0)
-                {
-                    loadStation = new CodeInstruction(OpCodes.Ldarg_0); //this
-                }
-                else
-                {
-                    loadStation = loadOtherStation; //stationComponent3
-                }
+                var loadStation = localMatcher.InstructionAt(-10).opcode == OpCodes.Ldarg_0
+                    ? new CodeInstruction(OpCodes.Ldarg_0)
+                    : //this
+                    loadOtherStation; //stationComponent3
 
                 localMatcher
                     .Advance(1)
@@ -302,7 +298,10 @@ public class StationComponent_Transpiler
         float shipSailSpeed, float shipWarpSpeed, int shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses,
         ref VectorLF3 relativePos, ref Quaternion relativeRot, bool starmap, int[] consumeRegister)
     {
-        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        _ = Transpiler(null, null);
+        return;
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
             // find begin of ship movement computation, remove all content in if (timeGene == this.gene) {...}
             // remove c# 10 - 473
@@ -468,8 +467,6 @@ public class StationComponent_Transpiler
 
             return matcher.InstructionEnumeration();
         }
-
-        _ = Transpiler(null, null);
     }
 
     private delegate void ShipEnterWarpState(StationComponent stationComponent, int j);
@@ -486,4 +483,3 @@ public class StationComponent_Transpiler
 
     private delegate void SendRematchPacket(StationComponent stationComponent);
 }
-#pragma warning restore Harmony003, IDE0060 // Harmony non-ref patch parameters modified

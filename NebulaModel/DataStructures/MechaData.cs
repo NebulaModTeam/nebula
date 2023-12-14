@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using System.IO;
-using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 using NebulaModel.Packets.Players;
 
 #endregion
@@ -50,21 +52,22 @@ public class MechaData : IMechaData
         writer.Put(CoreEnergy);
         writer.Put(ReactorEnergy);
         writer.Put(ReactorStorage != null);
-        if (ReactorStorage != null)
+        if (ReactorStorage == null)
         {
-            using var ms = new MemoryStream();
-            using (var wr = new BinaryWriter(ms))
-            {
-                Inventory.Export(wr);
-                DeliveryPackage.Export(wr);
-                ReactorStorage.Export(wr);
-                WarpStorage.Export(wr);
-                Forge.Export(wr);
-            }
-            var export = ms.ToArray();
-            writer.Put(export.Length);
-            writer.Put(export);
+            return;
         }
+        using var ms = new MemoryStream();
+        using (var wr = new BinaryWriter(ms))
+        {
+            Inventory.Export(wr);
+            DeliveryPackage.Export(wr);
+            ReactorStorage.Export(wr);
+            WarpStorage.Export(wr);
+            Forge.Export(wr);
+        }
+        var export = ms.ToArray();
+        writer.Put(export.Length);
+        writer.Put(export);
     }
 
     public void Deserialize(INetDataReader reader)
@@ -81,21 +84,20 @@ public class MechaData : IMechaData
         CoreEnergy = reader.GetDouble();
         ReactorEnergy = reader.GetDouble();
         var isPayloadPresent = reader.GetBool();
-        if (isPayloadPresent)
+        if (!isPayloadPresent)
         {
-            var mechaLength = reader.GetInt();
-            var mechaBytes = new byte[mechaLength];
-            reader.GetBytes(mechaBytes, mechaLength);
-            using (var ms = new MemoryStream(mechaBytes))
-            using (var br = new BinaryReader(ms))
-            {
-                Inventory.Import(br);
-                DeliveryPackage.Import(br);
-                ReactorStorage.Import(br);
-                WarpStorage.Import(br);
-                Forge.Import(br);
-            }
+            return;
         }
+        var mechaLength = reader.GetInt();
+        var mechaBytes = new byte[mechaLength];
+        reader.GetBytes(mechaBytes, mechaLength);
+        using var ms = new MemoryStream(mechaBytes);
+        using var br = new BinaryReader(ms);
+        Inventory.Import(br);
+        DeliveryPackage.Import(br);
+        ReactorStorage.Import(br);
+        WarpStorage.Import(br);
+        Forge.Import(br);
     }
 
     public void Import(INetDataReader reader, int revision)
@@ -112,23 +114,22 @@ public class MechaData : IMechaData
         CoreEnergy = reader.GetDouble();
         ReactorEnergy = reader.GetDouble();
         var isPayloadPresent = reader.GetBool();
-        if (isPayloadPresent)
+        if (!isPayloadPresent)
         {
-            var mechaLength = reader.GetInt();
-            var mechaBytes = new byte[mechaLength];
-            reader.GetBytes(mechaBytes, mechaLength);
-            using (var ms = new MemoryStream(mechaBytes))
-            using (var br = new BinaryReader(ms))
-            {
-                Inventory.Import(br);
-                if (revision >= 7)
-                {
-                    DeliveryPackage.Import(br);
-                }
-                ReactorStorage.Import(br);
-                WarpStorage.Import(br);
-                Forge.Import(br);
-            }
+            return;
         }
+        var mechaLength = reader.GetInt();
+        var mechaBytes = new byte[mechaLength];
+        reader.GetBytes(mechaBytes, mechaLength);
+        using var ms = new MemoryStream(mechaBytes);
+        using var br = new BinaryReader(ms);
+        Inventory.Import(br);
+        if (revision >= 7)
+        {
+            DeliveryPackage.Import(br);
+        }
+        ReactorStorage.Import(br);
+        WarpStorage.Import(br);
+        Forge.Import(br);
     }
 }

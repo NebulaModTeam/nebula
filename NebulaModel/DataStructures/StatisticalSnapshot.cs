@@ -9,17 +9,17 @@ namespace NebulaModel.DataStructures;
 
 public class StatisticalSnapShot
 {
-    public long CapturedGameTick;
-    public long[] EnergyStored;
-    public long[] HashRegister;
-    public long[] PowerChargingRegister;
-    public long[] PowerConsumptionRegister;
-    public long[] PowerDischargingRegister;
+    public readonly long CapturedGameTick;
+    public readonly long[] EnergyStored;
+    public readonly long[] HashRegister;
+    public readonly long[] PowerChargingRegister;
+    public readonly long[] PowerConsumptionRegister;
+    public readonly long[] PowerDischargingRegister;
 
-    public long[] PowerGenerationRegister;
+    public readonly long[] PowerGenerationRegister;
 
-    //List of statistical changes for each planet that happend in one gameTick
-    public List<ProductionChangeStruct>[] ProductionChangesPerFactory;
+    //List of statistical changes for each planet that happened in one gameTick
+    public readonly List<ProductionChangeStruct>[] ProductionChangesPerFactory;
 
     public StatisticalSnapShot(long gameTick, int numOfActiveFactories)
     {
@@ -91,11 +91,11 @@ public class StatisticalSnapShot
         }
     }
 
-    public struct ProductionChangeStruct //12 bytes total
+    public readonly struct ProductionChangeStruct //12 bytes total
     {
-        public bool IsProduction; //1-byte
-        public ushort ProductId; //2-byte
-        public int Amount; //4-byte
+        public readonly bool IsProduction; //1-byte
+        public readonly ushort ProductId; //2-byte
+        public readonly int Amount; //4-byte
 
         public ProductionChangeStruct(bool isProduction, ushort productId, int amount)
         {

@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 
 #endregion
 
@@ -19,7 +19,7 @@ public class DysonSphereStatusPacket
         EnergyGenCurrentTick = dysonSphere.energyGenCurrentTick;
     }
 
-    public int StarIndex { get; set; }
+    public int StarIndex { get; }
     public float GrossRadius { get; set; }
     public long EnergyReqCurrentTick { get; set; }
     public long EnergyGenCurrentTick { get; set; }

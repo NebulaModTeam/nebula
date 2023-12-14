@@ -1,7 +1,7 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -10,7 +10,7 @@ using NebulaWorld;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Transpiler;
+namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch(typeof(BuildTool_BlueprintPaste))]
 internal class BuildTool_BlueprintPaste_Transpiler
@@ -25,7 +25,8 @@ internal class BuildTool_BlueprintPaste_Transpiler
          *  if(!Multiplayer.IsActive)
          * Before trying to take items, so that all prebuilds are assumed to require items while in MP
          */
-        var matcher = new CodeMatcher(instructions, il)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions, il)
             .MatchForward(true,
                 new CodeMatch(i => i.IsLdloc()), // count
                 new CodeMatch(OpCodes.Ldc_I4_1),
@@ -37,7 +38,7 @@ internal class BuildTool_BlueprintPaste_Transpiler
         {
             Log.Error(
                 "BuildTool_BlueprintPaste.CreatePrebuilds_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var jumpOperand = matcher.Instruction.operand;
@@ -50,19 +51,15 @@ internal class BuildTool_BlueprintPaste_Transpiler
                 new CodeMatch(i => i.IsStloc())
             );
 
-        if (matcher.IsInvalid)
+        if (!matcher.IsInvalid)
         {
-            Log.Error(
-                "BuildTool_BlueprintPaste.CreatePrebuilds_Transpiler 2 failed. Mod version not compatible with game version.");
-            return instructions;
+            return matcher
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() => Multiplayer.IsActive))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jumpOperand))
+                .InstructionEnumeration();
         }
-
-        return matcher
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
-            {
-                return Multiplayer.IsActive;
-            }))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jumpOperand))
-            .InstructionEnumeration();
+        Log.Error(
+            "BuildTool_BlueprintPaste.CreatePrebuilds_Transpiler 2 failed. Mod version not compatible with game version.");
+        return codeInstructions;
     }
 }

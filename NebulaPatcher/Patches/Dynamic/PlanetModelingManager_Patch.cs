@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
@@ -117,7 +116,7 @@ public class PlanetModelingManager_Patch
         return false;
     }
 
-    private static void InternalLoadPlanetsRequestGenerator(PlanetData[] planetsToLoad)
+    private static void InternalLoadPlanetsRequestGenerator(IEnumerable<PlanetData> planetsToLoad)
     {
         lock (PlanetModelingManager.genPlanetReqList)
         {
@@ -137,21 +136,22 @@ public class PlanetModelingManager_Patch
                 planetsToRequest.Add(planet.id);
             }
 
-            if (planetsToRequest.Any())
+            if (planetsToRequest.Count == 0)
             {
-                // Make local planet load first
-                var localPlanetId = Multiplayer.Session.LocalPlayer?.Data?.LocalPlanetId ?? -1;
-                if (localPlanetId == -1)
-                {
-                    localPlanetId = UIVirtualStarmap_Transpiler.customBirthPlanet;
-                }
-
-                if (planetsToRequest.Remove(localPlanetId))
-                {
-                    planetsToRequest.Insert(0, localPlanetId);
-                }
-                Multiplayer.Session.Network.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
+                return;
             }
+            // Make local planet load first
+            var localPlanetId = Multiplayer.Session.LocalPlayer?.Data?.LocalPlanetId ?? -1;
+            if (localPlanetId == -1)
+            {
+                localPlanetId = UIVirtualStarmap_Transpiler.customBirthPlanet;
+            }
+
+            if (planetsToRequest.Remove(localPlanetId))
+            {
+                planetsToRequest.Insert(0, localPlanetId);
+            }
+            Multiplayer.Session.Network.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
         }
     }
 
@@ -188,13 +188,15 @@ public class PlanetModelingManager_Patch
 
     private static void RequestCalcPlanet(PlanetData planet)
     {
-        if (!planet.calculated && !planet.calculating && planet.data == null)
+        if (planet.calculated || planet.calculating || planet.data != null)
         {
-            if (!planet.loaded && !planet.loading)
-            {
-                planet.calculating = true;
-                Multiplayer.Session.Network.SendPacket(new PlanetDetailRequest(planet.id));
-            }
+            return;
         }
+        if (planet.loaded || planet.loading)
+        {
+            return;
+        }
+        planet.calculating = true;
+        Multiplayer.Session.Network.SendPacket(new PlanetDetailRequest(planet.id));
     }
 }

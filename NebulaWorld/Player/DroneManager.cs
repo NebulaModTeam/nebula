@@ -2,7 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using NebulaAPI;
+using System.Linq;
+using NebulaAPI.DataStructures;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 using Random = System.Random;
@@ -33,10 +34,11 @@ public class DroneManager : IDisposable
         PlayerDroneBuildingPlans = null;
         PendingBuildRequests = null;
         CachedPositions = null;
+        GC.SuppressFinalize(this);
     }
 
 
-    public void BroadcastDroneOrder(int droneId, int entityId, int stage)
+    public static void BroadcastDroneOrder(int droneId, int entityId, int stage)
     {
         if (!Multiplayer.IsActive)
         {
@@ -44,7 +46,7 @@ public class DroneManager : IDisposable
         }
 
         var priority = 0;
-        if (stage == 1 || stage == 2)
+        if (stage is 1 or 2)
         {
             priority = rnd.Next();
             DronePriorities[droneId] = priority;
@@ -58,67 +60,61 @@ public class DroneManager : IDisposable
             GameMain.localPlanet.factory.prebuildPool[-entityId].pos));
     }
 
-    public void AddPlayerDronePlan(ushort playerId, int entityId)
+    public static void AddPlayerDronePlan(ushort playerId, int entityId)
     {
-        if (!PlayerDroneBuildingPlans.ContainsKey(playerId))
+        if (!PlayerDroneBuildingPlans.TryGetValue(playerId, out var value))
         {
-            PlayerDroneBuildingPlans.Add(playerId, new List<int>());
+            value = new List<int>();
+            PlayerDroneBuildingPlans.Add(playerId, value);
         }
-        PlayerDroneBuildingPlans[playerId].Add(entityId);
+
+        value.Add(entityId);
     }
 
-    public void RemovePlayerDronePlan(ushort playerId, int entityId)
+    public static void RemovePlayerDronePlan(ushort playerId, int entityId)
     {
-        if (PlayerDroneBuildingPlans.ContainsKey(playerId))
+        if (PlayerDroneBuildingPlans.TryGetValue(playerId, out var value))
         {
-            PlayerDroneBuildingPlans[playerId].Remove(entityId);
+            value.Remove(entityId);
         }
     }
 
-    public int[] GetPlayerDronePlans(ushort playerId)
+    public static int[] GetPlayerDronePlans(ushort playerId)
     {
-        if (PlayerDroneBuildingPlans.ContainsKey(playerId))
-        {
-            return PlayerDroneBuildingPlans[playerId].ToArray();
-        }
-        return null;
+        return PlayerDroneBuildingPlans.TryGetValue(playerId, out var plan) ? plan.ToArray() : null;
     }
 
-    public void AddBuildRequestSent(int entityId)
+    public static void AddBuildRequestSent(int entityId)
     {
         PendingBuildRequests.Add(entityId);
     }
 
-    public bool IsPendingBuildRequest(int entityId)
+    public static bool IsPendingBuildRequest(int entityId)
     {
         return PendingBuildRequests.Contains(entityId);
     }
 
-    public bool RemoveBuildRequest(int entityId)
+    public static void RemoveBuildRequest(int entityId)
     {
-        return PendingBuildRequests.Remove(entityId);
+        PendingBuildRequests.Remove(entityId);
     }
 
-    public void ClearCachedPositions()
+    public static void ClearCachedPositions()
     {
         CachedPositions.Clear();
 
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var model in remotePlayersModels.Values)
+            foreach (var model in remotePlayersModels.Values.Where(model =>
+                         model.Movement.GetLastPosition().LocalPlanetId == GameMain.mainPlayer.planetId))
             {
-                //Check only players on the same planet
-                if (model.Movement.GetLastPosition().LocalPlanetId != GameMain.mainPlayer.planetId)
-                {
-                    continue;
-                }
-                //Cache players positions for this looking for traget session
+                //Cache players positions for this looking for target session
                 CachedPositions.Add(model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3());
             }
         }
     }
 
-    public bool IsLocalPlayerClosestTo(ref Vector3 entityPos)
+    public static bool IsLocalPlayerClosestTo(ref Vector3 entityPos)
     {
         if (!Multiplayer.IsActive)
         {
@@ -127,10 +123,10 @@ public class DroneManager : IDisposable
 
         var myDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
 
-        foreach (var playerPostion in CachedPositions)
+        foreach (var playerPosition in CachedPositions)
         {
             //If remote player is closer, ignore the entity
-            if (myDistance > (playerPostion - entityPos).sqrMagnitude)
+            if (myDistance > (playerPosition - entityPos).sqrMagnitude)
             {
                 return false;
             }

@@ -1,11 +1,12 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld;
+using NebulaWorld.Logistics;
 using UnityEngine;
 
 #endregion
@@ -20,18 +21,17 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSync>
 {
-    public override void ProcessPacket(ILSgStationPoolSync packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSgStationPoolSync packet, NebulaConnection conn)
     {
         var gTransport = GameMain.data.galacticTransport;
-        var gStationPool = GameMain.data.galacticTransport.stationPool;
 
         var arrayStartPos = 0;
 
         for (var i = 0; i < packet.stationGId.Length; i++)
         {
-            Multiplayer.Session.Ships.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i],
+            ILSShipManager.CreateFakeStationComponent(packet.stationGId[i], packet.planetId[i],
                 packet.stationMaxShipCount[i], false); // handles array resizing
-            gStationPool = GameMain.data.galacticTransport.stationPool; // dont remove or you get an ArrayOutOfBounds
+            var gStationPool = GameMain.data.galacticTransport.stationPool;
 
             gStationPool[packet.stationGId[i]].shipDockPos = packet.DockPos[i].ToVector3();
 

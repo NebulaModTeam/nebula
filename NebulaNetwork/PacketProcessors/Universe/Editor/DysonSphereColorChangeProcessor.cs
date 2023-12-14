@@ -1,19 +1,20 @@
 ﻿#region
 
-using NebulaAPI;
+using System;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Universe;
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
 
 [RegisterPacketProcessor]
 public class DysonSphereColorChangeProcessor : PacketProcessor<DysonSphereColorChangePacket>
 {
-    public override void ProcessPacket(DysonSphereColorChangePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSphereColorChangePacket packet, NebulaConnection conn)
     {
         var sphere = GameMain.data.dysonSpheres[packet.StarIndex];
         if (sphere == null)
@@ -56,6 +57,8 @@ public class DysonSphereColorChangeProcessor : PacketProcessor<DysonSphereColorC
                         shell.color = color;
                     }
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(packet), "Unknown DysonSphereColorChangePacket type: " + packet.Type);
             }
         }
         if (IsHost)

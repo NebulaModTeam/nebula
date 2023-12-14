@@ -7,11 +7,11 @@ using UnityEngine.EventSystems;
 
 #endregion
 
-namespace NebulaWorld.MonoBehaviours.Local;
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
 
 public class ChatLinkTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public const int HoverDelay = 1;
+    private const int HoverDelay = 1;
     private static MonoBehaviour tip;
 
     public Camera camera;
@@ -57,17 +57,18 @@ public class ChatLinkTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExit
             var linkID = RichChatLinkRegistry.ParseRichText(currentLink, out var linkData);
             var handler = RichChatLinkRegistry.GetChatLinkHandler(linkID);
 
-            if (handler != null)
+            if (handler == null)
             {
-                if (insideTime > HoverDelay)
-                {
-                    handler.OnHover(linkData, this, ref tip);
-                }
+                return;
+            }
+            if (insideTime > HoverDelay)
+            {
+                handler.OnHover(linkData, this, ref tip);
+            }
 
-                if (Input.GetMouseButtonDown(0))
-                {
-                    handler.OnClick(linkData);
-                }
+            if (Input.GetMouseButtonDown(0))
+            {
+                handler.OnClick(linkData);
             }
         }
         else

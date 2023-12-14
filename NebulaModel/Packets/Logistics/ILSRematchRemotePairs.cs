@@ -19,9 +19,9 @@ public class ILSRematchRemotePairs
         ItemId = itemId.ToArray();
     }
 
-    public int GId { get; set; }
-    public int[] ShipIndex { get; set; }
-    public int[] OtherGId { get; set; }
-    public int[] Direction { get; set; }
-    public int[] ItemId { get; set; }
+    public int GId { get; }
+    public int[] ShipIndex { get; }
+    public int[] OtherGId { get; }
+    public int[] Direction { get; }
+    public int[] ItemId { get; }
 }

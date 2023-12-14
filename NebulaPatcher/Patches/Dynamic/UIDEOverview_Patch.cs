@@ -27,16 +27,18 @@ internal class UIDEOverview_Patch
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnUpdate_Prefix(UIDEOverview __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            if (__instance.autoConstructSwitch.isOn && !GameMain.data.history.HasFeatureKey(1100002))
-            {
+            return;
+        }
+        switch (__instance.autoConstructSwitch.isOn)
+        {
+            case true when !GameMain.data.history.HasFeatureKey(1100002):
                 Multiplayer.Session.Network.SendPacket(new GameHistoryFeatureKeyPacket(1100002, true));
-            }
-            else if (!__instance.autoConstructSwitch.isOn && GameMain.data.history.HasFeatureKey(1100002))
-            {
+                break;
+            case false when GameMain.data.history.HasFeatureKey(1100002):
                 Multiplayer.Session.Network.SendPacket(new GameHistoryFeatureKeyPacket(1100002, false));
-            }
+                break;
         }
     }
 }

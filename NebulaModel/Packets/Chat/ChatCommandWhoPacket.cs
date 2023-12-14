@@ -1,4 +1,4 @@
-namespace NebulaModel.Packets.Players;
+namespace NebulaModel.Packets.Chat;
 
 public class ChatCommandWhoPacket
 {
@@ -16,6 +16,6 @@ public class ChatCommandWhoPacket
         ResponsePayload = responsePayload;
     }
 
-    public bool IsRequest { get; set; }
-    public string ResponsePayload { get; set; }
+    public bool IsRequest { get; }
+    public string ResponsePayload { get; }
 }

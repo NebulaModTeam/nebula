@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using System;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Storage;
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Storage;
 [RegisterPacketProcessor]
 internal class StorageSyncRealtimeChangeProcessor : PacketProcessor<StorageSyncRealtimeChangePacket>
 {
-    public override void ProcessPacket(StorageSyncRealtimeChangePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(StorageSyncRealtimeChangePacket packet, NebulaConnection conn)
     {
         StorageComponent storage = null;
         var pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.storagePool;
@@ -22,33 +23,46 @@ internal class StorageSyncRealtimeChangeProcessor : PacketProcessor<StorageSyncR
             storage = pool[packet.StorageIndex];
         }
 
-        if (storage != null)
+        if (storage == null)
         {
-            using (Multiplayer.Session.Storage.IsIncomingRequest.On())
+            return;
+        }
+        using (Multiplayer.Session.Storage.IsIncomingRequest.On())
+        {
+            var itemId = packet.ItemId;
+            var count = packet.Count;
+            var inc = packet.Inc;
+            switch (packet.StorageEvent)
             {
-                var itemId = packet.ItemId;
-                var count = packet.Count;
-                var inc = packet.Inc;
-                int dummyOut;
-                if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItem2)
-                {
-                    storage.AddItem(itemId, count, packet.StartIndex, packet.Length, inc, out dummyOut);
-                }
-                else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.AddItemStacked)
-                {
-                    storage.AddItemStacked(itemId, count, inc, out dummyOut);
-                }
-                else if (packet.StorageEvent == StorageSyncRealtimeChangeEvent.TakeItemFromGrid)
-                {
-                    storage.TakeItemFromGrid(packet.Length, ref itemId, ref count, out dummyOut);
-                }
-
-                if (IsHost)
-                {
-                    var starId = GameMain.galaxy.PlanetById(packet.PlanetId).star.id;
-                    Multiplayer.Session.Network.SendPacketToStarExclude(packet, starId, conn);
-                }
+                case StorageSyncRealtimeChangeEvent.AddItem2:
+                    storage.AddItem(itemId, count, packet.StartIndex, packet.Length, inc, out _);
+                    break;
+                case StorageSyncRealtimeChangeEvent.AddItemStacked:
+                    storage.AddItemStacked(itemId, count, inc, out _);
+                    break;
+                case StorageSyncRealtimeChangeEvent.TakeItemFromGrid:
+                    storage.TakeItemFromGrid(packet.Length, ref itemId, ref count, out _);
+                    break;
+                case StorageSyncRealtimeChangeEvent.AddItem1:
+                    break;
+                case StorageSyncRealtimeChangeEvent.TakeItem:
+                    break;
+                case StorageSyncRealtimeChangeEvent.TakeHeadItems:
+                    break;
+                case StorageSyncRealtimeChangeEvent.TakeTailItems1:
+                    break;
+                case StorageSyncRealtimeChangeEvent.TakeTailItems2:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(packet), "Unknown StorageSyncRealtimeChangeEvent type: " + packet.StorageEvent);
             }
+
+            if (!IsHost)
+            {
+                return;
+            }
+            var starId = GameMain.galaxy.PlanetById(packet.PlanetId).star.id;
+            Multiplayer.Session.Network.SendPacketToStarExclude(packet, starId, conn);
         }
     }
 }

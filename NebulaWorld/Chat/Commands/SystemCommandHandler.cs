@@ -1,7 +1,8 @@
 ﻿#region
 
-using NebulaModel.DataStructures;
-using NebulaWorld.MonoBehaviours.Local;
+using System.Linq;
+using NebulaModel.DataStructures.Chat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -11,7 +12,6 @@ public class SystemCommandHandler : IChatCommandHandler
 {
     public void Execute(ChatWindow window, string[] parameters)
     {
-        var resp = "";
         var input = "";
 
         if (parameters.Length == 0)
@@ -26,17 +26,7 @@ public class SystemCommandHandler : IChatCommandHandler
             }
         }
 
-        foreach (var star in GameMain.galaxy.stars)
-        {
-            if (star.displayName == input)
-            {
-                foreach (var planet in star.planets)
-                {
-                    resp += planet.displayName + " (" + planet.id + ")" +
-                            (planet.orbitAroundPlanet != null ? " (moon)".Translate() : "") + "\r\n";
-                }
-            }
-        }
+        var resp = GameMain.galaxy.stars.Where(star => star.displayName == input).Aggregate("", (current1, star) => star.planets.Aggregate(current1, (current, planet) => current + planet.displayName + " (" + planet.id + ")" + (planet.orbitAroundPlanet != null ? " (moon)".Translate() : "") + "\r\n"));
 
         if (resp == "")
         {

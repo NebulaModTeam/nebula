@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Foundation;
@@ -13,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation;
 [RegisterPacketProcessor]
 internal class PlanetReformProcessor : PacketProcessor<PlanetReformPacket>
 {
-    public override void ProcessPacket(PlanetReformPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlanetReformPacket packet, NebulaConnection conn)
     {
         using (Multiplayer.Session.Planets.IsIncomingRequest.On())
         {

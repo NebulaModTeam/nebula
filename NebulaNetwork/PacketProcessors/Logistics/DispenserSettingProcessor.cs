@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class DispenserSettingProcessor : PacketProcessor<DispenserSettingPacket>
 {
-    public override void ProcessPacket(DispenserSettingPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DispenserSettingPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         var pool = factory?.transport.dispenserPool;
@@ -32,9 +32,8 @@ internal class DispenserSettingProcessor : PacketProcessor<DispenserSettingPacke
                         var newCourierCount = packet.Parameter1;
                         if (dispenserComponent.workCourierCount > newCourierCount)
                         {
-                            var warnText = string.Format("{0} [{1}] Working courier decrease from {2} to {3}",
-                                GameMain.galaxy.PlanetById(packet.PlanetId).displayName, packet.DispenserId,
-                                dispenserComponent.workCourierCount, newCourierCount);
+                            var warnText =
+                                $"{GameMain.galaxy.PlanetById(packet.PlanetId).displayName} [{packet.DispenserId}] Working courier decrease from {dispenserComponent.workCourierCount} to {newCourierCount}";
                             Log.Debug(warnText);
                             dispenserComponent.workCourierCount = newCourierCount;
                         }
@@ -77,10 +76,11 @@ internal class DispenserSettingProcessor : PacketProcessor<DispenserSettingPacke
                             factory.transport.RefreshDispenserTraffic(packet.DispenserId);
                         }
                         break;
-
-                    default:
-                        Log.Warn($"DispenserSettingPacket: Unkown DispenserSettingEvent {packet.Event}");
+                    case EDispenserSettingEvent.None:
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(packet), "Unknown DispenserSettingPacket event: " +
+                                                                              packet.Event);
                 }
 
                 var uiWindow = UIRoot.instance.uiGame.dispenserWindow;

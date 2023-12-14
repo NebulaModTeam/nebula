@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Universe;
 [RegisterPacketProcessor]
 internal class DysonSphereStatusProcessor : PacketProcessor<DysonSphereStatusPacket>
 {
-    public override void ProcessPacket(DysonSphereStatusPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSphereStatusPacket packet, NebulaConnection conn)
     {
         var dysonSphere = GameMain.data.dysonSpheres[packet.StarIndex];
         if (IsHost || dysonSphere == null)

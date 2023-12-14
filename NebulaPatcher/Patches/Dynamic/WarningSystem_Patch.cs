@@ -29,13 +29,15 @@ internal class WarningSystem_Patch
         {
             return;
         }
-        if (Multiplayer.Session.Warning.TickSignal != Multiplayer.Session.Warning.TickData)
+        if (Multiplayer.Session.Warning.TickSignal == Multiplayer.Session.Warning.TickData)
         {
-            if (GameMain.gameTick - Multiplayer.Session.Warning.LastRequestTime > 240)
-            {
-                Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Data));
-                Multiplayer.Session.Warning.LastRequestTime = GameMain.gameTick;
-            }
+            return;
         }
+        if (GameMain.gameTick - Multiplayer.Session.Warning.LastRequestTime <= 240)
+        {
+            return;
+        }
+        Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Data));
+        Multiplayer.Session.Warning.LastRequestTime = GameMain.gameTick;
     }
 }

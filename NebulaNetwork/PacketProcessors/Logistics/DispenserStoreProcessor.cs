@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class DispenserStoreProcessor : PacketProcessor<DispenserStorePacket>
 {
-    public override void ProcessPacket(DispenserStorePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DispenserStorePacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         var pool = factory?.transport.dispenserPool;

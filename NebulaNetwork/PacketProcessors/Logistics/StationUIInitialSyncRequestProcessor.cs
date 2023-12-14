@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -17,17 +17,16 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class StationUIInitialSyncRequestProcessor : PacketProcessor<StationUIInitialSyncRequest>
 {
-    public override void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(StationUIInitialSyncRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {
             return;
         }
 
-        StationComponent stationComponent;
         var stationPool = GameMain.data.galaxy?.PlanetById(packet.PlanetId)?.factory?.transport?.stationPool;
 
-        stationComponent = stationPool?[packet.StationId];
+        var stationComponent = stationPool?[packet.StationId];
 
         if (stationComponent == null)
         {

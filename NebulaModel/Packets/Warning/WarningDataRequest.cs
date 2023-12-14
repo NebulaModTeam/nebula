@@ -9,7 +9,7 @@ public class WarningDataRequest
         Event = requestEvent;
     }
 
-    public WarningRequestEvent Event { get; set; }
+    public WarningRequestEvent Event { get; }
 }
 
 public enum WarningRequestEvent

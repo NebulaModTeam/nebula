@@ -22,13 +22,14 @@ internal class UILabWindow_Patch
 
         __state = false;
         var labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
-        if (!labComponent.researchMode && !labComponent.matrixMode)
+        if (labComponent is not { researchMode: false, matrixMode: false })
         {
-            //Notify about changing matrix selection
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new LaboratoryUpdateEventPacket(index, __instance.labId, GameMain.localPlanet?.id ?? -1));
-            __state = true;
+            return;
         }
+        //Notify about changing matrix selection
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new LaboratoryUpdateEventPacket(index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+        __state = true;
     }
 
     [HarmonyPostfix]

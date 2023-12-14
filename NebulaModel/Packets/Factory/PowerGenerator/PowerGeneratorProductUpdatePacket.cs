@@ -11,7 +11,7 @@ public class PowerGeneratorProductUpdatePacket
         PlanetId = planetId;
     }
 
-    public int PowerGeneratorIndex { get; set; }
-    public float ProductCount { get; set; }
-    public int PlanetId { get; set; }
+    public int PowerGeneratorIndex { get; }
+    public float ProductCount { get; }
+    public int PlanetId { get; }
 }

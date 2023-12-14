@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Packets.Universe;
+﻿namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonSwarmRemoveOrbitPacket
 {
@@ -11,9 +11,9 @@ public class DysonSwarmRemoveOrbitPacket
         Event = removeEvent;
     }
 
-    public int StarIndex { get; set; }
-    public int OrbitId { get; set; }
-    public SwarmRemoveOrbitEvent Event { get; set; }
+    public int StarIndex { get; }
+    public int OrbitId { get; }
+    public SwarmRemoveOrbitEvent Event { get; }
 }
 
 public enum SwarmRemoveOrbitEvent

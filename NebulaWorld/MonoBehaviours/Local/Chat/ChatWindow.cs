@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NebulaModel;
-using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Utils;
 using NebulaWorld.Chat;
+using NebulaWorld.Chat.ChatLinks;
 using NebulaWorld.Chat.Commands;
 using TMPro;
 using UnityEngine;
@@ -14,7 +15,7 @@ using UnityEngine.EventSystems;
 
 #endregion
 
-namespace NebulaWorld.MonoBehaviours.Local;
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
 
 public class ChatWindow : MonoBehaviour
 {
@@ -78,43 +79,45 @@ public class ChatWindow : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (!Input.GetKeyDown(KeyCode.Escape))
         {
-            if (UISignalPicker.isOpened)
-            {
-                UISignalPicker.Close();
-                VFInput.UseEscape();
-                return;
-            }
-
-            if (EmojiPicker.IsOpen())
-            {
-                EmojiPicker.Close();
-                VFInput.UseEscape();
-                return;
-            }
-
-            Toggle(true);
-            VFInput.UseEscape();
+            return;
         }
+        if (UISignalPicker.isOpened)
+        {
+            UISignalPicker.Close();
+            VFInput.UseEscape();
+            return;
+        }
+
+        if (EmojiPicker.IsOpen())
+        {
+            EmojiPicker.Close();
+            VFInput.UseEscape();
+            return;
+        }
+
+        Toggle(true);
+        VFInput.UseEscape();
     }
 
     private void UseHistoryInput(int offset)
     {
         if (chatBox.text != inputHistory[inputHistoryCursor])
         {
-            // input has changed, save to the lastest
+            // input has changed, save to last
             inputHistoryCursor = inputHistory.Count - 1;
             inputHistory[inputHistoryCursor] = chatBox.text;
         }
         var cursor = inputHistoryCursor + offset;
         cursor = cursor < 0 ? 0 : cursor >= inputHistory.Count ? inputHistory.Count - 1 : cursor;
-        if (cursor != inputHistoryCursor)
+        if (cursor == inputHistoryCursor)
         {
-            chatBox.text = inputHistory[cursor];
-            chatBox.MoveToEndOfLine(false, true);
-            inputHistoryCursor = cursor;
+            return;
         }
+        chatBox.text = inputHistory[cursor];
+        chatBox.MoveToEndOfLine(false, true);
+        inputHistoryCursor = cursor;
     }
 
     private void FocusInputField()
@@ -195,13 +198,23 @@ public class ChatWindow : MonoBehaviour
         }
         else
         {
-            if (messageType == ChatMessageType.SystemInfoMessage && !Config.Options.EnableInfoMessage)
+            switch (messageType)
             {
-                return null;
-            }
-            if (messageType == ChatMessageType.SystemWarnMessage && !Config.Options.EnableWarnMessage)
-            {
-                return null;
+                case ChatMessageType.SystemInfoMessage when !Config.Options.EnableInfoMessage:
+                case ChatMessageType.SystemWarnMessage when !Config.Options.EnableWarnMessage:
+                    return null;
+                case ChatMessageType.PlayerMessage:
+                    break;
+                case ChatMessageType.CommandUsageMessage:
+                    break;
+                case ChatMessageType.CommandOutputMessage:
+                    break;
+                case ChatMessageType.CommandErrorMessage:
+                    break;
+                case ChatMessageType.PlayerMessagePrivate:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(messageType), messageType, null);
             }
         }
 
@@ -223,12 +236,13 @@ public class ChatWindow : MonoBehaviour
 
         messages.Add(newMsg);
 
-        if (!chatWindow.activeSelf)
+        if (chatWindow.activeSelf)
         {
-            if (Config.Options.AutoOpenChat && !messageType.IsCommandMessage())
-            {
-                Toggle(false, false);
-            }
+            return newMsg;
+        }
+        if (Config.Options.AutoOpenChat && !messageType.IsCommandMessage())
+        {
+            Toggle(false, false);
         }
 
         return newMsg;

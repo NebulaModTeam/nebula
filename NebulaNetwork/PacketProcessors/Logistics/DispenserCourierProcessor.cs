@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class DispenserCourierProcessor : PacketProcessor<DispenserCourierPacket>
 {
-    public override void ProcessPacket(DispenserCourierPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DispenserCourierPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.mainPlayer.factory;
         var pool = factory?.transport.dispenserPool;
@@ -21,12 +21,13 @@ internal class DispenserCourierProcessor : PacketProcessor<DispenserCourierPacke
         {
             return;
         }
-        if (packet.DispenserId > 0 && packet.DispenserId < pool.Length && pool[packet.DispenserId] != null)
+        if (packet.DispenserId <= 0 || packet.DispenserId >= pool.Length || pool[packet.DispenserId] == null)
         {
-            var dispenser = pool[packet.DispenserId];
-            Multiplayer.Session.Couriers.AddCourier(packet.PlayerId, factory.entityPool[dispenser.entityId].pos, packet.ItemId,
-                packet.ItemCount);
-            dispenser.pulseSignal = 2;
+            return;
         }
+        var dispenser = pool[packet.DispenserId];
+        Multiplayer.Session.Couriers.AddCourier(packet.PlayerId, factory.entityPool[dispenser.entityId].pos, packet.ItemId,
+            packet.ItemCount);
+        dispenser.pulseSignal = 2;
     }
 }

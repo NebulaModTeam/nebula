@@ -1,9 +1,11 @@
 ﻿#region
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+// ReSharper disable RedundantAssignment
 
 #endregion
 
@@ -19,13 +21,14 @@ internal class UIStationStorage_Patch
     [HarmonyPatch(nameof(UIStationStorage.OnMaxSliderValueChange))]
     public static bool OnMaxSliderValueChangePrefix(UIStationStorage __instance, float val)
     {
-        if (Multiplayer.IsActive && !eventLock)
+        if (!Multiplayer.IsActive || eventLock)
         {
-            if (val != __instance.station.storage[__instance.index].max / 100)
-            {
-                // If the silder value doesn't match with storage.max, mark it
-                Multiplayer.Session.StationsUI.StorageMaxChangeId = __instance.index;
-            }
+            return !Multiplayer.IsActive;
+        }
+        if (Math.Abs(val - __instance.station.storage[__instance.index].max / 100f) > 0.000000001)
+        {
+            // If the slider value doesn't match with storage.max, mark it
+            Multiplayer.Session.StationsUI.StorageMaxChangeId = __instance.index;
         }
         return !Multiplayer.IsActive;
     }
@@ -76,12 +79,13 @@ internal class UIStationStorage_Patch
             return;
         }
         var stationStore = __instance.station.storage[__instance.index];
-        if (__state.Item1 != stationStore.count || __state.Item2 != stationStore.inc)
+        if (__state.Item1 == stationStore.count && __state.Item2 == stationStore.inc)
         {
-            var packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id,
-                __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
-            Multiplayer.Session.Network.SendPacket(packet);
+            return;
         }
+        var packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id,
+            __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
+        Multiplayer.Session.Network.SendPacket(packet);
     }
 
     /*
@@ -107,13 +111,13 @@ internal class UIStationStorage_Patch
         }
         var stationStore = __instance.station.storage[__instance.index];
 
-        if (__state.Item1 != stationStore.count || __state.Item2 != stationStore.inc)
-
+        if (__state.Item1 == stationStore.count && __state.Item2 == stationStore.inc)
         {
-            var packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id,
-                __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
-            Multiplayer.Session.Network.SendPacket(packet);
+            return;
         }
+        var packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id,
+            __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
+        Multiplayer.Session.Network.SendPacket(packet);
     }
 
     /*

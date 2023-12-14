@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Belt;
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Belt;
 [RegisterPacketProcessor]
 internal class ConnectToSpraycoaterProcessor : PacketProcessor<ConnectToSpraycoaterPacket>
 {
-    public override void ProcessPacket(ConnectToSpraycoaterPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(ConnectToSpraycoaterPacket packet, NebulaConnection conn)
     {
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {

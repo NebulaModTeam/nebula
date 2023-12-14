@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 
 #endregion
@@ -14,5 +14,5 @@ public abstract class PacketProcessor<T> : BasePacketProcessor<T>
         ProcessPacket(packet, (NebulaConnection)conn);
     }
 
-    public abstract void ProcessPacket(T packet, NebulaConnection conn);
+    protected abstract void ProcessPacket(T packet, NebulaConnection conn);
 }

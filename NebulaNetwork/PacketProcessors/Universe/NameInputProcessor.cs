@@ -1,6 +1,8 @@
 ﻿#region
 
 using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -24,7 +26,7 @@ internal class NameInputProcessor : PacketProcessor<NameInputPacket>
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    public override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {

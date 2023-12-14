@@ -1,22 +1,23 @@
 ﻿#region
 
 using System.Collections.Generic;
-using NebulaAPI;
+using System.Linq;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 using NebulaWorld.Universe;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Universe;
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
 
 [RegisterPacketProcessor]
 internal class DysonSphereRemoveFrameProcessor : PacketProcessor<DysonSphereRemoveFramePacket>
 {
-    public override void ProcessPacket(DysonSphereRemoveFramePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSphereRemoveFramePacket packet, NebulaConnection conn)
     {
         var layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
         if (layer == null)
@@ -59,19 +60,13 @@ internal class DysonSphereRemoveFrameProcessor : PacketProcessor<DysonSphereRemo
         //Make sure that shells connected to the frame are removed first.
         //UIDysonBrush_Remove.DeleteSelectedNode() remove frames first, so we need to remove shells here.
         var delShellList = new List<int>();
-        foreach (var shell in frame.nodeA.shells)
+        foreach (var shell in frame.nodeA.shells.Where(shell => shell.frames.Contains(frame) && !delShellList.Contains(shell.id)))
         {
-            if (shell.frames.Contains(frame) && !delShellList.Contains(shell.id))
-            {
-                delShellList.Add(shell.id);
-            }
+            delShellList.Add(shell.id);
         }
-        foreach (var shell in frame.nodeB.shells)
+        foreach (var shell in frame.nodeB.shells.Where(shell => shell.frames.Contains(frame) && !delShellList.Contains(shell.id)))
         {
-            if (shell.frames.Contains(frame) && !delShellList.Contains(shell.id))
-            {
-                delShellList.Add(shell.id);
-            }
+            delShellList.Add(shell.id);
         }
         foreach (var shellId in delShellList)
         {

@@ -9,5 +9,5 @@ public class TrashSystemResponseDataPacket
         TrashSystemData = trashSystemData;
     }
 
-    public byte[] TrashSystemData { get; set; }
+    public byte[] TrashSystemData { get; }
 }

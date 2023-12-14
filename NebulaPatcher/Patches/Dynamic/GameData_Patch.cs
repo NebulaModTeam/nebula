@@ -147,7 +147,10 @@ internal class GameData_Patch
             }
             RefreshMissingMeshes();
         }
-        planet.onLoaded -= __instance.OnActivePlanetLoaded;
+        if (planet != null)
+        {
+            planet.onLoaded -= __instance.OnActivePlanetLoaded;
+        }
         return false;
     }
 
@@ -240,13 +243,14 @@ internal class GameData_Patch
     [HarmonyPatch(nameof(GameData.LateUpdate))]
     public static void LateUpdate_Postfix()
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
         {
-            if (GameMain.data.localPlanet != null && GameMain.data.localPlanet.factoryLoading &&
-                GameMain.data.localPlanet.physics != null)
-            {
-                GameMain.data.localPlanet.physics.LateUpdate();
-            }
+            return;
+        }
+        if (GameMain.data.localPlanet != null && GameMain.data.localPlanet.factoryLoading &&
+            GameMain.data.localPlanet.physics != null)
+        {
+            GameMain.data.localPlanet.physics.LateUpdate();
         }
     }
 
@@ -255,39 +259,40 @@ internal class GameData_Patch
     public static void SetForNewGame_Postfix(GameData __instance)
     {
         //Set starting star and planet to request from the server, except when client has set custom starting planet.
-        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
         {
-            //Request global part of GameData from host
-            Log.Info("Requesting global GameData from the server");
-            Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
+            return;
+        }
+        //Request global part of GameData from host
+        Log.Info("Requesting global GameData from the server");
+        Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
 
-            //Update player's position before searching for closest planet (GS2: Modeler.ModelingCoroutine)
-            __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x,
-                Multiplayer.Session.LocalPlayer.Data.UPosition.y, Multiplayer.Session.LocalPlayer.Data.UPosition.z);
+        //Update player's position before searching for closest planet (GS2: Modeler.ModelingCoroutine)
+        __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x,
+            Multiplayer.Session.LocalPlayer.Data.UPosition.y, Multiplayer.Session.LocalPlayer.Data.UPosition.z);
 
-            if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
+        if (Multiplayer.Session.LocalPlayer.Data.LocalPlanetId != -1)
+        {
+            var planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
+            __instance.ArrivePlanet(planet);
+        }
+        else if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1)
+        {
+            StarData nearestStar = null;
+            PlanetData nearestPlanet = null;
+            GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
+            if (nearestStar == null)
             {
-                var planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
-                __instance.ArrivePlanet(planet);
+                // We are not in a planetary system and thus do not have a star, return.
+                return;
             }
-            else if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1)
-            {
-                StarData nearestStar = null;
-                PlanetData nearestPlanet = null;
-                GameMain.data.GetNearestStarPlanet(ref nearestStar, ref nearestPlanet);
-                if (nearestStar == null)
-                {
-                    // We are not in a planetary system and thus do not have a star, return.
-                    return;
-                }
 
-                __instance.ArriveStar(nearestStar);
-            }
-            else
-            {
-                var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet);
-                __instance.ArrivePlanet(planet);
-            }
+            __instance.ArriveStar(nearestStar);
+        }
+        else
+        {
+            var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet);
+            __instance.ArrivePlanet(planet);
         }
     }
 
@@ -327,7 +332,7 @@ internal class GameData_Patch
 
         foreach (var stationComponent in GameMain.data.galacticTransport.stationPool)
         {
-            if (stationComponent != null && stationComponent.isStellar && !Multiplayer.Session.IsInLobby)
+            if (stationComponent is { isStellar: true } && !Multiplayer.Session.IsInLobby)
             {
                 StationComponent_Transpiler.ILSUpdateShipPos(stationComponent,
                     GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, shipSailSpeed, shipWarpSpeed,
@@ -364,27 +369,30 @@ internal class GameData_Patch
     public static void LeaveStar_Prefix(GameData __instance)
     {
         //Client should unload all factories once they leave the star system
-        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
         {
-            using (Multiplayer.Session.Ships.PatchLockILS.On())
+            return;
+        }
+        using (Multiplayer.Session.Ships.PatchLockILS.On())
+        {
+            for (var i = 0; i < __instance.localStar.planetCount; i++)
             {
-                for (var i = 0; i < __instance.localStar.planetCount; i++)
+                if (__instance.localStar.planets?[i] == null)
                 {
-                    if (__instance.localStar.planets != null && __instance.localStar.planets[i] != null)
-                    {
-                        if (__instance.localStar.planets[i].factory != null)
-                        {
-                            __instance.localStar.planets[i].factory.Free();
-                            __instance.localStar.planets[i].factory = null;
-                            GameMain.data.factoryCount--;
-                        }
-                    }
+                    continue;
                 }
+                if (__instance.localStar.planets[i].factory == null)
+                {
+                    continue;
+                }
+                __instance.localStar.planets[i].factory.Free();
+                __instance.localStar.planets[i].factory = null;
+                GameMain.data.factoryCount--;
             }
-            if (!Multiplayer.Session.IsInLobby)
-            {
-                Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
-            }
+        }
+        if (!Multiplayer.Session.IsInLobby)
+        {
+            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
         }
     }
 
@@ -393,11 +401,12 @@ internal class GameData_Patch
     public static void ArriveStar_Prefix(StarData star)
     {
         //Client should unload all factories once they leave the star system
-        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.IsInLobby && star != null)
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.IsInLobby || star == null)
         {
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
-            Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id));
+            return;
         }
+        Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
+        Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id));
     }
 
     [HarmonyPrefix]
@@ -415,12 +424,12 @@ internal class GameData_Patch
     [HarmonyPatch(nameof(GameData.DetermineLocalPlanet))]
     public static bool DetermineLocalPlanet_Prefix(ref bool __result)
     {
-        if (UIVirtualStarmap_Transpiler.customBirthPlanet != -1 && Multiplayer.IsActive && !Multiplayer.Session.IsGameLoaded)
+        if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1 || !Multiplayer.IsActive || Multiplayer.Session.IsGameLoaded)
         {
-            __result = false;
-            return false;
+            return true;
         }
-        return true;
+        __result = false;
+        return false;
     }
 
     private static void RefreshMissingMeshes()
@@ -432,11 +441,12 @@ internal class GameData_Patch
         {
             for (var i = 0; i < planetData.meshColliders.Length; i++)
             {
-                if (planetData.meshColliders[i] != null && planetData.meshColliders[i].sharedMesh == null)
+                if (planetData.meshColliders[i] == null || planetData.meshColliders[i].sharedMesh != null)
                 {
-                    planetData.meshColliders[i].sharedMesh = planetData.meshes[i];
-                    flag = true;
+                    continue;
                 }
+                planetData.meshColliders[i].sharedMesh = planetData.meshes[i];
+                flag = true;
             }
         }
 

@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Planet;
 [RegisterPacketProcessor]
 public class PlanetDetailRequestProcessor : PacketProcessor<PlanetDetailRequest>
 {
-    public override void ProcessPacket(PlanetDetailRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlanetDetailRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {

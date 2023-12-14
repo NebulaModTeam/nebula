@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -22,29 +23,30 @@ internal class PlayerMove_Sail_Transpiler
     {
         // Send DysonSailDataPacket whenever calling dysonSphere.swarm.AddSolarSail()
 
-        var codeMatcher = new CodeMatcher(instructions)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions)
             .MatchForward(true,
                 new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddSolarSail")
             );
 
-        if (codeMatcher.IsInvalid)
+        if (!codeMatcher.IsInvalid)
         {
-            Log.Error(
-                "PlayerMove_Sail_Transpiler.ThrowSolarSailLogic_Sandbox failed. Mod version not compatible with game version.");
-            return instructions;
-        }
-
-        return codeMatcher
-            .SetInstruction(HarmonyLib.Transpilers.EmitDelegate<Func<DysonSwarm, DysonSail, int, long, int>>(
-                (swarm, sail, orbitId, expiryTime) =>
-                {
-                    if (Multiplayer.IsActive)
+            return codeMatcher
+                .SetInstruction(HarmonyLib.Transpilers.EmitDelegate<Func<DysonSwarm, DysonSail, int, long, int>>(
+                    (swarm, sail, orbitId, expiryTime) =>
                     {
-                        Multiplayer.Session.Network.SendPacket(new DysonSailDataPacket(swarm.dysonSphere.starData.index,
-                            ref sail, orbitId, expiryTime));
-                    }
-                    return swarm.AddSolarSail(sail, orbitId, expiryTime);
-                }))
-            .InstructionEnumeration();
+                        if (Multiplayer.IsActive)
+                        {
+                            Multiplayer.Session.Network.SendPacket(new DysonSailDataPacket(swarm.dysonSphere.starData.index,
+                                ref sail, orbitId, expiryTime));
+                        }
+                        return swarm.AddSolarSail(sail, orbitId, expiryTime);
+                    }))
+                .InstructionEnumeration();
+        }
+        Log.Error(
+            "PlayerMove_Sail_Transpiler.ThrowSolarSailLogic_Sandbox failed. Mod version not compatible with game version.");
+        return codeInstructions;
+
     }
 }

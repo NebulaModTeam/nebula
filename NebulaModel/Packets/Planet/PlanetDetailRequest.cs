@@ -9,5 +9,5 @@ public class PlanetDetailRequest
         PlanetID = planetID;
     }
 
-    public int PlanetID { get; set; }
+    public int PlanetID { get; }
 }

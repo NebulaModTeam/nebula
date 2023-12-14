@@ -12,8 +12,8 @@ public class BuildEntityRequest
         EntityId = entityId;
     }
 
-    public int PlanetId { get; set; }
-    public int PrebuildId { get; set; }
-    public int AuthorId { get; set; }
-    public int EntityId { get; set; }
+    public int PlanetId { get; }
+    public int PrebuildId { get; }
+    public int AuthorId { get; }
+    public int EntityId { get; }
 }

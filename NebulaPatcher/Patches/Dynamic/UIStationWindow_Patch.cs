@@ -6,6 +6,7 @@ using HarmonyLib;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
 using UnityEngine;
+// ReSharper disable RedundantAssignment
 
 #endregion
 
@@ -26,11 +27,12 @@ internal class UIStationWindow_Patch
         }
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxChargePower;
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
-        if (Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
-            StringBuilderUtility.WriteKMG(__instance.powerServedSB, 8, (long)(3000000.0 * value + 0.5));
-            __instance.maxChargePowerValue.text = __instance.powerServedSB.ToString();
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
+        StringBuilderUtility.WriteKMG(__instance.powerServedSB, 8, (long)(3000000.0 * value + 0.5));
+        __instance.maxChargePowerValue.text = __instance.powerServedSB.ToString();
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
@@ -61,23 +63,17 @@ internal class UIStationWindow_Patch
         }
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxTripVessel;
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
-        if (Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
-            float num;
-            if (value > 40.5f)
-            {
-                num = 10000.0f;
-            }
-            else if (value > 20.5f)
-            {
-                num = value * 2f - 20f;
-            }
-            else
-            {
-                num = value;
-            }
-            __instance.maxTripVesselValue.text = num < 9999.0f ? num.ToString("0 ly") : "∞";
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
+        var num = value switch
+        {
+            > 40.5f => 10000.0f,
+            > 20.5f => value * 2f - 20f,
+            _ => value
+        };
+        __instance.maxTripVesselValue.text = num < 9999.0f ? num.ToString("0 ly") : "∞";
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
@@ -91,15 +87,16 @@ internal class UIStationWindow_Patch
         }
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MinDeliverDrone;
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
-        if (Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
-            var num = (int)(value * 10f + 0.5f);
-            if (num < 1)
-            {
-                num = 1;
-            }
-            __instance.minDeliverDroneValue.text = num.ToString("0") + " %";
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
+        var num = (int)(value * 10f + 0.5f);
+        if (num < 1)
+        {
+            num = 1;
+        }
+        __instance.minDeliverDroneValue.text = num.ToString("0") + " %";
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
@@ -113,18 +110,19 @@ internal class UIStationWindow_Patch
         }
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MinDeliverVessel;
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
-        if (Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
-            var num = (int)(value * 10f + 0.5f);
-            num = num < 1 ? 1 : num;
-            __instance.minDeliverVesselValue.text = num.ToString("0") + " %";
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
+        var num = (int)(value * 10f + 0.5f);
+        num = num < 1 ? 1 : num;
+        __instance.minDeliverVesselValue.text = num.ToString("0") + " %";
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UIStationWindow.OnMaxMiningSpeedChange))]
-    public static bool OnMaxMiningSpeedChangee_Prefix(UIStationWindow __instance, float value)
+    public static bool OnMaxMiningSpeedChanged_Prefix(UIStationWindow __instance, float value)
     {
         if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
         {
@@ -132,11 +130,12 @@ internal class UIStationWindow_Patch
         }
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.MaxMiningSpeed;
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
-        if (Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
-            var num = 10000 + (int)(value + 0.5f) * 1000;
-            __instance.maxMiningSpeedValue.text = (num / 100).ToString("0") + " %";
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
+        var num = 10000 + (int)(value + 0.5f) * 1000;
+        __instance.maxMiningSpeedValue.text = (num / 100).ToString("0") + " %";
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
@@ -158,31 +157,32 @@ internal class UIStationWindow_Patch
         }
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.WarpDistance;
         Multiplayer.Session.StationsUI.SliderBarPacket.SettingValue = value;
-        if (Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
-            float num;
-            if (value < 1.5)
-            {
-                num = 0.2f;
-            }
-            else if (value < 7.5)
-            {
-                num = value * 0.5f - 0.5f;
-            }
-            else if (value < 16.5)
-            {
-                num = value - 4f;
-            }
-            else if (value < 20.5)
-            {
-                num = value * 2f - 20f;
-            }
-            else
-            {
-                num = 60.0f;
-            }
-            __instance.warperDistanceValue.text = num < 10.0 ? num.ToString("0.0 AU") : num.ToString("0 AU");
+            return Multiplayer.Session.LocalPlayer.IsHost;
         }
+        float num;
+        if (value < 1.5)
+        {
+            num = 0.2f;
+        }
+        else if (value < 7.5)
+        {
+            num = value * 0.5f - 0.5f;
+        }
+        else if (value < 16.5)
+        {
+            num = value - 4f;
+        }
+        else if (value < 20.5)
+        {
+            num = value * 2f - 20f;
+        }
+        else
+        {
+            num = 60.0f;
+        }
+        __instance.warperDistanceValue.text = num < 10.0 ? num.ToString("0.0 AU") : num.ToString("0 AU");
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
@@ -244,7 +244,7 @@ internal class UIStationWindow_Patch
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIStationWindow.OnDroneIconClick))]
     [HarmonyPriority(Priority.Last)]
-    public static void OnDroneIconClick_Posfix(UIStationWindow __instance, int __state)
+    public static void OnDroneIconClick_Postfix(UIStationWindow __instance, int __state)
     {
         if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
         {
@@ -252,19 +252,21 @@ internal class UIStationWindow_Patch
         }
 
         var stationComponent = __instance.transport.stationPool[__instance.stationId];
-        if (__state != stationComponent.idleDroneCount)
+        if (__state == stationComponent.idleDroneCount)
         {
-            var droneCount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
-            var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
-                StationUI.EUISettings.SetDroneCount, droneCount);
-            Multiplayer.Session.Network.SendPacket(packet);
-            if (Multiplayer.Session.LocalPlayer.IsClient)
-            {
-                // Revert drone count until host verify
-                stationComponent.idleDroneCount = __state;
-                __instance.droneIconButton.button.interactable = false;
-            }
+            return;
         }
+        var droneCount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
+        var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
+            StationUI.EUISettings.SetDroneCount, droneCount);
+        Multiplayer.Session.Network.SendPacket(packet);
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
+        {
+            return;
+        }
+        // Revert drone count until host verify
+        stationComponent.idleDroneCount = __state;
+        __instance.droneIconButton.button.interactable = false;
     }
 
     [HarmonyPostfix]
@@ -294,7 +296,7 @@ internal class UIStationWindow_Patch
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIStationWindow.OnShipIconClick))]
     [HarmonyPriority(Priority.Last)]
-    public static void OnShipIconClick_Posfix(UIStationWindow __instance, int __state)
+    public static void OnShipIconClick_Postfix(UIStationWindow __instance, int __state)
     {
         if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
         {
@@ -302,19 +304,21 @@ internal class UIStationWindow_Patch
         }
 
         var stationComponent = __instance.transport.stationPool[__instance.stationId];
-        if (__state != stationComponent.idleShipCount)
+        if (__state == stationComponent.idleShipCount)
         {
-            var ShipCount = stationComponent.idleShipCount + stationComponent.workShipCount;
-            var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
-                StationUI.EUISettings.SetShipCount, ShipCount);
-            Multiplayer.Session.Network.SendPacket(packet);
-            if (Multiplayer.Session.LocalPlayer.IsClient)
-            {
-                // Revert ship count until host verify
-                stationComponent.idleShipCount = __state;
-                __instance.shipIconButton.button.interactable = false;
-            }
+            return;
         }
+        var ShipCount = stationComponent.idleShipCount + stationComponent.workShipCount;
+        var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
+            StationUI.EUISettings.SetShipCount, ShipCount);
+        Multiplayer.Session.Network.SendPacket(packet);
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
+        {
+            return;
+        }
+        // Revert ship count until host verify
+        stationComponent.idleShipCount = __state;
+        __instance.shipIconButton.button.interactable = false;
     }
 
     [HarmonyPostfix]
@@ -344,7 +348,7 @@ internal class UIStationWindow_Patch
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIStationWindow.OnWarperIconClick))]
     [HarmonyPriority(Priority.Last)]
-    public static void OnWarperIconClick_Posfix(UIStationWindow __instance, int __state)
+    public static void OnWarperIconClick_Postfix(UIStationWindow __instance, int __state)
     {
         if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
         {
@@ -352,18 +356,20 @@ internal class UIStationWindow_Patch
         }
 
         var stationComponent = __instance.transport.stationPool[__instance.stationId];
-        if (__state != stationComponent.warperCount)
+        if (__state == stationComponent.warperCount)
         {
-            var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
-                StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
-            Multiplayer.Session.Network.SendPacket(packet);
-            if (Multiplayer.Session.LocalPlayer.IsClient)
-            {
-                // Revert warper count until host verify
-                stationComponent.warperCount = __state;
-                __instance.warperIconButton.button.interactable = false;
-            }
+            return;
         }
+        var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
+            StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
+        Multiplayer.Session.Network.SendPacket(packet);
+        if (!Multiplayer.Session.LocalPlayer.IsClient)
+        {
+            return;
+        }
+        // Revert warper count until host verify
+        stationComponent.warperCount = __state;
+        __instance.warperIconButton.button.interactable = false;
     }
 
     [HarmonyPrefix]
@@ -406,10 +412,10 @@ internal class UIStationWindow_Patch
 
         // Stage 0 : Hide UI elements until sync data arrive
         __instance.titleText.text = "Loading...";
-        for (var i = 0; i < __instance.storageUIs.Length; i++)
+        foreach (var t in __instance.storageUIs)
         {
-            __instance.storageUIs[i]._Close();
-            __instance.storageUIs[i].ClosePopMenu();
+            t._Close();
+            t.ClosePopMenu();
         }
         __instance.panelDown.SetActive(false);
 
@@ -452,15 +458,16 @@ internal class UIStationWindow_Patch
         }
 
         // Request for remoteOrder update every 60tick
-        if (Multiplayer.Session.LocalPlayer.IsClient && GameMain.gameTick - lastUpdateGametick > 60)
+        if (!Multiplayer.Session.LocalPlayer.IsClient || GameMain.gameTick - lastUpdateGametick <= 60)
         {
-            var gid = __instance.transport?.stationPool?[__instance.stationId].gid ?? 0;
-            if (gid > 0)
-            {
-                Multiplayer.Session.Network.SendPacket(new RemoteOrderUpdate(gid, Array.Empty<int>()));
-            }
-            lastUpdateGametick = GameMain.gameTick;
+            return true;
         }
+        var gid = __instance.transport?.stationPool?[__instance.stationId].gid ?? 0;
+        if (gid > 0)
+        {
+            Multiplayer.Session.Network.SendPacket(new RemoteOrderUpdate(gid, Array.Empty<int>()));
+        }
+        lastUpdateGametick = GameMain.gameTick;
 
         return true;
     }

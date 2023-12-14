@@ -10,6 +10,6 @@ public class GameHistoryResearchContributionPacket
         TechId = techId;
     }
 
-    public long Hashes { get; set; }
-    public int TechId { get; set; }
+    public long Hashes { get; }
+    public int TechId { get; }
 }

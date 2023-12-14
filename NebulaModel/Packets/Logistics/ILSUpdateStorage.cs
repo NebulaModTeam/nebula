@@ -13,8 +13,8 @@ public class ILSUpdateStorage
         Inc = inc;
     }
 
-    public int GId { get; set; }
-    public int Index { get; set; }
-    public int Count { get; set; }
-    public int Inc { get; set; }
+    public int GId { get; }
+    public int Index { get; }
+    public int Count { get; }
+    public int Inc { get; }
 }

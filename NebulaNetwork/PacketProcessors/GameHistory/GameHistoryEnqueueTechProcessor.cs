@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
@@ -20,19 +21,20 @@ internal class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqu
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    public override void ProcessPacket(GameHistoryEnqueueTechPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameHistoryEnqueueTechPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {
             var player = playerManager.GetPlayer(conn);
-            if (player != null)
+            if (player == null)
             {
-                using (Multiplayer.Session.History.IsIncomingRequest.On())
-                {
-                    GameMain.history.EnqueueTech(packet.TechId);
-                }
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                return;
             }
+            using (Multiplayer.Session.History.IsIncomingRequest.On())
+            {
+                GameMain.history.EnqueueTech(packet.TechId);
+            }
+            playerManager.SendPacketToOtherPlayers(packet, player);
         }
         else
         {

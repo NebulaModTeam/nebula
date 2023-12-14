@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -18,12 +18,11 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class StationUIInitialSyncProcessor : PacketProcessor<StationUIInitialSync>
 {
-    public override void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
+    protected override void ProcessPacket(StationUIInitialSync packet, NebulaConnection conn)
     {
-        StationComponent stationComponent = null;
         var stationPool = GameMain.data.galaxy.PlanetById(packet.PlanetId).factory.transport.stationPool;
         // Assume the requesting station is on a loaded planet
-        stationComponent = stationPool?[packet.StationId];
+        var stationComponent = stationPool?[packet.StationId];
 
         if (stationComponent == null)
         {
@@ -64,14 +63,15 @@ public class StationUIInitialSyncProcessor : PacketProcessor<StationUIInitialSyn
         }
 
         var stationWindow = UIRoot.instance.uiGame.stationWindow;
-        if (stationWindow.active && stationWindow.factory?.planetId == packet.PlanetId &&
-            stationWindow.stationId == packet.StationId)
+        if (!stationWindow.active || stationWindow.factory?.planetId != packet.PlanetId ||
+            stationWindow.stationId != packet.StationId)
         {
-            using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
-            {
-                //Trigger OnStationIdChange() to refresh window
-                stationWindow.OnStationIdChange();
-            }
+            return;
+        }
+        using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
+        {
+            //Trigger OnStationIdChange() to refresh window
+            stationWindow.OnStationIdChange();
         }
     }
 }

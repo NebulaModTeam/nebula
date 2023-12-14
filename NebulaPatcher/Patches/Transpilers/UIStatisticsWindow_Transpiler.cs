@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -10,7 +11,7 @@ using NebulaWorld;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Transpiler;
+namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch(typeof(UIStatisticsWindow))]
 public static class UIStatisticsWindow_Transpiler
@@ -25,9 +26,10 @@ public static class UIStatisticsWindow_Transpiler
         //To:     GetPlanetData(i).id
         //Change: this.gameData.factories[i].planet
         //To:     GetPlanetData(i)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            instructions = ReplaceFactoryCount(instructions);
+            instructions = ReplaceFactoryCount(codeInstructions);
 
             var matcher = new CodeMatcher(instructions)
                 .MatchForward(false,
@@ -60,7 +62,7 @@ public static class UIStatisticsWindow_Transpiler
         catch
         {
             Log.Error("RefreshAstroBox_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 
@@ -74,9 +76,10 @@ public static class UIStatisticsWindow_Transpiler
         //To:     GetFactoryIndex(planetData)
         //Change: if (starData.planets[j].factory != null)
         //To:     if (GetFactoryIndex(starData.planets[j]) != -1)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            instructions = ReplaceFactoryCount(instructions);
+            instructions = ReplaceFactoryCount(codeInstructions);
             instructions = new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.factoryIndex)))
@@ -100,7 +103,7 @@ public static class UIStatisticsWindow_Transpiler
         catch
         {
             Log.Error("ComputeDisplayEntries_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 
@@ -125,7 +128,8 @@ public static class UIStatisticsWindow_Transpiler
             With: Multiplayer.Session.Statistics.UpdateTotalChargedEnergy(factoryIndex);
 
          * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
-        var matcher = new CodeMatcher(instructions, iLGenerator)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions, iLGenerator)
             .MatchForward(false,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "gameData"),
@@ -148,7 +152,7 @@ public static class UIStatisticsWindow_Transpiler
         {
             Log.Error(
                 "UIStatisticsWindow_Transpiler.ComputePowerTab_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var currentPos = matcher.Pos;
@@ -175,9 +179,7 @@ public static class UIStatisticsWindow_Transpiler
             }))
             .InsertAndAdvance(storeNum2Instruction)
             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() =>
-            {
-                return Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost;
-            }))
+                Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost))
             .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, endLabel))
             .InstructionEnumeration();
     }

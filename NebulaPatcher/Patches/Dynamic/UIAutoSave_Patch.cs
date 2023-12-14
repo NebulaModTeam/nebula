@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaWorld;
+using UnityEngine;
 
 #endregion
 
@@ -24,8 +25,9 @@ internal class UIAutoSave_Patch
             return;
         }
 
-        contentCanvas.gameObject.SetActive(!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost);
-        Log.Warn($"UIAutoSave active: {contentCanvas.gameObject.activeSelf}");
+        GameObject gameObject;
+        (gameObject = contentCanvas.gameObject).SetActive(!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost);
+        Log.Warn($"UIAutoSave active: {gameObject.activeSelf}");
     }
 
     [HarmonyPrefix]

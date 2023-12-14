@@ -2,8 +2,8 @@
 
 using System.Text;
 using HarmonyLib;
-using NebulaModel.DataStructures;
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaModel.DataStructures.Chat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 

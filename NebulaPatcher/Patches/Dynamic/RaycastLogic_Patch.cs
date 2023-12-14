@@ -14,15 +14,11 @@ internal class RaycastLogic_Patch
     [HarmonyPatch(nameof(RaycastLogic.GameTick))]
     public static bool GameTick_Prefix(RaycastLogic __instance)
     {
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
+        if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsClient)
         {
-            if (__instance.factory == null)
-            {
-                // while we wait for factory data from server this is still null, prevent running into NRE
-                return false;
-            }
+            return true;
         }
-
-        return true;
+        return __instance.factory != null;
+        // while we wait for factory data from server this is still null, prevent running into NRE
     }
 }

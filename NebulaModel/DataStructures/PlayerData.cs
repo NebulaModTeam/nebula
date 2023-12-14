@@ -2,7 +2,10 @@
 
 using System;
 using System.IO;
-using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.GameState;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 
 #endregion
 
@@ -63,30 +66,26 @@ public class PlayerData : IPlayerData
         writer.Put(Appearance != null);
         if (Appearance != null)
         {
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            using (var wr = new BinaryWriter(ms))
             {
-                using (var wr = new BinaryWriter(ms))
-                {
-                    Appearance.Export(wr);
-                }
-                var export = ms.ToArray();
-                writer.Put(export.Length);
-                writer.Put(export);
+                Appearance.Export(wr);
             }
+            var export = ms.ToArray();
+            writer.Put(export.Length);
+            writer.Put(export);
         }
         writer.Put(DIYAppearance != null);
         if (DIYAppearance != null)
         {
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            using (var wr = new BinaryWriter(ms))
             {
-                using (var wr = new BinaryWriter(ms))
-                {
-                    DIYAppearance.Export(wr);
-                }
-                var export = ms.ToArray();
-                writer.Put(export.Length);
-                writer.Put(export);
+                DIYAppearance.Export(wr);
             }
+            var export = ms.ToArray();
+            writer.Put(export.Length);
+            writer.Put(export);
         }
         writer.Put(DIYItemId.Length);
         for (var i = 0; i < DIYItemId.Length; i++)
@@ -113,13 +112,11 @@ public class PlayerData : IPlayerData
             var len = reader.GetInt();
             var data = new byte[len];
             reader.GetBytes(data, len);
-            using (var ms = new MemoryStream(data))
-            using (var br = new BinaryReader(ms))
-            {
-                Appearance = new MechaAppearance();
-                Appearance.Init();
-                Appearance.Import(br);
-            }
+            using var ms = new MemoryStream(data);
+            using var br = new BinaryReader(ms);
+            Appearance = new MechaAppearance();
+            Appearance.Init();
+            Appearance.Import(br);
         }
         var isDIYAppearancePresent = reader.GetBool();
         if (isDIYAppearancePresent)
@@ -127,13 +124,11 @@ public class PlayerData : IPlayerData
             var len = reader.GetInt();
             var data = new byte[len];
             reader.GetBytes(data, len);
-            using (var ms = new MemoryStream(data))
-            using (var br = new BinaryReader(ms))
-            {
-                DIYAppearance = new MechaAppearance();
-                DIYAppearance.Init();
-                DIYAppearance.Import(br);
-            }
+            using var ms = new MemoryStream(data);
+            using var br = new BinaryReader(ms);
+            DIYAppearance = new MechaAppearance();
+            DIYAppearance.Init();
+            DIYAppearance.Import(br);
         }
         var DIYItemLen = reader.GetInt();
         DIYItemId = new int[DIYItemLen];
@@ -180,16 +175,17 @@ public class PlayerData : IPlayerData
                 var len = reader.GetInt();
                 var data = new byte[len];
                 reader.GetBytes(data, len);
-                using (var ms = new MemoryStream(data))
-                using (var br = new BinaryReader(ms))
-                {
-                    Appearance = new MechaAppearance();
-                    Appearance.Init();
-                    Appearance.Import(br);
-                }
+                using var ms = new MemoryStream(data);
+                using var br = new BinaryReader(ms);
+                Appearance = new MechaAppearance();
+                Appearance.Init();
+                Appearance.Import(br);
             }
         }
-        if (revision >= 6)
+        if (revision < 6)
+        {
+            return;
+        }
         {
             var isDIYAppearancePresent = reader.GetBool();
             if (isDIYAppearancePresent)
@@ -197,13 +193,11 @@ public class PlayerData : IPlayerData
                 var len = reader.GetInt();
                 var data = new byte[len];
                 reader.GetBytes(data, len);
-                using (var ms = new MemoryStream(data))
-                using (var br = new BinaryReader(ms))
-                {
-                    DIYAppearance = new MechaAppearance();
-                    DIYAppearance.Init();
-                    DIYAppearance.Import(br);
-                }
+                using var ms = new MemoryStream(data);
+                using var br = new BinaryReader(ms);
+                DIYAppearance = new MechaAppearance();
+                DIYAppearance.Init();
+                DIYAppearance.Import(br);
             }
             var DIYItemLen = reader.GetInt();
             DIYItemId = new int[DIYItemLen];

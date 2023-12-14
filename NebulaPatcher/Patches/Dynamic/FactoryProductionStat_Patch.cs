@@ -21,12 +21,12 @@ internal class FactoryProductionStat_Patch
         }
 
         //Multiplayer clients should not include their own calculated statistics
-        if (!Multiplayer.Session.Statistics.IsIncomingRequest)
+        if (Multiplayer.Session.Statistics.IsIncomingRequest)
         {
-            __instance.ClearRegisters();
-            return false;
+            return true;
         }
+        __instance.ClearRegisters();
+        return false;
 
-        return true;
     }
 }

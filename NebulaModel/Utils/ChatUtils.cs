@@ -3,7 +3,7 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using TMPro;
 using UnityEngine;
 
@@ -13,18 +13,18 @@ namespace NebulaModel.Utils;
 
 public static class ChatUtils
 {
-    internal const float ReferenceX = 1920;
-    internal const float ReferenceY = 1080;
+    private const float ReferenceX = 1920;
+    private const float ReferenceY = 1080;
 
-    internal static readonly string[] AllowedTags =
+    private static readonly string[] AllowedTags =
     {
         "b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"
     };
 
-    internal static readonly Vector2[] ChatMargins = { new(10, 350), new(10, 350), new(10, 10), new(10, 100) };
+    private static readonly Vector2[] ChatMargins = { new(10, 350), new(10, 350), new(10, 10), new(10, 100) };
 
 
-    internal static readonly Vector2[] ChatSizes = { new(500, 300), new(700, 420), new(800, 480) };
+    private static readonly Vector2[] ChatSizes = { new(500, 300), new(700, 420), new(800, 480) };
 
     public static Vector2 GetDefaultPosition(ChatPosition position, ChatSize size)
     {
@@ -72,7 +72,7 @@ public static class ChatUtils
     public static string SanitizeText(string input)
     {
         // Matches any valid rich text tag. For example: <sprite name="hello" index=5>
-        var regex = new Regex(@"<([/\w]+)=?[""#]?\w*""?\s?[\s\w""=]*>");
+        var regex = new Regex("""<([/\w]+)=?["#]?\w*"?\s?[\s\w"=]*>""");
 
         return regex.Replace(input, match =>
         {
@@ -118,11 +118,7 @@ public static class ChatUtils
 
     public static bool IsCommandMessage(this ChatMessageType type)
     {
-        return type == ChatMessageType.CommandOutputMessage ||
-               type == ChatMessageType.CommandUsageMessage ||
-               type == ChatMessageType.CommandErrorMessage ||
-               type == ChatMessageType.SystemWarnMessage ||
-               type == ChatMessageType.SystemInfoMessage;
+        return type is ChatMessageType.CommandOutputMessage or ChatMessageType.CommandUsageMessage or ChatMessageType.CommandErrorMessage or ChatMessageType.SystemWarnMessage or ChatMessageType.SystemInfoMessage;
     }
 
     public static bool Contains(this string source, string toCheck, StringComparison comp)

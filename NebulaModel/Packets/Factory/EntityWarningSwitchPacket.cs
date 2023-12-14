@@ -11,7 +11,7 @@ public class EntityWarningSwitchPacket
         Enable = enable;
     }
 
-    public int PlanetId { get; set; }
-    public int EntityId { get; set; }
-    public bool Enable { get; set; }
+    public int PlanetId { get; }
+    public int EntityId { get; }
+    public bool Enable { get; }
 }

@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
@@ -11,9 +11,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.GameHistory;
 
 [RegisterPacketProcessor]
-internal class GameHistoryFeatureKeyProcessor : PacketProcessor<GameHistoryFeatureKeyPacket>
+public class GameHistoryFeatureKeyProcessor : PacketProcessor<GameHistoryFeatureKeyPacket>
 {
-    public override void ProcessPacket(GameHistoryFeatureKeyPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameHistoryFeatureKeyPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {

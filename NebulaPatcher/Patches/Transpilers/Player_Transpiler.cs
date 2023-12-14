@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -18,7 +19,8 @@ public class Player_Transpiler
     [HarmonyPatch(nameof(Player.nearestFactory), MethodType.Getter)]
     public static IEnumerable<CodeInstruction> Get_nearestFactory_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var matcher = new CodeMatcher(instructions)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions)
             .MatchForward(false,
                 new CodeMatch(OpCodes.Ldloc_3),
                 new CodeMatch(OpCodes.Ldloc_S),
@@ -30,7 +32,7 @@ public class Player_Transpiler
         if (matcher.IsInvalid)
         {
             Log.Error("Player.Get_nearestFactory_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var op = matcher.InstructionAt(5).operand;
@@ -38,9 +40,7 @@ public class Player_Transpiler
         return matcher
             .Advance(-1)
             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() =>
-            {
-                return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
-            }))
+                !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost))
             .Insert(new CodeInstruction(OpCodes.Brfalse, op))
             .InstructionEnumeration();
     }
@@ -49,7 +49,8 @@ public class Player_Transpiler
     [HarmonyPatch(nameof(Player.Free))]
     public static IEnumerable<CodeInstruction> Free_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var matcher = new CodeMatcher(instructions)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions)
             .MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_controller"),
@@ -61,7 +62,7 @@ public class Player_Transpiler
         if (matcher.IsInvalid)
         {
             Log.Error("Player.Free_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var jumpOperand = matcher.InstructionAt(4).operand;

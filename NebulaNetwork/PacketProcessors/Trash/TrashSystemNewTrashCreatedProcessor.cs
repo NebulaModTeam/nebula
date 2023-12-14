@@ -1,10 +1,12 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
 using NebulaWorld;
+using NebulaWorld.Trash;
 
 #endregion
 
@@ -20,7 +22,7 @@ internal class TrashSystemNewTrashCreatedProcessor : PacketProcessor<TrashSystem
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    public override void ProcessPacket(TrashSystemNewTrashCreatedPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(TrashSystemNewTrashCreatedPacket packet, NebulaConnection conn)
     {
         var valid = true;
         if (IsHost)
@@ -36,15 +38,16 @@ internal class TrashSystemNewTrashCreatedProcessor : PacketProcessor<TrashSystem
             }
         }
 
-        if (valid)
+        if (!valid)
         {
-            var myId = Multiplayer.Session.World.GenerateTrashOnPlayer(packet);
+            return;
+        }
+        var myId = Multiplayer.Session.World.GenerateTrashOnPlayer(packet);
 
-            //Check if myID is same as the ID from the host
-            if (myId != packet.TrashId)
-            {
-                Multiplayer.Session.Trashes.SwitchTrashWithIds(myId, packet.TrashId);
-            }
+        //Check if myID is same as the ID from the host
+        if (myId != packet.TrashId)
+        {
+            TrashManager.SwitchTrashWithIds(myId, packet.TrashId);
         }
     }
 }

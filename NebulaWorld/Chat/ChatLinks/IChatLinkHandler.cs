@@ -1,11 +1,11 @@
 ﻿#region
 
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaWorld.Chat;
+namespace NebulaWorld.Chat.ChatLinks;
 
 public interface IChatLinkHandler
 {

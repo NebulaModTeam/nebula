@@ -10,6 +10,6 @@ public class GameHistoryUnlockTechPacket
         Level = level;
     }
 
-    public int TechId { get; set; }
-    public int Level { get; set; }
+    public int TechId { get; }
+    public int Level { get; }
 }

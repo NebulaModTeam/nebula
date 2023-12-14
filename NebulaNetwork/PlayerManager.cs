@@ -5,15 +5,17 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
-using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
-using NebulaNetwork.PacketProcessors.Players;
 using NebulaWorld;
+using NebulaWorld.Player;
 using NebulaWorld.SocialIntegration;
 
 #endregion
@@ -85,7 +87,7 @@ public class PlayerManager : IPlayerManager
 
     public INebulaPlayer GetPlayerById(ushort playerId)
     {
-        INebulaPlayer player = null;
+        INebulaPlayer player;
         using (GetConnectedPlayers(out var connectedPlayers))
         {
             if ((player = connectedPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
@@ -138,9 +140,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value))
             {
-                var player = kvp.Value;
                 player.SendPacket(packet);
             }
         }
@@ -150,13 +151,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == GameMain.data.localStar?.id))
             {
-                var player = kvp.Value;
-                if (player.Data.LocalStarId == GameMain.data.localStar?.id)
-                {
-                    player.SendPacket(packet);
-                }
+                player.SendPacket(packet);
             }
         }
     }
@@ -165,13 +162,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId))
             {
-                var player = kvp.Value;
-                if (player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId)
-                {
-                    player.SendPacket(packet);
-                }
+                player.SendPacket(packet);
             }
         }
     }
@@ -180,13 +173,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalPlanetId == planetId))
             {
-                var player = kvp.Value;
-                if (player.Data.LocalPlanetId == planetId)
-                {
-                    player.SendPacket(packet);
-                }
+                player.SendPacket(packet);
             }
         }
     }
@@ -195,13 +184,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == starId))
             {
-                var player = kvp.Value;
-                if (player.Data.LocalStarId == starId)
-                {
-                    player.SendPacket(packet);
-                }
+                player.SendPacket(packet);
             }
         }
     }
@@ -210,13 +195,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == starId && player != GetPlayer(exclude)))
             {
-                var player = kvp.Value;
-                if (player.Data.LocalStarId == starId && player != GetPlayer(exclude))
-                {
-                    player.SendPacket(packet);
-                }
+                player.SendPacket(packet);
             }
         }
     }
@@ -225,13 +206,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == starId && !player.Connection.Equals(sender)))
             {
-                var player = kvp.Value;
-                if (player.Data.LocalStarId == starId && !player.Connection.Equals(sender))
-                {
-                    player.Connection.SendRawPacket(rawPacket);
-                }
+                player.Connection.SendRawPacket(rawPacket);
             }
         }
     }
@@ -240,13 +217,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender)))
             {
-                var player = kvp.Value;
-                if (player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender))
-                {
-                    player.Connection.SendRawPacket(rawPacket);
-                }
+                player.Connection.SendRawPacket(rawPacket);
             }
         }
     }
@@ -255,13 +228,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => !player.Connection.Equals(exclude)))
             {
-                var player = kvp.Value;
-                if (!player.Connection.Equals(exclude))
-                {
-                    player.SendPacket(packet);
-                }
+                player.SendPacket(packet);
             }
         }
     }
@@ -270,13 +239,9 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player != sender))
             {
-                var player = kvp.Value;
-                if (player != sender)
-                {
-                    player.SendPacket(packet);
-                }
+                player.SendPacket(packet);
             }
         }
     }
@@ -344,7 +309,7 @@ public class PlayerManager : IPlayerManager
             // For sync completed player who triggered OnPlayerJoinedGame() before
             if (playerWasConnected && !playerWasSyncing)
             {
-                Multiplayer.Session.World.OnPlayerLeftGame(player);
+                SimulatedWorld.OnPlayerLeftGame(player);
             }
             using (threadSafe.availablePlayerIds.GetLocked(out var availablePlayerIds))
             {
@@ -354,46 +319,48 @@ public class PlayerManager : IPlayerManager
             Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
 
             //Notify players about queued building plans for drones
-            int[] DronePlans = Multiplayer.Session.Drones.GetPlayerDronePlans(player.Id);
-            if (DronePlans != null && DronePlans.Length > 0 && player.Data.LocalPlanetId > 0)
+            var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
+            if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
             {
                 Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans),
                     player.Data.LocalPlanetId);
                 //Remove it also from host queue, if host is on the same planet
                 if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                 {
-                    for (var i = 0; i < DronePlans.Length; i++)
+                    foreach (var t in DronePlans)
                     {
-                        GameMain.mainPlayer.mecha.droneLogic.serving.Remove(DronePlans[i]);
+                        GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
                     }
                 }
             }
 
-            if (playerWasSyncing && syncCount == 0)
+            if (!playerWasSyncing || syncCount != 0)
             {
-                Multiplayer.Session.Network.SendPacket(new SyncComplete());
-                Multiplayer.Session.World.OnAllPlayersSyncCompleted();
+                return;
             }
+            Multiplayer.Session.Network.SendPacket(new SyncComplete());
+            Multiplayer.Session.World.OnAllPlayersSyncCompleted();
         }
         else
         {
             Log.Warn("PlayerDisconnected NOT CALLED!");
 
-            if (Config.Options.SyncSoil)
+            if (!Config.Options.SyncSoil)
             {
-                // now we need to recalculate the current sand amount :C
-                GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
-                using (GetConnectedPlayers(out var connectedPlayers))
-                {
-                    foreach (var entry in connectedPlayers)
-                    {
-                        GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
-                    }
-                }
-                UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount,
-                    GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
-                Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+                return;
             }
+            // now we need to recalculate the current sand amount :C
+            GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+            using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                foreach (var entry in connectedPlayers)
+                {
+                    GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
+                }
+            }
+            UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount,
+                GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
+            Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
     }
 
@@ -418,15 +385,16 @@ public class PlayerManager : IPlayerManager
         }
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            if (connectedPlayers.TryGetValue(conn, out var player))
+            if (!connectedPlayers.TryGetValue(conn, out var player))
             {
-                //Find correct player for data to update, preserve sand count if syncing is enabled
-                var sandCount = player.Data.Mecha.SandCount;
-                player.Data.Mecha = mechaData;
-                if (Config.Options.SyncSoil)
-                {
-                    player.Data.Mecha.SandCount = sandCount;
-                }
+                return;
+            }
+            //Find correct player for data to update, preserve sand count if syncing is enabled
+            var sandCount = player.Data.Mecha.SandCount;
+            player.Data.Mecha = mechaData;
+            if (Config.Options.SyncSoil)
+            {
+                player.Data.Mecha.SandCount = sandCount;
             }
         }
     }

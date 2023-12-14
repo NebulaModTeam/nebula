@@ -12,8 +12,8 @@ public class MilestoneUnlockPacket
         Parameters = parameters;
     }
 
-    public int Id { get; set; }
-    public long UnlockTick { get; set; }
-    public int PatternId { get; set; }
-    public long[] Parameters { get; set; }
+    public int Id { get; }
+    public long UnlockTick { get; }
+    public int PatternId { get; }
+    public long[] Parameters { get; }
 }

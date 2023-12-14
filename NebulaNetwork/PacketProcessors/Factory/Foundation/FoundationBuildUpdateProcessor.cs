@@ -2,6 +2,8 @@
 
 using System;
 using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Foundation;
@@ -17,7 +19,7 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
 {
     private Vector3[] reformPoints = new Vector3[100];
 
-    public override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
     {
         var planet = GameMain.galaxy.PlanetById(packet.PlanetId);
         var factory = IsHost ? GameMain.data.GetOrCreateFactory(planet) : planet?.factory;
@@ -54,20 +56,26 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
             {
                 var num71 = packet.ReformIndices[i];
                 var platformSystem = factory.platformSystem;
-                if (num71 >= 0)
+                if (num71 < 0)
                 {
-                    var type = platformSystem.GetReformType(num71);
-                    var color = platformSystem.GetReformColor(num71);
-                    if (type != packet.ReformType || color != packet.ReformColor)
-                    {
-                        factory.platformSystem.SetReformType(num71, packet.ReformType);
-                        factory.platformSystem.SetReformColor(num71, packet.ReformColor);
-                    }
+                    continue;
                 }
+                var type = platformSystem.GetReformType(num71);
+                var color = platformSystem.GetReformColor(num71);
+                if (type == packet.ReformType && color == packet.ReformColor)
+                {
+                    continue;
+                }
+                factory.platformSystem.SetReformType(num71, packet.ReformType);
+                factory.platformSystem.SetReformColor(num71, packet.ReformColor);
             }
         }
 
-        if (IsHost)
+        if (!IsHost)
+        {
+            return;
+        }
+        if (planet != null)
         {
             Multiplayer.Session.Network.SendPacketToStar(packet, planet.star.id);
         }

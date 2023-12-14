@@ -30,12 +30,12 @@ internal class UIGame_Patch
     [HarmonyPatch(nameof(UIGame.StarmapChangingToMilkyWay))]
     public static bool StarmapChangingToMilkyWay_Prefix()
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            InGamePopup.ShowInfo("Unavailable".Translate(), "Milky Way is disabled in multiplayer game.".Translate(),
-                "OK".Translate());
-            return false;
+            return true;
         }
-        return true;
+        InGamePopup.ShowInfo("Unavailable".Translate(), "Milky Way is disabled in multiplayer game.".Translate(),
+            "OK".Translate());
+        return false;
     }
 }

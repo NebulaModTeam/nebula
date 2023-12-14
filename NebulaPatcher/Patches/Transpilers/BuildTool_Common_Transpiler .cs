@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -8,7 +9,7 @@ using NebulaModel.Logger;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Transpiler;
+namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch]
 internal class BuildTool_Common_Transpiler
@@ -29,7 +30,8 @@ internal class BuildTool_Common_Transpiler
     [HarmonyPatch(typeof(BuildTool_Addon), nameof(BuildTool_Inserter.CreatePrebuilds))]
     private static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var codeMatcher = new CodeMatcher(instructions)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions)
             .MatchForward(false,
                 new CodeMatch(i => i.IsLdarg()),
                 new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_player"),
@@ -38,7 +40,7 @@ internal class BuildTool_Common_Transpiler
         if (codeMatcher.IsInvalid)
         {
             Log.Error("BuildTool_Common.CreatePrebuilds_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         // num = 1; from within the if statement

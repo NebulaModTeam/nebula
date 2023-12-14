@@ -79,8 +79,9 @@ internal class UIMainMenu_Patch
         var buttonTemplate = GameObject.Find("Main Menu/button-group/button-new").GetComponent<RectTransform>();
         multiplayerButton = Object.Instantiate(buttonTemplate, mainMenuButtonGroup, false);
         multiplayerButton.name = "button-multiplayer";
-        multiplayerButton.anchoredPosition = new Vector2(multiplayerButton.anchoredPosition.x,
-            multiplayerButton.anchoredPosition.y + multiplayerButton.sizeDelta.y + 10);
+        var anchoredPosition = multiplayerButton.anchoredPosition;
+        multiplayerButton.anchoredPosition = new Vector2(anchoredPosition.x,
+            anchoredPosition.y + multiplayerButton.sizeDelta.y + 10);
         OverrideButton(multiplayerButton, "Multiplayer".Translate(), OnMultiplayerButtonClick);
     }
 
@@ -147,7 +148,7 @@ internal class UIMainMenu_Patch
         mainMenuButtonGroup.gameObject.SetActive(true);
     }
 
-    private static void OverrideButton(RectTransform buttonObj, string newText, Action newClickCallback)
+    private static void OverrideButton(Component buttonObj, string newText, Action newClickCallback)
     {
         if (newText != null)
         {
@@ -182,49 +183,47 @@ internal class UIMainMenu_Patch
         for (var i = 0; i < multiplayerMenu.childCount; i++)
         {
             var child = multiplayerMenu.GetChild(i);
-            if (child.name == "top-title")
+            switch (child.name)
             {
-                var topTitle = child;
-                topTitle.GetComponent<Localizer>().enabled = false;
-                topTitle.GetComponent<Text>().text = "Multiplayer".Translate();
-            }
-            else if (child.name == "galaxy-seed")
-            {
-                var hostIpField = child;
-                hostIpField.GetComponent<Localizer>().enabled = false;
-                hostIpField.GetComponent<Text>().text = "Host IP Address".Translate();
-                hostIpField.name = "Host IP Address";
-                hostIPAddressInput = hostIpField.GetComponentInChildren<InputField>();
-                hostIPAddressInput.onEndEdit.RemoveAllListeners();
-                hostIPAddressInput.onValueChanged.RemoveAllListeners();
-                //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
-                //256 will trigger an argument out of range exception
-                hostIPAddressInput.characterLimit = 255;
+                case "top-title":
+                    child.GetComponent<Localizer>().enabled = false;
+                    child.GetComponent<Text>().text = "Multiplayer".Translate();
+                    break;
+                case "galaxy-seed":
+                    {
+                        child.GetComponent<Localizer>().enabled = false;
+                        child.GetComponent<Text>().text = "Host IP Address".Translate();
+                        child.name = "Host IP Address";
+                        hostIPAddressInput = child.GetComponentInChildren<InputField>();
+                        hostIPAddressInput.onEndEdit.RemoveAllListeners();
+                        hostIPAddressInput.onValueChanged.RemoveAllListeners();
+                        //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
+                        //256 will trigger an argument out of range exception
+                        hostIPAddressInput.characterLimit = 255;
 
-                var ip = "127.0.0.1";
-                if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
-                {
-                    ip = Config.Options.LastIP;
-                }
-                hostIPAddressInput.text = ip;
-                hostIPAddressInput.contentType = Config.Options.StreamerMode
-                    ? InputField.ContentType.Password
-                    : InputField.ContentType.Standard;
-            }
-            else if (child.name == "start-button")
-            {
-                OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game".Translate(),
-                    OnJoinGameButtonClick);
-            }
-            else if (child.name == "cancel-button")
-            {
-                OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null,
-                    OnJoinGameBackButtonClick);
-            }
-            else
-            {
-                // Remove all unused elements that may be added by other mods
-                Object.Destroy(child.gameObject);
+                        var ip = "127.0.0.1";
+                        if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+                        {
+                            ip = Config.Options.LastIP;
+                        }
+                        hostIPAddressInput.text = ip;
+                        hostIPAddressInput.contentType = Config.Options.StreamerMode
+                            ? InputField.ContentType.Password
+                            : InputField.ContentType.Standard;
+                        break;
+                    }
+                case "start-button":
+                    OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game".Translate(),
+                        OnJoinGameButtonClick);
+                    break;
+                case "cancel-button":
+                    OverrideButton(multiplayerMenu.Find("cancel-button").GetComponent<RectTransform>(), null,
+                        OnJoinGameBackButtonClick);
+                    break;
+                default:
+                    // Remove all unused elements that may be added by other mods
+                    Object.Destroy(child.gameObject);
+                    break;
             }
         }
         var passwordField = Object.Instantiate(multiplayerMenu.Find("Host IP Address"), multiplayerMenu, false);
@@ -289,14 +288,7 @@ internal class UIMainMenu_Patch
         var p = 0;
         if (result != null)
         {
-            if (result.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                s = $"[{result.Address}]";
-            }
-            else
-            {
-                s = $"{result.Address}";
-            }
+            s = result.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{result.Address}]" : $"{result.Address}";
             p = result.Port;
             isIP = true;
         }
@@ -357,12 +349,12 @@ internal class UIMainMenu_Patch
         }
 
         //trying to resolve as uri
-        if (Uri.TryCreate(connectionString, UriKind.RelativeOrAbsolute, out _))
+        if (!Uri.TryCreate(connectionString, UriKind.RelativeOrAbsolute, out _))
         {
-            Multiplayer.JoinGame(new Client(connectionString, serverPort, password));
-            return true;
+            return false;
         }
+        Multiplayer.JoinGame(new Client(connectionString, serverPort, password));
+        return true;
 
-        return false;
     }
 }

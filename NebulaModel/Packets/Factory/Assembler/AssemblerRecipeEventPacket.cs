@@ -11,7 +11,7 @@ public class AssemblerRecipeEventPacket
         RecipeId = recipeId;
     }
 
-    public int PlanetId { get; set; }
-    public int AssemblerIndex { get; set; }
-    public int RecipeId { get; set; }
+    public int PlanetId { get; }
+    public int AssemblerIndex { get; }
+    public int RecipeId { get; }
 }

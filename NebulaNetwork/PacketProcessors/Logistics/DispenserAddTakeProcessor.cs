@@ -1,6 +1,7 @@
 ﻿#region
 
-using NebulaAPI;
+using System;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class DispenserAddTakeProcessor : PacketProcessor<DispenserAddTakePacket>
 {
-    public override void ProcessPacket(DispenserAddTakePacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DispenserAddTakePacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         var pool = factory?.entityPool;
@@ -25,17 +26,17 @@ internal class DispenserAddTakeProcessor : PacketProcessor<DispenserAddTakePacke
                 switch (packet.AddTakeEvent)
                 {
                     case EDispenserAddTakeEvent.ManualAdd:
-                        factory.InsertIntoStorage(packet.EntityId, packet.ItemId, packet.ItemCount, packet.ItemInc, out var _,
+                        factory.InsertIntoStorage(packet.EntityId, packet.ItemId, packet.ItemCount, packet.ItemInc, out _,
                             false);
                         break;
 
                     case EDispenserAddTakeEvent.ManualTake:
-                        factory.PickFromStorage(packet.EntityId, packet.ItemId, packet.ItemCount, out var _);
+                        factory.PickFromStorage(packet.EntityId, packet.ItemId, packet.ItemCount, out _);
                         break;
 
                     case EDispenserAddTakeEvent.CourierAdd:
                         var addCount = factory.InsertIntoStorage(packet.EntityId, packet.ItemId, packet.ItemCount,
-                            packet.ItemInc, out var _, false);
+                            packet.ItemInc, out _, false);
                         var remainCount = packet.ItemCount - addCount;
                         if (remainCount > 0)
                         {
@@ -44,8 +45,12 @@ internal class DispenserAddTakeProcessor : PacketProcessor<DispenserAddTakePacke
                         break;
 
                     case EDispenserAddTakeEvent.CourierTake:
-                        factory.PickFromStorage(packet.EntityId, packet.ItemId, packet.ItemCount, out var _);
+                        factory.PickFromStorage(packet.EntityId, packet.ItemId, packet.ItemCount, out _);
                         break;
+                    case EDispenserAddTakeEvent.None:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(packet), "Unknown DispenserAddTakePacket type: " + packet.AddTakeEvent);
                 }
             }
         }

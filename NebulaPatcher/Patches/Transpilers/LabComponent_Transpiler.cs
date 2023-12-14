@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
@@ -19,9 +20,10 @@ internal class LabComponent_Transpiler
     {
         //Change: if (ts.hashUploaded >= ts.hashNeeded)
         //To:     if (ts.hashUploaded >= ts.hashNeeded && (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost))
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            var matcher = new CodeMatcher(instructions)
+            var matcher = new CodeMatcher(codeInstructions)
                 .MatchForward(true,
                     new CodeMatch(i => i.IsLdarg()),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(TechState), nameof(TechState.hashUploaded))),
@@ -32,16 +34,14 @@ internal class LabComponent_Transpiler
             var label = matcher.Instruction.operand;
             matcher.Advance(1)
                 .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() =>
-                {
-                    return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
-                }))
+                    !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost))
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse_S, label));
             return matcher.InstructionEnumeration();
         }
         catch
         {
             Log.Error("LabComponent.InternalUpdateResearch_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
     }
 }

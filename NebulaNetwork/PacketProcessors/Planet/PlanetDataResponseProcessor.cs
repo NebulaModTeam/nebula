@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Planet;
 [RegisterPacketProcessor]
 public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
 {
-    public override void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
+    protected override void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -22,16 +22,9 @@ public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
         }
 
 
-        PlanetData planet = null;
-
-        if (Multiplayer.Session.IsInLobby)
-        {
-            planet = UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID);
-        }
-        else
-        {
-            planet = GameMain.galaxy.PlanetById(packet.PlanetDataID);
-        }
+        var planet = Multiplayer.Session.IsInLobby
+            ? UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID)
+            : GameMain.galaxy.PlanetById(packet.PlanetDataID);
 
         Log.Info($"Parsing {packet.PlanetDataByte.Length} bytes of data for planet {planet.name} (ID: {planet.id})");
 
@@ -52,15 +45,16 @@ public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
             {
                 PlanetModelingManager.genPlanetReqList.Enqueue(planet);
 
-                int localPlanetId = Multiplayer.Session.LocalPlayer.Data.LocalPlanetId;
-                if (planet.id == localPlanetId)
+                var localPlanetId = Multiplayer.Session.LocalPlayer.Data.LocalPlanetId;
+                if (planet.id != localPlanetId)
                 {
-                    // Make local planet load first
-                    while (PlanetModelingManager.genPlanetReqList.Peek().id != localPlanetId)
-                    {
-                        var tmp = PlanetModelingManager.genPlanetReqList.Dequeue();
-                        PlanetModelingManager.genPlanetReqList.Enqueue(tmp);
-                    }
+                    return;
+                }
+                // Make local planet load first
+                while (PlanetModelingManager.genPlanetReqList.Peek().id != localPlanetId)
+                {
+                    var tmp = PlanetModelingManager.genPlanetReqList.Dequeue();
+                    PlanetModelingManager.genPlanetReqList.Enqueue(tmp);
                 }
             }
         }

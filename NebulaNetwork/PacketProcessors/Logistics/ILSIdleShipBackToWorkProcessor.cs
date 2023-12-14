@@ -1,10 +1,11 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+using NebulaWorld.Logistics;
 
 #endregion
 
@@ -13,19 +14,20 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class ILSIdleShipBackToWorkProcessor : PacketProcessor<ILSIdleShipBackToWork>
 {
-    public override void ProcessPacket(ILSIdleShipBackToWork packet, NebulaConnection conn)
+    protected override void ProcessPacket(ILSIdleShipBackToWork packet, NebulaConnection conn)
     {
         if (IsHost)
         {
             return;
         }
 
-        if (IsClient)
+        if (!IsClient)
         {
-            using (Multiplayer.Session.Factories.IsIncomingRequest.On())
-            {
-                Multiplayer.Session.Ships.IdleShipGetToWork(packet);
-            }
+            return;
+        }
+        using (Multiplayer.Session.Factories.IsIncomingRequest.On())
+        {
+            ILSShipManager.IdleShipGetToWork(packet);
         }
     }
 }

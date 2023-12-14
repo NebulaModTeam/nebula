@@ -6,7 +6,7 @@ using ILogger = NebulaModel.Logger.ILogger;
 
 #endregion
 
-namespace NebulaWorld.MonoBehaviours.Local;
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
 
 public class UnityDebugManager : MonoBehaviour
 {

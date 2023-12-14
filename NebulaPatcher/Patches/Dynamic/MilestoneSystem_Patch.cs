@@ -20,11 +20,12 @@ internal class MilestoneSystem_Patch
             return;
         }
 
-        if (__instance.milestoneDatas.TryGetValue(id, out var milestoneData))
+        if (!__instance.milestoneDatas.TryGetValue(id, out var milestoneData))
         {
-            var patternId = milestoneData.journalData.patternId;
-            var parameters = milestoneData.journalData.parameters;
-            Multiplayer.Session.Network.SendPacket(new MilestoneUnlockPacket(id, unlockTick, patternId, parameters));
+            return;
         }
+        var patternId = milestoneData.journalData.patternId;
+        var parameters = milestoneData.journalData.parameters;
+        Multiplayer.Session.Network.SendPacket(new MilestoneUnlockPacket(id, unlockTick, patternId, parameters));
     }
 }

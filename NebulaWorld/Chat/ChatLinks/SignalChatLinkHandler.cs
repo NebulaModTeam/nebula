@@ -2,17 +2,17 @@
 
 using System;
 using NebulaModel.Utils;
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 #endregion
 
-namespace NebulaWorld.Chat;
+namespace NebulaWorld.Chat.ChatLinks;
 
 public class SignalChatLinkHandler : IChatLinkHandler
 {
-    public const int Corner = 2;
+    private const int Corner = 2;
 
     public void OnClick(string data)
     {
@@ -21,21 +21,23 @@ public class SignalChatLinkHandler : IChatLinkHandler
     public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
     {
         var signalId = GetSignalId(data);
-        if (signalId <= 0)
+        switch (signalId)
         {
-            return;
+            case <= 0:
+                return;
+            case < 1000:
+            case > 20000:
+                {
+                    if (tipObject != null)
+                    {
+                        Object.Destroy(tipObject.gameObject);
+                    }
+                    return;
+                }
+            default:
+                UpdateTip(trigger, ref tipObject, signalId);
+                break;
         }
-
-        if (signalId < 1000 || signalId > 20000)
-        {
-            if (tipObject != null)
-            {
-                Object.Destroy(tipObject.gameObject);
-            }
-            return;
-        }
-
-        UpdateTip(trigger, ref tipObject, signalId);
     }
 
     public string GetIconName(string data)
@@ -47,13 +49,7 @@ public class SignalChatLinkHandler : IChatLinkHandler
     public string GetDisplayRichText(string data)
     {
         var signalId = GetSignalId(data);
-        if (signalId <= 0)
-        {
-            return string.Empty;
-        }
-
-        return
-            $"<link=\"signal {signalId}\">[<sprite name=\"{signalId}\"> <color=\"green\">{ProtoUtils.GetSignalDisplayName(signalId)}</color>]</link>";
+        return signalId <= 0 ? string.Empty : $"<link=\"signal {signalId}\">[<sprite name=\"{signalId}\"> <color=\"green\">{ProtoUtils.GetSignalDisplayName(signalId)}</color>]</link>";
     }
 
     public static string GetLinkString(int signalId)

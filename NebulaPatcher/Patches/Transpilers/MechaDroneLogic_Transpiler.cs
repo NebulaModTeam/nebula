@@ -2,16 +2,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaWorld;
+using NebulaWorld.Player;
 using UnityEngine;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Transpiler;
+namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch(typeof(MechaDroneLogic))]
 internal class MechaDroneLogic_Transpiler
@@ -29,7 +31,8 @@ internal class MechaDroneLogic_Transpiler
          * To:
          *   if (!this.serving.Contains(num4) && !Multiplayer.Session.Drones.IsPendingBuildRequest(num4) && (prebuildPool[i].itemRequired == 0 || prebuildPool[i].itemRequired <= this.player.package.GetItemCount((int)prebuildPool[i].protoId)))
          */
-        var codeMatcher = new CodeMatcher(instructions, iL)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions, iL)
             .MatchForward(true,
                 new CodeMatch(i => i.IsLdarg()),
                 new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "serving"),
@@ -42,7 +45,7 @@ internal class MechaDroneLogic_Transpiler
         {
             Log.Error(
                 "MechaDroneLogic_Transpiler.UpdateTargets_Transpiler 1 failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var num4Instruction = codeMatcher.InstructionAt(-2);
@@ -52,9 +55,7 @@ internal class MechaDroneLogic_Transpiler
             .Advance(1)
             .InsertAndAdvance(num4Instruction)
             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>(num4 =>
-            {
-                return Multiplayer.IsActive && Multiplayer.Session.Drones.IsPendingBuildRequest(num4);
-            }))
+                Multiplayer.IsActive && DroneManager.IsPendingBuildRequest(num4)))
             .InsertAndAdvance(jumpInstruction);
 
         /*
@@ -85,15 +86,7 @@ internal class MechaDroneLogic_Transpiler
 
         codeMatcher = codeMatcher
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, aOperand))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<Vector3, bool>>(aVar =>
-            {
-                if (!Multiplayer.IsActive)
-                {
-                    return true;
-                }
-
-                return Multiplayer.Session.Drones.IsLocalPlayerClosestTo(ref aVar);
-            }))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<Vector3, bool>>(aVar => !Multiplayer.IsActive || DroneManager.IsLocalPlayerClosestTo(ref aVar)))
             .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse, jumpOperand));
 
         /*
@@ -136,7 +129,7 @@ internal class MechaDroneLogic_Transpiler
             {
                 if (Multiplayer.IsActive)
                 {
-                    Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
+                    DroneManager.BroadcastDroneOrder(droneId, entityId, stage);
                 }
             }))
             .InstructionEnumeration();
@@ -150,7 +143,8 @@ internal class MechaDroneLogic_Transpiler
     private static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions,
         ILGenerator iLGenerator)
     {
-        var codeMatcher = new CodeMatcher(instructions, iLGenerator)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions, iLGenerator)
             .MatchForward(true,
                 new CodeMatch(i => i.IsLdloc()),
                 new CodeMatch(i => i.IsLdloc()),
@@ -159,35 +153,36 @@ internal class MechaDroneLogic_Transpiler
                 new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "stage")
             );
 
-        if (codeMatcher.IsInvalid)
+        if (!codeMatcher.IsInvalid)
         {
-            Log.Error("MechaDroneLogic_Transpiler.UpdateDrones failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeMatcher
+                .Repeat(matcher =>
+                {
+                    matcher = matcher.Advance(1);
+
+                    var droneIdInst = matcher.InstructionAt(1); // [i]
+                    var entityIdInst = matcher.InstructionAt(3); // drones[i].targetObject
+                    var stageInst = matcher.InstructionAt(-2); // drones[i].stage
+
+                    matcher
+                        .InsertAndAdvance(droneIdInst)
+                        .InsertAndAdvance(entityIdInst)
+                        .InsertAndAdvance(stageInst)
+                        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int>>(
+                            (droneId, entityId, stage) =>
+                            {
+                                if (Multiplayer.IsActive)
+                                {
+                                    DroneManager.BroadcastDroneOrder(droneId, entityId, stage);
+                                }
+                            }))
+                        .Advance(1);
+                })
+                .InstructionEnumeration();
         }
+        Log.Error("MechaDroneLogic_Transpiler.UpdateDrones failed. Mod version not compatible with game version.");
+        return codeInstructions;
 
-        return codeMatcher
-            .Repeat(matcher =>
-            {
-                matcher = matcher.Advance(1);
-
-                var droneIdInst = matcher.InstructionAt(1); // [i]
-                var entityIdInst = matcher.InstructionAt(3); // drones[i].targetObject
-                var stageInst = matcher.InstructionAt(-2); // drones[i].stage
-
-                matcher = matcher
-                    .InsertAndAdvance(droneIdInst)
-                    .InsertAndAdvance(entityIdInst)
-                    .InsertAndAdvance(stageInst)
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int>>((droneId, entityId, stage) =>
-                    {
-                        if (Multiplayer.IsActive)
-                        {
-                            Multiplayer.Session.Drones.BroadcastDroneOrder(droneId, entityId, stage);
-                        }
-                    }))
-                    .Advance(1);
-            })
-            .InstructionEnumeration();
     }
 
     /*
@@ -201,7 +196,8 @@ internal class MechaDroneLogic_Transpiler
     [HarmonyPatch(nameof(MechaDroneLogic.FindNext))]
     private static IEnumerable<CodeInstruction> FindNext_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
     {
-        var codeMatcher = new CodeMatcher(instructions, iL)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions, iL)
             .MatchForward(false,
                 new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "serving"),
                 new CodeMatch(i => i.IsLdloc()),
@@ -212,7 +208,7 @@ internal class MechaDroneLogic_Transpiler
         if (codeMatcher.IsInvalid)
         {
             Log.Error("MechaDroneLogic_Transpiler.FindNext failed. Mod version not compatible with game version.");
-            return instructions;
+            return codeInstructions;
         }
 
         var target = codeMatcher.InstructionAt(1);
@@ -221,9 +217,7 @@ internal class MechaDroneLogic_Transpiler
             .Advance(4)
             .InsertAndAdvance(target)
             .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<int, bool>>(targetId =>
-            {
-                return Multiplayer.IsActive && Multiplayer.Session.Drones.IsPendingBuildRequest(targetId);
-            }))
+                Multiplayer.IsActive && DroneManager.IsPendingBuildRequest(targetId)))
             .Insert(new CodeInstruction(OpCodes.Brtrue, jump))
             .InstructionEnumeration();
     }

@@ -2,6 +2,7 @@
 
 using HarmonyLib;
 using NebulaWorld;
+using NebulaWorld.Player;
 
 #endregion
 
@@ -16,7 +17,7 @@ internal class MechaDroneLogic_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Drones.ClearCachedPositions();
+            DroneManager.ClearCachedPositions();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryUnlockTechProcessor : PacketProcessor<GameHistoryUnlockTechPacket>
 {
-    public override void ProcessPacket(GameHistoryUnlockTechPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameHistoryUnlockTechPacket packet, NebulaConnection conn)
     {
         using (Multiplayer.Session.History.IsIncomingRequest.On())
         {

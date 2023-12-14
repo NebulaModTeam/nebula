@@ -4,7 +4,7 @@ using System.Text;
 
 #endregion
 
-namespace NebulaModel.Packets.Universe;
+namespace NebulaModel.Packets.Universe.Editor;
 
 public class DysonBlueprintPacket
 {
@@ -19,8 +19,8 @@ public class DysonBlueprintPacket
         BinaryData = Encoding.ASCII.GetBytes(stringData);
     }
 
-    public int StarIndex { get; set; }
-    public int LayerId { get; set; }
-    public EDysonBlueprintType BlueprintType { get; set; }
-    public byte[] BinaryData { get; set; }
+    public int StarIndex { get; }
+    public int LayerId { get; }
+    public EDysonBlueprintType BlueprintType { get; }
+    public byte[] BinaryData { get; }
 }

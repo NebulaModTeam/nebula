@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -15,7 +15,7 @@ namespace NebulaNetwork.PacketProcessors.Planet;
 [RegisterPacketProcessor]
 public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
 {
-    public override void ProcessPacket(FactoryLoadRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(FactoryLoadRequest packet, NebulaConnection conn)
     {
         if (IsClient)
         {
@@ -35,16 +35,17 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
         }
 
         // Add requesting client to connected player, so he can receive following update
-        IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+        var playerManager = Multiplayer.Session.Network.PlayerManager;
         var player = playerManager.GetSyncingPlayer(conn);
-        if (player != null)
+        if (player == null)
         {
-            player.Data.LocalPlanetId = packet.PlanetID;
-            player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
-            using (playerManager.GetConnectedPlayers(out var connectedPlayers))
-            {
-                connectedPlayers.Add(player.Connection, player);
-            }
+            return;
+        }
+        player.Data.LocalPlanetId = packet.PlanetID;
+        player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
+        using (playerManager.GetConnectedPlayers(out var connectedPlayers))
+        {
+            connectedPlayers.Add(player.Connection, player);
         }
     }
 }

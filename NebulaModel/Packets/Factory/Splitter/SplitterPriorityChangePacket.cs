@@ -13,9 +13,9 @@ public class SplitterPriorityChangePacket
         PlanetId = planetId;
     }
 
-    public int SplitterIndex { get; set; }
-    public int Slot { get; set; }
-    public bool IsPriority { get; set; }
-    public int Filter { get; set; }
-    public int PlanetId { get; set; }
+    public int SplitterIndex { get; }
+    public int Slot { get; }
+    public bool IsPriority { get; }
+    public int Filter { get; }
+    public int PlanetId { get; }
 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NebulaModel.Logger;
 using UnityEngine;
 
@@ -13,21 +14,12 @@ public class CourierManager
 {
     private float courierSpeed;
 
-    private Vector3[] EntityPositions;
-    private Dictionary<int, Vector3> PlayerPostions;
+    private Vector3[] EntityPositions = new Vector3[10];
+    private Dictionary<int, Vector3> PlayerPostions = new();
     private int tmp_iter;
 
-    public CourierManager()
-    {
-        CourierCount = 0;
-        CourierDatas = new CourierData[10];
-        EntityPositions = new Vector3[10];
-        PlayerPostions = new Dictionary<int, Vector3>();
-        tmp_iter = 0;
-    }
-
     public int CourierCount { get; private set; }
-    public CourierData[] CourierDatas { get; private set; }
+    public CourierData[] CourierDatas { get; private set; } = new CourierData[10];
 
     public void Dispose()
     {
@@ -69,13 +61,9 @@ public class CourierManager
         PlayerPostions.Clear();
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var model in remotePlayersModels.Values)
+            foreach (var model in remotePlayersModels.Values.Where(model =>
+                         model.Movement.GetLastPosition().LocalPlanetId == GameMain.mainPlayer.planetId))
             {
-                // Check only players on the same planet
-                if (model.Movement.GetLastPosition().LocalPlanetId != GameMain.mainPlayer.planetId)
-                {
-                    continue;
-                }
                 // Cache players positions for courier position updating
                 PlayerPostions.Add(model.Movement.PlayerID, model.PlayerTransform.position);
             }
@@ -123,14 +111,12 @@ public class CourierManager
                         var cosValue =
                             (double)(EntityPos.x * playerPos.x + EntityPos.y * playerPos.y + EntityPos.z * playerPos.z) /
                             (entityHeight * playerHeight);
-                        if (cosValue < -1.0)
+                        cosValue = cosValue switch
                         {
-                            cosValue = -1.0;
-                        }
-                        else if (cosValue > 1.0)
-                        {
-                            cosValue = 1.0;
-                        }
+                            < -1.0 => -1.0,
+                            > 1.0 => 1.0,
+                            _ => cosValue
+                        };
                         // courier reach player
                         CourierDatas[j].begin = EntityPos;
                         CourierDatas[j].maxt = (float)(Math.Acos(cosValue) * ((entityHeight + playerHeight) * 0.5));
@@ -174,7 +160,7 @@ public class CourierManager
 
                 if (CourierDatas[j].t >= CourierDatas[j].maxt)
                 {
-                    // Courier reach remote player, swtich item count to display color change
+                    // Courier reach remote player, switch item count to display color change
                     CourierDatas[j].itemCount = CourierDatas[j].itemCount > 0 ? 0 : 10;
                     CourierDatas[j].t = CourierDatas[j].maxt;
                     CourierDatas[j].direction = -1f;
@@ -190,12 +176,13 @@ public class CourierManager
             var i = 0;
             for (var j = 0; j < CourierCount; j++)
             {
-                if (CourierDatas[j].maxt > 0)
+                if (!(CourierDatas[j].maxt > 0))
                 {
-                    CourierDatas[i] = CourierDatas[j];
-                    EntityPositions[i] = EntityPositions[j];
-                    i++;
+                    continue;
                 }
+                CourierDatas[i] = CourierDatas[j];
+                EntityPositions[i] = EntityPositions[j];
+                i++;
             }
             CourierCount = i;
         }

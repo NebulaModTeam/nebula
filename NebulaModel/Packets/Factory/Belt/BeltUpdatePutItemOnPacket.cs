@@ -13,9 +13,9 @@ public class BeltUpdatePutItemOnPacket
         PlanetId = planetId;
     }
 
-    public int BeltId { get; set; }
-    public int ItemId { get; set; }
-    public byte ItemCount { get; set; }
-    public byte ItemInc { get; set; }
-    public int PlanetId { get; set; }
+    public int BeltId { get; }
+    public int ItemId { get; }
+    public byte ItemCount { get; }
+    public byte ItemInc { get; }
+    public int PlanetId { get; }
 }

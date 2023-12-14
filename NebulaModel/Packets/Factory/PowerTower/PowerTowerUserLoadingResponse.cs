@@ -19,14 +19,14 @@ public class PowerTowerUserLoadingResponse
         this.Charging = Charging;
     }
 
-    public int PlanetId { get; set; }
-    public int NetId { get; set; }
-    public int NodeId { get; set; }
-    public int PowerAmount { get; set; }
-    public long EnergyCapacity { get; set; }
-    public long EnergyRequired { get; set; }
-    public long EnergyServed { get; set; }
-    public long EnergyAccumulated { get; set; }
-    public long EnergyExchanged { get; set; }
-    public bool Charging { get; set; }
+    public int PlanetId { get; }
+    public int NetId { get; }
+    public int NodeId { get; }
+    public int PowerAmount { get; }
+    public long EnergyCapacity { get; }
+    public long EnergyRequired { get; }
+    public long EnergyServed { get; }
+    public long EnergyAccumulated { get; }
+    public long EnergyExchanged { get; }
+    public bool Charging { get; }
 }

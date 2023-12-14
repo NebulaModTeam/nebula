@@ -18,14 +18,14 @@ public class LobbyResponse
         DiscordPartyId = discordPartyId;
     }
 
-    public int GalaxyAlgo { get; set; }
-    public int GalaxySeed { get; set; }
-    public int StarCount { get; set; }
-    public float ResourceMultiplier { get; set; }
-    public bool IsSandboxMode { get; set; }
-    public int[] SavedThemeIds { get; set; }
-    public byte[] ModsSettings { get; set; }
-    public int ModsSettingsCount { get; set; }
-    public ushort NumPlayers { get; set; }
-    public string DiscordPartyId { get; set; }
+    public int GalaxyAlgo { get; }
+    public int GalaxySeed { get; }
+    public int StarCount { get; }
+    public float ResourceMultiplier { get; }
+    public bool IsSandboxMode { get; }
+    public int[] SavedThemeIds { get; }
+    public byte[] ModsSettings { get; }
+    public int ModsSettingsCount { get; }
+    public ushort NumPlayers { get; }
+    public string DiscordPartyId { get; }
 }

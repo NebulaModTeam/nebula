@@ -11,8 +11,8 @@ namespace NebulaWorld.Chat;
 
 public static class ChatSpriteSheetManager
 {
-    public static uint[] signalSpriteIndex;
-    public static TMP_SpriteAsset iconsSpriteAsset;
+    private static uint[] signalSpriteIndex;
+    private static TMP_SpriteAsset iconsSpriteAsset;
 
     public static void Create(IconSet set)
     {

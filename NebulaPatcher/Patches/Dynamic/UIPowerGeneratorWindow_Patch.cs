@@ -45,14 +45,15 @@ internal class UIPowerGeneratorWindow_Patch
     public static void OnCataButtonClick_Postfix(UIPowerGeneratorWindow __instance)
     {
         //Notify about changing amount of gravitational lens
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var packet = new RayReceiverChangeLensPacket(__instance.generatorId,
-                __instance.powerSystem.genPool[__instance.generatorId].catalystPoint,
-                __instance.powerSystem.genPool[__instance.generatorId].catalystIncPoint,
-                GameMain.localPlanet?.id ?? -1);
-            Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+            return;
         }
+        var packet = new RayReceiverChangeLensPacket(__instance.generatorId,
+            __instance.powerSystem.genPool[__instance.generatorId].catalystPoint,
+            __instance.powerSystem.genPool[__instance.generatorId].catalystIncPoint,
+            GameMain.localPlanet?.id ?? -1);
+        Multiplayer.Session.Network.SendPacketToLocalStar(packet);
     }
 
     [HarmonyPostfix]
@@ -60,24 +61,26 @@ internal class UIPowerGeneratorWindow_Patch
     public static void OnFuelButtonClick_Postfix(UIPowerGeneratorWindow __instance)
     {
         //Notify about changing amount of fuel in power plant
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-            Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId,
-                thisComponent.fuelId, thisComponent.fuelCount, thisComponent.fuelInc, GameMain.localPlanet?.id ?? -1));
+            return;
         }
+        var thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
+        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId,
+            thisComponent.fuelId, thisComponent.fuelCount, thisComponent.fuelInc, GameMain.localPlanet?.id ?? -1));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIPowerGeneratorWindow.OnProductButtonClick))]
     public static void OnProductButtonClick(UIPowerGeneratorWindow __instance)
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            var thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new PowerGeneratorProductUpdatePacket(thisComponent, __instance.factory.planetId));
+            return;
         }
+        var thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new PowerGeneratorProductUpdatePacket(thisComponent, __instance.factory.planetId));
     }
 
     [HarmonyPostfix]
@@ -96,11 +99,12 @@ internal class UIPowerGeneratorWindow_Patch
     public static void _OnUpdate_Prefix(UIPowerGeneratorWindow __instance)
     {
         //Notify about boost change in sandbox mode
-        if (Multiplayer.IsActive && boost != __instance.boostSwitch.isOn)
+        if (!Multiplayer.IsActive || boost == __instance.boostSwitch.isOn)
         {
-            boost = __instance.boostSwitch.isOn;
-            Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
-                (GameMain.localPlanet?.id ?? -1, EBoostEntityType.ArtificialStar, __instance.generatorId, boost));
+            return;
         }
+        boost = __instance.boostSwitch.isOn;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
+            (GameMain.localPlanet?.id ?? -1, EBoostEntityType.ArtificialStar, __instance.generatorId, boost));
     }
 }

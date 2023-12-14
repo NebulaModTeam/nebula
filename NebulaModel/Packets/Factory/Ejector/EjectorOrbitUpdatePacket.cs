@@ -11,7 +11,7 @@ public class EjectorOrbitUpdatePacket
         PlanetId = planetId;
     }
 
-    public int EjectorIndex { get; set; }
-    public int NewOrbitIndex { get; set; }
-    public int PlanetId { get; set; }
+    public int EjectorIndex { get; }
+    public int NewOrbitIndex { get; }
+    public int PlanetId { get; }
 }

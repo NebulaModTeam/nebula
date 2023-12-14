@@ -6,7 +6,7 @@ using UnityEngine;
 
 #endregion
 
-namespace NebulaWorld.MonoBehaviours.Local;
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
 
 public class NotificationMessage : MonoBehaviour
 {

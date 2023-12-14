@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using HarmonyLib;
 using NebulaModel.Packets.Players;
-using NebulaPatcher.Patches.Transpiler;
+using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,28 +44,29 @@ internal class UIEscMenu_Patch
         QuitGame();
     }
 
-    public static void QuitGame()
+    private static void QuitGame()
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive)
         {
-            if (Multiplayer.Session.LocalPlayer.IsHost)
-            {
-                // Because GameSave.SaveAsLastExit() is disable, we have to save game here to match the vanilla behavior.
-                GameSave.SaveCurrentGame(GameSave.LastExit);
-            }
-            else if (GameMain.mainPlayer?.mecha != null)
-            {
-                GameMain.mainPlayer.mecha.lab.ManageTakeback(); // Refund items to player package
-                Multiplayer.Session.Network.SendPacket(new PlayerMechaData(GameMain.mainPlayer));
-                Thread.Sleep(100); // Wait for async packet send
-            }
-            PlanetFactory_Transpiler.CheckPopupPresent.Clear();
-            PlanetFactory_Transpiler.FaultyVeins.Clear();
-            Multiplayer.LeaveGame();
+            return;
         }
+        if (Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            // Because GameSave.SaveAsLastExit() is disable, we have to save game here to match the vanilla behavior.
+            GameSave.SaveCurrentGame(GameSave.LastExit);
+        }
+        else if (GameMain.mainPlayer?.mecha != null)
+        {
+            GameMain.mainPlayer.mecha.lab.ManageTakeback(); // Refund items to player package
+            Multiplayer.Session.Network.SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+            Thread.Sleep(100); // Wait for async packet send
+        }
+        PlanetFactory_Transpiler.CheckPopupPresent.Clear();
+        PlanetFactory_Transpiler.FaultyVeins.Clear();
+        Multiplayer.LeaveGame();
     }
 
-    private static void SetButtonEnableState(Button button, bool enable)
+    private static void SetButtonEnableState(Selectable button, bool enable)
     {
         var buttonColors = button.colors;
         buttonColors.disabledColor = new Color(1f, 1f, 1f, 0.15f);

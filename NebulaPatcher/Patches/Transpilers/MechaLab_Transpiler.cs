@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -22,7 +23,8 @@ public class MechaLab_Transpiler
     {
         // Target: make this.gameHistory.AddTechHash((long)num4) only run in host
 
-        var matcher = new CodeMatcher(instructions)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions)
             .MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld),
@@ -31,28 +33,28 @@ public class MechaLab_Transpiler
                 new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddTechHash")
             );
 
-        if (matcher.IsInvalid)
+        if (!matcher.IsInvalid)
         {
-            Log.Error("MechaLab.GameTick_Transpiler failed. Mod version not compatible with game version.");
-            return instructions;
-        }
-
-        return matcher
-            .SetInstruction(
-                HarmonyLib.Transpilers.EmitDelegate<Action<GameHistoryData, long>>((history, addcnt) =>
-                {
-                    //Host in multiplayer can do normal research in the mecha
-                    if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            return matcher
+                .SetInstruction(
+                    HarmonyLib.Transpilers.EmitDelegate<Action<GameHistoryData, long>>((history, addcnt) =>
                     {
-                        history.AddTechHash(addcnt);
-                        return;
-                    }
+                        //Host in multiplayer can do normal research in the mecha
+                        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+                        {
+                            history.AddTechHash(addcnt);
+                            return;
+                        }
 
-                    //Clients just sends contributing packet to the server
-                    Multiplayer.Session.Network.SendPacket(
-                        new GameHistoryResearchContributionPacket(addcnt, history.currentTech));
-                })
-            )
-            .InstructionEnumeration();
+                        //Clients just sends contributing packet to the server
+                        Multiplayer.Session.Network.SendPacket(
+                            new GameHistoryResearchContributionPacket(addcnt, history.currentTech));
+                    })
+                )
+                .InstructionEnumeration();
+        }
+        Log.Error("MechaLab.GameTick_Transpiler failed. Mod version not compatible with game version.");
+        return codeInstructions;
+
     }
 }

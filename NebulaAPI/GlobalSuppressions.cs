@@ -6,4 +6,4 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly:
     SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Field Name", Scope = "namespaceanddescendants",
-        Target = "NebulaAPI")]
+        Target = "~N:NebulaAPI")]

@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 

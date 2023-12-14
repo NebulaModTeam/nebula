@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -12,7 +12,7 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 internal class LobbyUpdateValuesProcessor : PacketProcessor<LobbyUpdateValues>
 {
-    public override void ProcessPacket(LobbyUpdateValues packet, NebulaConnection conn)
+    protected override void ProcessPacket(LobbyUpdateValues packet, NebulaConnection conn)
     {
         if (IsHost)
         {

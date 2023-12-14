@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.DataStructures;
 
 #endregion
@@ -18,5 +18,5 @@ public class PlayerMechaData
             player.deliveryPackage, player.mecha.reactorStorage, player.mecha.warpStorage, player.mecha.forge);
     }
 
-    public MechaData Data { get; set; }
+    public MechaData Data { get; }
 }

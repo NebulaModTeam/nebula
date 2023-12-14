@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
@@ -13,7 +13,7 @@ namespace NebulaNetwork.PacketProcessors.Factory.Entity;
 [RegisterPacketProcessor]
 internal class CreatePrebuildsRequestProcessor : PacketProcessor<CreatePrebuildsRequest>
 {
-    public override void ProcessPacket(CreatePrebuildsRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(CreatePrebuildsRequest packet, NebulaConnection conn)
     {
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {

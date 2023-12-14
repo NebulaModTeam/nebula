@@ -2,17 +2,17 @@
 
 using System;
 using NebulaModel;
-using NebulaWorld.MonoBehaviours.Local;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 #endregion
 
-namespace NebulaWorld.Chat;
+namespace NebulaWorld.Chat.ChatLinks;
 
 public class CopyTextChatLinkHandler : IChatLinkHandler
 {
-    public const int Corner = 2;
+    private const int Corner = 2;
 
     public void OnClick(string data)
     {
@@ -77,11 +77,11 @@ public class CopyTextChatLinkHandler : IChatLinkHandler
 
     public static string FormatCopyString(string data, bool isSensitive = false, Func<string, string> filter = null)
     {
-        if (isSensitive && Config.Options.StreamerMode)
+        if (!isSensitive || !Config.Options.StreamerMode)
         {
-            var safeText = filter != null ? filter(data) : new string('*', data.Length);
-            return $"<link=\"copytext {data}\"><color=\"blue\"><u>{safeText}</u></color></link>";
+            return $"<link=\"copytext {data}\"><color=\"blue\"><u>{data}</u></color></link>";
         }
-        return $"<link=\"copytext {data}\"><color=\"blue\"><u>{data}</u></color></link>";
+        var safeText = filter != null ? filter(data) : new string('*', data.Length);
+        return $"<link=\"copytext {data}\"><color=\"blue\"><u>{safeText}</u></color></link>";
     }
 }

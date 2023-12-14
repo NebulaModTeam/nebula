@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI;
+using NebulaAPI.DataStructures;
 using UnityEngine;
 
 #endregion
@@ -22,10 +22,10 @@ public class NewSetInserterInsertTargetPacket
         PlanetId = planetId;
     }
 
-    public int ObjId { get; set; }
-    public int OtherObjId { get; set; }
-    public int InserterId { get; set; }
-    public int Offset { get; set; }
-    public Float3 PointPos { get; set; }
-    public int PlanetId { get; set; }
+    public int ObjId { get; }
+    public int OtherObjId { get; }
+    public int InserterId { get; }
+    public int Offset { get; }
+    public Float3 PointPos { get; }
+    public int PlanetId { get; }
 }

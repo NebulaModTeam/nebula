@@ -11,7 +11,7 @@ public class SplitterFilterChangePacket
         PlanetId = planetId;
     }
 
-    public int SplitterIndex { get; set; }
-    public int ItemId { get; set; }
-    public int PlanetId { get; set; }
+    public int SplitterIndex { get; }
+    public int ItemId { get; }
+    public int PlanetId { get; }
 }

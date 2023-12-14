@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using NebulaAPI;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -17,7 +18,7 @@ namespace NebulaNetwork.PacketProcessors.Universe;
 [RegisterPacketProcessor]
 internal class DysonSphereDataProcessor : PacketProcessor<DysonSphereData>
 {
-    public override void ProcessPacket(DysonSphereData packet, NebulaConnection conn)
+    protected override void ProcessPacket(DysonSphereData packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -94,6 +95,8 @@ internal class DysonSphereDataProcessor : PacketProcessor<DysonSphereData>
             case DysonSphereRespondEvent.Desync:
                 Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(packet), "Unknown DysonSphereRespondEvent: " + packet.Event);
         }
     }
 }
