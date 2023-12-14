@@ -1,7 +1,8 @@
-using System;
-using System.Runtime.InteropServices;
+#region
+
 using System.Collections.Generic;
-using System.Text;
+
+#endregion
 
 namespace Discord
 {

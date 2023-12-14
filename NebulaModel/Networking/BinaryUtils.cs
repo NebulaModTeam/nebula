@@ -1,73 +1,74 @@
-﻿using K4os.Compression.LZ4.Streams;
-using NebulaAPI;
+﻿#region
+
 using System;
 using System.IO;
+using K4os.Compression.LZ4.Streams;
+using NebulaAPI;
 
-namespace NebulaModel.Networking
+#endregion
+
+namespace NebulaModel.Networking;
+
+public static class BinaryUtils
 {
-    public static class BinaryUtils
+    private const int BUFFER_SIZE = 8192;
+
+    public class Writer : IWriterProvider
     {
-        private const int BUFFER_SIZE = 8192;
+        private readonly BufferedStream bs;
+        private readonly LZ4EncoderStream ls;
+        private readonly MemoryStream ms;
 
-        public class Writer : IWriterProvider
+        public Writer()
         {
-            private readonly MemoryStream ms;
-            private readonly LZ4EncoderStream ls;
-            private readonly BufferedStream bs;
-            private readonly BinaryWriter bw;
-
-            public BinaryWriter BinaryWriter => bw;
-
-            public Writer()
-            {
-                ms = new MemoryStream();
-                ls = LZ4Stream.Encode(ms);
-                bs = new BufferedStream(ls, BUFFER_SIZE);
-                bw = new BinaryWriter(bs);
-            }
-
-            public void Dispose()
-            {
-                bw?.Close();
-                bs?.Dispose();
-                ls?.Dispose();
-                ms?.Dispose();
-                GC.SuppressFinalize(this);
-            }
-
-            public byte[] CloseAndGetBytes()
-            {
-                bw?.Close();
-                return ms?.ToArray() ?? Array.Empty<byte>();
-            }
+            ms = new MemoryStream();
+            ls = LZ4Stream.Encode(ms);
+            bs = new BufferedStream(ls, BUFFER_SIZE);
+            BinaryWriter = new BinaryWriter(bs);
         }
 
-        public class Reader : IReaderProvider
+        public BinaryWriter BinaryWriter { get; }
+
+        public void Dispose()
         {
-            private readonly MemoryStream ms;
-            private readonly LZ4DecoderStream ls;
-            private readonly BufferedStream bs;
-            private readonly BinaryReader br;
+            BinaryWriter?.Close();
+            bs?.Dispose();
+            ls?.Dispose();
+            ms?.Dispose();
+            GC.SuppressFinalize(this);
+        }
 
-            public MemoryStream MemoryStream => ms;
-            public BinaryReader BinaryReader => br;
+        public byte[] CloseAndGetBytes()
+        {
+            BinaryWriter?.Close();
+            return ms?.ToArray() ?? Array.Empty<byte>();
+        }
+    }
 
-            public Reader(byte[] bytes)
-            {
-                ms = new MemoryStream(bytes);
-                ls = LZ4Stream.Decode(ms);
-                bs = new BufferedStream(ls, BUFFER_SIZE);
-                br = new BinaryReader(bs);
-            }
+    public class Reader : IReaderProvider
+    {
+        private readonly BufferedStream bs;
+        private readonly LZ4DecoderStream ls;
 
-            public void Dispose()
-            {
-                br?.Close();
-                bs?.Dispose();
-                ls?.Dispose();
-                ms?.Dispose();
-                GC.SuppressFinalize(this);
-            }
+        public Reader(byte[] bytes)
+        {
+            MemoryStream = new MemoryStream(bytes);
+            ls = LZ4Stream.Decode(MemoryStream);
+            bs = new BufferedStream(ls, BUFFER_SIZE);
+            BinaryReader = new BinaryReader(bs);
+        }
+
+        public MemoryStream MemoryStream { get; }
+
+        public BinaryReader BinaryReader { get; }
+
+        public void Dispose()
+        {
+            BinaryReader?.Close();
+            bs?.Dispose();
+            ls?.Dispose();
+            MemoryStream?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

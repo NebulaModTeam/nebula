@@ -1,33 +1,36 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Players
-{
-    [RegisterPacketProcessor]
-    internal class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLocalStarId>
-    {
-        private readonly IPlayerManager playerManager;
+#endregion
 
-        public PlayerUpdateLocalStarIdProcessor()
+namespace NebulaNetwork.PacketProcessors.Players;
+
+[RegisterPacketProcessor]
+internal class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLocalStarId>
+{
+    private readonly IPlayerManager playerManager;
+
+    public PlayerUpdateLocalStarIdProcessor()
+    {
+        playerManager = Multiplayer.Session.Network.PlayerManager;
+    }
+
+    public override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
+    {
+        if (IsClient)
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            return;
         }
 
-        public override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
+        var player = playerManager.GetPlayer(conn);
+        if (player != null)
         {
-            if (IsClient)
-            {
-                return;
-            }
-
-            INebulaPlayer player = playerManager.GetPlayer(conn);
-            if (player != null)
-            {
-                player.Data.LocalStarId = packet.StarId;
-            }
+            player.Data.LocalStarId = packet.StarId;
         }
     }
 }

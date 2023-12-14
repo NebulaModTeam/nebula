@@ -1,35 +1,37 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
 using NebulaWorld;
-using System;
 using UnityEngine;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(UIRealtimeTip))]
+internal class UIRealtimeTip_Patch
 {
-    [HarmonyPatch(typeof(UIRealtimeTip))]
-    internal class UIRealtimeTip_Patch
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UIRealtimeTip.Popup), typeof(string), typeof(bool), typeof(int))]
+    public static bool Popup_Prefix()
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(bool), typeof(int) })]
-        public static bool Popup_Prefix()
-        {
-            //Do not show popups if they are triggered remotely
-            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
-        }
+        //Do not show popups if they are triggered remotely
+        return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
+    }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(Vector2), typeof(int) })]
-        public static bool Popup_Prefix2()
-        {
-            //Do not show popups if they are triggered remotely
-            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
-        }
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UIRealtimeTip.Popup), typeof(string), typeof(Vector2), typeof(int))]
+    public static bool Popup_Prefix2()
+    {
+        //Do not show popups if they are triggered remotely
+        return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
+    }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIRealtimeTip.Popup), new Type[] { typeof(string), typeof(Vector3), typeof(bool), typeof(int) })]
-        public static bool Popup_Prefix3()
-        {
-            //Do not show popups if they are triggered remotely
-            return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
-        }
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UIRealtimeTip.Popup), typeof(string), typeof(Vector3), typeof(bool), typeof(int))]
+    public static bool Popup_Prefix3()
+    {
+        //Do not show popups if they are triggered remotely
+        return !Multiplayer.IsActive || !Multiplayer.Session.Factories.IsIncomingRequest.Value;
     }
 }

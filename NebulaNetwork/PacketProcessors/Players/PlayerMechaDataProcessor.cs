@@ -1,29 +1,32 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Players
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Players;
+
+[RegisterPacketProcessor]
+internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
 {
-    [RegisterPacketProcessor]
-    internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
+    private readonly IPlayerManager playerManager;
+
+    public PlayerMechaDataProcessor()
     {
-        private readonly IPlayerManager playerManager;
+        playerManager = Multiplayer.Session.Network.PlayerManager;
+    }
 
-        public PlayerMechaDataProcessor()
+    public override void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)
+    {
+        if (IsClient)
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            return;
         }
 
-        public override void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)
-        {
-            if (IsClient)
-            {
-                return;
-            }
-
-            playerManager.UpdateMechaData(packet.Data, conn);
-        }
+        playerManager.UpdateMechaData(packet.Data, conn);
     }
 }

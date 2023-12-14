@@ -1,16 +1,15 @@
-﻿namespace NebulaModel.Packets.GameHistory
+﻿namespace NebulaModel.Packets.GameHistory;
+
+public class GameHistoryTechRefundPacket
 {
-    public class GameHistoryTechRefundPacket
+    public GameHistoryTechRefundPacket() { }
+
+    public GameHistoryTechRefundPacket(int techId, long contributed)
     {
-        public int TechIdContributed { get; set; }
-        public long TechHashedContributed { get; set; }
-
-        public GameHistoryTechRefundPacket() { }
-
-        public GameHistoryTechRefundPacket(int techId, long contributed)
-        {
-            TechIdContributed = techId;
-            TechHashedContributed = contributed;
-        }
+        TechIdContributed = techId;
+        TechHashedContributed = contributed;
     }
+
+    public int TechIdContributed { get; set; }
+    public long TechHashedContributed { get; set; }
 }

@@ -1,13 +1,13 @@
-﻿namespace NebulaModel.Packets.Planet
-{
-    public class FactoryLoadRequest
-    {
-        public int PlanetID { get; set; }
+﻿namespace NebulaModel.Packets.Planet;
 
-        public FactoryLoadRequest() { }
-        public FactoryLoadRequest(int planetID)
-        {
-            PlanetID = planetID;
-        }
+public class FactoryLoadRequest
+{
+    public FactoryLoadRequest() { }
+
+    public FactoryLoadRequest(int planetID)
+    {
+        PlanetID = planetID;
     }
+
+    public int PlanetID { get; set; }
 }

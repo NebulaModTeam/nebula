@@ -1,7 +1,5 @@
-﻿namespace NebulaModel.Packets.Logistics
+﻿namespace NebulaModel.Packets.Logistics;
+
+public class ILSRequestgStationPoolSync
 {
-    public class ILSRequestgStationPoolSync
-    {
-        public ILSRequestgStationPoolSync() { }
-    }
 }

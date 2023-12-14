@@ -1,20 +1,20 @@
-﻿namespace NebulaModel.Packets.GameHistory
+﻿namespace NebulaModel.Packets.GameHistory;
+
+public class GameHistoryNotificationPacket
 {
-    public class GameHistoryNotificationPacket
-    {
-        public GameHistoryEvent Event { get; set; }
+    public GameHistoryNotificationPacket() { }
 
-        public GameHistoryNotificationPacket() { }
-        public GameHistoryNotificationPacket(GameHistoryEvent Event)
-        {
-            this.Event = Event;
-        }
+    public GameHistoryNotificationPacket(GameHistoryEvent Event)
+    {
+        this.Event = Event;
     }
 
-    public enum GameHistoryEvent
-    {
-        PauseQueue = 1,
-        ResumeQueue = 2,
-        OneKeyUnlock = 3
-    }
+    public GameHistoryEvent Event { get; set; }
+}
+
+public enum GameHistoryEvent
+{
+    PauseQueue = 1,
+    ResumeQueue = 2,
+    OneKeyUnlock = 3
 }

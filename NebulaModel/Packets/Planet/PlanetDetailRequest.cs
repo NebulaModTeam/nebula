@@ -1,14 +1,13 @@
-﻿namespace NebulaModel.Packets.Planet
+﻿namespace NebulaModel.Packets.Planet;
+
+public class PlanetDetailRequest
 {
-    public class PlanetDetailRequest
+    public PlanetDetailRequest() { }
+
+    public PlanetDetailRequest(int planetID)
     {
-        public int PlanetID { get; set; }
-
-        public PlanetDetailRequest() { }
-
-        public PlanetDetailRequest(int planetID)
-        {
-            PlanetID = planetID;
-        }
+        PlanetID = planetID;
     }
+
+    public int PlanetID { get; set; }
 }

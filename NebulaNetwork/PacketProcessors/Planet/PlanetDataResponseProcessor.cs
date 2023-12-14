@@ -1,62 +1,65 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Planet
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Planet;
+
+[RegisterPacketProcessor]
+public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
 {
-    [RegisterPacketProcessor]
-    public class PlanetDataResponseProcessor : PacketProcessor<PlanetDataResponse>
+    public override void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(PlanetDataResponse packet, NebulaConnection conn)
+        if (IsHost)
         {
-            if (IsHost)
-            {
-                return;
-            }
+            return;
+        }
 
 
-            PlanetData planet = null;
+        PlanetData planet = null;
 
-            if (Multiplayer.Session.IsInLobby)
-            {
-                planet = UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID);
-            }
-            else
-            {
-                planet = GameMain.galaxy.PlanetById(packet.PlanetDataID);
-            }
+        if (Multiplayer.Session.IsInLobby)
+        {
+            planet = UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID);
+        }
+        else
+        {
+            planet = GameMain.galaxy.PlanetById(packet.PlanetDataID);
+        }
 
-            Log.Info($"Parsing {packet.PlanetDataByte.Length} bytes of data for planet {planet.name} (ID: {planet.id})");
+        Log.Info($"Parsing {packet.PlanetDataByte.Length} bytes of data for planet {planet.name} (ID: {planet.id})");
 
-            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.PlanetDataByte))
-            {
-                planet.ImportRuntime(reader.BinaryReader);
-            }
+        using (var reader = new BinaryUtils.Reader(packet.PlanetDataByte))
+        {
+            planet.ImportRuntime(reader.BinaryReader);
+        }
 
-            if (Multiplayer.Session.IsInLobby)
+        if (Multiplayer.Session.IsInLobby)
+        {
+            // Pretend planet is loaded to make planetDetail show resources
+            planet.loaded = true;
+            UIRoot.instance.uiGame.planetDetail.RefreshDynamicProperties();
+        }
+        else
+        {
+            lock (PlanetModelingManager.genPlanetReqList)
             {
-                // Pretend planet is loaded to make planetDetail show resources
-                planet.loaded = true;
-                UIRoot.instance.uiGame.planetDetail.RefreshDynamicProperties();
-            }
-            else
-            {
-                lock (PlanetModelingManager.genPlanetReqList)
+                PlanetModelingManager.genPlanetReqList.Enqueue(planet);
+
+                int localPlanetId = Multiplayer.Session.LocalPlayer.Data.LocalPlanetId;
+                if (planet.id == localPlanetId)
                 {
-                    PlanetModelingManager.genPlanetReqList.Enqueue(planet);
-
-                    int localPlanetId = Multiplayer.Session.LocalPlayer.Data.LocalPlanetId;
-                    if (planet.id == localPlanetId)
+                    // Make local planet load first
+                    while (PlanetModelingManager.genPlanetReqList.Peek().id != localPlanetId)
                     {
-                        // Make local planet load first
-                        while (PlanetModelingManager.genPlanetReqList.Peek().id != localPlanetId)
-                        {
-                            PlanetData tmp = PlanetModelingManager.genPlanetReqList.Dequeue();
-                            PlanetModelingManager.genPlanetReqList.Enqueue(tmp);
-                        }
+                        var tmp = PlanetModelingManager.genPlanetReqList.Dequeue();
+                        PlanetModelingManager.genPlanetReqList.Enqueue(tmp);
                     }
                 }
             }

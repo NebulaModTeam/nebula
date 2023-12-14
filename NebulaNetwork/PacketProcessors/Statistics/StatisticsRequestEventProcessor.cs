@@ -1,45 +1,48 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Statistics
-{
-    [RegisterPacketProcessor]
-    internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
-    {
-        private readonly IPlayerManager playerManager;
+#endregion
 
-        public StatisticsRequestEventProcessor()
+namespace NebulaNetwork.PacketProcessors.Statistics;
+
+[RegisterPacketProcessor]
+internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
+{
+    private readonly IPlayerManager playerManager;
+
+    public StatisticsRequestEventProcessor()
+    {
+        playerManager = Multiplayer.Session.Network.PlayerManager;
+    }
+
+    public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
+    {
+        if (IsClient)
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            return;
         }
 
-        public override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
+        var player = playerManager.GetPlayer(conn);
+        if (player != null)
         {
-            if (IsClient)
+            if (packet.Event == StatisticEvent.WindowOpened)
             {
-                return;
+                Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
+
+                using (var writer = new BinaryUtils.Writer())
+                {
+                    Multiplayer.Session.Statistics.ExportAllData(writer.BinaryWriter);
+                    conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
+                }
             }
-
-            INebulaPlayer player = playerManager.GetPlayer(conn);
-            if (player != null)
+            else if (packet.Event == StatisticEvent.WindowClosed)
             {
-                if (packet.Event == StatisticEvent.WindowOpened)
-                {
-                    Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
-
-                    using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
-                    {
-                        Multiplayer.Session.Statistics.ExportAllData(writer.BinaryWriter);
-                        conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
-                    }
-                }
-                else if (packet.Event == StatisticEvent.WindowClosed)
-                {
-                    Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
-                }
+                Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
             }
         }
     }

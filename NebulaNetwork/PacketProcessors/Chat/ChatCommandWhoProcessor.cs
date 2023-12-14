@@ -1,4 +1,6 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -7,36 +9,33 @@ using NebulaModel.Packets.Players;
 using NebulaWorld;
 using NebulaWorld.Chat.Commands;
 using NebulaWorld.MonoBehaviours.Local;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 
-namespace NebulaNetwork.PacketProcessors.Players
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Players;
+
+[RegisterPacketProcessor]
+internal class ChatCommandWhoProcessor : PacketProcessor<ChatCommandWhoPacket>
 {
-    [RegisterPacketProcessor]
-    internal class ChatCommandWhoProcessor : PacketProcessor<ChatCommandWhoPacket>
+    public override void ProcessPacket(ChatCommandWhoPacket packet, NebulaConnection conn)
     {
-
-        public ChatCommandWhoProcessor()
+        if (IsHost)
         {
+            IPlayerData[] playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
+            ILocalPlayer hostPlayer = Multiplayer.Session.LocalPlayer;
+            var resultPayload = WhoCommandHandler.BuildResultPayload(playerDatas, hostPlayer);
+
+            INebulaPlayer recipient = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
+            recipient.SendPacket(new ChatCommandWhoPacket(false, resultPayload));
         }
-
-        public override void ProcessPacket(ChatCommandWhoPacket packet, NebulaConnection conn)
+        else
         {
-            if (IsHost)
+            if (packet.IsRequest)
             {
-                IPlayerData[] playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
-                ILocalPlayer hostPlayer = Multiplayer.Session.LocalPlayer;
-                string resultPayload = WhoCommandHandler.BuildResultPayload(playerDatas, hostPlayer);
-
-                INebulaPlayer recipient = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
-                recipient.SendPacket(new ChatCommandWhoPacket(false, resultPayload));
+                Log.Warn("Request packet received for who response");
             }
-            else
-            {
-                if (packet.IsRequest)
-                {
-                    Log.Warn("Request packet received for who response");
-                }
-                ChatManager.Instance.SendChatMessage(packet.ResponsePayload, ChatMessageType.CommandOutputMessage);
-            }
+            ChatManager.Instance.SendChatMessage(packet.ResponsePayload, ChatMessageType.CommandOutputMessage);
         }
     }
 }

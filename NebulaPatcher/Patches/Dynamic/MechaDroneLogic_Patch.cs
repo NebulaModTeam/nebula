@@ -1,19 +1,22 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
 using NebulaWorld;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(MechaDroneLogic))]
+internal class MechaDroneLogic_Patch
 {
-    [HarmonyPatch(typeof(MechaDroneLogic))]
-    internal class MechaDroneLogic_Patch
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
+    public static void UpdateTargets_Prefix()
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
-        public static void UpdateTargets_Prefix()
+        if (Multiplayer.IsActive)
         {
-            if (Multiplayer.IsActive)
-            {
-                Multiplayer.Session.Drones.ClearCachedPositions();
-            }
+            Multiplayer.Session.Drones.ClearCachedPositions();
         }
     }
 }

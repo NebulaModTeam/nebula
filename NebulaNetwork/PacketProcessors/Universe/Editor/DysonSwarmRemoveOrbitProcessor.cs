@@ -1,41 +1,45 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
+using NebulaWorld.Universe;
 
-namespace NebulaNetwork.PacketProcessors.Universe
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Universe;
+
+[RegisterPacketProcessor]
+internal class DysonSwarmRemoveOrbitProcessor : PacketProcessor<DysonSwarmRemoveOrbitPacket>
 {
-    [RegisterPacketProcessor]
-    internal class DysonSwarmRemoveOrbitProcessor : PacketProcessor<DysonSwarmRemoveOrbitPacket>
+    public override void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(DysonSwarmRemoveOrbitPacket packet, NebulaConnection conn)
+        var sphere = GameMain.data.dysonSpheres[packet.StarIndex];
+        if (sphere == null)
         {
-            DysonSphere sphere = GameMain.data.dysonSpheres[packet.StarIndex];
-            if (sphere == null)
+            return;
+        }
+        using (Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket.On())
+        {
+            if (packet.Event == SwarmRemoveOrbitEvent.Remove)
             {
-                return;
+                sphere.swarm.RemoveOrbit(packet.OrbitId);
             }
-            using (Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket.On())
+            else if (packet.Event == SwarmRemoveOrbitEvent.Enable || packet.Event == SwarmRemoveOrbitEvent.Disable)
             {
-                if (packet.Event == SwarmRemoveOrbitEvent.Remove)
-                {
-                    sphere.swarm.RemoveOrbit(packet.OrbitId);
-                }
-                else if (packet.Event == SwarmRemoveOrbitEvent.Enable || packet.Event == SwarmRemoveOrbitEvent.Disable)
-                {
-                    sphere.swarm.SetOrbitEnable(packet.OrbitId, packet.Event == SwarmRemoveOrbitEvent.Enable);
-                }
-                else if (packet.Event == SwarmRemoveOrbitEvent.RemoveSails)
-                {
-                    sphere.swarm.RemoveSailsByOrbit(packet.OrbitId);
-                }
-                NebulaWorld.Universe.DysonSphereManager.ClearSelection(packet.StarIndex);
+                sphere.swarm.SetOrbitEnable(packet.OrbitId, packet.Event == SwarmRemoveOrbitEvent.Enable);
             }
-            if (IsHost)
+            else if (packet.Event == SwarmRemoveOrbitEvent.RemoveSails)
             {
-                Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
+                sphere.swarm.RemoveSailsByOrbit(packet.OrbitId);
             }
+            DysonSphereManager.ClearSelection(packet.StarIndex);
+        }
+        if (IsHost)
+        {
+            Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
         }
     }
 }

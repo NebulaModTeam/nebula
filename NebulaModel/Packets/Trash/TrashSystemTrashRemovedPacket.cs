@@ -1,14 +1,13 @@
-﻿namespace NebulaModel.Packets.Trash
+﻿namespace NebulaModel.Packets.Trash;
+
+public class TrashSystemTrashRemovedPacket
 {
-    public class TrashSystemTrashRemovedPacket
+    public TrashSystemTrashRemovedPacket() { }
+
+    public TrashSystemTrashRemovedPacket(int trashId)
     {
-        public int TrashId { get; set; }
-
-        public TrashSystemTrashRemovedPacket() { }
-
-        public TrashSystemTrashRemovedPacket(int trashId)
-        {
-            TrashId = trashId;
-        }
+        TrashId = trashId;
     }
+
+    public int TrashId { get; set; }
 }

@@ -1,13 +1,13 @@
-﻿namespace NebulaModel.Packets.GameStates
-{
-    public class FragmentInfo
-    {
-        public int Size { get; set; }
+﻿namespace NebulaModel.Packets.GameStates;
 
-        public FragmentInfo() { }
-        public FragmentInfo(int size)
-        {
-            Size = size;
-        }
+public class FragmentInfo
+{
+    public FragmentInfo() { }
+
+    public FragmentInfo(int size)
+    {
+        Size = size;
     }
+
+    public int Size { get; set; }
 }

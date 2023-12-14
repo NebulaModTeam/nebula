@@ -1,20 +1,23 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 
-namespace NebulaNetwork.PacketProcessors.Players
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Players;
+
+[RegisterPacketProcessor]
+internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPacket>
 {
-    [RegisterPacketProcessor]
-    internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPacket>
+    public override void ProcessPacket(RemoveDroneOrdersPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(RemoveDroneOrdersPacket packet, NebulaConnection conn)
+        if (packet.QueuedEntityIds != null)
         {
-            if (packet.QueuedEntityIds != null)
+            for (var i = 0; i < packet.QueuedEntityIds.Length; i++)
             {
-                for (int i = 0; i < packet.QueuedEntityIds.Length; i++)
-                {
-                    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.QueuedEntityIds[i]);
-                }
+                GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.QueuedEntityIds[i]);
             }
         }
     }

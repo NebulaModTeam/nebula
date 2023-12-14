@@ -1,42 +1,45 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Statistics
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Statistics;
+
+[RegisterPacketProcessor]
+internal class MilestoneUnlockProcessor : PacketProcessor<MilestoneUnlockPacket>
 {
-    [RegisterPacketProcessor]
-    internal class MilestoneUnlockProcessor : PacketProcessor<MilestoneUnlockPacket>
+    public override void ProcessPacket(MilestoneUnlockPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(MilestoneUnlockPacket packet, NebulaConnection conn)
+        IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+        var valid = true;
+
+        if (IsHost)
         {
-            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-            bool valid = true;
-
-            if (IsHost)
+            var player = playerManager.GetPlayer(conn);
+            if (player != null)
             {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
-                {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
-                }
-                else
-                {
-                    valid = false;
-                }
+                playerManager.SendPacketToOtherPlayers(packet, player);
             }
-
-            if (valid)
+            else
             {
-                using (Multiplayer.Session.Statistics.IsIncomingRequest.On())
+                valid = false;
+            }
+        }
+
+        if (valid)
+        {
+            using (Multiplayer.Session.Statistics.IsIncomingRequest.On())
+            {
+                if (GameMain.data.milestoneSystem.milestoneDatas.TryGetValue(packet.Id, out var milestoneData))
                 {
-                    if (GameMain.data.milestoneSystem.milestoneDatas.TryGetValue(packet.Id, out MilestoneData milestoneData))
-                    {
-                        milestoneData.journalData.patternId = packet.PatternId;
-                        milestoneData.journalData.parameters = packet.Parameters;
-                        GameMain.data.milestoneSystem.UnlockMilestone(packet.Id, packet.UnlockTick);
-                    }
+                    milestoneData.journalData.patternId = packet.PatternId;
+                    milestoneData.journalData.parameters = packet.Parameters;
+                    GameMain.data.milestoneSystem.UnlockMilestone(packet.Id, packet.UnlockTick);
                 }
             }
         }

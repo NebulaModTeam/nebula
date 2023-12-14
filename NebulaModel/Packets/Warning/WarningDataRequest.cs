@@ -1,19 +1,19 @@
-﻿namespace NebulaModel.Packets.Warning
+﻿namespace NebulaModel.Packets.Warning;
+
+public class WarningDataRequest
 {
-    public class WarningDataRequest
-    {
-        public WarningRequestEvent Event { get; set; }
+    public WarningDataRequest() { }
 
-        public WarningDataRequest() { }
-        public WarningDataRequest(WarningRequestEvent requestEvent)
-        {
-            Event = requestEvent;
-        }
+    public WarningDataRequest(WarningRequestEvent requestEvent)
+    {
+        Event = requestEvent;
     }
 
-    public enum WarningRequestEvent
-    {
-        Signal = 0,
-        Data = 1
-    }
+    public WarningRequestEvent Event { get; set; }
+}
+
+public enum WarningRequestEvent
+{
+    Signal = 0,
+    Data = 1
 }

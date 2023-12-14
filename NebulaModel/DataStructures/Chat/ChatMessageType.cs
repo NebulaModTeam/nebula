@@ -1,13 +1,12 @@
-﻿namespace NebulaModel.DataStructures
+﻿namespace NebulaModel.DataStructures;
+
+public enum ChatMessageType
 {
-    public enum ChatMessageType
-    {
-        PlayerMessage = 0,
-        SystemInfoMessage = 1,
-        SystemWarnMessage = 2,
-        CommandUsageMessage = 3,
-        CommandOutputMessage = 4,
-        CommandErrorMessage = 5,
-        PlayerMessagePrivate = 6
-    }
+    PlayerMessage = 0,
+    SystemInfoMessage = 1,
+    SystemWarnMessage = 2,
+    CommandUsageMessage = 3,
+    CommandOutputMessage = 4,
+    CommandErrorMessage = 5,
+    PlayerMessagePrivate = 6
 }

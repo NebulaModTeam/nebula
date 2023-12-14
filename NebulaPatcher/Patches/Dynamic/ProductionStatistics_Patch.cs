@@ -1,60 +1,60 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
 using NebulaWorld;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(ProductionStatistics))]
+internal class ProductionStatistics_Patch
 {
-    [HarmonyPatch(typeof(ProductionStatistics))]
-    internal class ProductionStatistics_Patch
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(ProductionStatistics.PrepareTick))]
+    public static bool PrepareTick_Prefix(ProductionStatistics __instance)
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(ProductionStatistics.PrepareTick))]
-        public static bool PrepareTick_Prefix(ProductionStatistics __instance)
+        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            for (var i = 0; i < __instance.gameData.factoryCount; i++)
             {
-                for (int i = 0; i < __instance.gameData.factoryCount; i++)
-                {
-                    __instance.factoryStatPool[i]?.PrepareTick();
-                }
-                return false;
+                __instance.factoryStatPool[i]?.PrepareTick();
             }
-            else
-            {
-                return true;
-            }
+            return false;
         }
+        return true;
+    }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(ProductionStatistics.AfterTick))]
-        public static bool AfterTick_Prefix(ProductionStatistics __instance)
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(ProductionStatistics.AfterTick))]
+    public static bool AfterTick_Prefix(ProductionStatistics __instance)
+    {
+        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            for (var i = 0; i < __instance.gameData.factoryCount; i++)
             {
-                for (int i = 0; i < __instance.gameData.factoryCount; i++)
-                {
-                    __instance.factoryStatPool[i]?.AfterTick();
-                }
-                return false;
+                __instance.factoryStatPool[i]?.AfterTick();
             }
-            return true;
+            return false;
         }
+        return true;
+    }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(ProductionStatistics.GameTick))]
-        public static bool GameTick_Prefix(ProductionStatistics __instance)
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(ProductionStatistics.GameTick))]
+    public static bool GameTick_Prefix(ProductionStatistics __instance)
+    {
+        if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
+            //Do not run on client if you do not have all data
+            for (var i = 0; i < __instance.gameData.factoryCount; i++)
             {
-                //Do not run on client if you do not have all data
-                for (int i = 0; i < __instance.gameData.factoryCount; i++)
+                if (__instance.factoryStatPool[i] == null)
                 {
-                    if (__instance.factoryStatPool[i] == null)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
-            return true;
         }
+        return true;
     }
 }

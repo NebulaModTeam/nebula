@@ -1,54 +1,58 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NebulaModel.Utils
+#endregion
+
+namespace NebulaModel.Utils;
+
+public class UnityDispatchQueue : MonoBehaviour
 {
-    public class UnityDispatchQueue : MonoBehaviour
+    private static UnityDispatchQueue _instance;
+
+    private readonly Queue<Action> actionsQueue = new();
+
+    private void Update()
     {
-        private static UnityDispatchQueue _instance;
-        private static UnityDispatchQueue GetInstance()
+        lock (actionsQueue)
         {
-            if (!_instance)
+            while (actionsQueue.Count > 0)
             {
-                _instance = FindObjectOfType<UnityDispatchQueue>();
-            }
-
-            if (!_instance)
-            {
-                GameObject go = new GameObject(nameof(UnityDispatchQueue));
-                _instance = go.AddComponent<UnityDispatchQueue>();
-                DontDestroyOnLoad(_instance);
-            }
-
-            return _instance;
-        }
-
-        private readonly Queue<Action> actionsQueue = new Queue<Action>();
-
-        public static void RunOnMainThread(Action action)
-        {
-            UnityDispatchQueue instance = GetInstance();
-            lock (instance.actionsQueue)
-            {
-                instance.actionsQueue.Enqueue(action);
+                actionsQueue.Dequeue().Invoke();
             }
         }
+    }
 
-        private void Update()
+    private void OnDestroy()
+    {
+        _instance = null;
+    }
+
+    private static UnityDispatchQueue GetInstance()
+    {
+        if (!_instance)
         {
-            lock (actionsQueue)
-            {
-                while (actionsQueue.Count > 0)
-                {
-                    actionsQueue.Dequeue().Invoke();
-                }
-            }
+            _instance = FindObjectOfType<UnityDispatchQueue>();
         }
 
-        private void OnDestroy()
+        if (!_instance)
         {
-            _instance = null;
+            var go = new GameObject(nameof(UnityDispatchQueue));
+            _instance = go.AddComponent<UnityDispatchQueue>();
+            DontDestroyOnLoad(_instance);
+        }
+
+        return _instance;
+    }
+
+    public static void RunOnMainThread(Action action)
+    {
+        var instance = GetInstance();
+        lock (instance.actionsQueue)
+        {
+            instance.actionsQueue.Enqueue(action);
         }
     }
 }

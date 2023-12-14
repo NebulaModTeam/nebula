@@ -1,55 +1,58 @@
-﻿using System.Collections.Generic;
+﻿#region
 
-namespace NebulaAPI
+using System.Collections.Generic;
+
+#endregion
+
+namespace NebulaAPI;
+
+public interface IPlayerManager
 {
-    public interface IPlayerManager
-    {
-        Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers);
+    Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers);
 
-        Locker GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers);
+    Locker GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers);
 
-        Locker GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers);
+    Locker GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers);
 
-        Locker GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData);
+    Locker GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData);
 
-        IPlayerData[] GetAllPlayerDataIncludingHost();
+    IPlayerData[] GetAllPlayerDataIncludingHost();
 
-        INebulaPlayer GetPlayer(INebulaConnection conn);
+    INebulaPlayer GetPlayer(INebulaConnection conn);
 
-        INebulaPlayer GetSyncingPlayer(INebulaConnection conn);
+    INebulaPlayer GetSyncingPlayer(INebulaConnection conn);
 
-        INebulaPlayer GetPlayerById(ushort playerId);
+    INebulaPlayer GetPlayerById(ushort playerId);
 
-        INebulaPlayer GetConnectedPlayerByUsername(string username);
+    INebulaPlayer GetConnectedPlayerByUsername(string username);
 
-        void SendPacketToAllPlayers<T>(T packet) where T : class, new();
+    void SendPacketToAllPlayers<T>(T packet) where T : class, new();
 
-        void SendPacketToLocalStar<T>(T packet) where T : class, new();
+    void SendPacketToLocalStar<T>(T packet) where T : class, new();
 
-        void SendPacketToLocalPlanet<T>(T packet) where T : class, new();
+    void SendPacketToLocalPlanet<T>(T packet) where T : class, new();
 
-        void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new();
+    void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new();
 
-        void SendPacketToStar<T>(T packet, int starId) where T : class, new();
+    void SendPacketToStar<T>(T packet, int starId) where T : class, new();
 
-        void SendPacketToStarExcept<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
+    void SendPacketToStarExcept<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
 
-        void SendRawPacketToStar(byte[] rawPacket, int starId, INebulaConnection sender);
+    void SendRawPacketToStar(byte[] rawPacket, int starId, INebulaConnection sender);
 
-        void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender);
+    void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender);
 
-        void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new();
+    void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new();
 
-        void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
+    void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
 
-        INebulaPlayer PlayerConnected(INebulaConnection conn);
+    INebulaPlayer PlayerConnected(INebulaConnection conn);
 
-        void PlayerDisconnected(INebulaConnection conn);
+    void PlayerDisconnected(INebulaConnection conn);
 
-        ushort GetNextAvailablePlayerId();
+    ushort GetNextAvailablePlayerId();
 
-        void UpdateMechaData(IMechaData mechaData, INebulaConnection conn);
+    void UpdateMechaData(IMechaData mechaData, INebulaConnection conn);
 
-        void UpdateSyncedSandCount(int deltaSandCount);
-    }
+    void UpdateSyncedSandCount(int deltaSandCount);
 }

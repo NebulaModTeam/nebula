@@ -1,43 +1,46 @@
-﻿using NebulaAPI;
-using NebulaModel.Networking.Serialization;
+﻿#region
+
 using System;
+using NebulaAPI;
+using NebulaModel.Networking.Serialization;
 
-namespace NebulaModel
+#endregion
+
+namespace NebulaModel;
+
+public abstract class NetworkProvider : IDisposable, INetworkProvider
 {
-    public abstract class NetworkProvider : IDisposable, INetworkProvider
+    protected NetworkProvider(IPlayerManager playerManager)
     {
-        public NetPacketProcessor PacketProcessor { get; protected set; }
-
-        public IPlayerManager PlayerManager { get; }
-
-        protected NetworkProvider(IPlayerManager playerManager)
-        {
-            PacketProcessor = new NetPacketProcessor();
-            PlayerManager = playerManager;
-        }
-
-        public abstract void Start();
-
-        public abstract void Stop();
-
-        public abstract void Dispose();
-
-        public abstract void SendPacket<T>(T packet) where T : class, new();
-
-        public abstract void SendPacketToLocalStar<T>(T packet) where T : class, new();
-
-        public abstract void SendPacketToLocalPlanet<T>(T packet) where T : class, new();
-
-        public abstract void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new();
-
-        public abstract void SendPacketToStar<T>(T packet, int starId) where T : class, new();
-
-        public abstract void SendPacketExclude<T>(T packet, INebulaConnection exclude)
-            where T : class, new();
-
-        public abstract void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
-            where T : class, new();
-
-        public abstract void Update();
+        PacketProcessor = new NetPacketProcessor();
+        PlayerManager = playerManager;
     }
+
+    public NetPacketProcessor PacketProcessor { get; protected set; }
+
+    public abstract void Dispose();
+
+    public IPlayerManager PlayerManager { get; }
+
+    public abstract void SendPacket<T>(T packet) where T : class, new();
+
+    public abstract void SendPacketToLocalStar<T>(T packet) where T : class, new();
+
+    public abstract void SendPacketToLocalPlanet<T>(T packet) where T : class, new();
+
+    public abstract void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new();
+
+    public abstract void SendPacketToStar<T>(T packet, int starId) where T : class, new();
+
+    public abstract void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+        where T : class, new();
+
+    public abstract void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
+        where T : class, new();
+
+    public abstract void Update();
+
+    public abstract void Start();
+
+    public abstract void Stop();
 }

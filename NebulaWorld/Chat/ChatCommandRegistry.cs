@@ -1,90 +1,96 @@
-﻿using NebulaModel.Logger;
+﻿#region
+
 using System.Collections.Generic;
 using System.Linq;
+using NebulaModel.Logger;
 
-namespace NebulaWorld.Chat.Commands
+#endregion
+
+namespace NebulaWorld.Chat.Commands;
+
+public static class ChatCommandRegistry
 {
-    public static class ChatCommandRegistry
-    {
-        public const string CommandPrefix = "/";
-        public static readonly Dictionary<ChatCommandKey, IChatCommandHandler> commands = new Dictionary<ChatCommandKey, IChatCommandHandler>();
+    public const string CommandPrefix = "/";
+    public static readonly Dictionary<ChatCommandKey, IChatCommandHandler> commands = new();
 
-        public static void RegisterCommand(string commandName, IChatCommandHandler commandHandlerHandler, params string[] aliases)
+    static ChatCommandRegistry()
+    {
+        RegisterCommand("ping", new PingCommandHandler());
+        RegisterCommand("help", new HelpCommandHandler(), "h", "?");
+        RegisterCommand("who", new WhoCommandHandler(), "players", "list");
+        RegisterCommand("whisper", new WhisperCommandHandler(), "w", "tell", "t");
+        RegisterCommand("info", new InfoCommandHandler());
+        RegisterCommand("clear", new ClearCommandHandler(), "c");
+        RegisterCommand("xconsole", new XConsoleCommandHandler(), "x");
+        RegisterCommand("navigate", new NavigateCommandHandler(), "n");
+        RegisterCommand("system", new SystemCommandHandler(), "s");
+        RegisterCommand("reconnect", new ReconnectCommandHandler(), "r");
+        RegisterCommand("server", new ServerCommandHandler());
+    }
+
+    public static void RegisterCommand(string commandName, IChatCommandHandler commandHandlerHandler, params string[] aliases)
+    {
+        if (commandHandlerHandler == null)
         {
-            if (commandHandlerHandler == null) return;
-            if (NameOrAliasRegistered(commandName, aliases))
-            {
-                Log.Debug($"Can't register command, because command for {commandName} was already registered!");
-                return;
-            }
-            
-            Log.Debug($"Registering command handler for {commandName}");
-            commands.Add(new ChatCommandKey(commandName, aliases), commandHandlerHandler);
+            return;
         }
-        
-        public static IChatCommandHandler GetCommandHandler(string commandOrAlias)
+        if (NameOrAliasRegistered(commandName, aliases))
         {
-            ChatCommandKey chatCommandKey = commands.Keys
-                .FirstOrDefault((command) => command.RespondsTo(commandOrAlias.ToLowerInvariant()));
-            return chatCommandKey != null ? commands[chatCommandKey] : null;
+            Log.Debug($"Can't register command, because command for {commandName} was already registered!");
+            return;
         }
-        
-        public static string[] GetCommandAliases(string commandOrAlias)
+
+        Log.Debug($"Registering command handler for {commandName}");
+        commands.Add(new ChatCommandKey(commandName, aliases), commandHandlerHandler);
+    }
+
+    public static IChatCommandHandler GetCommandHandler(string commandOrAlias)
+    {
+        var chatCommandKey = commands.Keys
+            .FirstOrDefault(command => command.RespondsTo(commandOrAlias.ToLowerInvariant()));
+        return chatCommandKey != null ? commands[chatCommandKey] : null;
+    }
+
+    public static string[] GetCommandAliases(string commandOrAlias)
+    {
+        var chatCommandKey = commands.Keys
+            .FirstOrDefault(command => command.RespondsTo(commandOrAlias.ToLowerInvariant()));
+        return chatCommandKey?.Aliases.ToArray();
+    }
+
+    private static bool NameOrAliasRegistered(string commandName, string[] aliases)
+    {
+        if (commands.Keys.Any(command => command.RespondsTo(commandName)))
         {
-            ChatCommandKey chatCommandKey = commands.Keys
-                .FirstOrDefault((command) => command.RespondsTo(commandOrAlias.ToLowerInvariant()));
-            return chatCommandKey?.Aliases.ToArray();
+            return true;
         }
-        
-        private static bool NameOrAliasRegistered(string commandName, string[] aliases)
+
+        var aliasesSet = new HashSet<string>(aliases);
+        foreach (var command in commands.Keys)
         {
-            if (commands.Keys.Any(command => command.RespondsTo(commandName)))
+            if (aliasesSet.Overlaps(command.Aliases))
             {
                 return true;
             }
-
-            HashSet<string> aliasesSet = new HashSet<string>(aliases);
-            foreach (ChatCommandKey command in commands.Keys)
-            {
-                if (aliasesSet.Overlaps(command.Aliases))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
-        static ChatCommandRegistry()
-        {
-            RegisterCommand("ping", new PingCommandHandler());
-            RegisterCommand("help", new HelpCommandHandler(), "h", "?");
-            RegisterCommand("who", new WhoCommandHandler(), "players", "list");
-            RegisterCommand("whisper", new WhisperCommandHandler(), "w", "tell", "t");
-            RegisterCommand("info", new InfoCommandHandler());
-            RegisterCommand("clear", new ClearCommandHandler(), "c");
-            RegisterCommand("xconsole", new XConsoleCommandHandler(), "x");
-            RegisterCommand("navigate", new NavigateCommandHandler(), "n");
-            RegisterCommand("system", new SystemCommandHandler(), "s");
-            RegisterCommand("reconnect", new ReconnectCommandHandler(), "r");
-            RegisterCommand("server", new ServerCommandHandler());
-        }
+        return false;
+    }
+}
+
+public class ChatCommandKey
+{
+    public readonly HashSet<string> Aliases;
+    public readonly string Name;
+
+    public ChatCommandKey(string commandName, string[] aliases)
+    {
+        Name = commandName;
+        Aliases = new HashSet<string>(aliases);
     }
 
-    public class ChatCommandKey
+    public bool RespondsTo(string nameOrAlias)
     {
-        public readonly string Name;
-        public readonly HashSet<string> Aliases;
-
-        public ChatCommandKey(string commandName, string[] aliases)
-        {
-            Name = commandName;
-            Aliases = new HashSet<string>(aliases);
-        }
-
-        public bool RespondsTo(string nameOrAlias)
-        {
-            return Name == nameOrAlias || Aliases.Contains(nameOrAlias);
-        }
+        return Name == nameOrAlias || Aliases.Contains(nameOrAlias);
     }
 }

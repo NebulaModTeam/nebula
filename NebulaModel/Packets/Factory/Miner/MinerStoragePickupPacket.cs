@@ -1,16 +1,15 @@
-﻿namespace NebulaModel.Packets.Factory.Miner
+﻿namespace NebulaModel.Packets.Factory.Miner;
+
+public class MinerStoragePickupPacket
 {
-    public class MinerStoragePickupPacket
+    public MinerStoragePickupPacket() { }
+
+    public MinerStoragePickupPacket(int minerIndex, int planetId)
     {
-        public int MinerIndex { get; set; }
-        public int PlanetId { get; set; }
-
-        public MinerStoragePickupPacket() { }
-
-        public MinerStoragePickupPacket(int minerIndex, int planetId)
-        {
-            MinerIndex = minerIndex;
-            PlanetId = planetId;
-        }
+        MinerIndex = minerIndex;
+        PlanetId = planetId;
     }
+
+    public int MinerIndex { get; set; }
+    public int PlanetId { get; set; }
 }

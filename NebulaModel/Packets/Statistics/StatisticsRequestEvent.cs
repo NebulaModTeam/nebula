@@ -1,19 +1,19 @@
-﻿namespace NebulaModel.Packets.Statistics
+﻿namespace NebulaModel.Packets.Statistics;
+
+public class StatisticsRequestEvent
 {
-    public class StatisticsRequestEvent
-    {
-        public StatisticEvent Event { get; set; }
+    public StatisticsRequestEvent() { }
 
-        public StatisticsRequestEvent() { }
-        public StatisticsRequestEvent(StatisticEvent Event)
-        {
-            this.Event = Event;
-        }
+    public StatisticsRequestEvent(StatisticEvent Event)
+    {
+        this.Event = Event;
     }
 
-    public enum StatisticEvent
-    {
-        WindowOpened = 1,
-        WindowClosed = 2
-    }
+    public StatisticEvent Event { get; set; }
+}
+
+public enum StatisticEvent
+{
+    WindowOpened = 1,
+    WindowClosed = 2
 }

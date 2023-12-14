@@ -1,16 +1,15 @@
-﻿namespace NebulaModel.Packets.Planet
+﻿namespace NebulaModel.Packets.Planet;
+
+public class PlanetDataResponse
 {
-    public class PlanetDataResponse
+    public PlanetDataResponse() { }
+
+    public PlanetDataResponse(int planetId, byte[] planetData)
     {
-        public int PlanetDataID { get; set; }
-        public byte[] PlanetDataByte { get; set; }
-
-        public PlanetDataResponse() { }
-
-        public PlanetDataResponse(int planetId, byte[] planetData)
-        {
-            PlanetDataID = planetId;
-            PlanetDataByte = planetData;
-        }
+        PlanetDataID = planetId;
+        PlanetDataByte = planetData;
     }
+
+    public int PlanetDataID { get; set; }
+    public byte[] PlanetDataByte { get; set; }
 }

@@ -1,43 +1,46 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Trash
-{
-    [RegisterPacketProcessor]
-    internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemClearAllTrashPacket>
-    {
-        private readonly IPlayerManager playerManager;
+#endregion
 
-        public TrashSystemClearAllTrashProcessor()
+namespace NebulaNetwork.PacketProcessors.Trash;
+
+[RegisterPacketProcessor]
+internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemClearAllTrashPacket>
+{
+    private readonly IPlayerManager playerManager;
+
+    public TrashSystemClearAllTrashProcessor()
+    {
+        playerManager = Multiplayer.Session.Network.PlayerManager;
+    }
+
+    public override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
+    {
+        var valid = true;
+        if (IsHost)
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            var player = playerManager.GetPlayer(conn);
+            if (player != null)
+            {
+                playerManager.SendPacketToOtherPlayers(packet, player);
+            }
+            else
+            {
+                valid = false;
+            }
         }
 
-        public override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
+        if (valid)
         {
-            bool valid = true;
-            if (IsHost)
+            using (Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers.On())
             {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
-                {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
-                }
-                else
-                {
-                    valid = false;
-                }
-            }
-
-            if (valid)
-            {
-                using (Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers.On())
-                {
-                    GameMain.data.trashSystem.ClearAllTrash();
-                }
+                GameMain.data.trashSystem.ClearAllTrash();
             }
         }
     }

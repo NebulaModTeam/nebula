@@ -1,198 +1,193 @@
-﻿using Discord;
-using NebulaModel.Utils;
-using NebulaWorld;
+﻿#region
+
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Discord;
+using NebulaModel;
+using NebulaModel.Logger;
+using NebulaModel.Utils;
 
-namespace NebulaWorld.SocialIntegration
+#endregion
+
+namespace NebulaWorld.SocialIntegration;
+
+public class DiscordManager
 {
-    public class DiscordManager
+    private static Discord.Discord client;
+
+    private static ActivityManager ActivityManager;
+
+    private static Activity activity;
+
+    private static readonly Random random = new();
+
+    private static int SecretLength => 128;
+
+    public static void Setup(ActivityManager.ActivityJoinHandler activityJoinHandler)
     {
-        private static Discord.Discord client;
-
-        private static ActivityManager ActivityManager;
-
-        private static Activity activity;
-
-        private static readonly Random random = new();
-
-        private static int SecretLength => 128;
-
-        public static void Setup(ActivityManager.ActivityJoinHandler activityJoinHandler)
+        if (!Config.Options.EnableDiscordRPC)
         {
-            if(!NebulaModel.Config.Options.EnableDiscordRPC)
-            {
-                NebulaModel.Logger.Log.Info("Discord RPC support not enabled.");
-                return;
-            }
-
-            try
-            {
-                client = new(968766006182961182L, (ulong)CreateFlags.NoRequireDiscord);
-            }
-            catch(ResultException e)
-            {
-                NebulaModel.Logger.Log.Warn(e);
-                Cleanup();
-                return;
-            }
-
-            ActivityManager = client.GetActivityManager();
-            ActivityManager.RegisterCommand(Environment.CommandLine);
-
-            var gameDir = new FileInfo(Environment.GetCommandLineArgs()[0]);
-            var steamAppIdFile = Path.Combine(gameDir.DirectoryName, "steam_appid.txt");
-            if(!File.Exists(steamAppIdFile))
-            {
-                File.WriteAllText(steamAppIdFile, "1366540");
-            }
-
-            NebulaModel.Logger.Log.Info("Initialized Discord RPC");
-            activity = new()
-            {
-                State = "In Menus",
-                Timestamps =
-                {
-                    Start = DateTimeOffset.Now.ToUnixTimeSeconds(),
-                },
-                Party =
-                {
-                    Id = CreateSecret(),
-                    Size = new()
-                },
-                Instance = true,
-            };
-            UpdateActivity();
-
-            ActivityManager.OnActivityJoinRequest += ActivityManager_OnActivityJoinRequest;
-            ActivityManager.OnActivityJoin += activityJoinHandler;
+            Log.Info("Discord RPC support not enabled.");
+            return;
         }
 
-        private static void ActivityManager_OnActivityJoinRequest(ref User user)
+        try
         {
-            // Print anonymized username of user who requested to join
-            NebulaModel.Logger.Log.Info($"Received Discord join request from user " +
-                                        $"{user.Username[0] + new string('*', user.Username.Length - 2) + user.Username[user.Username.Length - 1]}");
-
-            if(!NebulaModel.Config.Options.AutoAcceptDiscordJoinRequests)
-            {
-                return;
-            }
-
-            ActivityManager.SendRequestReply(user.Id, ActivityJoinRequestReply.Yes, result =>
-            {
-                if(result == Result.Ok)
-                {
-                    NebulaModel.Logger.Log.Info("Accepted request.");
-                }
-                else
-                {
-                    NebulaModel.Logger.Log.Info("Could not accept request.");
-                }
-            });
+            client = new Discord.Discord(968766006182961182L, (ulong)CreateFlags.NoRequireDiscord);
+        }
+        catch (ResultException e)
+        {
+            Log.Warn(e);
+            Cleanup();
+            return;
         }
 
-        public static void Update()
+        ActivityManager = client.GetActivityManager();
+        ActivityManager.RegisterCommand(Environment.CommandLine);
+
+        var gameDir = new FileInfo(Environment.GetCommandLineArgs()[0]);
+        var steamAppIdFile = Path.Combine(gameDir.DirectoryName, "steam_appid.txt");
+        if (!File.Exists(steamAppIdFile))
         {
-            if(NebulaModel.Config.Options.EnableDiscordRPC && client != null)
-            {
-                try
-                {
-                    client.RunCallbacks();
-                }
-                catch (ResultException e) // RunCallbacks throws an exception when Discord is not running.
-                {
-                    NebulaModel.Logger.Log.Warn(e);
-                    Cleanup();
-                }
-            }
+            File.WriteAllText(steamAppIdFile, "1366540");
         }
 
-        private static void UpdateActivity()
+        Log.Info("Initialized Discord RPC");
+        activity = new Activity
         {
-            ActivityManager.UpdateActivity(activity, (result) => 
-            { 
-                if(result == Result.Ok)
-                {
-                    NebulaModel.Logger.Log.Info("Updated Discord activity");
-                }
-                else
-                {
-                    NebulaModel.Logger.Log.Warn("Could not update Discord activity");
-                }
-            });
+            State = "In Menus",
+            Timestamps = { Start = DateTimeOffset.Now.ToUnixTimeSeconds() },
+            Party = { Id = CreateSecret(), Size = new PartySize() },
+            Instance = true
+        };
+        UpdateActivity();
+
+        ActivityManager.OnActivityJoinRequest += ActivityManager_OnActivityJoinRequest;
+        ActivityManager.OnActivityJoin += activityJoinHandler;
+    }
+
+    private static void ActivityManager_OnActivityJoinRequest(ref User user)
+    {
+        // Print anonymized username of user who requested to join
+        Log.Info($"Received Discord join request from user " +
+                 $"{user.Username[0] + new string('*', user.Username.Length - 2) + user.Username[user.Username.Length - 1]}");
+
+        if (!Config.Options.AutoAcceptDiscordJoinRequests)
+        {
+            return;
         }
 
-        public static string CreateSecret()
+        ActivityManager.SendRequestReply(user.Id, ActivityJoinRequestReply.Yes, result =>
         {
-            byte[] bytes = new byte[SecretLength];
-            random.NextBytes(bytes);
-            return Encoding.UTF8.GetString(bytes);
-        }
-
-        public static void Cleanup()
-        {
-            if(client != null)
+            if (result == Result.Ok)
             {
-                client.Dispose();
-                client = null;
-                NebulaModel.Logger.Log.Info("Disposed Discord RPC");
-            }
-        }
-
-        public static void UpdateRichPresence(string ip = null, string partyId = null, bool secretPassthrough = false, bool updateTimestamp = false)
-        {
-            if(!NebulaModel.Config.Options.EnableDiscordRPC || client == null)
-            {
-                return;
-            }
-
-            if(Multiplayer.IsActive)
-            {
-                activity.Party.Size.CurrentSize = Multiplayer.Session.NumPlayers;
-                activity.Party.Size.MaxSize = ushort.MaxValue;
+                Log.Info("Accepted request.");
             }
             else
             {
-                activity.Party.Size = new();
+                Log.Info("Could not accept request.");
             }
+        });
+    }
 
-            if(updateTimestamp)
-            {
-                activity.Timestamps.Start = DateTimeOffset.Now.ToUnixTimeSeconds();
-            }
-
-            activity.State = Multiplayer.IsActive ? (Multiplayer.Session.IsInLobby ? "In Lobby" : "In Game") : "In Menus";
-
-            if(ip != null)
-            {
-                if(!string.IsNullOrWhiteSpace(ip) && !secretPassthrough)
-                {
-                    ip = ip.ToBase64();
-                }
-                activity.Secrets.Join = ip;
-            }
-
-            if(!string.IsNullOrWhiteSpace(partyId))
-            {
-                activity.Party.Id = partyId;
-            }
-
-            UpdateActivity();
-        }
-
-        public static string GetPartyId()
+    public static void Update()
+    {
+        if (Config.Options.EnableDiscordRPC && client != null)
         {
-            if (!NebulaModel.Config.Options.EnableDiscordRPC || client == null)
+            try
             {
-                return null;
+                client.RunCallbacks();
             }
-
-            return activity.Party.Id;
+            catch (ResultException e) // RunCallbacks throws an exception when Discord is not running.
+            {
+                Log.Warn(e);
+                Cleanup();
+            }
         }
+    }
+
+    private static void UpdateActivity()
+    {
+        ActivityManager.UpdateActivity(activity, result =>
+        {
+            if (result == Result.Ok)
+            {
+                Log.Info("Updated Discord activity");
+            }
+            else
+            {
+                Log.Warn("Could not update Discord activity");
+            }
+        });
+    }
+
+    public static string CreateSecret()
+    {
+        var bytes = new byte[SecretLength];
+        random.NextBytes(bytes);
+        return Encoding.UTF8.GetString(bytes);
+    }
+
+    public static void Cleanup()
+    {
+        if (client != null)
+        {
+            client.Dispose();
+            client = null;
+            Log.Info("Disposed Discord RPC");
+        }
+    }
+
+    public static void UpdateRichPresence(string ip = null, string partyId = null, bool secretPassthrough = false,
+        bool updateTimestamp = false)
+    {
+        if (!Config.Options.EnableDiscordRPC || client == null)
+        {
+            return;
+        }
+
+        if (Multiplayer.IsActive)
+        {
+            activity.Party.Size.CurrentSize = Multiplayer.Session.NumPlayers;
+            activity.Party.Size.MaxSize = ushort.MaxValue;
+        }
+        else
+        {
+            activity.Party.Size = new PartySize();
+        }
+
+        if (updateTimestamp)
+        {
+            activity.Timestamps.Start = DateTimeOffset.Now.ToUnixTimeSeconds();
+        }
+
+        activity.State = Multiplayer.IsActive ? Multiplayer.Session.IsInLobby ? "In Lobby" : "In Game" : "In Menus";
+
+        if (ip != null)
+        {
+            if (!string.IsNullOrWhiteSpace(ip) && !secretPassthrough)
+            {
+                ip = ip.ToBase64();
+            }
+            activity.Secrets.Join = ip;
+        }
+
+        if (!string.IsNullOrWhiteSpace(partyId))
+        {
+            activity.Party.Id = partyId;
+        }
+
+        UpdateActivity();
+    }
+
+    public static string GetPartyId()
+    {
+        if (!Config.Options.EnableDiscordRPC || client == null)
+        {
+            return null;
+        }
+
+        return activity.Party.Id;
     }
 }

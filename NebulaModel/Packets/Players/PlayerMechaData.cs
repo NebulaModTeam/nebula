@@ -1,17 +1,22 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.DataStructures;
 
-namespace NebulaModel.Packets.Players
-{
-    [HidePacketInDebugLogs]
-    public class PlayerMechaData
-    {
-        public MechaData Data { get; set; }
+#endregion
 
-        public PlayerMechaData() { }
-        public PlayerMechaData(Player player)
-        {
-            Data = new MechaData(player.sandCount, player.mecha.coreEnergy, player.mecha.reactorEnergy, player.package, player.deliveryPackage, player.mecha.reactorStorage, player.mecha.warpStorage, player.mecha.forge);
-        }
+namespace NebulaModel.Packets.Players;
+
+[HidePacketInDebugLogs]
+public class PlayerMechaData
+{
+    public PlayerMechaData() { }
+
+    public PlayerMechaData(Player player)
+    {
+        Data = new MechaData(player.sandCount, player.mecha.coreEnergy, player.mecha.reactorEnergy, player.package,
+            player.deliveryPackage, player.mecha.reactorStorage, player.mecha.warpStorage, player.mecha.forge);
     }
+
+    public MechaData Data { get; set; }
 }

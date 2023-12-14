@@ -1,46 +1,49 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Planet;
 using NebulaModel.Packets.GameStates;
+using NebulaModel.Packets.Planet;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Planet
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Planet;
+
+[RegisterPacketProcessor]
+public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
 {
-    [RegisterPacketProcessor]
-    public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
+    public override void ProcessPacket(FactoryLoadRequest packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(FactoryLoadRequest packet, NebulaConnection conn)
+        if (IsClient)
         {
-            if (IsClient)
-            {
-                return;
-            }
+            return;
+        }
 
-            PlanetData planet = GameMain.galaxy.PlanetById(packet.PlanetID);
-            PlanetFactory factory = GameMain.data.GetOrCreateFactory(planet);
+        var planet = GameMain.galaxy.PlanetById(packet.PlanetID);
+        var factory = GameMain.data.GetOrCreateFactory(planet);
 
-            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
-            {
-                factory.Export(writer.BinaryWriter);
-                byte[] data = writer.CloseAndGetBytes();
-                Log.Info($"Sent {data.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
-                conn.SendPacket(new FragmentInfo(data.Length + planet.data.modData.Length));
-                conn.SendPacket(new FactoryData(packet.PlanetID, data, planet.data.modData));
-            }
+        using (var writer = new BinaryUtils.Writer())
+        {
+            factory.Export(writer.BinaryWriter);
+            var data = writer.CloseAndGetBytes();
+            Log.Info($"Sent {data.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
+            conn.SendPacket(new FragmentInfo(data.Length + planet.data.modData.Length));
+            conn.SendPacket(new FactoryData(packet.PlanetID, data, planet.data.modData));
+        }
 
-            // Add requesting client to connected player, so he can receive following update
-            IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-            INebulaPlayer player = playerManager.GetSyncingPlayer(conn);
-            if (player != null)
+        // Add requesting client to connected player, so he can receive following update
+        IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
+        var player = playerManager.GetSyncingPlayer(conn);
+        if (player != null)
+        {
+            player.Data.LocalPlanetId = packet.PlanetID;
+            player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
+            using (playerManager.GetConnectedPlayers(out var connectedPlayers))
             {
-                player.Data.LocalPlanetId = packet.PlanetID;
-                player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
-                using (playerManager.GetConnectedPlayers(out System.Collections.Generic.Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers))
-                {
-                    connectedPlayers.Add(player.Connection, player);
-                }
+                connectedPlayers.Add(player.Connection, player);
             }
         }
     }

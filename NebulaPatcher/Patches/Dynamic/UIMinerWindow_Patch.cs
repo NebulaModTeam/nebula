@@ -1,20 +1,24 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
 using NebulaModel.Packets.Factory.Miner;
 using NebulaWorld;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(UIMinerWindow))]
+internal class UIMinerWindow_Patch
 {
-    [HarmonyPatch(typeof(UIMinerWindow))]
-    internal class UIMinerWindow_Patch
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UIMinerWindow.OnProductIconClick))]
+    public static void OnProductIconClick_Prefix(UIMinerWindow __instance)
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UIMinerWindow.OnProductIconClick))]
-        public static void OnProductIconClick_Prefix(UIMinerWindow __instance)
+        if (Multiplayer.IsActive)
         {
-            if (Multiplayer.IsActive)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new MinerStoragePickupPacket(__instance.minerId, GameMain.localPlanet?.id ?? -1));
-            }
+            Multiplayer.Session.Network.SendPacketToLocalStar(new MinerStoragePickupPacket(__instance.minerId,
+                GameMain.localPlanet?.id ?? -1));
         }
     }
 }

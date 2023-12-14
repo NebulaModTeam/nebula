@@ -1,11 +1,10 @@
-﻿namespace NebulaAPI
-{
-    public interface IMultiplayerSession
-    {
-        INetworkProvider Network { get; }
-        ILocalPlayer LocalPlayer { get; }
-        IFactoryManager Factories { get; }
+﻿namespace NebulaAPI;
 
-        bool IsGameLoaded { get; }
-    }
+public interface IMultiplayerSession
+{
+    INetworkProvider Network { get; }
+    ILocalPlayer LocalPlayer { get; }
+    IFactoryManager Factories { get; }
+
+    bool IsGameLoaded { get; }
 }

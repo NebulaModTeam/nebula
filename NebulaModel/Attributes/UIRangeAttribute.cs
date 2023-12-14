@@ -1,19 +1,22 @@
-﻿using System;
+﻿#region
 
-namespace NebulaModel.Attributes
+using System;
+
+#endregion
+
+namespace NebulaModel.Attributes;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class UIRangeAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class UIRangeAttribute : Attribute
-    {
-        public readonly float Min;
-        public readonly float Max;
-        public readonly bool Slider;
+    public readonly float Max;
+    public readonly float Min;
+    public readonly bool Slider;
 
-        public UIRangeAttribute(float min, float max, bool slider = false)
-        {
-            Min = min;
-            Max = max;
-            Slider = slider;
-        }
+    public UIRangeAttribute(float min, float max, bool slider = false)
+    {
+        Min = min;
+        Max = max;
+        Slider = slider;
     }
 }

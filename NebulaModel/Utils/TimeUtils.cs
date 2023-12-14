@@ -1,14 +1,17 @@
-﻿using System;
+﻿#region
 
-namespace NebulaModel.Utils
+using System;
+
+#endregion
+
+namespace NebulaModel.Utils;
+
+public class TimeUtils
 {
-    public class TimeUtils
-    {
-        private static readonly DateTime UNIX_EPOCH = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime UNIX_EPOCH = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public static long CurrentUnixTimestampMilliseconds()
-        {
-            return (long)(DateTime.UtcNow - UNIX_EPOCH).TotalMilliseconds;
-        }
+    public static long CurrentUnixTimestampMilliseconds()
+    {
+        return (long)(DateTime.UtcNow - UNIX_EPOCH).TotalMilliseconds;
     }
 }

@@ -1,7 +1,12 @@
-﻿using System;
+﻿#region
 
-namespace NebulaAPI
+using System;
+
+#endregion
+
+namespace NebulaAPI;
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+public class HidePacketInDebugLogsAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
-    public class HidePacketInDebugLogsAttribute : Attribute { }
 }

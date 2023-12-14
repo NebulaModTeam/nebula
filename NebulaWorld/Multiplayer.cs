@@ -1,67 +1,70 @@
-﻿using NebulaModel;
+﻿#region
+
+using NebulaModel;
 using NebulaWorld.SocialIntegration;
 using UnityEngine;
 
-namespace NebulaWorld
+#endregion
+
+namespace NebulaWorld;
+
+public static class Multiplayer
 {
-    public static class Multiplayer
+    public static MultiplayerSession Session { get; private set; }
+
+    public static bool IsActive => Session != null;
+
+    public static bool IsLeavingGame { get; set; }
+    public static bool ShouldReturnToJoinMenu { get; set; }
+
+    public static bool IsInMultiplayerMenu { get; set; }
+
+    public static bool IsDedicated { get; set; }
+
+    public static void HostGame(NetworkProvider server)
     {
-        public static MultiplayerSession Session { get; private set; }
+        IsLeavingGame = false;
 
-        public static bool IsActive => Session != null;
+        Session = new MultiplayerSession(server);
+        ((NetworkProvider)Session.Network).Start();
+    }
 
-        public static bool IsLeavingGame { get; set; }
-        public static bool ShouldReturnToJoinMenu { get; set; }
+    public static void JoinGame(NetworkProvider client)
+    {
+        IsLeavingGame = false;
 
-        public static bool IsInMultiplayerMenu { get; set; }
+        Session = new MultiplayerSession(client);
+        ((NetworkProvider)Session.Network).Start();
+    }
 
-        public static bool IsDedicated { get; set; }
+    public static void LeaveGame()
+    {
+        IsLeavingGame = true;
 
-        public static void HostGame(NetworkProvider server)
+        var wasGameLoaded = Session?.IsGameLoaded ?? false;
+
+        if (wasGameLoaded)
         {
-            IsLeavingGame = false;
-
-            Session = new MultiplayerSession(server);
-            ((NetworkProvider)Session.Network).Start();
+            Session.World.HidePingIndicator();
         }
 
-        public static void JoinGame(NetworkProvider client)
+        Session?.Dispose();
+        Session = null;
+
+        if (wasGameLoaded)
         {
-            IsLeavingGame = false;
-
-            Session = new MultiplayerSession(client);
-            ((NetworkProvider)Session.Network).Start();
+            if (!UIRoot.instance.backToMainMenu)
+            {
+                UIRoot.instance.backToMainMenu = true;
+                DSPGame.EndGame();
+            }
         }
-
-        public static void LeaveGame()
+        else if (ShouldReturnToJoinMenu)
         {
-            IsLeavingGame = true;
-
-            bool wasGameLoaded = Session?.IsGameLoaded ?? false;
-
-            if (wasGameLoaded)
-            {
-                Session.World.HidePingIndicator();
-            }
-
-            Session?.Dispose();
-            Session = null;
-
-            if (wasGameLoaded)
-            {
-                if (!UIRoot.instance.backToMainMenu)
-                {
-                    UIRoot.instance.backToMainMenu = true;
-                    DSPGame.EndGame();
-                }
-            }
-            else if(ShouldReturnToJoinMenu)
-            {
-                GameObject overlayCanvasGo = GameObject.Find("Overlay Canvas");
-                Transform multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");
-                multiplayerMenu.gameObject.SetActive(true);
-            }
-            DiscordManager.UpdateRichPresence(ip: string.Empty, partyId: DiscordManager.CreateSecret(), updateTimestamp: true);
+            var overlayCanvasGo = GameObject.Find("Overlay Canvas");
+            var multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");
+            multiplayerMenu.gameObject.SetActive(true);
         }
+        DiscordManager.UpdateRichPresence(string.Empty, DiscordManager.CreateSecret(), updateTimestamp: true);
     }
 }

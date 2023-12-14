@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\dep\discord_game_sdk\discord_game_sdk_dotnet.csproj" />
-    <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
-    <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\dep\discord_game_sdk\discord_game_sdk_dotnet.csproj"/>
+        <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true"/>
+        <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false"/>
+    </ItemGroup>
 </Project>

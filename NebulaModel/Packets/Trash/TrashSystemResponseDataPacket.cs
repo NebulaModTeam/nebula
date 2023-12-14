@@ -1,14 +1,13 @@
-﻿namespace NebulaModel.Packets.Trash
+﻿namespace NebulaModel.Packets.Trash;
+
+public class TrashSystemResponseDataPacket
 {
-    public class TrashSystemResponseDataPacket
+    public TrashSystemResponseDataPacket() { }
+
+    public TrashSystemResponseDataPacket(byte[] trashSystemData)
     {
-        public byte[] TrashSystemData { get; set; }
-
-        public TrashSystemResponseDataPacket() { }
-
-        public TrashSystemResponseDataPacket(byte[] trashSystemData)
-        {
-            TrashSystemData = trashSystemData;
-        }
+        TrashSystemData = trashSystemData;
     }
+
+    public byte[] TrashSystemData { get; set; }
 }
