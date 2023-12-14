@@ -235,7 +235,7 @@ internal class UIVirtualStarmap_Transpiler
         matcher.End()
             .SetOpcodeAndAdvance(OpCodes.Ldarg_0)
             .Insert(
-                HarmonyLib.Transpilers.EmitDelegate(starmap =>
+                HarmonyLib.Transpilers.EmitDelegate<Action<UIVirtualStarmap>>(starmap =>
                 {
                     if (VFInput.alt)
                     {

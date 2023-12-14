@@ -6,6 +6,7 @@ using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
 using UnityEngine;
+// ReSharper disable RedundantCast
 
 #endregion
 
@@ -50,11 +51,11 @@ public class DysonSpherePaintCellsProcessor : PacketProcessor<DysonSpherePaintCe
                 if (cid >= 0)
                 {
                     var color = cellColors[cid];
-                    color.a -= color.a <= 127 ? 0 : 127;
+                    color.a -= (color.a <= 127) ? (byte)0 : (byte)127;
                     color.a *= 2;
                     var color2 = Color32.Lerp(color, paint, packet.Strength);
                     color2.a /= 2;
-                    color2.a += paint.a > 0 ? packet.SuperBrightMode ? 127 : 0 : 0;
+                    color2.a += ((paint.a > 0) ? (packet.SuperBrightMode ? (byte)127 : (byte)0) : (byte)0);
                     cellColors[cid] = color2;
                 }
             }

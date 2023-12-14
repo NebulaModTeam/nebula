@@ -1,16 +1,21 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaWorld;
+// ReSharper disable RedundantTypeArgumentsOfMethod
+// ReSharper disable InconsistentNaming
 
 #endregion
 
 namespace NebulaPatcher.Patches.Transpilers;
 
 [HarmonyPatch(typeof(PlayerControlGizmo))]
+[SuppressMessage("Style", "IDE1006:Naming Styles")]
 public class PlayerControlGizmo_Transpiler
 {
     [HarmonyTranspiler]
@@ -27,10 +32,7 @@ public class PlayerControlGizmo_Transpiler
         var jmpPos = matcher.Operand;
         matcher.Advance(1)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(_this =>
-            {
-                return Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000;
-            }))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this => Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
             .Insert(new CodeInstruction(OpCodes.Brtrue, jmpPos));
 
         matcher.MatchForward(true,
@@ -43,10 +45,7 @@ public class PlayerControlGizmo_Transpiler
         jmpPos = matcher.Operand;
         matcher.Advance(1)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(_this =>
-            {
-                return Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000;
-            }))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this => Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
             .Insert(new CodeInstruction(OpCodes.Brtrue, jmpPos));
 
         matcher.MatchForward(true,
@@ -59,10 +58,7 @@ public class PlayerControlGizmo_Transpiler
         jmpPos = matcher.Operand;
         matcher.Advance(1)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(_this =>
-            {
-                return Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000;
-            }))
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<PlayerControlGizmo, bool>>(_this => Multiplayer.IsActive && _this.player.navigation.indicatorAstroId > 100000))
             .Insert(new CodeInstruction(OpCodes.Brtrue, jmpPos));
 
         return matcher.InstructionEnumeration();
