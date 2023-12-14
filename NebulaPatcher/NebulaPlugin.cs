@@ -1,6 +1,4 @@
 ﻿using BepInEx;
-using CommonAPI;
-using CommonAPI.Systems;
 using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
@@ -20,8 +18,7 @@ using UnityEngine;
 namespace NebulaPatcher
 {
     [BepInPlugin(PluginInfo.PLUGIN_ID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency(CommonAPIPlugin.GUID)]
-    [CommonAPISubmoduleDependency(nameof(ProtoRegistry), nameof(CustomKeyBindSystem))]
+    [BepInDependency("dsp.common - api.CommonAPI", BepInDependency.DependencyFlags.SoftDependency)]
     public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
         static int command_ups = 0;
@@ -176,7 +173,6 @@ namespace NebulaPatcher
         {
             InitPatches();
             AddNebulaBootstrapper();
-            RegisterKeyBinds();
             DiscordManager.Setup(ActivityManager_OnActivityJoin);
         }
 
@@ -283,19 +279,6 @@ namespace NebulaPatcher
             {
                 DiscordManager.Update();
             }
-        }
-
-        private static void RegisterKeyBinds()
-        {
-            CustomKeyBindSystem.RegisterKeyBind<PressKeyBind>(new BuiltinKey
-            {
-                id = 212,
-                key = new CombineKey((int)KeyCode.BackQuote, CombineKey.ALT_COMB, ECombineKeyAction.OnceClick, false),
-                conflictGroup = 2052,
-                name = "NebulaChatWindow",
-                canOverride = true
-            });
-            ProtoRegistry.RegisterString("KEYNebulaChatWindow", "Show or Hide Chat Window");
         }
 
         private static void InitPatches()

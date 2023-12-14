@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx.Configuration;
+using HarmonyLib;
 using NebulaModel;
 using NebulaModel.Attributes;
 using NebulaModel.Logger;
@@ -165,7 +166,6 @@ namespace NebulaPatcher.Patches.Dynamic
             checkboxTemplate = contentTemplate.Find("fullscreen").GetComponent<RectTransform>();
             comboBoxTemplate = contentTemplate.Find("resolution").GetComponent<RectTransform>();
             sliderTemplate = contentTemplate.Find("dofblur").GetComponent<RectTransform>();
-
             inputTemplate = Object.Instantiate(checkboxTemplate, listContent, false);
             Object.Destroy(inputTemplate.Find("CheckBox").gameObject);
             RectTransform inputField = Object.Instantiate(UIRoot.instance.saveGameWindow.transform.Find("input-filename/InputField").GetComponent<RectTransform>(), inputTemplate, false);
@@ -305,6 +305,10 @@ namespace NebulaPatcher.Patches.Dynamic
                     {
                         CreateEnumControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
                     }
+                    else if (prop.PropertyType == typeof(BepInEx.Configuration.KeyboardShortcut))
+                    {
+                        CreateHotkeyControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+                    }
                     else
                     {
                         Log.Warn($"MultiplayerOption property \"${prop.Name}\" of type \"{prop.PropertyType}\" not supported.");
@@ -396,7 +400,7 @@ namespace NebulaPatcher.Patches.Dynamic
                 {
                     try
                     {
-                        TypeConverter converter = TypeDescriptor.GetConverter(prop.PropertyType);
+                        System.ComponentModel.TypeConverter converter = TypeDescriptor.GetConverter(prop.PropertyType);
                         System.IComparable value = (System.IComparable)converter.ConvertFromString(str);
 
                         if (rangeAttr != null)
@@ -476,6 +480,48 @@ namespace NebulaPatcher.Patches.Dynamic
             tempToUICallbacks[prop.Name] = () =>
             {
                 combo.itemIndex = (int)prop.GetValue(tempMultiplayerOptions, null);
+            };
+        }
+
+        private static void CreateHotkeyControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop, Vector2 anchorPosition, Transform container)
+        {
+            UICharacterLimitAttribute characterLimitAttr = prop.GetCustomAttribute<UICharacterLimitAttribute>();
+            UIContentTypeAttribute contentTypeAttr = prop.GetCustomAttribute<UIContentTypeAttribute>();
+
+            RectTransform element = Object.Instantiate(inputTemplate, container, false);
+            SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
+
+            InputField input = element.GetComponentInChildren<InputField>();
+            if (characterLimitAttr != null)
+            {
+                input.characterLimit = characterLimitAttr.Max;
+            }
+            if (contentTypeAttr != null)
+            {
+                input.contentType = contentTypeAttr.ContentType;
+            }
+
+            input.onValueChanged.RemoveAllListeners();
+            input.onValueChanged.AddListener((value) => {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    KeyboardShortcut hotkey = KeyboardShortcut.Deserialize(value);
+                    if (hotkey.Equals(KeyboardShortcut.Empty))
+                    {
+                        // Show text color in red when the shortcut is not valid
+                        input.textComponent.color = Color.red;
+                    }
+                    else
+                    {
+                        input.textComponent.color = Color.white;
+                        prop.SetValue(tempMultiplayerOptions, hotkey, null);
+                    }
+                }
+            });
+
+            tempToUICallbacks[prop.Name] = () =>
+            {
+                input.text = ((KeyboardShortcut)prop.GetValue(tempMultiplayerOptions, null)).ToString();
             };
         }
 

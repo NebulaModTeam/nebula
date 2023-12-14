@@ -1,18 +1,18 @@
-﻿using CommonAPI;
-using CommonAPI.Systems;
-using NebulaModel;
+﻿using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Players;
 using NebulaModel.Utils;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NebulaWorld.MonoBehaviours.Local
 {
     public class ChatManager : MonoBehaviour
     {
         private ChatWindow chatWindow;
+        private Image backgroundImage;
         public static ChatManager Instance;
 
         private void Awake()
@@ -36,7 +36,11 @@ namespace NebulaWorld.MonoBehaviours.Local
                 trans.sizeDelta = defaultSize;
                 trans.anchoredPosition = defaultPos;
 
-                chatGo.GetComponent<UIWindowResize>().minSize = ChatUtils.GetDefaultSize(ChatSize.Small);
+                // TODO: Fix ChatV2.prefab to get rid of warnings
+                GameObject backgroundGo = chatGo.transform.Find("Main/background").gameObject;
+                DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
+                backgroundImage = backgroundGo.AddComponent<Image>();
+                backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
             }
 
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
@@ -60,11 +64,12 @@ namespace NebulaWorld.MonoBehaviours.Local
             RectTransform trans = (RectTransform)Instance.chatWindow.transform;
             trans.anchoredPosition = defaultPos;
             trans.sizeDelta = defaultSize;
+            Instance.backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
         }
 
         void Update()
         {
-            if (CustomKeyBindSystem.GetKeyBind("NebulaChatWindow").keyValue)
+            if (Config.Options.ChatHotkey.IsDown())
             {
                 chatWindow.Toggle();
             }
