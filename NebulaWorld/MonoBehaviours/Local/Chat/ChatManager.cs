@@ -23,7 +23,7 @@ namespace NebulaWorld.MonoBehaviours.Local
             if (chatGo == null)
             {
                 // Create chat window when there is no existing one
-                GameObject prefab = AssetLoader.AssetBundle.LoadAsset<GameObject>("Assets/Prefab/ChatV2.prefab");                
+                GameObject prefab = AssetLoader.AssetBundle.LoadAsset<GameObject>("Assets/Prefab/ChatV2.prefab");
                 chatGo = Instantiate(prefab, parent, false);
                 chatGo.name = "Chat Window";
 
@@ -36,11 +36,29 @@ namespace NebulaWorld.MonoBehaviours.Local
                 trans.sizeDelta = defaultSize;
                 trans.anchoredPosition = defaultPos;
 
-                // TODO: Fix ChatV2.prefab to get rid of warnings
-                GameObject backgroundGo = chatGo.transform.Find("Main/background").gameObject;
-                DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
-                backgroundImage = backgroundGo.AddComponent<Image>();
-                backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+                try
+                {
+                    // TODO: Fix ChatV2.prefab to get rid of warnings
+                    Component removeComponent = chatGo.GetComponent("CommonAPI.MaterialFixer");
+                    if (removeComponent != null)
+                    {
+                        Destroy(removeComponent);
+                    }
+
+                    GameObject backgroundGo = chatGo.transform.Find("Main/background").gameObject;
+                    DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
+                    backgroundImage = backgroundGo.AddComponent<Image>();
+                    backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+
+                    backgroundGo = chatGo.transform.Find("Main/EmojiPicker/background").gameObject;
+                    DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
+                    Image EmojiPickerbackground = backgroundGo.AddComponent<Image>();
+                    EmojiPickerbackground.color = new Color(0f, 0f, 0f, 1f);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
             }
 
             chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
@@ -64,7 +82,10 @@ namespace NebulaWorld.MonoBehaviours.Local
             RectTransform trans = (RectTransform)Instance.chatWindow.transform;
             trans.anchoredPosition = defaultPos;
             trans.sizeDelta = defaultSize;
-            Instance.backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+            if (Instance.backgroundImage != null)
+            {
+                Instance.backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+            }
         }
 
         void Update()
