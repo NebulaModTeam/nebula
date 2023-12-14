@@ -23,7 +23,7 @@ internal class PowerSystem_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(PowerSystem.GameTick))]
-    public static void PowerSystem_GameTick_Postfix(PowerSystem __instance, long time, bool isActive, bool isMultithreadMode)
+    public static void PowerSystem_GameTick_Postfix(PowerSystem __instance)
     {
         if (Multiplayer.IsActive)
         {

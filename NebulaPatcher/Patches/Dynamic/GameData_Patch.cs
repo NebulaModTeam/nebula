@@ -413,7 +413,7 @@ internal class GameData_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(GameData.DetermineLocalPlanet))]
-    public static bool DetermineLocalPlanet_Prefix(GameData __instance, ref bool __result)
+    public static bool DetermineLocalPlanet_Prefix(ref bool __result)
     {
         if (UIVirtualStarmap_Transpiler.customBirthPlanet != -1 && Multiplayer.IsActive && !Multiplayer.Session.IsGameLoaded)
         {

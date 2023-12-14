@@ -39,7 +39,9 @@ public class StorageSyncRealtimeChangePacket
     }
 
     public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int gridIndex,
+#pragma warning disable IDE0060
         int itemId, int count, int inc)
+#pragma warning restore IDE0060
     {
         StorageEvent = storageEvent;
         ItemId = itemId;

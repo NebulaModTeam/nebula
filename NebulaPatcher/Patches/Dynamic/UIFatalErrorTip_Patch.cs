@@ -38,7 +38,7 @@ internal class UIFatalErrorTip_Patch
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIFatalErrorTip._OnOpen))]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-    public static void _OnOpen_Postfix(UIFatalErrorTip __instance)
+    public static void _OnOpen_Postfix()
     {
         try
         {

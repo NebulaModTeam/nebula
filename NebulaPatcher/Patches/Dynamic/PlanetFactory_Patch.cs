@@ -32,7 +32,7 @@ internal class PlanetFactory_patch
 {
     [HarmonyPostfix]
     [HarmonyPatch(nameof(PlanetFactory.AddPrebuildData))]
-    public static void AddPrebuildData_Postfix(PlanetFactory __instance, PrebuildData prebuild, ref int __result)
+    public static void AddPrebuildData_Postfix(PlanetFactory __instance, ref int __result)
     {
         if (!Multiplayer.IsActive)
         {
@@ -48,7 +48,7 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.BuildFinally))]
-    public static bool BuildFinally_Prefix(PlanetFactory __instance, Player player, int prebuildId)
+    public static bool BuildFinally_Prefix(PlanetFactory __instance, int prebuildId)
     {
         if (!Multiplayer.IsActive)
         {
@@ -90,7 +90,7 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.UpgradeFinally))]
-    public static bool UpgradeFinally_Prefix(PlanetFactory __instance, Player player, int objId, ItemProto replace_item_proto)
+    public static bool UpgradeFinally_Prefix(PlanetFactory __instance, int objId, ItemProto replace_item_proto)
     {
         if (!Multiplayer.IsActive)
         {
@@ -136,7 +136,7 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.PasteBuildingSetting))]
-    public static void PasteBuildingSetting_Prefix(PlanetFactory __instance, int objectId)
+    public static void PasteBuildingSetting_Prefix(int objectId)
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
@@ -147,7 +147,7 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
-    public static void FlattenTerrainReform_Prefix(PlanetFactory __instance, Vector3 center, float radius, int reformSize,
+    public static void FlattenTerrainReform_Prefix(float radius, int reformSize,
         bool veinBuried, float fade0)
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)

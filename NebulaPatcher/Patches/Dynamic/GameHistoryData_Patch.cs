@@ -40,7 +40,7 @@ internal class GameHistoryData_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
-    public static void RemoveTechInQueue_Postfix(int index, int __state)
+    public static void RemoveTechInQueue_Postfix(int __state)
     {
         if (!Multiplayer.IsActive)
         {

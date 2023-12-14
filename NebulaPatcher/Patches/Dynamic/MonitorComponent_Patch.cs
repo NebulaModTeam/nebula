@@ -153,8 +153,7 @@ internal class MonitorComponent_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(MonitorComponent.InternalUpdate))]
-    public static bool InternalUpdate_Prefix(MonitorComponent __instance, CargoTraffic _traffic, EntityData[] _entityPool,
-        SpeakerComponent[] _speakerPool, AnimData[] _animPool)
+    public static bool InternalUpdate_Prefix(MonitorComponent __instance, CargoTraffic _traffic)
     {
         if (Multiplayer.IsActive && __instance.targetBeltId > _traffic.beltPool.Length)
         {

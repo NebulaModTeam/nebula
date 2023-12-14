@@ -34,7 +34,7 @@ internal class GameSave_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameSave.SaveCurrentGame))]
-    public static void SaveCurrentGame_Postfix(string saveName)
+    public static void SaveCurrentGame_Postfix()
     {
         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
         {

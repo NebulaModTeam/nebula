@@ -13,7 +13,7 @@ internal class DESelection_Patch
 {
     [HarmonyPrefix]
     [HarmonyPatch(nameof(DESelection.SetViewStar))]
-    public static bool SetViewStar_Prefix(DESelection __instance, ref StarData starData)
+    public static bool SetViewStar_Prefix(ref StarData starData)
     {
         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
         {

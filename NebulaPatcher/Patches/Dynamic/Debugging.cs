@@ -27,7 +27,7 @@ internal class Debug_GameHistoryData_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(GameHistoryData.dysonSphereSystemUnlocked), MethodType.Getter)]
-    public static bool DysonSphereSystemUnlocked_Prefix(GameHistoryData __instance, ref bool __result)
+    public static bool DysonSphereSystemUnlocked_Prefix(ref bool __result)
     {
         __result = true;
         return false;
@@ -91,7 +91,7 @@ internal class Debug_MechaForge_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(MechaForge.AddTaskIterate))]
-    public static bool AddTaskIterate_Prefix(MechaForge __instance, ForgeTask __result, int recipeId, int count)
+    public static bool AddTaskIterate_Prefix(ref ForgeTask __result, int recipeId, int count)
     {
         var recipe = new ForgeTask(recipeId, count);
         int dummyOut;
@@ -155,7 +155,7 @@ internal class Debug_UIMechaMatsGroup_Patch
 {
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UIMechaMatsGroup.TestMaterialEnough))]
-    public static bool TestMaterialsEnough_Prefix(UIMechaMatsGroup __instance, ref bool __result)
+    public static bool TestMaterialsEnough_Prefix(ref bool __result)
     {
         __result = true;
         return false;

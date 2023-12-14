@@ -15,7 +15,7 @@ internal class UniverseGen_Patch
     // overwrite generated birth planet and star with values selected by player in the lobby
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UniverseGen.CreateGalaxy))]
-    public static void CreateGalaxy_Postfix(GameDesc gameDesc, GalaxyData __result)
+    public static void CreateGalaxy_Postfix(GalaxyData __result)
     {
         if (Multiplayer.IsActive && UIVirtualStarmap_Transpiler.customBirthStar != -1)
         {

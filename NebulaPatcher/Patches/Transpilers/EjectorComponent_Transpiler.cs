@@ -52,7 +52,9 @@ internal class EjectorComponent_Transpiler
                         // Assume orbitId < 65536
                         var data = new DysonLaunchData.Projectile
                         {
-                            PlanetId = planetId, TargetId = (ushort)orbitId, LocalPos = localPos
+                            PlanetId = planetId,
+                            TargetId = (ushort)orbitId,
+                            LocalPos = localPos
                         };
                         Multiplayer.Session.Launch.ProjectileBag.Add(data);
                     })

@@ -27,7 +27,7 @@ public class UITechNode_Patch
     // Always disable the buyout button for clients.
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UITechNode.OnBuyoutButtonClick))]
-    public static bool OnBuyoutButtonClick_Prefix(int _data)
+    public static bool OnBuyoutButtonClick_Prefix()
     {
         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
         {

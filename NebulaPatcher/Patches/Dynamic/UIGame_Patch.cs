@@ -28,7 +28,7 @@ internal class UIGame_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UIGame.StarmapChangingToMilkyWay))]
-    public static bool StarmapChangingToMilkyWay_Prefix(UIGame __instance)
+    public static bool StarmapChangingToMilkyWay_Prefix()
     {
         if (Multiplayer.IsActive)
         {

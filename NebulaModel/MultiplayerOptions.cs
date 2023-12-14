@@ -30,7 +30,9 @@ public class MultiplayerOptions : ICloneable
 
     public string LastClientPassword { get; set; } = string.Empty;
 
-    [DisplayName("Host Port")] [Category("Network")] [UIRange(1, ushort.MaxValue)]
+    [DisplayName("Host Port")]
+    [Category("Network")]
+    [UIRange(1, ushort.MaxValue)]
     public ushort HostPort { get; set; } = 8469;
 
     [DisplayName("Enable UPnp/Pmp Support")]
@@ -51,19 +53,25 @@ public class MultiplayerOptions : ICloneable
     [UICharacterLimit(49)]
     public string NgrokAuthtoken { get; set; } = string.Empty;
 
-    [DisplayName("Ngrok Region")] [Category("Network")] [Description("Available Regions: us, eu, au, ap, sa, jp, in")]
+    [DisplayName("Ngrok Region")]
+    [Category("Network")]
+    [Description("Available Regions: us, eu, au, ap, sa, jp, in")]
     public string NgrokRegion { get; set; } = string.Empty;
 
-    [DisplayName("Remember Last IP")] [Category("Network")]
+    [DisplayName("Remember Last IP")]
+    [Category("Network")]
     public bool RememberLastIP { get; set; } = true;
 
-    [DisplayName("Remember Last Client Password")] [Category("Network")]
+    [DisplayName("Remember Last Client Password")]
+    [Category("Network")]
     public bool RememberLastClientPassword { get; set; } = true;
 
-    [DisplayName("Enable Discord RPC (requires restart)")] [Category("Network")]
+    [DisplayName("Enable Discord RPC (requires restart)")]
+    [Category("Network")]
     public bool EnableDiscordRPC { get; set; } = true;
 
-    [DisplayName("Auto accept Discord join requests")] [Category("Network")]
+    [DisplayName("Auto accept Discord join requests")]
+    [Category("Network")]
     public bool AutoAcceptDiscordJoinRequests { get; set; } = false;
 
     [DisplayName("IP Configuration")]
@@ -110,7 +118,9 @@ public class MultiplayerOptions : ICloneable
         }
     }
 
-    [DisplayName("Chat Hotkey")] [Category("Chat")] [Description("Keyboard shortcut to toggle the chat window")]
+    [DisplayName("Chat Hotkey")]
+    [Category("Chat")]
+    [Description("Keyboard shortcut to toggle the chat window")]
     public KeyboardShortcut ChatHotkey { get; set; } = new(KeyCode.BackQuote, KeyCode.LeftAlt);
 
     [DisplayName("Auto Open Chat")]
@@ -118,16 +128,20 @@ public class MultiplayerOptions : ICloneable
     [Description("Auto open chat window when receiving message from other players")]
     public bool AutoOpenChat { get; set; } = true;
 
-    [DisplayName("Show system warn message")] [Category("Chat")]
+    [DisplayName("Show system warn message")]
+    [Category("Chat")]
     public bool EnableWarnMessage { get; set; } = true;
 
-    [DisplayName("Show system info message")] [Category("Chat")]
+    [DisplayName("Show system info message")]
+    [Category("Chat")]
     public bool EnableInfoMessage { get; set; } = true;
 
-    [DisplayName("Default chat position")] [Category("Chat")]
+    [DisplayName("Default chat position")]
+    [Category("Chat")]
     public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
 
-    [DisplayName("Default chat size")] [Category("Chat")]
+    [DisplayName("Default chat size")]
+    [Category("Chat")]
     public ChatSize DefaultChatSize { get; set; } = ChatSize.Medium;
 
     [DisplayName("Notification duration")]
@@ -135,7 +149,9 @@ public class MultiplayerOptions : ICloneable
     [Description("How long should the active message stay on the screen in seconds")]
     public int NotificationDuration { get; set; } = 15;
 
-    [DisplayName("Chat Window Opacity")] [Category("Chat")] [UIRange(0f, 1.0f, true)]
+    [DisplayName("Chat Window Opacity")]
+    [Category("Chat")]
+    [UIRange(0f, 1.0f, true)]
     public float ChatWindowOpacity { get; set; } = 0.8f;
 
     // Detail function group buttons

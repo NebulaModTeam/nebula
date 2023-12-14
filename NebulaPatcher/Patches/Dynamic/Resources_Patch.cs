@@ -17,7 +17,7 @@ public static class Resources_Patch
 {
     [HarmonyPatch(nameof(Resources.Load), typeof(string), typeof(Type))]
     [HarmonyPrefix]
-    public static bool Prefix(ref string path, Type systemTypeInstance, ref Object __result)
+    public static bool Prefix(ref string path, ref Object __result)
     {
         if (path.Contains("TMP Settings"))
         {
