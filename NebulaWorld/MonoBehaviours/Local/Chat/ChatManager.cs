@@ -40,11 +40,29 @@ public class ChatManager : MonoBehaviour
             trans.sizeDelta = defaultSize;
             trans.anchoredPosition = defaultPos;
 
-            // TODO: Fix ChatV2.prefab to get rid of warnings
-            var backgroundGo = chatGo.transform.Find("Main/background").gameObject;
-            DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
-            backgroundImage = backgroundGo.AddComponent<Image>();
-            backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+            try
+            {
+                // TODO: Fix ChatV2.prefab to get rid of warnings
+                var removeComponent = chatGo.GetComponent("CommonAPI.MaterialFixer");
+                if (removeComponent != null)
+                {
+                    Destroy(removeComponent);
+                }
+
+                var backgroundGo = chatGo.transform.Find("Main/background").gameObject;
+                DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
+                backgroundImage = backgroundGo.AddComponent<Image>();
+                backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+
+                backgroundGo = chatGo.transform.Find("Main/EmojiPicker/background").gameObject;
+                DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
+                var EmojiPickerbackground = backgroundGo.AddComponent<Image>();
+                EmojiPickerbackground.color = new Color(0f, 0f, 0f, 1f);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
         }
 
         chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
