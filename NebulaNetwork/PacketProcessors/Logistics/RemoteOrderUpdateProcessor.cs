@@ -7,7 +7,7 @@ using NebulaModel.Packets.Logistics;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Logistics; 
+namespace NebulaNetwork.PacketProcessors.Logistics;
 
 [RegisterPacketProcessor]
 public class RemoteOrderUpdateProcessor : PacketProcessor<RemoteOrderUpdate>

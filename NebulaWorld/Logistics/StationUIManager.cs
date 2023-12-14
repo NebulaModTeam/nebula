@@ -10,30 +10,21 @@ namespace NebulaWorld.Logistics;
 
 public class StationUIManager : IDisposable
 {
-    public bool
-        UIRequestedShipDronWarpChange
-    {
-        get;
-        set;
-    } // when receiving a ship, drone or warp change only take/add items from the one issuing the request
+    public bool UIRequestedShipDroneWarpChange { get; set; } // when receiving a ship, drone or warp change only take/add items from the one issuing the request
 
-    public StationUI
-        SliderBarPacket { get; set; } // store the change of slider bar temporary, only send it when mouse button is released.
+    public StationUI SliderBarPacket { get; set; } // store the change of slider bar temporary, only send it when mouse button is released.
 
-    public int
-        StorageMaxChangeId
-    {
-        get;
-        set;
-    } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
+    public int StorageMaxChangeId
+    { get; set; } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
 
     public ToggleSwitch IsIncomingRequest { get; } = new();
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 
-    public void UpdateStation(ref StationUI packet)
+    public static void UpdateStation(ref StationUI packet)
     {
         var stationComponent = GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
         if (stationComponent == null)
@@ -57,17 +48,19 @@ public class StationUIManager : IDisposable
 
     private static void RefreshWindow(int planetId, int stationId)
     {
-        // If station window is opened and veiwing the updating station, refresh the window.
+        // If station window is opened and viewing the updating station, refresh the window.
         var stationWindow = UIRoot.instance.uiGame.stationWindow;
-        if (stationWindow != null && stationWindow.active)
+        if (stationWindow == null || !stationWindow.active)
         {
-            if (stationWindow.factory?.planetId == planetId && stationWindow.stationId == stationId)
-            {
-                using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
-                {
-                    stationWindow.OnStationIdChange();
-                }
-            }
+            return;
+        }
+        if (stationWindow.factory?.planetId != planetId || stationWindow.stationId != stationId)
+        {
+            return;
+        }
+        using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
+        {
+            stationWindow.OnStationIdChange();
         }
     }
 
@@ -275,21 +268,21 @@ public class StationUIManager : IDisposable
         using (Multiplayer.Session.Ships.PatchLockILS.On())
         {
             var planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-            if (packet.ItemCount == -1)
+            switch (packet.ItemCount)
             {
-                planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId,
-                    packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic,
-                    packet.ShouldRefund ? GameMain.mainPlayer : null);
-                StorageMaxChangeId = -1;
-            }
-            else if (packet.ItemCount == -2)
-            {
-                stationComponent.storage[packet.StorageIdx].keepMode = packet.KeepMode;
-            }
-            else
-            {
-                stationComponent.storage[packet.StorageIdx].count = packet.ItemCount;
-                stationComponent.storage[packet.StorageIdx].inc = packet.ItemInc;
+                case -1:
+                    planet.factory.transport.SetStationStorage(stationComponent.id, packet.StorageIdx, packet.ItemId,
+                        packet.ItemCountMax, packet.LocalLogic, packet.RemoteLogic,
+                        packet.ShouldRefund ? GameMain.mainPlayer : null);
+                    StorageMaxChangeId = -1;
+                    break;
+                case -2:
+                    stationComponent.storage[packet.StorageIdx].keepMode = packet.KeepMode;
+                    break;
+                default:
+                    stationComponent.storage[packet.StorageIdx].count = packet.ItemCount;
+                    stationComponent.storage[packet.StorageIdx].inc = packet.ItemInc;
+                    break;
             }
         }
     }

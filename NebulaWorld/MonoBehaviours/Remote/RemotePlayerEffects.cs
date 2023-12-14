@@ -342,7 +342,7 @@ public class RemotePlayerEffects : MonoBehaviour
 
                 if (normalizedTimeDiff < 0.3f && rDist1 < 1.8f && (0 < lastTriggeredFoot || normalizedTime < 2))
                 {
-                    PlayFootstepSound(moveWeight, biomo, rDist2 < rDist1);
+                    PlayFootstepSound(biomo, rDist2 < rDist1);
                 }
                 if (normalizedTimeDiff < 0.5f && moveWeight > 0.5f && (rDist1 < 3f || rDist2 < 3f))
                 {
@@ -352,7 +352,7 @@ public class RemotePlayerEffects : MonoBehaviour
         }
     }
 
-    private void PlayFootstepSound(float vol, float biomo, bool water)
+    private void PlayFootstepSound(float biomo, bool water)
     {
         if (rootMovement.localPlanetId < 0)
         {

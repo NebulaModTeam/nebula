@@ -58,10 +58,10 @@ public class NetPacketProcessor
             }
         }
 #else
-            lock (pendingPackets)
-            {
-                pendingPackets.Enqueue(new PendingPacket(rawData, userData));
-            }
+        lock (pendingPackets)
+        {
+            pendingPackets.Enqueue(new PendingPacket(rawData, userData));
+        }
 #endif
     }
 

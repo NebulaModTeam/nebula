@@ -5,6 +5,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+using NebulaWorld.Logistics;
 
 #endregion
 
@@ -19,7 +20,7 @@ internal class StationUIProcessor : PacketProcessor<StationUI>
         {
             // always update values for host
             packet.ShouldRefund = false;
-            Multiplayer.Session.StationsUI.UpdateStation(ref packet);
+            StationUIManager.UpdateStation(ref packet);
 
             // broadcast to other clients 
             IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
@@ -34,7 +35,7 @@ internal class StationUIProcessor : PacketProcessor<StationUI>
 
         if (IsClient)
         {
-            Multiplayer.Session.StationsUI.UpdateStation(ref packet);
+            StationUIManager.UpdateStation(ref packet);
         }
     }
 }

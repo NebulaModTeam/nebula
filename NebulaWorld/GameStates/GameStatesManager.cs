@@ -24,7 +24,9 @@ public class GameStatesManager : IDisposable
         FragmentSize = 0;
     }
 
+#pragma warning disable IDE0060
     public static void NotifyTickDifference(float delta)
+#pragma warning restore IDE0060
     {
     }
 
