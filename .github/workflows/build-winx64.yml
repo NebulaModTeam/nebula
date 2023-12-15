@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         submodules: true
         fetch-depth: 0 # can't shallowly clone due to git versioning
@@ -33,9 +33,9 @@ jobs:
 
     # Add dotnet to the PATH: https://github.com/actions/setup-dotnet
     - name: Setup dotnet.exe
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: "6.0.x"
+        dotnet-version: "8.0.x"
 
     # Build it
     - name: Build the application
@@ -43,7 +43,7 @@ jobs:
 
     # Upload it to the run results
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v4
       with:
         # Artifact name
         name: build-artifacts-${{ matrix.configuration }}
