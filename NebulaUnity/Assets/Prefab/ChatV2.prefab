@@ -2456,7 +2456,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3527980105942574080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -154246651, guid: 6157fa478a4d3854cb69db360cc2bc2a, type: 3}
+  m_Script: {fileID: 86554663, guid: 6157fa478a4d3854cb69db360cc2bc2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   chatBox: {fileID: 6071691974971199975}
@@ -2783,7 +2783,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4417317731923443112}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -457298631, guid: 6157fa478a4d3854cb69db360cc2bc2a, type: 3}
+  m_Script: {fileID: 1662173021, guid: 6157fa478a4d3854cb69db360cc2bc2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   selectText: {fileID: 3814272415712314785}
