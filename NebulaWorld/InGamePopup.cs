@@ -15,6 +15,10 @@ public static class InGamePopup
 
     public static void FadeOut()
     {
+        if (displayedMessage == null)
+        {
+            return;
+        }
         displayedMessage.FadeOut();
         displayedMessage = null;
     }
