@@ -213,8 +213,12 @@ public class ChatWindow : MonoBehaviour
                     break;
                 case ChatMessageType.PlayerMessagePrivate:
                     break;
+                case ChatMessageType.SystemInfoMessage when Config.Options.EnableInfoMessage:
+                    break;
+                case ChatMessageType.SystemWarnMessage when Config.Options.EnableWarnMessage:
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(messageType), messageType, null);
+                    throw new ArgumentOutOfRangeException(nameof(messageType), "Invalid message type: " + messageType);
             }
         }
 
