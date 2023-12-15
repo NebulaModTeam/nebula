@@ -12,8 +12,8 @@ namespace NebulaWorld.Factory;
 public class BeltManager : IDisposable
 {
     private const int MAX_PUTDOWN_WAIT_TICK = 30;
-    private List<BeltUpdate> beltPickupUpdates = new();
-    private List<BeltUpdatePutItemOnPacket> beltPutdownPackets = new();
+    private List<BeltUpdate> beltPickupUpdates = [];
+    private List<BeltUpdatePutItemOnPacket> beltPutdownPackets = [];
     private int putDownTimer = 0;
 
     public void Dispose()

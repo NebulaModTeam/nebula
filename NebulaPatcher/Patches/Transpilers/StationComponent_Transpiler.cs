@@ -18,10 +18,10 @@ namespace NebulaPatcher.Patches.Transpilers;
 public class StationComponent_Transpiler
 {
     // theese are needed to craft the ILSRematchRemotePairs packet
-    private static readonly List<int> ShipIndex = new();
-    private static readonly List<int> OtherGId = new();
-    private static readonly List<int> ItemId = new();
-    private static readonly List<int> Direction = new();
+    private static readonly List<int> ShipIndex = [];
+    private static readonly List<int> OtherGId = [];
+    private static readonly List<int> ItemId = [];
+    private static readonly List<int> Direction = [];
 
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(StationComponent.RematchRemotePairs))]

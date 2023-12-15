@@ -16,16 +16,16 @@ public class DroneManager : IDisposable
 {
     private static int[] DronePriorities = new int[255];
     private static readonly Random rnd = new();
-    private static Dictionary<ushort, List<int>> PlayerDroneBuildingPlans = new();
-    private static List<int> PendingBuildRequests = new();
-    private static List<Vector3> CachedPositions = new();
+    private static Dictionary<ushort, List<int>> PlayerDroneBuildingPlans = [];
+    private static List<int> PendingBuildRequests = [];
+    private static List<Vector3> CachedPositions = [];
 
     public DroneManager()
     {
         DronePriorities = new int[255];
-        PlayerDroneBuildingPlans = new Dictionary<ushort, List<int>>();
-        PendingBuildRequests = new List<int>();
-        CachedPositions = new List<Vector3>();
+        PlayerDroneBuildingPlans = [];
+        PendingBuildRequests = [];
+        CachedPositions = [];
     }
 
     public void Dispose()
@@ -64,7 +64,7 @@ public class DroneManager : IDisposable
     {
         if (!PlayerDroneBuildingPlans.TryGetValue(playerId, out var value))
         {
-            value = new List<int>();
+            value = [];
             PlayerDroneBuildingPlans.Add(playerId, value);
         }
 

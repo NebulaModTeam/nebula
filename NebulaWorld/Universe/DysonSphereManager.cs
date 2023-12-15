@@ -19,7 +19,7 @@ public class DysonSphereManager : IDisposable
 
     public readonly ToggleSwitch IsIncomingRequest = new();
 
-    private readonly List<DysonSphereStatusPacket> statusPackets = new(); //Server side
+    private readonly List<DysonSphereStatusPacket> statusPackets = []; //Server side
     private readonly ThreadSafe threadSafe = new();
 
     public bool IsNormal { get; set; } = true; //Client side: is the spheres data normal or desynced
@@ -74,7 +74,7 @@ public class DysonSphereManager : IDisposable
         using var locker = GetSubscribers(out var subscribers);
         if (!subscribers.TryGetValue(starIndex, out var value))
         {
-            value = new List<INebulaConnection>();
+            value = [];
             subscribers.Add(starIndex, value);
             statusPackets.Add(new DysonSphereStatusPacket(GameMain.data.dysonSpheres[starIndex]));
             Multiplayer.Session.Launch.Register(starIndex);

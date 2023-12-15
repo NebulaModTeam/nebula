@@ -27,7 +27,7 @@ public enum LocalAddrType
 /// </summary>
 public static class NetUtils
 {
-    private static readonly List<string> IpList = new();
+    private static readonly List<string> IpList = [];
 
     public static IPEndPoint MakeEndPoint(string hostStr, int port)
     {

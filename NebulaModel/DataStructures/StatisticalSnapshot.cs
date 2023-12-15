@@ -26,7 +26,7 @@ public class StatisticalSnapShot
         ProductionChangesPerFactory = new List<ProductionChangeStruct>[numOfActiveFactories];
         for (var i = 0; i < numOfActiveFactories; i++)
         {
-            ProductionChangesPerFactory[i] = new List<ProductionChangeStruct>();
+            ProductionChangesPerFactory[i] = [];
         }
         PowerGenerationRegister = new long[numOfActiveFactories];
         PowerConsumptionRegister = new long[numOfActiveFactories];
@@ -52,7 +52,7 @@ public class StatisticalSnapShot
 
         for (var factoryId = 0; factoryId < factoryCount; factoryId++)
         {
-            ProductionChangesPerFactory[factoryId] = new List<ProductionChangeStruct>();
+            ProductionChangesPerFactory[factoryId] = [];
             var changesCount = br.ReadInt32();
             for (var changeId = 0; changeId < changesCount; changeId++)
             {
@@ -92,23 +92,14 @@ public class StatisticalSnapShot
     }
 
     public readonly struct ProductionChangeStruct //12 bytes total
+        (bool isProduction, ushort productId, int amount)
     {
-        public readonly bool IsProduction; //1-byte
-        public readonly ushort ProductId; //2-byte
-        public readonly int Amount; //4-byte
+        public readonly bool IsProduction = isProduction; //1-byte
+        public readonly ushort ProductId = productId; //2-byte
+        public readonly int Amount = amount; //4-byte
 
-        public ProductionChangeStruct(bool isProduction, ushort productId, int amount)
+        public ProductionChangeStruct(BinaryReader r) : this(r.ReadBoolean(), r.ReadUInt16(), r.ReadInt32())
         {
-            IsProduction = isProduction;
-            ProductId = productId;
-            Amount = amount;
-        }
-
-        public ProductionChangeStruct(BinaryReader r)
-        {
-            IsProduction = r.ReadBoolean();
-            ProductId = r.ReadUInt16();
-            Amount = r.ReadInt32();
         }
 
         public void Export(BinaryWriter w)

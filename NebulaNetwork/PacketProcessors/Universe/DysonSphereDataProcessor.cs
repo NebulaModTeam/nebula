@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
 using NebulaAPI;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
@@ -32,8 +31,8 @@ internal class DysonSphereDataProcessor : PacketProcessor<DysonSphereData>
                 var dysonBox = UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.dysonBox;
                 using (var br = new BinaryUtils.Reader(packet.BinaryData).BinaryReader)
                 {
-                    dysonBox.Items = new List<string>();
-                    dysonBox.ItemsData = new List<int>();
+                    dysonBox.Items = [];
+                    dysonBox.ItemsData = [];
                     var count = br.ReadInt32();
                     for (var i = 0; i < count; i++)
                     {

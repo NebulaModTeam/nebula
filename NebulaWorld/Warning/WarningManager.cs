@@ -18,7 +18,7 @@ public class WarningManager : IDisposable
     public readonly ToggleSwitch IsIncomingMonitorPacket = new();
     private int idleCycle;
 
-    private ConcurrentBag<NebulaConnection> requesters = new();
+    private ConcurrentBag<NebulaConnection> requesters = [];
     private WarningDataPacket warningDataPacket = new();
     private WarningSignalPacket warningSignalPacket = new() { Signals = new int[8], Counts = new int[8] };
     private WarningSystem ws;

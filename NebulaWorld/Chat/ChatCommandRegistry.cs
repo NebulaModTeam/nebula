@@ -71,16 +71,10 @@ public static class ChatCommandRegistry
     }
 }
 
-public class ChatCommandKey
+public class ChatCommandKey(string commandName, IEnumerable<string> aliases)
 {
-    public readonly HashSet<string> Aliases;
-    public readonly string Name;
-
-    public ChatCommandKey(string commandName, IEnumerable<string> aliases)
-    {
-        Name = commandName;
-        Aliases = [..aliases];
-    }
+    public readonly HashSet<string> Aliases = [.. aliases];
+    public readonly string Name = commandName;
 
     public bool RespondsTo(string nameOrAlias)
     {

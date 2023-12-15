@@ -25,7 +25,7 @@ internal class RemoteServerCommmandProcessor : PacketProcessor<RemoteServerComma
 {
     private const int SERVERSAVE_COOLDOWN = 60;
     private const int SERVERLOGIN_COOLDOWN = 2;
-    private readonly HashSet<NebulaConnection> allowedConnections = new();
+    private readonly HashSet<NebulaConnection> allowedConnections = [];
     private DateTime LastLoginTime = DateTime.Now;
     private DateTime LastSaveTime = DateTime.Now;
 

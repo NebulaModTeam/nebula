@@ -20,8 +20,8 @@ internal class PlanetFactory_Transpiler
 {
     public delegate bool BoundsChecker(PlanetFactory factory, int index);
 
-    public static readonly List<int> CheckPopupPresent = new();
-    public static readonly Dictionary<int, List<int>> FaultyVeins = new();
+    public static readonly List<int> CheckPopupPresent = [];
+    public static readonly Dictionary<int, List<int>> FaultyVeins = [];
 
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(PlanetFactory.OnBeltBuilt))]

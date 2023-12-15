@@ -13,9 +13,9 @@ namespace NebulaWorld.Universe;
 
 public class LaunchManager
 {
-    private HashSet<int> planetIds = new(); //Client side
+    private HashSet<int> planetIds = []; //Client side
 
-    public ConcurrentBag<DysonLaunchData.Projectile> ProjectileBag { get; set; } = new();
+    public ConcurrentBag<DysonLaunchData.Projectile> ProjectileBag { get; set; } = [];
     public ConcurrentDictionary<int, DysonLaunchData> Snapshots { get; set; } = new();
 
     public void Dispose()

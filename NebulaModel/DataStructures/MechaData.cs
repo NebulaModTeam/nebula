@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Collections.Generic;
 using System.IO;
 using NebulaAPI.DataStructures;
 using NebulaAPI.Interfaces;
@@ -17,7 +16,7 @@ public class MechaData : IMechaData
     public MechaData()
     {
         //This is needed for the serialization and deserialization
-        Forge = new MechaForge { tasks = new List<ForgeTask>() };
+        Forge = new MechaForge { tasks = [] };
         TechBonuses = new PlayerTechBonuses();
     }
 
@@ -78,7 +77,7 @@ public class MechaData : IMechaData
         DeliveryPackage.Init();
         ReactorStorage = new StorageComponent(4);
         WarpStorage = new StorageComponent(1);
-        Forge = new MechaForge { tasks = new List<ForgeTask>(), extraItems = new ItemBundle() };
+        Forge = new MechaForge { tasks = [], extraItems = new ItemBundle() };
         TechBonuses.Deserialize(reader);
         SandCount = reader.GetInt();
         CoreEnergy = reader.GetDouble();
@@ -108,7 +107,7 @@ public class MechaData : IMechaData
         DeliveryPackage.Init();
         ReactorStorage = new StorageComponent(4);
         WarpStorage = new StorageComponent(1);
-        Forge = new MechaForge { tasks = new List<ForgeTask>(), extraItems = new ItemBundle() };
+        Forge = new MechaForge { tasks = [], extraItems = new ItemBundle() };
         TechBonuses.Import(reader, revision);
         SandCount = reader.GetInt();
         CoreEnergy = reader.GetDouble();

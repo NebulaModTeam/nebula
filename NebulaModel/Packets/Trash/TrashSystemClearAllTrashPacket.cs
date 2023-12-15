@@ -1,5 +1,3 @@
 ﻿namespace NebulaModel.Packets.Trash;
 
-public class TrashSystemClearAllTrashPacket
-{
-}
+public class TrashSystemClearAllTrashPacket;

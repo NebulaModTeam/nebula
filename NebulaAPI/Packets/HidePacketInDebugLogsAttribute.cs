@@ -7,6 +7,4 @@ using System;
 namespace NebulaAPI.Packets;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public class HidePacketInDebugLogsAttribute : Attribute
-{
-}
+public class HidePacketInDebugLogsAttribute : Attribute;

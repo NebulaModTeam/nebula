@@ -9,27 +9,15 @@ using UnityEngine;
 
 namespace NebulaWorld.Chat;
 
-public struct Emoji
+public struct Emoji(IReadOnlyDictionary<string, object> dict)
 {
-    public readonly string ShortName;
-    public string _category;
-    public readonly string UnifiedCode;
+    public readonly string ShortName = (string)dict["short_name"];
+    public string _category = (string)dict["category"];
+    public readonly string UnifiedCode = (string)dict["unified"];
 
-    public readonly int SheetX;
-    public readonly int SheetY;
-    public readonly int SortOrder;
-
-    public Emoji(IReadOnlyDictionary<string, object> dict)
-    {
-        ShortName = (string)dict["short_name"];
-        _category = (string)dict["category"];
-        UnifiedCode = (string)dict["unified"];
-
-        SheetX = (int)(long)dict["sheet_x"];
-        SheetY = (int)(long)dict["sheet_y"];
-
-        SortOrder = (int)(long)dict["sort_order"];
-    }
+    public readonly int SheetX = (int)(long)dict["sheet_x"];
+    public readonly int SheetY = (int)(long)dict["sheet_y"];
+    public readonly int SortOrder = (int)(long)dict["sort_order"];
 }
 
 public static class EmojiDataManager
@@ -45,7 +33,7 @@ public static class EmojiDataManager
         }
         else
         {
-            emojies[emoji._category] = [..new[] { emoji }];
+            emojies[emoji._category] = [.. new[] { emoji }];
         }
     }
 

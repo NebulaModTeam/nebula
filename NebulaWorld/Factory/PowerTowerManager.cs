@@ -349,8 +349,8 @@ public class PowerTowerManager : IDisposable
 
     private class EnergyMapping
     {
-        public readonly List<int> Activated = new();
-        public readonly List<int> NodeId = new();
+        public readonly List<int> Activated = [];
+        public readonly List<int> NodeId = [];
         public int ExtraPower;
         public int NetId;
     }

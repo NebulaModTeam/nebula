@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking.Serialization;

@@ -11,20 +11,13 @@ using UnityEngine;
 namespace NebulaModel.DataStructures;
 
 [RegisterNestedType]
-public class DysonLaunchData : INetSerializable
+public class DysonLaunchData(int starIndex) : INetSerializable
 {
-    public DysonLaunchData(int starIndex)
-    {
-        StarIndex = starIndex;
-        BulletList = new List<Projectile>();
-        RocketList = new List<Projectile>();
-    }
-
     public DysonLaunchData() : this(0) { }
 
-    public int StarIndex { get; set; }
-    public List<Projectile> BulletList { get; set; }
-    public List<Projectile> RocketList { get; set; }
+    public int StarIndex { get; set; } = starIndex;
+    public List<Projectile> BulletList { get; set; } = [];
+    public List<Projectile> RocketList { get; set; } = [];
     public int BulletCursor { get; set; }
     public int RocketCursor { get; set; }
     public byte BulletTick { get; set; }

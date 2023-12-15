@@ -105,8 +105,8 @@ public static class IPUtils
                 var iPv4Address = (await Dns.GetHostEntryAsync(string.Empty)).AddressList
                     .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
                     .Select(ip => new { ip, str = ip.ToString() })
-                    .Where(@t => !@t.str.StartsWith("127.0") && !@t.str.StartsWith("192.168"))
-                    .Select(@t => @t.ip).FirstOrDefault();
+                    .Where(t => !t.str.StartsWith("127.0") && !t.str.StartsWith("192.168"))
+                    .Select(t => t.ip).FirstOrDefault();
                 if (iPv4Address != null)
                 {
                     // TODO: More respect about rate limit?

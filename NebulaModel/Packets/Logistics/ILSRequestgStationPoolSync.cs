@@ -1,5 +1,3 @@
 ﻿namespace NebulaModel.Packets.Logistics;
 
-public class ILSRequestgStationPoolSync
-{
-}
+public class ILSRequestgStationPoolSync;

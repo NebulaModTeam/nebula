@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Collections.Generic;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -25,7 +24,7 @@ internal class DysonSphereAddShellProcessor : PacketProcessor<DysonSphereAddShel
         using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
         {
             var shellId = layer.shellRecycleCursor > 0 ? layer.shellRecycle[layer.shellRecycleCursor - 1] : layer.shellCursor;
-            if (shellId != packet.ShellId || layer.NewDysonShell(packet.ProtoId, [..packet.NodeIds]) == 0)
+            if (shellId != packet.ShellId || layer.NewDysonShell(packet.ProtoId, [.. packet.NodeIds]) == 0)
             {
                 Log.Warn($"Cannnot add shell[{packet.ShellId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
                 Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);

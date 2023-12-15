@@ -14,11 +14,11 @@ namespace NebulaModel.Networking.Serialization;
 
 public class NetPacketProcessor
 {
-    private readonly Dictionary<ulong, SubscribeDelegate> _callbacks = new();
-    private readonly Dictionary<ulong, Type> _callbacksDebugInfo = new();
+    private readonly Dictionary<ulong, SubscribeDelegate> _callbacks = [];
+    private readonly Dictionary<ulong, Type> _callbacksDebugInfo = [];
     private readonly NetDataWriter _netDataWriter = new();
     private readonly NetSerializer _netSerializer;
-    private readonly List<DelayedPacket> delayedPackets = new();
+    private readonly List<DelayedPacket> delayedPackets = [];
     private readonly Queue<PendingPacket> pendingPackets = new();
 
     private readonly Random simulationRandom = new();

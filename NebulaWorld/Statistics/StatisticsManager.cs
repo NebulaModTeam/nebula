@@ -20,7 +20,7 @@ public class StatisticsManager : IDisposable
 
     private PlanetData[] planetDataMap = new PlanetData[GameMain.data.factories.Length];
 
-    private List<StatisticalSnapShot> statisticalSnapShots = new();
+    private List<StatisticalSnapShot> statisticalSnapShots = [];
 
     public bool IsStatisticsNeeded { get; set; }
     public long[] PowerEnergyStoredData { get; set; }

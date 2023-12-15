@@ -39,9 +39,9 @@ internal class UIOptionWindow_Patch
     private static MultiplayerOptions tempMultiplayerOptions = new();
 
     // Sub tabs
-    private static readonly List<UIButton> subtabButtons = new();
-    private static readonly List<Text> subtabTexts = new();
-    private static readonly List<Transform> subtabContents = new();
+    private static readonly List<UIButton> subtabButtons = [];
+    private static readonly List<Text> subtabTexts = [];
+    private static readonly List<Transform> subtabContents = [];
     private static RectTransform contentContainer;
     private static Image subtabSlider;
     private static int subtabIndex = -1;

@@ -38,7 +38,7 @@ public class NebulaModAPI : BaseUnityPlugin
     private static Type binaryWriter;
     private static Type binaryReader;
 
-    public static readonly List<Assembly> TargetAssemblies = new();
+    public static readonly List<Assembly> TargetAssemblies = [];
 
     /// <summary>
     ///     Subscribe to receive event when new multiplayer game is started<br />
