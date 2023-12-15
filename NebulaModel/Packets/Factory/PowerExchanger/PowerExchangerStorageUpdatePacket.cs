@@ -13,8 +13,8 @@ public class PowerExchangerStorageUpdatePacket
         PlanetId = planetId;
     }
 
-    public int PowerExchangerIndex { get; }
-    public int EmptyAccumulatorCount { get; }
-    public int FullAccumulatorCount { get; }
-    public int PlanetId { get; }
+    public int PowerExchangerIndex { get; set; }
+    public int EmptyAccumulatorCount { get; set; }
+    public int FullAccumulatorCount { get; set; }
+    public int PlanetId { get; set; }
 }

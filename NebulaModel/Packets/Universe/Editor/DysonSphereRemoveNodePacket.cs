@@ -11,7 +11,7 @@ public class DysonSphereRemoveNodePacket
         NodeId = nodeId;
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public int NodeId { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public int NodeId { get; set; }
 }

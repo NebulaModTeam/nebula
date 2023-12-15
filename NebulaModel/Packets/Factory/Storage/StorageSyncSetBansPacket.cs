@@ -11,7 +11,7 @@ public class StorageSyncSetBansPacket
         Bans = bans;
     }
 
-    public int StorageIndex { get; }
-    public int PlanetId { get; }
-    public int Bans { get; }
+    public int StorageIndex { get; set; }
+    public int PlanetId { get; set; }
+    public int Bans { get; set; }
 }

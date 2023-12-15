@@ -51,9 +51,9 @@ public class LobbyRequest
         ClientCert = clientCert;
     }
 
-    public string Username { get; }
-    public byte[] ModsVersion { get; }
-    public int ModsCount { get; }
-    public int GameVersionSig { get; }
-    public byte[] ClientCert { get; }
+    public string Username { get; set; }
+    public byte[] ModsVersion { get; set; }
+    public int ModsCount { get; set; }
+    public int GameVersionSig { get; set; }
+    public byte[] ClientCert { get; set; }
 }

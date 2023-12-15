@@ -12,8 +12,8 @@ public class ConnectToMonitorPacket
         PlanetId = planetId;
     }
 
-    public int MonitorId { get; }
-    public int BeltId { get; }
-    public int Offset { get; }
-    public int PlanetId { get; }
+    public int MonitorId { get; set; }
+    public int BeltId { get; set; }
+    public int Offset { get; set; }
+    public int PlanetId { get; set; }
 }

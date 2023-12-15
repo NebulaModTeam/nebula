@@ -30,15 +30,15 @@ public class ILSShipDock
         this.shipPRotTemp = shipPRotTemp;
     }
 
-    public int stationGId { get; }
-    public Float3 shipDockPos { get; }
-    public Float4 shipDockRot { get; }
+    public int stationGId { get; set; }
+    public Float3 shipDockPos { get; set; }
+    public Float4 shipDockRot { get; set; }
 
-    public int[] shipOtherGId { get; } // this is the GId of the station the ship belongs to (as stationGId points to the station that the ship has as otherGId)
+    public int[] shipOtherGId { get; set; } // this is the GId of the station the ship belongs to (as stationGId points to the station that the ship has as otherGId)
 
-    public int[] shipIndex { get; }
-    public Double3[] shipPos { get; }
-    public Float4[] shipRot { get; }
-    public Double3[] shipPPosTemp { get; }
-    public Float4[] shipPRotTemp { get; }
+    public int[] shipIndex { get; set; }
+    public Double3[] shipPos { get; set; }
+    public Float4[] shipRot { get; set; }
+    public Double3[] shipPPosTemp { get; set; }
+    public Float4[] shipPRotTemp { get; set; }
 }

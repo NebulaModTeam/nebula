@@ -11,7 +11,7 @@ public class DysonSphereRemoveFramePacket
         FrameId = frameId;
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public int FrameId { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public int FrameId { get; set; }
 }

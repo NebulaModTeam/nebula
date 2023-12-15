@@ -55,7 +55,7 @@ public class Client : NetworkProvider, IClient
         serverPassword = password;
     }
 
-    public IPEndPoint ServerEndpoint { get; }
+    public IPEndPoint ServerEndpoint { get; set; }
 
     public override void Start()
     {

@@ -19,8 +19,8 @@ public class DysonBlueprintPacket
         BinaryData = Encoding.ASCII.GetBytes(stringData);
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public EDysonBlueprintType BlueprintType { get; }
-    public byte[] BinaryData { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public EDysonBlueprintType BlueprintType { get; set; }
+    public byte[] BinaryData { get; set; }
 }

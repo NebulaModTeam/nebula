@@ -30,12 +30,12 @@ public class TrashSystemNewTrashCreatedPacket
         PlayerId = playerId;
     }
 
-    public int TrashId { get; }
-    private byte[] TrashObjectByte { get; }
-    private byte[] TrashDataByte { get; }
-    private int Count { get; }
-    public ushort PlayerId { get; }
-    public int LocalPlanetId { get; }
+    public int TrashId { get; set; }
+    private byte[] TrashObjectByte { get; set; }
+    private byte[] TrashDataByte { get; set; }
+    private int Count { get; set; }
+    public ushort PlayerId { get; set; }
+    public int LocalPlanetId { get; set; }
 
     public TrashObject GetTrashObject()
     {

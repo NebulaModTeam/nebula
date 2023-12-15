@@ -17,8 +17,8 @@ public class BeltUpdatePickupItemsPacket
         PlanetId = planetId;
     }
 
-    public int PlanetId { get; }
-    public BeltUpdate[] BeltUpdates { get; }
+    public int PlanetId { get; set; }
+    public BeltUpdate[] BeltUpdates { get; set; }
 }
 
 [RegisterNestedType]

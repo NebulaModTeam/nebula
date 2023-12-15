@@ -11,9 +11,9 @@ public class DysonSwarmRemoveOrbitPacket
         Event = removeEvent;
     }
 
-    public int StarIndex { get; }
-    public int OrbitId { get; }
-    public SwarmRemoveOrbitEvent Event { get; }
+    public int StarIndex { get; set; }
+    public int OrbitId { get; set; }
+    public SwarmRemoveOrbitEvent Event { get; set; }
 }
 
 public enum SwarmRemoveOrbitEvent

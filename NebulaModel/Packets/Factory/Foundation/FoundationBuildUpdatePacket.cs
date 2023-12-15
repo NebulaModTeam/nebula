@@ -25,13 +25,13 @@ public class FoundationBuildUpdatePacket
         GroundTestPos = new Float3(btr?.castGroundPos ?? Vector3.zero);
     }
 
-    public float Radius { get; }
-    public int ReformSize { get; }
-    public bool VeinBuried { get; }
-    public float Fade0 { get; }
-    public int ReformType { get; }
-    public int ReformColor { get; }
-    public int PlanetId { get; }
-    public int[] ReformIndices { get; }
-    public Float3 GroundTestPos { get; }
+    public float Radius { get; set; }
+    public int ReformSize { get; set; }
+    public bool VeinBuried { get; set; }
+    public float Fade0 { get; set; }
+    public int ReformType { get; set; }
+    public int ReformColor { get; set; }
+    public int PlanetId { get; set; }
+    public int[] ReformIndices { get; set; }
+    public Float3 GroundTestPos { get; set; }
 }

@@ -20,16 +20,16 @@ public class ILSIdleShipBackToWork
         StationWarperCount = stationWarperCount;
     }
 
-    public int ThisGId { get; }
-    public int PlanetA { get; }
-    public int PlanetB { get; }
-    public int OtherGId { get; }
-    public int ItemId { get; }
-    public int ItemCount { get; }
-    public int Inc { get; }
-    public int Gene { get; }
-    public int ShipIndex { get; }
-    public int ShipWarperCount { get; }
-    public int StationMaxShipCount { get; }
-    public int StationWarperCount { get; }
+    public int ThisGId { get; set; }
+    public int PlanetA { get; set; }
+    public int PlanetB { get; set; }
+    public int OtherGId { get; set; }
+    public int ItemId { get; set; }
+    public int ItemCount { get; set; }
+    public int Inc { get; set; }
+    public int Gene { get; set; }
+    public int ShipIndex { get; set; }
+    public int ShipWarperCount { get; set; }
+    public int StationMaxShipCount { get; set; }
+    public int StationWarperCount { get; set; }
 }

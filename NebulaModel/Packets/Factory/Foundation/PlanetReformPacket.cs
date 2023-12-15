@@ -13,9 +13,9 @@ public class PlanetReformPacket
         Bury = bury;
     }
 
-    public int PlanetId { get; }
-    public bool IsReform { get; } // true = reform all, false = revert
-    public int Type { get; }
-    public int Color { get; }
-    public bool Bury { get; }
+    public int PlanetId { get; set; }
+    public bool IsReform { get; set; } // true = reform all, false = revert
+    public int Type { get; set; }
+    public int Color { get; set; }
+    public bool Bury { get; set; }
 }

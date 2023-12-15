@@ -11,9 +11,9 @@ public class DysonSphereData
         Event = respondEvent;
     }
 
-    public int StarIndex { get; }
-    public byte[] BinaryData { get; }
-    public DysonSphereRespondEvent Event { get; }
+    public int StarIndex { get; set; }
+    public byte[] BinaryData { get; set; }
+    public DysonSphereRespondEvent Event { get; set; }
 }
 
 public enum DysonSphereRespondEvent

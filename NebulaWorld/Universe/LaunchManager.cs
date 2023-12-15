@@ -15,8 +15,8 @@ public class LaunchManager
 {
     private HashSet<int> planetIds = new(); //Client side
 
-    public ConcurrentBag<DysonLaunchData.Projectile> ProjectileBag { get; private set; } = new();
-    public ConcurrentDictionary<int, DysonLaunchData> Snapshots { get; private set; } = new();
+    public ConcurrentBag<DysonLaunchData.Projectile> ProjectileBag { get; set; } = new();
+    public ConcurrentDictionary<int, DysonLaunchData> Snapshots { get; set; } = new();
 
     public void Dispose()
     {

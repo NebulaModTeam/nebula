@@ -14,11 +14,11 @@ public class MonitorSettingUpdatePacket
         Parameter2 = parameter2;
     }
 
-    public int PlanetId { get; }
-    public int MonitorId { get; }
-    public MonitorSettingEvent Event { get; }
-    public int Parameter1 { get; }
-    public int Parameter2 { get; }
+    public int PlanetId { get; set; }
+    public int MonitorId { get; set; }
+    public MonitorSettingEvent Event { get; set; }
+    public int Parameter1 { get; set; }
+    public int Parameter2 { get; set; }
 }
 
 public enum MonitorSettingEvent

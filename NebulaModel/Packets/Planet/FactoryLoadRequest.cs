@@ -9,5 +9,5 @@ public class FactoryLoadRequest
         PlanetID = planetID;
     }
 
-    public int PlanetID { get; }
+    public int PlanetID { get; set; }
 }

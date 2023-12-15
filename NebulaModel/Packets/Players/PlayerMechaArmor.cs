@@ -10,6 +10,6 @@ public class PlayerMechaArmor
         AppearanceData = appearanceData;
     }
 
-    public ushort PlayerId { get; }
-    public byte[] AppearanceData { get; }
+    public ushort PlayerId { get; set; }
+    public byte[] AppearanceData { get; set; }
 }

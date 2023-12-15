@@ -18,7 +18,7 @@ public class GameStateUpdate
         UnitsPerSecond = unitsPerSecond;
     }
 
-    public long SentTime { get; }
-    public long GameTick { get; }
-    public float UnitsPerSecond { get; }
+    public long SentTime { get; set; }
+    public long GameTick { get; set; }
+    public float UnitsPerSecond { get; set; }
 }

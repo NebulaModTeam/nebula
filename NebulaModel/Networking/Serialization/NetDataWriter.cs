@@ -30,7 +30,7 @@ public class NetDataWriter : INetDataWriter
 
     public byte[] Data => _data;
 
-    public int Length { get; private set; }
+    public int Length { get; set; }
 
     public void Put(float value)
     {

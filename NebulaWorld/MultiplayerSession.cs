@@ -54,23 +54,23 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         StartTime = DateTime.Now;
     }
 
-    public SimulatedWorld World { get; private set; }
-    public StorageManager Storage { get; private set; }
-    public PowerTowerManager PowerTowers { get; private set; }
-    public BeltManager Belts { get; private set; }
-    public BuildToolManager BuildTools { get; private set; }
+    public SimulatedWorld World { get; set; }
+    public StorageManager Storage { get; set; }
+    public PowerTowerManager PowerTowers { get; set; }
+    public BeltManager Belts { get; set; }
+    public BuildToolManager BuildTools { get; set; }
     private DroneManager Drones { get; set; }
-    public GameDataHistoryManager History { get; private set; }
+    public GameDataHistoryManager History { get; set; }
     private GameStatesManager State { get; set; }
-    public CourierManager Couriers { get; private set; }
-    public ILSShipManager Ships { get; private set; }
-    public StationUIManager StationsUI { get; private set; }
-    public PlanetManager Planets { get; private set; }
-    public StatisticsManager Statistics { get; private set; }
-    public TrashManager Trashes { get; private set; }
-    public DysonSphereManager DysonSpheres { get; private set; }
-    public LaunchManager Launch { get; private set; }
-    public WarningManager Warning { get; private set; }
+    public CourierManager Couriers { get; set; }
+    public ILSShipManager Ships { get; set; }
+    public StationUIManager StationsUI { get; set; }
+    public PlanetManager Planets { get; set; }
+    public StatisticsManager Statistics { get; set; }
+    public TrashManager Trashes { get; set; }
+    public DysonSphereManager DysonSpheres { get; set; }
+    public LaunchManager Launch { get; set; }
+    public WarningManager Warning { get; set; }
     public bool IsInLobby { get; set; }
 
     public bool CanPause
@@ -149,11 +149,11 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         GC.SuppressFinalize(this);
     }
 
-    public NebulaAPI.GameState.INetworkProvider Network { get; private set; }
-    public ILocalPlayer LocalPlayer { get; private set; }
-    public IFactoryManager Factories { get; private set; }
+    public NebulaAPI.GameState.INetworkProvider Network { get; set; }
+    public ILocalPlayer LocalPlayer { get; set; }
+    public IFactoryManager Factories { get; set; }
 
-    public bool IsGameLoaded { get; private set; }
+    public bool IsGameLoaded { get; set; }
 
     public void OnGameLoadCompleted()
     {

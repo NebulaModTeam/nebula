@@ -11,7 +11,7 @@ public class DestructEntityRequest
         ObjId = objId;
     }
 
-    public int PlanetId { get; }
-    public int ObjId { get; }
-    public int AuthorId { get; }
+    public int PlanetId { get; set; }
+    public int ObjId { get; set; }
+    public int AuthorId { get; set; }
 }

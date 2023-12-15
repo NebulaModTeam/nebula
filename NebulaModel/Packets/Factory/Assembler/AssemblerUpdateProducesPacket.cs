@@ -12,8 +12,8 @@ public class AssemblerUpdateProducesPacket
         ProducesValue = producesValue;
     }
 
-    public int PlanetId { get; }
-    public int AssemblerIndex { get; }
-    public int ProducesIndex { get; }
-    public int ProducesValue { get; }
+    public int PlanetId { get; set; }
+    public int AssemblerIndex { get; set; }
+    public int ProducesIndex { get; set; }
+    public int ProducesValue { get; set; }
 }

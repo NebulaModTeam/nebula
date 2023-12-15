@@ -10,7 +10,7 @@ namespace NebulaWorld;
 
 public static class Multiplayer
 {
-    public static MultiplayerSession Session { get; private set; }
+    public static MultiplayerSession Session { get; set; }
 
     public static bool IsActive => Session != null;
 

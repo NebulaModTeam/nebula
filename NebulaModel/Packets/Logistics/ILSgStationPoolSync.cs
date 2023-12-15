@@ -75,34 +75,34 @@ public class ILSgStationPoolSync
         this.shipPRotTemp = shipPRotTemp;
     }
 
-    public int[] stationGId { get; }
+    public int[] stationGId { get; set; }
 
-    public int[] stationMaxShipCount { get; }
-    public int[] stationId { get; }
-    public string[] stationName { get; }
-    public Float3[] DockPos { get; }
-    public Float4[] DockRot { get; }
-    public int[] planetId { get; }
-    public int[] workShipCount { get; }
-    public int[] idleShipCount { get; }
-    public ulong[] workShipIndices { get; }
-    public ulong[] idleShipIndices { get; }
-    public int[] shipStage { get; }
-    public int[] shipDirection { get; }
-    public float[] shipWarpState { get; }
-    public int[] shipWarperCnt { get; }
-    public int[] shipItemID { get; }
-    public int[] shipItemCount { get; }
-    public int[] shipPlanetA { get; }
-    public int[] shipPlanetB { get; }
-    public int[] shipOtherGId { get; }
-    public float[] shipT { get; }
-    public int[] shipIndex { get; }
-    public Double3[] shipPos { get; }
-    public Float4[] shipRot { get; }
-    public Float3[] shipVel { get; }
-    public float[] shipSpeed { get; }
-    public Float3[] shipAngularVel { get; }
-    public Double3[] shipPPosTemp { get; }
-    public Float4[] shipPRotTemp { get; }
+    public int[] stationMaxShipCount { get; set; }
+    public int[] stationId { get; set; }
+    public string[] stationName { get; set; }
+    public Float3[] DockPos { get; set; }
+    public Float4[] DockRot { get; set; }
+    public int[] planetId { get; set; }
+    public int[] workShipCount { get; set; }
+    public int[] idleShipCount { get; set; }
+    public ulong[] workShipIndices { get; set; }
+    public ulong[] idleShipIndices { get; set; }
+    public int[] shipStage { get; set; }
+    public int[] shipDirection { get; set; }
+    public float[] shipWarpState { get; set; }
+    public int[] shipWarperCnt { get; set; }
+    public int[] shipItemID { get; set; }
+    public int[] shipItemCount { get; set; }
+    public int[] shipPlanetA { get; set; }
+    public int[] shipPlanetB { get; set; }
+    public int[] shipOtherGId { get; set; }
+    public float[] shipT { get; set; }
+    public int[] shipIndex { get; set; }
+    public Double3[] shipPos { get; set; }
+    public Float4[] shipRot { get; set; }
+    public Float3[] shipVel { get; set; }
+    public float[] shipSpeed { get; set; }
+    public Float3[] shipAngularVel { get; set; }
+    public Double3[] shipPPosTemp { get; set; }
+    public Float4[] shipPRotTemp { get; set; }
 }

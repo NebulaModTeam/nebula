@@ -18,5 +18,5 @@ public class PlayerMechaData
             player.deliveryPackage, player.mecha.reactorStorage, player.mecha.warpStorage, player.mecha.forge);
     }
 
-    public MechaData Data { get; }
+    public MechaData Data { get; set; }
 }

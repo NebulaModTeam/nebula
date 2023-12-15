@@ -9,5 +9,5 @@ public class PlanetDataRequest
         PlanetIDs = planetIDs;
     }
 
-    public int[] PlanetIDs { get; }
+    public int[] PlanetIDs { get; set; }
 }

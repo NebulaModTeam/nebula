@@ -17,11 +17,11 @@ public abstract class NetworkProvider : INetworkProvider
         PlayerManager = playerManager;
     }
 
-    public NetPacketProcessor PacketProcessor { get; }
+    public NetPacketProcessor PacketProcessor { get; set; }
 
     public abstract void Dispose();
 
-    public IPlayerManager PlayerManager { get; }
+    public IPlayerManager PlayerManager { get; set; }
 
     public abstract void SendPacket<T>(T packet) where T : class, new();
 

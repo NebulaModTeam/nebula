@@ -10,6 +10,6 @@ public class PlanetDataResponse
         PlanetDataByte = planetData;
     }
 
-    public int PlanetDataID { get; }
-    public byte[] PlanetDataByte { get; }
+    public int PlanetDataID { get; set; }
+    public byte[] PlanetDataByte { get; set; }
 }

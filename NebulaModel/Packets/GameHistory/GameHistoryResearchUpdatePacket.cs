@@ -12,8 +12,8 @@ public class GameHistoryResearchUpdatePacket
         TechHashedFor10Frames = techHashedFor10Frames;
     }
 
-    public int TechId { get; }
-    public long HashUploaded { get; }
-    public long HashNeeded { get; }
-    public int TechHashedFor10Frames { get; }
+    public int TechId { get; set; }
+    public long HashUploaded { get; set; }
+    public long HashNeeded { get; set; }
+    public int TechHashedFor10Frames { get; set; }
 }

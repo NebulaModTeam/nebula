@@ -10,6 +10,6 @@ public class StarBroadcastPacket
         StarId = starId;
     }
 
-    public byte[] PacketObject { get; }
-    public int StarId { get; }
+    public byte[] PacketObject { get; set; }
+    public int StarId { get; set; }
 }

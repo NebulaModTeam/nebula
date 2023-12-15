@@ -2,8 +2,8 @@
 
 public struct PendingPacket
 {
-    public byte[] Data { get; }
-    public object UserData { get; }
+    public byte[] Data { get; set; }
+    public object UserData { get; set; }
 
     public PendingPacket(byte[] data, object userData)
     {

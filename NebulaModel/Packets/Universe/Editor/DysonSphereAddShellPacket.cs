@@ -19,9 +19,9 @@ public class DysonSphereAddShellPacket
         NodeIds = nodeIds.ToArray();
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public int ShellId { get; }
-    public int ProtoId { get; }
-    public int[] NodeIds { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public int ShellId { get; set; }
+    public int ProtoId { get; set; }
+    public int[] NodeIds { get; set; }
 }

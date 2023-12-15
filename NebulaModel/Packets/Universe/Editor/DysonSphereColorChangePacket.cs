@@ -27,9 +27,9 @@ public class DysonSphereColorChangePacket
         Index = index;
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public Float4 Color { get; }
-    public ComponentType Type { get; }
-    public int Index { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public Float4 Color { get; set; }
+    public ComponentType Type { get; set; }
+    public int Index { get; set; }
 }

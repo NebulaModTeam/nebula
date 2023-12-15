@@ -9,7 +9,7 @@ namespace NebulaAPI.GameState;
 
 public interface INetworkProvider : IDisposable
 {
-    IPlayerManager PlayerManager { get; }
+    IPlayerManager PlayerManager { get; set; }
 
     /// <summary>
     ///     Send packet to Host (If ran on Client) or all Clients (If ran on Host)

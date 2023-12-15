@@ -10,6 +10,6 @@ public class GameHistoryDataResponse
         SandboxToolsEnabled = sandboxToolsEnabled;
     }
 
-    public byte[] HistoryBinaryData { get; }
-    public bool SandboxToolsEnabled { get; }
+    public byte[] HistoryBinaryData { get; set; }
+    public bool SandboxToolsEnabled { get; set; }
 }

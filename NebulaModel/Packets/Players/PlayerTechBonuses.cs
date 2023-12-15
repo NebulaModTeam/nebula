@@ -44,35 +44,35 @@ public class PlayerTechBonuses : IPlayerTechBonuses
         deliveryPackageStackSizeMultiplier = source.player.deliveryPackage.stackSizeMultiplier;
     }
 
-    public double coreEnergyCap { get; private set; }
-    public double corePowerGen { get; private set; }
-    public double reactorPowerGen { get; private set; }
-    public double walkPower { get; private set; }
-    public double jumpEnergy { get; private set; }
-    public double thrustPowerPerAcc { get; private set; }
-    public double warpKeepingPowerPerSpeed { get; private set; }
-    public double warpStartPowerPerSpeed { get; private set; }
-    public double miningPower { get; private set; }
-    public double replicatePower { get; private set; }
-    public double researchPower { get; private set; }
-    public double droneEjectEnergy { get; private set; }
-    public double droneEnergyPerMeter { get; private set; }
-    public int coreLevel { get; private set; }
-    public int thrusterLevel { get; private set; }
-    public float miningSpeed { get; private set; }
-    public float replicateSpeed { get; private set; }
-    public float walkSpeed { get; private set; }
-    public float jumpSpeed { get; private set; }
-    public float maxSailSpeed { get; private set; }
-    public float maxWarpSpeed { get; private set; }
-    public float buildArea { get; private set; }
-    public int droneCount { get; private set; }
-    public float droneSpeed { get; private set; }
-    public int droneMovement { get; private set; }
-    public int inventorySize { get; private set; }
-    public bool deliveryPackageUnlocked { get; private set; }
+    public double coreEnergyCap { get; set; }
+    public double corePowerGen { get; set; }
+    public double reactorPowerGen { get; set; }
+    public double walkPower { get; set; }
+    public double jumpEnergy { get; set; }
+    public double thrustPowerPerAcc { get; set; }
+    public double warpKeepingPowerPerSpeed { get; set; }
+    public double warpStartPowerPerSpeed { get; set; }
+    public double miningPower { get; set; }
+    public double replicatePower { get; set; }
+    public double researchPower { get; set; }
+    public double droneEjectEnergy { get; set; }
+    public double droneEnergyPerMeter { get; set; }
+    public int coreLevel { get; set; }
+    public int thrusterLevel { get; set; }
+    public float miningSpeed { get; set; }
+    public float replicateSpeed { get; set; }
+    public float walkSpeed { get; set; }
+    public float jumpSpeed { get; set; }
+    public float maxSailSpeed { get; set; }
+    public float maxWarpSpeed { get; set; }
+    public float buildArea { get; set; }
+    public int droneCount { get; set; }
+    public float droneSpeed { get; set; }
+    public int droneMovement { get; set; }
+    public int inventorySize { get; set; }
+    public bool deliveryPackageUnlocked { get; set; }
     public int deliveryPackageColCount { get; set; }
-    public int deliveryPackageStackSizeMultiplier { get; private set; }
+    public int deliveryPackageStackSizeMultiplier { get; set; }
 
     public void Serialize(INetDataWriter writer)
     {

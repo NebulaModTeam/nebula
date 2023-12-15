@@ -11,7 +11,7 @@ public class PlayerMechaDIYArmor
         DIYItemValue = diyItemValue;
     }
 
-    public byte[] DIYAppearanceData { get; }
-    public int[] DIYItemId { get; }
-    public int[] DIYItemValue { get; }
+    public byte[] DIYAppearanceData { get; set; }
+    public int[] DIYItemId { get; set; }
+    public int[] DIYItemValue { get; set; }
 }

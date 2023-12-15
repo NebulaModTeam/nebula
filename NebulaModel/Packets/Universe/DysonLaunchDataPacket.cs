@@ -17,5 +17,5 @@ public class DysonLaunchDataPacket
         Data = data;
     }
 
-    public DysonLaunchData Data { get; }
+    public DysonLaunchData Data { get; set; }
 }

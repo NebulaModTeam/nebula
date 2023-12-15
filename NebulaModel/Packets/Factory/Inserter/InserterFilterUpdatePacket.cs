@@ -11,7 +11,7 @@ public class InserterFilterUpdatePacket
         PlanetId = planetId;
     }
 
-    public int InserterIndex { get; }
-    public int ItemId { get; }
-    public int PlanetId { get; }
+    public int InserterIndex { get; set; }
+    public int ItemId { get; set; }
+    public int PlanetId { get; set; }
 }

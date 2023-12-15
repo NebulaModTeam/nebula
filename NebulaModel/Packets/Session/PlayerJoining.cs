@@ -16,6 +16,6 @@ public class PlayerJoining
         NumPlayers = numPlayers;
     }
 
-    public PlayerData PlayerData { get; }
-    public ushort NumPlayers { get; }
+    public PlayerData PlayerData { get; set; }
+    public ushort NumPlayers { get; set; }
 }

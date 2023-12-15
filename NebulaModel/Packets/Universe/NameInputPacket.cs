@@ -50,7 +50,7 @@ public class NameInputPacket
         PlanetIds = planetIds.ToArray();
     }
 
-    public string[] Names { get; }
-    public int[] PlanetIds { get; }
-    public int[] StarIds { get; }
+    public string[] Names { get; set; }
+    public int[] PlanetIds { get; set; }
+    public int[] StarIds { get; set; }
 }

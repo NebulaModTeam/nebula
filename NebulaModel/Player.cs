@@ -15,8 +15,8 @@ public class NebulaPlayer : INebulaPlayer
         Data = data;
     }
 
-    public INebulaConnection Connection { get; }
-    public IPlayerData Data { get; private set; }
+    public INebulaConnection Connection { get; set; }
+    public IPlayerData Data { get; set; }
     public ushort Id => Data.PlayerId;
 
     public void SendPacket<T>(T packet) where T : class, new()

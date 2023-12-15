@@ -15,11 +15,11 @@ public class SprayerStorageUpdatePacket
         PlanetId = planetId;
     }
 
-    public int SprayerIndex { get; }
-    public int IncItemId { get; }
-    public int IncAbility { get; }
-    public int IncSprayTimes { get; }
-    public int IncCount { get; }
-    public int ExtraIncCount { get; }
-    public int PlanetId { get; }
+    public int SprayerIndex { get; set; }
+    public int IncItemId { get; set; }
+    public int IncAbility { get; set; }
+    public int IncSprayTimes { get; set; }
+    public int IncCount { get; set; }
+    public int ExtraIncCount { get; set; }
+    public int PlanetId { get; set; }
 }

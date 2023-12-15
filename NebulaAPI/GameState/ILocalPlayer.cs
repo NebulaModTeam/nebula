@@ -11,10 +11,10 @@ namespace NebulaAPI.GameState;
 /// </summary>
 public interface ILocalPlayer : IDisposable
 {
-    bool IsInitialDataReceived { get; }
-    bool IsHost { get; }
+    bool IsInitialDataReceived { get; set; }
+    bool IsHost { get; set; }
     bool IsClient { get; }
-    bool IsNewPlayer { get; }
+    bool IsNewPlayer { get; set; }
     ushort Id { get; }
-    IPlayerData Data { get; }
+    IPlayerData Data { get; set; }
 }

@@ -90,7 +90,7 @@ public class NebulaModAPI : BaseUnityPlugin
     /// </summary>
     public static Action<IPlayerData> OnPlayerLeftGame;
 
-    public static bool NebulaIsInstalled { get; private set; }
+    public static bool NebulaIsInstalled { get; set; }
 
     /// <summary>
     ///     Is this session in multiplayer

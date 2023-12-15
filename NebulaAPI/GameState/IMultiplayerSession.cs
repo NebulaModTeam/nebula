@@ -2,9 +2,9 @@
 
 public interface IMultiplayerSession
 {
-    INetworkProvider Network { get; }
-    ILocalPlayer LocalPlayer { get; }
-    IFactoryManager Factories { get; }
+    INetworkProvider Network { get; set; }
+    ILocalPlayer LocalPlayer { get; set; }
+    IFactoryManager Factories { get; set; }
 
-    bool IsGameLoaded { get; }
+    bool IsGameLoaded { get; set; }
 }

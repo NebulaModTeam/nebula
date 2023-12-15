@@ -12,8 +12,8 @@ public class ConnectToSpraycoaterPacket
         PlanetId = planetId;
     }
 
-    public int SpraycoaterId { get; }
-    public int CargoBeltId { get; }
-    public int IncBeltId { get; }
-    public int PlanetId { get; }
+    public int SpraycoaterId { get; set; }
+    public int CargoBeltId { get; set; }
+    public int IncBeltId { get; set; }
+    public int PlanetId { get; set; }
 }

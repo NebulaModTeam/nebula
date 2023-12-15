@@ -45,12 +45,12 @@ public class StationUI
         SettingString = settingString;
     }
 
-    public int PlanetId { get; }
-    public int StationId { get; }
-    public int StationGId { get; }
+    public int PlanetId { get; set; }
+    public int StationId { get; set; }
+    public int StationGId { get; set; }
     public EUISettings SettingIndex { get; set; }
     public float SettingValue { get; set; }
-    public string SettingString { get; }
-    public bool WarperShouldTakeFromStorage { get; }
+    public string SettingString { get; set; }
+    public bool WarperShouldTakeFromStorage { get; set; }
     public bool ShouldRefund { get; set; }
 }

@@ -9,5 +9,5 @@ public class FragmentInfo
         Size = size;
     }
 
-    public int Size { get; }
+    public int Size { get; set; }
 }

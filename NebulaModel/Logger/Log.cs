@@ -12,7 +12,7 @@ namespace NebulaModel.Logger;
 public static class Log
 {
     private static ILogger logger;
-    public static string LastInfoMsg { get; private set; }
+    public static string LastInfoMsg { get; set; }
     public static string LastWarnMsg { get; set; }
     public static string LastErrorMsg { get; set; }
 

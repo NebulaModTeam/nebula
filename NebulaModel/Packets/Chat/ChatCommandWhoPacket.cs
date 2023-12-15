@@ -16,6 +16,6 @@ public class ChatCommandWhoPacket
         ResponsePayload = responsePayload;
     }
 
-    public bool IsRequest { get; }
-    public string ResponsePayload { get; }
+    public bool IsRequest { get; set; }
+    public string ResponsePayload { get; set; }
 }

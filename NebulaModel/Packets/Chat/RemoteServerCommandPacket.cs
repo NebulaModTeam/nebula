@@ -10,8 +10,8 @@ public class RemoteServerCommandPacket
         Content = content;
     }
 
-    public RemoteServerCommand Command { get; }
-    public string Content { get; }
+    public RemoteServerCommand Command { get; set; }
+    public string Content { get; set; }
 }
 
 public enum RemoteServerCommand

@@ -55,7 +55,7 @@ public class Server : NetworkProvider, IServer
         this.loadSaveFile = loadSaveFile;
     }
 
-    public ushort Port { get; }
+    public ushort Port { get; set; }
 
     public string NgrokAddress => ngrokManager.NgrokAddress;
     public bool NgrokActive => ngrokManager.IsNgrokActive();

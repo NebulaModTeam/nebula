@@ -13,9 +13,9 @@ public class LaboratoryUpdateCubesPacket
         PlanetId = planetId;
     }
 
-    public int ItemCount { get; }
-    public int ItemInc { get; }
-    public int Index { get; }
-    public int LabIndex { get; }
-    public int PlanetId { get; }
+    public int ItemCount { get; set; }
+    public int ItemInc { get; set; }
+    public int Index { get; set; }
+    public int LabIndex { get; set; }
+    public int PlanetId { get; set; }
 }

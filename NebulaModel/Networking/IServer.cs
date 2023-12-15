@@ -2,7 +2,7 @@
 
 public interface IServer
 {
-    ushort Port { get; }
+    ushort Port { get; set; }
     string NgrokAddress { get; }
     bool NgrokActive { get; }
     bool NgrokEnabled { get; }

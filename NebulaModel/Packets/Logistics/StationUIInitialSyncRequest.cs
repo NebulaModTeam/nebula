@@ -11,7 +11,7 @@ public class StationUIInitialSyncRequest
         StationGId = stationGId;
     }
 
-    public int PlanetId { get; }
-    public int StationId { get; }
-    public int StationGId { get; }
+    public int PlanetId { get; set; }
+    public int StationId { get; set; }
+    public int StationGId { get; set; }
 }

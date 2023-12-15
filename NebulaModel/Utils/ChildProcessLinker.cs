@@ -25,7 +25,7 @@ public class ChildProcessLinker
     // see http://csharptest.net/1051/managed-anti-debugging-how-to-prevent-users-from-attaching-a-debugger/
     // see https://stackoverflow.com/a/24012744/2982757
 
-    private Process ChildProcess { get; }
+    private Process ChildProcess { get; set; }
 
     private void NullDebugger(object arg)
     {

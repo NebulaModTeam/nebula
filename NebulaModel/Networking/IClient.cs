@@ -8,5 +8,5 @@ namespace NebulaModel.Networking;
 
 public interface IClient
 {
-    IPEndPoint ServerEndpoint { get; }
+    IPEndPoint ServerEndpoint { get; set; }
 }

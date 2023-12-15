@@ -31,11 +31,11 @@ public class CreatePrebuildsRequest
         PrebuildId = prebuildId;
     }
 
-    public int PlanetId { get; }
-    private byte[] BuildPreviewData { get; }
-    public int AuthorId { get; }
-    public string BuildToolType { get; }
-    public int PrebuildId { get; }
+    public int PlanetId { get; set; }
+    private byte[] BuildPreviewData { get; set; }
+    public int AuthorId { get; set; }
+    public string BuildToolType { get; set; }
+    public int PrebuildId { get; set; }
 
     public List<BuildPreview> GetBuildPreviews()
     {

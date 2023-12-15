@@ -13,9 +13,9 @@ public class PowerGeneratorFuelUpdatePacket
         PlanetId = planetId;
     }
 
-    public int PowerGeneratorIndex { get; }
-    public int FuelId { get; }
-    public short FuelAmount { get; }
-    public short FuelInc { get; }
-    public int PlanetId { get; }
+    public int PowerGeneratorIndex { get; set; }
+    public int FuelId { get; set; }
+    public short FuelAmount { get; set; }
+    public short FuelInc { get; set; }
+    public int PlanetId { get; set; }
 }

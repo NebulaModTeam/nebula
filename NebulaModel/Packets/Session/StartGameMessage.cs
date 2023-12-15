@@ -17,7 +17,7 @@ public class StartGameMessage
         SyncSoil = syncSoil;
     }
 
-    public bool IsAllowedToStart { get; }
-    public PlayerData LocalPlayerData { get; }
-    public bool SyncSoil { get; }
+    public bool IsAllowedToStart { get; set; }
+    public PlayerData LocalPlayerData { get; set; }
+    public bool SyncSoil { get; set; }
 }

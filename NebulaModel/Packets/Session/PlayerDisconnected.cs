@@ -10,6 +10,6 @@ public class PlayerDisconnected
         NumPlayers = numPlayers;
     }
 
-    public ushort PlayerId { get; }
-    public ushort NumPlayers { get; }
+    public ushort PlayerId { get; set; }
+    public ushort NumPlayers { get; set; }
 }

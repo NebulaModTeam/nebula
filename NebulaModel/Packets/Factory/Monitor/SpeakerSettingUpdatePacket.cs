@@ -14,11 +14,11 @@ public class SpeakerSettingUpdatePacket
         Parameter2 = parameter2;
     }
 
-    public int PlanetId { get; }
-    public int SpeakerId { get; }
-    public SpeakerSettingEvent Event { get; }
-    public int Parameter1 { get; }
-    public int Parameter2 { get; }
+    public int PlanetId { get; set; }
+    public int SpeakerId { get; set; }
+    public SpeakerSettingEvent Event { get; set; }
+    public int Parameter1 { get; set; }
+    public int Parameter2 { get; set; }
 }
 
 public enum SpeakerSettingEvent

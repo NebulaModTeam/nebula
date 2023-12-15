@@ -11,7 +11,7 @@ public class LaboratoryUpdateEventPacket
         PlanetId = planetId;
     }
 
-    public int LabIndex { get; }
-    public int ProductId { get; }
-    public int PlanetId { get; }
+    public int LabIndex { get; set; }
+    public int ProductId { get; set; }
+    public int PlanetId { get; set; }
 }

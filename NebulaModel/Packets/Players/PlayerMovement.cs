@@ -61,22 +61,22 @@ public class PlayerMovement
     }
 
     // Movement
-    public ushort PlayerId { get; }
-    public int LocalPlanetId { get; }
-    public Float3 LocalPlanetPosition { get; }
-    public Double3 UPosition { get; }
-    public Float3 Rotation { get; }
-    public Float3 BodyRotation { get; }
+    public ushort PlayerId { get; set; }
+    public int LocalPlanetId { get; set; }
+    public Float3 LocalPlanetPosition { get; set; }
+    public Double3 UPosition { get; set; }
+    public Float3 Rotation { get; set; }
+    public Float3 BodyRotation { get; set; }
 
     // Animation
-    public EMovementState MovementState { get; }
-    public float HorzSpeed { get; }
-    public float VertSpeed { get; }
-    public float Turning { get; }
-    public float JumpWeight { get; }
-    public float JumpNormalizedTime { get; }
-    public byte IdleAnimIndex { get; }
-    public byte MiningAnimIndex { get; }
-    public float MiningWeight { get; }
-    public EFlags Flags { get; }
+    public EMovementState MovementState { get; set; }
+    public float HorzSpeed { get; set; }
+    public float VertSpeed { get; set; }
+    public float Turning { get; set; }
+    public float JumpWeight { get; set; }
+    public float JumpNormalizedTime { get; set; }
+    public byte IdleAnimIndex { get; set; }
+    public byte MiningAnimIndex { get; set; }
+    public float MiningWeight { get; set; }
+    public EFlags Flags { get; set; }
 }

@@ -12,10 +12,10 @@ public class DispenserSettingPacket
         Parameter1 = parameter1;
     }
 
-    public int PlanetId { get; }
-    public int DispenserId { get; }
-    public EDispenserSettingEvent Event { get; }
-    public int Parameter1 { get; }
+    public int PlanetId { get; set; }
+    public int DispenserId { get; set; }
+    public EDispenserSettingEvent Event { get; set; }
+    public int Parameter1 { get; set; }
 }
 
 public enum EDispenserSettingEvent

@@ -10,6 +10,6 @@ public class PlayerMechaStat
         ItemCount = itemCount;
     }
 
-    public int ItemId { get; }
-    public int ItemCount { get; }
+    public int ItemId { get; set; }
+    public int ItemCount { get; set; }
 }

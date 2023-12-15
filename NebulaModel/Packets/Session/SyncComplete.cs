@@ -30,6 +30,6 @@ public class SyncComplete
         ClientCert = clientCert;
     }
 
-    public PlayerData[] AllPlayers { get; }
-    public byte[] ClientCert { get; }
+    public PlayerData[] AllPlayers { get; set; }
+    public byte[] ClientCert { get; set; }
 }

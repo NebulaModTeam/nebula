@@ -18,7 +18,7 @@ public class DysonSphereEditLayerPacket
         OrbitRotation = new Float4(orbitRotation);
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public Float4 OrbitRotation { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public Float4 OrbitRotation { get; set; }
 }

@@ -10,6 +10,6 @@ public class BeltReversePacket
         PlanetId = planetId;
     }
 
-    public int BeltId { get; }
-    public int PlanetId { get; }
+    public int BeltId { get; set; }
+    public int PlanetId { get; set; }
 }

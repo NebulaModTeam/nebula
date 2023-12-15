@@ -11,7 +11,7 @@ public class FactoryData
         TerrainModData = terrainModData;
     }
 
-    public int PlanetId { get; }
-    public byte[] BinaryData { get; }
-    public byte[] TerrainModData { get; }
+    public int PlanetId { get; set; }
+    public byte[] BinaryData { get; set; }
+    public byte[] TerrainModData { get; set; }
 }

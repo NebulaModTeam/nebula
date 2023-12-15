@@ -9,5 +9,5 @@ public class PlayerUpdateLocalStarId
         StarId = starId;
     }
 
-    public int StarId { get; }
+    public int StarId { get; set; }
 }

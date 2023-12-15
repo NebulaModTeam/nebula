@@ -10,6 +10,6 @@ public class PlanetBroadcastPacket
         PlanetId = planetId;
     }
 
-    public byte[] PacketObject { get; }
-    public int PlanetId { get; }
+    public byte[] PacketObject { get; set; }
+    public int PlanetId { get; set; }
 }

@@ -23,11 +23,11 @@ public class DysonSpherePaintCellsPacket
         CellCount = cellCount;
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public Float4 Paint { get; }
-    public float Strength { get; }
-    public bool SuperBrightMode { get; }
-    public int[] CursorCells { get; }
-    public int CellCount { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public Float4 Paint { get; set; }
+    public float Strength { get; set; }
+    public bool SuperBrightMode { get; set; }
+    public int[] CursorCells { get; set; }
+    public int CellCount { get; set; }
 }

@@ -27,9 +27,9 @@ public class DysonSwarmEditOrbitPacket
         Radius = -1;
     }
 
-    public int StarIndex { get; }
-    public int OrbitId { get; }
-    public float Radius { get; }
-    public Float4 Rotation { get; }
-    public Float4 Color { get; }
+    public int StarIndex { get; set; }
+    public int OrbitId { get; set; }
+    public float Radius { get; set; }
+    public Float4 Rotation { get; set; }
+    public Float4 Color { get; set; }
 }

@@ -21,10 +21,10 @@ public class NewSetInserterPickTargetPacket
         PlanetId = planetId;
     }
 
-    public int ObjId { get; }
-    public int OtherObjId { get; }
-    public int InserterId { get; }
-    public int Offset { get; }
-    public Float3 PointPos { get; }
-    public int PlanetId { get; }
+    public int ObjId { get; set; }
+    public int OtherObjId { get; set; }
+    public int InserterId { get; set; }
+    public int Offset { get; set; }
+    public Float3 PointPos { get; set; }
+    public int PlanetId { get; set; }
 }

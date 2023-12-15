@@ -10,6 +10,6 @@ public class RemoteOrderUpdate
         RemoteOrder = remoteOrder;
     }
 
-    public int StationGId { get; }
+    public int StationGId { get; set; }
     public int[] RemoteOrder { get; set; }
 }

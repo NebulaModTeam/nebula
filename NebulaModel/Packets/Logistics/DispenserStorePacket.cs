@@ -20,10 +20,10 @@ public class DispenserStorePacket
         }
     }
 
-    public int PlanetId { get; }
-    public int DispenserId { get; }
-    public int HoldupItemCount { get; }
-    public int[] ItemIds { get; }
-    public int[] Counts { get; }
-    public int[] Incs { get; }
+    public int PlanetId { get; set; }
+    public int DispenserId { get; set; }
+    public int HoldupItemCount { get; set; }
+    public int[] ItemIds { get; set; }
+    public int[] Counts { get; set; }
+    public int[] Incs { get; set; }
 }

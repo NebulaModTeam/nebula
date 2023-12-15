@@ -12,8 +12,8 @@ public class SiloStorageUpdatePacket
         PlanetId = planetId;
     }
 
-    public int SiloIndex { get; }
-    public int ItemCount { get; }
-    public int ItemInc { get; }
-    public int PlanetId { get; }
+    public int SiloIndex { get; set; }
+    public int ItemCount { get; set; }
+    public int ItemInc { get; set; }
+    public int PlanetId { get; set; }
 }

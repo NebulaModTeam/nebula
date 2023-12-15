@@ -19,7 +19,7 @@ public class DysonSphereStatusPacket
         EnergyGenCurrentTick = dysonSphere.energyGenCurrentTick;
     }
 
-    public int StarIndex { get; }
+    public int StarIndex { get; set; }
     public float GrossRadius { get; set; }
     public long EnergyReqCurrentTick { get; set; }
     public long EnergyGenCurrentTick { get; set; }

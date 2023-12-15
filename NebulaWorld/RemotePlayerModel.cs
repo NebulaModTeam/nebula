@@ -83,18 +83,18 @@ public class RemotePlayerModel
         Username = username;
     }
 
-    public string Username { get; }
-    public ushort PlayerId { get; }
-    public Transform PlayerTransform { get; private set; }
-    public Transform PlayerModelTransform { get; private set; }
-    public RemotePlayerMovement Movement { get; private set; }
-    public RemotePlayerAnimation Animator { get; private set; }
+    public string Username { get; set; }
+    public ushort PlayerId { get; set; }
+    public Transform PlayerTransform { get; set; }
+    public Transform PlayerModelTransform { get; set; }
+    public RemotePlayerMovement Movement { get; set; }
+    public RemotePlayerAnimation Animator { get; set; }
     public GameObject InGameNameText { get; set; }
     public Text StarmapNameText { get; set; }
     public Transform StarmapTracker { get; set; }
 
-    public global::Player PlayerInstance { get; private set; }
-    public Mecha MechaInstance { get; }
+    public global::Player PlayerInstance { get; set; }
+    public Mecha MechaInstance { get; set; }
 
     public void Destroy()
     {

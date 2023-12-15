@@ -9,5 +9,5 @@ public class StatisticUpdateDataPacket
         StatisticsBinaryData = statisticsBinaryData;
     }
 
-    public byte[] StatisticsBinaryData { get; }
+    public byte[] StatisticsBinaryData { get; set; }
 }

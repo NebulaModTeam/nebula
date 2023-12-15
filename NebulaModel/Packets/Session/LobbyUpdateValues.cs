@@ -13,9 +13,9 @@ public class LobbyUpdateValues
         IsSandboxMode = isSandboxMode;
     }
 
-    public int GalaxyAlgo { get; }
-    public int GalaxySeed { get; }
-    public int StarCount { get; }
-    public float ResourceMultiplier { get; }
-    public bool IsSandboxMode { get; }
+    public int GalaxyAlgo { get; set; }
+    public int GalaxySeed { get; set; }
+    public int StarCount { get; set; }
+    public float ResourceMultiplier { get; set; }
+    public bool IsSandboxMode { get; set; }
 }

@@ -9,5 +9,5 @@ public class PlayerSandCount
         SandCount = sandCount;
     }
 
-    public int SandCount { get; }
+    public int SandCount { get; set; }
 }

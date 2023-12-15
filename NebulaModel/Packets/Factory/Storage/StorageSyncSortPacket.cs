@@ -10,6 +10,6 @@ public class StorageSyncSortPacket
         PlanetId = planetId;
     }
 
-    public int StorageIndex { get; }
-    public int PlanetId { get; }
+    public int StorageIndex { get; set; }
+    public int PlanetId { get; set; }
 }

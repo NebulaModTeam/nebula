@@ -22,9 +22,9 @@ public class DysonLaunchData : INetSerializable
 
     public DysonLaunchData() : this(0) { }
 
-    public int StarIndex { get; private set; }
-    public List<Projectile> BulletList { get; private set; }
-    public List<Projectile> RocketList { get; private set; }
+    public int StarIndex { get; set; }
+    public List<Projectile> BulletList { get; set; }
+    public List<Projectile> RocketList { get; set; }
     public int BulletCursor { get; set; }
     public int RocketCursor { get; set; }
     public byte BulletTick { get; set; }

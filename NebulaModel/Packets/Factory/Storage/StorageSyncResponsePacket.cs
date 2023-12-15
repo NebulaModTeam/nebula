@@ -11,7 +11,7 @@ public class StorageSyncResponsePacket
         PlanetId = planetId;
     }
 
-    public byte[] StorageComponent { get; }
-    public int PlanetId { get; }
-    public int StorageIndex { get; }
+    public byte[] StorageComponent { get; set; }
+    public int PlanetId { get; set; }
+    public int StorageIndex { get; set; }
 }

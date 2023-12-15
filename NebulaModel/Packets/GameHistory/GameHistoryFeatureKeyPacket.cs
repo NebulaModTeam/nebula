@@ -10,6 +10,6 @@ public class GameHistoryFeatureKeyPacket
         Add = add;
     }
 
-    public int FeatureId { get; }
-    public bool Add { get; }
+    public int FeatureId { get; set; }
+    public bool Add { get; set; }
 }

@@ -10,5 +10,5 @@ namespace NebulaModel.Packets.GameStates;
 [HidePacketInDebugLogs]
 public class GameStateRequest
 {
-    public long SentTimestamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+    public long SentTimestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 }

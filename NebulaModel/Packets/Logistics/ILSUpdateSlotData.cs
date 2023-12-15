@@ -13,9 +13,9 @@ public class ILSUpdateSlotData
         StorageIdx = storageIdx;
     }
 
-    public int PlanetId { get; }
-    public int StationId { get; }
-    public int StationGId { get; }
-    public int Index { get; }
-    public int StorageIdx { get; }
+    public int PlanetId { get; set; }
+    public int StationId { get; set; }
+    public int StationGId { get; set; }
+    public int Index { get; set; }
+    public int StorageIdx { get; set; }
 }

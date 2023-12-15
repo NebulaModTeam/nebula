@@ -177,6 +177,9 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
         reasonString = null;
         var clientMods = new Dictionary<string, string>();
 
+        Log.Info("Packet null: " + (packet == null));
+        Log.Info("ModsVersion null: " + (packet?.ModsVersion == null));
+
         using (var reader = new BinaryUtils.Reader(packet.ModsVersion))
         {
             for (var i = 0; i < packet.ModsCount; i++)

@@ -9,5 +9,5 @@ public class RemoveDroneOrdersPacket
         QueuedEntityIds = queuedEntityIds;
     }
 
-    public int[] QueuedEntityIds { get; }
+    public int[] QueuedEntityIds { get; set; }
 }

@@ -9,5 +9,5 @@ public class MilestoneDataResponse
         BinaryData = binaryData;
     }
 
-    public byte[] BinaryData { get; }
+    public byte[] BinaryData { get; set; }
 }

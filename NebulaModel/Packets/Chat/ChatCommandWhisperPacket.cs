@@ -11,7 +11,7 @@ public class ChatCommandWhisperPacket
         Message = message;
     }
 
-    public string SenderUsername { get; }
-    public string RecipientUsername { get; }
-    public string Message { get; }
+    public string SenderUsername { get; set; }
+    public string RecipientUsername { get; set; }
+    public string Message { get; set; }
 }

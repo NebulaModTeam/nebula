@@ -25,7 +25,7 @@ public class StationUIManager : IDisposable
         set;
     } // index of the storage that its slider value changed by the user. -1: None, -2: Syncing
 
-    public ToggleSwitch IsIncomingRequest { get; } = new();
+    public ToggleSwitch IsIncomingRequest { get; set; } = new();
 
     public void Dispose()
     {

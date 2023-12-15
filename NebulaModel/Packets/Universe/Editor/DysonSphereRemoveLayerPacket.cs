@@ -10,6 +10,6 @@ public class DysonSphereRemoveLayerPacket
         LayerId = layerId;
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
 }

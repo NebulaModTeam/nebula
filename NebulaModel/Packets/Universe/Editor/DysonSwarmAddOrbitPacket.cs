@@ -19,8 +19,8 @@ public class DysonSwarmAddOrbitPacket
         Rotation = new Float4(rotation);
     }
 
-    public int StarIndex { get; }
-    public int OrbitId { get; }
-    public float Radius { get; }
-    public Float4 Rotation { get; }
+    public int StarIndex { get; set; }
+    public int OrbitId { get; set; }
+    public float Radius { get; set; }
+    public Float4 Rotation { get; set; }
 }

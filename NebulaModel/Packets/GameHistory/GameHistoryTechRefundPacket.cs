@@ -10,6 +10,6 @@ public class GameHistoryTechRefundPacket
         TechHashedContributed = contributed;
     }
 
-    public int TechIdContributed { get; }
-    public long TechHashedContributed { get; }
+    public int TechIdContributed { get; set; }
+    public long TechHashedContributed { get; set; }
 }

@@ -25,14 +25,14 @@ public class ILSArriveStarPlanetResponse
         Inc = inc;
     }
 
-    public int[] StationGId { get; }
-    public int[] StationPId { get; }
+    public int[] StationGId { get; set; }
+    public int[] StationPId { get; set; }
 
-    public int[] StationMaxShips { get; }
-    public int[] StorageLength { get; }
-    public int[] SlotLength { get; }
-    public int[] StorageIdx { get; }
-    public int[] ItemId { get; }
-    public int[] Count { get; }
-    public int[] Inc { get; }
+    public int[] StationMaxShips { get; set; }
+    public int[] StorageLength { get; set; }
+    public int[] SlotLength { get; set; }
+    public int[] StorageIdx { get; set; }
+    public int[] ItemId { get; set; }
+    public int[] Count { get; set; }
+    public int[] Inc { get; set; }
 }

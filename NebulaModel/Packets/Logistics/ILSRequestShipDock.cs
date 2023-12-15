@@ -9,5 +9,5 @@ public class ILSRequestShipDock
         StationGId = stationGId;
     }
 
-    public int StationGId { get; }
+    public int StationGId { get; set; }
 }

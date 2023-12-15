@@ -15,12 +15,12 @@ public class DispenserAddTakePacket
         ItemInc = itemInc;
     }
 
-    public int PlanetId { get; }
-    public int EntityId { get; }
-    public EDispenserAddTakeEvent AddTakeEvent { get; }
-    public int ItemId { get; }
-    public int ItemCount { get; }
-    public int ItemInc { get; }
+    public int PlanetId { get; set; }
+    public int EntityId { get; set; }
+    public EDispenserAddTakeEvent AddTakeEvent { get; set; }
+    public int ItemId { get; set; }
+    public int ItemCount { get; set; }
+    public int ItemInc { get; set; }
 }
 
 public enum EDispenserAddTakeEvent

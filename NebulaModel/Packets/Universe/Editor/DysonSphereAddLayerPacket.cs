@@ -21,9 +21,9 @@ public class DysonSphereAddLayerPacket
         OrbitAngularSpeed = orbitAngularSpeed;
     }
 
-    public int StarIndex { get; }
-    public int LayerId { get; }
-    public float OrbitRadius { get; }
-    public Float4 OrbitRotation { get; }
-    public float OrbitAngularSpeed { get; }
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public float OrbitRadius { get; set; }
+    public Float4 OrbitRotation { get; set; }
+    public float OrbitAngularSpeed { get; set; }
 }

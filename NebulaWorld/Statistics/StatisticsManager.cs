@@ -24,7 +24,7 @@ public class StatisticsManager : IDisposable
 
     public bool IsStatisticsNeeded { get; set; }
     public long[] PowerEnergyStoredData { get; set; }
-    public int FactoryCount { get; private set; }
+    public int FactoryCount { get; set; }
     public int TechHashedFor10Frames { get; set; }
 
     public void Dispose()

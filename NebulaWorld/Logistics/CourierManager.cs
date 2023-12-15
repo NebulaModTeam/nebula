@@ -18,8 +18,8 @@ public class CourierManager
     private Dictionary<int, Vector3> PlayerPostions = new();
     private int tmp_iter;
 
-    public int CourierCount { get; private set; }
-    public CourierData[] CourierDatas { get; private set; } = new CourierData[10];
+    public int CourierCount { get; set; }
+    public CourierData[] CourierDatas { get; set; } = new CourierData[10];
 
     public void Dispose()
     {
