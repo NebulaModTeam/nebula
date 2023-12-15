@@ -1,27 +1,31 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Tank;
 
-namespace NebulaNetwork.PacketProcessors.Factory.Tank
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Factory.Tank;
+
+[RegisterPacketProcessor]
+internal class TankInputOutputSwitchProcessor : PacketProcessor<TankInputOutputSwitchPacket>
 {
-    [RegisterPacketProcessor]
-    internal class TankInputOutputSwitchProcessor : PacketProcessor<TankInputOutputSwitchPacket>
+    protected override void ProcessPacket(TankInputOutputSwitchPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(TankInputOutputSwitchPacket packet, NebulaConnection conn)
+        var pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.tankPool;
+        if (pool == null || packet.TankIndex == -1 || packet.TankIndex >= pool.Length || pool[packet.TankIndex].id == -1)
         {
-            TankComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factoryStorage?.tankPool;
-            if (pool != null && packet.TankIndex != -1 && packet.TankIndex < pool.Length && pool[packet.TankIndex].id != -1)
-            {
-                if (packet.IsInput)
-                {
-                    pool[packet.TankIndex].inputSwitch = packet.IsClosed;
-                }
-                else
-                {
-                    pool[packet.TankIndex].outputSwitch = packet.IsClosed;
-                }
-            }
+            return;
+        }
+        if (packet.IsInput)
+        {
+            pool[packet.TankIndex].inputSwitch = packet.IsClosed;
+        }
+        else
+        {
+            pool[packet.TankIndex].outputSwitch = packet.IsClosed;
         }
     }
 }

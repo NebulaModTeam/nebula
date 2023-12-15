@@ -1,14 +1,13 @@
-﻿namespace NebulaModel.Packets.GameHistory
+﻿namespace NebulaModel.Packets.GameHistory;
+
+public class GameHistoryRemoveTechPacket
 {
-    public class GameHistoryRemoveTechPacket
+    public GameHistoryRemoveTechPacket() { }
+
+    public GameHistoryRemoveTechPacket(int techId)
     {
-        public int TechId { get; set; }
-
-        public GameHistoryRemoveTechPacket() { }
-
-        public GameHistoryRemoveTechPacket(int techId)
-        {
-            TechId = techId;
-        }
+        TechId = techId;
     }
+
+    public int TechId { get; set; }
 }

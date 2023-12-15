@@ -1,26 +1,19 @@
-using System;
-using System.Runtime.InteropServices;
 #if UNITY_EDITOR || UNITY_STANDALONE
 using UnityEngine;
 #endif
 
 namespace Discord
 {
-	public partial struct ImageHandle
+    public partial struct ImageHandle
     {
-        static public ImageHandle User(Int64 id)
+        public static ImageHandle User(long id)
         {
             return User(id, 128);
         }
 
-        static public ImageHandle User(Int64 id, UInt32 size)
+        public static ImageHandle User(long id, uint size)
         {
-            return new ImageHandle
-            {
-                Type = ImageType.User,
-                Id = id,
-                Size = size,
-            };
+            return new ImageHandle { Type = ImageType.User, Id = id, Size = size };
         }
     }
 

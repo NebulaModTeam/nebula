@@ -1,44 +1,46 @@
-﻿using NebulaModel.Logger;
+﻿#region
+
+using NebulaModel.Logger;
 using UnityEngine;
 using ILogger = NebulaModel.Logger.ILogger;
 
-namespace NebulaWorld.MonoBehaviours.Local
-{
-    public class UnityDebugManager : MonoBehaviour
-    {
-        private void Awake()
-        {
-            VFInput.Init();
-            Log.Init(new EditorLogger());
-        }
+#endregion
 
-        private void Update()
-        {
-            VFInput.OnUpdate();
-        }
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
+
+public class UnityDebugManager : MonoBehaviour
+{
+    private void Awake()
+    {
+        VFInput.Init();
+        Log.Init(new EditorLogger());
     }
 
-
-    public class EditorLogger : ILogger
+    private void Update()
     {
-        public void LogDebug(object data)
-        {
-            Debug.Log(data);
-        }
+        VFInput.OnUpdate();
+    }
+}
 
-        public void LogInfo(object data)
-        {
-            Debug.Log(data);
-        }
+public class EditorLogger : ILogger
+{
+    public void LogDebug(object data)
+    {
+        Debug.Log(data);
+    }
 
-        public void LogWarning(object data)
-        {
-            Debug.LogWarning(data);
-        }
+    public void LogInfo(object data)
+    {
+        Debug.Log(data);
+    }
 
-        public void LogError(object data)
-        {
-            Debug.LogError(data);
-        }
+    public void LogWarning(object data)
+    {
+        Debug.LogWarning(data);
+    }
+
+    public void LogError(object data)
+    {
+        Debug.LogError(data);
     }
 }

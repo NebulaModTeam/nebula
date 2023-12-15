@@ -1,15 +1,15 @@
-﻿namespace NebulaModel.Packets.GameHistory
-{
-    public class GameHistoryFeatureKeyPacket
-    {
-        public int FeatureId { get; set; }
-        public bool Add { get; set; }
+﻿namespace NebulaModel.Packets.GameHistory;
 
-        public GameHistoryFeatureKeyPacket() { }
-        public GameHistoryFeatureKeyPacket(int featureId, bool add)
-        {
-            FeatureId = featureId;
-            Add = add;
-        }
+public class GameHistoryFeatureKeyPacket
+{
+    public GameHistoryFeatureKeyPacket() { }
+
+    public GameHistoryFeatureKeyPacket(int featureId, bool add)
+    {
+        FeatureId = featureId;
+        Add = add;
     }
+
+    public int FeatureId { get; set; }
+    public bool Add { get; set; }
 }

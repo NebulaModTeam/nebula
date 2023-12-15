@@ -1,82 +1,90 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Players
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Players;
+
+[RegisterPacketProcessor]
+public class PlayerMechaStatProcessor : PacketProcessor<PlayerMechaStat>
 {
-    [RegisterPacketProcessor]
-    public class PlayerMechaStatProcessor : PacketProcessor<PlayerMechaStat>
+    protected override void ProcessPacket(PlayerMechaStat packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(PlayerMechaStat packet, NebulaConnection conn)
+        if (IsClient)
         {
-            if (IsClient)
+            return;
+        }
+
+        var player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
+        if (player == null)
+        {
+            return;
+        }
+        var factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
+        if (factory == null)
+        {
+            // If client is in space, find the nearest planet factory base on its position
+            // code modified from Player.get_nearestFactory
+
+            var uPosition = player.Data.UPosition.ToVectorLF3();
+            if (player.Data.LocalStarId > 0)
             {
-                return;
+                // find the nearest planet in the star system
+                var minDistance = double.MaxValue;
+                var planets = GameMain.galaxy.StarById(player.Data.LocalStarId).planets;
+                foreach (var planetData in planets)
+                {
+                    if (planetData.factory == null)
+                    {
+                        continue;
+                    }
+                    var distance = (planetData.uPosition - uPosition).magnitude;
+                    distance -= planetData.realRadius;
+                    if (!(distance < minDistance))
+                    {
+                        continue;
+                    }
+                    minDistance = distance;
+                    factory = planetData.factory;
+                }
             }
 
-            INebulaPlayer player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
-            if (player != null)
-            {                
-                PlanetFactory factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
-                if (factory == null)
+            if (factory == null)
+            {
+                // find the nearest planet from all factories
+                var minDistance = double.MaxValue;
+                var factories = GameMain.data.factories;
+                foreach (var t in factories)
                 {
-                    // If client is in space, find the nearest planet factory base on its position
-                    // code modfied from Player.get_nearestFactory
-
-                    VectorLF3 uPosition = player.Data.UPosition.ToVectorLF3();
-                    if (player.Data.LocalStarId > 0)
+                    if (t == null)
                     {
-                        // find the nearest planet in the star system
-                        double minDistance = double.MaxValue;
-                        PlanetData[] planets = GameMain.galaxy.StarById(player.Data.LocalStarId).planets;
-                        for (int i = 0; i < planets.Length; i++)
-                        {
-                            PlanetData planetData = planets[i];
-                            if (planetData.factory != null)
-                            {
-                                double distance = (planetData.uPosition - uPosition).magnitude;
-                                distance -= planetData.realRadius;
-                                if (distance < minDistance)
-                                {
-                                    minDistance = distance;
-                                    factory = planetData.factory;
-                                }
-                            }
-                        }
+                        continue;
                     }
-
-                    if (factory == null)
+                    var distance = (t.planet.uPosition - uPosition).magnitude;
+                    distance -= t.planet.realRadius;
+                    if (!(distance < minDistance))
                     {
-                        // find the nearest planet from all factories
-                        double minDistance = double.MaxValue;
-                        PlanetFactory[] factories = GameMain.data.factories;
-                        for (int i = 0; i < factories.Length; i++)
-                        {
-                            if (factories[i] != null)
-                            {
-                                double distance = (factories[i].planet.uPosition - uPosition).magnitude;
-                                distance -= factories[i].planet.realRadius;
-                                if (distance < minDistance)
-                                {
-                                    minDistance = distance;
-                                    factory = factories[i];
-                                }
-                            }
-                        }
+                        continue;
                     }
-                }
-
-                if (packet.ItemCount >= 0)
-                {
-                    GameMain.mainPlayer.mecha.AddProductionStat(packet.ItemId, packet.ItemCount, factory);
-                }
-                else
-                {
-                    GameMain.mainPlayer.mecha.AddConsumptionStat(packet.ItemId, -packet.ItemCount, factory);
+                    minDistance = distance;
+                    factory = t;
                 }
             }
+        }
+
+        if (packet.ItemCount >= 0)
+        {
+            GameMain.mainPlayer.mecha.AddProductionStat(packet.ItemId, packet.ItemCount, factory);
+        }
+        else
+        {
+            GameMain.mainPlayer.mecha.AddConsumptionStat(packet.ItemId, -packet.ItemCount, factory);
         }
     }
 }

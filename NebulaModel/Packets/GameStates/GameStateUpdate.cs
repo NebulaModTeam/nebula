@@ -1,21 +1,24 @@
-﻿using NebulaAPI;
-using NebulaModel.DataStructures;
+﻿#region
 
-namespace NebulaModel.Packets.GameStates
+using NebulaAPI.Packets;
+
+#endregion
+
+namespace NebulaModel.Packets.GameStates;
+
+[HidePacketInDebugLogs]
+public class GameStateUpdate
 {
-    [HidePacketInDebugLogs]
-    public class GameStateUpdate
-    {
-        public long SentTime { get; set; }
-        public long GameTick { get; set; }
-        public float UnitsPerSecond { get; set; }
+    public GameStateUpdate() { }
 
-        public GameStateUpdate() { }
-        public GameStateUpdate(long sentTime, long gameTick, float unitsPerSecond)
-        {
-            SentTime = sentTime;
-            GameTick = gameTick;
-            UnitsPerSecond = unitsPerSecond;
-        }
+    public GameStateUpdate(long sentTime, long gameTick, float unitsPerSecond)
+    {
+        SentTime = sentTime;
+        GameTick = gameTick;
+        UnitsPerSecond = unitsPerSecond;
     }
+
+    public long SentTime { get; set; }
+    public long GameTick { get; set; }
+    public float UnitsPerSecond { get; set; }
 }

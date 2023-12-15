@@ -1,47 +1,50 @@
-﻿using BepInEx;
+﻿#region
+
 using BepInEx.Bootstrap;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
 using NebulaWorld;
 using NebulaWorld.SocialIntegration;
 
-namespace NebulaNetwork.PacketProcessors.Session
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Session;
+
+[RegisterPacketProcessor]
+internal class LobbyResponseProcessor : PacketProcessor<LobbyResponse>
 {
-    [RegisterPacketProcessor]
-    class LobbyResponseProcessor: PacketProcessor<LobbyResponse>
+    protected override void ProcessPacket(LobbyResponse packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(LobbyResponse packet, NebulaConnection conn)
+        using (var p = new BinaryUtils.Reader(packet.ModsSettings))
         {
-            using (BinaryUtils.Reader p = new BinaryUtils.Reader(packet.ModsSettings))
+            for (var i = 0; i < packet.ModsSettingsCount; i++)
             {
-                for (int i = 0; i < packet.ModsSettingsCount; i++)
+                var guid = p.BinaryReader.ReadString();
+                var info = Chainloader.PluginInfos[guid];
+                if (info.Instance is IMultiplayerModWithSettings mod)
                 {
-                    string guid = p.BinaryReader.ReadString();
-                    PluginInfo info = Chainloader.PluginInfos[guid];
-                    if (info.Instance is IMultiplayerModWithSettings mod)
-                    {
-                        mod.Import(p.BinaryReader);
-                    }
+                    mod.Import(p.BinaryReader);
                 }
             }
-            ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
-            Multiplayer.Session.NumPlayers = packet.NumPlayers;
-            Multiplayer.Session.IsInLobby = true;
-            DiscordManager.UpdateRichPresence(partyId: packet.DiscordPartyId);
-
-            UIRoot.instance.galaxySelect._Open();
-            UIRoot.instance.uiMainMenu._Close();
-
-            GameDesc gameDesc = new GameDesc();
-            gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
-            gameDesc.savedThemeIds = packet.SavedThemeIds;
-            gameDesc.isSandboxMode = packet.IsSandboxMode;
-
-            UIRoot.instance.galaxySelect.gameDesc = gameDesc;
-            UIRoot.instance.galaxySelect.SetStarmapGalaxy();
-            UIRoot.instance.galaxySelect.sandboxToggle.isOn = packet.IsSandboxMode;
         }
+        ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = false;
+        Multiplayer.Session.NumPlayers = packet.NumPlayers;
+        Multiplayer.Session.IsInLobby = true;
+        DiscordManager.UpdateRichPresence(partyId: packet.DiscordPartyId);
+
+        UIRoot.instance.galaxySelect._Open();
+        UIRoot.instance.uiMainMenu._Close();
+
+        var gameDesc = new GameDesc();
+        gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
+        gameDesc.savedThemeIds = packet.SavedThemeIds;
+        gameDesc.isSandboxMode = packet.IsSandboxMode;
+
+        UIRoot.instance.galaxySelect.gameDesc = gameDesc;
+        UIRoot.instance.galaxySelect.SetStarmapGalaxy();
+        UIRoot.instance.galaxySelect.sandboxToggle.isOn = packet.IsSandboxMode;
     }
 }

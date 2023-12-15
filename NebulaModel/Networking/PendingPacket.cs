@@ -1,14 +1,13 @@
-﻿namespace NebulaModel.Networking
-{
-    public struct PendingPacket
-    {
-        public byte[] Data { get; }
-        public object UserData { get; }
+﻿namespace NebulaModel.Networking;
 
-        public PendingPacket(byte[] data, object userData)
-        {
-            Data = data;
-            UserData = userData;
-        }
+public struct PendingPacket
+{
+    public byte[] Data { get; set; }
+    public object UserData { get; set; }
+
+    public PendingPacket(byte[] data, object userData)
+    {
+        Data = data;
+        UserData = userData;
     }
 }

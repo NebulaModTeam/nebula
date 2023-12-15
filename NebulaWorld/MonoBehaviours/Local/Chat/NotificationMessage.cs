@@ -1,38 +1,42 @@
-﻿// unset
+﻿#region
 
 using System;
 using TMPro;
 using UnityEngine;
 
-namespace NebulaWorld.MonoBehaviours.Local
+#endregion
+
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
+
+public class NotificationMessage : MonoBehaviour
 {
-    public class NotificationMessage : MonoBehaviour
+    private const long NOTIFICATION_DURATION_TICKS = TimeSpan.TicksPerSecond;
+    private const long FADE_DURATION = TimeSpan.TicksPerSecond * 2;
+
+    private long notifierEndTime;
+    private TMP_Text text;
+
+    private void Update()
     {
-        private const long NOTIFICATION_DURATION_TICKS = TimeSpan.TicksPerSecond;
-        private const long FADE_DURATION = TimeSpan.TicksPerSecond * 2;
-        
-        private long notifierEndTime;
-        private TMP_Text text;
-
-        public void Init(int duration)
+        if (notifierEndTime >= DateTime.Now.Ticks)
         {
-            notifierEndTime = DateTime.Now.Ticks + NOTIFICATION_DURATION_TICKS * duration;
-            text = GetComponent<TMP_Text>();
+            return;
         }
 
-        private void Update()
+        if (notifierEndTime + FADE_DURATION >= DateTime.Now.Ticks)
         {
-            if (notifierEndTime >= DateTime.Now.Ticks) return;
-            
-            if (notifierEndTime + FADE_DURATION >= DateTime.Now.Ticks)
-            {
-                float fadeTime = DateTime.Now.Ticks - notifierEndTime;
-                text.alpha = 1f - fadeTime / FADE_DURATION;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+            float fadeTime = DateTime.Now.Ticks - notifierEndTime;
+            text.alpha = 1f - fadeTime / FADE_DURATION;
         }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void Init(int duration)
+    {
+        notifierEndTime = DateTime.Now.Ticks + NOTIFICATION_DURATION_TICKS * duration;
+        text = GetComponent<TMP_Text>();
     }
 }

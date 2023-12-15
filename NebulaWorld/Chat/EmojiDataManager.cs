@@ -1,84 +1,79 @@
-﻿using NebulaModel.Utils;
-using System;
+﻿#region
+
 using System.Collections;
 using System.Collections.Generic;
+using NebulaModel.Utils;
 using UnityEngine;
 
-namespace NebulaWorld.Chat
+#endregion
+
+namespace NebulaWorld.Chat;
+
+public struct Emoji(IReadOnlyDictionary<string, object> dict)
 {
-    public struct Emoji
+    public readonly string ShortName = (string)dict["short_name"];
+    public string _category = (string)dict["category"];
+    public readonly string UnifiedCode = (string)dict["unified"];
+
+    public readonly int SheetX = (int)(long)dict["sheet_x"];
+    public readonly int SheetY = (int)(long)dict["sheet_y"];
+    public readonly int SortOrder = (int)(long)dict["sort_order"];
+}
+
+public static class EmojiDataManager
+{
+    public static readonly Dictionary<string, List<Emoji>> emojies = new();
+    private static bool isLoaded;
+
+    private static void Add(Emoji emoji)
     {
-        public string ShortName;
-        public string Category;
-        public string UnifiedCode;
-        
-        public int SheetX;
-        public int SheetY;
-        public int SortOrder;
-
-        public Emoji(Dictionary<string, object> dict)
+        if (emojies.TryGetValue(emoji._category, out var emojy))
         {
-            ShortName = (string) dict["short_name"];
-            Category = (string) dict["category"];
-            UnifiedCode = (string) dict["unified"];
-            
-            SheetX = (int)(Int64) dict["sheet_x"];
-            SheetY = (int)(Int64) dict["sheet_y"];
-            
-            SortOrder = (int)(Int64)dict["sort_order"];
-
+            emojy.Add(emoji);
+        }
+        else
+        {
+            emojies[emoji._category] = [.. new[] { emoji }];
         }
     }
-    
-    public static class EmojiDataManager
+
+
+    public static void ParseData(TextAsset asset)
     {
-        public static Dictionary<string, List<Emoji>> emojies = new Dictionary<string, List<Emoji>>();
-        private static bool isLoaded = false;
-
-        private static void Add(Emoji emoji)
+        if (isLoaded)
         {
-            if (emojies.ContainsKey(emoji.Category))
-            {
-                emojies[emoji.Category].Add(emoji);
-            }
-            else
-            {
-                emojies[emoji.Category] = new List<Emoji>(new[] {emoji});
-            }
+            return;
         }
-        
 
-        public static void ParseData(TextAsset asset)
+        var json = "{\"frames\":" + asset.text + "}";
+
+        if (MiniJson.Deserialize(json) is Dictionary<string, object> jObject)
         {
-            if (isLoaded) return;
-            
-            string json = "{\"frames\":" + asset.text + "}";
-
-            if (MiniJson.Deserialize(json) is Dictionary<string, object> jObject)
+            var array = jObject.TryGetValue("frames", out var value) ? value as IList : null;
+            if (array != null)
             {
-                IList array = jObject.ContainsKey("frames") ? jObject["frames"] as IList : null;
-                if (array != null)
+                foreach (var rawJObject in array)
                 {
-                    foreach (object rawJObject in array)
+                    if (rawJObject is not Dictionary<string, object> emojiData)
                     {
-                        if (!(rawJObject is Dictionary<string, object> emojiData)) continue;
-
-                        Emoji emoji = new Emoji(emojiData);
-                        if (emoji.Category.Equals("People & Body"))
-                        {
-                            emoji.Category = "Smileys & Emotion";
-                        }
-                        Add(emoji);
+                        continue;
                     }
+
+                    var emoji = new Emoji(emojiData);
+                    if (emoji._category.Equals("People & Body"))
+                    {
+                        emoji._category = "Smileys & Emotion";
+                    }
+                    Add(emoji);
                 }
             }
-
-            foreach (var kv in emojies)
-            {
-                kv.Value.Sort((emoji1, emoji2) => emoji1.SortOrder.CompareTo(emoji2.SortOrder));
-            }
-
-            isLoaded = true;
         }
+
+        foreach (var kv in emojies)
+        {
+            kv.Value.Sort((emoji1, emoji2) => emoji1.SortOrder.CompareTo(emoji2.SortOrder));
+        }
+
+        isLoaded = true;
     }
 }

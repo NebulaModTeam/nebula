@@ -1,20 +1,23 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
 using NebulaWorld.GameStates;
 
-namespace NebulaNetwork.PacketProcessors.GameStates
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.GameStates;
+
+[RegisterPacketProcessor]
+public class FragmentInfoProcessor : PacketProcessor<FragmentInfo>
 {
-    [RegisterPacketProcessor]
-    public class FragmentInfoProcessor : PacketProcessor<FragmentInfo>
+    protected override void ProcessPacket(FragmentInfo packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(FragmentInfo packet, NebulaConnection conn)
+        if (IsClient)
         {
-            if (IsClient)
-            {
-                GameStatesManager.FragmentSize = packet.Size;
-            }
+            GameStatesManager.FragmentSize = packet.Size;
         }
     }
 }

@@ -1,56 +1,62 @@
-﻿using NebulaAPI;
+﻿#region
+
+using System;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory;
 
-namespace NebulaNetwork.PacketProcessors.Factory.Entity
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Factory.Entity;
+
+[RegisterPacketProcessor]
+internal class EntityBoostSwitchProcessor : PacketProcessor<EntityBoostSwitchPacket>
 {
-    [RegisterPacketProcessor]
-    class EntityBoostSwitchProcessor : PacketProcessor<EntityBoostSwitchPacket>
+    protected override void ProcessPacket(EntityBoostSwitchPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(EntityBoostSwitchPacket packet, NebulaConnection conn)
+        var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
+        if (factory == null)
         {
-            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-            if (factory == null)
-            {
-                return;
-            }
+            return;
+        }
 
-            switch (packet.EntityType)
-            {
-                case EBoostEntityType.ArtificialStar:
-                    if (packet.Id < factory.powerSystem.genCursor)
+        switch (packet.EntityType)
+        {
+            case EBoostEntityType.ArtificialStar:
+                if (packet.Id < factory.powerSystem.genCursor)
+                {
+                    factory.powerSystem.genPool[packet.Id].SetBoost(packet.Enable);
+                    if (UIRoot.instance.uiGame.generatorWindow.generatorId == packet.Id)
                     {
-                        factory.powerSystem.genPool[packet.Id].SetBoost(packet.Enable);
-                        if (UIRoot.instance.uiGame.generatorWindow.generatorId == packet.Id)
-                        {
-                            UIRoot.instance.uiGame.generatorWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
-                        }
+                        UIRoot.instance.uiGame.generatorWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
                     }
-                    break;
+                }
+                break;
 
-                case EBoostEntityType.Ejector:
-                    if (packet.Id < factory.factorySystem.ejectorCursor)
+            case EBoostEntityType.Ejector:
+                if (packet.Id < factory.factorySystem.ejectorCursor)
+                {
+                    factory.factorySystem.ejectorPool[packet.Id].SetBoost(packet.Enable);
+                    if (UIRoot.instance.uiGame.ejectorWindow.ejectorId == packet.Id)
                     {
-                        factory.factorySystem.ejectorPool[packet.Id].SetBoost(packet.Enable);
-                        if (UIRoot.instance.uiGame.ejectorWindow.ejectorId == packet.Id)
-                        {
-                            UIRoot.instance.uiGame.ejectorWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
-                        }
+                        UIRoot.instance.uiGame.ejectorWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
                     }
-                    break;
+                }
+                break;
 
-                case EBoostEntityType.Silo:
-                    if (packet.Id < factory.factorySystem.siloCursor)
+            case EBoostEntityType.Silo:
+                if (packet.Id < factory.factorySystem.siloCursor)
+                {
+                    factory.factorySystem.siloPool[packet.Id].SetBoost(packet.Enable);
+                    if (UIRoot.instance.uiGame.siloWindow.siloId == packet.Id)
                     {
-                        factory.factorySystem.siloPool[packet.Id].SetBoost(packet.Enable);
-                        if (UIRoot.instance.uiGame.siloWindow.siloId == packet.Id)
-                        {
-                            UIRoot.instance.uiGame.siloWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
-                        }
+                        UIRoot.instance.uiGame.siloWindow.boostSwitch.SetToggleNoEvent(packet.Enable);
                     }
-                    break;
-            }
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(packet), "Unknown EntityBoostSwitchPacket type: " + packet.EntityType);
         }
     }
 }

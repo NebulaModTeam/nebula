@@ -1,12 +1,13 @@
-﻿namespace NebulaModel.Packets.Players
+﻿namespace NebulaModel.Packets.Players;
+
+public class PlayerSandCount
 {
-    public class PlayerSandCount
+    public PlayerSandCount() { }
+
+    public PlayerSandCount(int sandCount)
     {
-        public int SandCount { get; set; }
-        public PlayerSandCount() { }
-        public PlayerSandCount(int sandCount)
-        {
-            SandCount = sandCount;
-        }
+        SandCount = sandCount;
     }
+
+    public int SandCount { get; set; }
 }

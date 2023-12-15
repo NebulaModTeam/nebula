@@ -1,21 +1,24 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Universe
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Universe;
+
+[RegisterPacketProcessor]
+internal class DysonLaunchDataProcessor : PacketProcessor<DysonLaunchDataPacket>
 {
-    [RegisterPacketProcessor]
-    internal class DysonLaunchDataProcessor : PacketProcessor<DysonLaunchDataPacket>
+    protected override void ProcessPacket(DysonLaunchDataPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(DysonLaunchDataPacket packet, NebulaConnection conn)
+        if (IsHost)
         {
-            if (IsHost)
-            {
-                return;
-            }
-            Multiplayer.Session.Launch.ImportPacket(packet);
+            return;
         }
+        Multiplayer.Session.Launch.ImportPacket(packet);
     }
 }

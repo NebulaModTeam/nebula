@@ -1,10 +1,14 @@
-﻿using System;
+﻿#region
 
-namespace NebulaAPI
+using System;
+
+#endregion
+
+namespace NebulaAPI.Interfaces;
+
+public interface IToggle
 {
-    public interface IToggle
-    {
-        bool Value { get; }
-        IDisposable On();
-    }
+    bool Value { get; }
+
+    IDisposable On();
 }

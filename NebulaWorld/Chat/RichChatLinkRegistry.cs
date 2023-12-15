@@ -1,86 +1,81 @@
-﻿using NebulaModel.Logger;
+﻿#region
+
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NebulaModel.Logger;
+using NebulaWorld.Chat.ChatLinks;
 
-namespace NebulaWorld.Chat
+#endregion
+
+namespace NebulaWorld.Chat;
+
+public static class RichChatLinkRegistry
 {
-    public class RichChatLinkRegistry
+    private static readonly Dictionary<string, IChatLinkHandler> handlers = new();
+
+    static RichChatLinkRegistry()
     {
-        private static Dictionary<string, IChatLinkHandler> handlers = new Dictionary<string, IChatLinkHandler>();
+        RegisterChatLinkHandler("signal", new SignalChatLinkHandler());
+        RegisterChatLinkHandler("copytext", new CopyTextChatLinkHandler());
+        RegisterChatLinkHandler("navigate", new NavigateChatLinkHandler());
+    }
 
-        public static void RegisterChatLinkHandler(string linkID, IChatLinkHandler handler)
+    private static void RegisterChatLinkHandler(string linkID, IChatLinkHandler handler)
+    {
+        if (handler == null)
         {
-            if (handler == null) return;
-            if (handlers.ContainsKey(linkID))
-            {
-                Log.Debug($"Can't register handler, because handler for {linkID} was already registered!");
-                return;
-            }
-            
-            Log.Debug($"Registering Chat Link handler for {linkID}");
-            handlers.Add(linkID, handler);
+            return;
+        }
+        if (handlers.ContainsKey(linkID))
+        {
+            Log.Debug($"Can't register handler, because handler for {linkID} was already registered!");
+            return;
         }
 
-        public static string ParseRichText(string linkString, out string linkData)
+        Log.Debug($"Registering Chat Link handler for {linkID}");
+        handlers.Add(linkID, handler);
+    }
+
+    public static string ParseRichText(string linkString, out string linkData)
+    {
+        linkData = "";
+        var splitStrings = linkString.Split(' ');
+        if (splitStrings.Length != 2)
         {
-            linkData = "";
-            string[] splitStrings = linkString.Split(' ');
-            if (splitStrings.Length != 2) return "";
-            
-            linkData = splitStrings[1];
-            return splitStrings[0];
+            return "";
         }
 
-        public static IChatLinkHandler GetChatLinkHandler(string linkID)
-        {
-            if (handlers.ContainsKey(linkID))
-            {
-                IChatLinkHandler handler = handlers[linkID];
-                return handler;
-            }
+        linkData = splitStrings[1];
+        return splitStrings[0];
+    }
 
-            return null;
-        }
-        
-        public static string ExpandRichTextTags(string text)
-        {
-            Regex regex = new Regex(@"<sprite name=""(\w+)"" color=""([^""]+)"">");
-            
-            return regex.Replace(text, match =>
-            {
-                string data = match.Groups[2].Value;
-                if (!string.IsNullOrEmpty(data))
-                {
-                    return FormatFullRichText(data);
-                }
+    public static IChatLinkHandler GetChatLinkHandler(string linkID)
+    {
+        return handlers.TryGetValue(linkID, out var handler) ? handler : null;
+    }
 
-                return match.Value;
-            });
-        }
-        
-        public static string FormatFullRichText(string linkString)
-        {
-            string linkID = ParseRichText(linkString, out string linkData);
-            IChatLinkHandler handler = GetChatLinkHandler(linkID);
-            if (handler == null) return "";
+    public static string ExpandRichTextTags(string text)
+    {
+        var regex = new Regex("""<sprite name="(\w+)" color="([^"]+)">""");
 
-            return handler.GetDisplayRichText(linkData);
-        }
+        return regex.Replace(text, match =>
+        {
+            var data = match.Groups[2].Value;
+            return !string.IsNullOrEmpty(data) ? FormatFullRichText(data) : match.Value;
+        });
+    }
 
-        public static string FormatShortRichText(string linkString)
-        {
-            string linkID = ParseRichText(linkString, out string linkData);
-            IChatLinkHandler handler = GetChatLinkHandler(linkID);
-            if (handler == null) return "";
-            
-            return $"<sprite name=\"{handler.GetIconName(linkData)}\" color=\"{linkString}\">";
-        }
-        
-        static RichChatLinkRegistry()
-        {
-            RegisterChatLinkHandler("signal", new SignalChatLinkHandler());
-            RegisterChatLinkHandler("copytext", new CopyTextChatLinkHandler());
-            RegisterChatLinkHandler("navigate", new NavigateChatLinkHandler());
-        }
+    private static string FormatFullRichText(string linkString)
+    {
+        var linkID = ParseRichText(linkString, out var linkData);
+        var handler = GetChatLinkHandler(linkID);
+        return handler == null ? "" : handler.GetDisplayRichText(linkData);
+    }
+
+    public static string FormatShortRichText(string linkString)
+    {
+        var linkID = ParseRichText(linkString, out var linkData);
+        var handler = GetChatLinkHandler(linkID);
+        return handler == null ? "" : $"<sprite name=\"{handler.GetIconName(linkData)}\" color=\"{linkString}\">";
     }
 }

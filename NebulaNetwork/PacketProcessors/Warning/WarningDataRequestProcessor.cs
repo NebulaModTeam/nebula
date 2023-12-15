@@ -1,17 +1,20 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Warning;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Warning
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Warning;
+
+[RegisterPacketProcessor]
+internal class WarningDataRequestProcessor : PacketProcessor<WarningDataRequest>
 {
-    [RegisterPacketProcessor]
-    internal class WarningDataRequestProcessor : PacketProcessor<WarningDataRequest>
+    protected override void ProcessPacket(WarningDataRequest packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(WarningDataRequest packet, NebulaConnection conn)
-        {
-            Multiplayer.Session.Warning.HandleRequest(packet, conn);
-        }
+        Multiplayer.Session.Warning.HandleRequest(packet, conn);
     }
 }

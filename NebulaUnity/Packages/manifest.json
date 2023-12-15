@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.kyub.emojisearch": "https://gitlab-ci-token:zF563oCqvXdJmiDuMShq@gitlab.com/KyubInteractive/kyublibs.git#com.kyub.emojisearch-1.1.2",
+    "com.kyub.emojisearch": "https://gitlab-ci-token:glpat-c6ymx9eBXkdQhFhCMaLg@gitlab.com/KyubInteractive/kyublibs.git#com.kyub.emojisearch-1.1.5",
     "com.passivepicasso.thunderkit": "https://github.com/PassivePicasso/ThunderKit.git",
     "com.unity.assetbundlebrowser": "1.7.0",
     "com.unity.collab-proxy": "1.2.15",
@@ -45,8 +45,8 @@
       "revision": "HEAD"
     },
     "com.kyub.emojisearch": {
-      "hash": "71302cba2371206d833415270ff59a997677ae3b",
-      "revision": "com.kyub.emojisearch-1.1.2"
+      "hash": "66f73035a310e161a839d95923538421df31241f",
+      "revision": "com.kyub.emojisearch-1.1.5"
     }
   }
 }

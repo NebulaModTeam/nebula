@@ -1,95 +1,105 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
 using NebulaModel.Packets.Factory.Laboratory;
 using NebulaWorld;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(UILabWindow))]
+internal class UILabWindow_Patch
 {
-    [HarmonyPatch(typeof(UILabWindow))]
-    internal class UILabWindow_Patch
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
+    public static void OnItemButtonClick_Prefix(UILabWindow __instance, int index, ref bool __state)
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
-        public static void OnItemButtonClick_Prefix(UILabWindow __instance, int index, ref bool __state)
+        if (!Multiplayer.IsActive)
         {
-            if (!Multiplayer.IsActive)
-            {
-                return;
-            }
-
-            __state = false;
-            LabComponent labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
-            if (!labComponent.researchMode && !labComponent.matrixMode)
-            {
-                //Notify about changing matrix selection
-                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(index, __instance.labId, GameMain.localPlanet?.id ?? -1));
-                __state = true;
-            }
+            return;
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
-        public static void OnItemButtonClick_Postfix(UILabWindow __instance, int index, bool __state)
+        __state = false;
+        var labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
+        if (labComponent is not { researchMode: false, matrixMode: false })
         {
-            // Skip if lab was in neither researchMode nor matrixMode
-            if (!Multiplayer.IsActive || __state)
-            {
-                return;
-            }
+            return;
+        }
+        //Notify about changing matrix selection
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new LaboratoryUpdateEventPacket(index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+        __state = true;
+    }
 
-            LabComponent labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
-            if (labComponent.researchMode)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(labComponent.matrixServed[index], labComponent.matrixIncServed[index], index, __instance.labId, GameMain.localPlanet?.id ?? -1));
-            }
-            else if (labComponent.matrixMode)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateStoragePacket(labComponent.served[index], labComponent.incServed[index], index, __instance.labId, GameMain.localPlanet?.id ?? -1));
-            }
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UILabWindow.OnItemButtonClick))]
+    public static void OnItemButtonClick_Postfix(UILabWindow __instance, int index, bool __state)
+    {
+        // Skip if lab was in neither researchMode nor matrixMode
+        if (!Multiplayer.IsActive || __state)
+        {
+            return;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UILabWindow.OnProductButtonClick))]
-        public static void OnItemButtonClick_Prefix(UILabWindow __instance)
+        var labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
+        if (labComponent.researchMode)
         {
-            if (!Multiplayer.IsActive)
-            {
-                return;
-            }
+            Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(labComponent.matrixServed[index],
+                labComponent.matrixIncServed[index], index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+        }
+        else if (labComponent.matrixMode)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateStoragePacket(labComponent.served[index],
+                labComponent.incServed[index], index, __instance.labId, GameMain.localPlanet?.id ?? -1));
+        }
+    }
 
-            LabComponent labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
-            if (labComponent.matrixMode)
-            {
-                //Notify about withdrawing produced cubes
-                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-3, __instance.labId, GameMain.localPlanet?.id ?? -1));
-            }
-            else if (!labComponent.researchMode)
-            {
-                //Notify about selection of research mode
-                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-1, __instance.labId, GameMain.localPlanet?.id ?? -1));
-            }
-
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UILabWindow.OnProductButtonClick))]
+    public static void OnItemButtonClick_Prefix(UILabWindow __instance)
+    {
+        if (!Multiplayer.IsActive)
+        {
+            return;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UILabWindow.OnBackButtonClick))]
-        public static void OnBackButtonClick_Prefix(UILabWindow __instance)
+        var labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
+        if (labComponent.matrixMode)
         {
-            //Notify about recipe reset
-            if (Multiplayer.IsActive)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.id ?? -1));
-            }
+            //Notify about withdrawing produced cubes
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new LaboratoryUpdateEventPacket(-3, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(UILabWindow.OnIncSwitchClick))]
-        public static void OnIncSwitchClick_Prefix(UILabWindow __instance)
+        else if (!labComponent.researchMode)
         {
-            //Notify about production mode switch
-            if (Multiplayer.IsActive)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateEventPacket(-4, __instance.labId, GameMain.localPlanet?.id ?? -1));
-            }
+            //Notify about selection of research mode
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new LaboratoryUpdateEventPacket(-1, __instance.labId, GameMain.localPlanet?.id ?? -1));
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UILabWindow.OnBackButtonClick))]
+    public static void OnBackButtonClick_Prefix(UILabWindow __instance)
+    {
+        //Notify about recipe reset
+        if (Multiplayer.IsActive)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.id ?? -1));
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UILabWindow.OnIncSwitchClick))]
+    public static void OnIncSwitchClick_Prefix(UILabWindow __instance)
+    {
+        //Notify about production mode switch
+        if (Multiplayer.IsActive)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new LaboratoryUpdateEventPacket(-4, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
     }
 }

@@ -1,33 +1,37 @@
-﻿using NebulaModel.Logger;
+﻿#region
+
 using System.IO;
 using System.Reflection;
+using NebulaModel.Logger;
 using UnityEngine;
 
-namespace NebulaWorld
+#endregion
+
+namespace NebulaWorld;
+
+public static class AssetLoader
 {
-    public static class AssetLoader
+    private static AssetBundle assetBundle;
+
+    public static AssetBundle AssetBundle
     {
-        private static AssetBundle assetBundle;
-
-        public static AssetBundle AssetBundle
+        get
         {
-            get
+            if (assetBundle != null)
             {
-                if (assetBundle == null)
-                {
-                    var pluginfolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    if (pluginfolder == null)
-                    {
-                        Log.Warn($"Plugin folder is null, unable to load chat");
-                        return null;
-                    }
-
-                    var fullAssetPath = Path.Combine(pluginfolder, "nebulabundle");
-                    assetBundle = AssetBundle.LoadFromFile(fullAssetPath);
-                }
-
                 return assetBundle;
             }
+            var pluginfolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (pluginfolder == null)
+            {
+                Log.Warn("Plugin folder is null, unable to load chat");
+                return null;
+            }
+
+            var fullAssetPath = Path.Combine(pluginfolder, "nebulabundle");
+            assetBundle = AssetBundle.LoadFromFile(fullAssetPath);
+
+            return assetBundle;
         }
     }
 }

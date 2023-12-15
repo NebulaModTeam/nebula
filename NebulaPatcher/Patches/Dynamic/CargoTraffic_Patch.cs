@@ -1,134 +1,148 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Packets.Factory.Belt;
 using NebulaWorld;
-using UnityEngine;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(CargoTraffic))]
+internal class CargoTraffic_Patch
 {
-    [HarmonyPatch(typeof(CargoTraffic))]
-    internal class CargoTraffic_Patch
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
+    public static void PickupBeltItems_Prefix()
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
-        public static void PickupBeltItems_Prefix()
+        if (Multiplayer.IsActive)
         {
-            if (Multiplayer.IsActive)
-            {
-                Multiplayer.Session.Belts.BeltPickupStarted();
-            }
+            Multiplayer.Session.Belts.BeltPickupStarted();
         }
+    }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
-        public static void PickupBeltItems_Postfix()
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(CargoTraffic.PickupBeltItems))]
+    public static void PickupBeltItems_Postfix()
+    {
+        if (Multiplayer.IsActive && GameMain.data.localPlanet != null)
         {
-            if (Multiplayer.IsActive && GameMain.data.localPlanet != null)
-            {
-                Multiplayer.Session.Belts.BeltPickupEnded();
-            }
+            Multiplayer.Session.Belts.BeltPickupEnded();
         }
+    }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(CargoTraffic.PutItemOnBelt))]
-        public static void PutItemOnBelt_Postfix(int beltId, int itemId, byte itemInc, bool __result)
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(CargoTraffic.PutItemOnBelt))]
+    public static void PutItemOnBelt_Postfix(int beltId, int itemId, byte itemInc, bool __result)
+    {
+        // Only send packet when insertion successes
+        if (Multiplayer.IsActive && __result && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            // Only send packet when insertion successes
-            if (Multiplayer.IsActive && __result && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, 1, itemInc, GameMain.data.localPlanet.id));
-            }
+            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, 1, itemInc,
+                GameMain.data.localPlanet.id));
         }
+    }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(CargoTraffic.AlterBeltRenderer))]
-        public static bool AlterBeltRenderer_Prefix()
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(CargoTraffic.AlterBeltRenderer))]
+    public static bool AlterBeltRenderer_Prefix()
+    {
+        //Do not call renderer, if user is not on the planet as the request
+        return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE ||
+               GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(CargoTraffic.RemoveBeltRenderer))]
+    public static bool RemoveBeltRenderer_Prefix()
+    {
+        //Do not call renderer, if user is not on the planet as the request
+        return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE ||
+               GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(CargoTraffic.AlterPathRenderer))]
+    public static bool AlterPathRenderer_Prefix()
+    {
+        //Do not call renderer, if user is not on the planet as the request
+        return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE ||
+               GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(CargoTraffic.RemovePathRenderer))]
+    public static bool RemovePathRenderer_Prefix()
+    {
+        //Do not call renderer, if user is not on the planet as the request
+        return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE ||
+               GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(CargoTraffic.RefreshPathUV))]
+    public static bool RefreshPathUV_Prefix()
+    {
+        //Do not call renderer, if user is not on the planet as the request
+        return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE ||
+               GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(CargoTraffic.ConnectToMonitor))]
+    public static void ConnectToMonitor_Postfix(int monitorId, int targetBeltId, int offset)
+    {
+        if (!Multiplayer.IsActive)
         {
-            //Do not call renderer, if user is not on the planet as the request
-            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+            return;
         }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(CargoTraffic.RemoveBeltRenderer))]
-        public static bool RemoveBeltRenderer_Prefix()
+        // If host build, or client receive his build request
+        if (Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value ||
+            Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
         {
-            //Do not call renderer, if user is not on the planet as the request
-            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToMonitorPacket(monitorId, targetBeltId, offset,
+                GameMain.data.localPlanet.id));
         }
+    }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(CargoTraffic.AlterPathRenderer))]
-        public static bool AlterPathRenderer_Prefix()
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(CargoTraffic.ConnectToSpraycoater))]
+    public static void ConnectToSpraycoater(int spraycoaterId, int cargoBeltId, int incBeltId)
+    {
+        if (!Multiplayer.IsActive)
         {
-            //Do not call renderer, if user is not on the planet as the request
-            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+            return;
         }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(CargoTraffic.RemovePathRenderer))]
-        public static bool RemovePathRenderer_Prefix()
+        // If host build, or client receive his build request
+        if (Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value ||
+            Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
         {
-            //Do not call renderer, if user is not on the planet as the request
-            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToSpraycoaterPacket(spraycoaterId, cargoBeltId,
+                incBeltId, GameMain.data.localPlanet.id));
         }
+    }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(CargoTraffic.RefreshPathUV))]
-        public static bool RefreshPathUV_Prefix()
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(CargoTraffic.SetBeltSignalIcon))]
+    public static void SetBeltSignalIcon_Postfix(int entityId, int signalId)
+    {
+        // Notify others about belt memo icon changes
+        if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            //Do not call renderer, if user is not on the planet as the request
-            return !Multiplayer.IsActive || Multiplayer.Session.Factories.TargetPlanet == NebulaModAPI.PLANET_NONE || GameMain.mainPlayer.planetId == Multiplayer.Session.Factories.TargetPlanet;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalIconPacket(entityId, signalId,
+                GameMain.data.localPlanet.id));
         }
+    }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(CargoTraffic.ConnectToMonitor))]
-        public static void ConnectToMonitor_Postfix(int monitorId, int targetBeltId, int offset)
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(CargoTraffic.SetBeltSignalNumber))]
+    public static void SetBeltSignalNumber_Postfix(int entityId, float number)
+    {
+        if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            if (!Multiplayer.IsActive)
-            {
-                return;
-            }
-            // If host build, or client receive his build request
-            if((Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value)|| Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToMonitorPacket(monitorId, targetBeltId, offset, GameMain.data.localPlanet.id));
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(CargoTraffic.ConnectToSpraycoater))]
-        public static void ConnectToSpraycoater(int spraycoaterId, int cargoBeltId, int incBeltId)
-        {
-            if (!Multiplayer.IsActive)
-            {
-                return;
-            }
-            // If host build, or client receive his build request
-            if ((Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value) || Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToSpraycoaterPacket(spraycoaterId, cargoBeltId, incBeltId, GameMain.data.localPlanet.id));
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(CargoTraffic.SetBeltSignalIcon))]
-        public static void SetBeltSignalIcon_Postfix(int entityId, int signalId)
-        {
-            // Notify others about belt memo icon changes
-            if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalIconPacket(entityId, signalId, GameMain.data.localPlanet.id));
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(CargoTraffic.SetBeltSignalNumber))]
-        public static void SetBeltSignalNumber_Postfix(int entityId, float number)
-        {
-            if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
-            {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalNumberPacket(entityId, number, GameMain.data.localPlanet.id));
-            }
+            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalNumberPacket(entityId, number,
+                GameMain.data.localPlanet.id));
         }
     }
 }

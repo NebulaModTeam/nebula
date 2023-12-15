@@ -1,17 +1,17 @@
-﻿namespace NebulaModel.Packets.Universe
-{
-    public class DysonSphereRemoveFramePacket
-    {
-        public int StarIndex { get; set; }
-        public int LayerId { get; set; }
-        public int FrameId { get; set; }
+﻿namespace NebulaModel.Packets.Universe.Editor;
 
-        public DysonSphereRemoveFramePacket() { }
-        public DysonSphereRemoveFramePacket(int starIndex, int layerId, int frameId)
-        {
-            StarIndex = starIndex;
-            LayerId = layerId;
-            FrameId = frameId;
-        }
+public class DysonSphereRemoveFramePacket
+{
+    public DysonSphereRemoveFramePacket() { }
+
+    public DysonSphereRemoveFramePacket(int starIndex, int layerId, int frameId)
+    {
+        StarIndex = starIndex;
+        LayerId = layerId;
+        FrameId = frameId;
     }
+
+    public int StarIndex { get; set; }
+    public int LayerId { get; set; }
+    public int FrameId { get; set; }
 }

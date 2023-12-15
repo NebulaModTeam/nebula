@@ -1,53 +1,57 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
-using System.Collections.Generic;
 
-namespace NebulaNetwork.PacketProcessors.GameHistory
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.GameHistory;
+
+[RegisterPacketProcessor]
+internal class GameHistoryTechRefundProcessor : PacketProcessor<GameHistoryTechRefundPacket>
 {
-    [RegisterPacketProcessor]
-    internal class GameHistoryTechRefundProcessor : PacketProcessor<GameHistoryTechRefundPacket>
+    protected override void ProcessPacket(GameHistoryTechRefundPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(GameHistoryTechRefundPacket packet, NebulaConnection conn)
+        // TODO: TRY TO MERGE THESE BETTER
+
+        if (IsHost)
         {
-            // TODO: TRY TO MERGE THESE BETTER
-
-            if (IsHost)
+            //only refund if we have contributed
+            if (packet.TechHashedContributed <= 0)
             {
-                //only refund if we have contributed
-                if (packet.TechHashedContributed > 0)
-                {
-                    //client should have the same research queued, seek currently needed itemIds and re-add points that were contributed
-                    ItemBundle itemPoints = GameMain.data.mainPlayer.mecha.lab.itemPoints;
-                    foreach (KeyValuePair<int, int> item in itemPoints.items)
-                    {
-                        itemPoints.Alter(item.Key, (int)packet.TechHashedContributed * 3600);
-                    }
-                    //let the default method give back the items
-                    GameMain.mainPlayer.mecha.lab.ManageTakeback();
-                }
+                return;
             }
-            else
+            //client should have the same research queued, seek currently needed itemIds and re-add points that were contributed
+            var itemPoints = GameMain.data.mainPlayer.mecha.lab.itemPoints;
+            foreach (var item in itemPoints.items)
             {
-                //only refund if we have contributed
-                if (packet.TechHashedContributed > 0)
-                {
-                    TechProto techProto = LDB.techs.Select(packet.TechIdContributed);
-                    int[] items = techProto.Items;
-                    int[] array = techProto.ItemPoints;
-
-                    //client should have the same research queued, seek currently needed itemIds and re-add points that were contributed
-                    for (int i = 0; i < array.Length; i++)
-                    {
-                        int itemId = items[i];
-                        int contributedItems = (int)packet.TechHashedContributed * array[i];
-                        GameMain.data.mainPlayer.mecha.lab.itemPoints.Alter(itemId, contributedItems);
-                    }
-                    //let the default method give back the items
-                    GameMain.mainPlayer.mecha.lab.ManageTakeback();
-                }
+                itemPoints.Alter(item.Key, (int)packet.TechHashedContributed * 3600);
             }
+            //let the default method give back the items
+            GameMain.mainPlayer.mecha.lab.ManageTakeback();
+        }
+        else
+        {
+            //only refund if we have contributed
+            if (packet.TechHashedContributed <= 0)
+            {
+                return;
+            }
+            var techProto = LDB.techs.Select(packet.TechIdContributed);
+            var items = techProto.Items;
+            var array = techProto.ItemPoints;
+
+            //client should have the same research queued, seek currently needed itemIds and re-add points that were contributed
+            for (var i = 0; i < array.Length; i++)
+            {
+                var itemId = items[i];
+                var contributedItems = (int)packet.TechHashedContributed * array[i];
+                GameMain.data.mainPlayer.mecha.lab.itemPoints.Alter(itemId, contributedItems);
+            }
+            //let the default method give back the items
+            GameMain.mainPlayer.mecha.lab.ManageTakeback();
         }
     }
 }

@@ -1,18 +1,20 @@
-﻿using HarmonyLib;
-using NebulaWorld;
+﻿#region
+
+using HarmonyLib;
 using NebulaWorld.GameStates;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(GameCamera))]
+public class GameCamera_Patch
 {
-    [HarmonyPatch(typeof(GameCamera))]
-    public class GameCamera_Patch
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(GameCamera.Logic))]
+    public static bool Logic_Prefix()
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(GameCamera.Logic))]
-        public static bool Logic_Prefix()
-        {
-            // prevent NRE while doing a reconnect as a client issued through the chat command
-            return !(GameStatesManager.DuringReconnect && GameMain.mainPlayer == null);
-        }
+        // prevent NRE while doing a reconnect as a client issued through the chat command
+        return !(GameStatesManager.DuringReconnect && GameMain.mainPlayer == null);
     }
 }

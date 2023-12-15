@@ -1,14 +1,15 @@
-﻿namespace NebulaModel.Packets.Players
+﻿namespace NebulaModel.Packets.Players;
+
+public class PlayerMechaArmor
 {
-    public class PlayerMechaArmor
+    public PlayerMechaArmor() { }
+
+    public PlayerMechaArmor(ushort playerId, byte[] appearanceData)
     {
-        public ushort PlayerId { get; set; }
-        public byte[] AppearanceData { get; set; }
-        public PlayerMechaArmor() { }
-        public PlayerMechaArmor(ushort playerId, byte[] appearanceData)
-        {
-            PlayerId = playerId;
-            AppearanceData = appearanceData;
-        }
+        PlayerId = playerId;
+        AppearanceData = appearanceData;
     }
+
+    public ushort PlayerId { get; set; }
+    public byte[] AppearanceData { get; set; }
 }

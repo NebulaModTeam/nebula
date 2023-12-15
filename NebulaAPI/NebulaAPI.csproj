@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-<PropertyGroup>
-    <PackageId>DysonSphereProgram.Modding.NebulaMultiplayerModApi</PackageId>
-    <Authors>Nebula Mod Team</Authors>
-    <Description>API for other mods to work with the Nebula Multiplayer Mod for Dyson Sphere Program.</Description>
-    <PackageProjectUrl>https://github.com/hubastard/nebula</PackageProjectUrl>
-    <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
-</PropertyGroup>
+    <PropertyGroup>
+        <PackageId>DysonSphereProgram.Modding.NebulaMultiplayerModApi</PackageId>
+        <Authors>Nebula Mod Team</Authors>
+        <Description>API for other mods to work with the Nebula Multiplayer Mod for Dyson Sphere Program.</Description>
+        <PackageProjectUrl>https://github.com/hubastard/nebula</PackageProjectUrl>
+        <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
 
 </Project>

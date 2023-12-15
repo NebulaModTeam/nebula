@@ -1,64 +1,75 @@
-﻿using NebulaModel.Packets.Players;
-using NebulaWorld.MonoBehaviours.Local;
+﻿#region
+
+using NebulaModel.Packets.Chat;
 using NebulaModel.Utils;
-using NebulaAPI;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 
-namespace NebulaWorld.Chat.Commands
+#endregion
+
+namespace NebulaWorld.Chat.Commands;
+
+public class ServerCommandHandler : IChatCommandHandler
 {
-    public class ServerCommandHandler : IChatCommandHandler
+    public void Execute(ChatWindow window, string[] parameters)
     {
-        public void Execute(ChatWindow window, string[] parameters)
+        if (parameters.Length < 1)
         {
-            if (parameters.Length < 1)
-            {
-                throw new ChatCommandUsageException("Not enough arguments!".Translate());
-            }
-            if (parameters[0] == "login")
-            {
-                string password = parameters.Length > 1 ? parameters[1] : "";
-                IPlayerData playerData = Multiplayer.Session.LocalPlayer.Data;
-                string salt = playerData.Username + playerData.PlayerId;
-                string hash = CryptoUtils.Hash(password + salt);
-                Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.Login, hash));
-            }
-            else if (parameters[0] == "list")
-            {
-                string saveNum = parameters.Length > 1 ? parameters[1] : "";
-                Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerList, saveNum));
-            }
-            else if (parameters[0] == "save")
-            {
-                string saveName = parameters.Length > 1 ? parameters[1] : "";
-                Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerSave, saveName));
-            }
-            else if (parameters[0] == "load")
-            {
-                if (parameters.Length < 2)
+            throw new ChatCommandUsageException("Not enough arguments!".Translate());
+        }
+        switch (parameters[0])
+        {
+            case "login":
                 {
-                    throw new ChatCommandUsageException("Need to specifiy a save!");
+                    var password = parameters.Length > 1 ? parameters[1] : "";
+                    var playerData = Multiplayer.Session.LocalPlayer.Data;
+                    var salt = playerData.Username + playerData.PlayerId;
+                    var hash = CryptoUtils.Hash(password + salt);
+                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.Login, hash));
+                    break;
                 }
-                string saveName = parameters.Length > 1 ? parameters[1] : "";
-                Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerLoad, saveName));
-            }
-            else if (parameters[0] == "info")
-            {
-                string parameter = parameters.Length > 1 ? parameters[1] : "";
-                Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerInfo, parameter));
-            }
-            else
-            {
-                throw new ChatCommandUsageException("Unknown command! Available commands: {login, list, save, load, info}".Translate());
-            }
+            case "list":
+                {
+                    var saveNum = parameters.Length > 1 ? parameters[1] : "";
+                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerList,
+                        saveNum));
+                    break;
+                }
+            case "save":
+                {
+                    var saveName = parameters.Length > 1 ? parameters[1] : "";
+                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerSave,
+                        saveName));
+                    break;
+                }
+            case "load" when parameters.Length < 2:
+                throw new ChatCommandUsageException("Need to specifiy a save!");
+            case "load":
+                {
+                    var saveName = parameters.Length > 1 ? parameters[1] : "";
+                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerLoad,
+                        saveName));
+                    break;
+                }
+            case "info":
+                {
+                    var parameter = parameters.Length > 1 ? parameters[1] : "";
+                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerInfo,
+                        parameter));
+                    break;
+                }
+            default:
+                throw new ChatCommandUsageException(
+                    "Unknown command! Available commands: {login, list, save, load, info}".Translate());
         }
+    }
 
-        public string GetDescription()
-        {
-            return "Tell remote server to save/load".Translate();
-        }
+    public string GetDescription()
+    {
+        return "Tell remote server to save/load".Translate();
+    }
 
-        public string[] GetUsage()
-        {
-            return new string[] { "login <password>", "list [saveNum]" , "save [saveName]", "load <saveName>", "info" };
-        }
+    public string[] GetUsage()
+    {
+        return new[] { "login <password>", "list [saveNum]", "save [saveName]", "load <saveName>", "info" };
     }
 }

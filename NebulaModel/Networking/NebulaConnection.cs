@@ -1,129 +1,130 @@
-﻿using NebulaAPI;
-using NebulaModel.Logger;
-using NebulaModel.Networking.Serialization;
+﻿#region
+
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text;
+using NebulaAPI.Packets;
+using NebulaModel.Logger;
+using NebulaModel.Networking.Serialization;
 using WebSocketSharp;
 
-namespace NebulaModel.Networking
+#endregion
+
+namespace NebulaModel.Networking;
+
+public class NebulaConnection : INebulaConnection
 {
-    public class NebulaConnection : INebulaConnection
+    private readonly NetPacketProcessor packetProcessor;
+    private readonly EndPoint peerEndpoint;
+    private readonly WebSocket peerSocket;
+    private readonly Queue<byte[]> pendingPackets = new();
+    private bool enable = true;
+
+    public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NetPacketProcessor packetProcessor)
     {
-        private readonly EndPoint peerEndpoint;
-        private readonly WebSocket peerSocket;
-        private readonly NetPacketProcessor packetProcessor;
-        private readonly Queue<byte[]> pendingPackets = new Queue<byte[]>();
-        private bool enable = true;
+        this.peerEndpoint = peerEndpoint;
+        this.peerSocket = peerSocket;
+        this.packetProcessor = packetProcessor;
+    }
 
-        public bool IsAlive => peerSocket?.IsAlive ?? false;
+    public bool IsAlive => peerSocket?.IsAlive ?? false;
 
-        public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NetPacketProcessor packetProcessor)
+    public void SendPacket<T>(T packet) where T : class, new()
+    {
+        lock (pendingPackets)
         {
-            this.peerEndpoint = peerEndpoint;
-            this.peerSocket = peerSocket;
-            this.packetProcessor = packetProcessor;
+            var rawData = packetProcessor.Write(packet);
+            pendingPackets.Enqueue(rawData);
+            ProcessPacketQueue();
         }
+    }
 
-        public void SendPacket<T>(T packet) where T : class, new()
+    public void SendRawPacket(byte[] rawData)
+    {
+        lock (pendingPackets)
         {
-            lock (pendingPackets)
-            {
-                byte[] rawData = packetProcessor.Write(packet);
-                pendingPackets.Enqueue(rawData);
-                ProcessPacketQueue();
-            }            
+            pendingPackets.Enqueue(rawData);
+            ProcessPacketQueue();
         }
+    }
 
-        public void SendRawPacket(byte[] rawData)
+    public bool Equals(INebulaConnection connection)
+    {
+        return connection != null && ((NebulaConnection)connection).peerEndpoint.Equals(peerEndpoint);
+    }
+
+    private void ProcessPacketQueue()
+    {
+        if (!enable || pendingPackets.Count <= 0)
         {
-            lock (pendingPackets)
-            {
-                pendingPackets.Enqueue(rawData);
-                ProcessPacketQueue();
-            }            
+            return;
         }
-
-        private void ProcessPacketQueue()
+        var packet = pendingPackets.Dequeue();
+        if (peerSocket.ReadyState == WebSocketState.Open)
         {
-            if (enable && pendingPackets.Count > 0)
-            {
-                byte[] packet = pendingPackets.Dequeue();
-                if (peerSocket.ReadyState == WebSocketState.Open)
-                {
-                    peerSocket.SendAsync(packet, OnSendCompleted);
-                    enable = false;
-                }
-                else
-                {
-                    Log.Warn($"Cannot send packet to a {peerSocket.ReadyState} connection {peerEndpoint.GetHashCode()}");
-                }
-            }
+            peerSocket.SendAsync(packet, OnSendCompleted);
+            enable = false;
         }
-
-        private void OnSendCompleted(bool result)
+        else
         {
-            lock (pendingPackets)
-            {
-                enable = true;
-                ProcessPacketQueue();
-            }
+            Log.Warn($"Cannot send packet to a {peerSocket.ReadyState} connection {peerEndpoint.GetHashCode()}");
         }
+    }
 
-        public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
+    private void OnSendCompleted(bool result)
+    {
+        lock (pendingPackets)
         {
-            if (string.IsNullOrEmpty(reasonString))
+            enable = true;
+            ProcessPacketQueue();
+        }
+    }
+
+    public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
+    {
+        if (string.IsNullOrEmpty(reasonString))
+        {
+            peerSocket.Close((ushort)reason);
+        }
+        else
+        {
+            if (Encoding.UTF8.GetBytes(reasonString).Length <= 123)
             {
-                peerSocket.Close((ushort)reason);
+                peerSocket.Close((ushort)reason, reasonString);
             }
             else
             {
-                if (System.Text.Encoding.UTF8.GetBytes(reasonString).Length <= 123)
-                {
-                    peerSocket.Close((ushort)reason, reasonString);
-                }
-                else
-                {
-                    throw new ArgumentException("Reason string cannot take up more than 123 bytes");
-                }
+                throw new ArgumentException("Reason string cannot take up more than 123 bytes");
             }
         }
+    }
 
-        public static bool operator ==(NebulaConnection left, NebulaConnection right)
-        {
-            return Equals(left, right);
-        }
+    public static bool operator ==(NebulaConnection left, NebulaConnection right)
+    {
+        return Equals(left, right);
+    }
 
-        public static bool operator !=(NebulaConnection left, NebulaConnection right)
-        {
-            return !Equals(left, right);
-        }
+    public static bool operator !=(NebulaConnection left, NebulaConnection right)
+    {
+        return !Equals(left, right);
+    }
 
-        public bool Equals(INebulaConnection connection)
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
         {
-            return connection != null && (connection as NebulaConnection).peerEndpoint.Equals(peerEndpoint);
+            return false;
         }
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+        return obj.GetType() == GetType() && ((NebulaConnection)obj).peerEndpoint.Equals(peerEndpoint);
+    }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-            return (obj as NebulaConnection).peerEndpoint.Equals(peerEndpoint);
-        }
-
-        public override int GetHashCode()
-        {
-            return peerEndpoint?.GetHashCode() ?? 0;
-        }
+    public override int GetHashCode()
+    {
+        return peerEndpoint?.GetHashCode() ?? 0;
     }
 }

@@ -1,24 +1,28 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
 using NebulaWorld.GameStates;
 
-namespace NebulaNetwork.PacketProcessors.GameStates
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.GameStates;
+
+[RegisterPacketProcessor]
+internal class GameStateRequestProcessor : PacketProcessor<GameStateRequest>
 {
-    [RegisterPacketProcessor]
-    internal class GameStateRequestProcessor : PacketProcessor<GameStateRequest>
+    protected override void ProcessPacket(GameStateRequest packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(GameStateRequest packet, NebulaConnection conn)
+        if (IsHost)
         {
-            if (IsHost)
-            {
-                conn.SendPacket(new GameStateUpdate(packet.SentTimestamp, GameStatesManager.RealGameTick, GameStatesManager.RealUPS));
-            }
-            else
-            {
-                conn.SendPacket(packet);
-            }
+            conn.SendPacket(
+                new GameStateUpdate(packet.SentTimestamp, GameStatesManager.RealGameTick, GameStatesManager.RealUPS));
+        }
+        else
+        {
+            conn.SendPacket(packet);
         }
     }
 }

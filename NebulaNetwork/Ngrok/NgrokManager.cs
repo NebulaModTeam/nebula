@@ -1,315 +1,331 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NebulaModel;
+using NebulaModel.Logger;
 using NebulaModel.Utils;
 using NebulaWorld;
-using System.Linq;
-using System.Text.RegularExpressions;
 
-namespace NebulaNetwork.Ngrok
+#endregion
+
+namespace NebulaNetwork.Ngrok;
+
+public class NgrokManager
 {
-    public class NgrokManager
+    private readonly string _authtoken;
+    private readonly TaskCompletionSource<bool> _ngrokAddressObtainedSource = new();
+    private readonly string _ngrokConfigPath;
+
+    private readonly string _ngrokPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+        "ngrok-v3-stable-windows-amd64", "ngrok.exe");
+
+    private readonly int _port;
+    private readonly string _region;
+    public readonly bool NgrokEnabled = Config.Options.EnableNgrok;
+    private string _ngrokAPIAddress;
+
+    private Process _ngrokProcess;
+
+    public string NgrokAddress;
+    public string NgrokLastErrorCode;
+    private static readonly string[] contents = { "version: 2" };
+
+    public NgrokManager(int port, string authtoken = null, string region = null)
     {
-        private readonly string _ngrokPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ngrok-v3-stable-windows-amd64", "ngrok.exe");
-        private readonly string _ngrokConfigPath;
-        private readonly int _port;
-        private readonly string _authtoken;
-        private readonly string _region;
-        private readonly TaskCompletionSource<bool> _ngrokAddressObtainedSource = new TaskCompletionSource<bool>();
+        _ngrokConfigPath = Path.Combine(Path.GetDirectoryName(_ngrokPath), "ngrok.yml");
+        _port = port;
+        _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
+        _region = region ?? Config.Options.NgrokRegion;
 
-        private Process _ngrokProcess;
-        private string _ngrokAPIAddress;
-
-        public string NgrokAddress;
-        public string NgrokLastErrorCode;
-        public bool NgrokEnabled = Config.Options.EnableNgrok;
-
-        public NgrokManager(int port, string authtoken = null, string region = null)
+        if (!NgrokEnabled)
         {
-            _ngrokConfigPath = Path.Combine(Path.GetDirectoryName(_ngrokPath), "ngrok.yml");
-            _port = port;
-            _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
-            _region = region ?? Config.Options.NgrokRegion;
-
-            if (!NgrokEnabled)
-            {
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_authtoken))
-            {
-                NebulaModel.Logger.Log.WarnInform("Ngrok support was enabled, however no Authtoken was provided".Translate());
-                return;
-            }
-
-            // Validate the Ngrok region
-            string[] availableRegions = { "us", "eu", "au", "ap", "sa", "jp", "in" };
-            if (!string.IsNullOrEmpty(_region) && !availableRegions.Any(_region.Contains))
-            {
-                NebulaModel.Logger.Log.WarnInform("Unsupported Ngrok region was provided, defaulting to autodetection".Translate());
-                _region = null;
-            }
-
-            // Start this stuff in it's own thread, as we require async and we dont want to freeze up the GUI when freeze up when Downloading and installing ngrok
-            Task.Run(async () =>
-            {
-
-                if (!IsNgrokInstalled())
-                {
-                    var downloadAndInstallConfirmationSource = new TaskCompletionSource<bool>();
-
-                    UnityDispatchQueue.RunOnMainThread(() =>
-                    {
-                        InGamePopup.ShowWarning(
-                            "Ngrok download and installation confirmation".Translate(),
-                            "Ngrok support is enabled, however it has not been downloaded and installed yet, do you want to automatically download and install Ngrok?".Translate(),
-                            "Accept".Translate(),
-                            "Reject".Translate(),
-                            () => downloadAndInstallConfirmationSource.TrySetResult(true),
-                            () => downloadAndInstallConfirmationSource.TrySetResult(false)
-                        );
-                    });
-
-                    var hasDownloadAndInstallBeenConfirmed = await downloadAndInstallConfirmationSource.Task;
-                    if (!hasDownloadAndInstallBeenConfirmed)
-                    {
-                        NebulaModel.Logger.Log.Warn("Failed to download or install Ngrok, because user rejected Ngrok download and install confirmation!".Translate());
-                        return;
-                    }             
-                    
-                    try
-                    {
-                        await DownloadAndInstallNgrok();
-                    }
-                    catch
-                    {
-                        NebulaModel.Logger.Log.WarnInform("Failed to download or install Ngrok!".Translate());
-                        throw;
-                    }
-
-                }
-
-                if (!StartNgrok())
-                {
-                    NebulaModel.Logger.Log.WarnInform(string.Format("Failed to start Ngrok tunnel! LastErrorCode: {0}".Translate(), NgrokLastErrorCode));
-                    return;
-                }
-
-                if (!IsNgrokActive())
-                {
-                    NebulaModel.Logger.Log.WarnInform(string.Format("Ngrok tunnel has exited prematurely! LastErrorCode: {0}".Translate(), NgrokLastErrorCode));
-                    return;
-                }
-
-            });
-
+            return;
         }
 
-        private async Task DownloadAndInstallNgrok()
+        if (string.IsNullOrEmpty(_authtoken))
         {
-            using (var client = new HttpClient())
-            {
-                using (var s = client.GetStreamAsync("https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip"))
-                {
-                    using (var zip = new ZipArchive(await s, ZipArchiveMode.Read))
-                    {
-                        if (File.Exists(_ngrokPath))
-                        {
-                            File.Delete(_ngrokPath);
-                        }
-                        zip.ExtractToDirectory(Path.GetDirectoryName(_ngrokPath));
-                    }
-                }
-            }
-
-            File.WriteAllLines(_ngrokConfigPath, new string[] { "version: 2" });
-
-            NebulaModel.Logger.Log.WarnInform("Ngrok install completed in the plugin folder".Translate());
+            Log.WarnInform("Ngrok support was enabled, however no Authtoken was provided".Translate());
+            return;
         }
 
-        private bool IsNgrokInstalled()
+        // Validate the Ngrok region
+        string[] availableRegions = { "us", "eu", "au", "ap", "sa", "jp", "in" };
+        if (!string.IsNullOrEmpty(_region) && !availableRegions.Any(_region.Contains))
         {
-            return File.Exists(_ngrokPath) && File.Exists(_ngrokConfigPath);
+            Log.WarnInform("Unsupported Ngrok region was provided, defaulting to autodetection".Translate());
+            _region = null;
         }
 
-        private bool StartNgrok()
+        // Start this stuff in it's own thread, as we require async and we dont want to freeze up the GUI when freeze up when Downloading and installing ngrok
+        Task.Run(async () =>
         {
-            StopNgrok();
-
-            _ngrokProcess = new Process();
-            _ngrokProcess.StartInfo = new ProcessStartInfo
+            if (!IsNgrokInstalled())
             {
-                WindowStyle = ProcessWindowStyle.Hidden,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                FileName = _ngrokPath,
-                Arguments = $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json --config \"{_ngrokConfigPath}\"" + (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : ""),
-            };
+                var downloadAndInstallConfirmationSource = new TaskCompletionSource<bool>();
 
-            _ngrokProcess.OutputDataReceived += new DataReceivedEventHandler(OutputDataReceivedEventHandler);
-            _ngrokProcess.ErrorDataReceived += new DataReceivedEventHandler(ErrorDataReceivedEventHandler);
-
-            var started = _ngrokProcess.Start();
-            if (IsNgrokActive())
-            {
-                // This links the process as a child process by attaching a null debugger thus ensuring that the process is killed when its parent dies.
-                new ChildProcessLinker(_ngrokProcess, (exception) =>
+                UnityDispatchQueue.RunOnMainThread(() =>
                 {
-                    NebulaModel.Logger.Log.Warn("Failed to link Ngrok process to DSP process as a child! (This might result in a left over ngrok process if the DSP process uncleanly killed)");
+                    InGamePopup.ShowWarning(
+                        "Ngrok download and installation confirmation".Translate(),
+                        "Ngrok support is enabled, however it has not been downloaded and installed yet, do you want to automatically download and install Ngrok?"
+                            .Translate(),
+                        "Accept".Translate(),
+                        "Reject".Translate(),
+                        () => downloadAndInstallConfirmationSource.TrySetResult(true),
+                        () => downloadAndInstallConfirmationSource.TrySetResult(false)
+                    );
                 });
+
+                var hasDownloadAndInstallBeenConfirmed = await downloadAndInstallConfirmationSource.Task;
+                if (!hasDownloadAndInstallBeenConfirmed)
+                {
+                    Log.Warn(
+                        "Failed to download or install Ngrok, because user rejected Ngrok download and install confirmation!"
+                            .Translate());
+                    return;
+                }
+
+                try
+                {
+                    await DownloadAndInstallNgrok();
+                }
+                catch
+                {
+                    Log.WarnInform("Failed to download or install Ngrok!".Translate());
+                    throw;
+                }
             }
 
-            _ngrokProcess.BeginOutputReadLine();
-            _ngrokProcess.BeginErrorReadLine();
-
-            return started;
-        }
-
-        private void OutputDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Data))
+            if (!StartNgrok())
             {
-                NebulaModel.Logger.Log.Debug($"Ngrok Stdout: {e.Data}");
+                Log.WarnInform(
+                    string.Format("Failed to start Ngrok tunnel! LastErrorCode: {0}".Translate(), NgrokLastErrorCode));
+                return;
+            }
 
-                var json = MiniJson.Deserialize(e.Data) as Dictionary<string, object>;
-                if (json != null)
+            if (!IsNgrokActive())
+            {
+                Log.WarnInform(string.Format("Ngrok tunnel has exited prematurely! LastErrorCode: {0}".Translate(),
+                    NgrokLastErrorCode));
+            }
+        });
+    }
+
+    private async Task DownloadAndInstallNgrok()
+    {
+        using (var client = new HttpClient())
+        {
+            using (var s = client.GetStreamAsync("https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip"))
+            {
+                using (var zip = new ZipArchive(await s, ZipArchiveMode.Read))
                 {
-                    var lvl = json["lvl"] as string;
-                    if (lvl == "info")
+                    if (File.Exists(_ngrokPath))
                     {
-                        var msg = json["msg"] as string;
-                        if (msg == "starting web service")
-                        {
-                            _ngrokAPIAddress = json["addr"] as string;
-                        } else if (msg == "started tunnel")
-                        {
-                            var addr = json["addr"] as string;
-                            var url = json["url"] as string;
-                            if (
-                                (addr == $"//localhost:{_port}" || addr == $"//127.0.0.1:{_port}" || addr == $"//0.0.0.0:{_port}") &&
-                                url.StartsWith("tcp://")
-                                )
-                            {
-                                NgrokAddress = url.Replace("tcp://", "");
-                                _ngrokAddressObtainedSource.TrySetResult(true);
-                            }
-                        }
+                        File.Delete(_ngrokPath);
                     }
+                    zip.ExtractToDirectory(Path.GetDirectoryName(_ngrokPath));
                 }
             }
         }
 
-        private void ErrorDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
+        File.WriteAllLines(_ngrokConfigPath, contents);
+
+        Log.WarnInform("Ngrok install completed in the plugin folder".Translate());
+    }
+
+    private bool IsNgrokInstalled()
+    {
+        return File.Exists(_ngrokPath) && File.Exists(_ngrokConfigPath);
+    }
+
+    private bool StartNgrok()
+    {
+        StopNgrok();
+
+        _ngrokProcess = new Process();
+        _ngrokProcess.StartInfo = new ProcessStartInfo
         {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                NebulaModel.Logger.Log.Warn($"Ngrok Stderr: {e.Data}");
+            WindowStyle = ProcessWindowStyle.Hidden,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            FileName = _ngrokPath,
+            Arguments =
+                $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json --config \"{_ngrokConfigPath}\"" +
+                (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : "")
+        };
 
-                var errorCodeMatches = Regex.Matches(e.Data, @"ERR_NGROK_\d+");
-                if (errorCodeMatches.Count > 0)
-                {
-                    NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
-                    NebulaModel.Logger.Log.WarnInform(string.Format("Ngrok Error! Code: {0}".Translate(), NgrokLastErrorCode));
-                }
-            }
-        }
+        _ngrokProcess.OutputDataReceived += OutputDataReceivedEventHandler;
+        _ngrokProcess.ErrorDataReceived += ErrorDataReceivedEventHandler;
 
-        public void StopNgrok()
+        var started = _ngrokProcess.Start();
+        if (IsNgrokActive())
         {
-            if (_ngrokProcess != null)
+            // This links the process as a child process by attaching a null debugger thus ensuring that the process is killed when its parent dies.
+            new ChildProcessLinker(_ngrokProcess, exception =>
             {
-                _ngrokProcess.Refresh();
-                if (!_ngrokProcess.HasExited)
-                {
-                    _ngrokProcess.Kill();
-                    _ngrokProcess.Close();
-                }
-                _ngrokProcess = null;
-            }
-        }
-
-        public bool IsNgrokActive()
-        {
-            if (_ngrokProcess == null)
-            {
-                return false;
-            }
-
-            _ngrokProcess.Refresh();
-            return !_ngrokProcess.HasExited;
-        }
-
-        public Task<string> GetNgrokAddressAsync()
-        {
-            return Task.Run(() =>
-            {
-                if (!IsNgrokActive())
-                {
-                    throw new Exception($"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
-                }
-
-                if (!_ngrokAddressObtainedSource.Task.Wait(TimeSpan.FromSeconds(15)))
-                {
-                    throw new TimeoutException($"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode}");
-                }
-
-                return NgrokAddress;
+                Log.Warn(
+                    "Failed to link Ngrok process to DSP process as a child! (This might result in a left over ngrok process if the DSP process uncleanly killed)");
             });
         }
 
-        public async Task<string> GetTunnelAddressFromAPI()
+        _ngrokProcess.BeginOutputReadLine();
+        _ngrokProcess.BeginErrorReadLine();
+
+        return started;
+    }
+
+    private void OutputDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Data))
+        {
+            return;
+        }
+        Log.Debug($"Ngrok Stdout: {e.Data}");
+
+        if (MiniJson.Deserialize(e.Data) is not Dictionary<string, object> json)
+        {
+            return;
+        }
+        var lvl = json["lvl"] as string;
+        if (lvl != "info")
+        {
+            return;
+        }
+        var msg = json["msg"] as string;
+        switch (msg)
+        {
+            case "starting web service":
+                _ngrokAPIAddress = json["addr"] as string;
+                break;
+            case "started tunnel":
+                {
+                    var addr = json["addr"] as string;
+                    if (
+                        json["url"] is string url &&
+                        (addr == $"//localhost:{_port}" || addr == $"//127.0.0.1:{_port}" ||
+                         addr == $"//0.0.0.0:{_port}") &&
+                        url.StartsWith("tcp://")
+                    )
+                    {
+                        NgrokAddress = url.Replace("tcp://", "");
+                        _ngrokAddressObtainedSource.TrySetResult(true);
+                    }
+                    break;
+                }
+        }
+    }
+
+    private void ErrorDataReceivedEventHandler(object sender, DataReceivedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Data))
+        {
+            return;
+        }
+        Log.Warn($"Ngrok Stderr: {e.Data}");
+
+        var errorCodeMatches = Regex.Matches(e.Data, @"ERR_NGROK_\d+");
+        if (errorCodeMatches.Count <= 0)
+        {
+            return;
+        }
+        NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
+        Log.WarnInform(string.Format("Ngrok Error! Code: {0}".Translate(), NgrokLastErrorCode));
+    }
+
+    public void StopNgrok()
+    {
+        if (_ngrokProcess == null)
+        {
+            return;
+        }
+        _ngrokProcess.Refresh();
+        if (!_ngrokProcess.HasExited)
+        {
+            _ngrokProcess.Kill();
+            _ngrokProcess.Close();
+        }
+        _ngrokProcess = null;
+    }
+
+    public bool IsNgrokActive()
+    {
+        if (_ngrokProcess == null)
+        {
+            return false;
+        }
+
+        _ngrokProcess.Refresh();
+        return !_ngrokProcess.HasExited;
+    }
+
+    public Task<string> GetNgrokAddressAsync()
+    {
+        return Task.Run(() =>
         {
             if (!IsNgrokActive())
             {
-                throw new Exception($"Not able to get Ngrok tunnel address from API because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
+                throw new Exception(
+                    $"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
             }
 
-            if (_ngrokAPIAddress == null)
+            if (!_ngrokAddressObtainedSource.Task.Wait(TimeSpan.FromSeconds(15)))
             {
-                throw new Exception($"Not able to get Ngrok tunnel address because Ngrok API address is not (yet) known!");
+                throw new TimeoutException(
+                    $"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode}");
             }
 
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync($"http://{_ngrokAPIAddress}/api/tunnels");
-                if (response.IsSuccessStatusCode)
-                {
-                    var body = await response.Content.ReadAsStringAsync();
+            return NgrokAddress;
+        });
+    }
 
-                    var json = MiniJson.Deserialize(body) as Dictionary<string, object>;
-
-                    var tunnels = json["tunnels"] as List<object>;
-
-                    string publicUrl = null;
-                    foreach (Dictionary<string, object> tunnel in tunnels)
-                    {
-                        if (tunnel["proto"] as string == "tcp" && (tunnel["config"] as Dictionary<string, object>)["addr"] as string == $"localhost:{_port}")
-                        {
-                            publicUrl = tunnel["public_url"] as string;
-                            break;
-                        }
-                    }
-
-                    if (publicUrl == null)
-                    {
-                        throw new Exception("Not able to get Ngrok tunnel address because no matching tunnel was found in API response");
-                    }
-
-                    return publicUrl.Replace("tcp://", "");
-
-                } else
-                {
-                    throw new Exception("Could not access the ngrok API");
-                }
-            }
+    public async Task<string> GetTunnelAddressFromAPI()
+    {
+        if (!IsNgrokActive())
+        {
+            throw new Exception(
+                $"Not able to get Ngrok tunnel address from API because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
         }
+
+        if (_ngrokAPIAddress == null)
+        {
+            throw new Exception("Not able to get Ngrok tunnel address because Ngrok API address is not (yet) known!");
+        }
+
+        using var client = new HttpClient();
+        var response = await client.GetAsync($"http://{_ngrokAPIAddress}/api/tunnels");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception("Could not access the ngrok API");
+        }
+        var body = await response.Content.ReadAsStringAsync();
+
+        if (MiniJson.Deserialize(body) is not Dictionary<string, object> json)
+        {
+            throw new Exception(
+                "Not able to get Ngrok tunnel address because response contained invalid json");
+        }
+        var tunnels = json["tunnels"] as List<object>;
+
+        var publicUrl =
+            (from Dictionary<string, object> tunnel in tunnels
+             where tunnel["proto"] as string == "tcp" &&
+                      (tunnel["config"] as Dictionary<string, object>)?["addr"] as string == $"localhost:{_port}"
+             select tunnel["public_url"] as string).FirstOrDefault();
+
+        return publicUrl == null
+            ? throw new Exception(
+                "Not able to get Ngrok tunnel address because no matching tunnel was found in API response")
+            : publicUrl.Replace("tcp://", "");
     }
 }

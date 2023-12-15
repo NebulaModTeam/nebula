@@ -1,13 +1,13 @@
-﻿namespace NebulaModel.Packets.Statistics
-{
-    public class StatisticsDataPacket
-    {
-        public byte[] StatisticsBinaryData { get; set; }
+﻿namespace NebulaModel.Packets.Statistics;
 
-        public StatisticsDataPacket() { }
-        public StatisticsDataPacket(byte[] statisticsBinaryData)
-        {
-            StatisticsBinaryData = statisticsBinaryData;
-        }
+public class StatisticsDataPacket
+{
+    public StatisticsDataPacket() { }
+
+    public StatisticsDataPacket(byte[] statisticsBinaryData)
+    {
+        StatisticsBinaryData = statisticsBinaryData;
     }
+
+    public byte[] StatisticsBinaryData { get; set; }
 }

@@ -1,30 +1,33 @@
-﻿using NebulaAPI;
-using NebulaModel.DataStructures;
-using NebulaModel.Networking;
+﻿#region
 
-namespace NebulaModel
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
+
+#endregion
+
+namespace NebulaModel;
+
+public class NebulaPlayer : INebulaPlayer
 {
-    public class NebulaPlayer : INebulaPlayer
+    public NebulaPlayer(INebulaConnection connection, IPlayerData data)
     {
-        public INebulaConnection Connection { get; private set; }
-        public IPlayerData Data { get; private set; }
-        public ushort Id => Data.PlayerId;
-        public NebulaPlayer(NebulaConnection connection, PlayerData data)
-        {
-            Connection = connection;
-            Data = data;
-        }
+        Connection = connection;
+        Data = data;
+    }
 
-        public void SendPacket<T>(T packet) where T : class, new()
-        {
-            Connection.SendPacket(packet);
-        }
+    public INebulaConnection Connection { get; set; }
+    public IPlayerData Data { get; set; }
+    public ushort Id => Data.PlayerId;
 
-        public void LoadUserData(IPlayerData data)
-        {
-            ushort localId = Id;
-            Data = data;
-            Data.PlayerId = localId;
-        }
+    public void SendPacket<T>(T packet) where T : class, new()
+    {
+        Connection.SendPacket(packet);
+    }
+
+    public void LoadUserData(IPlayerData data)
+    {
+        var localId = Id;
+        Data = data;
+        Data.PlayerId = localId;
     }
 }

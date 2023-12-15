@@ -1,37 +1,39 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
-using System.Collections.Generic;
 
-namespace NebulaNetwork.PacketProcessors.Universe
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
+
+[RegisterPacketProcessor]
+internal class DysonSphereAddShellProcessor : PacketProcessor<DysonSphereAddShellPacket>
 {
-    [RegisterPacketProcessor]
-    internal class DysonSphereAddShellProcessor : PacketProcessor<DysonSphereAddShellPacket>
+    protected override void ProcessPacket(DysonSphereAddShellPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(DysonSphereAddShellPacket packet, NebulaConnection conn)
+        var layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+        if (layer == null)
         {
-            DysonSphereLayer layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-            if (layer == null)
+            return;
+        }
+        using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
+        {
+            var shellId = layer.shellRecycleCursor > 0 ? layer.shellRecycle[layer.shellRecycleCursor - 1] : layer.shellCursor;
+            if (shellId != packet.ShellId || layer.NewDysonShell(packet.ProtoId, [.. packet.NodeIds]) == 0)
             {
+                Log.Warn($"Cannnot add shell[{packet.ShellId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                 return;
             }
-            using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
-            {
-                int shellId = layer.shellRecycleCursor > 0 ? layer.shellRecycle[layer.shellRecycleCursor - 1] : layer.shellCursor;
-                if (shellId != packet.ShellId || layer.NewDysonShell(packet.ProtoId, new List<int>(packet.NodeIds)) == 0)
-                {
-                    Log.Warn($"Cannnot add shell[{packet.ShellId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
-                    Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
-                    return;
-                }
-            }
-            if (IsHost)
-            {
-                Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
-            }
+        }
+        if (IsHost)
+        {
+            Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
         }
     }
 }

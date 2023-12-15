@@ -1,21 +1,22 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Warning;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Warning
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Warning;
+
+[RegisterPacketProcessor]
+internal class WarningDataProcessor : PacketProcessor<WarningDataPacket>
 {
-    [RegisterPacketProcessor]
-    internal class WarningDataProcessor : PacketProcessor<WarningDataPacket>
+    protected override void ProcessPacket(WarningDataPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(WarningDataPacket packet, NebulaConnection conn)
-        {
-            Multiplayer.Session.Warning.TickData = packet.Tick;
-            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.BinaryData))
-            {
-                Multiplayer.Session.Warning.ImportBinaryData(reader.BinaryReader, packet.ActiveWarningCount);
-            }
-        }
+        Multiplayer.Session.Warning.TickData = packet.Tick;
+        using var reader = new BinaryUtils.Reader(packet.BinaryData);
+        Multiplayer.Session.Warning.ImportBinaryData(reader.BinaryReader, packet.ActiveWarningCount);
     }
 }

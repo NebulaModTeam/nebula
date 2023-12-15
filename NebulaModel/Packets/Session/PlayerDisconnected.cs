@@ -1,15 +1,15 @@
-﻿namespace NebulaModel.Packets.Session
-{
-    public class PlayerDisconnected
-    {
-        public ushort PlayerId { get; set; }
-        public ushort NumPlayers { get; set; }
+﻿namespace NebulaModel.Packets.Session;
 
-        public PlayerDisconnected() { }
-        public PlayerDisconnected(ushort playerId, ushort numPlayers)
-        {
-            PlayerId = playerId;
-            NumPlayers = numPlayers;
-        }
+public class PlayerDisconnected
+{
+    public PlayerDisconnected() { }
+
+    public PlayerDisconnected(ushort playerId, ushort numPlayers)
+    {
+        PlayerId = playerId;
+        NumPlayers = numPlayers;
     }
+
+    public ushort PlayerId { get; set; }
+    public ushort NumPlayers { get; set; }
 }

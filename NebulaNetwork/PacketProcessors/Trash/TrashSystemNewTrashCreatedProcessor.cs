@@ -1,47 +1,53 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Trash;
 using NebulaWorld;
+using NebulaWorld.Trash;
 
-namespace NebulaNetwork.PacketProcessors.Trash
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Trash;
+
+[RegisterPacketProcessor]
+internal class TrashSystemNewTrashCreatedProcessor : PacketProcessor<TrashSystemNewTrashCreatedPacket>
 {
-    [RegisterPacketProcessor]
-    internal class TrashSystemNewTrashCreatedProcessor : PacketProcessor<TrashSystemNewTrashCreatedPacket>
-    {
-        private readonly IPlayerManager playerManager;
+    private readonly IPlayerManager playerManager;
 
-        public TrashSystemNewTrashCreatedProcessor()
+    public TrashSystemNewTrashCreatedProcessor()
+    {
+        playerManager = Multiplayer.Session.Network.PlayerManager;
+    }
+
+    protected override void ProcessPacket(TrashSystemNewTrashCreatedPacket packet, NebulaConnection conn)
+    {
+        var valid = true;
+        if (IsHost)
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
+            var player = playerManager.GetPlayer(conn);
+            if (player != null)
+            {
+                playerManager.SendPacketToOtherPlayers(packet, player);
+            }
+            else
+            {
+                valid = false;
+            }
         }
 
-        public override void ProcessPacket(TrashSystemNewTrashCreatedPacket packet, NebulaConnection conn)
+        if (!valid)
         {
-            bool valid = true;
-            if (IsHost)
-            {
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
-                {
-                    playerManager.SendPacketToOtherPlayers(packet, player);
-                }
-                else
-                {
-                    valid = false;
-                }
-            }
+            return;
+        }
+        var myId = Multiplayer.Session.World.GenerateTrashOnPlayer(packet);
 
-            if (valid)
-            {
-                int myId = Multiplayer.Session.World.GenerateTrashOnPlayer(packet);
-
-                //Check if myID is same as the ID from the host
-                if (myId != packet.TrashId)
-                {
-                    Multiplayer.Session.Trashes.SwitchTrashWithIds(myId, packet.TrashId);
-                }
-            }
+        //Check if myID is same as the ID from the host
+        if (myId != packet.TrashId)
+        {
+            TrashManager.SwitchTrashWithIds(myId, packet.TrashId);
         }
     }
 }

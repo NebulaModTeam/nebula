@@ -1,16 +1,17 @@
-﻿namespace NebulaModel.Packets.Players
+﻿namespace NebulaModel.Packets.Players;
+
+public class PlayerMechaDIYArmor
 {
-    public class PlayerMechaDIYArmor
+    public PlayerMechaDIYArmor() { }
+
+    public PlayerMechaDIYArmor(byte[] diyArmorData, int[] diyItemId, int[] diyItemValue)
     {
-        public byte[] DIYAppearanceData { get; set; }
-        public int[] DIYItemId { get; set; }
-        public int[] DIYItemValue { get; set; }
-        public PlayerMechaDIYArmor() { }
-        public PlayerMechaDIYArmor(byte[] diyArmorData, int[] diyItemId, int[] diyItemValue)
-        {
-            DIYAppearanceData = diyArmorData;
-            DIYItemId = diyItemId;
-            DIYItemValue = diyItemValue;
-        }
+        DIYAppearanceData = diyArmorData;
+        DIYItemId = diyItemId;
+        DIYItemValue = diyItemValue;
     }
+
+    public byte[] DIYAppearanceData { get; set; }
+    public int[] DIYItemId { get; set; }
+    public int[] DIYItemValue { get; set; }
 }

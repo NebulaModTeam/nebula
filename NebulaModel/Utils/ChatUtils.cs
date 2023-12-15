@@ -1,153 +1,151 @@
-﻿using NebulaModel.DataStructures;
-using NebulaModel.Packets.Players;
+﻿#region
+
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NebulaModel.DataStructures.Chat;
 using TMPro;
 using UnityEngine;
 
-namespace NebulaModel.Utils
+#endregion
+
+namespace NebulaModel.Utils;
+
+public static class ChatUtils
 {
-    public static class ChatUtils
+    private const float ReferenceX = 1920;
+    private const float ReferenceY = 1080;
+
+    private static readonly string[] AllowedTags =
     {
-        internal static readonly string[] AllowedTags = {"b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"};
+        "b", "i", "s", "u", "indent", "link", "mark", "sprite", "sub", "sup", "color"
+    };
 
-        internal static readonly Vector2[] ChatMargins = {
-            new Vector2(10, 350),
-            new Vector2(10, 350),
-            new Vector2(10, 10),
-            new Vector2(10, 100)
-        };
+    private static readonly Vector2[] ChatMargins = { new(10, 350), new(10, 350), new(10, 10), new(10, 100) };
 
 
-        internal static readonly Vector2[] ChatSizes = {
-            new Vector2(500, 300),
-            new Vector2(700, 420),
-            new Vector2(800, 480)
-        };
+    private static readonly Vector2[] ChatSizes = { new(500, 300), new(700, 420), new(800, 480) };
 
-        internal const float ReferenceX = 1920;
-        internal const float ReferenceY = 1080;
+    public static Vector2 GetDefaultPosition(ChatPosition position, ChatSize size)
+    {
+        var chatSize = GetDefaultSize(size);
+        var margin = ChatMargins[(int)position];
+        var snapRight = ((int)position & 1) == 1;
+        var snapTop = ((int)position & 2) == 2;
 
-        public static Vector2 GetDefaultPosition(ChatPosition position, ChatSize size)
+        float needXPos;
+        float needYPos;
+
+        if (snapRight)
         {
-            Vector2 chatSize = GetDefaultSize(size);
-            Vector2 margin = ChatMargins[(int)position];
-            bool snapRight = ((int)position & 1) == 1;
-            bool snapTop = ((int)position & 2) == 2;
+            needXPos = ReferenceX - margin.x - chatSize.x;
+        }
+        else
+        {
+            needXPos = margin.x;
+        }
 
-            float needXPos;
-            float needYPos;
-            
-            if (snapRight)
+        if (snapTop)
+        {
+            needYPos = -margin.y;
+        }
+        else
+        {
+            needYPos = -ReferenceY + margin.y + chatSize.y;
+        }
+
+        needXPos *= Screen.width / ReferenceX;
+        needYPos *= Screen.height / ReferenceY;
+
+        return new Vector2(needXPos, needYPos);
+    }
+
+    public static Vector2 GetDefaultSize(ChatSize size)
+    {
+        var chatSize = ChatSizes[(int)size];
+        chatSize.x *= Screen.width / ReferenceX;
+        chatSize.y *= Screen.height / ReferenceY;
+        return chatSize;
+    }
+
+
+    public static string SanitizeText(string input)
+    {
+        // Matches any valid rich text tag. For example: <sprite name="hello" index=5>
+        var regex = new Regex("""<([/\w]+)=?["#]?\w*"?\s?[\s\w"=]*>""");
+
+        return regex.Replace(input, match =>
+        {
+            var tagName = match.Groups[1].Value;
+            if (AllowedTags.Contains(tagName) || AllowedTags.Contains(tagName.Substring(1)))
             {
-                needXPos = ReferenceX - margin.x - chatSize.x;
+                return match.Value;
             }
-            else
-            {
-                needXPos = margin.x;
-            }
+            return "";
+        });
+    }
 
-            if (snapTop)
-            {
-                needYPos = -margin.y;
-            }
-            else
-            {
-                needYPos = -ReferenceY + margin.y + chatSize.y;
-            }
-
-            needXPos *= Screen.width / ReferenceX;
-            needYPos *= Screen.height / ReferenceY;
-
-            return new Vector2(needXPos, needYPos);
-        }
-        
-        public static Vector2 GetDefaultSize(ChatSize size)
+    public static Color GetMessageColor(ChatMessageType messageType)
+    {
+        switch (messageType)
         {
-            Vector2 chatSize = ChatSizes[(int)size];
-            chatSize.x *= Screen.width / ReferenceX;
-            chatSize.y *= Screen.height / ReferenceY;
-            return chatSize;
+            case ChatMessageType.PlayerMessage:
+                return Color.white;
+
+            case ChatMessageType.SystemInfoMessage:
+                return Color.cyan;
+
+            case ChatMessageType.SystemWarnMessage:
+                return new Color(1, 0.95f, 0, 1);
+
+            case ChatMessageType.CommandUsageMessage:
+                return new Color(1, 0.65f, 0, 1);
+
+            case ChatMessageType.CommandOutputMessage:
+                return new Color(0.8f, 0.8f, 0.8f, 1);
+
+            case ChatMessageType.CommandErrorMessage:
+                return Color.red;
+
+            case ChatMessageType.PlayerMessagePrivate:
+                return Color.green;
+
+            default:
+                Console.WriteLine($"Requested color for unexpected chat message type {messageType}");
+                return Color.white;
         }
-        
-        
-        public static string SanitizeText(string input)
+    }
+
+    public static bool IsCommandMessage(this ChatMessageType type)
+    {
+        return type is ChatMessageType.CommandOutputMessage or ChatMessageType.CommandUsageMessage or ChatMessageType.CommandErrorMessage or ChatMessageType.SystemWarnMessage or ChatMessageType.SystemInfoMessage;
+    }
+
+    public static bool Contains(this string source, string toCheck, StringComparison comp)
+    {
+        return source?.IndexOf(toCheck, comp) >= 0;
+    }
+
+    public static void Insert(this TMP_InputField field, string str)
+    {
+        if (field.m_ReadOnly)
         {
-            // Matches any valid rich text tag. For example: <sprite name="hello" index=5>
-            Regex regex = new Regex(@"<([/\w]+)=?[""#]?\w*""?\s?[\s\w""=]*>");
-
-            return regex.Replace(input, match =>
-            {
-                string tagName = match.Groups[1].Value;
-                if (AllowedTags.Contains(tagName) || AllowedTags.Contains(tagName.Substring(1)))
-                {
-                    return match.Value;
-                }
-                return "";
-            });
+            return;
         }
 
-        public static Color GetMessageColor(ChatMessageType messageType)
+        field.Delete();
+
+        // Can't go past the character limit
+        if (field.characterLimit > 0 && field.text.Length >= field.characterLimit)
         {
-            switch (messageType)
-            {
-                case ChatMessageType.PlayerMessage:
-                    return Color.white;
-
-                case ChatMessageType.SystemInfoMessage:
-                    return Color.cyan;
-
-                case ChatMessageType.SystemWarnMessage:
-                    return new Color(1,0.95f,0,1);
-                
-                case ChatMessageType.CommandUsageMessage:
-                    return new Color(1,0.65f,0,1);
-                
-                case ChatMessageType.CommandOutputMessage:
-                    return new Color(0.8f,0.8f,0.8f,1);
-                
-                case ChatMessageType.CommandErrorMessage:
-                    return Color.red;
-
-                case ChatMessageType.PlayerMessagePrivate:
-                    return Color.green;
-                
-                default:
-                    Console.WriteLine($"Requested color for unexpected chat message type {messageType}");
-                    return Color.white;
-            }
+            return;
         }
 
-        public static bool IsCommandMessage(this ChatMessageType type)
-        {
-            return type == ChatMessageType.CommandOutputMessage ||
-                   type == ChatMessageType.CommandUsageMessage ||
-                   type == ChatMessageType.CommandErrorMessage ||
-                   type == ChatMessageType.SystemWarnMessage ||
-                   type == ChatMessageType.SystemInfoMessage;
-        }
-        
-        public static bool Contains(this string source, string toCheck, StringComparison comp)
-        {
-            return source?.IndexOf(toCheck, comp) >= 0;
-        }
+        field.text = field.text.Insert(field.m_StringPosition, str);
 
-        public static void Insert(this TMP_InputField field, string str)
-        {
-            if (field.m_ReadOnly) return;
+        field.stringSelectPositionInternal = field.stringPositionInternal += str.Length;
 
-            field.Delete();
-
-            // Can't go past the character limit
-            if (field.characterLimit > 0 && field.text.Length >= field.characterLimit) return;
-
-            field.text = field.text.Insert(field.m_StringPosition, str);
-
-            field.stringSelectPositionInternal = field.stringPositionInternal += str.Length;
-
-            field.UpdateTouchKeyboardFromEditChanges();
-            field.SendOnValueChanged();
-        }
+        field.UpdateTouchKeyboardFromEditChanges();
+        field.SendOnValueChanged();
     }
 }

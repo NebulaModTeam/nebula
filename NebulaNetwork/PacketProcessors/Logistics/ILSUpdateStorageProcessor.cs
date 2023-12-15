@@ -1,22 +1,25 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld;
+using NebulaWorld.Logistics;
 
-namespace NebulaNetwork.PacketProcessors.Logistics
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Logistics;
+
+[RegisterPacketProcessor]
+public class ILSUpdateStorageProcessor : PacketProcessor<ILSUpdateStorage>
 {
-    [RegisterPacketProcessor]
-    public class ILSUpdateStorageProcessor : PacketProcessor<ILSUpdateStorage>
+    protected override void ProcessPacket(ILSUpdateStorage packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(ILSUpdateStorage packet, NebulaConnection conn)
+        if (IsHost)
         {
-            if (IsHost)
-            {
-                return;
-            }
-
-            Multiplayer.Session.Ships.UpdateStorage(packet);
+            return;
         }
+
+        ILSShipManager.UpdateStorage(packet);
     }
 }

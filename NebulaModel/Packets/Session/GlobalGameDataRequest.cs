@@ -1,7 +1,3 @@
-﻿namespace NebulaModel.Packets.Session
-{
-    public class GlobalGameDataRequest
-    {
-        public GlobalGameDataRequest() { }
-    }
-}
+﻿namespace NebulaModel.Packets.Session;
+
+public class GlobalGameDataRequest;

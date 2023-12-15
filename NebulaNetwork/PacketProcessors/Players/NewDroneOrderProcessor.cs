@@ -1,46 +1,52 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.GameState;
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
+using NebulaWorld.Player;
 
-namespace NebulaNetwork.PacketProcessors.Players
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Players;
+
+[RegisterPacketProcessor]
+internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
 {
-    [RegisterPacketProcessor]
-    internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
+    private readonly IPlayerManager playerManager;
+
+    public NewDroneOrderProcessor()
     {
-        private readonly IPlayerManager playerManager;
+        playerManager = Multiplayer.Session.Network.PlayerManager;
+    }
 
-        public NewDroneOrderProcessor()
+    protected override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
+    {
+        // Host does not need to know about flying drones of other players if he is not on the same planet
+        if (IsHost)
         {
-            playerManager = Multiplayer.Session.Network.PlayerManager;
-        }
-
-        public override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
-        {
-            // Host does not need to know about flying drones of other players if he is not on the same planet
-            if (IsHost)
+            if (GameMain.mainPlayer.planetId != packet.PlanetId)
             {
-                if (GameMain.mainPlayer.planetId != packet.PlanetId)
-                {
-                    return;
-                }
-
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                if (player != null)
-                {
-                    if (packet.Stage == 1 || packet.Stage == 2)
-                    {
-                        Multiplayer.Session.Drones.AddPlayerDronePlan(player.Id, packet.EntityId);
-                    }
-                    else if (packet.Stage == 3)
-                    {
-                        Multiplayer.Session.Drones.RemovePlayerDronePlan(player.Id, packet.EntityId);
-                    }
-                }
+                return;
             }
 
-            Multiplayer.Session.World.UpdateRemotePlayerDrone(packet);
+            var player = playerManager.GetPlayer(conn);
+            if (player != null)
+            {
+                switch (packet.Stage)
+                {
+                    case 1 or 2:
+                        DroneManager.AddPlayerDronePlan(player.Id, packet.EntityId);
+                        break;
+                    case 3:
+                        DroneManager.RemovePlayerDronePlan(player.Id, packet.EntityId);
+                        break;
+                }
+            }
         }
+
+        Multiplayer.Session.World.UpdateRemotePlayerDrone(packet);
     }
 }

@@ -1,288 +1,261 @@
-﻿using NebulaModel.Logger;
+﻿#region
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using NebulaModel.Logger;
 
-namespace NebulaWorld.Factory
+#endregion
+
+namespace NebulaWorld.Factory;
+
+public class PowerTowerManager : IDisposable
 {
-    public class PowerTowerManager : IDisposable
+    private int ChargerCount;
+
+    private ConcurrentDictionary<int, List<EnergyMapping>> Energy = new();
+    public int PlayerChargeAmount;
+    private ConcurrentDictionary<int, List<Requested>> RequestsSent = new();
+
+    public void Dispose()
     {
-        public class EnergyMapping
+        Energy.Clear();
+        Energy = null;
+
+        RequestsSent.Clear();
+        RequestsSent = null;
+
+        GC.SuppressFinalize(this);
+    }
+
+    public void GivePlayerPower()
+    {
+        if (Multiplayer.Session.LocalPlayer.IsHost)
         {
-            public int NetId = 0;
-            public List<int> NodeId = new List<int>();
-            public List<int> Activated = new List<int>();
-            public int ExtraPower = 0;
+            // host gets it anyways
+            return;
         }
 
-        public class Requested
+        if (PlayerChargeAmount <= 0)
         {
-            public int NetId = 0;
-            public int NodeId = 0;
-            public bool Charging = false;
+            return;
         }
-
-        public ConcurrentDictionary<int, List<EnergyMapping>> Energy;
-        public ConcurrentDictionary<int, List<Requested>> RequestsSent;
-
-        public int ChargerCount = 0;
-        public int PlayerChargeAmount = 0;
-
-        public PowerTowerManager()
+        GameMain.mainPlayer.mecha.coreEnergy += PlayerChargeAmount;
+        GameMain.mainPlayer.mecha.MarkEnergyChange(2, PlayerChargeAmount);
+        if (GameMain.mainPlayer.mecha.coreEnergy > GameMain.mainPlayer.mecha.coreEnergyCap)
         {
-            Energy = new ConcurrentDictionary<int, List<EnergyMapping>>();
-            RequestsSent = new ConcurrentDictionary<int, List<Requested>>();
+            GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
         }
+    }
 
-        public void Dispose()
+    // return true if added or changed state, false if already known
+    public bool AddRequested(int PlanetId, int NetId, int NodeId, bool Charging, bool eventFromOtherPlayer)
+    {
+        if (RequestsSent.TryGetValue(PlanetId, out var requests))
         {
-            Energy.Clear();
-            Energy = null;
-
-            RequestsSent.Clear();
-            RequestsSent = null;
-        }
-
-        public void GivePlayerPower()
-        {
-            if (Multiplayer.Session.LocalPlayer.IsHost)
+            foreach (var t in requests.Where(t => t.NetId == NetId && t.NodeId == NodeId))
             {
-                // host gets it anyways
-                return;
-            }
-
-            if (PlayerChargeAmount > 0)
-            {
-                GameMain.mainPlayer.mecha.coreEnergy += PlayerChargeAmount;
-                GameMain.mainPlayer.mecha.MarkEnergyChange(2, PlayerChargeAmount);
-                if (GameMain.mainPlayer.mecha.coreEnergy > GameMain.mainPlayer.mecha.coreEnergyCap)
+                if (t.Charging == Charging)
                 {
-                    GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
+                    return false;
                 }
-            }
-        }
-
-        // return true if added or changed state, false if already known
-        public bool AddRequested(int PlanetId, int NetId, int NodeId, bool Charging, bool eventFromOtherPlayer)
-        {
-            if (RequestsSent.TryGetValue(PlanetId, out List<Requested> requests))
-            {
-                for (int i = 0; i < requests.Count; i++)
+                if (Charging == false)
                 {
-                    if (requests[i].NetId == NetId && requests[i].NodeId == NodeId)
+                    var factory = GameMain.galaxy.PlanetById(PlanetId)?.factory;
+
+                    if (factory is { powerSystem: not null })
                     {
-                        if (requests[i].Charging != Charging)
+                        var baseDemand = factory.powerSystem.nodePool[NodeId].workEnergyPerTick -
+                                         factory.powerSystem.nodePool[NodeId].idleEnergyPerTick;
+                        var mult = factory.powerSystem.networkServes[NetId];
+
+                        PlayerChargeAmount -= (int)(mult * baseDemand);
+                        ChargerCount--;
+
+                        if (PlayerChargeAmount < 0)
                         {
-                            if (Charging == false)
-                            {
-                                PlanetFactory factory = GameMain.galaxy.PlanetById(PlanetId)?.factory;
-
-                                if (factory != null && factory.powerSystem != null)
-                                {
-                                    int baseDemand = factory.powerSystem.nodePool[NodeId].workEnergyPerTick - factory.powerSystem.nodePool[NodeId].idleEnergyPerTick;
-                                    float mult = factory.powerSystem.networkServes[NetId];
-
-                                    PlayerChargeAmount -= (int)(mult * baseDemand);
-                                    ChargerCount--;
-
-                                    if (PlayerChargeAmount < 0)
-                                    {
-                                        PlayerChargeAmount = 0;
-                                    }
-                                    if (ChargerCount == 0)
-                                    {
-                                        PlayerChargeAmount = 0;
-                                    }
-                                }
-                            }
-                            if (!eventFromOtherPlayer)
-                            {
-                                requests[i].Charging = Charging;
-                            }
-                            return true;
+                            PlayerChargeAmount = 0;
                         }
-                        return false;
+                        if (ChargerCount == 0)
+                        {
+                            PlayerChargeAmount = 0;
+                        }
                     }
                 }
-
-                Requested req = new Requested
+                if (!eventFromOtherPlayer)
                 {
-                    NetId = NetId,
-                    NodeId = NodeId
-                };
-
-                requests.Add(req);
-
+                    t.Charging = Charging;
+                }
                 return true;
             }
 
-            List<Requested> list = new List<Requested>();
-            Requested req2 = new Requested
-            {
-                NetId = NetId,
-                NodeId = NodeId
-            };
+            var req = new Requested { NetId = NetId, NodeId = NodeId };
 
-            list.Add(req2);
-            return RequestsSent.TryAdd(PlanetId, list);
+            requests.Add(req);
+
+            return true;
         }
 
-        public bool DidRequest(int PlanetId, int NetId, int NodeId)
-        {
-            if (RequestsSent.TryGetValue(PlanetId, out List<Requested> requests))
-            {
-                for (int i = 0; i < requests.Count; i++)
-                {
-                    if (requests[i].NetId == NetId && requests[i].NodeId == NodeId && requests[i].Charging)
-                    {
-                        ChargerCount++;
-                        return true;
-                    }
-                }
-            }
+        var list = new List<Requested>();
+        var req2 = new Requested { NetId = NetId, NodeId = NodeId };
 
+        list.Add(req2);
+        return RequestsSent.TryAdd(PlanetId, list);
+    }
+
+    public bool DidRequest(int PlanetId, int NetId, int NodeId)
+    {
+        if (!RequestsSent.TryGetValue(PlanetId, out var requests))
+        {
             return false;
         }
-
-        public int GetExtraDemand(int PlanetId, int NetId)
+        if (!requests.Any(t => t.NetId == NetId && t.NodeId == NodeId && t.Charging))
         {
+            return false;
+        }
+        ChargerCount++;
+        return true;
+    }
 
-            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
-            {
-                if (Monitor.TryEnter(mapping, 100))
-                {
-                    try
-                    {
-                        for (int i = 0; i < mapping.Count; i++)
-                        {
-                            if (mapping[i].NetId == NetId)
-                            {
-                                return mapping[i].ExtraPower;
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Monitor.Exit(mapping);
-                    }
-                }
-                else
-                {
-                    Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
-                }
-            }
-
+    public int GetExtraDemand(int PlanetId, int NetId)
+    {
+        if (!Energy.TryGetValue(PlanetId, out var mapping))
+        {
             return 0;
         }
-
-        public void RemExtraDemand(int PlanetId, int NetId, int NodeId)
+        if (Monitor.TryEnter(mapping, 100))
         {
-            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
+            try
             {
-                for (int i = 0; i < mapping.Count; i++)
+                foreach (var t in mapping.Where(t => t.NetId == NetId))
                 {
-                    if (mapping[i].NetId == NetId)
+                    return t.ExtraPower;
+                }
+            }
+            finally
+            {
+                Monitor.Exit(mapping);
+            }
+        }
+        else
+        {
+            Log.Warn("PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
+        }
+
+        return 0;
+    }
+
+    public void RemExtraDemand(int PlanetId, int NetId, int NodeId)
+    {
+        if (!Energy.TryGetValue(PlanetId, out var mapping))
+        {
+            return;
+        }
+        foreach (var t in mapping)
+        {
+            if (t.NetId != NetId)
+            {
+                continue;
+            }
+            var factory = GameMain.galaxy.PlanetById(PlanetId).factory;
+            var pSystem = factory?.powerSystem;
+
+            if (Monitor.TryEnter(mapping, 100))
+            {
+                try
+                {
+                    for (var j = 0; j < t.NodeId.Count; j++)
                     {
-                        PlanetFactory factory = GameMain.galaxy.PlanetById(PlanetId).factory;
-                        PowerSystem pSystem = factory?.powerSystem;
-
-                        if (Monitor.TryEnter(mapping, 100))
+                        if (t.NodeId[j] != NodeId)
                         {
-                            try
-                            {
-                                for (int j = 0; j < mapping[i].NodeId.Count; j++)
-                                {
-                                    if (mapping[i].NodeId[j] == NodeId)
-                                    {
-                                        if (factory != null && pSystem != null)
-                                        {
-                                            mapping[i].ExtraPower -= pSystem.nodePool[NodeId].workEnergyPerTick;
-                                        }
-                                        else
-                                        {
-                                            mapping[i].ExtraPower -= mapping[i].ExtraPower / mapping[i].NodeId.Count;
-                                        }
-
-                                        mapping[i].Activated[j]--;
-                                        AddRequested(PlanetId, NetId, NodeId, false, true);
-
-                                        break;
-                                    }
-                                }
-                            }
-                            finally
-                            {
-                                Monitor.Exit(mapping);
-                            }
+                            continue;
+                        }
+                        if (factory != null && pSystem != null)
+                        {
+                            t.ExtraPower -= pSystem.nodePool[NodeId].workEnergyPerTick;
                         }
                         else
                         {
-                            Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
+                            t.ExtraPower -= t.ExtraPower / t.NodeId.Count;
                         }
 
-                        if (mapping[i].ExtraPower < 0)
-                        {
-                            mapping[i].ExtraPower = 0;
-                        }
+                        t.Activated[j]--;
+                        AddRequested(PlanetId, NetId, NodeId, false, true);
+
+                        break;
                     }
                 }
+                finally
+                {
+                    Monitor.Exit(mapping);
+                }
+            }
+            else
+            {
+                Log.Warn("PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
+            }
+
+            if (t.ExtraPower < 0)
+            {
+                t.ExtraPower = 0;
             }
         }
+    }
 
-        public void AddExtraDemand(int PlanetId, int NetId, int NodeId, int PowerAmount)
+    public void AddExtraDemand(int PlanetId, int NetId, int NodeId, int PowerAmount)
+    {
+        while (true)
         {
-            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
+            if (Energy.TryGetValue(PlanetId, out var mapping))
             {
-                for (int i = 0; i < mapping.Count; i++)
+                foreach (var t in mapping)
                 {
                     if (Monitor.TryEnter(mapping, 100))
                     {
                         try
                         {
-                            if (mapping[i].NetId == NetId)
+                            if (t.NetId != NetId)
                             {
-                                bool foundNodeId = false;
-                                for (int j = 0; j < mapping[i].NodeId.Count; j++)
+                                continue;
+                            }
+                            var foundNodeId = false;
+                            for (var j = 0; j < t.NodeId.Count; j++)
+                            {
+                                if (t.NodeId[j] != NodeId)
                                 {
-                                    if (mapping[i].NodeId[j] == NodeId)
-                                    {
-                                        foundNodeId = true;
-                                        mapping[i].Activated[j]++;
-                                        mapping[i].ExtraPower += PowerAmount;
-                                        break;
-                                    }
+                                    continue;
                                 }
+                                foundNodeId = true;
+                                t.Activated[j]++;
+                                t.ExtraPower += PowerAmount;
+                                break;
+                            }
 
-                                if (!foundNodeId)
-                                {
-                                    mapping[i].NodeId.Add(NodeId);
-                                    mapping[i].Activated.Add(1);
-                                    mapping[i].ExtraPower += PowerAmount;
-                                }
-
+                            if (foundNodeId)
+                            {
                                 return;
                             }
+                            t.NodeId.Add(NodeId);
+                            t.Activated.Add(1);
+                            t.ExtraPower += PowerAmount;
+
+                            return;
                         }
                         finally
                         {
                             Monitor.Exit(mapping);
                         }
                     }
-                    else
-                    {
-                        Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
-                    }
+                    Log.Warn("PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
                 }
 
                 if (Monitor.TryEnter(mapping, 100))
                 {
                     try
                     {
-                        EnergyMapping map = new EnergyMapping
-                        {
-                            NetId = NetId
-                        };
+                        var map = new EnergyMapping { NetId = NetId };
                         map.NodeId.Add(NodeId);
                         map.Activated.Add(1);
                         map.ExtraPower = PowerAmount;
@@ -296,17 +269,14 @@ namespace NebulaWorld.Factory
                 }
                 else
                 {
-                    Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
+                    Log.Warn("PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
                 }
             }
             else
             {
-                List<EnergyMapping> mapping2 = new List<EnergyMapping>();
+                var mapping2 = new List<EnergyMapping>();
 
-                EnergyMapping map = new EnergyMapping
-                {
-                    NetId = NetId
-                };
+                var map = new EnergyMapping { NetId = NetId };
                 map.NodeId.Add(NodeId);
                 map.Activated.Add(1);
                 map.ExtraPower = PowerAmount;
@@ -315,59 +285,80 @@ namespace NebulaWorld.Factory
                 if (!Energy.TryAdd(PlanetId, mapping2))
                 {
                     // if we failed to add then most likely because another thread was faster, so call this again to run the above part of the method.
-                    AddExtraDemand(PlanetId, NetId, NodeId, PowerAmount);
+                    continue;
                 }
             }
+            break;
         }
+    }
 
-        public void UpdateAllAnimations(int PlanetId)
+    public void UpdateAllAnimations(int PlanetId)
+    {
+        if (!Energy.TryGetValue(PlanetId, out var mapping))
         {
-            if (Energy.TryGetValue(PlanetId, out List<EnergyMapping> mapping))
-            {
-                if (Monitor.TryEnter(mapping, 100))
-                {
-                    try
-                    {
-                        for (int i = 0; i < mapping.Count; i++)
-                        {
-                            for (int j = 0; j < mapping[i].Activated.Count; j++)
-                            {
-                                UpdateAnimation(PlanetId, mapping[i].NetId, mapping[i].NodeId[j], mapping[i].Activated[j] > 0 ? 1 : 0);
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Monitor.Exit(mapping);
-                    }
-                }
-                else
-                {
-                    Log.Warn($"PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
-                }
-            }
+            return;
         }
-
-        public void UpdateAnimation(int PlanetId, int NetId, int NodeId, int PowerAmount)
+        if (Monitor.TryEnter(mapping, 100))
         {
-            float idkValue = 0.016666668f;
-            PlanetFactory factory = GameMain.galaxy.PlanetById(PlanetId)?.factory;
-
-            if (factory != null && factory.entityAnimPool != null && factory.powerSystem != null)
+            try
             {
-                PowerNodeComponent pComp = factory.powerSystem.nodePool[NodeId];
-                AnimData[] animPool = factory.entityAnimPool;
-                int entityId = pComp.entityId;
-
-                if (pComp.coverRadius < 15f)
+                foreach (var t in mapping)
                 {
-                    animPool[entityId].StepPoweredClamped(factory.powerSystem.networkServes[NetId], idkValue, (PowerAmount > 0) ? 2U : 1U);
-                }
-                else
-                {
-                    animPool[entityId].StepPoweredClamped2(factory.powerSystem.networkServes[NetId], idkValue, (PowerAmount > 0) ? 2U : 1U);
+                    for (var j = 0; j < t.Activated.Count; j++)
+                    {
+                        UpdateAnimation(PlanetId, t.NetId, t.NodeId[j],
+                            t.Activated[j] > 0 ? 1 : 0);
+                    }
                 }
             }
+            finally
+            {
+                Monitor.Exit(mapping);
+            }
         }
+        else
+        {
+            Log.Warn("PowerTower: cant wait longer for threading lock, PowerTowers will be desynced!");
+        }
+    }
+
+    private static void UpdateAnimation(int PlanetId, int NetId, int NodeId, int PowerAmount)
+    {
+        const float idkValue = 0.016666668f;
+        var factory = GameMain.galaxy.PlanetById(PlanetId)?.factory;
+
+        if (factory is not { entityAnimPool: not null, powerSystem: not null })
+        {
+            return;
+        }
+        var pComp = factory.powerSystem.nodePool[NodeId];
+        var animPool = factory.entityAnimPool;
+        var entityId = pComp.entityId;
+
+        if (pComp.coverRadius < 15f)
+        {
+            animPool[entityId].StepPoweredClamped(factory.powerSystem.networkServes[NetId], idkValue,
+                PowerAmount > 0 ? 2U : 1U);
+        }
+        else
+        {
+            animPool[entityId].StepPoweredClamped2(factory.powerSystem.networkServes[NetId], idkValue,
+                PowerAmount > 0 ? 2U : 1U);
+        }
+    }
+
+    private class EnergyMapping
+    {
+        public readonly List<int> Activated = [];
+        public readonly List<int> NodeId = [];
+        public int ExtraPower;
+        public int NetId;
+    }
+
+    private class Requested
+    {
+        public bool Charging;
+        public int NetId;
+        public int NodeId;
     }
 }

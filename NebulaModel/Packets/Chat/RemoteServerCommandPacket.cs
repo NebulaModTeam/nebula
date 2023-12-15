@@ -1,25 +1,24 @@
-﻿namespace NebulaModel.Packets.Players
+﻿namespace NebulaModel.Packets.Chat;
+
+public class RemoteServerCommandPacket
 {
-    public class RemoteServerCommandPacket
+    public RemoteServerCommandPacket() { }
+
+    public RemoteServerCommandPacket(RemoteServerCommand comand, string content)
     {
-        public RemoteServerCommand Command { get; set; }
-        public string Content { get; set; }
-
-        public RemoteServerCommandPacket () {}
-
-        public RemoteServerCommandPacket(RemoteServerCommand comand, string content) 
-        {
-            Command = comand;
-            Content = content;
-        }
+        Command = comand;
+        Content = content;
     }
 
-    public enum RemoteServerCommand
-    {
-        Login,
-        ServerList,
-        ServerSave,
-        ServerLoad,
-        ServerInfo
-    }
+    public RemoteServerCommand Command { get; set; }
+    public string Content { get; set; }
+}
+
+public enum RemoteServerCommand
+{
+    Login,
+    ServerList,
+    ServerSave,
+    ServerLoad,
+    ServerInfo
 }

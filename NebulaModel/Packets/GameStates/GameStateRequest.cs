@@ -1,16 +1,14 @@
-﻿using NebulaAPI;
+﻿#region
+
 using System;
+using NebulaAPI.Packets;
 
-namespace NebulaModel.Packets.GameStates
+#endregion
+
+namespace NebulaModel.Packets.GameStates;
+
+[HidePacketInDebugLogs]
+public class GameStateRequest
 {
-    [HidePacketInDebugLogs]
-    public class GameStateRequest
-    {
-        public long SentTimestamp { get; set; }
-
-        public GameStateRequest()
-        {
-            SentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        }
-    }
+    public long SentTimestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 }

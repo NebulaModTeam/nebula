@@ -1,93 +1,105 @@
-﻿using HarmonyLib;
+﻿#region
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.PowerTower;
 using NebulaWorld;
-using System;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
-namespace NebulaPatcher.Patches.Transpilers
+#endregion
+
+namespace NebulaPatcher.Patches.Transpilers;
+
+[HarmonyPatch(typeof(PowerSystem))]
+internal class PowerSystem_Transpiler
 {
-    [HarmonyPatch(typeof(PowerSystem))]
-    internal class PowerSystem_Transpiler
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(PowerSystem.GameTick))]
+    public static IEnumerable<CodeInstruction> PowerSystem_GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        private delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions)
+            .MatchForward(true,
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Ldelema),
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Ldelema),
+                new CodeMatch(OpCodes.Ldfld,
+                    AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.workEnergyPerTick))),
+                new CodeMatch(OpCodes.Stfld,
+                    AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))));
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(nameof(PowerSystem.GameTick))]
-        public static IEnumerable<CodeInstruction> PowerSystem_GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
+        if (codeMatcher.IsInvalid)
         {
-            CodeMatcher codeMatcher = new CodeMatcher(instructions)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.workEnergyPerTick))),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))));
+            Log.Error("PowerSystem_GameTick_Transpiler 1 failed. Mod version not compatible with game version.");
+            return codeInstructions;
+        }
 
-            if (codeMatcher.IsInvalid)
+        codeMatcher = codeMatcher
+            .Advance(1)
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
+            .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((_this, powerNodeId, powerNetId) =>
             {
-                NebulaModel.Logger.Log.Error("PowerSystem_GameTick_Transpiler 1 failed. Mod version not compatible with game version.");
-                return instructions;
-            }
-
-            codeMatcher = codeMatcher
-                .Advance(1)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
-                .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
+                if (!Multiplayer.IsActive)
                 {
-                    if (Multiplayer.IsActive)
+                    return;
+                }
+                if (!Multiplayer.Session.LocalPlayer.IsHost)
+                {
+                    _this.nodePool[powerNodeId].requiredEnergy =
+                        _this.nodePool[powerNodeId]
+                            .idleEnergyPerTick; // this gets added onto the known required energy by Multiplayer.Session.PowerTowers. and PowerSystem_Patch
+                    if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
                     {
-                        if (!Multiplayer.Session.LocalPlayer.IsHost)
-                        {
-                            _this.nodePool[powerNodeId].requiredEnergy = _this.nodePool[powerNodeId].idleEnergyPerTick; // this gets added onto the known required energy by Multiplayer.Session.PowerTowers. and PowerSystem_Patch
-                            if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
-                            {
-                                Multiplayer.Session.Network.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, true));
-                            }
-                        }
-                        else
-                        {
-                            PowerNetwork pNet = _this.netPool[powerNetId];
-                            if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true, false))
-                            {
-                                Multiplayer.Session.PowerTowers.AddExtraDemand(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick);
-                                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
-                                pNet.energyCapacity,
-                                pNet.energyRequired,
-                                pNet.energyServed,
-                                pNet.energyAccumulated,
-                                pNet.energyExchanged,
-                                true));
-                            }
-                        }
+                        Multiplayer.Session.Network.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId,
+                            powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, true));
                     }
-                }))
-                // now search for where its set back to idle after player leaves radius / has charged fully
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldelema),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.idleEnergyPerTick))),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))));
+                }
+                else
+                {
+                    var pNet = _this.netPool[powerNetId];
+                    if (!Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, true,
+                            false))
+                    {
+                        return;
+                    }
+                    Multiplayer.Session.PowerTowers.AddExtraDemand(_this.planet.id, powerNetId, powerNodeId,
+                        _this.nodePool[powerNodeId].workEnergyPerTick);
+                    Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id,
+                        powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
+                        pNet.energyCapacity,
+                        pNet.energyRequired,
+                        pNet.energyServed,
+                        pNet.energyAccumulated,
+                        pNet.energyExchanged,
+                        true));
+                }
+            }))
+            // now search for where its set back to idle after player leaves radius / has charged fully
+            .MatchForward(true,
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Ldelema),
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), nameof(PowerSystem.nodePool))),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Ldelema),
+                new CodeMatch(OpCodes.Ldfld,
+                    AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.idleEnergyPerTick))),
+                new CodeMatch(OpCodes.Stfld,
+                    AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))));
 
-            if (codeMatcher.IsInvalid)
-            {
-                NebulaModel.Logger.Log.Error("PowerSystem_GameTick_Transpiler 2 failed. Mod version not compatible with game version.");
-                return codeMatcher.InstructionEnumeration();
-            }
-
+        if (!codeMatcher.IsInvalid)
+        {
             return codeMatcher
                 .Repeat(matcher =>
                 {
@@ -96,67 +108,80 @@ namespace NebulaPatcher.Patches.Transpilers
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 59))
                         .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 22))
-                        .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((PowerSystem _this, int powerNodeId, int powerNetId) =>
+                        .Insert(HarmonyLib.Transpilers.EmitDelegate<PlayerChargesAtTower>((_this, powerNodeId, powerNetId) =>
                         {
-                            if (Multiplayer.IsActive)
+                            if (!Multiplayer.IsActive)
                             {
-                                if (!Multiplayer.Session.LocalPlayer.IsHost)
+                                return;
+                            }
+                            if (!Multiplayer.Session.LocalPlayer.IsHost)
+                            {
+                                if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId,
+                                        false, false))
                                 {
-                                    if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
-                                    {
-                                        Multiplayer.Session.Network.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, false));
-                                    }
+                                    Multiplayer.Session.Network.SendPacket(new PowerTowerUserLoadingRequest(_this.planet.id,
+                                        powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick, false));
                                 }
-                                else
+                            }
+                            else
+                            {
+                                var pNet = _this.netPool[powerNetId];
+                                if (!Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId,
+                                        false, false))
                                 {
-                                    PowerNetwork pNet = _this.netPool[powerNetId];
-                                    if (Multiplayer.Session.PowerTowers.AddRequested(_this.planet.id, powerNetId, powerNodeId, false, false))
-                                    {
-                                        Multiplayer.Session.PowerTowers.RemExtraDemand(_this.planet.id, powerNetId, powerNodeId);
-                                        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(_this.planet.id, powerNetId, powerNodeId, _this.nodePool[powerNodeId].workEnergyPerTick,
-                                        pNet.energyCapacity,
-                                        pNet.energyRequired,
-                                        pNet.energyServed,
-                                        pNet.energyAccumulated,
-                                        pNet.energyExchanged,
-                                        false));
-                                    }
+                                    return;
                                 }
+                                Multiplayer.Session.PowerTowers.RemExtraDemand(_this.planet.id, powerNetId,
+                                    powerNodeId);
+                                Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerUserLoadingResponse(
+                                    _this.planet.id, powerNetId, powerNodeId,
+                                    _this.nodePool[powerNodeId].workEnergyPerTick,
+                                    pNet.energyCapacity,
+                                    pNet.energyRequired,
+                                    pNet.energyServed,
+                                    pNet.energyAccumulated,
+                                    pNet.energyExchanged,
+                                    false));
                             }
                         }));
                 })
                 .InstructionEnumeration();
         }
+        Log.Error("PowerSystem_GameTick_Transpiler 2 failed. Mod version not compatible with game version.");
+        return codeMatcher.InstructionEnumeration();
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(nameof(PowerSystem.RequestDysonSpherePower))]
-        public static IEnumerable<CodeInstruction> PowerSystem_RequestDysonSpherePower_Transpiler(IEnumerable<CodeInstruction> instructions)
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(PowerSystem.RequestDysonSpherePower))]
+    public static IEnumerable<CodeInstruction> PowerSystem_RequestDysonSpherePower_Transpiler(
+        IEnumerable<CodeInstruction> instructions)
+    {
+        //Prevent dysonSphere.energyReqCurrentTick from changing on the client side
+        //Change: if (this.dysonSphere != null)
+        //To:     if (this.dysonSphere != null && (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost))
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        try
         {
-            //Prevent dysonSphere.energyReqCurrentTick from changing on the client side
-            //Change: if (this.dysonSphere != null)
-            //To:     if (this.dysonSphere != null && (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost))
-            try
-            {
-                CodeMatcher codeMatcher = new CodeMatcher(instructions)
-                    .MatchForward(true,
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "dysonSphere")),
-                        new CodeMatch(OpCodes.Brfalse) //IL #93
-                    );
-                object label = codeMatcher.Instruction.operand;
-                codeMatcher.Advance(1)
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
-                    {
-                        return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
-                    }))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse_S, label));
-                return codeMatcher.InstructionEnumeration();
-            }
-            catch
-            {
-                NebulaModel.Logger.Log.Error("PowerSystem.RequestDysonSpherePower_Transpiler failed. Mod version not compatible with game version.");
-                return instructions;
-            }
+            var codeMatcher = new CodeMatcher(codeInstructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "dysonSphere")),
+                    new CodeMatch(OpCodes.Brfalse) //IL #93
+                );
+            var label = codeMatcher.Instruction.operand;
+            codeMatcher.Advance(1)
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() =>
+                    !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost))
+                .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse_S, label));
+            return codeMatcher.InstructionEnumeration();
+        }
+        catch
+        {
+            Log.Error("PowerSystem.RequestDysonSpherePower_Transpiler failed. Mod version not compatible with game version.");
+            return codeInstructions;
         }
     }
+
+    private delegate void PlayerChargesAtTower(PowerSystem _this, int powerNodeId, int powerNetId);
 }

@@ -1,9 +1,12 @@
-﻿using System.Net;
+﻿#region
 
-namespace NebulaModel.Networking
+using System.Net;
+
+#endregion
+
+namespace NebulaModel.Networking;
+
+public interface IClient
 {
-    public interface IClient
-    {
-        IPEndPoint ServerEndpoint { get; }
-    }
+    IPEndPoint ServerEndpoint { get; set; }
 }

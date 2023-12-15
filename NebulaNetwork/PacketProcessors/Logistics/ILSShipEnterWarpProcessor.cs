@@ -1,26 +1,31 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
 
-namespace NebulaNetwork.PacketProcessors.Logistics
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Logistics;
+
+[RegisterPacketProcessor]
+public class ILSShipEnterWarpProcessor : PacketProcessor<ILSShipEnterWarp>
 {
-    [RegisterPacketProcessor]
-    public class ILSShipEnterWarpProcessor : PacketProcessor<ILSShipEnterWarp>
+    protected override void ProcessPacket(ILSShipEnterWarp packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(ILSShipEnterWarp packet, NebulaConnection conn)
+        if (!IsClient)
         {
-            if (IsClient)
-            {
-                if (packet.ThisGId <= GameMain.data.galacticTransport.stationCursor)
-                {
-                    StationComponent stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
-                    if (stationComponent != null && packet.WorkShipIndex < stationComponent.workShipCount)
-                    {
-                        stationComponent.workShipDatas[packet.WorkShipIndex].warpState += 0.016666668f;
-                    }
-                }
-            }
+            return;
+        }
+        if (packet.ThisGId > GameMain.data.galacticTransport.stationCursor)
+        {
+            return;
+        }
+        var stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
+        if (stationComponent != null && packet.WorkShipIndex < stationComponent.workShipCount)
+        {
+            stationComponent.workShipDatas[packet.WorkShipIndex].warpState += 0.016666668f;
         }
     }
 }

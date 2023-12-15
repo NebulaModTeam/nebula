@@ -1,19 +1,19 @@
-﻿using NebulaModel.DataStructures;
+﻿#region
+
 using System;
+using NebulaModel.DataStructures;
 
-namespace NebulaWorld.GameDataHistory
+#endregion
+
+namespace NebulaWorld.GameDataHistory;
+
+public class GameDataHistoryManager : IDisposable
 {
-    public class GameDataHistoryManager : IDisposable
+    public readonly ToggleSwitch IsIncomingRequest = new();
+
+
+    public void Dispose()
     {
-        public readonly ToggleSwitch IsIncomingRequest = new ToggleSwitch();
-
-        public GameDataHistoryManager()
-        {
-        }
-
-
-        public void Dispose()
-        {
-        }
+        GC.SuppressFinalize(this);
     }
 }

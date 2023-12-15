@@ -1,10 +1,13 @@
-﻿using System;
+﻿#region
 
-namespace NebulaAPI
-{
-    /// <summary>
-    /// Registers packet processors. Make sure to register your assembly using NebulaModAPI.RegisterPackets
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class RegisterPacketProcessorAttribute : Attribute { }
-}
+using System;
+
+#endregion
+
+namespace NebulaAPI.Packets;
+
+/// <summary>
+///     Registers packet processors. Make sure to register your assembly using NebulaModAPI.RegisterPackets
+/// </summary>
+[AttributeUsage(AttributeTargets.Class)]
+public class RegisterPacketProcessorAttribute : Attribute;

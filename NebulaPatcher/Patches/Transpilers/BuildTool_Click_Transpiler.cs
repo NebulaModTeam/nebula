@@ -1,40 +1,45 @@
-﻿using HarmonyLib;
-using NebulaWorld;
-using System;
+﻿#region
+
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using HarmonyLib;
+using NebulaModel.Logger;
+using NebulaWorld;
 
-namespace NebulaPatcher.Patches.Transpiler
+#endregion
+
+namespace NebulaPatcher.Patches.Transpilers;
+
+[HarmonyPatch]
+internal class BuildTool_Click_Transpiler
 {
-    [HarmonyPatch]
-    internal class BuildTool_Click_Transpiler
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CreatePrebuilds))]
+    [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
+    private static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions,
+        ILGenerator iL)
     {
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(BuildTool_Click), nameof(BuildTool_Click.CreatePrebuilds))]
-        [HarmonyPatch(typeof(BuildTool_BlueprintPaste), nameof(BuildTool_BlueprintPaste.CreatePrebuilds))]
-        private static IEnumerable<CodeInstruction> CreatePrebuilds_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var codeMatcher = new CodeMatcher(codeInstructions, iL)
+            .MatchForward(true,
+                new CodeMatch(i => i.opcode == OpCodes.Ldsfld && ((FieldInfo)i.operand).Name == "buildTargetAutoMove")
+            );
+
+        if (codeMatcher.IsInvalid)
         {
-            CodeMatcher codeMatcher = new CodeMatcher(instructions, iL)
-                    .MatchForward(true,
-                        new CodeMatch(i => i.opcode == OpCodes.Ldsfld && ((FieldInfo)i.operand).Name == "buildTargetAutoMove")
-                    );
-
-            if (codeMatcher.IsInvalid)
-            {
-                NebulaModel.Logger.Log.Error("BuildTool_Click.CreatePrebuilds_Transpiler failed. Mod version not compatible with game version.");
-                return instructions;
-            }
-
-            object label = codeMatcher.InstructionAt(1).operand;
-            return codeMatcher
-                    .Advance(2)
-                    .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Func<bool>>(() =>
-                    {
-                        return Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value && Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id;
-                    }))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, label))
-                    .InstructionEnumeration();
+            Log.Error("BuildTool_Click.CreatePrebuilds_Transpiler failed. Mod version not compatible with game version.");
+            return codeInstructions;
         }
+
+        var label = codeMatcher.InstructionAt(1).operand;
+        return codeMatcher
+            .Advance(2)
+            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate(() =>
+                Multiplayer.IsActive && Multiplayer.Session.Factories.IsIncomingRequest.Value &&
+                Multiplayer.Session.Factories.PacketAuthor != Multiplayer.Session.LocalPlayer.Id))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, label))
+            .InstructionEnumeration();
     }
 }

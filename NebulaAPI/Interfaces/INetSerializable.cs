@@ -1,149 +1,153 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Net;
 
-namespace NebulaAPI
+#endregion
+
+namespace NebulaAPI.Interfaces;
+
+public interface INetSerializable
 {
-    public interface INetSerializable
-    {
-        void Serialize(INetDataWriter writer);
-        void Deserialize(INetDataReader reader);
-    }
+    void Serialize(INetDataWriter writer);
 
-    public interface INetDataWriter
-    {
-        void Put(float value);
+    void Deserialize(INetDataReader reader);
+}
 
-        void Put(double value);
+public interface INetDataWriter
+{
+    void Put(float value);
 
-        void Put(long value);
+    void Put(double value);
 
-        void Put(ulong value);
+    void Put(long value);
 
-        void Put(int value);
+    void Put(ulong value);
 
-        void Put(uint value);
+    void Put(int value);
 
-        void Put(char value);
+    void Put(uint value);
 
-        void Put(ushort value);
+    void Put(char value);
 
-        void Put(short value);
+    void Put(ushort value);
 
-        void Put(sbyte value);
+    void Put(short value);
 
-        void Put(byte value);
+    void Put(sbyte value);
 
-        void Put(byte[] data, int offset, int length);
+    void Put(byte value);
 
-        void Put(byte[] data);
+    void Put(byte[] data, int offset, int length);
 
-        void PutSBytesWithLength(sbyte[] data, int offset, int length);
+    void Put(byte[] data);
 
-        void PutSBytesWithLength(sbyte[] data);
+    void PutSBytesWithLength(sbyte[] data, int offset, int length);
 
-        void PutBytesWithLength(byte[] data, int offset, int length);
+    void PutSBytesWithLength(sbyte[] data);
 
-        void PutBytesWithLength(byte[] data);
+    void PutBytesWithLength(byte[] data, int offset, int length);
 
-        void Put(bool value);
+    void PutBytesWithLength(byte[] data);
 
-        void PutArray(float[] value);
+    void Put(bool value);
 
-        void PutArray(double[] value);
+    void PutArray(float[] value);
 
-        void PutArray(long[] value);
+    void PutArray(double[] value);
 
-        void PutArray(ulong[] value);
+    void PutArray(long[] value);
 
-        void PutArray(int[] value);
+    void PutArray(ulong[] value);
 
-        void PutArray(uint[] value);
+    void PutArray(int[] value);
 
-        void PutArray(ushort[] value);
+    void PutArray(uint[] value);
 
-        void PutArray(short[] value);
+    void PutArray(ushort[] value);
 
-        void PutArray(bool[] value);
+    void PutArray(short[] value);
 
-        void PutArray(string[] value);
+    void PutArray(bool[] value);
 
-        void PutArray(string[] value, int maxLength);
+    void PutArray(string[] value);
 
-        void Put(IPEndPoint endPoint);
+    void PutArray(string[] value, int maxLength);
 
-        void Put(string value);
+    void Put(IPEndPoint endPoint);
 
-        void Put(string value, int maxLength);
+    void Put(string value);
 
-        void Put<T>(T obj) where T : INetSerializable;
-    }
+    void Put(string value, int maxLength);
 
-    public interface INetDataReader
-    {
-        IPEndPoint GetNetEndPoint();
+    void Put<T>(T obj) where T : INetSerializable;
+}
 
-        byte GetByte();
+public interface INetDataReader
+{
+    IPEndPoint GetNetEndPoint();
 
-        sbyte GetSByte();
+    byte GetByte();
 
-        bool[] GetBoolArray();
+    sbyte GetSByte();
 
-        ushort[] GetUShortArray();
+    bool[] GetBoolArray();
 
-        short[] GetShortArray();
+    ushort[] GetUShortArray();
 
-        long[] GetLongArray();
+    short[] GetShortArray();
 
-        ulong[] GetULongArray();
+    long[] GetLongArray();
 
-        int[] GetIntArray();
+    ulong[] GetULongArray();
 
-        uint[] GetUIntArray();
+    int[] GetIntArray();
 
-        float[] GetFloatArray();
+    uint[] GetUIntArray();
 
-        double[] GetDoubleArray();
+    float[] GetFloatArray();
 
-        string[] GetStringArray();
+    double[] GetDoubleArray();
 
-        string[] GetStringArray(int maxStringLength);
+    string[] GetStringArray();
 
-        bool GetBool();
+    string[] GetStringArray(int maxStringLength);
 
-        char GetChar();
+    bool GetBool();
 
-        ushort GetUShort();
+    char GetChar();
 
-        short GetShort();
+    ushort GetUShort();
 
-        long GetLong();
+    short GetShort();
 
-        ulong GetULong();
+    long GetLong();
 
-        int GetInt();
+    ulong GetULong();
 
-        uint GetUInt();
+    int GetInt();
 
-        float GetFloat();
+    uint GetUInt();
 
-        double GetDouble();
+    float GetFloat();
 
-        string GetString(int maxLength);
+    double GetDouble();
 
-        string GetString();
+    string GetString(int maxLength);
 
-        ArraySegment<byte> GetRemainingBytesSegment();
+    string GetString();
 
-        T Get<T>() where T : INetSerializable, new();
+    ArraySegment<byte> GetRemainingBytesSegment();
 
-        byte[] GetRemainingBytes();
+    T Get<T>() where T : INetSerializable, new();
 
-        void GetBytes(byte[] destination, int start, int count);
+    byte[] GetRemainingBytes();
 
-        void GetBytes(byte[] destination, int count);
+    void GetBytes(byte[] destination, int start, int count);
 
-        sbyte[] GetSBytesWithLength();
+    void GetBytes(byte[] destination, int count);
 
-        byte[] GetBytesWithLength();
-    }
+    sbyte[] GetSBytesWithLength();
+
+    byte[] GetBytesWithLength();
 }

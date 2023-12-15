@@ -1,13 +1,13 @@
-﻿namespace NebulaModel.Packets.Statistics
-{
-    public class MilestoneDataResponse
-    {
-        public byte[] BinaryData { get; set; }
+﻿namespace NebulaModel.Packets.Statistics;
 
-        public MilestoneDataResponse() { }
-        public MilestoneDataResponse(byte[] binaryData)
-        {
-            BinaryData = binaryData;
-        }
+public class MilestoneDataResponse
+{
+    public MilestoneDataResponse() { }
+
+    public MilestoneDataResponse(byte[] binaryData)
+    {
+        BinaryData = binaryData;
     }
+
+    public byte[] BinaryData { get; set; }
 }

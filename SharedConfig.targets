@@ -2,60 +2,60 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
          InitialTargets="TestDSPGameFolder">
 
-  <Target Name="MaybeCopyDevEnv"
-          Inputs="$(MSBuildAllProjects)"
-          Outputs="$(DevEnvLoc)"
-          Condition="!Exists('$(DevEnvLoc)')">
+    <Target Name="MaybeCopyDevEnv"
+            Inputs="$(MSBuildAllProjects)"
+            Outputs="$(DevEnvLoc)"
+            Condition="!Exists('$(DevEnvLoc)')">
 
-    <Copy SourceFiles="$(DevEnvLoc).example"
-          DestinationFiles="$(DevEnvLoc)"
-          SkipUnchangedFiles="true" />
-    <Error Text="It appears your Dyson Sphere Program installation is not in the default Steam directory. Please set the path correctly in '$(DevEnvLoc)' (it has been created for you)." />
-  </Target>
+        <Copy SourceFiles="$(DevEnvLoc).example"
+              DestinationFiles="$(DevEnvLoc)"
+              SkipUnchangedFiles="true"/>
+        <Error Text="It appears your Dyson Sphere Program installation is not in the default Steam directory. Please set the path correctly in '$(DevEnvLoc)' (it has been created for you)."/>
+    </Target>
 
-  <Target Name="DevEnvInvalid"
-          Condition="Exists('$(DevEnvLoc)')">
-    <!-- If the default path is overriden in DevEnv, and it doesn't exist -->
-    <Error Text="Your Dyson Sphere Program installation folder has not been found at the path defined in '$(DevEnvLoc)'. Please set it correctly." />
-  </Target>
+    <Target Name="DevEnvInvalid"
+            Condition="Exists('$(DevEnvLoc)')">
+        <!-- If the default path is overriden in DevEnv, and it doesn't exist -->
+        <Error Text="Your Dyson Sphere Program installation folder has not been found at the path defined in '$(DevEnvLoc)'. Please set it correctly."/>
+    </Target>
 
-  <!-- Using DependsOnTarget with Conditional targets as an if else structure... -->
-  <!-- Note that this is the first target, called by InitialTargets -->
-  <Target Name="TestDSPGameFolder"
-          DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid"
-          Condition="!Exists('$(DSPGameDir)') And !Exists('$(PropSheetPath).remoteBuild')" />
+    <!-- Using DependsOnTarget with Conditional targets as an if else structure... -->
+    <!-- Note that this is the first target, called by InitialTargets -->
+    <Target Name="TestDSPGameFolder"
+            DependsOnTargets="MaybeCopyDevEnv;DevEnvInvalid"
+            Condition="!Exists('$(DSPGameDir)') And !Exists('$(PropSheetPath).remoteBuild')"/>
 
-  <ItemGroup>
-    <ProjectAssembliesForUnityProject Include="$(TargetDir)\*.dll"/>
-	<ProjectAssembliesMetaFilesFolder Include="..\NebulaUnity\AssemblyMeta\*.meta"/>
-  </ItemGroup>
-  <Target Name="CopyAssembliesToUnityProject"
-          AfterTargets="Build">
-    <Message Text="Executing CopyAssembliesToUnityProject task $(ProjectName)" Importance="high"/>
-    <Copy
-          SourceFiles="@(ProjectAssembliesForUnityProject)"
-          DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
-  </Target>
-  
-  <Target Name="CopyMetaFilesToUnityProject"
-          AfterTargets="Build">
-    <Copy
-          SourceFiles="@(ProjectAssembliesMetaFilesFolder)"
-          DestinationFolder="..\NebulaUnity\Assets\Assemblies\" />
-  </Target>
-
-  <Target Name="CopyFilesToOutDir" AfterTargets="Build" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
     <ItemGroup>
-            <DiscordLibs Include="..\dep\discord_game_sdk\lib\x86_64\*"/>
+        <ProjectAssembliesForUnityProject Include="$(TargetDir)\*.dll"/>
+        <ProjectAssembliesMetaFilesFolder Include="..\NebulaUnity\AssemblyMeta\*.meta"/>
     </ItemGroup>
-    <Copy SourceFiles="..\NebulaWorld\Assets\nebulabundle" DestinationFolder="$(OutDir)" />
-    <Copy SourceFiles="@(DiscordLibs)" DestinationFolder="$(OutDir)" />
-  </Target>
-  
-  <Target Name="BeforeBuild">
-    <Copy
-          Condition="Exists('..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle')"
-          SourceFiles="..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle"
-          DestinationFolder="..\NebulaWorld\Assets\" />
-  </Target>  
+    <Target Name="CopyAssembliesToUnityProject"
+            AfterTargets="Build">
+        <Message Text="Executing CopyAssembliesToUnityProject task $(ProjectName)" Importance="high"/>
+        <Copy
+                SourceFiles="@(ProjectAssembliesForUnityProject)"
+                DestinationFolder="..\NebulaUnity\Assets\Assemblies\"/>
+    </Target>
+
+    <Target Name="CopyMetaFilesToUnityProject"
+            AfterTargets="Build">
+        <Copy
+                SourceFiles="@(ProjectAssembliesMetaFilesFolder)"
+                DestinationFolder="..\NebulaUnity\Assets\Assemblies\"/>
+    </Target>
+
+    <Target Name="CopyFilesToOutDir" AfterTargets="Build" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
+        <ItemGroup>
+            <DiscordLibs Include="..\dep\discord_game_sdk\lib\x86_64\*"/>
+        </ItemGroup>
+        <Copy SourceFiles="..\NebulaWorld\Assets\nebulabundle" DestinationFolder="$(OutDir)"/>
+        <Copy SourceFiles="@(DiscordLibs)" DestinationFolder="$(OutDir)"/>
+    </Target>
+
+    <Target Name="BeforeBuild">
+        <Copy
+                Condition="Exists('..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle')"
+                SourceFiles="..\NebulaUnity\Assets\StreamingAssets\AssetBundles\nebulabundle"
+                DestinationFolder="..\NebulaWorld\Assets\"/>
+    </Target>
 </Project>

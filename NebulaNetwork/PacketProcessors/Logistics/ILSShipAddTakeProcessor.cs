@@ -1,22 +1,25 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld;
+using NebulaWorld.Logistics;
 
-namespace NebulaNetwork.PacketProcessors.Logistics
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Logistics;
+
+[RegisterPacketProcessor]
+public class ILSShipAddTakeProcessor : PacketProcessor<ILSShipAddTake>
 {
-    [RegisterPacketProcessor]
-    public class ILSShipAddTakeProcessor : PacketProcessor<ILSShipAddTake>
+    protected override void ProcessPacket(ILSShipAddTake packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(ILSShipAddTake packet, NebulaConnection conn)
+        if (IsHost)
         {
-            if (IsHost)
-            {
-                return;
-            }
-
-            Multiplayer.Session.Ships.AddTakeItem(packet);
+            return;
         }
+
+        ILSShipManager.AddTakeItem(packet);
     }
 }

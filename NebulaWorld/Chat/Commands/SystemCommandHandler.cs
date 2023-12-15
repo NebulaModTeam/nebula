@@ -1,52 +1,48 @@
-﻿using NebulaModel.DataStructures;
-using NebulaWorld.MonoBehaviours.Local;
+﻿#region
 
-namespace NebulaWorld.Chat.Commands
+using System.Linq;
+using NebulaModel.DataStructures.Chat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
+
+#endregion
+
+namespace NebulaWorld.Chat.Commands;
+
+public class SystemCommandHandler : IChatCommandHandler
 {
-    public class SystemCommandHandler : IChatCommandHandler
+    public void Execute(ChatWindow window, string[] parameters)
     {
-        public void Execute(ChatWindow window, string[] parameters)
+        var input = "";
+
+        if (parameters.Length == 0)
         {
-            string resp = "";
-            string input = "";
-
-            if(parameters.Length == 0)
-            {
-                input = GameMain.localStar.displayName;
-            }
-            else
-            {
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    input += ((i > 0) ? " " : "") + parameters[i];
-                }
-            }
-
-            foreach (StarData star in GameMain.galaxy.stars)
-            {
-                if (star.displayName == input)
-                {
-                    foreach (PlanetData planet in star.planets)
-                    {
-                        resp += planet.displayName + " (" + planet.id + ")" + ((planet.orbitAroundPlanet != null) ? " (moon)".Translate() : "") + "\r\n";
-                    }
-                }
-            }
-
-            if (resp == "")
-            {
-                resp = string.Format("Could not find given star '{0}'".Translate(), input);
-            }
-
-            window.SendLocalChatMessage(resp, ChatMessageType.CommandOutputMessage);
+            input = GameMain.localStar.displayName;
         }
-        public string GetDescription()
+        else
         {
-            return "List planets in a system".Translate();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                input += (i > 0 ? " " : "") + parameters[i];
+            }
         }
-        public string[] GetUsage()
+
+        var resp = GameMain.galaxy.stars.Where(star => star.displayName == input).Aggregate("", (current1, star) => star.planets.Aggregate(current1, (current, planet) => current + planet.displayName + " (" + planet.id + ")" + (planet.orbitAroundPlanet != null ? " (moon)".Translate() : "") + "\r\n"));
+
+        if (resp == "")
         {
-            return new string[] { "[star name]" };
+            resp = string.Format("Could not find given star '{0}'".Translate(), input);
         }
+
+        window.SendLocalChatMessage(resp, ChatMessageType.CommandOutputMessage);
+    }
+
+    public string GetDescription()
+    {
+        return "List planets in a system".Translate();
+    }
+
+    public string[] GetUsage()
+    {
+        return new[] { "[star name]" };
     }
 }

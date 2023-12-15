@@ -1,36 +1,40 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.DataStructures;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Universe;
+using NebulaModel.Packets.Universe.Editor;
 using NebulaWorld;
 
-namespace NebulaNetwork.PacketProcessors.Universe
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Universe.Editor;
+
+[RegisterPacketProcessor]
+internal class DysonSphereAddNodeProcessor : PacketProcessor<DysonSphereAddNodePacket>
 {
-    [RegisterPacketProcessor]
-    internal class DysonSphereAddNodeProcessor : PacketProcessor<DysonSphereAddNodePacket>
+    protected override void ProcessPacket(DysonSphereAddNodePacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(DysonSphereAddNodePacket packet, NebulaConnection conn)
+        var layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
+        if (layer == null)
         {
-            DysonSphereLayer layer = GameMain.data.dysonSpheres[packet.StarIndex]?.GetLayer(packet.LayerId);
-            if (layer == null)
+            return;
+        }
+        using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
+        {
+            var nodeId = layer.nodeRecycleCursor > 0 ? layer.nodeRecycle[layer.nodeRecycleCursor - 1] : layer.nodeCursor;
+            if (nodeId != packet.NodeId || layer.NewDysonNode(packet.NodeProtoId, packet.Position.ToVector3()) == 0)
             {
+                Log.Warn($"Cannnot add node[{packet.NodeId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                 return;
             }
-            using (Multiplayer.Session.DysonSpheres.IsIncomingRequest.On())
-            {
-                int nodeId = layer.nodeRecycleCursor > 0 ? layer.nodeRecycle[layer.nodeRecycleCursor - 1] : layer.nodeCursor;
-                if (nodeId != packet.NodeId || layer.NewDysonNode(packet.NodeProtoId, packet.Position.ToVector3()) == 0)
-                {
-                    Log.Warn($"Cannnot add node[{packet.NodeId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
-                    Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
-                    return;
-                }
-            }
-            if (IsHost)
-            {
-                Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
-            }
+        }
+        if (IsHost)
+        {
+            Multiplayer.Session.DysonSpheres.SendPacketToDysonSphereExcept(packet, packet.StarIndex, conn);
         }
     }
 }

@@ -1,22 +1,21 @@
-namespace NebulaModel.Packets.Players
+namespace NebulaModel.Packets.Chat;
+
+public class ChatCommandWhoPacket
 {
-    public class ChatCommandWhoPacket
+    public ChatCommandWhoPacket() { }
+
+    public ChatCommandWhoPacket(bool isRequest, string responsePayload)
     {
-        public bool IsRequest { get; set; }
-        public string ResponsePayload { get; set; }
-
-        public ChatCommandWhoPacket() { }
-
-        public ChatCommandWhoPacket(bool isRequest, string responsePayload)
-        {
-            IsRequest = isRequest;
+        IsRequest = isRequest;
 #if DEBUG
-            if (!isRequest)
-            {
-                Assert.False(string.IsNullOrEmpty(responsePayload));
-            }
-#endif
-            ResponsePayload = responsePayload;
+        if (!isRequest)
+        {
+            Assert.False(string.IsNullOrEmpty(responsePayload));
         }
+#endif
+        ResponsePayload = responsePayload;
     }
+
+    public bool IsRequest { get; set; }
+    public string ResponsePayload { get; set; }
 }

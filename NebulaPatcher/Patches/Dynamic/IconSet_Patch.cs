@@ -1,16 +1,19 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
 using NebulaWorld.Chat;
 
-namespace NebulaPatcher.Patches.Dynamic
+#endregion
+
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(IconSet))]
+public static class IconSet_Patch
 {
-    [HarmonyPatch(typeof(IconSet))]
-    public static class IconSet_Patch
+    [HarmonyPatch(nameof(IconSet.Create))]
+    [HarmonyPostfix]
+    public static void Create_Postfix(IconSet __instance)
     {
-        [HarmonyPatch(nameof(IconSet.Create))]
-        [HarmonyPostfix]
-        public static void Create_Postfix(IconSet __instance)
-        {
-            ChatSpriteSheetManager.Create(__instance);
-        }
+        ChatSpriteSheetManager.Create(__instance);
     }
 }

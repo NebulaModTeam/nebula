@@ -1,5 +1,10 @@
-﻿using HarmonyLib;
+﻿#region
+
+using System.Diagnostics.CodeAnalysis;
+using HarmonyLib;
 using NebulaWorld;
+
+#endregion
 
 /*
  * This Patch is part of the remote factory loading process.
@@ -7,20 +12,19 @@ using NebulaWorld;
  * As UIPowerGizmo::_OnUpdate() lacks a null check on the factory of the localPlanet we need to do that here
  * because the factory data may not be received/loaded by this time.
  */
-namespace NebulaPatcher.Patches.Dynamic
+namespace NebulaPatcher.Patches.Dynamic;
+
+internal static class UIPowerGizmo_OnUpdate_Patch
 {
-    internal class UIPowerGizmo_OnUpdate_Patch
+    [HarmonyPatch(typeof(UIPowerGizmo))]
+    private class OnUpdatePatch
     {
-        [HarmonyPatch(typeof(UIPowerGizmo))]
-        private class OnUpdatePatch
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(UIPowerGizmo._OnUpdate))]
+        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        public static bool _OnUpdate_Prefix()
         {
-            [HarmonyPrefix]
-            [HarmonyPatch(nameof(UIPowerGizmo._OnUpdate))]
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-            public static bool _OnUpdate_Prefix()
-            {
-                return !Multiplayer.IsActive || GameMain.localPlanet?.factory != null;
-            }
+            return !Multiplayer.IsActive || GameMain.localPlanet?.factory != null;
         }
     }
 }

@@ -1,21 +1,25 @@
-﻿using NebulaAPI;
+﻿#region
+
+using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Laboratory;
 
-namespace NebulaNetwork.PacketProcessors.Factory.Labratory
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Factory.Laboratory;
+
+[RegisterPacketProcessor]
+internal class LaboratoryUpdateCubesProcessor : PacketProcessor<LaboratoryUpdateCubesPacket>
 {
-    [RegisterPacketProcessor]
-    internal class LaboratoryUpdateCubesProcessor : PacketProcessor<LaboratoryUpdateCubesPacket>
+    protected override void ProcessPacket(LaboratoryUpdateCubesPacket packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(LaboratoryUpdateCubesPacket packet, NebulaConnection conn)
+        var pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.labPool;
+        if (pool == null || packet.LabIndex == -1 || packet.LabIndex >= pool.Length || pool[packet.LabIndex].id == -1)
         {
-            LabComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.factorySystem?.labPool;
-            if (pool != null && packet.LabIndex != -1 && packet.LabIndex < pool.Length && pool[packet.LabIndex].id != -1)
-            {
-                pool[packet.LabIndex].matrixServed[packet.Index] = packet.ItemCount;
-                pool[packet.LabIndex].matrixIncServed[packet.Index] = packet.ItemInc;
-            }
+            return;
         }
+        pool[packet.LabIndex].matrixServed[packet.Index] = packet.ItemCount;
+        pool[packet.LabIndex].matrixIncServed[packet.Index] = packet.ItemInc;
     }
 }

@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <DevEnvLoc>$(MSBuildThisFileDirectory)DevEnv.targets</DevEnvLoc>
-  </PropertyGroup>
+    <PropertyGroup>
+        <DevEnvLoc>$(MSBuildThisFileDirectory)DevEnv.targets</DevEnvLoc>
+    </PropertyGroup>
 
-  <!-- This sets $(DSPGameDir) -->
-  <Import Project="$(DevEnvLoc)" Condition="Exists('$(DevEnvLoc)')" />
+    <!-- This sets $(DSPGameDir) -->
+    <Import Project="$(DevEnvLoc)" Condition="Exists('$(DevEnvLoc)')"/>
 
-  <PropertyGroup Label="Game Install Properties">
-    <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
-    <DSPGameDir>$([MSBuild]::EnsureTrailingSlash('$(DSPGameDir)'))</DSPGameDir>
-    <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
-    <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
-    <PluginOutputDirectory Condition="Exists('$(PropSheetPath).remoteBuild')">$(PropSheetPath)dist\release\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
-  </PropertyGroup>
+    <PropertyGroup Label="Game Install Properties">
+        <DSPGameDir Condition="!Exists('$(DevEnvLoc)')">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
+        <DSPGameDir>$([MSBuild]::EnsureTrailingSlash('$(DSPGameDir)'))</DSPGameDir>
+        <PluginOutputDirectory>$(DSPGameDir)BepInEx\plugins\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
+        <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
+        <PluginOutputDirectory Condition="Exists('$(PropSheetPath).remoteBuild')">$(PropSheetPath)dist\release\nebula-NebulaMultiplayerMod\</PluginOutputDirectory>
+    </PropertyGroup>
 
-  <PropertyGroup Label="Common Properties">
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PropertyGroup Label="Common Properties">
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(PluginOutputDirectory)</OutputPath>
-    <TargetFramework>net472</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
+        <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(PluginOutputDirectory)</OutputPath>
+        <TargetFramework>net472</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <DefaultItemExcludes>$(DefaultItemExcludes);*.binlog</DefaultItemExcludes>
 
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
-  </PropertyGroup>
+        <DebugType>portable</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+    </PropertyGroup>
 
-  <PropertyGroup Label="API Properties" Condition=" '$(MSBuildProjectName)' == 'NebulaAPI' " >
-    <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(OutputPath)..\nebula-NebulaMultiplayerModApi</OutputPath>
-  </PropertyGroup>
-  
-  <!-- Shared Items -->
-  <ItemGroup Label="NuGets">
-    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.*" PrivateAssets="all" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.*" PrivateAssets="all" />
-  </ItemGroup>
+    <PropertyGroup Label="API Properties" Condition=" '$(MSBuildProjectName)' == 'NebulaAPI' ">
+        <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(OutputPath)..\nebula-NebulaMultiplayerModApi</OutputPath>
+    </PropertyGroup>
 
-  <ItemGroup Label="NuGetsMain" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.*" />
-  </ItemGroup>
+    <!-- Shared Items -->
+    <ItemGroup Label="NuGets">
+        <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.*" PrivateAssets="all"/>
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.*" PrivateAssets="all"/>
+    </ItemGroup>
 
-  <ItemGroup Label="Core">
-    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-    <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" PrivateAssets="all" />
-    <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" IncludeAssets="compile" PrivateAssets="all" />
-    <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="1.4.5" IncludeAssets="compile" PrivateAssets="all"
-                      Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' " />
+    <ItemGroup Label="NuGetsMain" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
+        <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.*"/>
+    </ItemGroup>
 
-  </ItemGroup>
+    <ItemGroup Label="Core">
+        <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all"/>
+        <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" PrivateAssets="all"/>
+        <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" IncludeAssets="compile" PrivateAssets="all"/>
+        <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="1.5.7" IncludeAssets="compile" PrivateAssets="all"
+                          Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' "/>
 
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
-  </ItemGroup>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all"/>
+    </ItemGroup>
 </Project>

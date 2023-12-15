@@ -1,81 +1,84 @@
-﻿using BepInEx;
-using NebulaAPI;
+﻿#region
+
+using BepInEx;
+using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Planet;
 
-namespace NebulaNetwork.PacketProcessors.Planet
+#endregion
+
+namespace NebulaNetwork.PacketProcessors.Planet;
+
+[RegisterPacketProcessor]
+public class PlanetDataRequestProcessor : PacketProcessor<PlanetDataRequest>
 {
-    [RegisterPacketProcessor]
-    public class PlanetDataRequestProcessor : PacketProcessor<PlanetDataRequest>
+    protected override void ProcessPacket(PlanetDataRequest packet, NebulaConnection conn)
     {
-        public override void ProcessPacket(PlanetDataRequest packet, NebulaConnection conn)
+        if (IsClient)
         {
-            if (IsClient)
-            {
-                return;
-            }
-            
-            foreach (int planetId in packet.PlanetIDs)
-            {
-                ThreadingHelper.Instance.StartAsyncInvoke(() =>
-                {
-                    byte[] data = PlanetCompute(planetId);
-                    // use callback to run in mainthread
-                    return () => conn.SendPacket(new PlanetDataResponse(planetId, data));
-                });
-            }
+            return;
         }
 
-        public static void OnActivePlanetLoaded(PlanetData planet)
+        foreach (var planetId in packet.PlanetIDs)
         {
-            planet.Unload();
-            planet.onLoaded -= OnActivePlanetLoaded;
+            ThreadingHelper.Instance.StartAsyncInvoke(() =>
+            {
+                var data = PlanetCompute(planetId);
+                // use callback to run in mainthread
+                return () => conn.SendPacket(new PlanetDataResponse(planetId, data));
+            });
+        }
+    }
+
+    private static void OnActivePlanetLoaded(PlanetData planet)
+    {
+        planet.Unload();
+        planet.onLoaded -= OnActivePlanetLoaded;
+    }
+
+    private static byte[] PlanetCompute(int planetId)
+    {
+        var planet = GameMain.galaxy.PlanetById(planetId);
+        var highStopwatch = new HighStopwatch();
+        highStopwatch.Begin();
+
+        // NOTE: The following has been picked-n-mixed from "PlanetModelingManager.PlanetComputeThreadMain()"
+        // This method is **costly** - do not run it more than is required!
+        // It generates the planet on the host and then sends it to the client
+
+        var planetAlgorithm = PlanetModelingManager.Algorithm(planet);
+
+        if (planet.data == null)
+        {
+            planet.data = new PlanetRawData(planet.precision);
+            planet.modData = planet.data.InitModData(planet.modData);
+            planet.data.CalcVerts();
+            planet.aux = new PlanetAuxData(planet);
+            planetAlgorithm.GenerateTerrain(planet.mod_x, planet.mod_y);
+            planetAlgorithm.CalcWaterPercent();
+
+            //Load planet meshes and register callback to unload unneccessary stuff
+            planet.wanted = true;
+            planet.onLoaded += OnActivePlanetLoaded;
+            PlanetModelingManager.modPlanetReqList.Enqueue(planet);
+
+            if (planet.type != EPlanetType.Gas)
+            {
+                planetAlgorithm.GenerateVegetables();
+                planetAlgorithm.GenerateVeins();
+            }
+            planet.CalculateVeinGroups();
         }
 
-        private static byte[] PlanetCompute(int planetId) 
+        byte[] data;
+        using (var writer = new BinaryUtils.Writer())
         {
-            PlanetData planet = GameMain.galaxy.PlanetById(planetId);
-            HighStopwatch highStopwatch = new HighStopwatch();
-            highStopwatch.Begin();
-
-            // NOTE: The following has been picked-n-mixed from "PlanetModelingManager.PlanetComputeThreadMain()"
-            // This method is **costly** - do not run it more than is required!
-            // It generates the planet on the host and then sends it to the client
-
-            PlanetAlgorithm planetAlgorithm = PlanetModelingManager.Algorithm(planet);
-
-            if (planet.data == null)
-            {
-                planet.data = new PlanetRawData(planet.precision);
-                planet.modData = planet.data.InitModData(planet.modData);
-                planet.data.CalcVerts();
-                planet.aux = new PlanetAuxData(planet);
-                planetAlgorithm.GenerateTerrain(planet.mod_x, planet.mod_y);
-                planetAlgorithm.CalcWaterPercent();
-
-                //Load planet meshes and register callback to unload unneccessary stuff
-                planet.wanted = true;
-                planet.onLoaded += OnActivePlanetLoaded;
-                PlanetModelingManager.modPlanetReqList.Enqueue(planet);
-
-                if (planet.type != EPlanetType.Gas)
-                {
-                    planetAlgorithm.GenerateVegetables();
-                    planetAlgorithm.GenerateVeins();
-                }
-                planet.CalculateVeinGroups();
-            }
-
-            byte[] data;
-            using (BinaryUtils.Writer writer = new BinaryUtils.Writer())
-            {
-                planet.ExportRuntime(writer.BinaryWriter);
-                data = writer.CloseAndGetBytes();
-            }
-            Log.Info($"Returning terrain for {planet.name} (id:{planet.id} time:{highStopwatch.duration:F4}s)");
-            return data;
+            planet.ExportRuntime(writer.BinaryWriter);
+            data = writer.CloseAndGetBytes();
         }
+        Log.Info($"Returning terrain for {planet.name} (id:{planet.id} time:{highStopwatch.duration:F4}s)");
+        return data;
     }
 }

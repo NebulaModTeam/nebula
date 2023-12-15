@@ -1,83 +1,90 @@
-﻿using NebulaModel.DataStructures;
-using NebulaWorld.MonoBehaviours.Local;
-using System.Collections.Generic;
+﻿#region
+
+using System.Linq;
+using NebulaModel.DataStructures.Chat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 
-namespace NebulaWorld.Chat
+#endregion
+
+namespace NebulaWorld.Chat.ChatLinks;
+
+public class NavigateChatLinkHandler : IChatLinkHandler
 {
-    public class NavigateChatLinkHandler : IChatLinkHandler
+    public void OnClick(string data)
     {
-        public void OnClick(string data)
+        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            using (Multiplayer.Session.World.GetRemotePlayersModels(out Dictionary<ushort, RemotePlayerModel> remotePlayersModels))
+            foreach (var model in remotePlayersModels.Where(model => model.Value.Movement.Username == data))
             {
-                foreach (KeyValuePair<ushort, RemotePlayerModel> model in remotePlayersModels)
-                {
-                    if (model.Value.Movement.Username == data)
-                    {
-                        // handle indicator position update in RemotePlayerMovement.cs
-                        GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
-                        ChatManager.Instance.SendChatMessage("Starting navigation to ".Translate() + model.Value.Movement.Username, ChatMessageType.CommandOutputMessage);
-                        return;
-                    }
-                }
+                // handle indicator position update in RemotePlayerMovement.cs
+                GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
+                ChatManager.Instance.SendChatMessage("Starting navigation to ".Translate() + model.Value.Movement.Username,
+                    ChatMessageType.CommandOutputMessage);
+                return;
             }
         }
-        public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
+    }
+
+    public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
+    {
+        if (!string.IsNullOrEmpty(data))
         {
-            if (!string.IsNullOrEmpty(data))
-            {
-                UpdateTip(trigger, ref tipObject);
-            }
-            else if (tipObject is UIButtonTip)
+            UpdateTip(trigger, ref tipObject);
+        }
+        else if (tipObject is UIButtonTip)
+        {
+            Object.Destroy(tipObject.gameObject);
+        }
+    }
+
+
+    public string GetIconName(string data)
+    {
+        return string.Empty;
+    }
+
+    public string GetDisplayRichText(string data)
+    {
+        return FormatNavigateString(data);
+    }
+
+    private static void UpdateTip(ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
+    {
+        var rect = (RectTransform)trigger.transform;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, Input.mousePosition, trigger.camera, out var offset);
+        offset -= new Vector2(rect.sizeDelta.x / 2, 3f);
+
+        var buttonTip = tipObject as UIButtonTip;
+        if (buttonTip == null)
+        {
+            buttonTip = UIButtonTip.Create(false, "Navigate".Translate(),
+                "Click to create a navigate line to the target.".Translate(), 2, offset, 0, rect, "", "");
+            if (tipObject != null)
             {
                 Object.Destroy(tipObject.gameObject);
             }
+
+            tipObject = buttonTip;
         }
 
-        private static void UpdateTip(ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
+        if (!buttonTip.gameObject.activeSelf)
         {
-            RectTransform rect = (RectTransform)trigger.transform;
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, Input.mousePosition, trigger.camera, out Vector2 offset);
-            offset -= new Vector2(rect.sizeDelta.x / 2, 3f);
-
-            UIButtonTip buttonTip = tipObject as UIButtonTip;
-            if (buttonTip == null)
-            {
-                buttonTip = UIButtonTip.Create(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2, offset, 0, rect, "", "");
-                if (tipObject != null)
-                {
-                    Object.Destroy(tipObject.gameObject);
-                }
-
-                tipObject = buttonTip;
-            }
-
-            if (!buttonTip.gameObject.activeSelf)
-            {
-                buttonTip.gameObject.SetActive(true);
-                buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2, offset, 0, rect, "", "");
-            }
-
-            if (buttonTip.isActiveAndEnabled && !buttonTip.titleComp.text.Equals("Navigate"))
-            {
-                buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2, offset, 0, rect, "", "");
-            }
+            buttonTip.gameObject.SetActive(true);
+            buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2,
+                offset, 0, rect, "", "");
         }
 
-
-        public string GetIconName(string data)
+        if (buttonTip.isActiveAndEnabled && !buttonTip.titleComp.text.Equals("Navigate"))
         {
-            return string.Empty;
+            buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2,
+                offset, 0, rect, "", "");
         }
-        public string GetDisplayRichText(string data)
-        {
-            return FormatNavigateString(data);
-        }
-        public static string FormatNavigateString(string data)
-        {
-            return $"<link=\"navigate {data}\"><color=\"white\"><u>{data}</u></color></link>";
-        }
+    }
+
+    public static string FormatNavigateString(string data)
+    {
+        return $"<link=\"navigate {data}\"><color=\"white\"><u>{data}</u></color></link>";
     }
 }
