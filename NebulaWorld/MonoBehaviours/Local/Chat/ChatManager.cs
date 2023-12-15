@@ -66,6 +66,12 @@ public class ChatManager : MonoBehaviour
         }
 
         chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
+        if (chatWindow == null)
+        {
+            Log.Error("Failed to find ChatWindow component");
+            this.enabled = false;
+            return;
+        }
         chatWindow.UserName = GetUserName();
         chatWindow.Toggle(true);
         Config.OnConfigApplied += UpdateChatPosition;
@@ -120,6 +126,11 @@ public class ChatManager : MonoBehaviour
     // Queue a message to appear in chat window
     public void SendChatMessage(string text, ChatMessageType messageType)
     {
+        if (chatWindow == null)
+        {
+            Log.Error("Failed to find ChatWindow component");
+            return;
+        }
         chatWindow.SendLocalChatMessage(text, messageType);
     }
 
