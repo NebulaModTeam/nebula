@@ -8,11 +8,12 @@ using NebulaWorld.Player;
 
 namespace NebulaPatcher.Patches.Dynamic;
 
-[HarmonyPatch(typeof(MechaDroneLogic))]
+//todo:replace
+//[HarmonyPatch(typeof(MechaDroneLogic))]
 internal class MechaDroneLogic_Patch
 {
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
+    //[HarmonyPrefix]
+    //[HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
     public static void UpdateTargets_Prefix()
     {
         if (Multiplayer.IsActive)

@@ -53,7 +53,8 @@ public class DroneManager : IDisposable
         }
         else
         {
-            GameMain.mainPlayer.mecha.droneLogic.serving.Remove(entityId);
+            //todo:replace
+            //GameMain.mainPlayer.mecha.droneLogic.serving.Remove(entityId);
         }
         Multiplayer.Session.Network.SendPacketToLocalPlanet(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, droneId,
             entityId, Multiplayer.Session.LocalPlayer.Id, stage, priority,

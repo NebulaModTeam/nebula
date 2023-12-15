@@ -235,7 +235,8 @@ public class StationUIManager : IDisposable
                 }
             case StationUI.EUISettings.NameInput:
                 {
-                    stationComponent.name = packet.SettingString;
+                    //todo:remove or replace
+                    //stationComponent.name = packet.SettingString;
                     break;
                 }
             case StationUI.EUISettings.DroneAutoReplenish:

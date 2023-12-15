@@ -374,7 +374,7 @@ internal class PlanetFactory_patch
             var powerExcId = entityData.powerExcId;
             var excPool = __instance.powerSystem.excPool;
             Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
-                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId));
+                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId, excPool[powerExcId].fullInc));
         }
         if (entityData.powerGenId > 0)
         {
@@ -569,7 +569,7 @@ internal class PlanetFactory_patch
             var powerExcId = entityData.powerExcId;
             var excPool = __instance.powerSystem.excPool;
             Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
-                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId));
+                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId, excPool[powerExcId].fullInc));
         }
         if (entityData.spraycoaterId <= 0)
         {

@@ -84,7 +84,8 @@ public class ILSgStationPoolSyncRequestProcessor : PacketProcessor<ILSRequestgSt
             stationGId[iter] = stationComponent.gid;
             stationMaxShipCount[iter] = stationComponent.workShipDatas.Length;
             stationId[iter] = stationComponent.id;
-            stationName[iter] = stationComponent.name;
+            //todo: remove or replace
+            //stationName[iter] = stationComponent.name;
             DockPos[iter] = new Float3(stationComponent.shipDockPos);
             DockRot[iter] = new Float4(stationComponent.shipDockRot);
             planetId[iter] = stationComponent.planetId;

@@ -15,11 +15,13 @@ using UnityEngine;
 
 namespace NebulaPatcher.Patches.Transpilers;
 
-[HarmonyPatch(typeof(MechaDroneLogic))]
+//todo:replace
+//[HarmonyPatch(typeof(MechaDroneLogic))]
 internal class MechaDroneLogic_Transpiler
 {
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
+    //todo:replace
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(MechaDroneLogic.UpdateTargets))]
     private static IEnumerable<CodeInstruction> UpdateTargets_Transpiler(IEnumerable<CodeInstruction> instructions,
         ILGenerator iL)
     {
@@ -138,8 +140,9 @@ internal class MechaDroneLogic_Transpiler
     /*
      * Call Multiplayer.Session.Drones.BroadcastDroneOrder(int droneId, int entityId, int stage) when drone's stage changes
      */
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(MechaDroneLogic.UpdateDrones))]
+    //todo:replace
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(MechaDroneLogic.UpdateDrones))]
     private static IEnumerable<CodeInstruction> UpdateDrones_Transpiler(IEnumerable<CodeInstruction> instructions,
         ILGenerator iLGenerator)
     {
@@ -148,7 +151,8 @@ internal class MechaDroneLogic_Transpiler
             .MatchForward(true,
                 new CodeMatch(i => i.IsLdloc()),
                 new CodeMatch(i => i.IsLdloc()),
-                new CodeMatch(OpCodes.Ldelema, typeof(MechaDrone)),
+                //todo:replace
+                //new CodeMatch(OpCodes.Ldelema, typeof(MechaDrone)),
                 new CodeMatch(i => i.opcode == OpCodes.Ldc_I4_2 || i.opcode == OpCodes.Ldc_I4_3),
                 new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "stage")
             );
@@ -192,8 +196,9 @@ internal class MechaDroneLogic_Transpiler
      *     if (vector.sqrMagnitude > this.sqrMinBuildAlt && zero2.sqrMagnitude <= num && sqrMagnitude <= num2 && !this.serving.Contains(num4) && !Multiplayer.Session.Drones.IsPendingBuildRequest(num4))
      * To avoid client's drones from trying to target pending request (caused by drone having additional tasks unlocked via the Communication control tech)
      */
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(MechaDroneLogic.FindNext))]
+    //todo:replace
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(MechaDroneLogic.FindNext))]
     private static IEnumerable<CodeInstruction> FindNext_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iL)
     {
         var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();

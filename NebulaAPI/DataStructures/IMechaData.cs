@@ -8,7 +8,7 @@ namespace NebulaAPI.DataStructures;
 
 public interface IMechaData : INetSerializable
 {
-    int SandCount { get; set; }
+    long SandCount { get; set; }
     double CoreEnergy { get; set; }
     double ReactorEnergy { get; set; }
     StorageComponent Inventory { get; set; }

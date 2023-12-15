@@ -20,7 +20,7 @@ public class MechaData : IMechaData
         TechBonuses = new PlayerTechBonuses();
     }
 
-    public MechaData(int sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory,
+    public MechaData(long sandCount, double coreEnergy, double reactorEnergy, StorageComponent inventory,
         DeliveryPackage deliveryPackage, StorageComponent reactorStorage, StorageComponent warpStorage, MechaForge forge)
     {
         SandCount = sandCount;
@@ -35,7 +35,7 @@ public class MechaData : IMechaData
     }
 
     public PlayerTechBonuses TechBonuses { get; set; }
-    public int SandCount { get; set; }
+    public long SandCount { get; set; }
     public double CoreEnergy { get; set; }
     public double ReactorEnergy { get; set; }
     public StorageComponent Inventory { get; set; }

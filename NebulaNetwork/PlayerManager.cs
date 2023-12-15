@@ -327,10 +327,11 @@ public class PlayerManager : IPlayerManager
                 //Remove it also from host queue, if host is on the same planet
                 if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                 {
-                    foreach (var t in DronePlans)
-                    {
-                        GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
-                    }
+                    //todo:replace
+                    //foreach (var t in DronePlans)
+                    //{
+                    //    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
+                    //}
                 }
             }
 

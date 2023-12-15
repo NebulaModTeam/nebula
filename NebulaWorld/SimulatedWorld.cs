@@ -334,7 +334,8 @@ public class SimulatedWorld : IDisposable
                 return;
             }
             //Setup drone of remote player based on the drone data
-            ref var drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
+            //todo:replace
+            /*ref var drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
             var droneLogic = player.PlayerInstance.mecha.droneLogic;
             var tmpFactory = droneLogic.factory;
 
@@ -365,7 +366,7 @@ public class SimulatedWorld : IDisposable
             {
                 GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
             }
-            droneLogic.factory = tmpFactory;
+            droneLogic.factory = tmpFactory;*/
         }
     }
 
@@ -404,11 +405,12 @@ public class SimulatedWorld : IDisposable
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var remoteModel in remotePlayersModels.Where(remoteModel =>
-                         GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId))
-            {
-                remoteModel.Value.MechaInstance.droneRenderer.Draw();
-            }
+            //todo:replace
+            //foreach (var remoteModel in remotePlayersModels.Where(remoteModel =>
+            //             GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId))
+            //{
+            //    //remoteModel.Value.MechaInstance.droneRenderer.Draw();
+            //}
         }
     }
 
@@ -425,7 +427,8 @@ public class SimulatedWorld : IDisposable
             foreach (var remoteModel in remotePlayersModels)
             {
                 var remoteMecha = remoteModel.Value.MechaInstance;
-                var drones = remoteMecha.drones;
+                //todo:replace
+                /*var drones = remoteMecha.drones;
                 var droneCount = remoteMecha.droneCount;
                 var remotePosition = remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
 
@@ -445,7 +448,7 @@ public class SimulatedWorld : IDisposable
                     GameMain.mainPlayer.mecha.droneLogic.serving.Remove(drones[i].targetObject);
                     drones[i].targetObject = 0;
                 }
-                remoteMecha.droneRenderer.Update();
+                remoteMecha.droneRenderer.Update();*/
             }
         }
     }

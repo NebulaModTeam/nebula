@@ -34,6 +34,6 @@ internal class UIPowerExchangerWindow_Patch
         }
         var powerExchangerComponent = __instance.powerSystem.excPool[__instance.exchangerId];
         Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId,
-            powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.id ?? -1));
+            powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.id ?? -1, powerExchangerComponent.fullInc));
     }
 }

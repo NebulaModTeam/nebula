@@ -20,7 +20,7 @@ internal class PowerExchangerStorageUpdateProcessor : PacketProcessor<PowerExcha
         {
             return;
         }
-        pool[packet.PowerExchangerIndex].SetEmptyCount(packet.EmptyAccumulatorCount);
-        pool[packet.PowerExchangerIndex].SetFullCount(packet.FullAccumulatorCount);
+        pool[packet.PowerExchangerIndex].SetEmptyCount(packet.EmptyAccumulatorCount, packet.Inc);
+        pool[packet.PowerExchangerIndex].SetFullCount(packet.FullAccumulatorCount, packet.Inc);
     }
 }

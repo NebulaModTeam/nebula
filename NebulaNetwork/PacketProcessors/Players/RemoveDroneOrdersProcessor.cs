@@ -18,9 +18,10 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
         {
             return;
         }
-        foreach (var t in packet.QueuedEntityIds)
-        {
-            GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
-        }
+        //todo: replace
+        //foreach (var t in packet.QueuedEntityIds)
+        //{
+        //    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
+        //}
     }
 }

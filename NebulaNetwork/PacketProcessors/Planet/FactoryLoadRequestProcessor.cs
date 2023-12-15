@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.IO;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -25,9 +26,10 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
         var planet = GameMain.galaxy.PlanetById(packet.PlanetID);
         var factory = GameMain.data.GetOrCreateFactory(planet);
 
+        using (var stream = new MemoryStream())
         using (var writer = new BinaryUtils.Writer())
         {
-            factory.Export(writer.BinaryWriter);
+            factory.Export(stream, writer.BinaryWriter);
             var data = writer.CloseAndGetBytes();
             Log.Info($"Sent {data.Length} bytes of data for PlanetFactory {planet.name} (ID: {planet.id})");
             conn.SendPacket(new FragmentInfo(data.Length + planet.data.modData.Length));

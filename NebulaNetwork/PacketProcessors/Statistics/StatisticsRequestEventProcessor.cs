@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.IO;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -35,8 +36,9 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
                 {
                     Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
 
+                    using var stream = new MemoryStream();
                     using var writer = new BinaryUtils.Writer();
-                    Multiplayer.Session.Statistics.ExportAllData(writer.BinaryWriter);
+                    Multiplayer.Session.Statistics.ExportAllData(stream, writer.BinaryWriter);
                     conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
                     break;
                 }

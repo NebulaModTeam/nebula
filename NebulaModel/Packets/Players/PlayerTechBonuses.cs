@@ -35,9 +35,10 @@ public class PlayerTechBonuses : IPlayerTechBonuses
         maxSailSpeed = source.maxSailSpeed;
         maxWarpSpeed = source.maxWarpSpeed;
         buildArea = source.buildArea;
-        droneCount = source.droneCount;
-        droneSpeed = source.droneSpeed;
-        droneMovement = source.droneMovement;
+        //todo: remove or replace
+        //droneCount = source.droneCount;
+        //droneSpeed = source.droneSpeed;
+        //droneMovement = source.droneMovement;
         inventorySize = source.player.package.size;
         deliveryPackageUnlocked = source.player.deliveryPackage.unlocked;
         deliveryPackageColCount = source.player.deliveryPackage.colCount;
@@ -164,9 +165,10 @@ public class PlayerTechBonuses : IPlayerTechBonuses
         destination.maxSailSpeed = maxSailSpeed;
         destination.maxWarpSpeed = maxWarpSpeed;
         destination.buildArea = buildArea;
-        destination.droneCount = droneCount;
-        destination.droneSpeed = droneSpeed;
-        destination.droneMovement = droneMovement;
+        //todo: remove or replace
+        //destination.droneCount = droneCount;
+        //destination.droneSpeed = droneSpeed;
+        //destination.droneMovement = droneMovement;
         if (inventorySize > destination.player.package.size)
         {
             destination.player.package.SetSize(inventorySize);

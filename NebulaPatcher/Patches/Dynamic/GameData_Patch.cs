@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
@@ -56,6 +57,7 @@ internal class GameData_Patch
         // Take it off the list, as we will process it now
         Multiplayer.Session.Planets.PendingFactories.Remove(planet.id);
 
+        using (var stream = new MemoryStream())
         using (var reader = new BinaryUtils.Reader(factoryBytes))
         {
             int factoryIndex;
@@ -67,7 +69,7 @@ internal class GameData_Patch
                 __instance.factories[factoryIndex] = new PlanetFactory();
                 try
                 {
-                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, stream, reader.BinaryReader);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -81,7 +83,7 @@ internal class GameData_Patch
                 factoryIndex = planet.factoryIndex;
                 try
                 {
-                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, stream, reader.BinaryReader);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -416,7 +418,8 @@ internal class GameData_Patch
         //Players should clear the list of drone orders of other players when they leave the planet
         if (Multiplayer.IsActive)
         {
-            GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
+            //todo:replace
+            //GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
         }
     }
 

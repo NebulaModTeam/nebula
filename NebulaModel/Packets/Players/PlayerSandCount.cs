@@ -4,10 +4,10 @@ public class PlayerSandCount
 {
     public PlayerSandCount() { }
 
-    public PlayerSandCount(int sandCount)
+    public PlayerSandCount(long sandCount)
     {
         SandCount = sandCount;
     }
 
-    public int SandCount { get; set; }
+    public long SandCount { get; set; }
 }

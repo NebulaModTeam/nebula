@@ -134,8 +134,9 @@ public class BuildToolManager : IDisposable
             }
             else if (packet.BuildToolType == typeof(BuildTool_Addon).ToString())
             {
-                ((BuildTool_Addon)buildTool).handbp =
-                    buildTool.buildPreviews[0]; // traffic monitors cannot be drag build atm, so its always only one.
+                //todo:remove or replace
+                //((BuildTool_Addon)buildTool).handbp =
+                //    buildTool.buildPreviews[0]; // traffic monitors cannot be drag build atm, so its always only one.
                 ((BuildTool_Addon)buildTool).CreatePrebuilds();
             }
             else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())

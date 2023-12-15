@@ -54,12 +54,13 @@ public class RemotePlayerModel
         if (PlayerInstance != null)
         {
             PlayerInstance.mecha = MechaInstance;
-            MechaInstance.Init(PlayerInstance);
+            MechaInstance.Init(GameMain.data, PlayerInstance);
 
             //Fix MechaDroneRenderers
-            MechaInstance.droneRenderer.mat_0 = new Material(Configs.builtin.mechaDroneMat.shader);
-            var mat = MechaInstance.droneRenderer.mat_0;
-            mat.CopyPropertiesFromMaterial(Configs.builtin.mechaDroneMat);
+            //todo:replace
+            //MechaInstance.droneRenderer.mat_0 = new Material(Configs.builtin.mechaDroneMat.shader);
+            //var mat = MechaInstance.droneRenderer.mat_0;
+            //mat.CopyPropertiesFromMaterial(Configs.builtin.mechaDroneMat);
 
             //Fix MechaArmorModel
             if (PlayerModelTransform != null)
