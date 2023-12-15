@@ -30,7 +30,7 @@ internal class BuildTool_Common_Patch
         var previews = __instance switch
         {
             BuildTool_BlueprintPaste bpInstance => bpInstance.bpPool.Take(bpInstance.bpCursor).ToList(),
-            BuildTool_Addon addon => new List<BuildPreview> { addon.handbp },
+            BuildTool_Addon addon => [addon.handbp],
             _ => __instance.buildPreviews
         };
 

@@ -79,7 +79,7 @@ public class ChatCommandKey
     public ChatCommandKey(string commandName, IEnumerable<string> aliases)
     {
         Name = commandName;
-        Aliases = new HashSet<string>(aliases);
+        Aliases = [..aliases];
     }
 
     public bool RespondsTo(string nameOrAlias)

@@ -33,7 +33,7 @@ public static class ChatSpriteSheetManager
 
         // Add new default material for sprite asset.
         AddDefaultMaterial(iconsSpriteAsset);
-        TMP_Settings.defaultSpriteAsset.fallbackSpriteAssets = new List<TMP_SpriteAsset> { iconsSpriteAsset };
+        TMP_Settings.defaultSpriteAsset.fallbackSpriteAssets = [iconsSpriteAsset];
     }
 
     private static void PopulateSpriteTables(IconSet iconSet, ref List<TMP_SpriteCharacter> spriteCharacterTable,

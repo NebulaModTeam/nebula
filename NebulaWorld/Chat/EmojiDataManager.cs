@@ -45,7 +45,7 @@ public static class EmojiDataManager
         }
         else
         {
-            emojies[emoji._category] = new List<Emoji>(new[] { emoji });
+            emojies[emoji._category] = [..new[] { emoji }];
         }
     }
 

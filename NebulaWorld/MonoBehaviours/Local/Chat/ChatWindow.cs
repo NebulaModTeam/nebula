@@ -28,8 +28,8 @@ public class ChatWindow : MonoBehaviour
     [SerializeField] private RectTransform notifierMask;
 
     [SerializeField] private GameObject chatWindow;
-    private readonly List<string> inputHistory = new() { "" };
-    private readonly List<ChatMessage> messages = new();
+    private readonly List<string> inputHistory = [""];
+    private readonly List<ChatMessage> messages = [];
     private readonly Queue<QueuedMessage> outgoingMessages = new(5);
     internal UIWindowDrag DragTrigger;
     private int inputHistoryCursor;
