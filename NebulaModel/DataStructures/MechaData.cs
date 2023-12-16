@@ -79,7 +79,7 @@ public class MechaData : IMechaData
         WarpStorage = new StorageComponent(1);
         Forge = new MechaForge { tasks = [], extraItems = new ItemBundle() };
         TechBonuses.Deserialize(reader);
-        SandCount = reader.GetInt();
+        SandCount = reader.GetLong();
         CoreEnergy = reader.GetDouble();
         ReactorEnergy = reader.GetDouble();
         var isPayloadPresent = reader.GetBool();
