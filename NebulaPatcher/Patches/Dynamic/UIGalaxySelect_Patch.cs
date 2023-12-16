@@ -35,6 +35,7 @@ internal class UIGalaxySelect_Patch
             galaxySelectRect.Find("property-multiplier").gameObject.SetActive(false);
             galaxySelectRect.Find("seed-key").gameObject.SetActive(false);
             galaxySelectRect.Find("sandbox-mode").gameObject.SetActive(false);
+            galaxySelectRect.Find("DF-toggle").gameObject.SetActive(false);
         }
         if (!Multiplayer.IsActive)
         {
@@ -141,6 +142,7 @@ internal class UIGalaxySelect_Patch
         galaxySelectRect.Find("resource-multiplier").gameObject.SetActive(true);
         galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = true;
         galaxySelectRect.Find("random-button").gameObject.SetActive(true);
+        galaxySelectRect.Find("DF-toggle").gameObject.SetActive(true);
     }
 
     [HarmonyPrefix]
@@ -181,7 +183,7 @@ internal class UIGalaxySelect_Patch
             {
                 entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed,
                     __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier,
-                    __instance.gameDesc.isSandboxMode));
+                    __instance.gameDesc.isSandboxMode, __instance.gameDesc.isPeaceMode, __instance.gameDesc.combatSettings));
             }
         }
         using (Multiplayer.Session.Network.PlayerManager.GetPendingPlayers(out var pendingPlayers))
@@ -190,7 +192,7 @@ internal class UIGalaxySelect_Patch
             {
                 entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed,
                     __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier,
-                    __instance.gameDesc.isSandboxMode));
+                    __instance.gameDesc.isSandboxMode, __instance.gameDesc.isPeaceMode, __instance.gameDesc.combatSettings));
             }
         }
     }
