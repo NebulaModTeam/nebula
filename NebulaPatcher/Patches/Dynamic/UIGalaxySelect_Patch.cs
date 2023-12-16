@@ -27,15 +27,8 @@ internal class UIGalaxySelect_Patch
         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
         {
             var galaxySelectRect = __instance.gameObject.GetComponent<RectTransform>();
-
-            galaxySelectRect.Find("star-count").gameObject.SetActive(false);
-            galaxySelectRect.Find("resource-multiplier").gameObject.SetActive(false);
-            galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = false;
             galaxySelectRect.Find("random-button").gameObject.SetActive(false);
-            galaxySelectRect.Find("property-multiplier").gameObject.SetActive(false);
-            galaxySelectRect.Find("seed-key").gameObject.SetActive(false);
-            galaxySelectRect.Find("sandbox-mode").gameObject.SetActive(false);
-            galaxySelectRect.Find("DF-toggle").gameObject.SetActive(false);
+            galaxySelectRect.Find("setting-group").gameObject.SetActive(false);
         }
         if (!Multiplayer.IsActive)
         {
@@ -138,11 +131,8 @@ internal class UIGalaxySelect_Patch
         // cant check anymore if we are in multiplayer or not, so just do this without check. will not do any harm C:
         var galaxySelectRect = __instance.gameObject.GetComponent<RectTransform>();
 
-        galaxySelectRect.Find("star-count").gameObject.SetActive(true);
-        galaxySelectRect.Find("resource-multiplier").gameObject.SetActive(true);
-        galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = true;
+        galaxySelectRect.Find("setting-group").gameObject.SetActive(true);
         galaxySelectRect.Find("random-button").gameObject.SetActive(true);
-        galaxySelectRect.Find("DF-toggle").gameObject.SetActive(true);
     }
 
     [HarmonyPrefix]

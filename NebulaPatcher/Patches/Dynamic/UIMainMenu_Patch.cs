@@ -180,40 +180,51 @@ internal class UIMainMenu_Patch
         Object.Destroy(multiplayerMenu.gameObject.GetComponent<UIGalaxySelect>());
 
         multiplayerMenu.gameObject.name = "Nebula - Multiplayer Menu";
-        //todo:replace
-        /*
         for (var i = 0; i < multiplayerMenu.childCount; i++)
         {
             var child = multiplayerMenu.GetChild(i);
             switch (child.name)
             {
-                case "top-title":
-                    child.GetComponent<Localizer>().enabled = false;
-                    child.GetComponent<Text>().text = "Multiplayer".Translate();
-                    break;
-                case "galaxy-seed":
+                case "setting-group":
+                    for (var j = 0; j < child.childCount; j++)
                     {
-                        child.GetComponent<Localizer>().enabled = false;
-                        child.GetComponent<Text>().text = "Host IP Address".Translate();
-                        child.name = "Host IP Address";
-                        hostIPAddressInput = child.GetComponentInChildren<InputField>();
-                        hostIPAddressInput.onEndEdit.RemoveAllListeners();
-                        hostIPAddressInput.onValueChanged.RemoveAllListeners();
-                        //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
-                        //256 will trigger an argument out of range exception
-                        hostIPAddressInput.characterLimit = 255;
-
-                        var ip = "127.0.0.1";
-                        if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+                        var child2 = child.GetChild(j);
+                        switch (child2.name)
                         {
-                            ip = Config.Options.LastIP;
+                            case "top-title":
+                                child2.GetComponent<Localizer>().enabled = false;
+                                child2.GetComponent<Text>().text = "Multiplayer".Translate();
+                                break;
+                            case "galaxy-seed":
+                                {
+                                    child2.GetComponent<Localizer>().enabled = false;
+                                    child2.GetComponent<Text>().text = "Host IP Address".Translate();
+                                    child2.name = "Host IP Address";
+                                    hostIPAddressInput = child2.GetComponentInChildren<InputField>();
+                                    hostIPAddressInput.onEndEdit.RemoveAllListeners();
+                                    hostIPAddressInput.onValueChanged.RemoveAllListeners();
+                                    //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
+                                    //256 will trigger an argument out of range exception
+                                    hostIPAddressInput.characterLimit = 255;
+
+                                    var ip = "127.0.0.1";
+                                    if (Config.Options.RememberLastIP && !string.IsNullOrWhiteSpace(Config.Options.LastIP))
+                                    {
+                                        ip = Config.Options.LastIP;
+                                    }
+                                    hostIPAddressInput.text = ip;
+                                    hostIPAddressInput.contentType = Config.Options.StreamerMode
+                                        ? InputField.ContentType.Password
+                                        : InputField.ContentType.Standard;
+                                    break;
+                                }
+                            default:
+                                // Remove all unused elements that may be added by other mods
+                                Object.Destroy(child2.gameObject);
+                                break;
                         }
-                        hostIPAddressInput.text = ip;
-                        hostIPAddressInput.contentType = Config.Options.StreamerMode
-                            ? InputField.ContentType.Password
-                            : InputField.ContentType.Standard;
-                        break;
                     }
+                    break;
                 case "start-button":
                     OverrideButton(multiplayerMenu.Find("start-button").GetComponent<RectTransform>(), "Join Game".Translate(),
                         OnJoinGameButtonClick);
@@ -228,19 +239,25 @@ internal class UIMainMenu_Patch
                     break;
             }
         }
-        var passwordField = Object.Instantiate(multiplayerMenu.Find("Host IP Address"), multiplayerMenu, false);
-        passwordField.localPosition = galaxySelectTemplate.Find("star-count").localPosition;
-        passwordField.GetComponent<Text>().text = "Password (optional)".Translate();
-        passwordField.name = "Password (optional)";
-        passwordInput = passwordField.GetComponentInChildren<InputField>();
+        if (hostIPAddressInput == null)
+        {
+            Log.Warn("setting-group/galaxy-seed not found!");
+        }
+        var addressTransform = hostIPAddressInput.transform.parent;
+        addressTransform.SetParent(multiplayerMenu);
+        addressTransform.localPosition = new Vector3(0, 335, 0);
+        var passwordTransform = Object.Instantiate(addressTransform, multiplayerMenu);
+        passwordTransform.localPosition += new Vector3(0, -36, 0);
+        passwordTransform.GetComponent<Text>().text = "Password (optional)".Translate();
+        passwordTransform.name = "Password (optional)";
+        
+        passwordInput = passwordTransform.GetComponentInChildren<InputField>();
         passwordInput.contentType = InputField.ContentType.Password;
-
         passwordInput.text = "";
         if (Config.Options.RememberLastClientPassword && !string.IsNullOrWhiteSpace(Config.Options.LastClientPassword))
         {
             passwordInput.text = Config.Options.LastClientPassword;
         }
-        */
 
         multiplayerMenu.gameObject.SetActive(false);
     }
