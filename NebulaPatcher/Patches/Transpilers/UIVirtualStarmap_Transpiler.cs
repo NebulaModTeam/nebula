@@ -41,8 +41,10 @@ internal class UIVirtualStarmap_Transpiler
     Also change iteration over stars to start at 0 instead of 1 to also have a detailed solar system view of the default starting system
     By default the game always marks the first star as birth point, but as we can change that we also need to adapt the code for the visualisation
      */
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
+    
+    //todo:replace
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static IEnumerable<CodeInstruction> _OnLateUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {

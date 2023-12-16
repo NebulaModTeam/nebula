@@ -15,8 +15,9 @@ namespace NebulaPatcher.Patches.Transpilers;
 [HarmonyPatch(typeof(PowerSystem))]
 internal class PowerSystem_Transpiler
 {
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(PowerSystem.GameTick))]
+    //todo:replace
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(PowerSystem.GameTick))]
     public static IEnumerable<CodeInstruction> PowerSystem_GameTick_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();

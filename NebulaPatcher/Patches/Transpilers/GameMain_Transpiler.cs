@@ -20,8 +20,9 @@ internal class GameMain_Transpiler
     //Change:  if (this._fullscreenPaused && !this._fullscreenPausedUnlockOneFrame)
     //To:      if (this._fullscreenPaused && (Multiplayer.Session == null || Multiplayer.Session.CanPause) && !this._fullscreenPausedUnlockOneFrame)
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(GameMain.FixedUpdate))]
+    //todo:replace
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(GameMain.FixedUpdate))]
     private static IEnumerable<CodeInstruction> FixedUpdate_Transpiler(IEnumerable<CodeInstruction> instructions,
         ILGenerator iL)
     {

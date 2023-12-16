@@ -180,6 +180,8 @@ internal class UIMainMenu_Patch
         Object.Destroy(multiplayerMenu.gameObject.GetComponent<UIGalaxySelect>());
 
         multiplayerMenu.gameObject.name = "Nebula - Multiplayer Menu";
+        //todo:replace
+        /*
         for (var i = 0; i < multiplayerMenu.childCount; i++)
         {
             var child = multiplayerMenu.GetChild(i);
@@ -238,6 +240,7 @@ internal class UIMainMenu_Patch
         {
             passwordInput.text = Config.Options.LastClientPassword;
         }
+        */
 
         multiplayerMenu.gameObject.SetActive(false);
     }
