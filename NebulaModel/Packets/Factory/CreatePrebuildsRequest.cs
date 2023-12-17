@@ -32,7 +32,7 @@ public class CreatePrebuildsRequest
     }
 
     public int PlanetId { get; set; }
-    private byte[] BuildPreviewData { get; set; }
+    public byte[] BuildPreviewData { get; set; }
     public int AuthorId { get; set; }
     public string BuildToolType { get; set; }
     public int PrebuildId { get; set; }
@@ -54,7 +54,7 @@ public class CreatePrebuildsRequest
         return result;
     }
 
-    private static void DeserializeBuildPreview(BuildPreview buildPreview, IReadOnlyList<BuildPreview> list, BinaryReader br)
+    public static void DeserializeBuildPreview(BuildPreview buildPreview, IReadOnlyList<BuildPreview> list, BinaryReader br)
     {
         var outputRef = br.ReadInt32();
         buildPreview.output = outputRef == -1 ? null : list[outputRef];
@@ -165,7 +165,7 @@ public class CreatePrebuildsRequest
         buildPreview.condition = (EBuildCondition)br.ReadInt32();
     }
 
-    private static void SerializeBuildPreview(BuildPreview buildPreview, IList<BuildPreview> list, BinaryWriter bw)
+    public static void SerializeBuildPreview(BuildPreview buildPreview, IList<BuildPreview> list, BinaryWriter bw)
     {
         bw.Write(list.IndexOf(buildPreview.output));
         bw.Write(list.IndexOf(buildPreview.input));
