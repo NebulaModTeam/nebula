@@ -123,10 +123,9 @@ public class StatisticsManager : IDisposable
             {
                 //When new planetFactories are added, resend the whole data
                 StatisticsDataPacket dataPacket;
-                using (var stream = new MemoryStream())
                 using (var writer = new BinaryUtils.Writer())
                 {
-                    ExportAllData(stream, writer.BinaryWriter);
+                    ExportAllData(writer.BinaryWriter);
                     dataPacket = new StatisticsDataPacket(writer.CloseAndGetBytes());
                 }
                 foreach (var player in requestors)
@@ -173,7 +172,7 @@ public class StatisticsManager : IDisposable
         }
     }
 
-    public void ExportAllData(Stream s, BinaryWriter bw)
+    public void ExportAllData(BinaryWriter bw)
     {
         var Stats = GameMain.statistics;
         FactoryCount = GameMain.data.factoryCount;
@@ -188,7 +187,7 @@ public class StatisticsManager : IDisposable
         //Export production statistics for every planet
         for (var i = 0; i < GameMain.data.factoryCount; i++)
         {
-            Stats.production.factoryStatPool[i].Export(s, bw);
+            Stats.production.factoryStatPool[i].Export(bw.BaseStream, bw);
         }
 
         //Export Research statistics
@@ -199,7 +198,7 @@ public class StatisticsManager : IDisposable
         }
     }
 
-    public void ImportAllData(Stream s, BinaryReader br)
+    public void ImportAllData(BinaryReader br)
     {
         var Stats = GameMain.statistics;
         FactoryCount = br.ReadInt32();
@@ -224,7 +223,7 @@ public class StatisticsManager : IDisposable
                 Stats.production.factoryStatPool[i] = new FactoryProductionStat();
                 Stats.production.factoryStatPool[i].Init();
             }
-            Stats.production.factoryStatPool[i].Import(s, br);
+            Stats.production.factoryStatPool[i].Import(br.BaseStream, br);
         }
 
         //Import Research Statistics

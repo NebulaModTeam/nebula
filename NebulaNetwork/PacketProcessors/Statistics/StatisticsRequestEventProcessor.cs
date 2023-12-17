@@ -36,9 +36,8 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
                 {
                     Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
 
-                    using var stream = new MemoryStream();
                     using var writer = new BinaryUtils.Writer();
-                    Multiplayer.Session.Statistics.ExportAllData(stream, writer.BinaryWriter);
+                    Multiplayer.Session.Statistics.ExportAllData(writer.BinaryWriter);
                     conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
                     break;
                 }
