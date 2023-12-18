@@ -19,36 +19,36 @@ namespace NebulaPatcher.Patches.Transpilers;
 [HarmonyPatch(typeof(UIVirtualStarmap))]
 internal class UIVirtualStarmap_Transpiler
 {
-    /*
-    if (flag2 && flag)
-    {
-        if (pressing)
-        {
-            this.starPool[j].nameText.text = this.starPool[j].textContent + "\r\n" + this.clickText.Translate();
-        }
-        this.starPool[j].nameText.rectTransform.sizeDelta = new Vector2(this.starPool[j].nameText.preferredWidth, this.starPool[j].nameText.preferredHeight);
-    }
-
-    to
-
-    if (flag2 && pressing)
-    {
-        own logic
-    }
-
-    NOTE: the game does not use UIVirtualStarmap.clickText yet so the original logic would never be called anyways.
-
-    Also change iteration over stars to start at 0 instead of 1 to also have a detailed solar system view of the default starting system
-    By default the game always marks the first star as birth point, but as we can change that we also need to adapt the code for the visualisation
-     */
-    
-    //todo:replace
-    //[HarmonyTranspiler]
-    //[HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
-    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-    public static IEnumerable<CodeInstruction> _OnLateUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
+    public static IEnumerable<CodeInstruction> _OnLateUpdate_ShowSolarsystemDetails_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        /*
+         from:
+            if (flag2 && flag)
+	        {
+		        if (pressing)
+		        {
+			        this.starPool[j].nameText.text = string.Concat(new string[]
+			        {
+				        this.starPool[j].textContent,
+				        "\r\nSafety Factor = ",
+				        this.starPool[j].starData.safetyFactor.ToString("0.0%"),
+				        "\r\n",
+				        this.clickText.Translate()
+			        });
+		        }
+		        this.starPool[j].nameText.rectTransform.sizeDelta = new Vector2(this.starPool[j].nameText.preferredWidth, this.starPool[j].nameText.preferredHeight);
+	        }
+	     
+	     to:
+	        if (flag2 && pressing)
+            {
+                ShowSolarsystemDetails delegate (own logic)
+            }
+         NOTE: the game does not use UIVirtualStarmap.clickText yet so the original logic would never be called anyway.
+        */
         var matcher = new CodeMatcher(codeInstructions)
             .MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),
@@ -62,7 +62,7 @@ internal class UIVirtualStarmap_Transpiler
                 new CodeMatch(OpCodes.Ldloc_S));
         if (matcher.IsInvalid)
         {
-            Log.Warn("UIVirtualStarmap transpiler could not find injection point, not patching!");
+            Log.Warn("_OnLateUpdate_ShowSolarsystemDetails_Transpiler could not find injection point, not patching!");
             return codeInstructions;
         }
 
@@ -71,7 +71,7 @@ internal class UIVirtualStarmap_Transpiler
             .Advance(2);
 
         // now remove original logic in this if(){}
-        for (var i = 0; i < 39; i++)
+        for (var i = 0; i < 65; i++)
         {
             matcher.SetAndAdvance(OpCodes.Nop, null);
         }
@@ -158,24 +158,30 @@ internal class UIVirtualStarmap_Transpiler
                     UIRoot.instance.uiGame.planetDetail._OnUpdate();
                 }
             }));
+        return matcher.InstructionEnumeration();
+    }
 
-        // change for loop to start at 0 instead of 1
-        matcher.Start();
-        matcher.MatchForward(true,
-                new CodeMatch(OpCodes.Stloc_2),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(UIVirtualStarmap), "clickText")),
-                new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "IsNullOrEmpty"),
-                new CodeMatch(OpCodes.Ldc_I4_0),
-                new CodeMatch(OpCodes.Ceq),
-                new CodeMatch(OpCodes.Stloc_3)
-            )
-            .Advance(1)
-            .SetInstruction(new CodeInstruction(OpCodes.Ldc_I4_0));
-
-        // mark the correct star as birth point
-        matcher.Start();
-        matcher.MatchForward(true,
+    //todo:replace
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
+    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+    public static IEnumerable<CodeInstruction> _OnLateUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        /* mark the correct star as birth point
+         from:
+            if (i == 0)
+            {
+                Color color = this.starColors.Evaluate(starData.color);
+                this.starPointBirth.gameObject.SetActive(true);
+                this.starPointBirth.material.SetColor("_TintColor", color);
+                this.starPointBirth.transform.localPosition = starData.position;
+            }
+         to:
+            if (IsBirthStar(this, i)) { ORIGINAL CODE }
+         */
+        var matcher = new CodeMatcher(codeInstructions)
+            .MatchForward(true,
                 new CodeMatch(OpCodes.Ldc_R4),
                 new CodeMatch(OpCodes.Stloc_1),
                 new CodeMatch(OpCodes.Br),
@@ -184,9 +190,15 @@ internal class UIVirtualStarmap_Transpiler
                 new CodeMatch(OpCodes.Ldloc_S),
                 new CodeMatch(OpCodes.Stloc_0),
                 new CodeMatch(OpCodes.Ldloc_S),
-                new CodeMatch(OpCodes.Brtrue)
-            )
-            .Advance(-1)
+                new CodeMatch(OpCodes.Brtrue));
+
+        if (matcher.IsInvalid)
+        {
+            Log.Warn("UIVirtualStarmap transpiler could not find first injection point, not patching!");
+            return codeInstructions;
+        }
+
+        matcher.Advance(-1)
             .SetAndAdvance(OpCodes.Nop, null)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
             .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, 5))
@@ -194,8 +206,50 @@ internal class UIVirtualStarmap_Transpiler
                 starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthStarId &&
                 starmap.starPool[starIndex].starData.id != starmap._galaxyData.birthPlanetId));
 
-        // listen for general mouse clicks to deselect planet / solar system
-        matcher.Start();
+        /* change iteration over stars to start at 0 instead of 1 to also have a detailed solar system view of the default starting system
+           By default the game always marks the first star as birth point, but as we can change that we also need to adapt the code for the visualisation
+         from:
+            bool flag = !string.IsNullOrEmpty(this.clickText);
+	        for (int j = 1; j < this.starPool.Count; j++)
+	        {
+		        bool flag2 = this.starPool[j].active && j == num;
+		 to:
+		    bool flag = !string.IsNullOrEmpty(this.clickText);
+	        for (int j = 0; j < this.starPool.Count; j++)
+	        {
+		        bool flag2 = this.starPool[j].active && j == num;
+         */
+        matcher.MatchForward(true,
+                new CodeMatch(OpCodes.Stloc_2),
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(UIVirtualStarmap), "clickText")),
+                new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "IsNullOrEmpty"),
+                new CodeMatch(OpCodes.Ldc_I4_0),
+                new CodeMatch(OpCodes.Ceq),
+                new CodeMatch(OpCodes.Stloc_3));
+
+        if (matcher.IsInvalid)
+        {
+            Log.Warn("UIVirtualStarmap transpiler could not find second injection point, not patching!");
+            return codeInstructions;
+        }
+
+        matcher.Advance(1)
+            .SetInstruction(new CodeInstruction(OpCodes.Ldc_I4_0));
+
+        /* listen for general mouse clicks to deselect planet / solar system
+         from:
+             for (int j = 1; j < this.starPool.Count; j++)
+             {
+                 bool flag2 = this.starPool[j].active && j == num;
+                 this.starPool[j].nameText.gameObject.SetActive(flag2);
+         to:
+             for (int j = 1; j < this.starPool.Count; j++)
+             {
+                 bool flag2 = this.starPool[j].active && j == num;
+                 TrackPlayerClick(this, j);
+                 this.starPool[j].nameText.gameObject.SetActive(flag2);
+        */
         matcher.MatchForward(true,
                 new CodeMatch(OpCodes.Br),
                 new CodeMatch(OpCodes.Ldarg_0),
@@ -207,33 +261,41 @@ internal class UIVirtualStarmap_Transpiler
                 new CodeMatch(OpCodes.Ldloc_S),
                 new CodeMatch(OpCodes.Ldloc_0),
                 new CodeMatch(OpCodes.Ceq)
-            )
-            .Advance(3)
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
-            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_0))
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TrackPlayerClick>((starmap, starIndex) =>
+            );
+
+        if (matcher.IsInvalid)
+        {
+            Log.Warn("UIVirtualStarmap transpiler could not find third injection point, not patching!");
+            return codeInstructions;
+        }
+
+        matcher.Advance(4)
+        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+        .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_0))
+        .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TrackPlayerClick>((starmap, starIndex) =>
+        {
+            var pressing = VFInput.rtsConfirm.pressing;
+            if (!pressing || pressSpamProtector || starIndex != -1)
             {
-                var pressing = VFInput.rtsConfirm.pressing;
-                if (!pressing || pressSpamProtector || starIndex != -1)
-                {
-                    return;
-                }
-                if (starmap.clickText != "" &&
-                    UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide planet details
-                {
-                    GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/right-group").SetActive(true);
-                    UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
-                }
-                else if (starmap.clickText != "" &&
-                         !UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide solar system details
-                {
-                    starmap.clickText = "";
-                    starmap.OnGalaxyDataReset();
-                }
-                pressSpamProtector = true;
-            }));
+                return;
+            }
+            if (starmap.clickText != "" &&
+                UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide planet details
+            {
+                GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/right-group").SetActive(true);
+                UIRoot.instance.uiGame.planetDetail.gameObject.SetActive(false);
+            }
+            else if (starmap.clickText != "" &&
+                     !UIRoot.instance.uiGame.planetDetail.gameObject.activeSelf) // hide solar system details
+            {
+                starmap.clickText = "";
+                starmap.OnGalaxyDataReset();
+            }
+            pressSpamProtector = true;
+        }));
 
         // show all star/planet name when alt is pressed
+        // insert at end of method
         matcher.End()
             .SetOpcodeAndAdvance(OpCodes.Ldarg_0)
             .Insert(
