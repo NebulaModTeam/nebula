@@ -161,7 +161,6 @@ internal class UIVirtualStarmap_Transpiler
         return matcher.InstructionEnumeration();
     }
 
-    //todo:replace
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(UIVirtualStarmap._OnLateUpdate))]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
