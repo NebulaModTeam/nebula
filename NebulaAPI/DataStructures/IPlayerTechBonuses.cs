@@ -31,10 +31,22 @@ public interface IPlayerTechBonuses : INetSerializable
     float maxWarpSpeed { get; set; }
     float buildArea { get; set; }
     int droneCount { get; set; }
-    float droneSpeed { get; set; }
-    int droneMovement { get; set; }
     int inventorySize { get; set; }
     bool deliveryPackageUnlocked { get; set; }
     int deliveryPackageColCount { get; set; }
     int deliveryPackageStackSizeMultiplier { get; set; }
+    double instantBuildEnergy { get; set; }
+    int hpMaxUpgrade { get; set; }
+    bool energyShieldUnlocked { get; set; }
+    float energyShieldRadius { get; set; }
+    long energyShieldCapacity { get; set; }
+    long laserEnergyCapacity { get; set; }
+    float laserLocalAttackRange { get; set; }
+    float laserSpaceAttackRange { get; set; }
+    int laserLocalEnergyCost { get; set; }
+    int laserSpaceEnergyCost { get; set; }
+    int laserLocalDamage { get; set; }
+    int laserSpaceDamage { get; set; }
+    int groundFleetCount { get; set; }
+    int spaceFleetCount { get; set; }
 }
