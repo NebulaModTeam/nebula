@@ -99,28 +99,15 @@ public class SimulatedWorld : IDisposable
             GameMain.mainPlayer.uRotation = Quaternion.Euler(player.Data.Rotation.ToVector3());
 
             // Load client's saved data from the last session.
-            GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
-            using (var ms = new MemoryStream())
-            {
-                var bw = new BinaryWriter(ms);
-                player.Data.Mecha.DeliveryPackage.Export(bw);
-                ms.Seek(0, SeekOrigin.Begin);
-                var br = new BinaryReader(ms);
-                GameMain.mainPlayer.deliveryPackage.Import(br);
-                player.Data.Mecha.DeliveryPackage = GameMain.mainPlayer.deliveryPackage;
-            }
-            GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
-            GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
-            GameMain.mainPlayer.mecha.reactorEnergy = player.Data.Mecha.ReactorEnergy;
-            GameMain.mainPlayer.mecha.reactorStorage = player.Data.Mecha.ReactorStorage;
-            GameMain.mainPlayer.mecha.warpStorage = player.Data.Mecha.WarpStorage;
-            GameMain.mainPlayer.SetSandCount(player.Data.Mecha.SandCount);
+            player.Data.Mecha.UpdateMech(GameMain.mainPlayer);
 
             // Fix references that broke during import
             GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
             GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
             GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+            GameMain.mainPlayer.mecha.groundCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
+            GameMain.mainPlayer.mecha.spaceCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
         }
 
         // Initialization on the host side after game is loaded
@@ -133,8 +120,10 @@ public class SimulatedWorld : IDisposable
 
             if (player.IsNewPlayer)
             {
-                // Set mecha to full energy so new client won't have low energy when starting
+                // Set mecha to full energy, shield and hp so new client won't have low stats when starting
                 GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
+                GameMain.mainPlayer.mecha.energyShieldEnergy = GameMain.mainPlayer.mecha.energyShieldCapacity;
+                GameMain.mainPlayer.mecha.hp = GameMain.mainPlayer.mecha.hpMaxApplied;
                 if (GameMain.history.logisticShipWarpDrive)
                 {
                     // If warp has unlocked, give new client few warpers

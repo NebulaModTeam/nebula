@@ -16,4 +16,8 @@ public interface IMechaData : INetSerializable
     StorageComponent ReactorStorage { get; set; }
     StorageComponent WarpStorage { get; set; }
     MechaForge Forge { get; set; }
+    ConstructionModuleComponent ConstructionModule { get; set; }
+    IMechaFightData FightData { get; set; }
+
+    public void UpdateMech(Player destination);
 }
