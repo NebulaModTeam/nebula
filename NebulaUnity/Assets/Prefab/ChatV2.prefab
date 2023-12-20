@@ -196,6 +196,41 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &700364894220871131
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2346308022511189012}
+  m_Layer: 5
+  m_Name: screen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2346308022511189012
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700364894220871131}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 77303394883974642}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &825159405865398159
 GameObject:
   m_ObjectHideFlags: 0
@@ -427,8 +462,6 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_isInputParsingRequired: 0
-  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -730,8 +763,6 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_isInputParsingRequired: 0
-  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -1688,8 +1719,6 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_isInputParsingRequired: 0
-  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -2391,8 +2420,6 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_isInputParsingRequired: 0
-  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -2466,7 +2493,6 @@ MonoBehaviour:
   notifier: {fileID: 5812330229923076275}
   notifierMask: {fileID: 7690332344613162966}
   chatWindow: {fileID: 7992509132052757129}
-  userName: 
 --- !u!114 &2527788249416509448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2482,6 +2508,7 @@ MonoBehaviour:
   dragTrigger: {fileID: 3926813589917971287}
   dragTrans: {fileID: 3527980105942565041}
   refTrans: {fileID: 2506718053184331326}
+  screenRect: {fileID: 2346308022511189012}
   dragThreshold: 4
   damping: 0.2
   spring: 0.5
@@ -2710,8 +2737,6 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_isInputParsingRequired: 0
-  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -3649,7 +3674,7 @@ MonoBehaviour:
   m_Script: {fileID: -318740962, guid: 06dd3d5416bf43ea368cc39ff96e6d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 1cc7b81a1077123469adbc17c2e4ea01, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.0829, g: 0.112, b: 0.1412, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -3665,7 +3690,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   source: {fileID: 0}
-  vibrancy: 1
+  vibrancy: 0
   brightness: 0
   flatten: 0
   updating: 1
@@ -4018,7 +4043,7 @@ MonoBehaviour:
   m_Script: {fileID: -318740962, guid: 06dd3d5416bf43ea368cc39ff96e6d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 1cc7b81a1077123469adbc17c2e4ea01, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0.0829, g: 0.112, b: 0.1412, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -4034,7 +4059,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   source: {fileID: 0}
-  vibrancy: 1
+  vibrancy: 0
   brightness: 0
   flatten: 0
   updating: 1
@@ -4334,6 +4359,7 @@ RectTransform:
   - {fileID: 4710401390210384327}
   - {fileID: 1149361244426845286}
   - {fileID: 5679807341372473742}
+  - {fileID: 2346308022511189012}
   m_Father: {fileID: 3527980105942565041}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
