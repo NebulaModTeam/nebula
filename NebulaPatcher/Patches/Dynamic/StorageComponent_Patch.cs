@@ -38,7 +38,7 @@ internal class StorageComponent_Patch
     [HarmonyPatch(nameof(StorageComponent.AddItemStacked))]
     public static bool AddItemStacked_Prefix(StorageComponent __instance, int itemId, int count, int inc, out int remainInc)
     {
-        //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
+        //Run only in MP, if it is not triggered remotely and if this event was triggered manually by an user
         if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest &&
             Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet != null)
         {
@@ -55,7 +55,7 @@ internal class StorageComponent_Patch
     public static bool TakeItemFromGrid_Prefix(StorageComponent __instance, int gridIndex, ref int itemId, ref int count,
         out int inc)
     {
-        //Run only in MP, if it is not triggered remotly and if this event was triggered manually by an user
+        //Run only in MP, if it is not triggered remotely and if this event was triggered manually by an user
         if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest &&
             Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet != null)
         {
@@ -108,6 +108,20 @@ internal class StorageComponent_Patch
         count = 1;
         return false;
 
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(StorageComponent), nameof(StorageComponent.SetFilter))]
+    private static void SetFilter_Postfix(StorageComponent __instance, int gridIndex, int filterId)
+    {
+        //Run only in MP, if it is not triggered remotely and if this event was triggered manually by an user
+        if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest &&
+            Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet is not null)
+        {
+            HandleUserInteraction(__instance,
+                new StorageSyncSetFilterPacket(__instance.id, GameMain.data.localPlanet.id, gridIndex, filterId, __instance.type));
+        }
+        // return true;
     }
 
     private static void HandleUserInteraction<T>(StorageComponent __instance, T packet) where T : class, new()
