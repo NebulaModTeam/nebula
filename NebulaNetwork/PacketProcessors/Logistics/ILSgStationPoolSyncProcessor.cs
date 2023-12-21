@@ -38,9 +38,6 @@ internal class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSyn
             gStationPool[packet.stationGId[i]].shipDockRot = packet.DockRot[i].ToQuaternion();
 
             gStationPool[packet.stationGId[i]].id = packet.stationId[i];
-            //todo: remove or replace
-            //gStationPool[packet.stationGId[i]].name =
-            //    string.IsNullOrEmpty(packet.stationName[i]) ? null : packet.stationName[i];
             gStationPool[packet.stationGId[i]].planetId = packet.planetId[i];
             gStationPool[packet.stationGId[i]].workShipCount = packet.workShipCount[i];
             gStationPool[packet.stationGId[i]].idleShipCount = packet.idleShipCount[i];

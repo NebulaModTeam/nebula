@@ -372,22 +372,6 @@ internal class UIStationWindow_Patch
         __instance.warperIconButton.button.interactable = false;
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(UIStationWindow.OnNameInputSubmit))]
-    public static bool OnNameInputSubmit_Postfix(UIStationWindow __instance)
-    {
-        if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
-        {
-            return true;
-        }
-        var packet = new StationUI(__instance.factory.planet.id,
-            __instance.factory.transport.stationPool[__instance.stationId].id,
-            __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.NameInput,
-            __instance.nameInput.text.Trim());
-        Multiplayer.Session.Network.SendPacket(packet);
-        return Multiplayer.Session.LocalPlayer.IsHost;
-    }
-
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIStationWindow._OnOpen))]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
