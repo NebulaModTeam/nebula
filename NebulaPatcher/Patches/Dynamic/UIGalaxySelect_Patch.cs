@@ -28,7 +28,13 @@ internal class UIGalaxySelect_Patch
         {
             var galaxySelectRect = __instance.gameObject.GetComponent<RectTransform>();
             galaxySelectRect.Find("random-button").gameObject.SetActive(false);
-            galaxySelectRect.Find("setting-group").gameObject.SetActive(false);
+            var settingGroupRect = galaxySelectRect.Find("setting-group");
+            for (var i = 0; i < settingGroupRect.childCount; i++)
+            {
+                var childObject = settingGroupRect.GetChild(i).gameObject;
+                if (childObject.name != "top-title" && childObject.name != "galaxy-seed")
+                    childObject.SetActive(false);
+            }
         }
         if (!Multiplayer.IsActive)
         {
@@ -74,7 +80,7 @@ internal class UIGalaxySelect_Patch
     [HarmonyPatch(nameof(UIGalaxySelect.EnterGame))]
     public static bool EnterGame_Prefix(UIGalaxySelect __instance)
     {
-        if (!Multiplayer.IsInMultiplayerMenu)
+        if (!Multiplayer.IsInMultiplayerMenu || __instance.uiCombat.active)
         {
             return true;
         }
@@ -131,18 +137,23 @@ internal class UIGalaxySelect_Patch
         // cant check anymore if we are in multiplayer or not, so just do this without check. will not do any harm C:
         var galaxySelectRect = __instance.gameObject.GetComponent<RectTransform>();
 
-        galaxySelectRect.Find("setting-group").gameObject.SetActive(true);
         galaxySelectRect.Find("random-button").gameObject.SetActive(true);
+        var settingGroupRect = galaxySelectRect.Find("setting-group");
+        for (var i = 0; i < settingGroupRect.childCount; i++)
+        {
+            var childObject = settingGroupRect.GetChild(i).gameObject;
+            if (childObject.name != "top-title" && childObject.name != "galaxy-seed")
+                childObject.SetActive(true);
+        }
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UIGalaxySelect.Rerand))]
-    public static void Rerand_Prefix()
+    public static void Rerand_Prefix(UIGalaxySelect __instance)
     {
         UIVirtualStarmap_Transpiler.customBirthStar = -1;
         UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
-        GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button/start-text").GetComponent<Text>().text =
-            "Start Game";
+        __instance.startButtonText.text = "开始游戏".Translate();
     }
 
     [HarmonyPrefix]

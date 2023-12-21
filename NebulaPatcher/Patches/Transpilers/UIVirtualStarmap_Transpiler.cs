@@ -123,11 +123,10 @@ internal class UIVirtualStarmap_Transpiler
 
                         customBirthStar = starData.id;
                         customBirthPlanet = pData.id;
+                        customBirthPlanetName = pData.displayName;
 
                         Log.Info($"set birth planet{pData.id} {pData.displayName}");
-                        var text = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button/start-text")
-                            .GetComponent<Text>();
-                        text.text = $"Start Game at {pData.displayName}";
+                        var text = UIRoot.instance.galaxySelect.startButtonText;
                         text.horizontalOverflow = HorizontalWrapMode.Overflow;
 
                         if (pData.data == null)
@@ -587,6 +586,7 @@ internal class UIVirtualStarmap_Transpiler
 
     public static int customBirthStar = -1;
     public static int customBirthPlanet = -1;
+    public static string customBirthPlanetName = "";
     private static readonly int s_tintColor = Shader.PropertyToID("_TintColor");
     private static readonly int s_lineColorA = Shader.PropertyToID("_LineColorA");
 #pragma warning restore IDE1006

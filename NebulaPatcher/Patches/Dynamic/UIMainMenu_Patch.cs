@@ -250,7 +250,7 @@ internal class UIMainMenu_Patch
         passwordTransform.localPosition += new Vector3(0, -36, 0);
         passwordTransform.GetComponent<Text>().text = "Password (optional)".Translate();
         passwordTransform.name = "Password (optional)";
-        
+
         passwordInput = passwordTransform.GetComponentInChildren<InputField>();
         passwordInput.contentType = InputField.ContentType.Password;
         passwordInput.text = "";
@@ -362,19 +362,26 @@ internal class UIMainMenu_Patch
 
     private static bool ConnectToServer(string connectionString, int serverPort, bool isIP, string password)
     {
-        if (isIP)
+        try
         {
-            Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort), password));
+            if (isIP)
+            {
+                Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort), password));
+                return true;
+            }
+
+            //trying to resolve as uri
+            if (!Uri.TryCreate(connectionString, UriKind.RelativeOrAbsolute, out _))
+            {
+                return false;
+            }
+            Multiplayer.JoinGame(new Client(connectionString, serverPort, password));
             return true;
         }
-
-        //trying to resolve as uri
-        if (!Uri.TryCreate(connectionString, UriKind.RelativeOrAbsolute, out _))
+        catch (Exception e)
         {
-            return false;
+            Log.Error("ConnectToServer error:\n" + e);
         }
-        Multiplayer.JoinGame(new Client(connectionString, serverPort, password));
-        return true;
-
+        return false;
     }
 }
