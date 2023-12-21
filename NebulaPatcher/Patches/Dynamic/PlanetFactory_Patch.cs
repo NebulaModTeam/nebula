@@ -270,6 +270,30 @@ internal class PlanetFactory_patch
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlanetFactory.WriteExtraInfoOnEntity))]
+    public static void WriteExtraInfoOnEntity_Postfix(PlanetFactory __instance, int entityId, string info)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        {
+            return;
+        }
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new ExtraInfoUpdatePacket(__instance.planetId, entityId, info));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlanetFactory.WriteExtraInfoOnPrebuild))]
+    public static void WriteExtraInfoOnPrebuild_Postfix(PlanetFactory __instance, int prebuildId, string info)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        {
+            return;
+        }
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new ExtraInfoUpdatePacket(__instance.planetId, -prebuildId, info));
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(nameof(PlanetFactory.EnableEntityWarning))]
     public static void EnableEntityWarning_Postfix(PlanetFactory __instance, int entityId)
     {
