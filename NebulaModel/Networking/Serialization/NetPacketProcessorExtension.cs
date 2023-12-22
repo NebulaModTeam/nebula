@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
+using NebulaModel.Logger;
 
 namespace NebulaModel.Networking.Serialization;
 
@@ -9,7 +11,7 @@ public partial class NetPacketProcessor
 {
     // Packet simulation stuff
     private readonly Dictionary<ulong, Type> _callbacksDebugInfo = [];
-    private readonly NetDataWriter _netDataWriter = new();
+    private readonly NetDataWriter writer = new();
     private readonly List<DelayedPacket> delayedPackets = [];
     private readonly Queue<PendingPacket> pendingPackets = new();
 
@@ -25,11 +27,6 @@ public partial class NetPacketProcessor
     public bool Enable { get; set; } = true;
 
     /// <summary>
-    ///  
-    /// </summary>
-    private static readonly NetDataWriter writer = new();
-
-    /// <summary>
     /// Adds back some functionality that nebula relied on before the update.
     /// This method was removed from LiteNetLib as it was not thread-safe, and is still not thread safe in below implementation.
     /// @TODO: Optimize & move into `NebulaConnection.cs`
@@ -38,6 +35,14 @@ public partial class NetPacketProcessor
     {
         writer.Reset();
         Write(writer, packet);
+
+#if DEBUG
+        if (!typeof(T).IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
+        {
+            Log.Debug($"Packet Sent: {packet.GetType().Name}, Size: {writer.Data.Length}");
+        }
+#endif
+
         return writer.CopyData();
     }
 
@@ -64,7 +69,7 @@ public partial class NetPacketProcessor
         {
             var now = DateTime.UtcNow;
             var deleteCount = 0;
-
+    
             for (var i = 0; i < delayedPackets.Count; ++i)
             {
                 if (now >= delayedPackets[i].DueTime)
@@ -78,7 +83,7 @@ public partial class NetPacketProcessor
                     break;
                 }
             }
-
+    
             if (deleteCount > 0)
             {
                 delayedPackets.RemoveRange(0, deleteCount);
@@ -109,13 +114,10 @@ public partial class NetPacketProcessor
         lock (pendingPackets)
         {
             pendingPackets.Enqueue(new PendingPacket(rawData, userData));
+            Log.Info($"Received packet of size: {rawData.Length}");
         }
 #endif
     }
 
     #endregion
-}
-
-public static class NetPacketProcessorExtension
-{
 }
