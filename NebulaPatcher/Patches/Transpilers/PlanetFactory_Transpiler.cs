@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.Belt;
+using NebulaModel.Packets.Factory.Inserter;
 using NebulaWorld;
 using UnityEngine;
 
@@ -23,6 +24,33 @@ internal class PlanetFactory_Transpiler
     public static readonly List<int> CheckPopupPresent = [];
     public static readonly Dictionary<int, List<int>> FaultyVeins = [];
 
+    private static void OnNewSetInserterPickTarget(int inserterId, int otherObjId, int offset, int objId, Vector3 pointPos)
+    {
+        // 1. Client receives the build request from itself 2. Host sends the build request
+        if (Multiplayer.IsActive)
+        {
+            var factoryManager = Multiplayer.Session.Factories;
+            if ((Multiplayer.Session.LocalPlayer.IsHost && !factoryManager.IsIncomingRequest.Value) || Multiplayer.Session.LocalPlayer.Id == factoryManager.PacketAuthor)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId,
+                    offset, pointPos, GameMain.localPlanet?.id ?? -1));
+            }
+        }
+    }
+
+    private static void OnNewSetInserterInsertTarget(int inserterId, int otherObjId, int offset, int objId, Vector3 pointPos)
+    {
+        if (Multiplayer.IsActive)
+        {
+            var factoryManager = Multiplayer.Session.Factories;
+            if ((Multiplayer.Session.LocalPlayer.IsHost && !factoryManager.IsIncomingRequest.Value) || Multiplayer.Session.LocalPlayer.Id == factoryManager.PacketAuthor)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId,
+                    inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
+            }
+        }
+    }
+
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(PlanetFactory.OnBeltBuilt))]
     private static IEnumerable<CodeInstruction> OnBeltBuilt_Transpiler(IEnumerable<CodeInstruction> instructions,
@@ -30,7 +58,7 @@ internal class PlanetFactory_Transpiler
     {
         /*
          * Calls
-         * Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
+         * OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset, pointPos);
          * After
          * this.factorySystem.SetInserterPickTarget(inserterId, num6, num5 - num7);
          */
@@ -57,19 +85,11 @@ internal class PlanetFactory_Transpiler
             .InsertAndAdvance(setInserterTargetInsts.ToArray())
             .InsertAndAdvance(objIdInst)
             .InsertAndAdvance(pointPosInsts.ToArray())
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, Vector3>>(
-                (inserterId, pickTarget, offset, objId, pointPos) =>
-                {
-                    if (Multiplayer.IsActive)
-                    {
-                        Multiplayer.Session.Factories.OnNewSetInserterPickTarget(objId, pickTarget, inserterId, offset,
-                            pointPos);
-                    }
-                }));
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PlanetFactory_Transpiler), nameof(OnNewSetInserterPickTarget))));
 
         /*
          * Calls
-         * Multiplayer.Session.Factories.OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset, pointPos);
+         * OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset, pointPos);
          * After
          * this.factorySystem.SetInserterInsertTarget(inserterId, num9, num5 - num10);
          */
@@ -95,15 +115,7 @@ internal class PlanetFactory_Transpiler
             .InsertAndAdvance(setInserterTargetInsts.ToArray())
             .InsertAndAdvance(objIdInst)
             .InsertAndAdvance(pointPosInsts.ToArray())
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<Action<int, int, int, int, Vector3>>(
-                (inserterId, pickTarget, offset, objId, pointPos) =>
-                {
-                    if (Multiplayer.IsActive)
-                    {
-                        Multiplayer.Session.Factories.OnNewSetInserterInsertTarget(objId, pickTarget, inserterId, offset,
-                            pointPos);
-                    }
-                }));
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PlanetFactory_Transpiler), nameof(OnNewSetInserterInsertTarget))));
 
         return codeMatcher.InstructionEnumeration();
     }

@@ -44,8 +44,4 @@ public interface IFactoryManager : IDisposable
     int GetNextPrebuildId(int planetId);
 
     int GetNextPrebuildId(PlanetFactory factory);
-
-    void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos);
-
-    void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos);
 }
