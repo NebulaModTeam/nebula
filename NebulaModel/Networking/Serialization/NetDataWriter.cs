@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -19,11 +19,13 @@ namespace NebulaModel.Networking.Serialization
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _data.Length;
         }
+
         public byte[] Data
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _data;
         }
+
         public int Length
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -233,13 +235,14 @@ namespace NebulaModel.Networking.Serialization
             _position += data.Length;
         }
 
-        public void PutSBytesWithLength(sbyte[] data, int offset, ushort length)
+        public void PutSBytesWithLength(sbyte[] data, int offset, int length)
         {
+            const int intSize = 4;
             if (_autoResize)
-                ResizeIfNeed(_position + 2 + length);
+                ResizeIfNeed(_position + intSize + length);
             FastBitConverter.GetBytes(_data, _position, length);
-            Buffer.BlockCopy(data, offset, _data, _position + 2, length);
-            _position += 2 + length;
+            Buffer.BlockCopy(data, offset, _data, _position + intSize, length);
+            _position += intSize + length;
         }
 
         public void PutSBytesWithLength(sbyte[] data)
@@ -247,7 +250,7 @@ namespace NebulaModel.Networking.Serialization
             PutArray(data, 1);
         }
 
-        public void PutBytesWithLength(byte[] data, int offset, ushort length)
+        public void PutBytesWithLength(byte[] data, int offset, int length)
         {
             if (_autoResize)
                 ResizeIfNeed(_position + 2 + length);
@@ -268,14 +271,15 @@ namespace NebulaModel.Networking.Serialization
 
         public void PutArray(Array arr, int sz)
         {
-            ushort length = arr == null ? (ushort) 0 : (ushort)arr.Length;
+            const int intSize = 4;
+            int length = arr == null ? 0 : arr.Length;
             sz *= length;
             if (_autoResize)
-                ResizeIfNeed(_position + sz + 2);
+                ResizeIfNeed(_position + sz + intSize);
             FastBitConverter.GetBytes(_data, _position, length);
             if (arr != null)
-                Buffer.BlockCopy(arr, 0, _data, _position + 2, sz);
-            _position += sz + 2;
+                Buffer.BlockCopy(arr, 0, _data, _position + intSize, sz);
+            _position += sz + intSize;
         }
 
         public void PutArray(float[] value)
@@ -325,7 +329,7 @@ namespace NebulaModel.Networking.Serialization
 
         public void PutArray(string[] value)
         {
-            ushort strArrayLength = value == null ? (ushort)0 : (ushort)value.Length;
+            int strArrayLength = value == null ? 0 : value.Length;
             Put(strArrayLength);
             for (int i = 0; i < strArrayLength; i++)
                 Put(value[i]);

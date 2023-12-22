@@ -127,10 +127,10 @@ namespace NebulaModel.Networking.Serialization
             return (sbyte)GetByte();
         }
 
-        public T[] GetArray<T>(ushort size)
+        public T[] GetArray<T>(int size)
         {
-            ushort length = BitConverter.ToUInt16(_data, _position);
-            _position += 2;
+            int length = BitConverter.ToInt32(_data, _position);
+            _position += 4;
             T[] result = new T[length];
             length *= size;
             Buffer.BlockCopy(_data, _position, result, 0, length);
@@ -650,10 +650,10 @@ namespace NebulaModel.Networking.Serialization
 
         public bool TryGetBytesWithLength(out byte[] result)
         {
-            if (AvailableBytes >= 2)
+            if (AvailableBytes >= 4)
             {
-                ushort length = PeekUShort();
-                if (length >= 0 && AvailableBytes >= 2 + length)
+                int length = PeekInt();
+                if (length >= 0 && AvailableBytes >= 4 + length)
                 {
                     result = GetBytesWithLength();
                     return true;

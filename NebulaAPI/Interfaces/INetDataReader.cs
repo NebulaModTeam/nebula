@@ -68,7 +68,7 @@ public interface INetDataReader
     IPEndPoint GetNetEndPoint();
     byte GetByte();
     sbyte GetSByte();
-    T[] GetArray<T>(ushort size);
+    T[] GetArray<T>(int size);
     bool[] GetBoolArray();
     ushort[] GetUShortArray();
     short[] GetShortArray();

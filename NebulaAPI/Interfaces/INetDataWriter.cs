@@ -66,9 +66,9 @@ public interface INetDataWriter
     void Put(string value, int maxLength);
 
     void Put<T>(T obj) where T : INetSerializable;
-    void PutSBytesWithLength(sbyte[] data, int offset, ushort length);
+    void PutSBytesWithLength(sbyte[] data, int offset, int length);
     void PutSBytesWithLength(sbyte[] data);
-    void PutBytesWithLength(byte[] data, int offset, ushort length);
+    void PutBytesWithLength(byte[] data, int offset, int length);
     void PutBytesWithLength(byte[] data);
     void PutArray(Array arr, int sz);
     void PutArray(float[] value);
