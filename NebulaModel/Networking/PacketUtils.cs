@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using NebulaAPI;
 using NebulaAPI.Packets;
@@ -29,19 +30,27 @@ public static class PacketUtils
             {
                 Log.Debug($"Registering Nested Type: {type.Name}");
             }
+
             if (type.IsClass)
             {
                 var registerMethod = packetProcessor.GetType().GetMethods()
                     .Where(m => m.Name == nameof(NetPacketProcessor.RegisterNestedType))
                     .FirstOrDefault(m =>
-                        m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType.Name.Equals(typeof(Func<>).Name))
+                        m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType.Name.Equals(typeof(Func<>).Name))!
                     .MakeGenericMethod(type);
 
-                var delegateMethod = packetProcessor.GetType().GetMethod(nameof(NetPacketProcessor.CreateNestedClassInstance))
+                var constructorMethod = typeof(Activator)
+                    .GetMethods()
+                    .Where((info => info.GetParameters().Length == 0))
+                    .FirstOrDefault()!
                     .MakeGenericMethod(type);
+
+                // create a Func<T> delegate from the object's constructor to pass into NetPacketProcessor.RegisterNestedType
                 var funcType = typeof(Func<>).MakeGenericType(type);
-                var callback = Delegate.CreateDelegate(funcType, packetProcessor, delegateMethod);
-                registerMethod.Invoke(packetProcessor, new object[] { callback });
+                var constructorDelegate = Delegate.CreateDelegate(funcType, constructorMethod);
+
+                // Invoke NetPacketProcessor.RegisterNestedType<T>(Func<T> constructor)
+                registerMethod.Invoke(packetProcessor, new object[] { constructorDelegate });
             }
             else if (type.IsValueType)
             {
@@ -66,8 +75,10 @@ public static class PacketUtils
             {
                 return true;
             }
+
             toCheck = toCheck.BaseType;
         }
+
         return false;
     }
 
