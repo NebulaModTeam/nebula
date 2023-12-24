@@ -7,8 +7,10 @@ using NebulaModel.Logger;
 
 namespace NebulaModel.Networking.Serialization;
 
-public partial class NetPacketProcessor
+public class NebulaNetPacketProcessor : NetPacketProcessor
 {
+    // overrides
+    private NebulaNetSerializer _netSerializer;
     // Packet simulation stuff
     private readonly Dictionary<ulong, Type> _callbacksDebugInfo = [];
     private readonly NetDataWriter writer = new();
@@ -69,7 +71,7 @@ public partial class NetPacketProcessor
         {
             var now = DateTime.UtcNow;
             var deleteCount = 0;
-    
+
             for (var i = 0; i < delayedPackets.Count; ++i)
             {
                 if (now >= delayedPackets[i].DueTime)
@@ -83,7 +85,7 @@ public partial class NetPacketProcessor
                     break;
                 }
             }
-    
+
             if (deleteCount > 0)
             {
                 delayedPackets.RemoveRange(0, deleteCount);

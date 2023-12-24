@@ -4,7 +4,7 @@ using NebulaAPI.Interfaces;
 
 namespace NebulaModel.Networking.Serialization
 {
-    public partial class NetPacketProcessor
+    public class NetPacketProcessor
     {
         private static class HashCache<T>
         {
