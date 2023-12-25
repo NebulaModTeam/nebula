@@ -8,11 +8,9 @@ public class SampleDictionaryPacket
 {
     public Dictionary<int, int> SampleInts { get; set; } = new();
 
-    public Dictionary<SampleCustomType, SampleCustomType> SampleCustomTypes { get; set; } = new();
+    public Dictionary<SampleCustomClass, SampleCustomClass> SampleCustomTypes { get; set; } = new();
+    public Dictionary<SampleNetSerializableClass, SampleNetSerializableStruct> SampleNetSerializables { get; set; } = new();
 
-    public Dictionary<SampleNetSerializableClass, SampleNetSerializableClass> SampleNetSerializableClasses { get; set; } = new();
-
-    public Dictionary<SampleNetSerializableStruct, SampleNetSerializableStruct> SampleNetSerializableStructs { get; set; } = new();
 
     // This is the one used by Assert.AreEqual, we don't need to implement the rest for now.
     public override bool Equals(object? obj)
@@ -35,14 +33,6 @@ public class SampleDictionaryPacket
                 return false;
         }
 
-        foreach (var kvp in SampleNetSerializableStructs)
-        {
-            if (!other.SampleNetSerializableStructs.ContainsKey(kvp.Key))
-                return false;
-            if (other.SampleNetSerializableStructs[kvp.Key] != SampleNetSerializableStructs[kvp.Key])
-                return false;
-        }
-
         return true;
     }
 }
@@ -56,23 +46,17 @@ public class DictionarySerializationTest
         SampleCustomTypes =
             new()
             {
-                { new SampleCustomType { Value = 1 }, new SampleCustomType { Value = 1 } },
-                { new SampleCustomType { Value = 2 }, new SampleCustomType { Value = 2 } },
-                { new SampleCustomType { Value = 3 }, new SampleCustomType { Value = 3 } }
+                { new SampleCustomClass { Value = 1 }, new SampleCustomClass() { Value = 2 } },
+                { new SampleCustomClass { Value = 3 }, new SampleCustomClass() { Value = 4 } },
+                { new SampleCustomClass { Value = 5 }, new SampleCustomClass() { Value = 6 } }
             },
-        SampleNetSerializableClasses =
+        SampleNetSerializables =
             new()
             {
-                { new SampleNetSerializableClass { value = 1 }, new SampleNetSerializableClass { value = 1 } },
-                { new SampleNetSerializableClass { value = 2 }, new SampleNetSerializableClass { value = 2 } },
-                { new SampleNetSerializableClass { value = 3 }, new SampleNetSerializableClass { value = 3 } },
-            },
-        SampleNetSerializableStructs = new()
-        {
-            { new SampleNetSerializableStruct { value = 1 }, new SampleNetSerializableStruct { value = 1 } },
-            { new SampleNetSerializableStruct { value = 2 }, new SampleNetSerializableStruct { value = 2 } },
-            { new SampleNetSerializableStruct { value = 3 }, new SampleNetSerializableStruct { value = 3 } },
-        }
+                { new SampleNetSerializableClass { value = 1 }, new SampleNetSerializableStruct { value = 1 } },
+                { new SampleNetSerializableClass { value = 2 }, new SampleNetSerializableStruct { value = 2 } },
+                { new SampleNetSerializableClass { value = 3 }, new SampleNetSerializableStruct { value = 3 } },
+            }
     };
 
     [TestMethod, Timeout(1000)]

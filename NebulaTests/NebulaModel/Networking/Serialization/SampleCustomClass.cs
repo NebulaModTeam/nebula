@@ -1,10 +1,10 @@
 ﻿namespace NebulaTests.NebulaModel.Networking.Serialization;
 
-public class SampleCustomType : IEquatable<SampleCustomType>
+public class SampleCustomClass : IEquatable<SampleCustomClass>
 {
     public int Value { get; set; }
 
-    public bool Equals(SampleCustomType? other)
+    public bool Equals(SampleCustomClass? other)
     {
         if (ReferenceEquals(null, other))
         {
@@ -36,7 +36,7 @@ public class SampleCustomType : IEquatable<SampleCustomType>
             return false;
         }
 
-        return Equals((SampleCustomType)obj);
+        return Equals((SampleCustomClass)obj);
     }
 
     public override int GetHashCode()
@@ -44,7 +44,7 @@ public class SampleCustomType : IEquatable<SampleCustomType>
         return Value;
     }
 
-    public static bool operator ==(SampleCustomType lhs, SampleCustomType rhs)
+    public static bool operator ==(SampleCustomClass lhs, SampleCustomClass rhs)
     {
         if (lhs is null)
         {
@@ -60,5 +60,5 @@ public class SampleCustomType : IEquatable<SampleCustomType>
         return lhs.Equals(rhs);
     }
 
-    public static bool operator !=(SampleCustomType lhs, SampleCustomType rhs) => !(lhs == rhs);
+    public static bool operator !=(SampleCustomClass lhs, SampleCustomClass rhs) => !(lhs == rhs);
 }
