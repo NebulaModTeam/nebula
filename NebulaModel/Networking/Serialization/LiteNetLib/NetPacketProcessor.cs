@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NebulaAPI.Interfaces;
 
@@ -25,8 +25,9 @@ namespace NebulaModel.Networking.Serialization
         }
 
         protected delegate void SubscribeDelegate(NetDataReader reader, object userData);
-        private readonly NetSerializer _netSerializer;
-        private readonly Dictionary<ulong, SubscribeDelegate> _callbacks = new Dictionary<ulong, SubscribeDelegate>();
+
+        protected NetSerializer _netSerializer;
+        protected readonly Dictionary<ulong, SubscribeDelegate> _callbacks = new Dictionary<ulong, SubscribeDelegate>();
 
         public NetPacketProcessor()
         {

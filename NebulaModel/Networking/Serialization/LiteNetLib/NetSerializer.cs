@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
@@ -569,7 +569,7 @@ namespace NebulaModel.Networking.Serialization
             _maxStringLength = maxStringLength;
         }
 
-        protected ClassInfo<T> RegisterInternal<T>()
+        protected virtual ClassInfo<T> RegisterInternal<T>()
         {
             if (ClassInfo<T>.Instance != null)
                 return ClassInfo<T>.Instance;
@@ -664,7 +664,7 @@ namespace NebulaModel.Networking.Serialization
         }
 
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
-        public void Register<T>()
+        public virtual void Register<T>()
         {
             RegisterInternal<T>();
         }

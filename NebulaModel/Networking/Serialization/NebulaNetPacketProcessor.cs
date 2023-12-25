@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NebulaAPI.Interfaces;
@@ -9,8 +9,6 @@ namespace NebulaModel.Networking.Serialization;
 
 public class NebulaNetPacketProcessor : NetPacketProcessor
 {
-    // overrides
-    private NebulaNetSerializer _netSerializer;
     // Packet simulation stuff
     private readonly Dictionary<ulong, Type> _callbacksDebugInfo = [];
     private readonly NetDataWriter writer = new();
@@ -21,12 +19,17 @@ public class NebulaNetPacketProcessor : NetPacketProcessor
     private readonly int SimulatedMaxLatency = 50;
     private readonly int SimulatedMinLatency = 20;
 
-    public bool SimulateLatency = false;
+    public bool SimulateLatency { get; set; } = false;
 
     /// <summary>
     /// Whether or not packet processing is enabled
     /// </summary>
     public bool Enable { get; set; } = true;
+
+    public NebulaNetPacketProcessor()
+    {
+        _netSerializer = new NebulaNetSerializer();
+    }
 
     /// <summary>
     /// Adds back some functionality that nebula relied on before the update.
