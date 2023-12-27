@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
-        <Compile Remove="PacketProcessors\Session\LobbyUpdateValues.cs"/>
+        <Compile Remove="PacketProcessors\Session\LobbyUpdateValues.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Open.Nat" Version="2.1.0"/>
+        <PackageReference Include="Open.Nat" Version="2.1.0" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true"/>
-        <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false"/>
-        <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true"/>
-        <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj"/>
+        <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
+        <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
+        <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
+        <ProjectReference Include="..\dep\websocket-sharp\websocket-sharp\websocket-sharp.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <Reference Include="System.IO.Compression"/>
-        <Reference Include="System.Net.Http"/>
+        <Reference Include="System.IO.Compression" />
+        <Reference Include="System.Net.Http" />
     </ItemGroup>
 </Project>
