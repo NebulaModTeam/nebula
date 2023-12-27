@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
@@ -19,14 +19,14 @@ namespace NebulaModel.Networking.Serialization
 
     public class NetSerializer
     {
-        private enum CallType
+        public enum CallType
         {
             Basic,
             Array,
             List
         }
 
-        private abstract class FastCall<T>
+        public abstract class FastCall<T>
         {
             public CallType Type;
             public virtual void Init(MethodInfo getMethod, MethodInfo setMethod, CallType type) { Type = type; }
@@ -38,7 +38,7 @@ namespace NebulaModel.Networking.Serialization
             public abstract void WriteList(T inf, NetDataWriter w);
         }
 
-        private abstract class FastCallSpecific<TClass, TProperty> : FastCall<TClass>
+        protected abstract class FastCallSpecific<TClass, TProperty> : FastCall<TClass>
         {
             protected Func<TClass, TProperty> Getter;
             protected Action<TClass, TProperty> Setter;
@@ -115,7 +115,7 @@ namespace NebulaModel.Networking.Serialization
             }
         }
 
-        private abstract class FastCallSpecificAuto<TClass, TProperty> : FastCallSpecific<TClass, TProperty>
+        protected abstract class FastCallSpecificAuto<TClass, TProperty> : FastCallSpecific<TClass, TProperty>
         {
             protected abstract void ElementRead(NetDataReader r, out TProperty prop);
             protected abstract void ElementWrite(NetDataWriter w, ref TProperty prop);
@@ -323,7 +323,7 @@ namespace NebulaModel.Networking.Serialization
             }
         }
 
-        private class IntSerializer<T> : FastCallSpecific<T, int>
+        protected class IntSerializer<T> : FastCallSpecific<T, int>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetInt()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -331,7 +331,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class UIntSerializer<T> : FastCallSpecific<T, uint>
+        protected class UIntSerializer<T> : FastCallSpecific<T, uint>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetUInt()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -339,7 +339,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class ShortSerializer<T> : FastCallSpecific<T, short>
+        protected class ShortSerializer<T> : FastCallSpecific<T, short>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetShort()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -347,7 +347,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class UShortSerializer<T> : FastCallSpecific<T, ushort>
+        protected class UShortSerializer<T> : FastCallSpecific<T, ushort>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetUShort()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -355,7 +355,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class LongSerializer<T> : FastCallSpecific<T, long>
+        protected class LongSerializer<T> : FastCallSpecific<T, long>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetLong()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -363,7 +363,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class ULongSerializer<T> : FastCallSpecific<T, ulong>
+        protected class ULongSerializer<T> : FastCallSpecific<T, ulong>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetULong()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -371,7 +371,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class ByteSerializer<T> : FastCallSpecific<T, byte>
+        protected class ByteSerializer<T> : FastCallSpecific<T, byte>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetByte()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -379,7 +379,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutBytesWithLength(GetterArr(inf)); }
         }
 
-        private class SByteSerializer<T> : FastCallSpecific<T, sbyte>
+        protected class SByteSerializer<T> : FastCallSpecific<T, sbyte>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetSByte()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -387,7 +387,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutSBytesWithLength(GetterArr(inf)); }
         }
 
-        private class FloatSerializer<T> : FastCallSpecific<T, float>
+        protected class FloatSerializer<T> : FastCallSpecific<T, float>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetFloat()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -395,7 +395,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class DoubleSerializer<T> : FastCallSpecific<T, double>
+        protected class DoubleSerializer<T> : FastCallSpecific<T, double>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetDouble()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -403,7 +403,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class BoolSerializer<T> : FastCallSpecific<T, bool>
+        protected class BoolSerializer<T> : FastCallSpecific<T, bool>
         {
             public override void Read(T inf, NetDataReader r) { Setter(inf, r.GetBool()); }
             public override void Write(T inf, NetDataWriter w) { w.Put(Getter(inf)); }
@@ -411,19 +411,19 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf)); }
         }
 
-        private class CharSerializer<T> : FastCallSpecificAuto<T, char>
+        protected class CharSerializer<T> : FastCallSpecificAuto<T, char>
         {
             protected override void ElementWrite(NetDataWriter w, ref char prop) { w.Put(prop); }
             protected override void ElementRead(NetDataReader r, out char prop) { prop = r.GetChar(); }
         }
 
-        private class IPEndPointSerializer<T> : FastCallSpecificAuto<T, IPEndPoint>
+        protected class IPEndPointSerializer<T> : FastCallSpecificAuto<T, IPEndPoint>
         {
             protected override void ElementWrite(NetDataWriter w, ref IPEndPoint prop) { w.Put(prop); }
             protected override void ElementRead(NetDataReader r, out IPEndPoint prop) { prop = r.GetNetEndPoint(); }
         }
 
-        private class StringSerializer<T> : FastCallSpecific<T, string>
+        protected class StringSerializer<T> : FastCallSpecific<T, string>
         {
             private readonly int _maxLength;
             public StringSerializer(int maxLength) { _maxLength = maxLength > 0 ? maxLength : short.MaxValue; }
@@ -433,7 +433,7 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteArray(T inf, NetDataWriter w) { w.PutArray(GetterArr(inf), _maxLength); }
         }
 
-        private class EnumByteSerializer<T> : FastCall<T>
+        protected class EnumByteSerializer<T> : FastCall<T>
         {
             protected readonly PropertyInfo Property;
             protected readonly Type PropertyType;
@@ -450,14 +450,14 @@ namespace NebulaModel.Networking.Serialization
             public override void WriteList(T inf, NetDataWriter w) { throw new InvalidTypeException("Unsupported type: List<Enum>"); }
         }
 
-        private class EnumIntSerializer<T> : EnumByteSerializer<T>
+        protected class EnumIntSerializer<T> : EnumByteSerializer<T>
         {
             public EnumIntSerializer(PropertyInfo property, Type propertyType) : base(property, propertyType) { }
             public override void Read(T inf, NetDataReader r) { Property.SetValue(inf, Enum.ToObject(PropertyType, r.GetInt()), null); }
             public override void Write(T inf, NetDataWriter w) { w.Put((int)Property.GetValue(inf, null)); }
         }
 
-        private sealed class ClassInfo<T>
+        public sealed class ClassInfo<T>
         {
             public static ClassInfo<T> Instance;
             private readonly FastCall<T>[] _serializers;
@@ -498,7 +498,7 @@ namespace NebulaModel.Networking.Serialization
             }
         }
 
-        private abstract class CustomType
+        protected abstract class CustomType
         {
             public abstract FastCall<T> Get<T>();
         }
@@ -557,8 +557,8 @@ namespace NebulaModel.Networking.Serialization
         }
 
         private NetDataWriter _writer;
-        private readonly int _maxStringLength;
-        private readonly Dictionary<Type, CustomType> _registeredTypes = new Dictionary<Type, CustomType>();
+        protected readonly int _maxStringLength;
+        protected readonly Dictionary<Type, CustomType> _registeredTypes = new Dictionary<Type, CustomType>();
 
         public NetSerializer() : this(0)
         {
@@ -569,7 +569,7 @@ namespace NebulaModel.Networking.Serialization
             _maxStringLength = maxStringLength;
         }
 
-        private ClassInfo<T> RegisterInternal<T>()
+        protected virtual ClassInfo<T> RegisterInternal<T>()
         {
             if (ClassInfo<T>.Instance != null)
                 return ClassInfo<T>.Instance;
@@ -664,7 +664,7 @@ namespace NebulaModel.Networking.Serialization
         }
 
         /// <exception cref="InvalidTypeException"><typeparamref name="T"/>'s fields are not supported, or it has no fields</exception>
-        public void Register<T>()
+        public virtual void Register<T>()
         {
             RegisterInternal<T>();
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NebulaAPI.Interfaces;
@@ -7,7 +7,7 @@ using NebulaModel.Logger;
 
 namespace NebulaModel.Networking.Serialization;
 
-public partial class NetPacketProcessor
+public class NebulaNetPacketProcessor : NetPacketProcessor
 {
     // Packet simulation stuff
     private readonly Dictionary<ulong, Type> _callbacksDebugInfo = [];
@@ -19,12 +19,17 @@ public partial class NetPacketProcessor
     private readonly int SimulatedMaxLatency = 50;
     private readonly int SimulatedMinLatency = 20;
 
-    public bool SimulateLatency = false;
+    public bool SimulateLatency { get; set; } = false;
 
     /// <summary>
     /// Whether or not packet processing is enabled
     /// </summary>
     public bool Enable { get; set; } = true;
+
+    public NebulaNetPacketProcessor()
+    {
+        _netSerializer = new NebulaNetSerializer();
+    }
 
     /// <summary>
     /// Adds back some functionality that nebula relied on before the update.
@@ -69,7 +74,7 @@ public partial class NetPacketProcessor
         {
             var now = DateTime.UtcNow;
             var deleteCount = 0;
-    
+
             for (var i = 0; i < delayedPackets.Count; ++i)
             {
                 if (now >= delayedPackets[i].DueTime)
@@ -83,7 +88,7 @@ public partial class NetPacketProcessor
                     break;
                 }
             }
-    
+
             if (deleteCount > 0)
             {
                 delayedPackets.RemoveRange(0, deleteCount);

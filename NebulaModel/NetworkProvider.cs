@@ -12,11 +12,11 @@ public abstract class NetworkProvider : INetworkProvider
 {
     protected NetworkProvider(IPlayerManager playerManager)
     {
-        PacketProcessor = new NetPacketProcessor();
+        PacketProcessor = new NebulaNetPacketProcessor();
         PlayerManager = playerManager;
     }
 
-    public NetPacketProcessor PacketProcessor { get; set; }
+    public NebulaNetPacketProcessor PacketProcessor { get; set; }
 
     public abstract void Dispose();
 

@@ -304,12 +304,12 @@ public class Server : NetworkProvider, IServer
     private class WebSocketService : WebSocketBehavior
     {
         public static IPlayerManager PlayerManager;
-        public static NetPacketProcessor PacketProcessor;
+        public static NebulaNetPacketProcessor PacketProcessor;
         private static readonly Dictionary<int, NebulaConnection> ConnectionDictionary = new();
 
         public WebSocketService() { }
 
-        public WebSocketService(IPlayerManager playerManager, NetPacketProcessor packetProcessor)
+        public WebSocketService(IPlayerManager playerManager, NebulaNetPacketProcessor packetProcessor)
         {
             PlayerManager = playerManager;
             PacketProcessor = packetProcessor;
