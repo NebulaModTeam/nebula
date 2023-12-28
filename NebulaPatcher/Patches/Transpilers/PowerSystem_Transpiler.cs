@@ -90,7 +90,7 @@ internal class PowerSystem_Transpiler
                 new CodeInstruction(OpCodes.Ldarg_0),
                 nodeIdCI,
                 coreEnergyRatioCI,
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PowerSystem_Transpiler), nameof(SetChargerRequriePower))),
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PowerSystem_Transpiler), nameof(SetChargerRequiredPower))),
                 new CodeInstruction(OpCodes.Br_S, label)
             );
 
@@ -147,7 +147,7 @@ internal class PowerSystem_Transpiler
     }
 
 #pragma warning disable CA1868
-    private static void SetChargerRequriePower(PowerSystem powerSystem, int nodeId, float coreEnergyRatio)
+    private static void SetChargerRequiredPower(PowerSystem powerSystem, int nodeId, float coreEnergyRatio)
     {
         ref var powerNode = ref powerSystem.nodePool[nodeId];
         var planetId = powerSystem.factory.planetId;
