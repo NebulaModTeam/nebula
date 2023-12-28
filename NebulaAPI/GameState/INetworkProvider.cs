@@ -2,12 +2,15 @@
 
 using System;
 using NebulaAPI.Packets;
+using NebulaAPI.Simulation;
 
 #endregion
 
 namespace NebulaAPI.GameState;
 
-public interface INetworkProvider : IDisposable
+// @TODO: Refactor ISimulation out of NetworkProviders and keep the latter strictly network related?
+// 
+public interface INetworkProvider : IDisposable, ISimulation
 {
     IPlayerManager PlayerManager { get; set; }
 
@@ -45,6 +48,4 @@ public interface INetworkProvider : IDisposable
     ///     Send packet to all Clients within star system except the excluded client
     /// </summary>
     void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
-
-    void Update();
 }

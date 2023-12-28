@@ -9,6 +9,7 @@ using HarmonyLib;
 using NebulaAPI;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
+using NebulaAPI.Tasks;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
@@ -49,6 +50,8 @@ public class Server : NetworkProvider, IServer
     private WebSocketServer socket;
     private float warningUpdateTimer;
 
+    private List<NebulaTask> runningTasks = new();
+
     public Server(ushort port, bool loadSaveFile = false) : base(new PlayerManager())
     {
         Port = port;
@@ -73,6 +76,7 @@ public class Server : NetworkProvider, IServer
         {
             PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
         }
+
         PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
 
         foreach (var assembly in NebulaModAPI.TargetAssemblies)
@@ -185,10 +189,14 @@ public class Server : NetworkProvider, IServer
         {
             Log.Error("NebulaModAPI.OnMultiplayerGameStarted error:\n" + e);
         }
+
+        CreateStateUpdateTasks();
     }
 
     public override void Stop()
     {
+        CancellationTokenSource.Cancel();
+
         socket?.Stop();
 
         ngrokManager?.StopNgrok();
@@ -201,12 +209,6 @@ public class Server : NetworkProvider, IServer
         {
             Log.Error("NebulaModAPI.OnMultiplayerGameEnded error:\n" + e);
         }
-    }
-
-    public override void Dispose()
-    {
-        Stop();
-        GC.SuppressFinalize(this);
     }
 
     public override void SendPacket<T>(T packet)
@@ -246,53 +248,47 @@ public class Server : NetworkProvider, IServer
 
     public override void Update()
     {
+        base.Update();
+
         PacketProcessor.ProcessPacketQueue();
+    }
 
-        if (!Multiplayer.Session.IsGameLoaded)
-        {
-            return;
-        }
-        gameResearchHashUpdateTimer += Time.deltaTime;
-        productionStatisticsUpdateTimer += Time.deltaTime;
-        dysonLaunchUpateTimer += Time.deltaTime;
-        dysonSphereUpdateTimer += Time.deltaTime;
-        warningUpdateTimer += Time.deltaTime;
-
-        if (gameResearchHashUpdateTimer > GAME_RESEARCH_UPDATE_INTERVAL)
-        {
-            gameResearchHashUpdateTimer = 0;
-            if (GameMain.data.history.currentTech != 0)
+    private void CreateStateUpdateTasks()
+    {
+        var gameResearchTask = new NebulaTask(SimulationTicker, true, GAME_RESEARCH_UPDATE_INTERVAL)
+            .SetCondition(() => GameMain.data.history.currentTech != 0 && Multiplayer.Session.IsGameLoaded)
+            .OnExecuted(() =>
             {
                 var state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
                 SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded,
                     state.hashNeeded, GameMain.statistics.techHashedFor10Frames));
-            }
-        }
+            })
+            .Start();
+        runningTasks.Add(gameResearchTask);
 
-        if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
-        {
-            productionStatisticsUpdateTimer = 0;
-            Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
-        }
+        var productionStatisticsTask = new NebulaTask(SimulationTicker, true, STATISTICS_UPDATE_INTERVAL)
+            .SetCondition(() => Multiplayer.Session.IsGameLoaded)
+            .OnExecuted(() => Multiplayer.Session.Statistics.SendBroadcastIfNeeded())
+            .Start();
+        runningTasks.Add(productionStatisticsTask);
 
-        if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)
-        {
-            dysonLaunchUpateTimer = 0;
-            Multiplayer.Session.Launch.SendBroadcastIfNeeded();
-        }
+        var dysonLaunchTask = new NebulaTask(SimulationTicker, true, LAUNCH_UPDATE_INTERVAL)
+            .SetCondition(() => Multiplayer.Session.IsGameLoaded)
+            .OnExecuted(() => Multiplayer.Session.Launch.SendBroadcastIfNeeded())
+            .Start();
+        runningTasks.Add(dysonLaunchTask);
 
-        if (dysonSphereUpdateTimer > DYSONSPHERE_UPDATE_INTERVAL)
-        {
-            dysonSphereUpdateTimer = 0;
-            Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded();
-        }
+        var dysonSphereTask = new NebulaTask(SimulationTicker, true, DYSONSPHERE_UPDATE_INTERVAL)
+            .SetCondition(() => Multiplayer.Session.IsGameLoaded)
+            .OnExecuted(() => Multiplayer.Session.DysonSpheres.UpdateSphereStatusIfNeeded())
+            .Start();
+        runningTasks.Add(dysonSphereTask);
 
-        if (!(warningUpdateTimer > WARNING_UPDATE_INTERVAL))
-        {
-            return;
-        }
-        warningUpdateTimer = 0;
-        Multiplayer.Session.Warning.SendBroadcastIfNeeded();
+        var warningTask = new NebulaTask(SimulationTicker, true, DYSONSPHERE_UPDATE_INTERVAL)
+            .SetCondition(() => Multiplayer.Session.IsGameLoaded)
+            .OnExecuted(() => Multiplayer.Session.Warning.SendBroadcastIfNeeded())
+            .Start();
+        runningTasks.Add(warningTask);
     }
 
     private static void DisableNagleAlgorithm(WebSocketServer socketServer)

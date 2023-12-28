@@ -1,8 +1,13 @@
 ﻿#region
 
+using System;
+using System.Threading;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
+using NebulaAPI.Simulation;
+using NebulaAPI.Tasks;
 using NebulaModel.Networking.Serialization;
+using UnityEngine;
 
 #endregion
 
@@ -13,12 +18,18 @@ public abstract class NetworkProvider : INetworkProvider
     protected NetworkProvider(IPlayerManager playerManager)
     {
         PacketProcessor = new NebulaNetPacketProcessor();
+        FrameTicker = new SimulationTicker(CancellationTokenSource);
+        SimulationTicker = new SimulationTicker(CancellationTokenSource);
         PlayerManager = playerManager;
     }
 
+    protected readonly CancellationTokenSource CancellationTokenSource = new();
+
     public NebulaNetPacketProcessor PacketProcessor { get; set; }
 
-    public abstract void Dispose();
+    public ISimulationTicker FrameTicker { get; }
+
+    public ISimulationTicker SimulationTicker { get; }
 
     public IPlayerManager PlayerManager { get; set; }
 
@@ -38,9 +49,23 @@ public abstract class NetworkProvider : INetworkProvider
     public abstract void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
         where T : class, new();
 
-    public abstract void Update();
+    public virtual void Update()
+    {
+        FrameTicker.Update();
+    }
+
+    public virtual void SimulationUpdate()
+    {
+        // SimulationTicker.Update(deltaTime);
+    }
 
     public abstract void Start();
 
     public abstract void Stop();
+
+    public virtual void Dispose()
+    {
+        Stop();
+        GC.SuppressFinalize(this);
+    }
 }

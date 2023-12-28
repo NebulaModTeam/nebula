@@ -143,12 +143,6 @@ public class Client : NetworkProvider, IClient
         }
     }
 
-    public override void Dispose()
-    {
-        Stop();
-        GC.SuppressFinalize(this);
-    }
-
     public override void SendPacket<T>(T packet)
     {
         serverConnection?.SendPacket(packet);
@@ -190,6 +184,8 @@ public class Client : NetworkProvider, IClient
 
     public override void Update()
     {
+        base.Update();
+
         PacketProcessor.ProcessPacketQueue();
 
         if (Multiplayer.Session.IsGameLoaded)
