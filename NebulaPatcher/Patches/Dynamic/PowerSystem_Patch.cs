@@ -21,23 +21,6 @@ internal class PowerSystem_Patch
         }
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(PowerSystem.GameTick))]
-    public static void PowerSystem_GameTick_Postfix(PowerSystem __instance)
-    {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
-        for (var i = 1; i < __instance.netCursor; i++)
-        {
-            var pNet = __instance.netPool[i];
-            pNet.energyRequired += Multiplayer.Session.PowerTowers.GetExtraDemand(__instance.planet.id, i);
-        }
-        Multiplayer.Session.PowerTowers.GivePlayerPower();
-        Multiplayer.Session.PowerTowers.UpdateAllAnimations(__instance.planet.id);
-    }
-
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PowerSystem.RemoveNodeComponent))]
     public static bool RemoveNodeComponent(PowerSystem __instance, int id)
@@ -47,9 +30,10 @@ internal class PowerSystem_Patch
             return true;
         }
         // as the destruct is synced across players this event is too
-        // and as such we can safely remove power demand for every player
-        var pComp = __instance.nodePool[id];
-        Multiplayer.Session.PowerTowers.RemExtraDemand(__instance.planet.id, pComp.networkId, id);
+        // and as such we can safely remove power demand for every player        
+        Multiplayer.Session.PowerTowers.LocalChargerIds.Remove(id);
+        var hashId = (long)__instance.factory.planetId << 32 | (long)id;
+        Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Remove(hashId);
 
         return true;
     }
