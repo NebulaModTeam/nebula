@@ -241,13 +241,17 @@ public class NebulaTask : INebulaTask
         return this;
     }
 
-    public void Wait()
+    // @Todo: find a way to wait without blocking the game thread. 
+    private void Wait()
     {
+        throw new NotImplementedException();
         taskCompletionSource.Task.Wait();
     }
 
-    public static void WaitAll(IEnumerable<NebulaTask> tasks)
+    // @Todo: Find a way to wait without blocking the game thread.
+    private static void WaitAll(IEnumerable<NebulaTask> tasks)
     {
+        throw new NotImplementedException();
         foreach (var task in tasks)
         {
             task.Wait();
