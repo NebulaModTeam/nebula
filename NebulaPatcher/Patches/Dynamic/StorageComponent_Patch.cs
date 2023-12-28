@@ -1,6 +1,9 @@
 ﻿#region
 
 using HarmonyLib;
+using NebulaAPI;
+using NebulaAPI.Packets;
+using NebulaAPI.Tasks;
 using NebulaModel.Packets.Factory.Storage;
 using NebulaWorld;
 
@@ -16,8 +19,7 @@ internal class StorageComponent_Patch
         new[] { typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) },
         new[]
         {
-            ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal,
-            ArgumentType.Out
+            ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Out
         })]
     public static bool AddItem_Prefix(StorageComponent __instance, int itemId, int count, int startIndex, int length, int inc,
         out int remainInc)
@@ -30,6 +32,7 @@ internal class StorageComponent_Patch
                 new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItem2, itemId, count,
                     startIndex, length, inc));
         }
+
         remainInc = inc; // this is what the game does anyways so it should not change the functionality of the method
         return true;
     }
@@ -46,6 +49,7 @@ internal class StorageComponent_Patch
                 new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.AddItemStacked, itemId, count,
                     inc));
         }
+
         remainInc = inc; // this is what the game does anyways so it should not change the functionality of the method
         return true;
     }
@@ -63,6 +67,7 @@ internal class StorageComponent_Patch
                 new StorageSyncRealtimeChangePacket(__instance.id, StorageSyncRealtimeChangeEvent.TakeItemFromGrid, gridIndex,
                     itemId, count, 0));
         }
+
         inc = 0; // this is what the game does anyways so it should not change the functionality of the method
         return true;
     }
@@ -105,23 +110,53 @@ internal class StorageComponent_Patch
         {
             return true;
         }
+
         count = 1;
         return false;
-
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(StorageComponent), nameof(StorageComponent.SetFilter))]
     private static void SetFilter_Postfix(StorageComponent __instance, int gridIndex, int filterId)
     {
-        //Run only in MP, if it is not triggered remotely and if this event was triggered manually by an user
-        if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest &&
-            Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet is not null)
+        //Run only in MP, if it is not triggered remotely and if this event was triggered manually by the user
+        if (!Multiplayer.IsActive || Multiplayer.Session.Storage.IsIncomingRequest ||
+            !Multiplayer.Session.Storage.IsHumanInput || GameMain.data.localPlanet is null)
+            return;
+
+        //Skip if change was done in player's inventory
+        if (__instance.entityId == 0 && __instance.id == 0)
+            return;
+
+        // If there isn't a deferred packet, create one and create the task to send it at some point later in time.
+        var deferredPacket = SingletonCache<StorageFilterSyncPacket>.Get();
+        if (deferredPacket is null)
         {
-            HandleUserInteraction(__instance,
-                new StorageSyncSetFilterPacket(__instance.id, GameMain.data.localPlanet.id, gridIndex, filterId, __instance.type));
+            deferredPacket = SingletonCache<StorageFilterSyncPacket>.Create();
+            // Default task, which sends the packet on the next tick.
+            new NebulaTask(Multiplayer.Session.Network.FrameTicker)
+                .OnExecuted(() =>
+                {
+                    if (Multiplayer.Session.LocalPlayer.IsHost)
+                        Multiplayer.Session.Network.SendPacketToLocalStar(deferredPacket);
+                    else
+                        Multiplayer.Session.Network.SendPacket(deferredPacket);
+                })
+                .OnCompleted(() => { SingletonCache<StorageFilterSyncPacket>.Destroy(deferredPacket); })
+                .OnCancelOrError(() => { SingletonCache<StorageFilterSyncPacket>.Destroy(deferredPacket); })
+                .Start();
         }
-        // return true;
+
+        // Update the packet with new data
+        deferredPacket.UpdatePacket(
+            new StorageSetFilterDataUpdate
+            {
+                storageIndex = __instance.id,
+                planetId = GameMain.data.localPlanet.id,
+                gridIndex = gridIndex,
+                filterId = filterId,
+                storageType = __instance.type
+            });
     }
 
     private static void HandleUserInteraction<T>(StorageComponent __instance, T packet) where T : class, new()
