@@ -196,6 +196,7 @@ public class Server : NetworkProvider, IServer
     public override void Stop()
     {
         CancellationTokenSource.Cancel();
+        runningTasks.Clear();
 
         socket?.Stop();
 
