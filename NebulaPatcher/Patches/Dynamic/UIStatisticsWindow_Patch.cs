@@ -40,7 +40,7 @@ internal class UIStatisticsWindow_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(UIStatisticsWindow.AddStatGroup))]
+    [HarmonyPatch(nameof(UIStatisticsWindow.AddFactoryStatGroup))]
     public static bool AddStatGroup_Prefix(int __0, ProductionStatistics ___productionStat)
     {
         //Skip when StatisticsDataPacket hasn't arrived yet
