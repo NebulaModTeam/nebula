@@ -4,9 +4,18 @@ public class TurretStorageUpdatePacket
 {
     public TurretStorageUpdatePacket() { }
 
-    public TurretStorageUpdatePacket(int turretIndex, int itemId, short itemCount, short itemInc, int planetId)
+    public TurretStorageUpdatePacket(in TurretComponent turretComponent, int planetId)
     {
-        TurretIndex = turretIndex;
+        TurretIndex = turretComponent.id;
+        ItemId = turretComponent.itemId;
+        ItemCount = turretComponent.itemCount;
+        ItemInc = turretComponent.itemInc;
+        PlanetId = planetId;
+    }
+
+    public TurretStorageUpdatePacket(int id, int itemId, short itemCount, short itemInc, int planetId)
+    {
+        TurretIndex = id;
         ItemId = itemId;
         ItemCount = itemCount;
         ItemInc = itemInc;

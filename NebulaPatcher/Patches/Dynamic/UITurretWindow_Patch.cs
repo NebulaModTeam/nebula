@@ -15,37 +15,55 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class UITurretWindow_Patch
 {
 
-    //[HarmonyPostfix]
-    //[HarmonyPatch(nameof(UITurretWindow.OnHandFillAmmoButtonClick))]
-    //public static void OnManualServingContentChange_Postfix(UITurretWindow __instance)
-    //{
-    //    //Notify about manual bullet inserting / withdrawing change
-    //    if (!Multiplayer.IsActive)
-    //    {
-    //        return;
-    //    }
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UITurretWindow.OnHandFillAmmoButtonClick))]
+    public static void OnHandFillAmmoButtonClick_Postfix(UITurretWindow __instance, int obj)
+    {
+        //Notify about manual bullet inserting / withdrawing change
+        if (!Multiplayer.IsActive)
+        {
+            return;
 
-    //    var storage = __instance.servingStorage;
-    //    Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorStorageUpdatePacket(__instance.ejectorId,
-    //        storage.grids[0].count, storage.grids[0].inc, GameMain.localPlanet?.id ?? -1));
-    //}
+        }
+        var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
 
-    //[HarmonyPostfix]
-    //[HarmonyPatch(nameof(UITurretWindow.OnHandFillAmmoButtonClick))]
-    //public static void OnHandFillAmmoButtonClick_Postfix(UITurretWindow __instance)
-    //{
-    //    //Notify about manual bullet inserting / withdrawing change
-    //    if (!Multiplayer.IsActive)
-    //    {
-    //        return;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
+         turret.itemId, turret.itemBulletCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
+    }
 
-    //    }
 
-    //    var itemCount = __instance
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UITurretWindow.AmmoBtn_onClick))]
+    public static void AmmoButtonClick_Postfix(UITurretWindow __instance)
+    {
+        //Notify about manual bullet inserting / withdrawing change
+        if (!Multiplayer.IsActive)
+        {
+            return;
 
-    //    Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
-    //     --__instance.count, storage.grids[0].inc, GameMain.localPlanet?.id ?? -1));
-    //}
+        }
+        var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
+
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
+         turret.itemId, turret.itemBulletCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
+    }
+
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UITurretWindow.ClearMagBtn_onClick))]
+    public static void ClearMagClick_Postfix(UITurretWindow __instance, int obj)
+    {
+        //Notify about manual bullet inserting / withdrawing change
+        if (!Multiplayer.IsActive)
+        {
+            return;
+
+        }
+        var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
+
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
+         turret.itemId, turret.itemBulletCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
+    }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UITurretWindow.GroupSelectionBtn_onClick))]
@@ -104,17 +122,6 @@ internal class UITurretWindow_Patch
     // VSMode clicked occurs on clicking one of the turret mode buttons
 
     // BurstMode updates index on window, and is used for supernove. Doesnt seem to have backend setting though
-
-
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(UITurretWindow.OnTurretIdChange))]
-    public static void OnEjectorIdChange_Postfix(UITurretWindow __instance)
-    {
-        if (!Multiplayer.IsActive || !__instance.active)
-        {
-            return;
-        }
-    }
 
     #endregion
 

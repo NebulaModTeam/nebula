@@ -4,9 +4,15 @@
         <TargetFramework>net472</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true"/>
-        <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false"/>
-        <ProjectReference Include="..\NebulaNetwork\NebulaNetwork.csproj"/>
-        <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true"/>
+        <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
+        <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
+        <ProjectReference Include="..\NebulaNetwork\NebulaNetwork.csproj" />
+        <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Update="DysonSphereProgram.GameLibs" Version="0.10.28.21172-r.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>compile</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 </Project>

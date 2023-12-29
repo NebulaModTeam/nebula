@@ -22,7 +22,6 @@ internal class TurretStorageUpdateProcessor : PacketProcessor<TurretStorageUpdat
             return;
         }
 
-
         if (pool.buffer[packet.TurretIndex].itemId != packet.ItemId)
         {
             pool.buffer[packet.TurretIndex].SetNewItem(packet.ItemId, (short)packet.ItemCount, (short)packet.ItemInc);
