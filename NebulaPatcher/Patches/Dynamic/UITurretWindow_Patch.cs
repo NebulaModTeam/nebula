@@ -49,7 +49,7 @@ internal class UITurretWindow_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UITurretWindow.GroupSelectionBtn_onClick))]
-    public static void OnSetGroup_Postfix(UITurretWindow __instance, int value)
+    public static void OnSetGroup_Postfix(UITurretWindow __instance, int obj)
     {
         if (!Multiplayer.IsActive)
             return;
@@ -89,7 +89,7 @@ internal class UITurretWindow_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UITurretWindow.OnPrioritySelectButtonClicked))]
-    public static void OnSetPriority_Postfix(UITurretWindow __instance, int obj)
+    public static void OnSetPriority_Postfix(UITurretWindow __instance, int value)
     {
         if (!Multiplayer.IsActive)
             return;
