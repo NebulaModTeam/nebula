@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--Replace the path to your Steam installation folder-->
+    <SteamDir>C:\Program Files (x86)\Steam\</SteamDir>
+    <!--Replace the path to your Dyson Sphere Program installation folder-->
+    <DSPGameDir>C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\</DSPGameDir>
+  </PropertyGroup>
+</Project>
