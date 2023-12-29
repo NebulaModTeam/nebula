@@ -18,7 +18,7 @@ internal class TurretBurstUpdateProcessor : PacketProcessor<TurretBurstUpdatePac
         var pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.defenseSystem.turrets;
         if (pool != null && packet.TurretIndex != -1)
         {
-            UITurretWindow.burstModeIndex = packet.TurretIndex;
+            UITurretWindow.burstModeIndex = packet.BurstIndex;
         }
     }
 }
