@@ -9,6 +9,7 @@ using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using UnityEngine;
 using UnityEngine.UI;
+using static NebulaPatcher.Patches.Dynamic.UIOptionWindow_Patch;
 
 #endregion
 
@@ -18,6 +19,12 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class UIGalaxySelect_Patch
 {
     private static int MainMenuStarID = -1;
+
+    private static Toggle? DFToggle;
+    private static bool? OriginalDFToggleIsOn;
+    private static bool? OriginalDFToggleInteractable;
+    private static Color? OriginalDFToggleDisabledColor;
+    private static Tooltip? DFToggleTooltip;
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIGalaxySelect._OnOpen))]
@@ -72,6 +79,9 @@ internal class UIGalaxySelect_Patch
         {
             MainMenuStarID = GameMain.localStar.id;
         }
+
+        DisableDarkFogToggle();
+
         var button = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button").GetComponent<Button>();
         button.interactable = true;
     }
@@ -145,6 +155,8 @@ internal class UIGalaxySelect_Patch
             if (childObject.name != "top-title" && childObject.name != "galaxy-seed")
                 childObject.SetActive(true);
         }
+
+        //RestoreDarkFogToggleState();
     }
 
     [HarmonyPrefix]
@@ -224,5 +236,42 @@ internal class UIGalaxySelect_Patch
         InGamePopup.FadeOut();
         Config.Options.ShowLobbyHints = false;
         Config.SaveOptions();
+    }
+
+    private static void DisableDarkFogToggle()
+    {
+        DFToggle = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/setting-group/DF-toggle/check-box").GetComponent<Toggle>();
+        OriginalDFToggleIsOn = DFToggle.isOn;
+        DFToggle.isOn = false;
+        OriginalDFToggleInteractable = DFToggle.interactable;
+        DFToggle.interactable = false;
+
+        // fixes the color scheme so disabled state is acctualy visible
+        OriginalDFToggleDisabledColor = DFToggle.colors.m_DisabledColor;
+        var colors = DFToggle.colors;
+        colors.m_DisabledColor = new Color(1, 1, 1, colors.m_DisabledColor.a);
+        DFToggle.colors = colors;
+
+        DFToggleTooltip = DFToggle.gameObject.AddComponent<Tooltip>();
+        DFToggleTooltip.Title = "Not supported in Multiplayer";
+        DFToggleTooltip.Text = "Dark Fog is currently not supported in multiplayer.";
+    }
+
+    private static void RestoreDarkFogToggleState()
+    {
+        if (DFToggle is Toggle dFToggle
+            && OriginalDFToggleIsOn is bool originalDFToggleIsOn 
+            && OriginalDFToggleInteractable is bool originalDFToggleInteractable
+            && OriginalDFToggleDisabledColor is Color originalDFToggleDisabledColor
+            //&& DFToggleTooltip is Tooltip tooltip
+        )
+        {
+            dFToggle.isOn = originalDFToggleIsOn;
+            dFToggle.interactable = originalDFToggleInteractable;
+            var colors = DFToggle.colors;
+            colors.m_DisabledColor = originalDFToggleDisabledColor;
+            dFToggle.colors = colors;
+            //Object.Destroy(tooltip);
+        }
     }
 }
