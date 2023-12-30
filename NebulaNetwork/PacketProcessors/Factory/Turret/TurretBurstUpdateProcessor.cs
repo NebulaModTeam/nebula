@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Threading;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -19,6 +20,14 @@ internal class TurretBurstUpdateProcessor : PacketProcessor<TurretBurstUpdatePac
         if (pool != null && packet.TurretIndex != -1)
         {
             UITurretWindow.burstModeIndex = packet.BurstIndex;
+
+            //Update UI Panel too if it is viewing any turret window
+            var uiTurret = UIRoot.instance.uiGame.turretWindow;
+            if (uiTurret.factory == null || uiTurret.factory.planetId != packet.PlanetId) {
+                return;
+            }
+
+            uiTurret.RefreshBurstModeUI();
         }
     }
 }

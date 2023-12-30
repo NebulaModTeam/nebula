@@ -607,9 +607,8 @@ internal class PlanetFactory_patch
         if (entityData.turretId > 0)
         {
             var turretId = entityData.turretId;
-            var turretPool = __instance.defenseSystem.turrets.buffer;
-            Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turretId,
-                turretPool[turretId].itemId, turretPool[turretId].itemBulletCount, turretPool[turretId].itemInc, __instance.planetId));
+            var turretPool = __instance.defenseSystem.turrets;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(in turretPool.buffer[turretId], __instance.planetId));
         }
         if (entityData.spraycoaterId <= 0)
         {

@@ -27,8 +27,7 @@ internal class UITurretWindow_Patch
         }
         var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
-         turret.itemId, turret.itemBulletCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret, GameMain.localPlanet?.id ?? -1));
     }
 
 
@@ -42,10 +41,13 @@ internal class UITurretWindow_Patch
             return;
 
         }
+
         var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
-         turret.itemId, turret.itemBulletCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret, GameMain.localPlanet?.id ?? -1));
+
+        //Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
+        // turret.itemId, turret.itemCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
     }
 
 
@@ -61,8 +63,7 @@ internal class UITurretWindow_Patch
         }
         var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
-         turret.itemId, turret.itemBulletCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret, GameMain.localPlanet?.id ?? -1));
     }
 
     [HarmonyPostfix]
@@ -87,22 +88,23 @@ internal class UITurretWindow_Patch
 
         int burstMode = UITurretWindow.burstModeIndex;
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretBurstUpdatePacket(__instance.turretId, burstMode,
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretBurstUpdatePacket(__instance.turretId, obj,
             GameMain.localPlanet?.id ?? -1));
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(UITurretWindow.SuperNovaBtn_onClick))]
-    public static void OnSetSuperNova_Postfix(UITurretWindow __instance, int obj)
-    {
-        if (!Multiplayer.IsActive)
-            return;
+    //TODO: Work In Progress on SuperNova
+    //[HarmonyPostfix]
+    //[HarmonyPatch(nameof(UITurretWindow.SuperNovaBtn_onClick))]
+    //public static void OnSetSuperNova_Postfix(UITurretWindow __instance, int obj)
+    //{
+    //    if (!Multiplayer.IsActive)
+    //        return;
 
-        bool superNovaOn = __instance.defenseSystem.turrets.buffer[__instance.turretId].inSupernova;
+    //    bool superNovaOn = __instance.defenseSystem.turrets.buffer[__instance.turretId].inSupernova;
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretSuperNovaPacket(__instance.turretId, superNovaOn,
-            GameMain.localPlanet?.id ?? -1));
-    }
+    //    Multiplayer.Session.Network.SendPacketToLocalStar(new TurretSuperNovaPacket(__instance.turretId, superNovaOn,
+    //        GameMain.localPlanet?.id ?? -1));
+    //}
 
 
     [HarmonyPostfix]

@@ -26,9 +26,15 @@ internal class TurretStorageUpdateProcessor : PacketProcessor<TurretStorageUpdat
         {
             pool.buffer[packet.TurretIndex].SetNewItem(packet.ItemId, (short)packet.ItemCount, (short)packet.ItemInc);
         }
+        else if (packet.ItemCount == 0)
+        {
+            pool.buffer[packet.TurretIndex].ClearItem();
+            pool.buffer[packet.TurretIndex].CancelSupernova();
+        }
         else
         {
             pool.buffer[packet.TurretIndex].itemCount = (short)packet.ItemCount;
+            pool.buffer[packet.TurretIndex].bulletCount = (short)packet.BulletCount;
         }
     }
 }

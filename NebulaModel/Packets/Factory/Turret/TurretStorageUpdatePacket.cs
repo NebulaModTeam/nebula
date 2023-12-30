@@ -10,6 +10,7 @@ public class TurretStorageUpdatePacket
         ItemId = turretComponent.itemId;
         ItemCount = turretComponent.itemCount;
         ItemInc = turretComponent.itemInc;
+        BulletCount = turretComponent.bulletCount;
         PlanetId = planetId;
     }
 
@@ -25,6 +26,7 @@ public class TurretStorageUpdatePacket
     public int TurretIndex { get; set; }
     public int ItemId { get; set; }
     public short ItemCount { get; set; }
+    public short BulletCount { get; set; }
     public short ItemInc { get; set; }
     public int PlanetId { get; set; }
 }
