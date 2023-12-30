@@ -22,14 +22,14 @@ internal class TurretStorageUpdateProcessor : PacketProcessor<TurretStorageUpdat
             return;
         }
 
+        if (packet.ItemCount == 0 || packet.ItemId == 0)
+        {
+            pool.buffer[packet.TurretIndex].ClearItem();
+        }
+
         if (pool.buffer[packet.TurretIndex].itemId != packet.ItemId)
         {
             pool.buffer[packet.TurretIndex].SetNewItem(packet.ItemId, (short)packet.ItemCount, (short)packet.ItemInc);
-        }
-        else if (packet.ItemCount == 0)
-        {
-            pool.buffer[packet.TurretIndex].ClearItem();
-            pool.buffer[packet.TurretIndex].CancelSupernova();
         }
         else
         {
