@@ -20,11 +20,11 @@ internal class UIGalaxySelect_Patch
 {
     private static int MainMenuStarID = -1;
 
-    private static Toggle? DFToggle;
-    private static bool? OriginalDFToggleIsOn;
-    private static bool? OriginalDFToggleInteractable;
-    private static Color? OriginalDFToggleDisabledColor;
-    private static Tooltip? DFToggleTooltip;
+    private static Toggle DFToggle;
+    private static bool OriginalDFToggleIsOn;
+    private static bool OriginalDFToggleInteractable;
+    private static Color OriginalDFToggleDisabledColor;
+    private static Tooltip DFToggleTooltip;
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIGalaxySelect._OnOpen))]
@@ -80,7 +80,9 @@ internal class UIGalaxySelect_Patch
             MainMenuStarID = GameMain.localStar.id;
         }
 
+#if !DEBUG
         DisableDarkFogToggle();
+#endif
 
         var button = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button").GetComponent<Button>();
         button.interactable = true;
@@ -156,7 +158,7 @@ internal class UIGalaxySelect_Patch
                 childObject.SetActive(true);
         }
 
-        //RestoreDarkFogToggleState();
+        RestoreDarkFogToggleState();
     }
 
     [HarmonyPrefix]
@@ -247,31 +249,28 @@ internal class UIGalaxySelect_Patch
         DFToggle.interactable = false;
 
         // fixes the color scheme so disabled state is acctualy visible
-        OriginalDFToggleDisabledColor = DFToggle.colors.m_DisabledColor;
+        OriginalDFToggleDisabledColor = DFToggle.colors.disabledColor;
         var colors = DFToggle.colors;
-        colors.m_DisabledColor = new Color(1, 1, 1, colors.m_DisabledColor.a);
+        colors.disabledColor = new Color(1, 1, 1, colors.disabledColor.a);
         DFToggle.colors = colors;
 
         DFToggleTooltip = DFToggle.gameObject.AddComponent<Tooltip>();
-        DFToggleTooltip.Title = "Not supported in Multiplayer";
-        DFToggleTooltip.Text = "Dark Fog is currently not supported in multiplayer.";
+        DFToggleTooltip.Title = "Not supported in multiplayer";
+        DFToggleTooltip.Text = "Enabling enemy forces is currently not supported in multiplayer.";
     }
 
     private static void RestoreDarkFogToggleState()
     {
-        if (DFToggle is Toggle dFToggle
-            && OriginalDFToggleIsOn is bool originalDFToggleIsOn 
-            && OriginalDFToggleInteractable is bool originalDFToggleInteractable
-            && OriginalDFToggleDisabledColor is Color originalDFToggleDisabledColor
-            //&& DFToggleTooltip is Tooltip tooltip
-        )
+
+        if (DFToggle != null)
         {
-            dFToggle.isOn = originalDFToggleIsOn;
-            dFToggle.interactable = originalDFToggleInteractable;
+            // we are setting the (originally) private m_IsOn here since setting the public isOn will fire an event which leads to a NRE
+            DFToggle.m_IsOn = OriginalDFToggleIsOn;
+            DFToggle.interactable = OriginalDFToggleInteractable;
             var colors = DFToggle.colors;
-            colors.m_DisabledColor = originalDFToggleDisabledColor;
-            dFToggle.colors = colors;
-            //Object.Destroy(tooltip);
+            colors.disabledColor = OriginalDFToggleDisabledColor;
+            DFToggle.colors = colors;
+            Object.Destroy(DFToggleTooltip);
         }
     }
 }
