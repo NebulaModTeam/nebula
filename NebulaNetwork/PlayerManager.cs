@@ -315,6 +315,7 @@ public class PlayerManager : IPlayerManager
             {
                 availablePlayerIds.Enqueue(player.Id);
             }
+            Multiplayer.Session.PowerTowers.OnClientDisconnect();
             Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
             Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
 

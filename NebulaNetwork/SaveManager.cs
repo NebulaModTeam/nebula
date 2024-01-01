@@ -136,7 +136,7 @@ public static class SaveManager
                 switch (revision)
                 {
                     case REVISION:
-                        playerData = netDataReader.Get<PlayerData>();
+                        playerData = netDataReader.Get(() => new PlayerData());
                         break;
                     case >= 5:
                         playerData = new PlayerData();

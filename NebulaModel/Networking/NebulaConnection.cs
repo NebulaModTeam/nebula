@@ -15,13 +15,13 @@ namespace NebulaModel.Networking;
 
 public class NebulaConnection : INebulaConnection
 {
-    private readonly NetPacketProcessor packetProcessor;
+    private readonly NebulaNetPacketProcessor packetProcessor;
     private readonly EndPoint peerEndpoint;
     private readonly WebSocket peerSocket;
     private readonly Queue<byte[]> pendingPackets = new();
     private bool enable = true;
 
-    public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NetPacketProcessor packetProcessor)
+    public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NebulaNetPacketProcessor packetProcessor)
     {
         this.peerEndpoint = peerEndpoint;
         this.peerSocket = peerSocket;
