@@ -55,8 +55,11 @@ internal class PlanetFactory_patch
             return true;
         }
 
+        DroneManager.RemoveBuildRequest(-prebuildId);
+
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
+            DroneManager.RemovePlayerDronePlan(-prebuildId);
             if (!Multiplayer.Session.Factories.ContainsPrebuildRequest(__instance.planetId, prebuildId))
             {
                 // This prevents duplicating the entity when multiple players trigger the BuildFinally for the same entity at the same time.
@@ -77,12 +80,6 @@ internal class PlanetFactory_patch
                 : Multiplayer.Session.Factories.PacketAuthor;
             var entityId = Multiplayer.Session.LocalPlayer.IsHost ? FactoryManager.GetNextEntityId(__instance) : -1;
             Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, author, entityId));
-        }
-
-        if (!Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value &&
-            !DroneManager.IsPendingBuildRequest(-prebuildId))
-        {
-            DroneManager.AddBuildRequestSent(-prebuildId);
         }
 
         return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;

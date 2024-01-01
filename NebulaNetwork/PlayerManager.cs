@@ -322,18 +322,25 @@ public class PlayerManager : IPlayerManager
             var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
             if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
             {
-                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans),
-                    player.Data.LocalPlanetId);
+                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
                 //Remove it also from host queue, if host is on the same planet
                 if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                 {
-                    //todo:replace
-                    //foreach (var t in DronePlans)
-                    //{
-                    //    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
-                    //}
+                    PlanetFactory factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId).factory;
+                    for (int i = 1; i < factory.constructionSystem.drones.cursor; i++)
+                    {
+                        ref DroneComponent drone = ref factory.constructionSystem.drones.buffer[i];
+                        if (DronePlans.Contains(drone.targetObjectId))
+                        {
+                            // recycle drones from other player, removing them visually
+                            // RecycleDrone_Postfix takes care of removing drones from mecha that do not belong to us
+                            DroneManager.RemoveBuildRequest(drone.targetObjectId);
+                            GameMain.mainPlayer.mecha.constructionModule.RecycleDrone(factory, ref drone);
+                        }
+                    }
                 }
             }
+            DroneManager.RemovePlayerDronePlans(player.Id);
 
             if (!playerWasSyncing || syncCount != 0)
             {
@@ -362,6 +369,17 @@ public class PlayerManager : IPlayerManager
             UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount,
                 GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
             Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+
+            // and we need to fix the now invalid PlayerDronePlans
+            using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                List<ushort> AllPlayerIds = new List<ushort>();
+                foreach (var entry in connectedPlayers)
+                {
+                    AllPlayerIds.Add(entry.Value.Id);
+                }
+                DroneManager.RemoveOrphanDronePlans(AllPlayerIds);
+            }
         }
     }
 
