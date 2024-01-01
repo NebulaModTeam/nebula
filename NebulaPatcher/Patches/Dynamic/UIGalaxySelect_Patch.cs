@@ -80,7 +80,7 @@ internal class UIGalaxySelect_Patch
             MainMenuStarID = GameMain.localStar.id;
         }
 
-#if !DEBUG
+#if RELEASE
         DisableDarkFogToggle();
 #endif
 
