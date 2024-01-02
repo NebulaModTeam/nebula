@@ -7,11 +7,11 @@ using UnityEngine;
 
 namespace NebulaModel.Packets.Players;
 
-public class NewDroneOrderPacket
+public class NewMechaDroneOrderPacket
 {
-    public NewDroneOrderPacket() { }
+    public NewMechaDroneOrderPacket() { }
 
-    public NewDroneOrderPacket(int planetId, int entityId, ushort playerId, bool priority)
+    public NewMechaDroneOrderPacket(int planetId, int entityId, ushort playerId, bool priority)
     {
         PlanetId = planetId;
         EntityId = entityId;

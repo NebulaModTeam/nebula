@@ -24,5 +24,18 @@ namespace NebulaPatcher.Patches.Dynamic
                 __instance.droneIdleCount--;
             }
         }
+
+        // clients should skip the procedure for BattleBases. The host will tell them when to eject drones.
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
+        public static bool IdleDroneProcedure_Prefix(ConstructionModuleComponent __instance)
+        {
+            if (!Multiplayer.IsActive)
+            {
+                return true;
+            }
+
+            return !(Multiplayer.Session.LocalPlayer.IsClient && __instance.entityId > 0);
+        }
     }
 }

@@ -115,6 +115,7 @@ namespace NebulaPatcher.Patches.Transpilers
             return matcher.InstructionEnumeration();
         }
 
+        // still update rendering of other player drones, make sure this happens here.
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(ConstructionSystem.UpdateDrones))]
         public static IEnumerable<CodeInstruction> UpdateDrones_Transpiler2(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -172,7 +173,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             return id != owner; // game does exit when id does not match owner, so we do too when multiplayer is inactive
                         }
 
-                        return id != owner && owner >= 0; // we set owner to negative values in ConstructionModuleComponent_Transpiler to mark drones from other players. Those still need to be rendered/updated.
+                        return false; // we set owner to negative values in ConstructionModuleComponent_Transpiler to mark drones from other players. Those still need to be rendered/updated, as well as those from battle bases
                     }));
             var jmpOut = matcher.Operand;
             matcher.SetInstruction(new CodeInstruction(OpCodes.Brtrue, jmpOut));

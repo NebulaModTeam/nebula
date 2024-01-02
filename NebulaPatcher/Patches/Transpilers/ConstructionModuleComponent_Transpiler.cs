@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Factory.BattleBase;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
 using NebulaWorld.Player;
@@ -15,6 +17,7 @@ using UnityEngine;
 namespace NebulaPatcher.Patches.Transpilers
 {
     delegate bool EjectMechaDroneLocalOrRemote(ConstructionModuleComponent constructionModuleComponent, PlanetFactory factory, Player player, int targetConstructionObjectId, int targetRepairObjectId, bool priority);
+    delegate void BroadcastEjectBattleBaseDrone(ConstructionModuleComponent _this, PlanetFactory factory, ref DroneComponent drone, ref CraftData cData, int targetId);
     delegate bool UseThisTarget(bool alreadyContained, int targetConstructionObjectId);
 
     [HarmonyPatch(typeof(ConstructionModuleComponent))]
@@ -92,7 +95,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             //GameMain.mainPlayer.mecha.constructionModule.droneIdleCount--;
                             DroneManager.AddBuildRequest(targetObjectId);
 
-                            Multiplayer.Session.Network.SendPacket(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, targetObjectId, Multiplayer.Session.LocalPlayer.Id, priority));
+                            Multiplayer.Session.Network.SendPacket(new NewMechaDroneOrderPacket(GameMain.mainPlayer.planetId, targetObjectId, Multiplayer.Session.LocalPlayer.Id, priority));
                         }
                         else
                         {
@@ -110,9 +113,10 @@ namespace NebulaPatcher.Patches.Transpilers
                                 DroneManager.AddPlayerDronePlan(closestPlayer, targetObjectId);
 
                                 // tell players to send out drones only if we are the closest one. otherwise players will ask themselve in case they are able to send out drones.
-                                Multiplayer.Session.Network.SendPacketToPlanet(new NewDroneOrderPacket(GameMain.mainPlayer.planetId, targetObjectId, closestPlayer, priority), GameMain.mainPlayer.planetId);
+                                Multiplayer.Session.Network.SendPacketToPlanet(new NewMechaDroneOrderPacket(GameMain.mainPlayer.planetId, targetObjectId, closestPlayer, priority), GameMain.mainPlayer.planetId);
 
                                 GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer, targetObjectId, priority);
+                                factory.constructionSystem.constructServing.Add(targetObjectId);
                             }
                         }
 
@@ -121,6 +125,97 @@ namespace NebulaPatcher.Patches.Transpilers
                     }),
                     new CodeInstruction(OpCodes.Brtrue, jmpToOriginalCode),
                     new CodeInstruction(OpCodes.Ret));
+
+            // Now search for the parts where BattleBases eject their drones.
+            // The host must sync this to clients. (only host runs this because of a prefix patch that skips it for clients.
+            // add code before each 'this.EjectBaseDrone(factory, ref ptr3, ref ptr4, num/num2);' to broadcast to planets
+            // do this here to distinguish construction and repairing
+
+            var pos = matcher.Pos;
+
+            // construction
+            matcher
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldarg_1),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloc_1), // this is construction
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "EjectBaseDrone"));
+
+            if (matcher.IsInvalid)
+            {
+                Log.Error(
+                    "ConstructionModuleComponent_Transpiler.IdleDroneProcedure_Transpiler 2 failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+
+            matcher
+                .Repeat(matcher =>
+                {
+                    matcher
+                        .InsertAndAdvance(
+                            HarmonyLib.Transpilers.EmitDelegate<BroadcastEjectBattleBaseDrone>((ConstructionModuleComponent _this, PlanetFactory factory, ref DroneComponent drone, ref CraftData cData, int targetId) =>
+                            {
+                                if (!Multiplayer.IsActive)
+                                {
+                                    _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                    return;
+                                }
+                                if (!DroneManager.IsPendingBuildRequest(targetId))
+                                {
+                                    DroneManager.AddBuildRequest(targetId); // so clients will not receive any mecha drone order for this entity
+                                    Multiplayer.Session.Network.SendPacketToPlanet(new NewBattleBaseDroneOrderPacket(factory.planetId, targetId, _this.id, true), factory.planetId);
+                                    _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                    factory.constructionSystem.constructServing.Add(targetId);
+                                }
+                            }))
+                        .Set(OpCodes.Nop, null); // remove original call
+                });
+
+            // because matcher.Back() did not find the code for some reason...
+            while (matcher.Pos != pos)
+            {
+                matcher.Advance(-1);
+            }
+
+            // repairment
+            matcher
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldarg_1),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldloc_2), // this is repair
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "EjectBaseDrone"));
+
+            if (matcher.IsInvalid)
+            {
+                Log.Error(
+                    "ConstructionModuleComponent_Transpiler.IdleDroneProcedure_Transpiler 3 failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+
+            matcher
+                .Repeat(matcher =>
+                {
+                    matcher
+                        .InsertAndAdvance(
+                            HarmonyLib.Transpilers.EmitDelegate<BroadcastEjectBattleBaseDrone>((ConstructionModuleComponent _this, PlanetFactory factory, ref DroneComponent drone, ref CraftData cData, int targetId) =>
+                            {
+                                if (!Multiplayer.IsActive)
+                                {
+                                    _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                    return;
+                                }
+                                if (!DroneManager.IsPendingBuildRequest(targetId)){
+                                    DroneManager.AddBuildRequest(targetId); // so clients will not receive any mecha drone order for this entity
+                                    Multiplayer.Session.Network.SendPacketToPlanet(new NewBattleBaseDroneOrderPacket(factory.planetId, targetId, _this.id, false), factory.planetId);
+                                    _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                }
+                            }))
+                        .Set(OpCodes.Nop, null); // remove original call
+                });
 
             return matcher.InstructionEnumeration();
         }
@@ -158,8 +253,23 @@ namespace NebulaPatcher.Patches.Transpilers
                             return alreadyContained;
                         }
 
+                        int[] myDronePlans = DroneManager.GetPlayerDronePlans(Multiplayer.Session.LocalPlayer.Id);
+
                         // returning true here means the targetConstructionObjectId will not be selected as a valid next target
-                        return alreadyContained || DroneManager.IsPendingBuildRequest(targetConstructionObjectId) || DroneManager.CountPendingBuildRequest() > GameMain.mainPlayer.mecha.constructionModule.droneCount;
+                        bool a = alreadyContained;
+                        bool b = DroneManager.IsPendingBuildRequest(targetConstructionObjectId);
+                        bool c = (Multiplayer.Session.LocalPlayer.IsClient && DroneManager.CountPendingBuildRequest() > GameMain.mainPlayer.mecha.constructionModule.droneCount);
+                        bool d = (Multiplayer.Session.LocalPlayer.IsHost && (myDronePlans == null ? 0 : myDronePlans.Count()) > GameMain.mainPlayer.mecha.constructionModule.droneCount);
+
+                        if (!a && b && Multiplayer.Session.LocalPlayer.IsHost)
+                        {
+                            // this seems to be a deadlock desync, but a should be the correct value
+                            UnityEngine.Debug.LogWarning("fixing");
+                            DroneManager.RemoveBuildRequest(targetConstructionObjectId);
+                        }
+
+                        UnityEngine.Debug.LogWarning($"{a} | {b} | {c} | {d}");
+                        return a || b || c || d;
                     }));
 
             return matcher.InstructionEnumeration();

@@ -15,7 +15,7 @@ using UnityEngine;
 namespace NebulaNetwork.PacketProcessors.Players;
 
 [RegisterPacketProcessor]
-internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
+internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket>
 {
     private readonly IPlayerManager playerManager;
 
@@ -24,7 +24,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
         playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
-    protected override void ProcessPacket(NewDroneOrderPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(NewMechaDroneOrderPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {
@@ -45,7 +45,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
                 vector = playerPos.normalized * (playerPos.magnitude + 2.8f);
             }
 
-            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
+            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             Vector3 entityPos = factory.constructionSystem._obj_hpos(packet.EntityId, ref vector);
             ushort closestPlayer = DroneManager.GetClosestPlayerTo(packet.PlanetId, ref entityPos);
 
@@ -59,9 +59,10 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
                     DroneManager.AddPlayerDronePlan(closestPlayer, packet.EntityId);
 
                     // tell players to send out drones
-                    Multiplayer.Session.Network.SendPacketToPlanet(new NewDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayer, packet.Priority), packet.PlanetId);
+                    Multiplayer.Session.Network.SendPacketToPlanet(new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayer, packet.Priority), packet.PlanetId);
 
                     GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer, packet.EntityId, packet.Priority);
+                    factory.constructionSystem.constructServing.Add(packet.EntityId);
                 }
                 else if (closestPlayer == Multiplayer.Session.LocalPlayer.Id)
                 {
@@ -78,7 +79,8 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
                         DroneManager.AddPlayerDronePlan(nextClosestPlayer, packet.EntityId);
 
                         // tell players to send out drones
-                        Multiplayer.Session.Network.SendPacketToPlanet(new NewDroneOrderPacket(packet.PlanetId, packet.EntityId, nextClosestPlayer, packet.Priority), packet.PlanetId);
+                        Multiplayer.Session.Network.SendPacketToPlanet(new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, nextClosestPlayer, packet.Priority), packet.PlanetId);
+                        factory.constructionSystem.constructServing.Add(packet.EntityId);
 
                         // only render other drones when on same planet
                         if (packet.PlanetId == GameMain.mainPlayer.planetId)
@@ -93,7 +95,8 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
                     DroneManager.AddPlayerDronePlan(closestPlayer, packet.EntityId);
 
                     // tell players to send out drones
-                    Multiplayer.Session.Network.SendPacketToPlanet(new NewDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayer, packet.Priority), packet.PlanetId);
+                    Multiplayer.Session.Network.SendPacketToPlanet(new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayer, packet.Priority), packet.PlanetId);
+                    factory.constructionSystem.constructServing.Add(packet.EntityId);
 
                     // only render other drones when on same planet
                     if (packet.PlanetId == GameMain.mainPlayer.planetId)
@@ -106,10 +109,11 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
         else
         {
             bool elected = packet.PlayerId == Multiplayer.Session.LocalPlayer.Id;
+            PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
 
             if (!elected)
             {
-                // remove drone order request if not elected. if we where elected this will be removed in RecylceDrone_Postfix
+                // remove drone order request if not elected.
                 DroneManager.RemoveBuildRequest(packet.EntityId);
 
                 // only render other drones when on same planet
@@ -119,22 +123,32 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewDroneOrderPacket>
                 }
 
                 // now spawn drones of other player, this is only visual to avoid having buildings popping up without any construction drone.
-                DroneManager.EjectDronesOfOtherPlayer(packet.PlayerId, packet.PlanetId, packet.EntityId);
+                if (factory != null)
+                {
+                    DroneManager.EjectDronesOfOtherPlayer(packet.PlayerId, packet.PlanetId, packet.EntityId);
+                    factory.constructionSystem.constructServing.Add(packet.EntityId);
+                }
             }
             else if (elected && GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0)
             {
                 // we should send out drones, so do it.
-                PlanetFactory factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
 
-                GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer, packet.EntityId, packet.Priority);
+                if (factory != null)
+                {
+                    GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer, packet.EntityId, packet.Priority);
+                    factory.constructionSystem.constructServing.Add(packet.EntityId);
+                }
             }
             else if (elected && GameMain.mainPlayer.mecha.constructionModule.droneIdleCount <= 0)
             {
+                // remove drone order request if we cant handle it
+                DroneManager.RemoveBuildRequest(packet.EntityId);
+
                 // others need to remove drones that are rendered for us.
                 Multiplayer.Session.Network.SendPacketToLocalPlanet(new RemoveDroneOrdersPacket(new int[] { packet.EntityId }));
             }
 
-            // TODO: what about these from IdleDroneProcedure() ??
+            // TODO: what about these from IdleDroneProcedure() ?? currently we do checks in SearchForNewTargets_Transpiler() so we dont really need to add to factory.constructionSystem.constructServing afaik
 
             // factory.constructionSystem.constructServing.Add(num);
             /*

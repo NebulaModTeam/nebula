@@ -46,7 +46,10 @@ public class DroneManager : IDisposable
             PlayerDroneBuildingPlans.Add(playerId, value);
         }
 
-        value.Add(entityId);
+        if (!value.Contains(entityId))
+        {
+            value.Add(entityId);
+        }
     }
 
     public static void RemovePlayerDronePlan(ushort playerId, int entityId)
@@ -55,6 +58,7 @@ public class DroneManager : IDisposable
         {
             value.Remove(entityId);
         }
+        UnityEngine.Debug.LogWarning($"There are still {PlayerDroneBuildingPlans.Count(kv => kv.Key == playerId)} PlayerDroneBuildingPlans left for this player ({playerId}.");
     }
     public static void RemovePlayerDronePlan(int entityId)
     {
@@ -63,6 +67,7 @@ public class DroneManager : IDisposable
             if (kvp.Value.Contains(entityId))
             {
                 RemovePlayerDronePlan(kvp.Key, entityId);
+                UnityEngine.Debug.LogWarning($"There are still {PlayerDroneBuildingPlans.Count(kv => kv.Key == kvp.Key)} PlayerDroneBuildingPlans left for this player ({kvp.Key}.");
                 return;
             }
         }
@@ -73,6 +78,7 @@ public class DroneManager : IDisposable
         {
             PlayerDroneBuildingPlans.Remove(playerId);
         }
+        UnityEngine.Debug.LogWarning($"There are still {PlayerDroneBuildingPlans.Count(kv => kv.Key == playerId)} PlayerDroneBuildingPlans left for this player ({playerId}.");
     }
 
     public static int[] GetPlayerDronePlans(ushort playerId)
@@ -114,7 +120,10 @@ public class DroneManager : IDisposable
 
     public static void AddBuildRequest(int entityId)
     {
-        PendingBuildRequests.Add(entityId);
+        if (!PendingBuildRequests.Contains(entityId))
+        {
+            PendingBuildRequests.Add(entityId);
+        }
     }
 
     public static bool IsPendingBuildRequest(int entityId)
@@ -130,6 +139,7 @@ public class DroneManager : IDisposable
     public static void RemoveBuildRequest(int entityId)
     {
         bool res = PendingBuildRequests.Remove(entityId);
+        UnityEngine.Debug.LogWarning($"There are still {PendingBuildRequests.Count} PendingBuildRequests left.");
     }
 
     public static void EjectDronesOfOtherPlayer(ushort playerId, int planetId, int targetObjectId)
