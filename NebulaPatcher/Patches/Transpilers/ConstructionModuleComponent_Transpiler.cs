@@ -264,11 +264,10 @@ namespace NebulaPatcher.Patches.Transpilers
                         if (!a && b && Multiplayer.Session.LocalPlayer.IsHost)
                         {
                             // this seems to be a deadlock desync, but a should be the correct value
-                            UnityEngine.Debug.LogWarning("fixing");
                             DroneManager.RemoveBuildRequest(targetConstructionObjectId);
                         }
 
-                        UnityEngine.Debug.LogWarning($"{a} | {b} | {c} | {d}");
+                        //UnityEngine.Debug.LogWarning($"{a} | {b} | {c} | {d}");
                         return a || b || c || d;
                     }));
 

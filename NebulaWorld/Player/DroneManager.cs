@@ -18,7 +18,7 @@ public class DroneManager : IDisposable
     private static int[] DronePriorities = new int[255];
     private static readonly Random rnd = new();
     private static Dictionary<ushort, List<int>> PlayerDroneBuildingPlans = [];
-    private static List<int> PendingBuildRequests = [];
+    private static Dictionary<int, long> PendingBuildRequests = [];
     private static Dictionary<ushort, Vector3> CachedPositions = [];
 
     public DroneManager()
@@ -120,15 +120,28 @@ public class DroneManager : IDisposable
 
     public static void AddBuildRequest(int entityId)
     {
-        if (!PendingBuildRequests.Contains(entityId))
+        if (!PendingBuildRequests.ContainsKey(entityId))
         {
-            PendingBuildRequests.Add(entityId);
+            PendingBuildRequests.Add(entityId, GameMain.gameTick);
         }
     }
 
     public static bool IsPendingBuildRequest(int entityId)
     {
-        return PendingBuildRequests.Contains(entityId);
+        bool isPresent = PendingBuildRequests.ContainsKey(entityId);
+        if (isPresent && Multiplayer.Session.LocalPlayer.IsClient)
+        {
+            // clients can run in a situation where they have requested sending out drones but never received an answer, potentially leading to a deadlock
+            // thus we need to free up requests after a specific amount of time if there was no response yet.
+            if (GameMain.gameTick - PendingBuildRequests[entityId] > 800)
+            {
+                Multiplayer.Session.Network.SendPacket(new RemoveDroneOrdersPacket(new int[] { entityId }));
+                RemoveBuildRequest(entityId);
+                GameMain.galaxy.PlanetById(GameMain.mainPlayer.planetId)?.factory?.constructionSystem.constructServing.Remove(entityId);
+                isPresent = false;
+            }
+        }
+        return isPresent;
     }
 
     public static int CountPendingBuildRequest()
