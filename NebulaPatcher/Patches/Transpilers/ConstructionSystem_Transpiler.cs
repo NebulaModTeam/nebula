@@ -137,6 +137,8 @@ namespace NebulaPatcher.Patches.Transpilers
                 return instructions;
             }
 
+            // change: bool flag = ptr.owner == 0;
+            // to: bool flag = ptr.owner <= 0;
             matcher
                 .SetInstruction(new CodeInstruction(OpCodes.Pop)) // remove the pushed 0
                 .Advance(1)
@@ -164,6 +166,8 @@ namespace NebulaPatcher.Patches.Transpilers
                 return instructions;
             }
 
+            // change: if (constructionModuleComponent.id != ptr.owner || ptr2.id != ptr.craftId)
+            // to: if (ptr2.id != ptr.craftId)
             matcher
                 .InsertAndAdvance(
                     HarmonyLib.Transpilers.EmitDelegate<ownerAndIdMatchMecha>((int id, int owner) =>
@@ -173,7 +177,7 @@ namespace NebulaPatcher.Patches.Transpilers
                             return id != owner; // game does exit when id does not match owner, so we do too when multiplayer is inactive
                         }
 
-                        return false; // we set owner to negative values in ConstructionModuleComponent_Transpiler to mark drones from other players. Those still need to be rendered/updated, as well as those from battle bases
+                        return false; // this might be a bit too open but will render any drone regardless of the games checks.
                     }));
             var jmpOut = matcher.Operand;
             matcher.SetInstruction(new CodeInstruction(OpCodes.Brtrue, jmpOut));

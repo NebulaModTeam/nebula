@@ -221,6 +221,8 @@ namespace NebulaPatcher.Patches.Transpilers
         }
 
         // skip targets that we already asked the host about, but only ask as much as we can handle with our idle drones.
+        // replace: if (!factory.constructionSystem.constructServing.Contains(num12))
+        // with the checks from below
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(ConstructionModuleComponent.SearchForNewTargets))]
         public static IEnumerable<CodeInstruction> SearchForNewTargets_Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -255,20 +257,18 @@ namespace NebulaPatcher.Patches.Transpilers
 
                         int[] myDronePlans = DroneManager.GetPlayerDronePlans(Multiplayer.Session.LocalPlayer.Id);
 
-                        // returning true here means the targetConstructionObjectId will not be selected as a valid next target
-                        bool a = alreadyContained;
-                        bool b = DroneManager.IsPendingBuildRequest(targetConstructionObjectId);
-                        bool c = (Multiplayer.Session.LocalPlayer.IsClient && DroneManager.CountPendingBuildRequest() > GameMain.mainPlayer.mecha.constructionModule.droneCount);
-                        bool d = (Multiplayer.Session.LocalPlayer.IsHost && (myDronePlans == null ? 0 : myDronePlans.Count()) > GameMain.mainPlayer.mecha.constructionModule.droneCount);
+                        bool isPendingBuildRequest = DroneManager.IsPendingBuildRequest(targetConstructionObjectId);
+                        bool clientNoIdleDrones = (Multiplayer.Session.LocalPlayer.IsClient && DroneManager.CountPendingBuildRequest() > GameMain.mainPlayer.mecha.constructionModule.droneCount);
+                        bool hostNoIdleDrones = (Multiplayer.Session.LocalPlayer.IsHost && (myDronePlans == null ? 0 : myDronePlans.Count()) > GameMain.mainPlayer.mecha.constructionModule.droneCount);
 
-                        if (!a && b && Multiplayer.Session.LocalPlayer.IsHost)
+                        if (!alreadyContained && isPendingBuildRequest && Multiplayer.Session.LocalPlayer.IsHost)
                         {
                             // this seems to be a deadlock desync, but a should be the correct value
                             DroneManager.RemoveBuildRequest(targetConstructionObjectId);
                         }
 
-                        //UnityEngine.Debug.LogWarning($"{a} | {b} | {c} | {d}");
-                        return a || b || c || d;
+                        // returning true here means the targetConstructionObjectId will not be selected as a valid next target
+                        return alreadyContained || isPendingBuildRequest || clientNoIdleDrones || hostNoIdleDrones;
                     }));
 
             return matcher.InstructionEnumeration();
