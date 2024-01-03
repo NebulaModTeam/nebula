@@ -314,51 +314,6 @@ public class SimulatedWorld : IDisposable
         }
     }
 
-    public void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
-    {
-        using (GetRemotePlayersModels(out var remotePlayersModels))
-        {
-            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
-            {
-                return;
-            }
-            //Setup drone of remote player based on the drone data
-            //todo:replace
-            /*ref var drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
-            var droneLogic = player.PlayerInstance.mecha.droneLogic;
-            var tmpFactory = droneLogic.factory;
-
-            droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
-
-            // factory can sometimes be null when transitioning to or from a planet, in this case we do not want to continue
-            if (droneLogic.factory == null)
-            {
-                droneLogic.factory = tmpFactory;
-                return;
-            }
-
-            drone.stage = packet.Stage;
-            drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
-            drone.movement = droneLogic.player.mecha.droneMovement;
-            if (packet.Stage == 1)
-            {
-                drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
-            }
-            drone.target = droneLogic._obj_hpos(packet.EntityId);
-            drone.initialVector = drone.position + drone.position.normalized * 4.5f +
-                                  ((drone.target - drone.position).normalized + Random.insideUnitSphere) * 1.5f;
-            drone.forward = drone.initialVector;
-            drone.progress = 0f;
-            player.MechaInstance.droneCount = GameMain.mainPlayer.mecha.droneCount;
-            player.MechaInstance.droneSpeed = GameMain.mainPlayer.mecha.droneSpeed;
-            if (packet.Stage == 3)
-            {
-                GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
-            }
-            droneLogic.factory = tmpFactory;*/
-        }
-    }
-
     public int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))

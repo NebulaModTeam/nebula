@@ -16,7 +16,7 @@ public class MechaData : IMechaData
 {
     public MechaData()
     {
-        //This is needed for the serialization and deserialization
+        // This is needed for the serialization and deserialization
         Forge = new MechaForge { tasks = [] };
         TechBonuses = new PlayerTechBonuses();
     }
