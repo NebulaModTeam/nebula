@@ -8,7 +8,23 @@ namespace NebulaModel.DataStructures
 {
     internal class MechaFightData : IMechaFightData
     {
-        public MechaFightData() { }
+        public MechaFightData()
+        {
+            // This is needed for the serialization and deserialization
+            AmmoStorage = new StorageComponent(3);
+            BombStorage = new StorageComponent(1);
+            FighterStorage = new StorageComponent(5);
+            GroundCombatModule = new CombatModuleComponent();
+            SpaceCombatModule = new CombatModuleComponent();
+
+            GroundCombatModule.Init(GameMain.data);
+            SpaceCombatModule.Init(GameMain.data);
+
+            GroundCombatModule.moduleFleets = [];
+            GroundCombatModule.moduleFleetPoses = [];
+            SpaceCombatModule.moduleFleets = [];
+            SpaceCombatModule.moduleFleetPoses = [];
+        }
         public MechaFightData(Player player)
         {
             AutoReplenishFuel = player.mecha.autoReplenishFuel;
@@ -122,6 +138,13 @@ namespace NebulaModel.DataStructures
             LaserEnergy = reader.GetLong();
             LaserFire = reader.GetInt();
             BombFire = reader.GetInt();
+
+            if (Hp == 0)
+            {
+                // prevent instant death, which can happen when a player joins for the first time and then exits again before sending the first mecha data update.
+                // when the host saves in this situation, the Hp would be set to 0 and on every next join the client would be insta killed. lol
+                Hp = GameMain.mainPlayer.mecha.hpMaxApplied;
+            }
 
             var fightLength = reader.GetInt();
             var fightBytes = new byte[fightLength];
