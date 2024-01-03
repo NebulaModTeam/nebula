@@ -164,7 +164,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         Log.Info("Game load completed");
         IsGameLoaded = true;
         DiscordManager.UpdateRichPresence();
-        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+        (Multiplayer.Session.Network as INetworkProvider)!.EnablePacketProcessing = true;
         Log.Info("OnGameLoadCompleted: Resume PacketProcessor");
 
         if (Multiplayer.Session.LocalPlayer.IsHost)

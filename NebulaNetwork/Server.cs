@@ -1,13 +1,18 @@
 #region
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.DataStructures;
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.DataStructures;
@@ -15,9 +20,13 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
+using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
+using NebulaNetwork.Messaging;
 using NebulaNetwork.Ngrok;
 using NebulaWorld;
+using NebulaWorld.Player;
 using NebulaWorld.SocialIntegration;
 using Open.Nat;
 using UnityEngine;
@@ -30,8 +39,14 @@ using NetworkCredential = WebSocketSharp.Net.NetworkCredential;
 
 namespace NebulaNetwork;
 
-public class Server : NetworkProvider, IServer
+public class Server : IServer
 {
+    [Obsolete]
+    public IPlayerManager PlayerManager { get; } = new PlayerManager();
+
+    public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
+    public bool EnablePacketProcessing { get => PacketProcessor.EnablePacketProcessing; set => PacketProcessor.EnablePacketProcessing = value; }
+
     private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
     private const float STATISTICS_UPDATE_INTERVAL = 1;
     private const float LAUNCH_UPDATE_INTERVAL = 4;
@@ -46,10 +61,11 @@ public class Server : NetworkProvider, IServer
     private NgrokManager ngrokManager;
     private float productionStatisticsUpdateTimer;
 
+
     private WebSocketServer socket;
     private float warningUpdateTimer;
 
-    public Server(ushort port, bool loadSaveFile = false) : base(new PlayerManager())
+    public Server(ushort port, bool loadSaveFile = false)
     {
         Port = port;
         this.loadSaveFile = loadSaveFile;
@@ -61,8 +77,10 @@ public class Server : NetworkProvider, IServer
     public bool NgrokActive => ngrokManager.IsNgrokActive();
     public bool NgrokEnabled => ngrokManager.NgrokEnabled;
     public string NgrokLastErrorCode => ngrokManager.NgrokLastErrorCode;
+    public event EventHandler<INebulaConnection> Connected;
+    public event EventHandler<INebulaConnection> Disconnected;
 
-    public override void Start()
+    public void Start()
     {
         if (loadSaveFile)
         {
@@ -71,14 +89,15 @@ public class Server : NetworkProvider, IServer
 
         foreach (var assembly in AssembliesUtils.GetNebulaAssemblies())
         {
-            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor);
         }
-        PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
+
+        PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor as NebulaNetPacketProcessor, true);
 
         foreach (var assembly in NebulaModAPI.TargetAssemblies)
         {
-            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
-            PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, true);
+            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor);
+            PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor, true);
         }
 #if DEBUG
         PacketProcessor.SimulateLatency = true;
@@ -129,7 +148,7 @@ public class Server : NetworkProvider, IServer
         }
 
         DisableNagleAlgorithm(socket);
-        WebSocketService.PacketProcessor = PacketProcessor;
+        WebSocketService.PacketProcessor = PacketProcessor as NebulaNetPacketProcessor;
         WebSocketService.PlayerManager = PlayerManager;
         socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
         try
@@ -187,7 +206,7 @@ public class Server : NetworkProvider, IServer
         }
     }
 
-    public override void Stop()
+    public void Stop()
     {
         socket?.Stop();
 
@@ -203,48 +222,48 @@ public class Server : NetworkProvider, IServer
         }
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
         Stop();
         GC.SuppressFinalize(this);
     }
 
-    public override void SendPacket<T>(T packet)
+    public void SendPacket<T>(T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToAllPlayers(packet);
+        // PlayerManager.SendPacketToAllPlayers(packet);
     }
 
-    public override void SendPacketToLocalStar<T>(T packet)
+    public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToLocalStar(packet);
+        // PlayerManager.SendPacketToLocalStar(packet);
     }
 
-    public override void SendPacketToLocalPlanet<T>(T packet)
+    public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToLocalPlanet(packet);
+        // PlayerManager.SendPacketToLocalPlanet(packet);
     }
 
-    public override void SendPacketToPlanet<T>(T packet, int planetId)
+    public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
     {
-        PlayerManager.SendPacketToPlanet(packet, planetId);
+        // PlayerManager.SendPacketToPlanet(packet, planetId);
     }
 
-    public override void SendPacketToStar<T>(T packet, int starId)
+    public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
     {
-        PlayerManager.SendPacketToStar(packet, starId);
+        // PlayerManager.SendPacketToStar(packet, starId);
     }
 
-    public override void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+    public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
-        PlayerManager.SendPacketToOtherPlayers(packet, exclude);
+        // PlayerManager.SendPacketToOtherPlayers(packet, exclude);
     }
 
-    public override void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
+    public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
     {
-        PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
+        // PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
     }
 
-    public override void Update()
+    public void Update()
     {
         PacketProcessor.ProcessPacketQueue();
 
@@ -252,6 +271,7 @@ public class Server : NetworkProvider, IServer
         {
             return;
         }
+
         gameResearchHashUpdateTimer += Time.deltaTime;
         productionStatisticsUpdateTimer += Time.deltaTime;
         dysonLaunchUpateTimer += Time.deltaTime;
@@ -291,6 +311,7 @@ public class Server : NetworkProvider, IServer
         {
             return;
         }
+
         warningUpdateTimer = 0;
         Multiplayer.Session.Warning.SendBroadcastIfNeeded();
     }
