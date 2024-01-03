@@ -5,8 +5,8 @@ using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
-using NebulaWorld.Player;
 using NebulaWorld;
+using NebulaWorld.Player;
 using UnityEngine;
 
 #endregion
@@ -29,8 +29,8 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
             // but he also needs to RecycleDrone any rendered drone of this player
             // and as clients only send this when they are unable to handle a NewDroneOrder the host should search for the next closest player to ask for construction.
             var player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
-            PlanetFactory factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
-            Vector3 vector = Vector3.zero;
+            var factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
+            Vector3 vector;
 
             DroneManager.ClearCachedPositions(); // refresh position cache
             if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
@@ -39,49 +39,54 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
             }
             else
             {
-                Vector3 playerPos = DroneManager.GetPlayerPosition(player.Id);
+                var playerPos = DroneManager.GetPlayerPosition(player.Id);
 
                 vector = playerPos.normalized * (playerPos.magnitude + 2.8f);
             }
 
-            foreach (int targetObjectId in packet.QueuedEntityIds)
+            foreach (var targetObjectId in packet.QueuedEntityIds)
             {
                 DroneManager.RemoveBuildRequest(targetObjectId);
                 DroneManager.RemovePlayerDronePlan(player.Id, targetObjectId);
+                if (factory == null)
+                {
+                    continue;
+                }
                 factory.constructionSystem.constructServing.Remove(targetObjectId); // in case it was a construction drone.
 
                 if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                 {
-                    if (factory != null)
+                    for (var i = 1; i < factory.constructionSystem.drones.cursor; i++)
                     {
-                        for (int i = 1; i < factory.constructionSystem.drones.cursor; i++)
+                        ref var drone = ref factory.constructionSystem.drones.buffer[i];
+                        if (drone.owner < 0 && packet.QueuedEntityIds.Contains(drone.targetObjectId))
                         {
-                            ref DroneComponent drone = ref factory.constructionSystem.drones.buffer[i];
-                            if (drone.owner < 0 && packet.QueuedEntityIds.Contains(drone.targetObjectId))
-                            {
-                                GameMain.mainPlayer.mecha.constructionModule.RecycleDrone(factory, ref drone);
-                            }
+                            GameMain.mainPlayer.mecha.constructionModule.RecycleDrone(factory, ref drone);
                         }
                     }
                 }
 
-                Vector3 entityPos = factory.constructionSystem._obj_hpos(targetObjectId, ref vector);
-                var nextClosestPlayer = DroneManager.GetNextClosestPlayerToAfter(player.Data.LocalPlanetId, player.Id, ref entityPos);
+                var entityPos = factory.constructionSystem._obj_hpos(targetObjectId, ref vector);
+                var nextClosestPlayer =
+                    DroneManager.GetNextClosestPlayerToAfter(player.Data.LocalPlanetId, player.Id, ref entityPos);
 
-                if (nextClosestPlayer != player.Id)
+                if (nextClosestPlayer == player.Id)
                 {
-                    DroneManager.AddBuildRequest(targetObjectId);
-                    DroneManager.AddPlayerDronePlan(nextClosestPlayer, targetObjectId);
+                    continue;
+                }
+                DroneManager.AddBuildRequest(targetObjectId);
+                DroneManager.AddPlayerDronePlan(nextClosestPlayer, targetObjectId);
 
-                    // tell players to send out drones
-                    Multiplayer.Session.Network.SendPacketToPlanet(new NewMechaDroneOrderPacket(player.Data.LocalPlanetId, targetObjectId, nextClosestPlayer, /*TODO: rip*/true), player.Data.LocalPlanetId);
-                    factory.constructionSystem.constructServing.Add(targetObjectId);
+                // tell players to send out drones
+                Multiplayer.Session.Network.SendPacketToPlanet(
+                    new NewMechaDroneOrderPacket(player.Data.LocalPlanetId, targetObjectId,
+                        nextClosestPlayer, /*TODO: rip*/true), player.Data.LocalPlanetId);
+                factory.constructionSystem.constructServing.Add(targetObjectId);
 
-                    // only render other drones when on same planet
-                    if (player.Data.LocalPlanetId == GameMain.mainPlayer.planetId)
-                    {
-                        DroneManager.EjectDronesOfOtherPlayer(nextClosestPlayer, player.Data.LocalPlanetId, targetObjectId);
-                    }
+                // only render other drones when on same planet
+                if (player.Data.LocalPlanetId == GameMain.mainPlayer.planetId)
+                {
+                    DroneManager.EjectDronesOfOtherPlayer(nextClosestPlayer, player.Data.LocalPlanetId, targetObjectId);
                 }
             }
         }
@@ -89,27 +94,32 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
         {
             // check if there are any drones on the current planet and match the targets from this packet.
             // if so recycle them. overflown drones are handled by RecycleDrone_Postfix
-            PlanetFactory factory = GameMain.mainPlayer.factory;
+            var factory = GameMain.mainPlayer.factory;
             var player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
 
-            if (factory != null && GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
+            if (factory == null || GameMain.mainPlayer.planetId != player.Data.LocalPlanetId)
             {
-                for (int i = 1; i < factory.constructionSystem.drones.cursor; i++)
+                return;
+            }
+            for (var i = 1; i < factory.constructionSystem.drones.cursor; i++)
+            {
+                ref var drone = ref factory.constructionSystem.drones.buffer[i];
+                switch (drone.owner)
                 {
-                    ref DroneComponent drone = ref factory.constructionSystem.drones.buffer[i];
-                    if (drone.owner <= 0 && packet.QueuedEntityIds.Contains(drone.targetObjectId))
-                    {
+                    case <= 0 when packet.QueuedEntityIds.Contains(drone.targetObjectId):
                         GameMain.mainPlayer.mecha.constructionModule.RecycleDrone(factory, ref drone);
-                    }
-                    else if (drone.owner > 0 && packet.QueuedEntityIds.Contains(drone.targetObjectId))
-                    {
-                        BattleBaseComponent battleBaseComponent = factory.defenseSystem.battleBases.buffer[drone.owner];
-                        battleBaseComponent.constructionModule.RecycleDrone(factory, ref drone);
-                    }
-
-                    DroneManager.RemoveBuildRequest(drone.targetObjectId);
-                    factory.constructionSystem.constructServing.Remove(drone.targetObjectId); // in case it was a construction drone.
+                        break;
+                    case > 0 when packet.QueuedEntityIds.Contains(drone.targetObjectId):
+                        {
+                            var battleBaseComponent = factory.defenseSystem.battleBases.buffer[drone.owner];
+                            battleBaseComponent.constructionModule.RecycleDrone(factory, ref drone);
+                            break;
+                        }
                 }
+
+                DroneManager.RemoveBuildRequest(drone.targetObjectId);
+                factory.constructionSystem.constructServing
+                    .Remove(drone.targetObjectId); // in case it was a construction drone.
             }
         }
     }

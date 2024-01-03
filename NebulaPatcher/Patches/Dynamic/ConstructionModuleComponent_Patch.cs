@@ -1,41 +1,37 @@
-﻿using System.Net.Sockets;
-using HarmonyLib;
-using NebulaModel.Packets.Players;
+﻿using HarmonyLib;
 using NebulaWorld;
-using NebulaWorld.Player;
 
-namespace NebulaPatcher.Patches.Dynamic
+namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(ConstructionModuleComponent))]
+internal class ConstructionModuleComponent_Patch
 {
-    [HarmonyPatch(typeof(ConstructionModuleComponent))]
-    internal class ConstructionModuleComponent_Patch
+    // dont give back idle construction drones to player if it was a drone owned by a remote player
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(ConstructionModuleComponent.RecycleDrone))]
+    public static void RecycleDrone_Postfix(ConstructionModuleComponent __instance, ref DroneComponent drone)
     {
-        // dont give back idle construction drones to player if it was a drone owned by a remote player
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(ConstructionModuleComponent.RecycleDrone))]
-        public static void RecycleDrone_Postfix(ConstructionModuleComponent __instance, PlanetFactory factory, ref DroneComponent drone)
+        if (!Multiplayer.IsActive)
         {
-            if (!Multiplayer.IsActive)
-            {
-                return;
-            }
-
-            if (drone.owner < 0 && drone.owner * -1 != Multiplayer.Session.LocalPlayer.Id)
-            {
-                __instance.droneIdleCount--;
-            }
+            return;
         }
 
-        // clients should skip the procedure for BattleBases. The host will tell them when to eject drones.
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
-        public static bool IdleDroneProcedure_Prefix(ConstructionModuleComponent __instance)
+        if (drone.owner < 0 && drone.owner * -1 != Multiplayer.Session.LocalPlayer.Id)
         {
-            if (!Multiplayer.IsActive)
-            {
-                return true;
-            }
-
-            return !(Multiplayer.Session.LocalPlayer.IsClient && __instance.entityId > 0);
+            __instance.droneIdleCount--;
         }
+    }
+
+    // clients should skip the procedure for BattleBases. The host will tell them when to eject drones.
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
+    public static bool IdleDroneProcedure_Prefix(ConstructionModuleComponent __instance)
+    {
+        if (!Multiplayer.IsActive)
+        {
+            return true;
+        }
+
+        return !(Multiplayer.Session.LocalPlayer.IsClient && __instance.entityId > 0);
     }
 }
