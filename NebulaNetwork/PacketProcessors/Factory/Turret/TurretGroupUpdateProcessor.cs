@@ -15,10 +15,14 @@ internal class TurretGroupUpdateProcessor : PacketProcessor<TurretGroupUpdatePac
     protected override void ProcessPacket(TurretGroupUpdatePacket packet, NebulaConnection conn)
     {
         var pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.defenseSystem.turrets;
-        if (pool != null && packet.TurretIndex != -1 && packet.TurretIndex < pool.buffer.Length &&
-            pool.buffer[packet.TurretIndex].id != -1)
+        if (pool == null || packet.TurretIndex == -1 || packet.TurretIndex >= pool.buffer.Length)
         {
-            pool.buffer[packet.TurretIndex].SetGroup(packet.Group);
+            return;
+        }
+        var turret = pool.buffer[packet.TurretIndex];
+        if (turret.id != -1)
+        {
+            turret.SetGroup(packet.Group);
         }
     }
 }
