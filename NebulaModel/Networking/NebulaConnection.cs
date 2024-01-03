@@ -1,9 +1,10 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;

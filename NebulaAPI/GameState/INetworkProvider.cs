@@ -1,7 +1,7 @@
 ﻿#region
 
 using System;
-using NebulaAPI.Packets;
+using NebulaAPI.Networking;
 
 #endregion
 

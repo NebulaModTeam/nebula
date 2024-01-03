@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
