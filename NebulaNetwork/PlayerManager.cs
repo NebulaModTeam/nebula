@@ -151,7 +151,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == GameMain.data.localStar?.id))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
+                         .Where(player => player.Data.LocalStarId == GameMain.data.localStar?.id))
             {
                 player.SendPacket(packet);
             }
@@ -162,7 +163,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
+                         .Where(player => player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId))
             {
                 player.SendPacket(packet);
             }
@@ -173,7 +175,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalPlanetId == planetId))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
+                         .Where(player => player.Data.LocalPlanetId == planetId))
             {
                 player.SendPacket(packet);
             }
@@ -195,7 +198,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == starId && player != GetPlayer(exclude)))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
+                         .Where(player => player.Data.LocalStarId == starId && player != GetPlayer(exclude)))
             {
                 player.SendPacket(packet);
             }
@@ -206,7 +210,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == starId && !player.Connection.Equals(sender)))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
+                         .Where(player => player.Data.LocalStarId == starId && !player.Connection.Equals(sender)))
             {
                 player.Connection.SendRawPacket(rawPacket);
             }
@@ -217,7 +222,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender)))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player =>
+                         player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender)))
             {
                 player.Connection.SendRawPacket(rawPacket);
             }
@@ -228,7 +234,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => !player.Connection.Equals(exclude)))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
+                         .Where(player => !player.Connection.Equals(exclude)))
             {
                 player.SendPacket(packet);
             }
@@ -320,24 +327,26 @@ public class PlayerManager : IPlayerManager
             Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
 
             //Notify players about queued building plans for drones
-            var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
-            if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
+            var dronePlans = DroneManager.GetPlayerDronePlans(player.Id);
+            if (dronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
             {
-                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans), player.Data.LocalPlanetId);
+                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(dronePlans),
+                    player.Data.LocalPlanetId);
                 //Remove it also from host queue, if host is on the same planet
                 if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                 {
-                    PlanetFactory factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId).factory;
-                    for (int i = 1; i < factory.constructionSystem.drones.cursor; i++)
+                    var factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId).factory;
+                    for (var i = 1; i < factory.constructionSystem.drones.cursor; i++)
                     {
-                        ref DroneComponent drone = ref factory.constructionSystem.drones.buffer[i];
-                        if (DronePlans.Contains(drone.targetObjectId))
+                        ref var drone = ref factory.constructionSystem.drones.buffer[i];
+                        if (!dronePlans.Contains(drone.targetObjectId))
                         {
-                            // recycle drones from other player, removing them visually
-                            // RecycleDrone_Postfix takes care of removing drones from mecha that do not belong to us
-                            DroneManager.RemoveBuildRequest(drone.targetObjectId);
-                            GameMain.mainPlayer.mecha.constructionModule.RecycleDrone(factory, ref drone);
+                            continue;
                         }
+                        // recycle drones from other player, removing them visually
+                        // RecycleDrone_Postfix takes care of removing drones from mecha that do not belong to us
+                        DroneManager.RemoveBuildRequest(drone.targetObjectId);
+                        GameMain.mainPlayer.mecha.constructionModule.RecycleDrone(factory, ref drone);
                     }
                 }
             }
@@ -374,12 +383,8 @@ public class PlayerManager : IPlayerManager
             // and we need to fix the now invalid PlayerDronePlans
             using (GetConnectedPlayers(out var connectedPlayers))
             {
-                List<ushort> AllPlayerIds = new List<ushort>();
-                foreach (var entry in connectedPlayers)
-                {
-                    AllPlayerIds.Add(entry.Value.Id);
-                }
-                DroneManager.RemoveOrphanDronePlans(AllPlayerIds);
+                var allPlayerIds = connectedPlayers.Select(entry => entry.Value.Id).ToList();
+                DroneManager.RemoveOrphanDronePlans(allPlayerIds);
             }
         }
     }
@@ -441,9 +446,9 @@ public class PlayerManager : IPlayerManager
     private sealed class ThreadSafe
     {
         internal readonly Queue<ushort> availablePlayerIds = new();
-        internal readonly Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers = new();
-        internal readonly Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers = new();
-        internal readonly Dictionary<string, IPlayerData> savedPlayerData = new();
-        internal readonly Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers = new();
+        internal readonly Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers = [];
+        internal readonly Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers = [];
+        internal readonly Dictionary<string, IPlayerData> savedPlayerData = [];
+        internal readonly Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers = [];
     }
 }

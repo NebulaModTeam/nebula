@@ -73,14 +73,15 @@ internal class PlanetFactory_patch
             Multiplayer.Session.Factories.RemovePrebuildRequest(__instance.planetId, prebuildId);
         }
 
-        if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        if (!Multiplayer.Session.LocalPlayer.IsHost && Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            var author = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE
-                ? Multiplayer.Session.LocalPlayer.Id
-                : Multiplayer.Session.Factories.PacketAuthor;
-            var entityId = Multiplayer.Session.LocalPlayer.IsHost ? FactoryManager.GetNextEntityId(__instance) : -1;
-            Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, author, entityId));
+            return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
+        var author = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE
+            ? Multiplayer.Session.LocalPlayer.Id
+            : Multiplayer.Session.Factories.PacketAuthor;
+        var entityId = Multiplayer.Session.LocalPlayer.IsHost ? FactoryManager.GetNextEntityId(__instance) : -1;
+        Multiplayer.Session.Network.SendPacket(new BuildEntityRequest(__instance.planetId, prebuildId, author, entityId));
 
         return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;
     }
@@ -387,7 +388,6 @@ internal class PlanetFactory_patch
         if (entityData.minerId > 0)
         {
             var minerId = entityData.minerId;
-            var minerPool = __instance.factorySystem.minerPool;
             Multiplayer.Session.Network.SendPacketToLocalStar(new MinerStoragePickupPacket(minerId, __instance.planetId));
         }
         if (entityData.powerExcId > 0)
@@ -395,7 +395,8 @@ internal class PlanetFactory_patch
             var powerExcId = entityData.powerExcId;
             var excPool = __instance.powerSystem.excPool;
             Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
-                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId, excPool[powerExcId].fullInc));
+                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId,
+                excPool[powerExcId].fullInc));
         }
         if (entityData.powerGenId > 0)
         {
@@ -590,7 +591,8 @@ internal class PlanetFactory_patch
             var powerExcId = entityData.powerExcId;
             var excPool = __instance.powerSystem.excPool;
             Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
-                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId, excPool[powerExcId].fullInc));
+                excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId,
+                excPool[powerExcId].fullInc));
         }
         if (entityData.spraycoaterId <= 0)
         {
