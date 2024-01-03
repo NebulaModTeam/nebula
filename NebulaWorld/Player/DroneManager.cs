@@ -25,6 +25,7 @@ public class DroneManager : IDisposable
         PlayerDroneBuildingPlans = [];
         PendingBuildRequests = [];
         CachedPositions = [];
+        lastCheckedTick = 0;
     }
 
     public void Dispose()
@@ -32,6 +33,7 @@ public class DroneManager : IDisposable
         PlayerDroneBuildingPlans = null;
         PendingBuildRequests = null;
         CachedPositions = null;
+        lastCheckedTick = 0;
         GC.SuppressFinalize(this);
     }
 
