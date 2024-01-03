@@ -45,7 +45,6 @@ public class Server : IServer
     public IPlayerManager PlayerManager { get; } = new PlayerManager();
 
     public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
-    public bool EnablePacketProcessing { get => PacketProcessor.EnablePacketProcessing; set => PacketProcessor.EnablePacketProcessing = value; }
 
     private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
     private const float STATISTICS_UPDATE_INTERVAL = 1;
@@ -65,7 +64,7 @@ public class Server : IServer
     private WebSocketServer socket;
     private float warningUpdateTimer;
 
-    private readonly ConcurrentDictionary<INebulaConnection, INebulaPlayer> players = new();
+    private readonly ConcurrentDictionary<INebulaConnection, INebulaPlayer> playerConnections = new();
     private ConcurrentQueue<ushort> PlayerIdPool = new();
     private int highestPlayerID;
 
@@ -97,7 +96,7 @@ public class Server : IServer
         conn.ConnectionStatus = EConnectionStatus.Pending;
 
         INebulaPlayer newPlayer = new NebulaPlayer(conn, playerData);
-        if (!players.TryAdd(conn, newPlayer))
+        if (!playerConnections.TryAdd(conn, newPlayer))
             throw new InvalidOperationException($"Connection {conn.Id} already exists!");
 
         // return newPlayer;
@@ -117,7 +116,7 @@ public class Server : IServer
         Multiplayer.Session.NumPlayers -= 1;
         DiscordManager.UpdateRichPresence();
 
-        players.TryRemove(conn, out var player);
+        playerConnections.TryRemove(conn, out var player);
 
         // @TODO: Why can this happen in the first place?
         // Figure out why it was possible before the move and fix that issue at the root.
@@ -134,7 +133,7 @@ public class Server : IServer
             GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
             // using (GetConnectedPlayers(out var connectedPlayers))
             {
-                var connectedPlayers = players
+                var connectedPlayers = playerConnections
                     .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Connected);
                 foreach (var entry in connectedPlayers)
                 {
@@ -181,7 +180,7 @@ public class Server : IServer
         }
 
         // Note: using Keys or Values directly creates a readonly snapshot at the moment of call, as opposed to enumerating the dict.
-        var syncCount = players.Keys.Count(key => key.ConnectionStatus == EConnectionStatus.Syncing);
+        var syncCount = playerConnections.Keys.Count(key => key.ConnectionStatus == EConnectionStatus.Syncing);
         if (conn.ConnectionStatus is not EConnectionStatus.Syncing || syncCount != 0)
         {
             return;
