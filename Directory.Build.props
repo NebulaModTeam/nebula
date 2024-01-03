@@ -20,7 +20,7 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <OutputPath Condition="Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')">$(PluginOutputDirectory)</OutputPath>
+        <OutputPath Condition="(Exists('$(DSPGameDir)') Or Exists('$(PropSheetPath).remoteBuild')) AND '$(MSBuildProjectName)' != 'NebulaTests' ">$(PluginOutputDirectory)</OutputPath>
         <TargetFramework>net472</TargetFramework>
         <LangVersion>latest</LangVersion>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
