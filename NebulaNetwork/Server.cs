@@ -65,6 +65,10 @@ public class Server : IServer
     private WebSocketServer socket;
     private float warningUpdateTimer;
 
+    private readonly ConcurrentDictionary<INebulaConnection, INebulaPlayer> players = new();
+    private ConcurrentQueue<ushort> PlayerIdPool = new();
+    private int highestPlayerID;
+
     public Server(ushort port, bool loadSaveFile = false)
     {
         Port = port;
@@ -79,6 +83,114 @@ public class Server : IServer
     public string NgrokLastErrorCode => ngrokManager.NgrokLastErrorCode;
     public event EventHandler<INebulaConnection> Connected;
     public event EventHandler<INebulaConnection> Disconnected;
+
+    internal void Connect(INebulaConnection conn)
+    {
+        // Generate new data for the player
+        var playerId = GetNextPlayerId();
+
+        // this is truncated to ushort.MaxValue
+        var birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
+        var playerData = new PlayerData(playerId, -1,
+            position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+
+        conn.ConnectionStatus = EConnectionStatus.Pending;
+
+        INebulaPlayer newPlayer = new NebulaPlayer(conn, playerData);
+        if (!players.TryAdd(conn, newPlayer))
+            throw new InvalidOperationException($"Connection {conn.Id} already exists!");
+
+        // return newPlayer;
+        Connected?.Invoke(this, conn);
+    }
+
+    private ushort GetNextPlayerId()
+    {
+        ushort nextId;
+        if (!PlayerIdPool.TryDequeue(out nextId))
+            nextId = (ushort)Interlocked.Increment(ref highestPlayerID);
+        return nextId;
+    }
+
+    internal void Disconnect(INebulaConnection conn)
+    {
+        Multiplayer.Session.NumPlayers -= 1;
+        DiscordManager.UpdateRichPresence();
+
+        players.TryRemove(conn, out var player);
+
+        // @TODO: Why can this happen in the first place?
+        // Figure out why it was possible before the move and fix that issue at the root.
+        if (player is null)
+        {
+            Log.Warn("Player is null - Disconnect logic NOT CALLED!");
+
+            if (!Config.Options.SyncSoil)
+            {
+                return;
+            }
+
+            // now we need to recalculate the current sand amount :C
+            GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+            // using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                var connectedPlayers = players
+                    .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Connected);
+                foreach (var entry in connectedPlayers)
+                {
+                    GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
+                }
+            }
+
+            UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount,
+                GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
+            SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+
+            return;
+        }
+
+        // player is valid
+        SendPacketExclude(new PlayerDisconnected(player.Id, Multiplayer.Session.NumPlayers), conn);
+        // For sync completed player who triggered OnPlayerJoinedGame() before
+        if (conn.ConnectionStatus == EConnectionStatus.Connected)
+        {
+            SimulatedWorld.OnPlayerLeftGame(player);
+        }
+
+        PlayerIdPool.Enqueue(player.Id);
+
+        Multiplayer.Session.PowerTowers.OnClientDisconnect();
+        Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
+        Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
+
+        //Notify players about queued building plans for drones
+        var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
+        if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
+        {
+            Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans),
+                player.Data.LocalPlanetId);
+            //Remove it also from host queue, if host is on the same planet
+            if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
+            {
+                //todo:replace
+                //foreach (var t in DronePlans)
+                //{
+                //    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
+                //}
+            }
+        }
+
+        // Note: using Keys or Values directly creates a readonly snapshot at the moment of call, as opposed to enumerating the dict.
+        var syncCount = players.Keys.Count(key => key.ConnectionStatus == EConnectionStatus.Syncing);
+        if (conn.ConnectionStatus is not EConnectionStatus.Syncing || syncCount != 0)
+        {
+            return;
+        }
+
+        SendPacket(new SyncComplete());
+        Multiplayer.Session.World.OnAllPlayersSyncCompleted();
+        Disconnected?.Invoke(this, conn);
+    }
 
     public void Start()
     {
@@ -149,7 +261,7 @@ public class Server : IServer
 
         DisableNagleAlgorithm(socket);
         WebSocketService.PacketProcessor = PacketProcessor as NebulaNetPacketProcessor;
-        WebSocketService.PlayerManager = PlayerManager;
+        WebSocketService.Server = this;
         socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
         try
         {
@@ -170,7 +282,7 @@ public class Server : IServer
         ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
         ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
-                PlayerManager.GetNextAvailablePlayerId(),
+                GetNextPlayerId(),
                 GameMain.localPlanet?.id ?? -1,
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName),
             loadSaveFile);

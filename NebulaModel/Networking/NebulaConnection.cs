@@ -1,4 +1,4 @@
-#region
+﻿#region
 
 using System;
 using System.Collections.Generic;
@@ -22,14 +22,19 @@ public class NebulaConnection : INebulaConnection
     private readonly Queue<byte[]> pendingPackets = new();
     private bool enable = true;
 
+    public bool IsAlive => peerSocket?.IsAlive ?? false;
+
+    public int Id { get; }
+    public EConnectionStatus ConnectionStatus { get; set; }
+
     public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NebulaNetPacketProcessor packetProcessor)
     {
         this.peerEndpoint = peerEndpoint;
         this.peerSocket = peerSocket;
         this.packetProcessor = packetProcessor;
+        this.Id = peerEndpoint.GetHashCode();
     }
 
-    public bool IsAlive => peerSocket?.IsAlive ?? false;
 
     public void SendPacket<T>(T packet) where T : class, new()
     {
@@ -117,10 +122,12 @@ public class NebulaConnection : INebulaConnection
         {
             return false;
         }
+
         if (ReferenceEquals(this, obj))
         {
             return true;
         }
+
         return obj.GetType() == GetType() && ((NebulaConnection)obj).peerEndpoint.Equals(peerEndpoint);
     }
 
