@@ -17,6 +17,7 @@ using NebulaModel.Packets.Factory.PowerGenerator;
 using NebulaModel.Packets.Factory.RayReceiver;
 using NebulaModel.Packets.Factory.Silo;
 using NebulaModel.Packets.Factory.Tank;
+using NebulaModel.Packets.Factory.Turret;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
@@ -303,7 +304,7 @@ internal class PlanetFactory_patch
         }
         if (Multiplayer.Session.LocalPlayer.IsClient)
         {
-            //Becasue WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
+            //Because WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
             __instance.entityPool[entityId].warningId = 1;
         }
         Multiplayer.Session.Network.SendPacketToLocalStar(
@@ -454,10 +455,18 @@ internal class PlanetFactory_patch
             Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(siloId,
                 siloPool[siloId].bulletCount, siloPool[siloId].bulletInc, __instance.planetId));
         }
+        if (entityData.turretId > 0)
+        {
+            var turretId = entityData.turretId;
+            var turretPool = __instance.defenseSystem.turrets;
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new TurretStorageUpdatePacket(in turretPool.buffer[turretId], __instance.planetId));
+        }
         if (entityData.tankId <= 0)
         {
             return;
         }
+
         var tankId = entityData.tankId;
         var tankPool = __instance.factoryStorage.tankPool;
         Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in tankPool[tankId],
@@ -594,6 +603,12 @@ internal class PlanetFactory_patch
             var excPool = __instance.powerSystem.excPool;
             Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(powerExcId,
                 excPool[powerExcId].emptyCount, excPool[powerExcId].fullCount, __instance.planetId, excPool[powerExcId].fullInc));
+        }
+        if (entityData.turretId > 0)
+        {
+            var turretId = entityData.turretId;
+            var turretPool = __instance.defenseSystem.turrets;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(in turretPool.buffer[turretId], __instance.planetId));
         }
         if (entityData.spraycoaterId <= 0)
         {
