@@ -22,10 +22,10 @@ internal class UIBattleBaseWindow_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UIBattleBaseWindow.OnMaxChargePowerSliderChange))]
-
     public static bool OnMaxChargePowerSliderChange_Prefix(UIBattleBaseWindow __instance, float arg0)
     {
-        if (!Multiplayer.IsActive || __instance.battleBaseId == 0 || __instance.factory == null || __instance.battleBase.id != __instance.battleBaseId)
+        if (!Multiplayer.IsActive || __instance.battleBaseId == 0 || __instance.factory == null ||
+            __instance.battleBase.id != __instance.battleBaseId)
         {
             return true;
         }
@@ -60,7 +60,7 @@ internal class UIBattleBaseWindow_Patch
             return true;
         }
         var ratio = __instance.constructionModule.dronePriorConstructRatio;
-        var newRatio = ratio < 0.25f ? 0.5f : (ratio < 0.75f ? 1f : 0f);
+        var newRatio = ratio < 0.25f ? 0.5f : ratio < 0.75f ? 1f : 0f;
         SendEvent(__instance, BattleBaseSettingEvent.ChangeDronesPriority, newRatio);
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
