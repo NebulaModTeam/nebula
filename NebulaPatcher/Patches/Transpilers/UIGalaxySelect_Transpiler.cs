@@ -44,9 +44,9 @@ internal class UIGalaxySelect_Transpiler
         matcher.Insert(
             HarmonyLib.Transpilers.EmitDelegate<Func<string, string>>((originalBtnName) =>
             {
-                if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1)
+                if (UIVirtualStarmap_Transpiler.CustomBirthPlanet == -1)
                     return originalBtnName;
-                return "开始游戏".Translate() + '(' + UIVirtualStarmap_Transpiler.customBirthPlanetName + ')';
+                return "开始游戏".Translate() + '(' + UIVirtualStarmap_Transpiler.CustomBirthPlanetName + ')';
             }));
 
         return matcher.InstructionEnumeration();

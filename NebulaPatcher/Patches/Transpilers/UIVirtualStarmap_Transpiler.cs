@@ -68,10 +68,13 @@ internal class UIVirtualStarmap_Transpiler
 
         matcher.Advance(1)
             .SetAndAdvance(OpCodes.Ldloc_2, null) // change 'if (flag2 && flag)' to 'if (flag2 && pressing)'
-            .Advance(2);
+            .Advance(1);
+
+        var endOfIf = (Label)matcher.Operand;
+        matcher.Advance(1);
 
         // now remove original logic in this if(){}
-        for (var i = 0; i < 65; i++)
+        while (!matcher.Instruction.labels.Contains(endOfIf))
         {
             matcher.SetAndAdvance(OpCodes.Nop, null);
         }
@@ -81,11 +84,11 @@ internal class UIVirtualStarmap_Transpiler
             new CodeInstruction(OpCodes.Ldloc_S, 12),
             HarmonyLib.Transpilers.EmitDelegate<ShowSolarsystemDetails>((starmap, starIndex) =>
             {
-                if (pressSpamProtector)
+                if (PressSpamProtector)
                 {
                     return;
                 }
-                pressSpamProtector = true;
+                PressSpamProtector = true;
 
                 if (Multiplayer.Session != null && Multiplayer.Session.IsInLobby && starmap.clickText == "")
                 {
@@ -121,9 +124,9 @@ internal class UIVirtualStarmap_Transpiler
                         GameMain.data.galaxy.birthStarId = starId;
                         GameMain.data.galaxy.birthPlanetId = pData.id;
 
-                        customBirthStar = starData.id;
-                        customBirthPlanet = pData.id;
-                        customBirthPlanetName = pData.displayName;
+                        CustomBirthStar = starData.id;
+                        CustomBirthPlanet = pData.id;
+                        CustomBirthPlanetName = pData.displayName;
 
                         Log.Info($"set birth planet{pData.id} {pData.displayName}");
                         var text = UIRoot.instance.galaxySelect.startButtonText;
@@ -273,7 +276,7 @@ internal class UIVirtualStarmap_Transpiler
         .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<TrackPlayerClick>((starmap, starIndex) =>
         {
             var pressing = VFInput.rtsConfirm.pressing;
-            if (!pressing || pressSpamProtector || starIndex != -1)
+            if (!pressing || PressSpamProtector || starIndex != -1)
             {
                 return;
             }
@@ -289,7 +292,7 @@ internal class UIVirtualStarmap_Transpiler
                 starmap.clickText = "";
                 starmap.OnGalaxyDataReset();
             }
-            pressSpamProtector = true;
+            PressSpamProtector = true;
         }));
 
         // show all star/planet name when alt is pressed
@@ -404,13 +407,13 @@ internal class UIVirtualStarmap_Transpiler
                 Vector3 position;
                 if (isMoon)
                 {
-                    position = new Vector3(Mathf.Cos(f) * pData.orbitRadius * orbitScaler * 8 + cPos.x, cPos.y,
-                        Mathf.Sin(f) * pData.orbitRadius * orbitScaler * 8 + cPos.z);
+                    position = new Vector3(Mathf.Cos(f) * pData.orbitRadius * OrbitScaler * 8 + cPos.x, cPos.y,
+                        Mathf.Sin(f) * pData.orbitRadius * OrbitScaler * 8 + cPos.z);
                 }
                 else
                 {
-                    position = new Vector3(Mathf.Cos(f) * pData.orbitRadius * orbitScaler + cPos.x, cPos.y,
-                        Mathf.Sin(f) * pData.orbitRadius * orbitScaler + cPos.z);
+                    position = new Vector3(Mathf.Cos(f) * pData.orbitRadius * OrbitScaler + cPos.x, cPos.y,
+                        Mathf.Sin(f) * pData.orbitRadius * OrbitScaler + cPos.z);
                 }
 
                 // rotate position around center by orbit angle
@@ -443,14 +446,14 @@ internal class UIVirtualStarmap_Transpiler
         {
             var centerPos = GetRelativeRotatedPlanetPos(starData, pData.orbitAroundPlanet, ref isMoon);
             isMoon = true;
-            pos = new VectorLF3(Mathf.Cos(pData.orbitPhase) * pData.orbitRadius * orbitScaler * 8 + centerPos.x, centerPos.y,
-                Mathf.Sin(pData.orbitPhase) * pData.orbitRadius * orbitScaler * 8 + centerPos.z);
+            pos = new VectorLF3(Mathf.Cos(pData.orbitPhase) * pData.orbitRadius * OrbitScaler * 8 + centerPos.x, centerPos.y,
+                Mathf.Sin(pData.orbitPhase) * pData.orbitRadius * OrbitScaler * 8 + centerPos.z);
             quaternion = Quaternion.Euler(pData.orbitInclination, pData.orbitInclination, pData.orbitInclination);
             dir = quaternion * (pos - centerPos);
             return dir + centerPos;
         }
-        pos = new VectorLF3(Mathf.Cos(pData.orbitPhase) * pData.orbitRadius * orbitScaler + starData.position.x,
-            starData.position.y, Mathf.Sin(pData.orbitPhase) * pData.orbitRadius * orbitScaler + starData.position.z);
+        pos = new VectorLF3(Mathf.Cos(pData.orbitPhase) * pData.orbitRadius * OrbitScaler + starData.position.x,
+            starData.position.y, Mathf.Sin(pData.orbitPhase) * pData.orbitRadius * OrbitScaler + starData.position.z);
         quaternion = Quaternion.Euler(pData.orbitInclination, pData.orbitInclination, pData.orbitInclination);
         dir = quaternion * (pos - starData.position);
         return dir + starData.position;
@@ -526,7 +529,7 @@ internal class UIVirtualStarmap_Transpiler
             default:
                 throw new ArgumentOutOfRangeException(nameof(starData), "Unknown star type: " + starData.type);
         }
-        if (starData.index == (customBirthStar != -1 ? customBirthStar - 1 : starmap._galaxyData.birthStarId - 1))
+        if (starData.index == (CustomBirthStar != -1 ? CustomBirthStar - 1 : starmap._galaxyData.birthStarId - 1))
         {
             text = "即将登陆".Translate() + "\r\n" + text;
         }
@@ -567,7 +570,7 @@ internal class UIVirtualStarmap_Transpiler
                 {
                     return true;
                 }
-                return starData.index != (customBirthStar != -1 ? customBirthStar - 1 : starmap._galaxyData.birthStarId - 1);
+                return starData.index != (CustomBirthStar != -1 ? CustomBirthStar - 1 : starmap._galaxyData.birthStarId - 1);
             }));
         return matcher.InstructionEnumeration();
     }
@@ -581,12 +584,12 @@ internal class UIVirtualStarmap_Transpiler
     private delegate void TrackPlayerClick(UIVirtualStarmap starmap, int starIndex);
 
 #pragma warning disable IDE1006
-    public static bool pressSpamProtector;
-    private static readonly float orbitScaler = 5f;
+    public static bool PressSpamProtector;
+    private const float OrbitScaler = 5f;
 
-    public static int customBirthStar = -1;
-    public static int customBirthPlanet = -1;
-    public static string customBirthPlanetName = "";
+    public static int CustomBirthStar = -1;
+    public static int CustomBirthPlanet = -1;
+    public static string CustomBirthPlanetName = "";
     private static readonly int s_tintColor = Shader.PropertyToID("_TintColor");
     private static readonly int s_lineColorA = Shader.PropertyToID("_LineColorA");
 #pragma warning restore IDE1006

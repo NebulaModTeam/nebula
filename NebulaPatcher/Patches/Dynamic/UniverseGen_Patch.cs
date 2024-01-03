@@ -17,13 +17,13 @@ internal class UniverseGen_Patch
     [HarmonyPatch(nameof(UniverseGen.CreateGalaxy))]
     public static void CreateGalaxy_Postfix(GalaxyData __result)
     {
-        if (!Multiplayer.IsActive || UIVirtualStarmap_Transpiler.customBirthStar == -1)
+        if (!Multiplayer.IsActive || UIVirtualStarmap_Transpiler.CustomBirthStar == -1)
         {
             return;
         }
-        Log.Debug("Overwriting with " + __result.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) + " and " +
-                  __result.StarById(UIVirtualStarmap_Transpiler.customBirthStar));
-        __result.birthPlanetId = UIVirtualStarmap_Transpiler.customBirthPlanet;
-        __result.birthStarId = UIVirtualStarmap_Transpiler.customBirthStar;
+        Log.Debug("Overwriting with " + __result.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet) + " and " +
+                  __result.StarById(UIVirtualStarmap_Transpiler.CustomBirthStar));
+        __result.birthPlanetId = UIVirtualStarmap_Transpiler.CustomBirthPlanet;
+        __result.birthStarId = UIVirtualStarmap_Transpiler.CustomBirthStar;
     }
 }
