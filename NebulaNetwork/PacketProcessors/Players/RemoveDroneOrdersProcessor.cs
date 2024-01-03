@@ -32,7 +32,7 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
             var factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
             Vector3 vector;
 
-            DroneManager.ClearCachedPositions(); // refresh position cache
+            DroneManager.RefreshCachedPositions(); // refresh position cache
             if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
             {
                 vector = GameMain.mainPlayer.position.normalized * (GameMain.mainPlayer.position.magnitude + 2.8f);

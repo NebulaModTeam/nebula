@@ -48,7 +48,7 @@ internal class DroneComponent_Patch
                 return;
             }
             // very inefficient, better update this in the background elsewhere
-            DroneManager.ClearCachedPositions();
+            DroneManager.RefreshCachedPositions();
             ejectPos = DroneManager.GetPlayerPosition((ushort)(__instance.owner * -1)); // player id is stored in owner to retrieve the current position when drones are updated.
             ejectPos = ejectPos.normalized * (ejectPos.magnitude + 2.8f); // drones return to the head of mecha not feet
         }

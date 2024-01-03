@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NebulaAPI.DataStructures;
+using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -16,7 +17,8 @@ public class DroneManager : IDisposable
 {
     private static Dictionary<ushort, List<int>> PlayerDroneBuildingPlans = [];
     private static Dictionary<int, long> PendingBuildRequests = [];
-    private static Dictionary<ushort, Vector3> CachedPositions = [];
+    private static Dictionary<ushort, PlayerPosition> CachedPositions = [];
+    private static long lastCheckedTick = 0;
 
     public DroneManager()
     {
@@ -72,6 +74,10 @@ public class DroneManager : IDisposable
     public static int[] GetPlayerDronePlans(ushort playerId)
     {
         return PlayerDroneBuildingPlans.TryGetValue(playerId, out var plan) ? [.. plan] : null;
+    }
+    public static int GetPlayerDronePlansCount(ushort playerId)
+    {
+        return PlayerDroneBuildingPlans.TryGetValue(playerId, out var plan) ? plan.Count : 0;
     }
 
     // intended to be called on the host only
@@ -148,7 +154,7 @@ public class DroneManager : IDisposable
 
     public static void EjectDronesOfOtherPlayer(ushort playerId, int planetId, int targetObjectId)
     {
-        ClearCachedPositions();
+        RefreshCachedPositions();
 
         var ejectPos = GetPlayerPosition(playerId);
         ejectPos = ejectPos.normalized * (ejectPos.magnitude + 2.8f);
@@ -170,17 +176,21 @@ public class DroneManager : IDisposable
                     -1; // to prevent the ConstructionSystem_Transpiler.UpdateDrones_Transpiler() to remove them. Must be negative, positive ones are owned by battle bases. Store playerId in here.
     }
 
-    public static void ClearCachedPositions()
+    public static void RefreshCachedPositions()
     {
-        CachedPositions.Clear();
-
-        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+        if (GameMain.gameTick - lastCheckedTick > 10)
         {
-            // host needs it for all players since they can build on other planets too.
-            foreach (var model in remotePlayersModels.Values)
+            lastCheckedTick = GameMain.gameTick;
+            CachedPositions.Clear();
+
+            using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
             {
-                //Cache players positions for this looking for target session
-                CachedPositions.Add(model.Movement.PlayerID, model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3());
+                // host needs it for all players since they can build on other planets too.
+                foreach (var model in remotePlayersModels.Values)
+                {
+                    //Cache players positions for this looking for target session
+                    CachedPositions.Add(model.Movement.PlayerID, new PlayerPosition(model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), model.Movement.localPlanetId));
+                }
             }
         }
     }
@@ -209,12 +219,12 @@ public class DroneManager : IDisposable
             if (nearestPlayer == 0)
             {
                 nearestPlayer = playerPosition.Key;
-                shortestDistance = (playerPosition.Value - entityPos).sqrMagnitude;
+                shortestDistance = (playerPosition.Value.Position - entityPos).sqrMagnitude;
 
                 continue;
             }
 
-            var dist = (playerPosition.Value - entityPos).sqrMagnitude;
+            var dist = (playerPosition.Value.Position - entityPos).sqrMagnitude;
             if (!(shortestDistance > dist))
             {
                 continue;
@@ -232,16 +242,14 @@ public class DroneManager : IDisposable
             return 0;
         }
 
-        var playerManager = Multiplayer.Session.Network.PlayerManager;
-
         var afterPlayerDistance = (GetPlayerPosition(afterPlayerId) - entityPos).sqrMagnitude;
         var nextShortestDistance = afterPlayerDistance;
         var nearestPlayer = afterPlayerId;
 
         foreach (var playerPosition in CachedPositions.Where(playerPosition =>
-                     playerManager.GetPlayerById(playerPosition.Key).Data.LocalPlanetId == planetId))
+                     playerPosition.Value.PlanetId == planetId))
         {
-            var dist = (playerPosition.Value - entityPos).sqrMagnitude;
+            var dist = (playerPosition.Value.Position - entityPos).sqrMagnitude;
 
             if (nextShortestDistance == afterPlayerDistance && dist > nextShortestDistance)
             {
@@ -260,6 +268,6 @@ public class DroneManager : IDisposable
 
     public static Vector3 GetPlayerPosition(ushort playerId)
     {
-        return CachedPositions.TryGetValue(playerId, out var value) ? value : GameMain.mainPlayer.position;
+        return CachedPositions.TryGetValue(playerId, out var value) ? value.Position : GameMain.mainPlayer.position;
     }
 }

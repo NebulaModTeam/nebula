@@ -49,8 +49,6 @@ internal class NewBattleBaseDroneOrderProcessor : PacketProcessor<NewBattleBaseD
                     battleBaseComponent.energy -= (long)droneEjectEnergy;
                     factory.constructionSystem.constructServing.Add(packet.EntityId);
 
-                    // TODO: needed?
-                    //factory.constructionSystem.constructServing.Add(packet.EntityId);
                     return;
                 case false:
                     battleBaseComponent.constructionModule.EjectBaseDrone(factory, ref drone, ref craftData,

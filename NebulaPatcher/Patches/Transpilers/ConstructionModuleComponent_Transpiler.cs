@@ -105,7 +105,7 @@ internal class ConstructionModuleComponent_Transpiler
                         else
                         {
                             // if we are the host we can directly determine in here who should send out drones.
-                            DroneManager.ClearCachedPositions(); // refresh position cache
+                            DroneManager.RefreshCachedPositions(); // refresh position cache
 
                             var vector = GameMain.mainPlayer.position.normalized *
                                          (GameMain.mainPlayer.position.magnitude + 2.8f);
@@ -277,13 +277,13 @@ internal class ConstructionModuleComponent_Transpiler
                         return alreadyContained;
                     }
 
-                    var myDronePlans = DroneManager.GetPlayerDronePlans(Multiplayer.Session.LocalPlayer.Id);
+                    var myDronePlansCount = DroneManager.GetPlayerDronePlansCount(Multiplayer.Session.LocalPlayer.Id);
 
                     var isPendingBuildRequest = DroneManager.IsPendingBuildRequest(targetConstructionObjectId);
                     var clientNoIdleDrones = Multiplayer.Session.LocalPlayer.IsClient &&
                                              DroneManager.CountPendingBuildRequest() >
                                              GameMain.mainPlayer.mecha.constructionModule.droneCount;
-                    var hostNoIdleDrones = Multiplayer.Session.LocalPlayer.IsHost && (myDronePlans?.Length ?? 0) >
+                    var hostNoIdleDrones = Multiplayer.Session.LocalPlayer.IsHost && myDronePlansCount >
                         GameMain.mainPlayer.mecha.constructionModule.droneCount;
 
                     if (!alreadyContained && isPendingBuildRequest && Multiplayer.Session.LocalPlayer.IsHost)
