@@ -3,12 +3,11 @@
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Factory.Ejector;
 using NebulaModel.Packets.Factory.Turret;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Ejector;
+namespace NebulaNetwork.PacketProcessors.Factory.Turret;
 
 [RegisterPacketProcessor]
 internal class TurretGroupUpdateProcessor : PacketProcessor<TurretGroupUpdatePacket>

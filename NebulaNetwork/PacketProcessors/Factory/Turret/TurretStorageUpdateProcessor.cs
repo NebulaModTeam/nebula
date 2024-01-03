@@ -3,12 +3,11 @@
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.Factory.Ejector;
 using NebulaModel.Packets.Factory.Turret;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Ejector;
+namespace NebulaNetwork.PacketProcessors.Factory.Turret;
 
 [RegisterPacketProcessor]
 internal class TurretStorageUpdateProcessor : PacketProcessor<TurretStorageUpdatePacket>
@@ -29,12 +28,12 @@ internal class TurretStorageUpdateProcessor : PacketProcessor<TurretStorageUpdat
 
         if (pool.buffer[packet.TurretIndex].itemId != packet.ItemId)
         {
-            pool.buffer[packet.TurretIndex].SetNewItem(packet.ItemId, (short)packet.ItemCount, (short)packet.ItemInc);
+            pool.buffer[packet.TurretIndex].SetNewItem(packet.ItemId, packet.ItemCount, packet.ItemInc);
         }
         else
         {
-            pool.buffer[packet.TurretIndex].itemCount = (short)packet.ItemCount;
-            pool.buffer[packet.TurretIndex].bulletCount = (short)packet.BulletCount;
+            pool.buffer[packet.TurretIndex].itemCount = packet.ItemCount;
+            pool.buffer[packet.TurretIndex].bulletCount = packet.BulletCount;
         }
     }
 }

@@ -304,7 +304,7 @@ internal class PlanetFactory_patch
         }
         if (Multiplayer.Session.LocalPlayer.IsClient)
         {
-            //Becasue WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
+            //Because WarningSystem.NewWarningData is blocked on client, we give it a dummy warningId
             __instance.entityPool[entityId].warningId = 1;
         }
         Multiplayer.Session.Network.SendPacketToLocalStar(
