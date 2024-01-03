@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NebulaAPI.Interfaces;
@@ -44,7 +44,7 @@ public class NebulaNetPacketProcessor : NetPacketProcessor
 #if DEBUG
         if (!typeof(T).IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
         {
-            Log.Debug($"Packet Sent: {packet.GetType().Name}, Size: {writer.Data.Length}");
+            Log.Debug($"Packet Sent << {packet.GetType().Name}, Size: {writer.Length}");
         }
 #endif
 
@@ -106,22 +106,15 @@ public class NebulaNetPacketProcessor : NetPacketProcessor
                 var packet = new PendingPacket(rawData, userData);
                 var dueTime = DateTime.UtcNow.AddMilliseconds(simulationRandom.Next(SimulatedMinLatency, SimulatedMaxLatency));
                 delayedPackets.Add(new DelayedPacket(packet, dueTime));
+                return;
             }
         }
-        else
-        {
-            lock (pendingPackets)
-            {
-                pendingPackets.Enqueue(new PendingPacket(rawData, userData));
-            }
-        }
-#else
+#endif
         lock (pendingPackets)
         {
             pendingPackets.Enqueue(new PendingPacket(rawData, userData));
-            Log.Info($"Received packet of size: {rawData.Length}");
+            Log.Debug($"Received packet of size: {rawData.Length}");
         }
-#endif
     }
 
     #endregion

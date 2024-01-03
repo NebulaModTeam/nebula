@@ -1,6 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using NebulaAPI.Interfaces;
+using NebulaAPI.Packets;
+using NebulaModel.Logger;
 
 namespace NebulaModel.Networking.Serialization
 {
@@ -27,7 +29,8 @@ namespace NebulaModel.Networking.Serialization
         protected delegate void SubscribeDelegate(NetDataReader reader, object userData);
 
         protected NetSerializer _netSerializer;
-        protected readonly Dictionary<ulong, SubscribeDelegate> _callbacks = new Dictionary<ulong, SubscribeDelegate>();
+        protected readonly Dictionary<ulong, SubscribeDelegate> _callbacks = [];
+        private readonly Dictionary<ulong, Type> _callbacksDebugInfo = [];
 
         public NetPacketProcessor()
         {
@@ -49,8 +52,22 @@ namespace NebulaModel.Networking.Serialization
             ulong hash = reader.GetULong();
             if (!_callbacks.TryGetValue(hash, out var action))
             {
+                Log.Warn($"Unknown packet hash: {hash}");
                 throw new ParseException("Undefined packet in NetDataReader");
             }
+#if DEBUG
+            if (_callbacksDebugInfo.TryGetValue(hash, out var packetType))
+            {
+                if (!packetType.IsDefined(typeof(HidePacketInDebugLogsAttribute), false))
+                {
+                    Log.Debug($"Packet Recv >> {packetType.Name}, Size: {reader.UserDataSize}");
+                }
+            }
+            else
+            {
+                Log.Debug($"Packet Recv >> Unregistered hash {hash}, Size: {reader.UserDataSize}");
+            }
+#endif
             return action;
         }
 
@@ -157,6 +174,7 @@ namespace NebulaModel.Networking.Serialization
                 _netSerializer.Deserialize(reader, reference);
                 onReceive(reference);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         /// <summary>
@@ -174,6 +192,7 @@ namespace NebulaModel.Networking.Serialization
                 _netSerializer.Deserialize(reader, reference);
                 onReceive(reference, (TUserData)userData);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         /// <summary>
@@ -191,6 +210,7 @@ namespace NebulaModel.Networking.Serialization
                 _netSerializer.Deserialize(reader, reference);
                 onReceive(reference);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         /// <summary>
@@ -208,6 +228,7 @@ namespace NebulaModel.Networking.Serialization
                 _netSerializer.Deserialize(reader, reference);
                 onReceive(reference, (TUserData)userData);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         public void SubscribeNetSerializable<T, TUserData>(
@@ -220,6 +241,7 @@ namespace NebulaModel.Networking.Serialization
                 pkt.Deserialize(reader);
                 onReceive(pkt, (TUserData)userData);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         public void SubscribeNetSerializable<T>(
@@ -232,6 +254,7 @@ namespace NebulaModel.Networking.Serialization
                 pkt.Deserialize(reader);
                 onReceive(pkt);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         public void SubscribeNetSerializable<T, TUserData>(
@@ -243,6 +266,7 @@ namespace NebulaModel.Networking.Serialization
                 reference.Deserialize(reader);
                 onReceive(reference, (TUserData)userData);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         public void SubscribeNetSerializable<T>(
@@ -254,6 +278,7 @@ namespace NebulaModel.Networking.Serialization
                 reference.Deserialize(reader);
                 onReceive(reference);
             };
+            _callbacksDebugInfo[GetHash<T>()] = typeof(T);
         }
 
         /// <summary>
@@ -263,6 +288,7 @@ namespace NebulaModel.Networking.Serialization
         /// <returns>true if remove is success</returns>
         public bool RemoveSubscription<T>()
         {
+            _callbacksDebugInfo.Remove(GetHash<T>());
             return _callbacks.Remove(GetHash<T>());
         }
     }

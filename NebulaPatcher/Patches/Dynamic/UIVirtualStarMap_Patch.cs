@@ -19,7 +19,7 @@ internal class UIVirtualStarMap_Patch
         // reset the spam protector if no press is recognized to enable solar system details again.
         if (!VFInput.rtsConfirm.pressing)
         {
-            UIVirtualStarmap_Transpiler.pressSpamProtector = false;
+            UIVirtualStarmap_Transpiler.PressSpamProtector = false;
         }
     }
 

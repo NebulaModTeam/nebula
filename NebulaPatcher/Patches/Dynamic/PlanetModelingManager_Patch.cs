@@ -144,7 +144,7 @@ public class PlanetModelingManager_Patch
             var localPlanetId = Multiplayer.Session.LocalPlayer?.Data?.LocalPlanetId ?? -1;
             if (localPlanetId == -1)
             {
-                localPlanetId = UIVirtualStarmap_Transpiler.customBirthPlanet;
+                localPlanetId = UIVirtualStarmap_Transpiler.CustomBirthPlanet;
             }
 
             if (planetsToRequest.Remove(localPlanetId))

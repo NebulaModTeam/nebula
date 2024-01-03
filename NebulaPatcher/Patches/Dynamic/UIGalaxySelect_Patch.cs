@@ -98,12 +98,12 @@ internal class UIGalaxySelect_Patch
         }
         Multiplayer.Session.IsInLobby = false;
 
-        if (UIVirtualStarmap_Transpiler.customBirthPlanet != -1)
+        if (UIVirtualStarmap_Transpiler.CustomBirthPlanet != -1)
         {
-            Log.Debug(GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) == null
+            Log.Debug(GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet) == null
                 ? "null"
                 : "not null");
-            GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet)?.UnloadFactory();
+            GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet)?.UnloadFactory();
         }
 
         if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
@@ -133,8 +133,8 @@ internal class UIGalaxySelect_Patch
             Multiplayer.Session.IsInLobby = false;
             Multiplayer.LeaveGame();
 
-            UIVirtualStarmap_Transpiler.customBirthStar = -1;
-            UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+            UIVirtualStarmap_Transpiler.CustomBirthStar = -1;
+            UIVirtualStarmap_Transpiler.CustomBirthPlanet = -1;
 
             // restore main menu if needed.
             if (GameMain.localStar.id != MainMenuStarID && MainMenuStarID != -1)
@@ -165,8 +165,8 @@ internal class UIGalaxySelect_Patch
     [HarmonyPatch(nameof(UIGalaxySelect.Rerand))]
     public static void Rerand_Prefix(UIGalaxySelect __instance)
     {
-        UIVirtualStarmap_Transpiler.customBirthStar = -1;
-        UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+        UIVirtualStarmap_Transpiler.CustomBirthStar = -1;
+        UIVirtualStarmap_Transpiler.CustomBirthPlanet = -1;
         __instance.startButtonText.text = "开始游戏".Translate();
     }
 
@@ -178,8 +178,8 @@ internal class UIGalaxySelect_Patch
         {
             return;
         }
-        UIVirtualStarmap_Transpiler.customBirthStar = -1;
-        UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+        UIVirtualStarmap_Transpiler.CustomBirthStar = -1;
+        UIVirtualStarmap_Transpiler.CustomBirthPlanet = -1;
     }
 
     [HarmonyPostfix]

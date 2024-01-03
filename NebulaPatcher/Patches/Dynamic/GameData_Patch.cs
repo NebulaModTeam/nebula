@@ -277,7 +277,7 @@ internal class GameData_Patch
             var planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
             __instance.ArrivePlanet(planet);
         }
-        else if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1)
+        else if (UIVirtualStarmap_Transpiler.CustomBirthPlanet == -1)
         {
             StarData nearestStar = null;
             PlanetData nearestPlanet = null;
@@ -292,7 +292,7 @@ internal class GameData_Patch
         }
         else
         {
-            var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet);
+            var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet);
             __instance.ArrivePlanet(planet);
         }
     }
@@ -426,7 +426,7 @@ internal class GameData_Patch
     [HarmonyPatch(nameof(GameData.DetermineLocalPlanet))]
     public static bool DetermineLocalPlanet_Prefix(ref bool __result)
     {
-        if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1 || !Multiplayer.IsActive || Multiplayer.Session.IsGameLoaded)
+        if (UIVirtualStarmap_Transpiler.CustomBirthPlanet == -1 || !Multiplayer.IsActive || Multiplayer.Session.IsGameLoaded)
         {
             return true;
         }
