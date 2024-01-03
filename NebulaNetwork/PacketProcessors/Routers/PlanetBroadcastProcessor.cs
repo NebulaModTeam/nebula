@@ -37,7 +37,7 @@ internal class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
         //Forward packet to other users
         playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
         //Forward packet to the host
-        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor
+        ((INetworkProvider)Multiplayer.Session.Network).PacketProcessor
             .EnqueuePacketForProcessing(packet.PacketObject, conn);
     }
 }

@@ -1,5 +1,6 @@
 ﻿#region
 
+using NebulaModel.Networking;
 using NebulaWorld;
 using UnityEngine;
 
@@ -23,7 +24,9 @@ public class NebulaBootstrapper : MonoBehaviour
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.Update();
+            //@TODO: Make this a single call
+            (Multiplayer.Session.Network as IServer)?.Update();
+            (Multiplayer.Session.Network as IClient)?.Update();
         }
     }
 }

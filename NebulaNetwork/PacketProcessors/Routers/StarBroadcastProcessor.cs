@@ -36,7 +36,7 @@ internal class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
         }
         //Forward packet to other users
         playerManager.SendRawPacketToStar(packet.PacketObject, packet.StarId, conn);
-        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor
+        ((INetworkProvider)Multiplayer.Session.Network).PacketProcessor
             .EnqueuePacketForProcessing(packet.PacketObject, conn);
     }
 }

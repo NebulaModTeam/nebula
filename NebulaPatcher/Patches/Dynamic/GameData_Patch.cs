@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.GameState;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -167,7 +168,7 @@ internal class GameData_Patch
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
             // Resume packet processing when local planet is loaded
-            ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+            Multiplayer.Session.Network.PacketProcessor.EnablePacketProcessing = true;
             Log.Info("Resume PacketProcessor (OnActivePlanetFactoryLoaded)");
             return true;
         }
@@ -186,7 +187,7 @@ internal class GameData_Patch
             // If the game is still loading, we wait till the full loading is completed
             if (Multiplayer.Session.IsGameLoaded)
             {
-                ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
+                Multiplayer.Session.Network.PacketProcessor.EnablePacketProcessing = true;
                 Log.Info("Resume PacketProcessor (OnActivePlanetFactoryLoaded)");
             }
 

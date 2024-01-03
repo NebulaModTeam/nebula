@@ -22,7 +22,7 @@ internal class PlanetData_Patch
             return;
         }
         // Stop packet processing for host until factory is loaded
-        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
+        Multiplayer.Session.Network.PacketProcessor.EnablePacketProcessing = false;
         Log.Info("Pause PacketProcessor (PlanetData.LoadFactory)");
     }
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using NebulaAPI.DataStructures;
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.DataStructures;
