@@ -23,6 +23,7 @@ using NebulaWorld.SocialIntegration;
 
 namespace NebulaNetwork;
 
+[Obsolete()]
 public class PlayerManager : IPlayerManager
 {
     private readonly ThreadSafe threadSafe = new();

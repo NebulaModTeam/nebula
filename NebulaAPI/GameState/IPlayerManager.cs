@@ -1,5 +1,6 @@
 #region
 
+using System;
 using System.Collections.Generic;
 using NebulaAPI.DataStructures;
 using NebulaAPI.Networking;
@@ -9,6 +10,7 @@ using NebulaAPI.Packets;
 
 namespace NebulaAPI.GameState;
 
+[Obsolete()]
 public interface IPlayerManager
 {
     Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers);
