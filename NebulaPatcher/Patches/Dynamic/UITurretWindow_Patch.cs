@@ -16,11 +16,20 @@ internal class UITurretWindow_Patch
     public static void OnHandFillAmmoButtonClick_Postfix(UITurretWindow __instance)
     {
         //Notify about manual bullet inserting / withdrawing change
-        if (!Multiplayer.IsActive)
+        if (!Multiplayer.IsActive || __instance is null)
         {
             return;
         }
-        var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
+
+        var defenseSystem = __instance.defenseSystem;
+
+        // UITurretWindow closed
+        if (defenseSystem is null)
+        {
+            return;
+        }
+
+        var turret = defenseSystem.turrets.buffer[__instance.turretId];
 
         Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret,
             GameMain.localPlanet?.id ?? -1));
