@@ -1,4 +1,6 @@
-﻿namespace NebulaAPI.Packets;
+﻿using NebulaAPI.Networking;
+
+namespace NebulaAPI.Packets;
 
 /// <summary>
 ///     Describes how to process received packets of type T

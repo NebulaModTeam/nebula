@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI.Packets;
+using NebulaAPI.Networking;
 
 #endregion
 

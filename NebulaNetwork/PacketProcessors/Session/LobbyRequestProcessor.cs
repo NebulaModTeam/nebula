@@ -6,6 +6,7 @@ using BepInEx.Bootstrap;
 using NebulaAPI;
 using NebulaAPI.GameState;
 using NebulaAPI.Interfaces;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.DataStructures;

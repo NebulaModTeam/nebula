@@ -1,7 +1,8 @@
-﻿#region
+#region
 
 using System.Collections.Generic;
 using NebulaAPI.DataStructures;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 
 #endregion

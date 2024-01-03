@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Packets.Factory.Belt;
 
