@@ -13,13 +13,13 @@ namespace NebulaAPI.GameState;
 [Obsolete()]
 public interface IPlayerManager
 {
-    Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers);
+    Locker GetPendingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> pendingPlayers);
 
-    Locker GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers);
+    Locker GetSyncingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> syncingPlayers);
 
-    Locker GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers);
+    Locker GetConnectedPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> connectedPlayers);
 
-    Locker GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData);
+    Locker GetSavedPlayerData(out IReadOnlyDictionary<string, IPlayerData> savedPlayerData);
 
     IPlayerData[] GetAllPlayerDataIncludingHost();
 
