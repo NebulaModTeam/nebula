@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NebulaAPI.GameState;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
@@ -18,8 +19,8 @@ public static class SaveManager
     private const string FILE_EXTENSION = ".server";
     private const ushort REVISION = 8;
 
-    private static readonly Dictionary<string, PlayerData> playerSaves = new();
-    public static IReadOnlyDictionary<string, PlayerData> PlayerSaves => playerSaves;
+    private static readonly Dictionary<string, IPlayerData> playerSaves = new();
+    public static IReadOnlyDictionary<string, IPlayerData> PlayerSaves => playerSaves;
 
     public static void SaveServerData(string saveName)
     {
