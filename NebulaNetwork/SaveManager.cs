@@ -158,8 +158,14 @@ public static class SaveManager
         }
     }
 
-    public static void AddOrUpdatePlayerData(string clientCertHash, IPlayerData playerData)
+    public static bool TryAdd(string clientCertHash, IPlayerData playerData)
     {
-        playerSaves[clientCertHash] = playerData;
+        if (playerSaves.ContainsKey(clientCertHash))
+        {
+            return false;
+        }
+
+        playerSaves.Add(clientCertHash, playerData);
+        return true;
     }
 }
