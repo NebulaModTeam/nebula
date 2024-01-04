@@ -68,6 +68,9 @@ public class Server : IServer
     private ConcurrentQueue<ushort> PlayerIdPool = new();
     private int highestPlayerID;
 
+    public IReadOnlyDictionary<INebulaConnection, INebulaPlayer> PlayerConnections => playerConnections;
+    public IReadOnlyCollection<INebulaPlayer> Players => playerConnections.Values.ToList();
+
     public Server(ushort port, bool loadSaveFile = false)
     {
         Port = port;
