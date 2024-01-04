@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using NebulaAPI.Networking;
-using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using WebSocketSharp;
@@ -21,11 +20,23 @@ public class NebulaConnection : INebulaConnection
     private readonly WebSocket peerSocket;
     private readonly Queue<byte[]> pendingPackets = new();
     private bool enable = true;
+    private EConnectionStatus connectionStatus = default;
 
     public bool IsAlive => peerSocket?.IsAlive ?? false;
 
     public int Id { get; }
-    public EConnectionStatus ConnectionStatus { get; set; }
+
+    public EConnectionStatus ConnectionStatus
+    {
+        get => connectionStatus;
+        set
+        {
+            if (value < ConnectionStatus)
+                throw new InvalidOperationException("Connection Status cannot be rolled back to a lower state.");
+
+            ConnectionStatus = value;
+        }
+    }
 
     public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NebulaNetPacketProcessor packetProcessor)
     {
@@ -66,6 +77,7 @@ public class NebulaConnection : INebulaConnection
         {
             return;
         }
+
         var packet = pendingPackets.Dequeue();
         if (peerSocket.ReadyState == WebSocketState.Open)
         {
