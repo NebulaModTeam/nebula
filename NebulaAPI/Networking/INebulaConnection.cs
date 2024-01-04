@@ -8,10 +8,10 @@ namespace NebulaAPI.Networking;
 
 public enum EConnectionStatus
 {
-    None = 0,
-    Pending,
-    Syncing,
-    Connected
+    Undefined = 0,
+    Pending = 1,
+    Syncing = 2,
+    Connected = 3
 }
 
 // Use Equals() to check value equality
