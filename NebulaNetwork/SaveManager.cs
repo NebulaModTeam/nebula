@@ -157,4 +157,9 @@ public static class SaveManager
             }
         }
     }
+
+    public static void AddOrUpdatePlayerData(string clientCertHash, IPlayerData playerData)
+    {
+        playerSaves[clientCertHash] = playerData;
+    }
 }

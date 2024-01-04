@@ -2,22 +2,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using NebulaAPI.DataStructures;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Networking;
-using NebulaAPI.Packets;
 using NebulaModel;
-using NebulaModel.DataStructures;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
-using NebulaModel.Packets.Players;
-using NebulaModel.Packets.Session;
 using NebulaWorld;
-using NebulaWorld.Player;
-using NebulaWorld.SocialIntegration;
 
 #endregion
 
@@ -29,30 +21,22 @@ public class PlayerManager : IPlayerManager
     [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public Locker GetPendingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> pendingPlayers)
     {
-        var server = Multiplayer.Session.Network as IServer;
-        pendingPlayers = server!.PlayerConnections
-                .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Pending)
-            as IReadOnlyDictionary<INebulaConnection, INebulaPlayer>;
+        pendingPlayers = Multiplayer.Session.Server.PlayerConnections.GetPending();
+
         return new Locker(new object());
     }
 
     [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public Locker GetSyncingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> syncingPlayers)
     {
-        var server = Multiplayer.Session.Network as IServer;
-        syncingPlayers = server!.PlayerConnections
-                .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Syncing)
-            as IReadOnlyDictionary<INebulaConnection, INebulaPlayer>;
+        syncingPlayers = Multiplayer.Session.Server.PlayerConnections.GetSyncing();
         return new Locker(new object());
     }
 
     [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public Locker GetConnectedPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> connectedPlayers)
     {
-        var server = Multiplayer.Session.Network as IServer;
-        connectedPlayers = server!.PlayerConnections
-                .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Connected)
-            as IReadOnlyDictionary<INebulaConnection, INebulaPlayer>;
+        connectedPlayers = Multiplayer.Session.Server.PlayerConnections.GetConnected();
         return new Locker(new object());
     }
 
@@ -66,8 +50,7 @@ public class PlayerManager : IPlayerManager
     [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public IPlayerData[] GetAllPlayerDataIncludingHost()
     {
-        var server = Multiplayer.Session.Network as IServer;
-        var connectedPlayers = server.PlayerConnections.Values.ToArray();
+        var connectedPlayers = Multiplayer.Session.Server.PlayerConnections.Values.ToArray();
         var i = 0;
         IPlayerData[] result;
         if (Multiplayer.IsDedicated)
@@ -93,7 +76,7 @@ public class PlayerManager : IPlayerManager
     public INebulaPlayer GetPlayer(INebulaConnection conn)
     {
         // This shouldn't be nullable, if we have a NebulaConnection we definitely have a NebulaPlayer so First() > FirstOrDefault.
-        return Multiplayer.Session.Server.PlayerConnections.First(kvp => kvp.Key.Equals(conn)).Value;
+        return Multiplayer.Session.Server.Players.GetByConnectionHandle(conn);
     }
 
     [Obsolete]
@@ -114,11 +97,7 @@ public class PlayerManager : IPlayerManager
     [Obsolete]
     public INebulaPlayer GetSyncingPlayer(INebulaConnection conn)
     {
-        return Multiplayer.Session.Server.PlayerConnections
-            .First(kvp => kvp.Key.Equals(conn)
-                          // We likely don't need to do this check anymore, since we have it in NebulaConnection, but keeping it for now
-                          // just to be safe.
-                          && kvp.Key.ConnectionStatus == EConnectionStatus.Pending).Value;
+        return Multiplayer.Session.Server.Players.GetSyncing().GetByConnectionHandle(conn);
     }
 
     public void SendPacketToAllPlayers<T>(T packet) where T : class, new()

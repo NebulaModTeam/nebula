@@ -1,6 +1,8 @@
 ﻿#region
 
+using System.Linq;
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -33,38 +35,21 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
 
             // store the player now, not when he enters the lobby. that would cause weird teleportations when clients reenter the lobby without ever having loaded into the game
             var clientCertHash = CryptoUtils.Hash(packet.ClientCert);
-            using (playerManager.GetSavedPlayerData(out var savedPlayerData))
-            {
-                if (!savedPlayerData.TryGetValue(clientCertHash, out var value))
-                {
-                    savedPlayerData.Add(clientCertHash, player.Data);
-                }
-            }
 
-            // Should these be locked together?
+            //@TODO karim recheck this
+            SaveManager.AddOrUpdatePlayerData(clientCertHash, player.Data);
 
-            int syncingCount;
-            using (playerManager.GetSyncingPlayers(out var syncingPlayers))
-            {
-                var removed = syncingPlayers.Remove(player.Connection);
-                syncingCount = syncingPlayers.Count;
-            }
-
-            using (playerManager.GetConnectedPlayers(out var connectedPlayers))
-            {
-                if (!connectedPlayers.ContainsKey(player.Connection))
-                {
-                    connectedPlayers.Add(player.Connection, player);
-                }
-            }
+            player.Connection.ConnectionStatus = EConnectionStatus.Connected;
 
             // Since the player is now connected, we can safely spawn his player model
             SimulatedWorld.OnPlayerJoinedGame(player);
 
+            var syncingCount = Multiplayer.Session.Server.Players.Count(kvp => kvp.Connection.ConnectionStatus == EConnectionStatus.Syncing);
             if (syncingCount != 0)
             {
                 return;
             }
+
             var inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
             playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
 
@@ -96,6 +81,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
                             playerModel.MechaInstance.appearance = new MechaAppearance();
                             playerModel.MechaInstance.appearance.Init();
                         }
+
                         player.Data.Appearance.CopyTo(playerModel.MechaInstance.appearance);
                         playerModel.PlayerInstance.mechaArmorModel.RefreshAllPartObjects();
                         playerModel.PlayerInstance.mechaArmorModel.RefreshAllBoneObjects();

@@ -41,7 +41,7 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
         {
             if (!pendingPlayers.TryGetValue(conn, out player))
             {
-                conn.Disconnect(DisconnectionReason.InvalidData);
+                Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
                 Log.Warn("WARNING: Player tried to enter lobby without being in the pending list");
                 return;
             }
@@ -49,16 +49,17 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
             if (GameMain.isFullscreenPaused)
             {
                 Log.Warn("Reject connection because server is still loading");
-                conn.Disconnect(DisconnectionReason.HostStillLoading);
-                pendingPlayers.Remove(conn);
+                Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.HostStillLoading);
+                // pendingPlayers.Remove(conn);
                 return;
             }
 
-            if (!ModsVersionCheck(packet, out var disconnectionReason, out var reasonString))
+            if (!ModsVersionCheck(packet, out var disconnectionReason, out var reasonMessage))
             {
                 Log.Warn("Reject connection because mods mismatch");
-                conn.Disconnect(disconnectionReason, reasonString);
-                pendingPlayers.Remove(conn);
+
+                Multiplayer.Session.Server.Disconnect(conn, disconnectionReason, reasonMessage);
+                // pendingPlayers.Remove(conn);
                 return;
             }
         }
@@ -81,6 +82,7 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
                         Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
                     }
                 }
+
                 player.LoadUserData(playerData);
             }
             else
@@ -99,17 +101,7 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
         // if user is known and host is ingame dont put him into lobby but let him join the game
         if (!isNewUser && Multiplayer.Session.IsGameLoaded)
         {
-            // Remove the new player from pending list
-            using (playerManager.GetPendingPlayers(out var pendingPlayers))
-            {
-                pendingPlayers.Remove(conn);
-            }
-
-            // Add the new player to the list
-            using (playerManager.GetSyncingPlayers(out var syncingPlayers))
-            {
-                syncingPlayers.Add(conn, player);
-            }
+            conn.ConnectionStatus = EConnectionStatus.Syncing;
 
             Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 
@@ -135,6 +127,7 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
                 {
                     continue;
                 }
+
                 p.BinaryWriter.Write(pluginInfo.Key);
                 mod.Export(p.BinaryWriter);
                 count++;
@@ -157,6 +150,7 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
                     {
                         continue;
                     }
+
                     p.BinaryWriter.Write(pluginInfo.Key);
                     mod.Export(p.BinaryWriter);
                     count++;
@@ -219,12 +213,14 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
                 reasonString = $"{pluginInfo.Key};{value};{mod.Version}";
                 return false;
             }
+
             foreach (var dependency in pluginInfo.Value.Dependencies)
             {
                 if (dependency.DependencyGUID != NebulaModAPI.API_GUID)
                 {
                     continue;
                 }
+
                 var hostVersion = pluginInfo.Value.Metadata.Version.ToString();
                 if (!clientMods.TryGetValue(pluginInfo.Key, out var value))
                 {
@@ -232,10 +228,12 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
                     reasonString = pluginInfo.Key;
                     return false;
                 }
+
                 if (value == hostVersion)
                 {
                     continue;
                 }
+
                 reason = DisconnectionReason.ModVersionMismatch;
                 reasonString = $"{pluginInfo.Key};{value};{hostVersion}";
                 return false;
@@ -246,9 +244,9 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
         {
             return true;
         }
+
         reason = DisconnectionReason.GameVersionMismatch;
         reasonString = $"{packet.GameVersionSig};{GameConfig.gameVersion.sig}";
         return false;
-
     }
 }
