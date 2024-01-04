@@ -37,19 +37,13 @@ internal class StartGameMessageProcessor : PacketProcessor<StartGameMessage>
                 {
                     if (!pendingPlayers.TryGetValue(conn, out player))
                     {
-                        conn.Disconnect(DisconnectionReason.InvalidData);
+                        Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
                         Log.Warn("WARNING: Player tried to enter the game without being in the pending list");
                         return;
                     }
-
-                    pendingPlayers.Remove(conn);
                 }
 
-                // Add the new player to the list
-                using (playerManager.GetSyncingPlayers(out var syncingPlayers))
-                {
-                    syncingPlayers.Add(conn, player);
-                }
+                conn.ConnectionStatus = EConnectionStatus.Syncing;
 
                 Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 
