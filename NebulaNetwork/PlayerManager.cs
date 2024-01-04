@@ -26,116 +26,99 @@ namespace NebulaNetwork;
 [Obsolete()]
 public class PlayerManager : IPlayerManager
 {
-    private readonly ThreadSafe threadSafe = new();
-    private int highestPlayerID;
-
-    public Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers)
+    [Obsolete("Use Server.Players or Server.PlayerConnections")]
+    public Locker GetPendingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> pendingPlayers)
     {
-        return threadSafe.pendingPlayers.GetLocked(out pendingPlayers);
+        var server = Multiplayer.Session.Network as IServer;
+        pendingPlayers = server!.PlayerConnections
+                .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Pending)
+            as IReadOnlyDictionary<INebulaConnection, INebulaPlayer>;
+        return new Locker(new object());
     }
 
-    public Locker GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers)
+    [Obsolete("Use Server.Players or Server.PlayerConnections")]
+    public Locker GetSyncingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> syncingPlayers)
     {
-        return threadSafe.syncingPlayers.GetLocked(out syncingPlayers);
+        var server = Multiplayer.Session.Network as IServer;
+        syncingPlayers = server!.PlayerConnections
+                .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Syncing)
+            as IReadOnlyDictionary<INebulaConnection, INebulaPlayer>;
+        return new Locker(new object());
     }
 
-    public Locker GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers)
+    [Obsolete("Use Server.Players or Server.PlayerConnections")]
+    public Locker GetConnectedPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> connectedPlayers)
     {
-        return threadSafe.connectedPlayers.GetLocked(out connectedPlayers);
+        var server = Multiplayer.Session.Network as IServer;
+        connectedPlayers = server!.PlayerConnections
+                .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Connected)
+            as IReadOnlyDictionary<INebulaConnection, INebulaPlayer>;
+        return new Locker(new object());
     }
 
-    public Locker GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData)
+    [Obsolete("Use SaveManager.PlayerSaves")]
+    public Locker GetSavedPlayerData(out IReadOnlyDictionary<string, IPlayerData> savedPlayerData)
     {
-        return threadSafe.savedPlayerData.GetLocked(out savedPlayerData);
+        savedPlayerData = SaveManager.PlayerSaves;
+        return new Locker(new object());
     }
 
+    [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public IPlayerData[] GetAllPlayerDataIncludingHost()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
+        var server = Multiplayer.Session.Network as IServer;
+        var connectedPlayers = server.PlayerConnections.Values.ToArray();
+        var i = 0;
+        IPlayerData[] result;
+        if (Multiplayer.IsDedicated)
         {
-            var i = 0;
-            IPlayerData[] result;
-            if (Multiplayer.IsDedicated)
-            {
-                // If host is dedicated server, don't include it
-                result = new IPlayerData[connectedPlayers.Count];
-            }
-            else
-            {
-                result = new IPlayerData[1 + connectedPlayers.Count];
-                result[i++] = Multiplayer.Session.LocalPlayer.Data;
-            }
-            foreach (var kvp in connectedPlayers)
-            {
-                result[i++] = kvp.Value.Data;
-            }
-
-            return result;
+            // If host is dedicated server, don't include it
+            result = new IPlayerData[connectedPlayers.Length];
         }
+        else
+        {
+            result = new IPlayerData[1 + connectedPlayers.Length];
+            result[i++] = Multiplayer.Session.LocalPlayer.Data;
+        }
+
+        foreach (var player in connectedPlayers)
+        {
+            result[i++] = player.Data;
+        }
+
+        return result;
     }
 
+    [Obsolete]
     public INebulaPlayer GetPlayer(INebulaConnection conn)
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            if (connectedPlayers.TryGetValue(conn, out var player))
-            {
-                return player;
-            }
-        }
-
-        return null;
+        // This shouldn't be nullable, if we have a NebulaConnection we definitely have a NebulaPlayer so First() > FirstOrDefault.
+        return Multiplayer.Session.Server.PlayerConnections.First(kvp => kvp.Key.Equals(conn)).Value;
     }
 
+    [Obsolete]
     public INebulaPlayer GetPlayerById(ushort playerId)
     {
-        INebulaPlayer player;
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            if ((player = connectedPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
-            {
-                return player;
-            }
-        }
-        using (GetSyncingPlayers(out var syncingPlayers))
-        {
-            if ((player = syncingPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
-            {
-                return player;
-            }
-        }
-        using (GetPendingPlayers(out var pendingPlayers))
-        {
-            if ((player = pendingPlayers.Values.FirstOrDefault(plr => plr.Id == playerId)) != null)
-            {
-                return player;
-            }
-        }
-        return null;
+        // Let First() throw on nulls, this should only be safe for existing players.
+        return Multiplayer.Session.Server.PlayerConnections.First(kvp => kvp.Key.Id == playerId).Value;
     }
 
+    [Obsolete]
     public INebulaPlayer GetConnectedPlayerByUsername(string username)
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            return connectedPlayers.Values
-                .FirstOrDefault(plr =>
-                    plr.Data != null &&
-                    string.Equals(plr.Data.Username, username, StringComparison.InvariantCultureIgnoreCase));
-        }
+        // Let First() throw on nulls, this should only be safe for existing players.
+        return Multiplayer.Session.Server.PlayerConnections
+            .First(kvp => kvp.Value.Data.Username == username).Value;
     }
 
+    [Obsolete]
     public INebulaPlayer GetSyncingPlayer(INebulaConnection conn)
     {
-        using (GetSyncingPlayers(out var syncingPlayers))
-        {
-            if (syncingPlayers.TryGetValue(conn, out var player))
-            {
-                return player;
-            }
-        }
-
-        return null;
+        return Multiplayer.Session.Server.PlayerConnections
+            .First(kvp => kvp.Key.Equals(conn)
+                          // We likely don't need to do this check anymore, since we have it in NebulaConnection, but keeping it for now
+                          // just to be safe.
+                          && kvp.Key.ConnectionStatus == EConnectionStatus.Pending).Value;
     }
 
     public void SendPacketToAllPlayers<T>(T packet) where T : class, new()
@@ -224,8 +207,8 @@ public class PlayerManager : IPlayerManager
     {
         using (GetConnectedPlayers(out var connectedPlayers))
         {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player =>
-                         player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender)))
+            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
+                         .Where(player => player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender)))
             {
                 player.Connection.SendRawPacket(rawPacket);
             }
@@ -261,12 +244,14 @@ public class PlayerManager : IPlayerManager
         {
             return;
         }
+
         using (GetConnectedPlayers(out var connectedPlayers))
         {
             if (!connectedPlayers.TryGetValue(conn, out var player))
             {
                 return;
             }
+
             //Find correct player for data to update, preserve sand count if syncing is enabled
             var sandCount = player.Data.Mecha.SandCount;
             player.Data.Mecha = mechaData;
@@ -291,17 +276,8 @@ public class PlayerManager : IPlayerManager
                     entry.Value.Data.Mecha.SandCount = 0;
                 }
             }
+
             Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
         }
-    }
-
-    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "TBD")]
-    private sealed class ThreadSafe
-    {
-        internal readonly Queue<ushort> availablePlayerIds = new();
-        internal readonly Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers = [];
-        internal readonly Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers = [];
-        internal readonly Dictionary<string, IPlayerData> savedPlayerData = [];
-        internal readonly Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers = [];
     }
 }
