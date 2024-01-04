@@ -42,7 +42,5 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
         var player = Multiplayer.Session.Server.Players.GetByConnectionHandle(conn);
         player.Data.LocalPlanetId = packet.PlanetID;
         player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
-
-        player.Connection.ConnectionStatus = EConnectionStatus.Connected;
     }
 }

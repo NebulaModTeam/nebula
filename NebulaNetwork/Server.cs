@@ -359,37 +359,37 @@ public class Server : IServer
 
     public void SendPacket<T>(T packet) where T : class, new()
     {
-        // PlayerManager.SendPacketToAllPlayers(packet);
+        PlayerManager.SendPacketToAllPlayers(packet);
     }
 
     public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
-        // PlayerManager.SendPacketToLocalStar(packet);
+        PlayerManager.SendPacketToLocalStar(packet);
     }
 
     public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
     {
-        // PlayerManager.SendPacketToLocalPlanet(packet);
+        PlayerManager.SendPacketToLocalPlanet(packet);
     }
 
     public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
     {
-        // PlayerManager.SendPacketToPlanet(packet, planetId);
+        PlayerManager.SendPacketToPlanet(packet, planetId);
     }
 
     public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
     {
-        // PlayerManager.SendPacketToStar(packet, starId);
+        PlayerManager.SendPacketToStar(packet, starId);
     }
 
     public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
-        // PlayerManager.SendPacketToOtherPlayers(packet, exclude);
+        PlayerManager.SendPacketToOtherPlayers(packet, exclude);
     }
 
     public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
     {
-        // PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
+        PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
     }
 
     public void Update()
