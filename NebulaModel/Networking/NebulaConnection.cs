@@ -24,7 +24,7 @@ public class NebulaConnection : INebulaConnection
 
     private readonly Queue<byte[]> pendingPackets = new();
     private bool enable = true;
-    private EConnectionStatus connectionStatus = default;
+    private EConnectionStatus connectionStatus = EConnectionStatus.Undefined;
 
     public bool IsAlive => peerSocket?.IsAlive ?? false;
 
@@ -35,10 +35,10 @@ public class NebulaConnection : INebulaConnection
         get => connectionStatus;
         set
         {
-            if (value < ConnectionStatus)
+            if (value < connectionStatus)
                 throw new InvalidOperationException("Connection Status cannot be rolled back to a lower state.");
 
-            ConnectionStatus = value;
+            connectionStatus = value;
         }
     }
 
