@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
@@ -41,8 +42,7 @@ namespace NebulaNetwork;
 
 public class Server : IServer
 {
-    [Obsolete]
-    public IPlayerManager PlayerManager { get; } = new PlayerManager();
+    [Obsolete] public IPlayerManager PlayerManager { get; } = new PlayerManager();
 
     public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
 
@@ -86,7 +86,8 @@ public class Server : IServer
     public event EventHandler<INebulaConnection> Connected;
     public event EventHandler<INebulaConnection> Disconnected;
 
-    internal void Connect(INebulaConnection conn)
+    // Placeholder until we implement Connected and Disconnected event on the socket level.
+    internal void OnSocketConnection(INebulaConnection conn)
     {
         // Generate new data for the player
         var playerId = GetNextPlayerId();
@@ -114,7 +115,8 @@ public class Server : IServer
         return nextId;
     }
 
-    internal void Disconnect(INebulaConnection conn)
+    // Placeholder until we implement Connected and Disconnected event on the socket level.
+    internal void OnSocketDisconnection(INebulaConnection conn)
     {
         Multiplayer.Session.NumPlayers -= 1;
         DiscordManager.UpdateRichPresence();
@@ -333,6 +335,19 @@ public class Server : IServer
         catch (Exception e)
         {
             Log.Error("NebulaModAPI.OnMultiplayerGameEnded error:\n" + e);
+        }
+    }
+
+    public void Disconnect(INebulaConnection conn, DisconnectionReason reason, string reasonMessage = "")
+    {
+        playerConnections.TryRemove(conn, out var player);
+        if (Encoding.UTF8.GetBytes(reasonMessage).Length <= 123)
+        {
+            ((NebulaConnection)conn).peerSocket.Close((ushort)reason, reasonMessage);
+        }
+        else
+        {
+            throw new ArgumentException("Reason string cannot take up more than 123 bytes");
         }
     }
 

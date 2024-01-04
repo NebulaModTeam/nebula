@@ -24,4 +24,5 @@ public interface IServer : INetworkProvider
     public void Start();
 
     public void Stop();
+    void Disconnect(INebulaConnection conn, DisconnectionReason reason, string reasonMessage = "");
 }

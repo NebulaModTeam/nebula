@@ -37,7 +37,7 @@ public class WebSocketService : WebSocketBehavior
 
         Log.Info($"Client connected ID: {ID}");
         var conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor);
-        Server.Connect(conn);
+        Server.OnSocketConnection(conn);
 
         connections.Add(Context.UserEndPoint.GetHashCode(), conn);
     }
@@ -74,7 +74,7 @@ public class WebSocketService : WebSocketBehavior
             // if it is because we have stopped the server and are not in a multiplayer game anymore.
             if (Multiplayer.IsActive)
             {
-                Server.Disconnect(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
+                Server.OnSocketDisconnection(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
                     PacketProcessor));
             }
         });
@@ -92,7 +92,7 @@ public class WebSocketService : WebSocketBehavior
             // if it is because we have stopped the server and are not in a multiplayer game anymore.
             if (Multiplayer.IsActive)
             {
-                Server.Disconnect(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
+                Server.OnSocketDisconnection(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
                     PacketProcessor));
             }
         });
