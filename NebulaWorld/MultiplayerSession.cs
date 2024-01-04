@@ -4,6 +4,7 @@ using System;
 using NebulaAPI.GameState;
 using NebulaModel;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaWorld.Factory;
 using NebulaWorld.GameDataHistory;
 using NebulaWorld.GameStates;
@@ -149,7 +150,13 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         GC.SuppressFinalize(this);
     }
 
-    public NebulaAPI.GameState.INetworkProvider Network { get; set; }
+    [Obsolete("Use Server or Client instead.")]
+    public INetworkProvider Network { get; set; }
+
+    public IServer Server { get; set; }
+
+    public IClient Client { get; set; }
+
     public ILocalPlayer LocalPlayer { get; set; }
     public IFactoryManager Factories { get; set; }
 
@@ -161,6 +168,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         {
             return;
         }
+
         Log.Info("Game load completed");
         IsGameLoaded = true;
         DiscordManager.UpdateRichPresence();
