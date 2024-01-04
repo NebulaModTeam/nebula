@@ -27,7 +27,7 @@ public static class Multiplayer
         IsLeavingGame = false;
 
         Session = new MultiplayerSession(server);
-        (Session.Network as IServer)!.Start();
+        Session.Server!.Start();
     }
 
     public static void JoinGame(IClient client)
@@ -35,7 +35,7 @@ public static class Multiplayer
         IsLeavingGame = false;
 
         Session = new MultiplayerSession(client);
-        (Session.Network as IClient)!.Start();
+        Session.Client!.Start();
     }
 
     public static void LeaveGame()
