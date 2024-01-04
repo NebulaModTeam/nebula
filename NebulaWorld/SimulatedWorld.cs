@@ -216,6 +216,8 @@ public class SimulatedWorld : IDisposable
             GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
             Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
+        // Reset local and remote chargers ids to recalculate and broadcast the current ids to new player
+        Multiplayer.Session.PowerTowers.ResetAndBroadcast();
 
         // (Host only) Trigger when a new client added to connected players
         Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} joined");
@@ -239,6 +241,8 @@ public class SimulatedWorld : IDisposable
             UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
             Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
+        // Reset local and remote chargers ids to remove the ids used by the disconnected player
+        Multiplayer.Session.PowerTowers.ResetAndBroadcast();
 
         // (Host only) Trigger when a connected client leave the game
         Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} left");
