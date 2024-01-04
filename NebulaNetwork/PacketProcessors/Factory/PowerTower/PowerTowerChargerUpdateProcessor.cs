@@ -17,7 +17,7 @@ internal class PowerTowerChargerUpdateProcessor : PacketProcessor<PowerTowerChar
     {
         if (packet.PlanetId == -1)
         {
-            // When a player connet, disconnect, or leave planet, clear all records and restart
+            // When a player connects, disconnects, or leaves planet, clear all records and restart
             Multiplayer.Session.PowerTowers.LocalChargerIds.Clear();
             Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Clear();
             if (IsHost)
@@ -48,14 +48,15 @@ internal class PowerTowerChargerUpdateProcessor : PacketProcessor<PowerTowerChar
         }
         else
         {
-            if (Multiplayer.Session.PowerTowers.RemoteChargerHashIds.TryGetValue(hashId, out var playerCount))
+            if (!Multiplayer.Session.PowerTowers.RemoteChargerHashIds.TryGetValue(hashId, out var playerCount))
             {
-                NebulaModel.Logger.Log.Debug($"Remove remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] - 1}");
-                Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] = playerCount - 1;
-                if (playerCount <= 1)
-                {
-                    Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Remove(hashId);
-                }
+                return;
+            }
+            NebulaModel.Logger.Log.Debug($"Remove remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] - 1}");
+            Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] = playerCount - 1;
+            if (playerCount <= 1)
+            {
+                Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Remove(hashId);
             }
         }
     }
