@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using JetBrains.Annotations;
 using NebulaAPI.GameState;
 using NebulaModel;
 using NebulaModel.Logger;
@@ -31,6 +32,11 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     public MultiplayerSession(NebulaAPI.GameState.INetworkProvider networkProvider)
     {
         Network = networkProvider;
+        if (networkProvider is IServer server)
+            Server = server;
+
+        if (networkProvider is IClient client)
+            Client = client;
 
         LocalPlayer = new LocalPlayer();
         World = new SimulatedWorld();
