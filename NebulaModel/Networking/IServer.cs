@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NebulaAPI.GameState;
 using NebulaAPI.Networking;
 using NebulaAPI.Packets;
@@ -14,6 +15,9 @@ public interface IServer : INetworkProvider
     string NgrokLastErrorCode { get; }
     public event EventHandler<INebulaConnection> Connected;
     public event EventHandler<INebulaConnection> Disconnected;
+
+    public IReadOnlyDictionary<INebulaConnection, INebulaPlayer> PlayerConnections { get; }
+    public IReadOnlyCollection<INebulaPlayer> Players { get; }
 
     public void Update();
 
