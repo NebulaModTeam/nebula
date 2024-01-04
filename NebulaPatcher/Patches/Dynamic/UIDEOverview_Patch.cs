@@ -2,7 +2,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaModel.Packets.GameHistory;
 using NebulaWorld;
 
@@ -18,7 +17,6 @@ internal class UIDEOverview_Patch
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnInit_Postfix()
     {
-        Log.Debug("UIDEOverview._OnInit");
         UIRoot.instance.uiGame.dysonEditor.controlPanel.topFunction.pauseButton.button.interactable = !Multiplayer.IsActive;
     }
 
