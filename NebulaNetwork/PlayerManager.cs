@@ -152,23 +152,4 @@ public class PlayerManager : IPlayerManager
             }
         }
     }
-
-    // add or take sand evenly from each connected player while soil is synced
-    public void UpdateSyncedSandCount(int deltaSandCount)
-    {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var entry in connectedPlayers)
-            {
-                entry.Value.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
-                // dont be too picky here, a little bit more or less sand is ignorable i guess
-                if (entry.Value.Data.Mecha.SandCount < 0)
-                {
-                    entry.Value.Data.Mecha.SandCount = 0;
-                }
-            }
-
-            Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
-        }
-    }
 }

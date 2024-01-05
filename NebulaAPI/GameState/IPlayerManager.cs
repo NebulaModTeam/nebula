@@ -46,6 +46,4 @@ public interface IPlayerManager
     void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new();
 
     void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
-
-    void UpdateSyncedSandCount(int deltaSandCount);
 }

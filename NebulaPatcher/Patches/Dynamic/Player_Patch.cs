@@ -2,6 +2,7 @@
 
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.Extensions;
 using NebulaModel;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
@@ -24,11 +25,12 @@ internal class Player_Patch
                    Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE ||
                    !Multiplayer.Session.Factories.IsIncomingRequest.Value;
         }
+
         switch (Multiplayer.IsActive)
         {
             //Soil should be given in singleplayer or to the host who then syncs it back to all players.
             case true when Multiplayer.Session.LocalPlayer.IsHost:
-                Multiplayer.Session.Network.PlayerManager.UpdateSyncedSandCount((int)(newSandCount - GameMain.mainPlayer.sandCount));
+                UpdateSyncedSandCount(newSandCount - GameMain.mainPlayer.sandCount);
                 Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
                 break;
             //Or client that use reform tool
@@ -36,8 +38,25 @@ internal class Player_Patch
                 Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
                 break;
         }
+
         return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
         //Soil should be given in singleplayer or to the player who is author of the "Build" request, or to the host if there is no author.
+    }
+
+    private static void UpdateSyncedSandCount(long deltaSandCount)
+    {
+        var connectedPlayers = Multiplayer.Session.Server.Players.GetConnected();
+        foreach (var player in connectedPlayers)
+        {
+            player.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
+            // dont be too picky here, a little bit more or less sand is ignorable i guess
+            if (player.Data.Mecha.SandCount < 0)
+            {
+                player.Data.Mecha.SandCount = 0;
+            }
+        }
+
+        Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
     }
 
     [HarmonyPrefix]
@@ -55,9 +74,9 @@ internal class Player_Patch
         {
             return true;
         }
+
         __result = 0;
         return false;
-
     }
 
     [HarmonyPrefix]
@@ -76,8 +95,8 @@ internal class Player_Patch
         {
             return true;
         }
+
         __result = 1;
         return false;
-
     }
 }
