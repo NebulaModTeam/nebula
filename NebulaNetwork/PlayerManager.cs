@@ -130,30 +130,6 @@ public class PlayerManager : IPlayerManager
         Multiplayer.Session.Server.SendPacketToStarExclude(packet, starId, exclude);
     }
 
-    public void SendRawPacketToStar(byte[] rawPacket, int starId, INebulaConnection sender)
-    {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
-                         .Where(player => player.Data.LocalStarId == starId && !player.Connection.Equals(sender)))
-            {
-                player.Connection.SendRawPacket(rawPacket);
-            }
-        }
-    }
-
-    public void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender)
-    {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
-                         .Where(player => player.Data.LocalPlanetId == planetId && !player.Connection.Equals(sender)))
-            {
-                player.Connection.SendRawPacket(rawPacket);
-            }
-        }
-    }
-
     public void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
         using (GetConnectedPlayers(out var connectedPlayers))

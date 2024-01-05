@@ -43,10 +43,6 @@ public interface IPlayerManager
 
     void SendPacketToStarExcept<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
 
-    void SendRawPacketToStar(byte[] rawPacket, int starId, INebulaConnection sender);
-
-    void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender);
-
     void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new();
 
     void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
