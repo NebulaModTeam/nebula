@@ -153,30 +153,6 @@ public class PlayerManager : IPlayerManager
         }
     }
 
-    public void UpdateMechaData(IMechaData mechaData, INebulaConnection conn)
-    {
-        if (mechaData == null)
-        {
-            return;
-        }
-
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            if (!connectedPlayers.TryGetValue(conn, out var player))
-            {
-                return;
-            }
-
-            //Find correct player for data to update, preserve sand count if syncing is enabled
-            var sandCount = player.Data.Mecha.SandCount;
-            player.Data.Mecha = mechaData;
-            if (Config.Options.SyncSoil)
-            {
-                player.Data.Mecha.SandCount = sandCount;
-            }
-        }
-    }
-
     // add or take sand evenly from each connected player while soil is synced
     public void UpdateSyncedSandCount(int deltaSandCount)
     {
