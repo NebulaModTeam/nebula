@@ -1,6 +1,8 @@
 ﻿#region
 
+using System.Linq;
 using System.Text;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Packets.Chat;
@@ -22,7 +24,7 @@ public class WhoCommandHandler : IChatCommandHandler
         }
         else
         {
-            var playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
+            var playerDatas = Multiplayer.Session.Server.Players.GetAllPlayerData().ToArray();
             var hostPlayer = Multiplayer.Session.LocalPlayer;
             var messageContent = BuildResultPayload(playerDatas, hostPlayer);
             window.SendLocalChatMessage(messageContent, ChatMessageType.CommandOutputMessage);

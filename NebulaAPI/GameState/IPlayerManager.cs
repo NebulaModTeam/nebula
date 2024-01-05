@@ -21,8 +21,6 @@ public interface IPlayerManager
 
     Locker GetSavedPlayerData(out IReadOnlyDictionary<string, IPlayerData> savedPlayerData);
 
-    IPlayerData[] GetAllPlayerDataIncludingHost();
-
     INebulaPlayer GetPlayer(INebulaConnection conn);
 
     INebulaPlayer GetSyncingPlayer(INebulaConnection conn);

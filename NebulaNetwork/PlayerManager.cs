@@ -47,31 +47,6 @@ public class PlayerManager : IPlayerManager
         return new Locker(new object());
     }
 
-    [Obsolete("Use Server.Players or Server.PlayerConnections")]
-    public IPlayerData[] GetAllPlayerDataIncludingHost()
-    {
-        var connectedPlayers = Multiplayer.Session.Server.PlayerConnections.Values.ToArray();
-        var i = 0;
-        IPlayerData[] result;
-        if (Multiplayer.IsDedicated)
-        {
-            // If host is dedicated server, don't include it
-            result = new IPlayerData[connectedPlayers.Length];
-        }
-        else
-        {
-            result = new IPlayerData[1 + connectedPlayers.Length];
-            result[i++] = Multiplayer.Session.LocalPlayer.Data;
-        }
-
-        foreach (var player in connectedPlayers)
-        {
-            result[i++] = player.Data;
-        }
-
-        return result;
-    }
-
     [Obsolete]
     public INebulaPlayer GetPlayer(INebulaConnection conn)
     {
