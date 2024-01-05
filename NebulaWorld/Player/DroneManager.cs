@@ -87,16 +87,16 @@ public class DroneManager : IDisposable
     {
         foreach (var kv in PlayerDroneBuildingPlans)
         {
-            if (allPlayerIds.Contains(kv.Key))
+            if (allPlayerIds.Contains(kv.Key) || !CachedPositions.ContainsKey(kv.Key))
             {
                 continue;
             }
-            var factory = GameMain.galaxy.PlanetById(GameMain.mainPlayer.planetId).factory;
+            var factory = GameMain.galaxy.PlanetById(CachedPositions[kv.Key].PlanetId).factory;
             var dronePlans = GetPlayerDronePlans(kv.Key);
             if (dronePlans.Length > 0)
             {
                 var player = Multiplayer.Session.Network.PlayerManager.GetPlayerById(kv.Key);
-                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(dronePlans),
+                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(dronePlans, CachedPositions[kv.Key].PlanetId),
                     player.Data.LocalPlanetId);
 
                 for (var i = 1; i < factory.constructionSystem.drones.cursor; i++)
@@ -114,6 +114,7 @@ public class DroneManager : IDisposable
             }
 
             PlayerDroneBuildingPlans.Remove(kv.Key);
+            CachedPositions.Remove(kv.Key);
         }
     }
 
@@ -134,11 +135,11 @@ public class DroneManager : IDisposable
         }
         // clients can run in a situation where they have requested sending out drones but never received an answer, potentially leading to a deadlock
         // thus we need to free up requests after a specific amount of time if there was no response yet.
-        if (GameMain.gameTick - PendingBuildRequests[entityId] <= 800)
+        if (GameMain.gameTick - PendingBuildRequests[entityId] <= 600)
         {
             return true;
         }
-        Multiplayer.Session.Network.SendPacket(new RemoveDroneOrdersPacket(new[] { entityId }));
+        Multiplayer.Session.Network.SendPacket(new RemoveDroneOrdersPacket(new[] { entityId }, GameMain.mainPlayer.planetId));
         RemoveBuildRequest(entityId);
         GameMain.galaxy.PlanetById(GameMain.mainPlayer.planetId)?.factory?.constructionSystem.constructServing.Remove(entityId);
         return false;
@@ -183,15 +184,23 @@ public class DroneManager : IDisposable
         if (GameMain.gameTick - lastCheckedTick > 10)
         {
             lastCheckedTick = GameMain.gameTick;
-            CachedPositions.Clear();
+            //CachedPositions.Clear();
 
             using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
             {
                 // host needs it for all players since they can build on other planets too.
                 foreach (var model in remotePlayersModels.Values)
                 {
-                    //Cache players positions for this looking for target session
-                    CachedPositions.Add(model.Movement.PlayerID, new PlayerPosition(model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), model.Movement.localPlanetId));
+                    // Cache players positions
+                    if (!CachedPositions.ContainsKey(model.Movement.PlayerID))
+                    {
+                        CachedPositions.Add(model.Movement.PlayerID, new PlayerPosition(model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), model.Movement.localPlanetId));
+                    }
+                    else
+                    {
+                        CachedPositions[model.Movement.PlayerID].Position = model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
+                        CachedPositions[model.Movement.PlayerID].PlanetId = model.Movement.localPlanetId;
+                    }
                 }
             }
         }
@@ -204,8 +213,6 @@ public class DroneManager : IDisposable
             return 0;
         }
 
-        var playerManager = Multiplayer.Session.Network.PlayerManager;
-
         var shortestDistance = 0.0f;
         ushort nearestPlayer = 0;
 
@@ -216,7 +223,7 @@ public class DroneManager : IDisposable
         }
 
         foreach (var playerPosition in CachedPositions.Where(playerPosition =>
-                     playerManager.GetPlayerById(playerPosition.Key).Data.LocalPlanetId == planetId))
+                     playerPosition.Value.PlanetId == planetId))
         {
             if (nearestPlayer == 0)
             {

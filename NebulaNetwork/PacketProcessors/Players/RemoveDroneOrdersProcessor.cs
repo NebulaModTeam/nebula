@@ -95,9 +95,8 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
             // check if there are any drones on the current planet and match the targets from this packet.
             // if so recycle them. overflown drones are handled by RecycleDrone_Postfix
             var factory = GameMain.mainPlayer.factory;
-            var player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
 
-            if (factory == null || GameMain.mainPlayer.planetId != player.Data.LocalPlanetId)
+            if (factory == null || GameMain.mainPlayer.planetId != packet.PlanetId)
             {
                 return;
             }

@@ -40,13 +40,14 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                 return;
             }
             if (closestPlayer == Multiplayer.Session.LocalPlayer.Id &&
-                GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0)
+                GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 &&
+                GameMain.mainPlayer.mecha.constructionModule.droneEnabled)
             {
                 informAndEjectLocalDrones(packet, factory, closestPlayer);
             }
             else if (closestPlayer == Multiplayer.Session.LocalPlayer.Id)
             {
-                // we are closest one but we do not have enough drones, so search next closest player
+                // we are closest one but we do not have enough drones or they are disabled, so search next closest player
                 var nextClosestPlayer =
                     DroneManager.GetNextClosestPlayerToAfter(packet.PlanetId, closestPlayer, ref entityPos);
                 if (nextClosestPlayer == closestPlayer)
@@ -88,7 +89,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                         }
                         break;
                     }
-                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0:
+                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 && GameMain.mainPlayer.mecha.constructionModule.droneEnabled:
                     {
                         // we should send out drones, so do it.
 
@@ -101,12 +102,12 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                         }
                         break;
                     }
-                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount <= 0:
+                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount <= 0 || !GameMain.mainPlayer.mecha.constructionModule.droneEnabled:
                     // remove drone order request if we cant handle it
                     DroneManager.RemoveBuildRequest(packet.EntityId);
 
                     // others need to remove drones that are rendered for us.
-                    Multiplayer.Session.Network.SendPacketToLocalPlanet(new RemoveDroneOrdersPacket([packet.EntityId]));
+                    Multiplayer.Session.Network.SendPacketToLocalPlanet(new RemoveDroneOrdersPacket([packet.EntityId], packet.PlanetId));
                     break;
             }
 
