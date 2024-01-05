@@ -69,7 +69,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
             return;
         }
 
-        var inGamePlayersDatas = Multiplayer.Session.Server.Players.GetAllPlayerData().ToArray();
+        var inGamePlayersDatas = Multiplayer.Session.Server.Players.GetAllPlayerData();
         playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
 
         // Since the host is always in the game he could already have changed his mecha armor, so send it to the new player.
