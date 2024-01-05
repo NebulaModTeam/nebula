@@ -47,7 +47,5 @@ public interface IPlayerManager
 
     void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
 
-    void UpdateMechaData(IMechaData mechaData, INebulaConnection conn);
-
     void UpdateSyncedSandCount(int deltaSandCount);
 }
