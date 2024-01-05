@@ -26,7 +26,7 @@ internal class StarBroadcastProcessor: PacketProcessor<StarBroadcastPacket>
     {
         //Forward packet to other users if we're the host
         if (IsHost)
-            Multiplayer.Session.Server.SendIfCondition(packet, p =>
+            Multiplayer.Session.Server.SendToMatching(packet, p =>
                 p.Data.LocalStarId == packet.StarId &&
                 p.Connection.Equals(conn)
             );

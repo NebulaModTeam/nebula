@@ -375,7 +375,7 @@ public class Server : IServer
     /// <param name="packet"></param>
     /// <param name="condition"></param>
     /// <typeparam name="T"></typeparam>
-    public void SendIfCondition<T>(T packet, Predicate<INebulaPlayer> condition)
+    public void SendToMatching<T>(T packet, Predicate<INebulaPlayer> condition)
         where T : class, new()
     {
         var players = Players
@@ -386,7 +386,7 @@ public class Server : IServer
 
     public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
     {
-        SendIfCondition(packet, p => p.Data.LocalStarId == starId);
+        SendToMatching(packet, p => p.Data.LocalStarId == starId);
     }
 
     public void SendPacketToLocalStar<T>(T packet) where T : class, new()
@@ -397,7 +397,7 @@ public class Server : IServer
 
     public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
     {
-        SendIfCondition(packet, p => p.Data.LocalPlanetId == planetId);
+        SendToMatching(packet, p => p.Data.LocalPlanetId == planetId);
     }
 
     public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
@@ -409,12 +409,12 @@ public class Server : IServer
 
     public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
-        SendIfCondition(packet, p => !p.Connection.Equals(exclude));
+        SendToMatching(packet, p => !p.Connection.Equals(exclude));
     }
 
     public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
     {
-        SendIfCondition(packet, p => p.Data.LocalStarId == starId && !p.Connection.Equals(exclude));
+        SendToMatching(packet, p => p.Data.LocalStarId == starId && !p.Connection.Equals(exclude));
     }
 
     public void Update()

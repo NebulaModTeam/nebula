@@ -26,7 +26,7 @@ internal class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
     {
         //Forward packet to other users if we're the host
         if (IsHost)
-            Multiplayer.Session.Server.SendIfCondition(packet, p =>
+            Multiplayer.Session.Server.SendToMatching(packet, p =>
                 p.Data.LocalPlanetId == packet.PlanetId &&
                 p.Connection.Equals(conn)
             );
