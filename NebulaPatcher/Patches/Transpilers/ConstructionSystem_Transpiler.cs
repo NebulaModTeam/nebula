@@ -13,6 +13,7 @@ internal delegate bool RemoveExtraSpawnedDrones(ConstructionSystem _this, ref Dr
 internal delegate bool IsOwnerAMecha(int owner);
 
 internal delegate bool OwnerAndIdMatchMecha(int id, int owner);
+internal delegate bool AreDronesEnabled(bool droneEnabled, ref DroneComponent drone);
 
 [HarmonyPatch(typeof(ConstructionSystem))]
 internal class ConstructionSystem_Transpiler
@@ -187,6 +188,37 @@ internal class ConstructionSystem_Transpiler
                 }));
         var jmpOut = matcher.Operand;
         matcher.SetInstruction(new CodeInstruction(OpCodes.Brtrue, jmpOut));
+
+        // now we also need to make sure that drones of other players still get rendered when the local player has his drones disabled.
+        // so set: bool droneEnabled = constructionModuleComponent.droneEnabled;
+        // to: bool droneEnabled = ptr.owner < 0 || constructionModuleComponent.droneEnabled
+        // but only when multiplayer is active ofc
+
+        matcher
+            .MatchForward(true,
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "droneEnabled"));
+
+        if (matcher.IsInvalid)
+        {
+            Log.Error(
+                "ConstructionSystem_Transpiler.UpdateDrones_Transpiler 5 failed. Mod version not compatible with game version.");
+            return codeInstructions;
+        }
+
+        matcher
+            .Advance(1)
+            .InsertAndAdvance(
+                new CodeInstruction(OpCodes.Ldloc_S, 8),
+                HarmonyLib.Transpilers.EmitDelegate<AreDronesEnabled>((bool droneEnabled, ref DroneComponent drone) =>
+                {
+                    if (!Multiplayer.IsActive)
+                    {
+                        return droneEnabled;
+                    }
+
+                    return droneEnabled || drone.owner < 0;
+                }));
 
         return matcher.InstructionEnumeration();
     }

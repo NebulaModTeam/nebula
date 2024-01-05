@@ -330,7 +330,7 @@ public class PlayerManager : IPlayerManager
             var dronePlans = DroneManager.GetPlayerDronePlans(player.Id);
             if (dronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
             {
-                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(dronePlans),
+                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(dronePlans, player.Data.LocalPlanetId),
                     player.Data.LocalPlanetId);
                 //Remove it also from host queue, if host is on the same planet
                 if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
