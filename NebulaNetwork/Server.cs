@@ -164,7 +164,7 @@ public class Server : IServer
 
         PlayerIdPool.Enqueue(player.Id);
 
-        Multiplayer.Session.PowerTowers.OnClientDisconnect();
+        Multiplayer.Session.PowerTowers.ResetAndBroadcast();
         Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
         Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
 
@@ -172,7 +172,7 @@ public class Server : IServer
         var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
         if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
         {
-            Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans),
+            SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans, player.Data.LocalPlanetId),
                 player.Data.LocalPlanetId);
             //Remove it also from host queue, if host is on the same planet
             if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
