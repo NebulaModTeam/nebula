@@ -40,10 +40,19 @@ public static class PlayerCollectionExtensions
         return players.First(p => p.Id == id);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="conn"></param>
+    /// <returns>
+    /// The player corresponding to the connection handle.
+    /// Can return null, if the player disconnects before the call.
+    /// </returns>
     public static INebulaPlayer GetByConnectionHandle(
         this IReadOnlyCollection<INebulaPlayer> players, INebulaConnection conn)
     {
-        return players.First(p => p.Connection.Equals(conn));
+        return players.FirstOrDefault(p => p.Connection.Equals(conn));
     }
 
     public static INebulaPlayer GetByUsername(
