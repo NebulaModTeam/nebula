@@ -114,6 +114,7 @@ public class DroneManager : IDisposable
             }
 
             PlayerDroneBuildingPlans.Remove(kv.Key);
+            CachedPositions.Remove(kv.Key);
         }
     }
 
@@ -212,8 +213,6 @@ public class DroneManager : IDisposable
             return 0;
         }
 
-        var playerManager = Multiplayer.Session.Network.PlayerManager;
-
         var shortestDistance = 0.0f;
         ushort nearestPlayer = 0;
 
@@ -224,7 +223,7 @@ public class DroneManager : IDisposable
         }
 
         foreach (var playerPosition in CachedPositions.Where(playerPosition =>
-                     playerManager.GetPlayerById(playerPosition.Key)?.Data.LocalPlanetId == planetId))
+                     playerPosition.Value.PlanetId == planetId))
         {
             if (nearestPlayer == 0)
             {
