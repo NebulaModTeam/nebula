@@ -26,7 +26,7 @@ public interface INetworkProvider : IDisposable
     /// <param name="packet"></param>
     /// <param name="condition"></param>
     /// <typeparam name="T"></typeparam>
-    public void SendIfCondition<T>(T packet, Predicate<INebulaPlayer> condition) where T : class, new();
+    public void SendToMatching<T>(T packet, Predicate<INebulaPlayer> condition) where T : class, new();
 
     /// <summary>
     ///     Broadcast packet to all Players within current star system
