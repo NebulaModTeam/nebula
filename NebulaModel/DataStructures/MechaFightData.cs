@@ -17,13 +17,12 @@ namespace NebulaModel.DataStructures
             GroundCombatModule = new CombatModuleComponent();
             SpaceCombatModule = new CombatModuleComponent();
 
+            GroundCombatModule.Reset();
+            SpaceCombatModule.Reset();
             GroundCombatModule.Init(GameMain.data);
             SpaceCombatModule.Init(GameMain.data);
-
-            GroundCombatModule.moduleFleets = [];
-            GroundCombatModule.moduleFleetPoses = [];
-            SpaceCombatModule.moduleFleets = [];
-            SpaceCombatModule.moduleFleetPoses = [];
+            GroundCombatModule.Setup(1, GameMain.data);
+            SpaceCombatModule.Setup(3, GameMain.data);
         }
         public MechaFightData(Player player)
         {
