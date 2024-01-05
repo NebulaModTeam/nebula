@@ -21,6 +21,14 @@ public interface INetworkProvider : IDisposable
     void SendPacket<T>(T packet) where T : class, new();
 
     /// <summary>
+    /// Send a packet to all players that match a predicate
+    /// </summary>
+    /// <param name="packet"></param>
+    /// <param name="condition"></param>
+    /// <typeparam name="T"></typeparam>
+    public void SendIfCondition<T>(T packet, Predicate<INebulaPlayer> condition) where T : class, new();
+
+    /// <summary>
     ///     Broadcast packet to all Players within current star system
     /// </summary>
     void SendPacketToLocalStar<T>(T packet) where T : class, new();

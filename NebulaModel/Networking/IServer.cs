@@ -25,12 +25,4 @@ public interface IServer : INetworkProvider
 
     public void Stop();
     void Disconnect(INebulaConnection conn, DisconnectionReason reason, string reasonMessage = "");
-
-    /// <summary>
-    /// Send a packet to all players that match a predicate
-    /// </summary>
-    /// <param name="packet"></param>
-    /// <param name="condition"></param>
-    /// <typeparam name="T"></typeparam>
-    public void SendIfCondition<T>(T packet, Predicate<INebulaPlayer> condition) where T : class, new();
 }
