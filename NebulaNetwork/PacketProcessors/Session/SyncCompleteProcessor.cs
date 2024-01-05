@@ -56,7 +56,6 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
         // store the player now, not when he enters the lobby. that would cause weird teleportations when clients reenter the lobby without ever having loaded into the game
         var clientCertHash = CryptoUtils.Hash(packet.ClientCert);
 
-        //@TODO karim recheck this
         SaveManager.TryAdd(clientCertHash, player.Data);
 
         player.Connection.ConnectionStatus = EConnectionStatus.Connected;
@@ -70,7 +69,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
             return;
         }
 
-        var inGamePlayersDatas = playerManager.GetAllPlayerDataIncludingHost();
+        var inGamePlayersDatas = Multiplayer.Session.Server.Players.GetAllPlayerData().ToArray();
         playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
 
         // Since the host is always in the game he could already have changed his mecha armor, so send it to the new player.
