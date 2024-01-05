@@ -30,8 +30,7 @@ namespace NebulaNetwork;
 
 public class Client : IClient
 {
-    [Obsolete]
-    public IPlayerManager PlayerManager { get; } = new PlayerManager();
+    [Obsolete] public IPlayerManager PlayerManager { get; } = new PlayerManager();
 
     public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
 
@@ -171,7 +170,7 @@ public class Client : IClient
 
     public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
-        serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.data.localStar?.id ?? -1));
+        serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
     }
 
     public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()

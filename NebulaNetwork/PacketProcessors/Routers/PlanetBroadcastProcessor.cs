@@ -24,20 +24,14 @@ internal class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
 
     protected override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
     {
-        if (IsClient)
-        {
-            return;
-        }
+        //Forward packet to other users if we're the host
+        if (IsHost)
+            Multiplayer.Session.Server.SendIfCondition(packet, p =>
+                p.Data.LocalPlanetId == packet.PlanetId &&
+                p.Connection.Equals(conn)
+            );
 
-        var player = playerManager.GetPlayer(conn);
-        if (player == null)
-        {
-            return;
-        }
-        //Forward packet to other users
-        playerManager.SendRawPacketToPlanet(packet.PacketObject, packet.PlanetId, conn);
-        //Forward packet to the host
-        ((INetworkProvider)Multiplayer.Session.Network).PacketProcessor
-            .EnqueuePacketForProcessing(packet.PacketObject, conn);
+        //Forward packet data to be processed
+        Multiplayer.Session.Network.PacketProcessor.EnqueuePacketForProcessing(packet.PacketObject, conn);
     }
 }

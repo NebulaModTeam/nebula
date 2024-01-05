@@ -9,6 +9,7 @@ public interface INetPacketProcessor
     /// </summary>
     bool EnablePacketProcessing { get; set; }
 
+    void EnqueuePacketForProcessing<T>(T packet, object userData) where T : class, new();
     void EnqueuePacketForProcessing(byte[] rawData, object userData);
     byte[] Write<T>(T packet) where T : class, new();
     void ProcessPacketQueue();

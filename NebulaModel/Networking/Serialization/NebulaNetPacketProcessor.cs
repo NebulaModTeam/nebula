@@ -97,6 +97,11 @@ public class NebulaNetPacketProcessor : NetPacketProcessor, INetPacketProcessor
         }
     }
 
+    public void EnqueuePacketForProcessing<T>(T packet, object userData) where T : class, new()
+    {
+        EnqueuePacketForProcessing(Write(packet), userData);
+    }
+
     public void EnqueuePacketForProcessing(byte[] rawData, object userData)
     {
 #if DEBUG
