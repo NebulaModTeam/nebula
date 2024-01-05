@@ -102,72 +102,32 @@ public class PlayerManager : IPlayerManager
 
     public void SendPacketToAllPlayers<T>(T packet) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacket(packet);
     }
 
     public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
-                         .Where(player => player.Data.LocalStarId == GameMain.data.localStar?.id))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacketToLocalStar(packet);
     }
 
     public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
-                         .Where(player => player.Data.LocalPlanetId == GameMain.data.mainPlayer.planetId))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacketToLocalPlanet(packet);
     }
 
     public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
-                         .Where(player => player.Data.LocalPlanetId == planetId))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacketToPlanet(packet, planetId);
     }
 
     public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player.Data.LocalStarId == starId))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacketToStar(packet, starId);
     }
 
     public void SendPacketToStarExcept<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
-                         .Where(player => player.Data.LocalStarId == starId && player != GetPlayer(exclude)))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacketToStarExclude(packet, starId, exclude);
     }
 
     public void SendRawPacketToStar(byte[] rawPacket, int starId, INebulaConnection sender)

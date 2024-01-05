@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using NebulaAPI;
 using NebulaAPI.DataStructures;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Networking;
 using NebulaAPI.Packets;
@@ -357,39 +358,63 @@ public class Server : IServer
         GC.SuppressFinalize(this);
     }
 
+    // Just to make a single entry point for all sends.
+    private void SendToPlayers<T>(IEnumerable<INebulaPlayer> players, T packet) where T : class, new()
+    {
+        players.ForEach(p => p.SendPacket(packet));
+    }
+
     public void SendPacket<T>(T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToAllPlayers(packet);
+        SendToPlayers(Players, packet);
     }
 
-    public void SendPacketToLocalStar<T>(T packet) where T : class, new()
+    /// <summary>
+    /// Send a packet to all players that match a predicate
+    /// </summary>
+    /// <param name="packet"></param>
+    /// <param name="condition"></param>
+    /// <typeparam name="T"></typeparam>
+    public void SendIfCondition<T>(T packet, Predicate<INebulaPlayer> condition)
+        where T : class, new()
     {
-        PlayerManager.SendPacketToLocalStar(packet);
-    }
-
-    public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
-    {
-        PlayerManager.SendPacketToLocalPlanet(packet);
-    }
-
-    public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
-    {
-        PlayerManager.SendPacketToPlanet(packet, planetId);
+        var players = Players
+            .GetConnected()
+            .Where(p => condition(p));
+        SendToPlayers(players, packet);
     }
 
     public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
     {
-        PlayerManager.SendPacketToStar(packet, starId);
+        SendIfCondition(packet, p => p.Data.LocalStarId == starId);
     }
+
+    public void SendPacketToLocalStar<T>(T packet) where T : class, new()
+    {
+        var starId = GameMain.data.localStar.id;
+        SendPacketToStar(packet, starId);
+    }
+
+    public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+    {
+        SendIfCondition(packet, p => p.Data.LocalPlanetId == planetId);
+    }
+
+    public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+    {
+        var planetId = GameMain.data.mainPlayer.planetId;
+        SendPacketToPlanet(packet, planetId);
+    }
+
 
     public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
-        PlayerManager.SendPacketToOtherPlayers(packet, exclude);
+        SendIfCondition(packet, p => !p.Connection.Equals(exclude));
     }
 
     public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
     {
-        PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
+        SendIfCondition(packet, p => p.Data.LocalStarId == starId && !p.Connection.Equals(exclude));
     }
 
     public void Update()
