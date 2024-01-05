@@ -29,7 +29,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     // Some Patch Flags
     public DateTime StartTime;
 
-    public MultiplayerSession(NebulaAPI.GameState.INetworkProvider networkProvider)
+    public MultiplayerSession(INetworkProvider networkProvider)
     {
         Network = networkProvider;
         if (networkProvider is IServer server)
@@ -165,6 +165,9 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
 
     public ILocalPlayer LocalPlayer { get; set; }
     public IFactoryManager Factories { get; set; }
+    public bool IsDedicated => Multiplayer.IsDedicated;
+    public bool IsServer => Server is not null;
+    public bool IsClient => Client is not null;
 
     public bool IsGameLoaded { get; set; }
 
