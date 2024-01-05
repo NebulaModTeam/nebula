@@ -102,13 +102,13 @@ public static class PlayerCollectionExtensions
     /// Returns a collection of all player data, including host.
     /// </summary>
     /// <returns></returns>
-    public static ICollection<IPlayerData> GetAllPlayerData(this IReadOnlyCollection<INebulaPlayer> players)
+    public static IEnumerable<IPlayerData> GetAllPlayerData(this IReadOnlyCollection<INebulaPlayer> players)
     {
         var saves = players
-            .Select(p => p.Data) as ICollection<IPlayerData>;
+            .Select(p => p.Data).ToList();
         // If the host is a player, append their data to the list
         if (!NebulaModAPI.MultiplayerSession.IsDedicated)
-            saves?.Add(NebulaModAPI.MultiplayerSession.LocalPlayer.Data);
+            saves.Add(NebulaModAPI.MultiplayerSession.LocalPlayer.Data);
 
         return saves;
     }

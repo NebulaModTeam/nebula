@@ -6,12 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NebulaAPI.Extensions;
 
 public static class IEnumerableExtensions
 {
-    public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
     {
         if (source is null) throw new ArgumentNullException(nameof(source));
         if (action is null) throw new ArgumentNullException(nameof(action));
@@ -20,7 +21,5 @@ public static class IEnumerableExtensions
         {
             action(item);
         }
-
-        return source;
     }
 }
