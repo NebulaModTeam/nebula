@@ -17,9 +17,14 @@ internal class PowerTowerChargerUpdateProcessor : PacketProcessor<PowerTowerChar
     {
         if (packet.PlanetId == -1)
         {
-            // When a player disconnect, clear all records and restart
+            // When a player connects, disconnects, or leaves planet, clear all records and restart
             Multiplayer.Session.PowerTowers.LocalChargerIds.Clear();
             Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Clear();
+            if (IsHost)
+            {
+                // Broadcast the leave planet event to other players 
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
             return;
         }
 
@@ -31,11 +36,28 @@ internal class PowerTowerChargerUpdateProcessor : PacketProcessor<PowerTowerChar
         var hashId = ((long)packet.PlanetId << 32) | (long)packet.NodeId;
         if (packet.Charging)
         {
-            Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Add(hashId);
+            if (Multiplayer.Session.PowerTowers.RemoteChargerHashIds.TryGetValue(hashId, out var playerCount))
+            {
+                Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] = playerCount + 1;
+            }
+            else
+            {
+                Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Add(hashId, 1);
+            }
+            NebulaModel.Logger.Log.Debug($"Add remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId]}");
         }
         else
         {
-            Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Remove(hashId);
+            if (!Multiplayer.Session.PowerTowers.RemoteChargerHashIds.TryGetValue(hashId, out var playerCount))
+            {
+                return;
+            }
+            NebulaModel.Logger.Log.Debug($"Remove remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] - 1}");
+            Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] = playerCount - 1;
+            if (playerCount <= 1)
+            {
+                Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Remove(hashId);
+            }
         }
     }
 }
