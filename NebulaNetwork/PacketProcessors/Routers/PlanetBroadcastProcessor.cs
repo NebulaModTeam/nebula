@@ -15,11 +15,8 @@ namespace NebulaNetwork.PacketProcessors.Routers;
 [RegisterPacketProcessor]
 internal class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public PlanetBroadcastProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)

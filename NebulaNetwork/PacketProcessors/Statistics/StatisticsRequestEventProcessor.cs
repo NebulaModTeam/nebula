@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -16,8 +17,6 @@ namespace NebulaNetwork.PacketProcessors.Statistics;
 [RegisterPacketProcessor]
 internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsRequestEvent>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(StatisticsRequestEvent packet, NebulaConnection conn)
     {
         if (IsClient)
@@ -25,7 +24,7 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
             return;
         }
 
-        var player = playerManager.GetPlayer(conn);
+        var player = Players.Connected().GetPlayer(conn);
         if (player == null)
         {
             return;
