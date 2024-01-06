@@ -9,7 +9,7 @@ namespace NebulaAPI.GameState;
 
 public interface INetworkProvider : IDisposable
 {
-    [Obsolete("Dev note: we need to move this out of the public API, but it'll need a lot of packet processor updates.")]
+    [Obsolete("Dev note: we need to move this out of the public API, and add an alternative that also works for dedicated.")]
     INetPacketProcessor PacketProcessor { get; }
 
     /// <summary>
