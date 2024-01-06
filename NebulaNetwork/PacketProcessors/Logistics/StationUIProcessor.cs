@@ -1,5 +1,6 @@
 ﻿#region
 
+using NebulaAPI.Extensions;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -23,9 +24,7 @@ internal class StationUIProcessor : PacketProcessor<StationUI>
             StationUIManager.UpdateStation(ref packet);
 
             // broadcast to other clients 
-            var playerManager = Multiplayer.Session.Network.PlayerManager;
-            var player = playerManager.GetPlayer(conn);
-            playerManager.SendPacketToOtherPlayers(packet, player);
+            Server.SendPacketExclude(packet, conn);
 
             // as we block the normal method for the client he must run it once he receives this packet.
             // but only the one issued the request should get items refund

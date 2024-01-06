@@ -3,7 +3,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using NebulaAPI.DataStructures;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -21,8 +23,6 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class ILSgStationPoolSyncRequestProcessor : PacketProcessor<ILSRequestgStationPoolSync>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(ILSRequestgStationPoolSync packet, NebulaConnection conn)
     {
         if (IsClient)
@@ -30,8 +30,8 @@ public class ILSgStationPoolSyncRequestProcessor : PacketProcessor<ILSRequestgSt
             return;
         }
 
-        var player = playerManager.GetPlayer(conn) ?? playerManager.GetSyncingPlayer(conn);
-        if (player == null)
+        var player = Players.GetPlayer(conn);
+        if (player == null || conn.ConnectionStatus is EConnectionStatus.Pending)
         {
             return;
         }

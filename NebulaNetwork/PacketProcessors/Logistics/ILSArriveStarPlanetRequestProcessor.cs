@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -20,8 +22,6 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveStarPlanetRequest>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(ILSArriveStarPlanetRequest packet, NebulaConnection conn)
     {
         if (IsClient)
@@ -29,8 +29,8 @@ internal class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveSt
             return;
         }
 
-        var player = playerManager.GetPlayer(conn) ?? playerManager.GetSyncingPlayer(conn);
-        if (player == null)
+        var player = Players.GetPlayer(conn);
+        if (player == null || conn.ConnectionStatus is EConnectionStatus.Pending)
         {
             return;
         }

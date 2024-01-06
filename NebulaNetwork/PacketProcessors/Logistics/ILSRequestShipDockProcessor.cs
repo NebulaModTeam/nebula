@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using NebulaAPI.DataStructures;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -22,8 +24,6 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(ILSRequestShipDock packet, NebulaConnection conn)
     {
         if (IsClient)
@@ -31,12 +31,13 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
             return;
         }
 
-        var player = playerManager.GetPlayer(conn) ?? playerManager.GetSyncingPlayer(conn);
-
-        if (player == null || GameMain.data.galacticTransport.stationCapacity <= packet.StationGId)
-        {
+        var player = Players.GetPlayer(conn);
+        if (player == null || conn.ConnectionStatus is EConnectionStatus.Pending)
             return;
-        }
+
+        if (GameMain.data.galacticTransport.stationCapacity <= packet.StationGId)
+            return;
+
         var shipOtherGId = new List<int>();
         var shipIndex = new List<int>();
         var shipPos = new List<Double3>();
@@ -51,6 +52,7 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
             {
                 continue;
             }
+
             var shipData = GameMain.data.galacticTransport.stationPool[i].workShipDatas;
 
             for (var j = 0; j < shipData.Length; j++)
@@ -59,6 +61,7 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
                 {
                     continue;
                 }
+
                 shipOtherGId.Add(shipData[j].otherGId);
                 shipIndex.Add(j);
                 shipPos.Add(new Double3(shipData[j].uPos.x, shipData[j].uPos.y, shipData[j].uPos.z));
@@ -68,6 +71,7 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
                 shipPRotTemp.Add(new Float4(shipData[j].pRotTemp));
             }
         }
+
         // also add add ships of current station as they use the dock pos too in the pos calculation
         // NOTE: we need to set this stations gid as otherStationGId so that the client accesses the array in the right way
         var shipData2 = GameMain.data.galacticTransport.stationPool[packet.StationGId].workShipDatas;
