@@ -1,5 +1,6 @@
 ﻿#region
 
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -15,11 +16,8 @@ namespace NebulaNetwork.PacketProcessors.Trash;
 [RegisterPacketProcessor]
 internal class TrashSystemNewTrashCreatedProcessor : PacketProcessor<TrashSystemNewTrashCreatedPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public TrashSystemNewTrashCreatedProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(TrashSystemNewTrashCreatedPacket packet, NebulaConnection conn)
@@ -27,10 +25,10 @@ internal class TrashSystemNewTrashCreatedProcessor : PacketProcessor<TrashSystem
         var valid = true;
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
+            var player = Players.Connected().GetPlayer(conn);
             if (player != null)
             {
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                Server.SendPacketExclude(packet, conn);
             }
             else
             {
