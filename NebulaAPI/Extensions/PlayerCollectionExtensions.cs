@@ -7,17 +7,6 @@ namespace NebulaAPI.Extensions;
 
 public static class PlayerCollectionExtensions
 {
-    // public static IReadOnlyCollection<IPlayerData> GetAllPlayerDataIncludingHost(
-    //     this IReadOnlyCollection<INebulaPlayer> players, ILocalPlayer host)
-    // {
-    //     var all = players
-    //         .Select(p => p.Data)
-    //         .ToList();
-    //     all.Add(host.Data);
-    //
-    //     return all;
-    // }
-
     public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> GetByConnectionStatus(
         this IReadOnlyDictionary<INebulaConnection, INebulaPlayer> playerConnections, EConnectionStatus status)
     {
@@ -37,7 +26,7 @@ public static class PlayerCollectionExtensions
     public static INebulaPlayer GetByPlayerId(
         this IReadOnlyCollection<INebulaPlayer> players, ushort id)
     {
-        return players.First(p => p.Id == id);
+        return players.FirstOrDefault(p => p.Id == id);
     }
 
     /// <summary>
@@ -58,7 +47,7 @@ public static class PlayerCollectionExtensions
     public static INebulaPlayer GetByUsername(
         this IReadOnlyCollection<INebulaPlayer> players, string username)
     {
-        return players.First(p => p.Data.Username == username);
+        return players.FirstOrDefault(p => p.Data.Username == username);
     }
 
     public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> GetPending(

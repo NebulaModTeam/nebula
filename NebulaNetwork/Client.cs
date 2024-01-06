@@ -162,6 +162,11 @@ public class Client : IClient
         serverConnection?.SendPacket(packet);
     }
 
+    public void SendToMatching<T>(T packet, Predicate<INebulaPlayer> condition) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
     public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
         // Only possible from host
