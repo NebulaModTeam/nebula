@@ -43,8 +43,6 @@ namespace NebulaNetwork;
 
 public class Server : IServer
 {
-    [Obsolete] public IPlayerManager PlayerManager { get; } = new PlayerManager();
-
     public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
 
     private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
