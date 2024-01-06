@@ -7,7 +7,7 @@ namespace NebulaAPI.Extensions;
 
 public static class PlayerCollectionExtensions
 {
-    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> GetByConnectionStatus(
+    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> FilterByConnectionStatus(
         this IReadOnlyDictionary<INebulaConnection, INebulaPlayer> playerConnections, EConnectionStatus status)
     {
         return playerConnections
@@ -15,7 +15,7 @@ public static class PlayerCollectionExtensions
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
-    public static IReadOnlyCollection<INebulaPlayer> GetByConnectionStatus(
+    public static IReadOnlyCollection<INebulaPlayer> FilterByConnectionStatus(
         this IReadOnlyCollection<INebulaPlayer> players, EConnectionStatus status)
     {
         return players
@@ -23,68 +23,106 @@ public static class PlayerCollectionExtensions
             .ToList();
     }
 
-    public static INebulaPlayer GetByPlayerId(
+    /// <summary>
+    /// Gets a player by their PlayerId.
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public static INebulaPlayer GetPlayer(
         this IReadOnlyCollection<INebulaPlayer> players, ushort id)
     {
         return players.FirstOrDefault(p => p.Id == id);
     }
 
     /// <summary>
-    /// 
+    /// Gets a player by their connection handle.
     /// </summary>
     /// <param name="players"></param>
     /// <param name="conn"></param>
-    /// <returns>
-    /// The player corresponding to the connection handle.
-    /// Can return null, if the player disconnects before the call.
-    /// </returns>
-    public static INebulaPlayer GetByConnectionHandle(
+    /// <returns> </returns>
+    public static INebulaPlayer GetPlayer(
         this IReadOnlyCollection<INebulaPlayer> players, INebulaConnection conn)
     {
         return players.FirstOrDefault(p => p.Connection.Equals(conn));
     }
 
-    public static INebulaPlayer GetByUsername(
+    /// <summary>
+    /// Gets a player by their username.
+    /// </summary>
+    /// <param name="players"></param>
+    /// <param name="username"></param>
+    /// <returns></returns>
+    public static INebulaPlayer GetPlayer(
         this IReadOnlyCollection<INebulaPlayer> players, string username)
     {
         return players.FirstOrDefault(p => p.Data.Username == username);
     }
 
-    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> GetPending(
+    /// <summary>
+    /// Filters to pending players, with their connection handles as keys.
+    /// </summary>
+    /// <param name="playerConnections"></param>
+    /// <returns></returns>
+    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> Pending(
         this IReadOnlyDictionary<INebulaConnection, INebulaPlayer> playerConnections)
     {
-        return playerConnections.GetByConnectionStatus(EConnectionStatus.Pending);
+        return playerConnections.FilterByConnectionStatus(EConnectionStatus.Pending);
     }
 
-    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> GetSyncing(
+    /// <summary>
+    /// Filters to syncing players, with their connection handles as keys.
+    /// </summary>
+    /// <param name="playerConnections"></param>
+    /// <returns></returns>
+    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> Syncing(
         this IReadOnlyDictionary<INebulaConnection, INebulaPlayer> playerConnections)
     {
-        return playerConnections.GetByConnectionStatus(EConnectionStatus.Syncing);
+        return playerConnections.FilterByConnectionStatus(EConnectionStatus.Syncing);
     }
 
-    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> GetConnected(
+    /// <summary>
+    /// Filters to connected players, with their connection handles as keys.
+    /// </summary>
+    /// <param name="playerConnections"></param>
+    /// <returns></returns>
+    public static IReadOnlyDictionary<INebulaConnection, INebulaPlayer> Connected(
         this IReadOnlyDictionary<INebulaConnection, INebulaPlayer> playerConnections)
     {
-        return playerConnections.GetByConnectionStatus(EConnectionStatus.Connected);
+        return playerConnections.FilterByConnectionStatus(EConnectionStatus.Connected);
     }
 
-
-    public static IReadOnlyCollection<INebulaPlayer> GetPending(
+    /// <summary>
+    /// Filters to pending players
+    /// </summary>
+    /// <param name="players"></param>
+    /// <returns></returns>
+    public static IReadOnlyCollection<INebulaPlayer> Pending(
         this IReadOnlyCollection<INebulaPlayer> players)
     {
-        return players.GetByConnectionStatus(EConnectionStatus.Pending);
+        return players.FilterByConnectionStatus(EConnectionStatus.Pending);
     }
 
-    public static IReadOnlyCollection<INebulaPlayer> GetSyncing(
+    /// <summary>
+    /// Filters to syncing players
+    /// </summary>
+    /// <param name="players"></param>
+    /// <returns></returns>
+    public static IReadOnlyCollection<INebulaPlayer> Syncing(
         this IReadOnlyCollection<INebulaPlayer> players)
     {
-        return players.GetByConnectionStatus(EConnectionStatus.Syncing);
+        return players.FilterByConnectionStatus(EConnectionStatus.Syncing);
     }
 
-    public static IReadOnlyCollection<INebulaPlayer> GetConnected(
+    /// <summary>
+    /// Filters to connected players.
+    /// </summary>
+    /// <param name="players"></param>
+    /// <returns></returns>
+    public static IReadOnlyCollection<INebulaPlayer> Connected(
         this IReadOnlyCollection<INebulaPlayer> players)
     {
-        return players.GetByConnectionStatus(EConnectionStatus.Connected);
+        return players.FilterByConnectionStatus(EConnectionStatus.Connected);
     }
 
     /// <summary>
