@@ -16,7 +16,7 @@ public static class PlayerCollectionExtensions
     }
 
     public static IReadOnlyCollection<INebulaPlayer> FilterByConnectionStatus(
-        this IReadOnlyCollection<INebulaPlayer> players, EConnectionStatus status)
+        this IEnumerable<INebulaPlayer> players, EConnectionStatus status)
     {
         return players
             .Where(value => value.Connection.ConnectionStatus == status)
@@ -30,7 +30,7 @@ public static class PlayerCollectionExtensions
     /// <param name="id"></param>
     /// <returns></returns>
     public static INebulaPlayer GetPlayer(
-        this IReadOnlyCollection<INebulaPlayer> players, ushort id)
+        this IEnumerable<INebulaPlayer> players, ushort id)
     {
         return players.FirstOrDefault(p => p.Id == id);
     }
@@ -42,7 +42,7 @@ public static class PlayerCollectionExtensions
     /// <param name="conn"></param>
     /// <returns> </returns>
     public static INebulaPlayer GetPlayer(
-        this IReadOnlyCollection<INebulaPlayer> players, INebulaConnection conn)
+        this IEnumerable<INebulaPlayer> players, INebulaConnection conn)
     {
         return players.FirstOrDefault(p => p.Connection.Equals(conn));
     }
@@ -54,7 +54,7 @@ public static class PlayerCollectionExtensions
     /// <param name="username"></param>
     /// <returns></returns>
     public static INebulaPlayer GetPlayer(
-        this IReadOnlyCollection<INebulaPlayer> players, string username)
+        this IEnumerable<INebulaPlayer> players, string username)
     {
         return players.FirstOrDefault(p => p.Data.Username == username);
     }
@@ -98,7 +98,7 @@ public static class PlayerCollectionExtensions
     /// <param name="players"></param>
     /// <returns></returns>
     public static IReadOnlyCollection<INebulaPlayer> Pending(
-        this IReadOnlyCollection<INebulaPlayer> players)
+        this IEnumerable<INebulaPlayer> players)
     {
         return players.FilterByConnectionStatus(EConnectionStatus.Pending);
     }
@@ -109,7 +109,7 @@ public static class PlayerCollectionExtensions
     /// <param name="players"></param>
     /// <returns></returns>
     public static IReadOnlyCollection<INebulaPlayer> Syncing(
-        this IReadOnlyCollection<INebulaPlayer> players)
+        this IEnumerable<INebulaPlayer> players)
     {
         return players.FilterByConnectionStatus(EConnectionStatus.Syncing);
     }
@@ -120,7 +120,7 @@ public static class PlayerCollectionExtensions
     /// <param name="players"></param>
     /// <returns></returns>
     public static IReadOnlyCollection<INebulaPlayer> Connected(
-        this IReadOnlyCollection<INebulaPlayer> players)
+        this IEnumerable<INebulaPlayer> players)
     {
         return players.FilterByConnectionStatus(EConnectionStatus.Connected);
     }
