@@ -357,14 +357,14 @@ public class Server : IServer
     }
 
     // Just to make a single entry point for all sends.
-    private void SendToPlayers<T>(IEnumerable<INebulaPlayer> players, T packet) where T : class, new()
+    public void SendTo<T>(IEnumerable<INebulaPlayer> players, T packet) where T : class, new()
     {
         players.ForEach(p => p.SendPacket(packet));
     }
 
     public void SendPacket<T>(T packet) where T : class, new()
     {
-        SendToPlayers(Players, packet);
+        SendTo(Players.Connected(), packet);
     }
 
     /// <summary>
@@ -377,9 +377,10 @@ public class Server : IServer
         where T : class, new()
     {
         var players = Players
-            .Connected()
-            .Where(p => condition(p));
-        SendToPlayers(players, packet);
+            .Where(p => condition(p))
+            .Connected();
+
+        SendTo(players, packet);
     }
 
     public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
