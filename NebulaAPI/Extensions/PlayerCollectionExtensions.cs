@@ -125,6 +125,11 @@ public static class PlayerCollectionExtensions
         return players.FilterByConnectionStatus(EConnectionStatus.Connected);
     }
 
+    public static bool Contains(this IReadOnlyCollection<INebulaPlayer> players, INebulaConnection conn)
+    {
+        return players.Any(p => p.Connection.Equals(conn));
+    }
+
     /// <summary>
     /// Returns a collection of all player data, including host.
     /// </summary>

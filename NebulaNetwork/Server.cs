@@ -377,7 +377,7 @@ public class Server : IServer
         where T : class, new()
     {
         var players = Players
-            .GetConnected()
+            .Connected()
             .Where(p => condition(p));
         SendToPlayers(players, packet);
     }
