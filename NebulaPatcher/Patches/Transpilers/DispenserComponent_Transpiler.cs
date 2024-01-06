@@ -100,7 +100,7 @@ public class DispenserComponent_Transpiler
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new DispenserAddTakePacket(factory.planetId,
                     entityId,
                     EDispenserAddTakeEvent.CourierTake,
@@ -114,7 +114,7 @@ public class DispenserComponent_Transpiler
     {
         if (Multiplayer.IsActive && useBan == false)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new DispenserAddTakePacket(factory.planetId,
                     entityId,
                     EDispenserAddTakeEvent.CourierAdd,
@@ -127,7 +127,7 @@ public class DispenserComponent_Transpiler
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalPlanet(
+            Multiplayer.Session.Network.SendToLocalPlanet(
                 new DispenserCourierPacket(GameMain.mainPlayer.planetId,
                     Multiplayer.Session.LocalPlayer.Id,
                     dispenser.id,

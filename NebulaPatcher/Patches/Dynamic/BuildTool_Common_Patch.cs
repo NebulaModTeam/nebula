@@ -40,7 +40,7 @@ internal class BuildTool_Common_Patch
                 ? Multiplayer.Session.LocalPlayer.Id
                 : Multiplayer.Session.Factories.PacketAuthor;
             var prebuildId = Multiplayer.Session.Factories.GetNextPrebuildId(planetId);
-            Multiplayer.Session.Network.SendPacketToStar(
+            Multiplayer.Session.Network.SendToStar(
                 new CreatePrebuildsRequest(planetId, previews, authorId, __instance.GetType().ToString(), prebuildId),
                 GameMain.galaxy.PlanetById(planetId).star.id);
         }
@@ -58,7 +58,7 @@ internal class BuildTool_Common_Patch
             var authorId = Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE
                 ? Multiplayer.Session.LocalPlayer.Id
                 : Multiplayer.Session.Factories.PacketAuthor;
-            Multiplayer.Session.Network.SendPacket(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews,
+            Multiplayer.Session.Network.SendToAll(new CreatePrebuildsRequest(GameMain.localPlanet?.id ?? -1, previews,
                 authorId, __instance.GetType().ToString(), -1));
             return false;
         }

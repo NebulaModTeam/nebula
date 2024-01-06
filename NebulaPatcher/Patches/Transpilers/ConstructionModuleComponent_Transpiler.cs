@@ -99,7 +99,7 @@ internal class ConstructionModuleComponent_Transpiler
                             //GameMain.mainPlayer.mecha.constructionModule.droneIdleCount--;
                             DroneManager.AddBuildRequest(targetObjectId);
 
-                            Multiplayer.Session.Network.SendPacket(new NewMechaDroneOrderPacket(GameMain.mainPlayer.planetId,
+                            Multiplayer.Session.Network.SendToAll(new NewMechaDroneOrderPacket(GameMain.mainPlayer.planetId,
                                 targetObjectId, Multiplayer.Session.LocalPlayer.Id, priority));
                         }
                         else
@@ -121,7 +121,7 @@ internal class ConstructionModuleComponent_Transpiler
                             DroneManager.AddPlayerDronePlan(closestPlayer, targetObjectId);
 
                             // tell players to send out drones only if we are the closest one. otherwise players will ask themselve in case they are able to send out drones.
-                            Multiplayer.Session.Network.SendPacketToPlanet(
+                            Multiplayer.Session.Network.SendToPlanet(
                                 new NewMechaDroneOrderPacket(GameMain.mainPlayer.planetId, targetObjectId, closestPlayer,
                                     priority), GameMain.mainPlayer.planetId);
 
@@ -179,7 +179,7 @@ internal class ConstructionModuleComponent_Transpiler
                                 }
                                 DroneManager.AddBuildRequest(
                                     targetId); // so clients will not receive any mecha drone order for this entity
-                                Multiplayer.Session.Network.SendPacketToPlanet(
+                                Multiplayer.Session.Network.SendToPlanet(
                                     new NewBattleBaseDroneOrderPacket(factory.planetId, targetId, _this.id, true),
                                     factory.planetId);
                                 _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
@@ -229,7 +229,7 @@ internal class ConstructionModuleComponent_Transpiler
                                 {
                                     DroneManager.AddBuildRequest(
                                         targetId); // so clients will not receive any mecha drone order for this entity
-                                    Multiplayer.Session.Network.SendPacketToPlanet(
+                                    Multiplayer.Session.Network.SendToPlanet(
                                         new NewBattleBaseDroneOrderPacket(factory.planetId, targetId, _this.id, false),
                                         factory.planetId);
                                     _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);

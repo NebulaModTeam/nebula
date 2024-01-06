@@ -22,7 +22,7 @@ internal class UIStatisticsWindow_Patch
             return;
         }
         Multiplayer.Session.Statistics.IsStatisticsNeeded = true;
-        Multiplayer.Session.Network.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowOpened));
+        Multiplayer.Session.Network.SendToAll(new StatisticsRequestEvent(StatisticEvent.WindowOpened));
     }
 
     [HarmonyPostfix]
@@ -36,7 +36,7 @@ internal class UIStatisticsWindow_Patch
             return;
         }
         Multiplayer.Session.Statistics.IsStatisticsNeeded = false;
-        Multiplayer.Session.Network.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowClosed));
+        Multiplayer.Session.Network.SendToAll(new StatisticsRequestEvent(StatisticEvent.WindowClosed));
     }
 
     [HarmonyPrefix]

@@ -68,7 +68,7 @@ internal class DysonSphere_Patch
         //If local is the author and not in the process of importing blueprint
         if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest && !Multiplayer.Session.DysonSpheres.InBlueprint)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSphereAddLayerPacket(__instance.starData.index,
+            Multiplayer.Session.Network.SendToAll(new DysonSphereAddLayerPacket(__instance.starData.index,
                 __instance.QueryLayerId(), orbitRadius, orbitRotation, orbitAngularSpeed));
         }
     }
@@ -98,7 +98,7 @@ internal class DysonSphere_Patch
         //If local is the author and not in the process of importing blueprint
         if (!Multiplayer.Session.DysonSpheres.IsIncomingRequest && !Multiplayer.Session.DysonSpheres.InBlueprint)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveLayerPacket(starIndex, id));
+            Multiplayer.Session.Network.SendToAll(new DysonSphereRemoveLayerPacket(starIndex, id));
         }
     }
 }

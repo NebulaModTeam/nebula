@@ -41,7 +41,7 @@ internal class UIDysonBrush_Paint_Transpiler
                             return;
                         }
                         var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
-                        Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, node.layerId,
+                        Multiplayer.Session.Network.SendToAll(new DysonSphereColorChangePacket(starIndex, node.layerId,
                             node.color, DysonSphereColorChangePacket.ComponentType.Node, node.id));
                     })
                 );
@@ -60,7 +60,7 @@ internal class UIDysonBrush_Paint_Transpiler
                             return;
                         }
                         var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
-                        Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, frame.layerId,
+                        Multiplayer.Session.Network.SendToAll(new DysonSphereColorChangePacket(starIndex, frame.layerId,
                             frame.color, DysonSphereColorChangePacket.ComponentType.Frame, frame.id));
                     })
                 );
@@ -79,7 +79,7 @@ internal class UIDysonBrush_Paint_Transpiler
                             return;
                         }
                         var starIndex = UIRoot.instance.uiGame.dysonEditor.selection.viewStar.index;
-                        Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, shell.layerId,
+                        Multiplayer.Session.Network.SendToAll(new DysonSphereColorChangePacket(starIndex, shell.layerId,
                             shell.color, DysonSphereColorChangePacket.ComponentType.Shell, shell.id));
                     })
                 );

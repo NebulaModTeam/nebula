@@ -25,7 +25,7 @@ internal class UISiloWindow_Patch
             return;
         }
         var storage = __instance.servingStorage;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new SiloStorageUpdatePacket(__instance.siloId,
+        Multiplayer.Session.Network.SendToLocalStar(new SiloStorageUpdatePacket(__instance.siloId,
             storage.grids[0].count, storage.grids[0].inc, GameMain.localPlanet?.id ?? -1));
     }
 
@@ -50,7 +50,7 @@ internal class UISiloWindow_Patch
             return;
         }
         boost = __instance.boostSwitch.isOn;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
+        Multiplayer.Session.Network.SendToLocalStar(new EntityBoostSwitchPacket
             (GameMain.localPlanet?.id ?? -1, EBoostEntityType.Silo, __instance.siloId, boost));
     }
 }

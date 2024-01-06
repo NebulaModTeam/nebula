@@ -41,7 +41,7 @@ public class LocalPlayerMovement : MonoBehaviour
         var uPosition = new Double3(GameMain.mainPlayer.uPosition.x, GameMain.mainPlayer.uPosition.y,
             GameMain.mainPlayer.uPosition.z);
         var position = rootTransform.position;
-        Multiplayer.Session.Network.SendPacket(new PlayerMovement(Multiplayer.Session.LocalPlayer.Id,
+        Multiplayer.Session.Network.SendToAll(new PlayerMovement(Multiplayer.Session.LocalPlayer.Id,
             GameMain.localPlanet?.id ?? -1, position.ToFloat3(), uPosition, rotation, bodyRotation,
             playerAnimator));
 

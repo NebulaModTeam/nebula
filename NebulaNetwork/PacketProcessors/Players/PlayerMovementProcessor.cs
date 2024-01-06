@@ -33,7 +33,7 @@ public class PlayerMovementProcessor : PacketProcessor<PlayerMovement>
                 player.Data.BodyRotation = packet.BodyRotation;
                 player.Data.LocalPlanetPosition = packet.LocalPlanetPosition;
 
-                Server.SendPacketExclude(packet, conn);
+                Server.SendToAllExcept(packet, conn);
             }
             else
             {

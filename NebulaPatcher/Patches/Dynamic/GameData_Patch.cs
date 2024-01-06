@@ -267,7 +267,7 @@ internal class GameData_Patch
         }
         //Request global part of GameData from host
         Log.Info("Requesting global GameData from the server");
-        Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
+        Multiplayer.Session.Network.SendToAll(new GlobalGameDataRequest());
 
         //Update player's position before searching for closest planet (GS2: Modeler.ModelingCoroutine)
         __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x,
@@ -394,7 +394,7 @@ internal class GameData_Patch
         }
         if (!Multiplayer.Session.IsInLobby)
         {
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
+            Multiplayer.Session.Network.SendToAll(new PlayerUpdateLocalStarId(-1));
         }
     }
 
@@ -407,8 +407,8 @@ internal class GameData_Patch
         {
             return;
         }
-        Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
-        Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id));
+        Multiplayer.Session.Network.SendToAll(new PlayerUpdateLocalStarId(star.id));
+        Multiplayer.Session.Network.SendToAll(new ILSArriveStarPlanetRequest(star.id));
     }
 
     [HarmonyPrefix]

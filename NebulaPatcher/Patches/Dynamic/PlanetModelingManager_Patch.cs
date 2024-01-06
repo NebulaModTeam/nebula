@@ -61,7 +61,7 @@ public class PlanetModelingManager_Patch
 
         // Request factory
         Log.Info($"Requested factory for planet {planet.name} (ID: {planet.id}) from host");
-        Multiplayer.Session.Network.SendPacket(new FactoryLoadRequest(planet.id));
+        Multiplayer.Session.Network.SendToAll(new FactoryLoadRequest(planet.id));
 
         // Skip running the actual method
         return false;
@@ -151,7 +151,7 @@ public class PlanetModelingManager_Patch
             {
                 planetsToRequest.Insert(0, localPlanetId);
             }
-            Multiplayer.Session.Network.SendPacket(new PlanetDataRequest(planetsToRequest.ToArray()));
+            Multiplayer.Session.Network.SendToAll(new PlanetDataRequest(planetsToRequest.ToArray()));
         }
     }
 
@@ -197,6 +197,6 @@ public class PlanetModelingManager_Patch
             return;
         }
         planet.calculating = true;
-        Multiplayer.Session.Network.SendPacket(new PlanetDetailRequest(planet.id));
+        Multiplayer.Session.Network.SendToAll(new PlanetDetailRequest(planet.id));
     }
 }

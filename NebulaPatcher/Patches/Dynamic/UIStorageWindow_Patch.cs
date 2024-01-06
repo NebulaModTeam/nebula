@@ -31,7 +31,7 @@ internal class UIStorageWindow_Patch
         storageUI._Free();
         storageUI._Open();
         storageUI.OnStorageDataChanged();
-        Multiplayer.Session.Network.SendPacket(new StorageSyncRequestPacket(__instance.factoryStorage.planet.id,
+        Multiplayer.Session.Network.SendToAll(new StorageSyncRequestPacket(__instance.factoryStorage.planet.id,
             __instance.storageId));
         return false;
     }

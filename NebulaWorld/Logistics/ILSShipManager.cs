@@ -180,7 +180,7 @@ public class ILSShipManager
      */
     private static void RequestStationDockPos(int gId)
     {
-        Multiplayer.Session.Network.SendPacket(new ILSRequestShipDock(gId));
+        Multiplayer.Session.Network.SendToAll(new ILSRequestShipDock(gId));
     }
 
     // This is triggered by server when InternalTickRemote() calls AddItem() or TakeItem()

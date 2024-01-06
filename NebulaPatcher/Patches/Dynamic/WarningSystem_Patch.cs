@@ -52,7 +52,7 @@ internal class WarningSystem_Patch
         {
             return;
         }
-        Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Data));
+        Multiplayer.Session.Network.SendToAll(new WarningDataRequest(WarningRequestEvent.Data));
         Multiplayer.Session.Warning.LastRequestTime = GameMain.gameTick;
     }
 }

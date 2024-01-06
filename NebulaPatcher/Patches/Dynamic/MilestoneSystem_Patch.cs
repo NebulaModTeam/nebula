@@ -26,6 +26,6 @@ internal class MilestoneSystem_Patch
         }
         var patternId = milestoneData.journalData.patternId;
         var parameters = milestoneData.journalData.parameters;
-        Multiplayer.Session.Network.SendPacket(new MilestoneUnlockPacket(id, unlockTick, patternId, parameters));
+        Multiplayer.Session.Network.SendToAll(new MilestoneUnlockPacket(id, unlockTick, patternId, parameters));
     }
 }

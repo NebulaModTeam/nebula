@@ -97,7 +97,7 @@ public class DroneManager : IDisposable
             if (dronePlans.Length > 0)
             {
                 var player = Multiplayer.Session.Server.Players.Connected().GetPlayer(kv.Key);
-                Multiplayer.Session.Network.SendPacketToPlanet(new RemoveDroneOrdersPacket(dronePlans, CachedPositions[kv.Key].PlanetId),
+                Multiplayer.Session.Network.SendToPlanet(new RemoveDroneOrdersPacket(dronePlans, CachedPositions[kv.Key].PlanetId),
                     player.Data.LocalPlanetId);
 
                 for (var i = 1; i < factory.constructionSystem.drones.cursor; i++)
@@ -140,7 +140,7 @@ public class DroneManager : IDisposable
         {
             return true;
         }
-        Multiplayer.Session.Network.SendPacket(new RemoveDroneOrdersPacket(new[] { entityId }, GameMain.mainPlayer.planetId));
+        Multiplayer.Session.Network.SendToAll(new RemoveDroneOrdersPacket(new[] { entityId }, GameMain.mainPlayer.planetId));
         RemoveBuildRequest(entityId);
         GameMain.galaxy.PlanetById(GameMain.mainPlayer.planetId)?.factory?.constructionSystem.constructServing.Remove(entityId);
         return false;

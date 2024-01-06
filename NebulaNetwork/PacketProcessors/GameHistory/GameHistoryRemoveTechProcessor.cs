@@ -29,7 +29,7 @@ internal class GameHistoryRemoveTechProcessor : PacketProcessor<GameHistoryRemov
         {
             if (Players.Connected().Contains(conn))
             {
-                Server.SendPacketExclude(packet, conn);
+                Server.SendToAllExcept(packet, conn);
             }
             else
             {

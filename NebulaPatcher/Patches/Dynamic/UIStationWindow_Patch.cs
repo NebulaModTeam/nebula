@@ -199,7 +199,7 @@ internal class UIStationWindow_Patch
         var stationComponent = __instance.transport.stationPool[__instance.stationId];
         var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
             StationUI.EUISettings.PilerCount, stationComponent.pilerCount);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
     }
 
     [HarmonyPrefix]
@@ -213,7 +213,7 @@ internal class UIStationWindow_Patch
         var packet = new StationUI(__instance.factory.planet.id,
             __instance.factory.transport.stationPool[__instance.stationId].id,
             __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.WarperNeeded, 0f);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
@@ -228,7 +228,7 @@ internal class UIStationWindow_Patch
         var packet = new StationUI(__instance.factory.planet.id,
             __instance.factory.transport.stationPool[__instance.stationId].id,
             __instance.factory.transport.stationPool[__instance.stationId].gid, StationUI.EUISettings.IncludeCollectors, 0f);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 
@@ -259,7 +259,7 @@ internal class UIStationWindow_Patch
         var droneCount = stationComponent.idleDroneCount + stationComponent.workDroneCount;
         var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
             StationUI.EUISettings.SetDroneCount, droneCount);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
         if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
             return;
@@ -281,7 +281,7 @@ internal class UIStationWindow_Patch
         var stationComponent = __instance.transport.stationPool[__instance.stationId];
         var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
             StationUI.EUISettings.DroneAutoReplenish, stationComponent.droneAutoReplenish ? 1f : 0f);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
     }
 
     [HarmonyPrefix]
@@ -311,7 +311,7 @@ internal class UIStationWindow_Patch
         var ShipCount = stationComponent.idleShipCount + stationComponent.workShipCount;
         var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
             StationUI.EUISettings.SetShipCount, ShipCount);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
         if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
             return;
@@ -333,7 +333,7 @@ internal class UIStationWindow_Patch
         var stationComponent = __instance.transport.stationPool[__instance.stationId];
         var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
             StationUI.EUISettings.ShipAutoReplenish, stationComponent.shipAutoReplenish ? 1f : 0f);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
     }
 
     [HarmonyPrefix]
@@ -362,7 +362,7 @@ internal class UIStationWindow_Patch
         }
         var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
             StationUI.EUISettings.SetWarperCount, stationComponent.warperCount);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
         if (!Multiplayer.Session.LocalPlayer.IsClient)
         {
             return;
@@ -404,7 +404,7 @@ internal class UIStationWindow_Patch
         __instance.panelDown.SetActive(false);
 
         // for some reason advance miner has planetId set to 0, so we use UI's factory planetId
-        Multiplayer.Session.Network.SendPacket(new StationUIInitialSyncRequest(__instance.factory.planetId, stationComponent.id,
+        Multiplayer.Session.Network.SendToAll(new StationUIInitialSyncRequest(__instance.factory.planetId, stationComponent.id,
             stationComponent.gid));
     }
 
@@ -424,7 +424,7 @@ internal class UIStationWindow_Patch
             if (Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex != StationUI.EUISettings.None)
             {
                 // Send SliderBarPacket when left mouse button is released
-                Multiplayer.Session.Network.SendPacket(Multiplayer.Session.StationsUI.SliderBarPacket);
+                Multiplayer.Session.Network.SendToAll(Multiplayer.Session.StationsUI.SliderBarPacket);
                 Multiplayer.Session.StationsUI.SliderBarPacket.SettingIndex = StationUI.EUISettings.None;
             }
             if (Multiplayer.Session.StationsUI.StorageMaxChangeId >= 0)
@@ -449,7 +449,7 @@ internal class UIStationWindow_Patch
         var gid = __instance.transport?.stationPool?[__instance.stationId].gid ?? 0;
         if (gid > 0)
         {
-            Multiplayer.Session.Network.SendPacket(new RemoteOrderUpdate(gid, Array.Empty<int>()));
+            Multiplayer.Session.Network.SendToAll(new RemoteOrderUpdate(gid, Array.Empty<int>()));
         }
         lastUpdateGametick = GameMain.gameTick;
 

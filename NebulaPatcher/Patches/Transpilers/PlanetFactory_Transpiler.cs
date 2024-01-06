@@ -32,7 +32,7 @@ internal class PlanetFactory_Transpiler
             var factoryManager = Multiplayer.Session.Factories;
             if ((Multiplayer.Session.LocalPlayer.IsHost && !factoryManager.IsIncomingRequest.Value) || Multiplayer.Session.LocalPlayer.Id == factoryManager.PacketAuthor)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId,
+                Multiplayer.Session.Network.SendToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId,
                     offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
         }
@@ -45,7 +45,7 @@ internal class PlanetFactory_Transpiler
             var factoryManager = Multiplayer.Session.Factories;
             if ((Multiplayer.Session.LocalPlayer.IsHost && !factoryManager.IsIncomingRequest.Value) || Multiplayer.Session.LocalPlayer.Id == factoryManager.PacketAuthor)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId,
+                Multiplayer.Session.Network.SendToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId,
                     inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
             }
         }
@@ -151,13 +151,13 @@ internal class PlanetFactory_Transpiler
                             }
                             if (Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                Multiplayer.Session.Network.SendPacketToStar(
+                                Multiplayer.Session.Network.SendToStar(
                                     new BeltUpdatePutItemOnPacket(beltId, itemId, itemCount, itemInc, factory.planetId),
                                     factory.planet.star.id);
                             }
                             else
                             {
-                                Multiplayer.Session.Network.SendPacket(new BeltUpdatePutItemOnPacket(beltId, itemId,
+                                Multiplayer.Session.Network.SendToAll(new BeltUpdatePutItemOnPacket(beltId, itemId,
                                     itemCount, itemInc, factory.planetId));
                             }
                             return true;
@@ -198,12 +198,12 @@ internal class PlanetFactory_Transpiler
 
                             if (Multiplayer.Session.LocalPlayer.IsHost)
                             {
-                                Multiplayer.Session.Network.SendPacketToStar(
+                                Multiplayer.Session.Network.SendToStar(
                                     new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId), factory.planet.star.id);
                             }
                             else
                             {
-                                Multiplayer.Session.Network.SendPacket(
+                                Multiplayer.Session.Network.SendToAll(
                                     new BeltUpdatePickupItemsPacket(bUpdate, factory.planetId));
                             }
                             return result;

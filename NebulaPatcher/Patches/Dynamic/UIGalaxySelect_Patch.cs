@@ -121,7 +121,7 @@ internal class UIGalaxySelect_Patch
         }
         else
         {
-            Multiplayer.Session.Network.SendPacket(new StartGameMessage());
+            Multiplayer.Session.Network.SendToAll(new StartGameMessage());
         }
 
         return false;

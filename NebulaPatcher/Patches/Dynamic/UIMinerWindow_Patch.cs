@@ -17,7 +17,7 @@ internal class UIMinerWindow_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new MinerStoragePickupPacket(__instance.minerId,
+            Multiplayer.Session.Network.SendToLocalStar(new MinerStoragePickupPacket(__instance.minerId,
                 GameMain.localPlanet?.id ?? -1));
         }
     }

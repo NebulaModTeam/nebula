@@ -22,7 +22,7 @@ internal class SpeakerComponent_Patch
         }
         //Assume the monitor is on local planet
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new SpeakerSettingUpdatePacket(planetId, __instance.id, SpeakerSettingEvent.SetTone, __0));
     }
 
@@ -35,7 +35,7 @@ internal class SpeakerComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new SpeakerSettingUpdatePacket(planetId, __instance.id, SpeakerSettingEvent.SetVolume, __0));
     }
 
@@ -48,7 +48,7 @@ internal class SpeakerComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new SpeakerSettingUpdatePacket(planetId, __instance.id, SpeakerSettingEvent.SetPitch, __0));
     }
 
@@ -62,7 +62,7 @@ internal class SpeakerComponent_Patch
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
         var p1 = BitConverter.ToInt32(BitConverter.GetBytes(__0), 0);
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new SpeakerSettingUpdatePacket(planetId, __instance.id, SpeakerSettingEvent.SetLength, p1));
     }
 
@@ -75,7 +75,7 @@ internal class SpeakerComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new SpeakerSettingUpdatePacket(planetId, __instance.id, SpeakerSettingEvent.SetRepeat, __0 ? 1 : 0));
     }
 
@@ -90,7 +90,7 @@ internal class SpeakerComponent_Patch
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
         var p1 = BitConverter.ToInt32(BitConverter.GetBytes(__0), 0);
         var p2 = BitConverter.ToInt32(BitConverter.GetBytes(__1), 0);
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new SpeakerSettingUpdatePacket(planetId, __instance.id, SpeakerSettingEvent.SetFalloffRadius, p1, p2));
     }
 }

@@ -23,7 +23,7 @@ public class PlayerMechaArmorProcessor : PacketProcessor<PlayerMechaArmor>
             // broadcast to other players
             if (Players.Connected().Contains(conn))
             {
-                Server.SendPacketExclude(packet, conn);
+                Server.SendToAllExcept(packet, conn);
             }
         }
 

@@ -29,7 +29,7 @@ internal class DysonSwarm_Patch
             return;
         }
         var orbitId = DysonSphereManager.QueryOrbitId(__instance);
-        Multiplayer.Session.Network.SendPacket(new DysonSwarmAddOrbitPacket(__instance.starData.index, orbitId, radius,
+        Multiplayer.Session.Network.SendToAll(new DysonSwarmAddOrbitPacket(__instance.starData.index, orbitId, radius,
             rotation));
     }
 
@@ -44,7 +44,7 @@ internal class DysonSwarm_Patch
         //If local is the author and not in the process of importing blueprint
         if (!Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket && !Multiplayer.Session.DysonSpheres.InBlueprint)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId,
+            Multiplayer.Session.Network.SendToAll(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId,
                 SwarmRemoveOrbitEvent.Remove));
         }
     }
@@ -60,7 +60,7 @@ internal class DysonSwarm_Patch
         //Notify others that orbit for Dyson Swarm was enabled/disabled
         if (!Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId,
+            Multiplayer.Session.Network.SendToAll(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId,
                 enabled ? SwarmRemoveOrbitEvent.Enable : SwarmRemoveOrbitEvent.Disable));
         }
     }
@@ -77,7 +77,7 @@ internal class DysonSwarm_Patch
         // In DysonSwarm.GameTick() it will automatically clean every 21600 ticks
         if (!Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket && GameMain.gameTick % 21600L != 0L)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId,
+            Multiplayer.Session.Network.SendToAll(new DysonSwarmRemoveOrbitPacket(__instance.starData.index, orbitId,
                 SwarmRemoveOrbitEvent.RemoveSails));
         }
     }
@@ -88,7 +88,7 @@ internal class DysonSwarm_Patch
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IncomingDysonSwarmPacket)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, radius,
+            Multiplayer.Session.Network.SendToAll(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, radius,
                 rotation));
         }
     }
@@ -105,7 +105,7 @@ internal class DysonSwarm_Patch
         {
             return;
         }
-        Multiplayer.Session.Network.SendPacket(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, hsva));
+        Multiplayer.Session.Network.SendToAll(new DysonSwarmEditOrbitPacket(__instance.starData.index, orbitId, hsva));
         storedHsva = hsva;
     }
 }

@@ -26,7 +26,7 @@ internal class NewChatMessageProcessor : PacketProcessor<NewChatMessagePacket>
 
         if (IsHost)
         {
-            Server.SendPacketExclude(packet, conn);
+            Server.SendToAllExcept(packet, conn);
         }
 
         var sentAt = packet.SentAt == 0 ? DateTime.Now : DateTime.FromBinary(packet.SentAt);

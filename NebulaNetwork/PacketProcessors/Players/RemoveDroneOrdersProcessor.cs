@@ -79,7 +79,7 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
                 DroneManager.AddPlayerDronePlan(nextClosestPlayer, targetObjectId);
 
                 // tell players to send out drones
-                Multiplayer.Session.Network.SendPacketToPlanet(
+                Multiplayer.Session.Network.SendToPlanet(
                     new NewMechaDroneOrderPacket(player.Data.LocalPlanetId, targetObjectId,
                         nextClosestPlayer, /*TODO: rip*/true), player.Data.LocalPlanetId);
                 factory.constructionSystem.constructServing.Add(targetObjectId);

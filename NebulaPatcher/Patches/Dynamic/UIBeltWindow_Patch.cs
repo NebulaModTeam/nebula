@@ -18,7 +18,7 @@ internal class UIBeltWindow_Patch
         // Notify others about belt direction reverse
         if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltReversePacket(__instance.beltId,
+            Multiplayer.Session.Network.SendToLocalStar(new BeltReversePacket(__instance.beltId,
                 __instance.factory.planetId));
         }
     }

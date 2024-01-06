@@ -42,7 +42,7 @@ internal class PlayerAction_Mine_Transpiler
                     // do we need to check for the event here? its very unlikely that we call the GameTick() by hand...
                     if (Multiplayer.IsActive && !Multiplayer.Session.Planets.IsIncomingRequest)
                     {
-                        Multiplayer.Session.Network.SendPacketToLocalStar(new VegeMinedPacket(_this.player.planetId,
+                        Multiplayer.Session.Network.SendToLocalStar(new VegeMinedPacket(_this.player.planetId,
                             _this.miningId,
                             _this.player.factory.veinPool[_this.miningId].amount, true));
                     }

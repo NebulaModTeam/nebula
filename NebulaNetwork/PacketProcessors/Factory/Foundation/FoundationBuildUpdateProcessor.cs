@@ -77,7 +77,7 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
         }
         if (planet != null)
         {
-            Multiplayer.Session.Network.SendPacketToStar(packet, planet.star.id);
+            Multiplayer.Session.Network.SendToStar(packet, planet.star.id);
         }
     }
 }

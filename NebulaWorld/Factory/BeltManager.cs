@@ -40,7 +40,7 @@ public class BeltManager : IDisposable
     {
         if (GameMain.data.localPlanet != null)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new BeltUpdatePickupItemsPacket(beltPickupUpdates.ToArray(), GameMain.data.localPlanet.id));
         }
 

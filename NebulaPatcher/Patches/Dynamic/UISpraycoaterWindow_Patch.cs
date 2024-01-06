@@ -25,6 +25,6 @@ internal class UISpraycoaterWindow_Patch
     {
         var spraycoater = window.traffic.spraycoaterPool[window._spraycoaterId];
         var planetId = window.traffic.planet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new SprayerStorageUpdatePacket(in spraycoater, planetId));
+        Multiplayer.Session.Network.SendToLocalStar(new SprayerStorageUpdatePacket(in spraycoater, planetId));
     }
 }

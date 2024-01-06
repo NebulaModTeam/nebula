@@ -23,7 +23,7 @@ internal class DESelection_Patch
         if (!UIRoot.instance.uiGame.dysonEditor.sceneGroup.activeSelf)
         {
             //Request the latest list of existing dyson spheres
-            Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(0, DysonSphereRequestEvent.List));
+            Multiplayer.Session.Network.SendToAll(new DysonSphereLoadRequest(0, DysonSphereRequestEvent.List));
             if (GameMain.localStar == null)
             {
                 //In outer space, set initial viewStar to the one that has dyson sphere

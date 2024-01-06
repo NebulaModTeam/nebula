@@ -27,7 +27,7 @@ internal class UILabWindow_Patch
             return;
         }
         //Notify about changing matrix selection
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new LaboratoryUpdateEventPacket(index, __instance.labId, GameMain.localPlanet?.id ?? -1));
         __state = true;
     }
@@ -45,12 +45,12 @@ internal class UILabWindow_Patch
         var labComponent = GameMain.localPlanet.factory.factorySystem.labPool[__instance.labId];
         if (labComponent.researchMode)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateCubesPacket(labComponent.matrixServed[index],
+            Multiplayer.Session.Network.SendToLocalStar(new LaboratoryUpdateCubesPacket(labComponent.matrixServed[index],
                 labComponent.matrixIncServed[index], index, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
         else if (labComponent.matrixMode)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new LaboratoryUpdateStoragePacket(labComponent.served[index],
+            Multiplayer.Session.Network.SendToLocalStar(new LaboratoryUpdateStoragePacket(labComponent.served[index],
                 labComponent.incServed[index], index, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -68,13 +68,13 @@ internal class UILabWindow_Patch
         if (labComponent.matrixMode)
         {
             //Notify about withdrawing produced cubes
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new LaboratoryUpdateEventPacket(-3, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
         else if (!labComponent.researchMode)
         {
             //Notify about selection of research mode
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new LaboratoryUpdateEventPacket(-1, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -86,7 +86,7 @@ internal class UILabWindow_Patch
         //Notify about recipe reset
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new LaboratoryUpdateEventPacket(-2, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -98,7 +98,7 @@ internal class UILabWindow_Patch
         //Notify about production mode switch
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new LaboratoryUpdateEventPacket(-4, __instance.labId, GameMain.localPlanet?.id ?? -1));
         }
     }

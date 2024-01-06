@@ -20,7 +20,7 @@ internal class UITankWindow_Patch
             return;
         }
         var thisTank = __instance.storage.tankPool[__instance.tankId];
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TankStorageUpdatePacket(in thisTank,
+        Multiplayer.Session.Network.SendToLocalStar(new TankStorageUpdatePacket(in thisTank,
             GameMain.localPlanet?.id ?? -1));
     }
 
@@ -30,7 +30,7 @@ internal class UITankWindow_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, false,
+            Multiplayer.Session.Network.SendToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, false,
                 __instance.storage.tankPool[__instance.tankId].outputSwitch, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -41,7 +41,7 @@ internal class UITankWindow_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, true,
+            Multiplayer.Session.Network.SendToLocalStar(new TankInputOutputSwitchPacket(__instance.tankId, true,
                 __instance.storage.tankPool[__instance.tankId].inputSwitch, GameMain.localPlanet?.id ?? -1));
         }
     }

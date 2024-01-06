@@ -27,7 +27,7 @@ internal class GameHistoryData_Patch
         }
         //Synchronize enqueueing techs by players
         Log.Info("Sending Enqueue Tech notification");
-        Multiplayer.Session.Network.SendPacket(new GameHistoryEnqueueTechPacket(techId));
+        Multiplayer.Session.Network.SendToAll(new GameHistoryEnqueueTechPacket(techId));
     }
 
     [HarmonyPrefix]
@@ -53,7 +53,7 @@ internal class GameHistoryData_Patch
         }
         //Synchronize dequeueing techs by players and trigger refunds for all clients
         Log.Info($"Sending Dequeue Tech notification: remove techID{__state}");
-        Multiplayer.Session.Network.SendPacket(new GameHistoryRemoveTechPacket(__state));
+        Multiplayer.Session.Network.SendToAll(new GameHistoryRemoveTechPacket(__state));
     }
 
     [HarmonyPostfix]
@@ -71,7 +71,7 @@ internal class GameHistoryData_Patch
         }
         //Synchronize pausing techs by players
         Log.Info("Sending Pause Tech queue notification");
-        Multiplayer.Session.Network.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.PauseQueue));
+        Multiplayer.Session.Network.SendToAll(new GameHistoryNotificationPacket(GameHistoryEvent.PauseQueue));
     }
 
     [HarmonyPostfix]
@@ -89,7 +89,7 @@ internal class GameHistoryData_Patch
         }
         //Synchronize resuming techs by players
         Log.Info("Sending Resume Tech queue notification");
-        Multiplayer.Session.Network.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.ResumeQueue));
+        Multiplayer.Session.Network.SendToAll(new GameHistoryNotificationPacket(GameHistoryEvent.ResumeQueue));
     }
 
     [HarmonyPrefix]
@@ -143,6 +143,6 @@ internal class GameHistoryData_Patch
         // Synchronize unlocking techs
         Log.Info("Sending Tech Unlocked notification");
         GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
-        Multiplayer.Session.Network.SendPacket(new GameHistoryUnlockTechPacket(_techId, _level));
+        Multiplayer.Session.Network.SendToAll(new GameHistoryUnlockTechPacket(_techId, _level));
     }
 }

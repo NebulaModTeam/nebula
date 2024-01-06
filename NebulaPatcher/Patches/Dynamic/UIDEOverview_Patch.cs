@@ -32,10 +32,10 @@ internal class UIDEOverview_Patch
         switch (__instance.autoConstructSwitch.isOn)
         {
             case true when !GameMain.data.history.HasFeatureKey(1100002):
-                Multiplayer.Session.Network.SendPacket(new GameHistoryFeatureKeyPacket(1100002, true));
+                Multiplayer.Session.Network.SendToAll(new GameHistoryFeatureKeyPacket(1100002, true));
                 break;
             case false when GameMain.data.history.HasFeatureKey(1100002):
-                Multiplayer.Session.Network.SendPacket(new GameHistoryFeatureKeyPacket(1100002, false));
+                Multiplayer.Session.Network.SendToAll(new GameHistoryFeatureKeyPacket(1100002, false));
                 break;
         }
     }

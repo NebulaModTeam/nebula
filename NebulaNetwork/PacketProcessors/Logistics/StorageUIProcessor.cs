@@ -23,7 +23,7 @@ internal class StorageUIProcessor : PacketProcessor<StorageUI>
             Multiplayer.Session.StationsUI.UpdateStorage(packet);
 
             // broadcast to other clients 
-            Server.SendPacketExclude(packet, conn);
+            Server.SendToAllExcept(packet, conn);
 
             // as we block some methods for the client he must run it once he receives this packet.
             // but only the one issued the request should get items refund

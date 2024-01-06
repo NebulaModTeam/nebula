@@ -38,7 +38,7 @@ internal class DysonBlueprintData_Patch
         }
         var starIndex = sphere.starData.index;
         var layerId = layer?.id ?? -1;
-        Multiplayer.Session.Network.SendPacket(new DysonBlueprintPacket(starIndex, layerId, requestType, str64Data));
+        Multiplayer.Session.Network.SendToAll(new DysonBlueprintPacket(starIndex, layerId, requestType, str64Data));
     }
 #pragma warning restore Harmony003
 }

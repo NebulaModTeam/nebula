@@ -23,7 +23,7 @@ internal class PowerTowerChargerUpdateProcessor : PacketProcessor<PowerTowerChar
             if (IsHost)
             {
                 // Broadcast the leave planet event to other players 
-                Multiplayer.Session.Network.SendPacket(packet);
+                Multiplayer.Session.Network.SendToAll(packet);
             }
             return;
         }

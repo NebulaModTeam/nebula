@@ -62,7 +62,7 @@ internal class StorageSyncRealtimeChangeProcessor : PacketProcessor<StorageSyncR
                 return;
             }
             var starId = GameMain.galaxy.PlanetById(packet.PlanetId).star.id;
-            Multiplayer.Session.Network.SendPacketToStarExclude(packet, starId, conn);
+            Multiplayer.Session.Network.SendToStarExcept(packet, starId, conn);
         }
     }
 }

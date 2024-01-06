@@ -49,7 +49,7 @@ public class WhisperCommandHandler : IChatCommandHandler
         }
         else
         {
-            Multiplayer.Session.Network.SendPacket(packet);
+            Multiplayer.Session.Network.SendToAll(packet);
         }
     }
 

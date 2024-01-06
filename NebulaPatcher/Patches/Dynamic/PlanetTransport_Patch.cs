@@ -31,7 +31,7 @@ internal class PlanetTransport_Patch
         }
         var packet = new StorageUI(__instance.planet.id, stationComponent.id, stationComponent.gid, storageIdx, itemId,
             itemCountMax, localLogic, remoteLogic);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
 
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
@@ -61,7 +61,7 @@ internal class PlanetTransport_Patch
         // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
         Log.Info(
             $"Send AddStationComponen to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
-        Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid,
+        Multiplayer.Session.Network.SendToAll(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid,
             _desc.stationMaxShipCount));
     }
 
@@ -107,7 +107,7 @@ internal class PlanetTransport_Patch
         {
             return;
         }
-        Multiplayer.Session.Network.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, RemovingStationGId));
+        Multiplayer.Session.Network.SendToAll(new ILSRemoveStationComponent(id, __instance.planet.id, RemovingStationGId));
     }
 
     [HarmonyPrefix]
@@ -116,7 +116,7 @@ internal class PlanetTransport_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId,
+            Multiplayer.Session.Network.SendToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId,
                 EDispenserSettingEvent.SetFilter, filter));
         }
     }
@@ -128,7 +128,7 @@ internal class PlanetTransport_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId,
+            Multiplayer.Session.Network.SendToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId,
                 EDispenserSettingEvent.SetPlayerDeliveryMode, (int)playerDeliveryMode));
         }
     }
@@ -140,7 +140,7 @@ internal class PlanetTransport_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId,
+            Multiplayer.Session.Network.SendToLocalStar(new DispenserSettingPacket(__instance.planet.id, dispenserId,
                 EDispenserSettingEvent.SetStorageDeliveryMode, (int)storageDeliveryMode));
         }
     }

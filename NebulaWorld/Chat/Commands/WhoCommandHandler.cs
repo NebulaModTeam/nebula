@@ -20,7 +20,7 @@ public class WhoCommandHandler : IChatCommandHandler
         if (!Multiplayer.Session.LocalPlayer.IsHost)
         {
             // send a request to host
-            Multiplayer.Session.Network.SendPacket(new ChatCommandWhoPacket(true, null));
+            Multiplayer.Session.Network.SendToAll(new ChatCommandWhoPacket(true, null));
         }
         else
         {

@@ -21,7 +21,7 @@ public class UITechTree_Patch
             return true;
         }
         // Let host run one key unlock function
-        Multiplayer.Session.Network.SendPacket(new GameHistoryNotificationPacket(GameHistoryEvent.OneKeyUnlock));
+        Multiplayer.Session.Network.SendToAll(new GameHistoryNotificationPacket(GameHistoryEvent.OneKeyUnlock));
         Log.Info("Sent OneKeyUnlock request to host");
         return false;
     }

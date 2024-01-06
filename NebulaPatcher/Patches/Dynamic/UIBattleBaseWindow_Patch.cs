@@ -15,7 +15,7 @@ internal class UIBattleBaseWindow_Patch
     private static void SendEvent(UIBattleBaseWindow __instance, BattleBaseSettingEvent settingEvent, float arg)
     {
         // client will wait for server approve those interactions
-        Multiplayer.Session.Network.SendPacket(new BattleBaseSettingUpdatePacket(
+        Multiplayer.Session.Network.SendToAll(new BattleBaseSettingUpdatePacket(
             __instance.factory.planetId, __instance.battleBaseId,
             settingEvent, arg));
     }

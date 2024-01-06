@@ -68,7 +68,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
         }
 
         var inGamePlayersDatas = Multiplayer.Session.Server.Players.GetAllPlayerData();
-        Server.SendPacket(new SyncComplete(inGamePlayersDatas));
+        Server.SendToAll(new SyncComplete(inGamePlayersDatas));
 
         // Since the host is always in the game he could already have changed his mecha armor, so send it to the new player.
         using (var writer = new BinaryUtils.Writer())
@@ -83,7 +83,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
             using (var writer = new BinaryUtils.Writer())
             {
                 player.Data.Appearance.Export(writer.BinaryWriter);
-                Server.SendPacket(new PlayerMechaArmor(player.Id, writer.CloseAndGetBytes()));
+                Server.SendToAll(new PlayerMechaArmor(player.Id, writer.CloseAndGetBytes()));
             }
 
             // and load custom appearance on host side too

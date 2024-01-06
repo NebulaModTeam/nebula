@@ -85,7 +85,7 @@ internal class UIStationStorage_Patch
         }
         var packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id,
             __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
     }
 
     /*
@@ -117,7 +117,7 @@ internal class UIStationStorage_Patch
         }
         var packet = new StorageUI(__instance.stationWindow.factory.planet.id, __instance.station.id,
             __instance.station.gid, __instance.index, stationStore.count, stationStore.inc);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
     }
 
     /*
@@ -135,7 +135,7 @@ internal class UIStationStorage_Patch
 
         var packet = new StorageUI(__instance.stationWindow.factory.planet.id,
             __instance.station.id, __instance.station.gid, __instance.index, (byte)stationStore.keepMode);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
     }
 }
 #pragma warning restore Harmony003

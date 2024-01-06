@@ -83,7 +83,7 @@ public class StationComponent_Transpiler
             {
                 if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost && ShipIndex.Count > 0)
                 {
-                    Multiplayer.Session.Network.SendPacket(new ILSRematchRemotePairs(stationComponent.gid, ShipIndex, OtherGId,
+                    Multiplayer.Session.Network.SendToAll(new ILSRematchRemotePairs(stationComponent.gid, ShipIndex, OtherGId,
                         Direction, ItemId));
                 }
                 ShipIndex.Clear();
@@ -140,7 +140,7 @@ public class StationComponent_Transpiler
             {
                 if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                 {
-                    Multiplayer.Session.Network.SendPacketToStar(
+                    Multiplayer.Session.Network.SendToStar(
                         new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc),
                         GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                 }
@@ -176,7 +176,7 @@ public class StationComponent_Transpiler
             {
                 if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                 {
-                    Multiplayer.Session.Network.SendPacketToStar(
+                    Multiplayer.Session.Network.SendToStar(
                         new ILSShipAddTake(true, shipData.itemId, shipData.itemCount, stationComponent.gid, shipData.inc),
                         GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                 }
@@ -206,7 +206,7 @@ public class StationComponent_Transpiler
                 {
                     if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                     {
-                        Multiplayer.Session.Network.SendPacketToStar(
+                        Multiplayer.Session.Network.SendToStar(
                             new ILSShipAddTake(false, itemId, itemCount, stationComponent.gid, j),
                             GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);
                     }
@@ -236,7 +236,7 @@ public class StationComponent_Transpiler
                         return;
                     }
                     var packet = new ILSWorkShipBackToIdle(stationComponent, shipData, j);
-                    Multiplayer.Session.Network.SendPacket(packet);
+                    Multiplayer.Session.Network.SendToAll(packet);
                 }));
 
         #endregion
@@ -280,7 +280,7 @@ public class StationComponent_Transpiler
                     {
                         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
                         {
-                            Multiplayer.Session.Network.SendPacketToStar(
+                            Multiplayer.Session.Network.SendToStar(
                                 new ILSUpdateStorage(stationComponent.gid, index, stationComponent.storage[index].count,
                                     stationComponent.storage[index].inc),
                                 GameMain.galaxy.PlanetById(stationComponent.planetId).star.id);

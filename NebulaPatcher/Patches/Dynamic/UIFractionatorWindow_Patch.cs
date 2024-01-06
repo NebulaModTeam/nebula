@@ -20,7 +20,7 @@ internal class UIFractionatorWindow_Patch
             return;
         }
         var fractionator = __instance.factorySystem.fractionatorPool[__instance.fractionatorId];
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new FractionatorStorageUpdatePacket(in fractionator, __instance.factory.planetId));
     }
 }

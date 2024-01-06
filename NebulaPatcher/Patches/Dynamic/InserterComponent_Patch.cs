@@ -70,7 +70,7 @@ internal class InserterComponent_Patch
         }
         if (flag && Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new InserterOffsetCorrectionPacket(__instance.id,
+            Multiplayer.Session.Network.SendToLocalStar(new InserterOffsetCorrectionPacket(__instance.id,
                 __instance.pickOffset, __instance.insertOffset, traffic.factory.planetId));
         }
 

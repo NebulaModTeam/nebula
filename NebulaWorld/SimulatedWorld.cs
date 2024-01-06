@@ -158,13 +158,13 @@ public class SimulatedWorld : IDisposable
 
             // Notify the server that we are done loading the game
             var clientCert = CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert());
-            Multiplayer.Session.Network.SendPacket(new SyncComplete(clientCert));
+            Multiplayer.Session.Network.SendToAll(new SyncComplete(clientCert));
 
             // Subscribe for the local star events
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+            Multiplayer.Session.Network.SendToAll(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
 
             // Request latest warning signal
-            Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Signal));
+            Multiplayer.Session.Network.SendToAll(new WarningDataRequest(WarningRequestEvent.Signal));
 
             // Hide the "Joining Game" popup
             InGamePopup.FadeOut();
@@ -214,7 +214,7 @@ public class SimulatedWorld : IDisposable
         if (Config.Options.SyncSoil)
         {
             GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
-            Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+            Multiplayer.Session.Network.SendToAll(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
         // Reset local and remote chargers ids to recalculate and broadcast the current ids to new player
         Multiplayer.Session.PowerTowers.ResetAndBroadcast();
@@ -239,7 +239,7 @@ public class SimulatedWorld : IDisposable
         {
             GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
             UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
-            Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+            Multiplayer.Session.Network.SendToAll(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
         // Reset local and remote chargers ids to remove the ids used by the disconnected player
         Multiplayer.Session.PowerTowers.ResetAndBroadcast();

@@ -17,7 +17,7 @@ internal class GalacticTransport_Patch
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.LocalPlayer.IsHost)
         {
-            Multiplayer.Session.Network.SendPacket(new ILSRequestgStationPoolSync());
+            Multiplayer.Session.Network.SendToAll(new ILSRequestgStationPoolSync());
         }
     }
 

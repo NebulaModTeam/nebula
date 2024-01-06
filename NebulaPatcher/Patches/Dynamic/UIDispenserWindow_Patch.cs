@@ -23,7 +23,7 @@ internal class UIDispenserWindow_Patch
             return;
         }
         var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new DispenserSettingPacket(__instance.factory.planetId,
                 __instance.dispenserId,
                 EDispenserSettingEvent.SetCourierCount,
@@ -39,7 +39,7 @@ internal class UIDispenserWindow_Patch
             return;
         }
         var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new DispenserSettingPacket(__instance.factory.planetId,
                 __instance.dispenserId,
                 EDispenserSettingEvent.ToggleAutoReplenish,
@@ -57,7 +57,7 @@ internal class UIDispenserWindow_Patch
         var dispenserComponent = __instance.transport.dispenserPool[__instance.dispenserId];
         if (__instance.player.inhandItemId == 0 && __instance.player.inhandItemCount == 0)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new DispenserStorePacket(__instance.factory.planetId,
                     in dispenserComponent));
         }
@@ -69,7 +69,7 @@ internal class UIDispenserWindow_Patch
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.StationsUI.IsIncomingRequest.Value)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new DispenserSettingPacket(__instance.factory.planetId,
                     __instance.dispenserId,
                     EDispenserSettingEvent.SetMaxChargePower,
@@ -120,7 +120,7 @@ internal class UIDispenserWindow_Patch
             __instance.player.inhandItemCount, __instance.player.inhandItemInc, out var handItemInc_Unsafe, false);
 
         // Player put itemCount into storage, broadcast the change to all users
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new DispenserAddTakePacket(__instance.factory.planetId,
                 entityId,
                 EDispenserAddTakeEvent.ManualAdd,
@@ -165,7 +165,7 @@ internal class UIDispenserWindow_Patch
             __instance.player.SetHandItemInc_Unsafe(handItemInc_Unsafe);
 
             // Player grab itemCount from storage, broadcast the change to all users
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new DispenserAddTakePacket(__instance.factory.planetId,
                     entityId,
                     EDispenserAddTakeEvent.ManualTake,

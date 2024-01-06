@@ -135,11 +135,11 @@ internal class StorageComponent_Patch
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
             // Assume storage is on the local planet, send to all clients in local star system who may have the factory loaded
-            Multiplayer.Session.Network.SendPacketToStar(packet, GameMain.localStar.id);
+            Multiplayer.Session.Network.SendToStar(packet, GameMain.localStar.id);
         }
         else
         {
-            Multiplayer.Session.Network.SendPacket(packet);
+            Multiplayer.Session.Network.SendToAll(packet);
         }
     }
 }

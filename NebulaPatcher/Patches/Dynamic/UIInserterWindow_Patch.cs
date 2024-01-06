@@ -19,7 +19,7 @@ internal class UIInserterWindow_Patch
         //Notify about chaning inserter's filter
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId,
+            Multiplayer.Session.Network.SendToLocalStar(new InserterFilterUpdatePacket(__instance.inserterId,
                 __instance.factorySystem.inserterPool[__instance.inserterId].filter, __instance.factory.planetId));
         }
     }
@@ -31,7 +31,7 @@ internal class UIInserterWindow_Patch
         //Notify about taking inserter buffer item
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new InserterItemUpdatePacket(
+            Multiplayer.Session.Network.SendToLocalStar(new InserterItemUpdatePacket(
                 in __instance.factorySystem.inserterPool[__instance.inserterId], __instance.factory.planetId));
         }
     }

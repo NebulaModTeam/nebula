@@ -23,7 +23,7 @@ internal class UIStarDetail_Patch
         if (__instance.star != null && !string.IsNullOrEmpty(__instance.star.overrideName))
         {
             // Send packet with new star name
-            Multiplayer.Session.Network.SendPacket(new NameInputPacket(__instance.star.overrideName, __instance.star.id,
+            Multiplayer.Session.Network.SendToAll(new NameInputPacket(__instance.star.overrideName, __instance.star.id,
                 NebulaModAPI.PLANET_NONE));
         }
     }

@@ -46,7 +46,7 @@ internal class UISplitterWindow_Transpiler
         splitter.SetPriority(slot, isPriority, filter);
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new SplitterPriorityChangePacket(splitter.id, slot, isPriority,
+            Multiplayer.Session.Network.SendToLocalStar(new SplitterPriorityChangePacket(splitter.id, slot, isPriority,
                 filter, GameMain.localPlanet?.id ?? -1));
         }
     }

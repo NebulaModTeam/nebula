@@ -17,7 +17,7 @@ public class GameHistoryFeatureKeyProcessor : PacketProcessor<GameHistoryFeature
     {
         if (IsHost)
         {
-            Multiplayer.Session.Network.SendPacketExclude(packet, conn);
+            Multiplayer.Session.Network.SendToAllExcept(packet, conn);
         }
 
         using (Multiplayer.Session.History.IsIncomingRequest.On())

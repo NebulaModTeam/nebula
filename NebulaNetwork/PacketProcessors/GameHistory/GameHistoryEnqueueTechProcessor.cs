@@ -32,7 +32,7 @@ internal class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqu
                 GameMain.history.EnqueueTech(packet.TechId);
             }
 
-            Server.SendPacketExclude(packet, conn);
+            Server.SendToAllExcept(packet, conn);
         }
         else
         {

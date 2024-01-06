@@ -81,7 +81,7 @@ internal class UIFatalErrorTip_Patch
         }
         var log = "Server report an error: \n" + UIFatalErrorTip.instance.errorLogText.text;
         Log.Warn(log);
-        Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, log,
+        Multiplayer.Session.Network.SendToAll(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, log,
             DateTime.Now, ""));
     }
 

@@ -41,7 +41,7 @@ public class UISlotPicker_Transpiler
                     return 0;
                 }
 
-                Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId,
+                Multiplayer.Session.Network.SendToLocalStar(new ILSUpdateSlotData(stationComponent.planetId,
                     stationComponent.id, stationComponent.gid, outputSlotId, selectedIndex));
                 return 0;
             }))

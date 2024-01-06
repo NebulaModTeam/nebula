@@ -24,7 +24,7 @@ internal class StationUIProcessor : PacketProcessor<StationUI>
             StationUIManager.UpdateStation(ref packet);
 
             // broadcast to other clients 
-            Server.SendPacketExclude(packet, conn);
+            Server.SendToAllExcept(packet, conn);
 
             // as we block the normal method for the client he must run it once he receives this packet.
             // but only the one issued the request should get items refund

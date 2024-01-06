@@ -25,7 +25,7 @@ internal class UIPlanetDetail_Patch
         if (__instance.planet != null && !string.IsNullOrEmpty(__instance.planet.overrideName))
         {
             // Send packet with new planet name
-            Multiplayer.Session.Network.SendPacket(new NameInputPacket(__instance.planet.overrideName,
+            Multiplayer.Session.Network.SendToAll(new NameInputPacket(__instance.planet.overrideName,
                 NebulaModAPI.STAR_NONE, __instance.planet.id));
         }
     }

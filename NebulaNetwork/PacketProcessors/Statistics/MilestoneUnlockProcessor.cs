@@ -23,7 +23,7 @@ internal class MilestoneUnlockProcessor : PacketProcessor<MilestoneUnlockPacket>
             var player = Players.Connected().GetPlayer(conn);
             if (player != null)
             {
-                Server.SendPacketExclude(packet, conn);
+                Server.SendToAllExcept(packet, conn);
             }
             else
             {

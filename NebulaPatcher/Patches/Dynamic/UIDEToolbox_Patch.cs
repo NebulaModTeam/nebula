@@ -25,17 +25,17 @@ internal class UIDEToolbox_Patch
         color.a = byte.MaxValue;
         foreach (var node in __instance.editor.selection.selectedNodes)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, layerId, color,
+            Multiplayer.Session.Network.SendToAll(new DysonSphereColorChangePacket(starIndex, layerId, color,
                 DysonSphereColorChangePacket.ComponentType.Node, node.id));
         }
         foreach (var frame in __instance.editor.selection.selectedFrames)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, layerId, color,
+            Multiplayer.Session.Network.SendToAll(new DysonSphereColorChangePacket(starIndex, layerId, color,
                 DysonSphereColorChangePacket.ComponentType.Frame, frame.id));
         }
         foreach (var shell in __instance.editor.selection.selectedShells)
         {
-            Multiplayer.Session.Network.SendPacket(new DysonSphereColorChangePacket(starIndex, layerId, color,
+            Multiplayer.Session.Network.SendToAll(new DysonSphereColorChangePacket(starIndex, layerId, color,
                 DysonSphereColorChangePacket.ComponentType.Shell, shell.id));
         }
     }

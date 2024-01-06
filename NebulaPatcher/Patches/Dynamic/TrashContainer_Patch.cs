@@ -18,7 +18,7 @@ public class TrashContainer_Patch
         //Notify other that trash was removed
         if (Multiplayer.IsActive && !Multiplayer.Session.Trashes.RemoveTrashFromOtherPlayers)
         {
-            Multiplayer.Session.Network.SendPacket(new TrashSystemTrashRemovedPacket(index));
+            Multiplayer.Session.Network.SendToAll(new TrashSystemTrashRemovedPacket(index));
         }
     }
 
@@ -33,7 +33,7 @@ public class TrashContainer_Patch
             GameMain.data.trashSystem.Gravity(ref trashData, GameMain.data.galaxy.astrosData, 0, 0, 0,
                 GameMain.data.localPlanet != null ? GameMain.data.localPlanet.id : 0,
                 GameMain.data.localPlanet != null ? GameMain.data.localPlanet.data : null);
-            Multiplayer.Session.Network.SendPacket(new TrashSystemNewTrashCreatedPacket(__result, trashObj, trashData,
+            Multiplayer.Session.Network.SendToAll(new TrashSystemNewTrashCreatedPacket(__result, trashObj, trashData,
                 Multiplayer.Session.LocalPlayer.Id, GameMain.mainPlayer.planetId));
         }
         // Wait until WarningDataPacket to assign warningId

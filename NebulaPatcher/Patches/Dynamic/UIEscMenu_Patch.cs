@@ -58,7 +58,7 @@ internal class UIEscMenu_Patch
         else if (GameMain.mainPlayer?.mecha != null)
         {
             GameMain.mainPlayer.mecha.lab.ManageTakeback(); // Refund items to player package
-            Multiplayer.Session.Network.SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+            Multiplayer.Session.Network.SendToAll(new PlayerMechaData(GameMain.mainPlayer));
             Thread.Sleep(100); // Wait for async packet send
         }
         PlanetFactory_Transpiler.CheckPopupPresent.Clear();

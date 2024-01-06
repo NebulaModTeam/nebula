@@ -22,12 +22,12 @@ internal class BattleBaseSettingUpdateProcessor : PacketProcessor<BattleBaseSett
             if (packet.Event != BattleBaseSettingEvent.ChangeFleetConfig)
             {
                 // Broadcast to the star system where the event planet is located
-                Multiplayer.Session.Network.SendPacketToStar(packet, factory.planet.star.id);
+                Multiplayer.Session.Network.SendToStar(packet, factory.planet.star.id);
             }
             else
             {
                 // Don't send back packet to original author because ChangeFleetConfig has been called
-                Multiplayer.Session.Network.SendPacketToStarExclude(packet, factory.planet.star.id, conn);
+                Multiplayer.Session.Network.SendToStarExcept(packet, factory.planet.star.id, conn);
             }
         }
 

@@ -23,7 +23,7 @@ internal class UIDysonPaintingGrid_Patch
         }
         var strength = __instance.editor.brush_paint.strength;
         var superBrightMode = __instance.editor.brush_paint.superBrightMode;
-        Multiplayer.Session.Network.SendPacket(new DysonSpherePaintCellsPacket(layer.starData.index, layer.id, paint,
+        Multiplayer.Session.Network.SendToAll(new DysonSpherePaintCellsPacket(layer.starData.index, layer.id, paint,
             strength, superBrightMode, __instance.cursorCells, __instance.cellCount));
     }
 }

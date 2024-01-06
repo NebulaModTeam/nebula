@@ -51,7 +51,7 @@ internal class Mecha_Patch
         }
 
         // Send packet to host to add stat
-        Multiplayer.Session.Network.SendPacket(new PlayerMechaStat(itemId, itemCount));
+        Multiplayer.Session.Network.SendToAll(new PlayerMechaStat(itemId, itemCount));
         return false;
     }
 
@@ -66,7 +66,7 @@ internal class Mecha_Patch
         }
 
         // Use negative itemCount to indicate that it is consumption stat
-        Multiplayer.Session.Network.SendPacket(new PlayerMechaStat(itemId, -itemCount));
+        Multiplayer.Session.Network.SendToAll(new PlayerMechaStat(itemId, -itemCount));
         return false;
     }
 }

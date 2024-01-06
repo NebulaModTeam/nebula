@@ -24,20 +24,20 @@ public class ServerCommandHandler : IChatCommandHandler
                     var playerData = Multiplayer.Session.LocalPlayer.Data;
                     var salt = playerData.Username + playerData.PlayerId;
                     var hash = CryptoUtils.Hash(password + salt);
-                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.Login, hash));
+                    Multiplayer.Session.Network.SendToAll(new RemoteServerCommandPacket(RemoteServerCommand.Login, hash));
                     break;
                 }
             case "list":
                 {
                     var saveNum = parameters.Length > 1 ? parameters[1] : "";
-                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerList,
+                    Multiplayer.Session.Network.SendToAll(new RemoteServerCommandPacket(RemoteServerCommand.ServerList,
                         saveNum));
                     break;
                 }
             case "save":
                 {
                     var saveName = parameters.Length > 1 ? parameters[1] : "";
-                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerSave,
+                    Multiplayer.Session.Network.SendToAll(new RemoteServerCommandPacket(RemoteServerCommand.ServerSave,
                         saveName));
                     break;
                 }
@@ -46,14 +46,14 @@ public class ServerCommandHandler : IChatCommandHandler
             case "load":
                 {
                     var saveName = parameters.Length > 1 ? parameters[1] : "";
-                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerLoad,
+                    Multiplayer.Session.Network.SendToAll(new RemoteServerCommandPacket(RemoteServerCommand.ServerLoad,
                         saveName));
                     break;
                 }
             case "info":
                 {
                     var parameter = parameters.Length > 1 ? parameters[1] : "";
-                    Multiplayer.Session.Network.SendPacket(new RemoteServerCommandPacket(RemoteServerCommand.ServerInfo,
+                    Multiplayer.Session.Network.SendToAll(new RemoteServerCommandPacket(RemoteServerCommand.ServerInfo,
                         parameter));
                     break;
                 }

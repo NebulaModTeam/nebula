@@ -48,7 +48,7 @@ internal class StartGameMessageProcessor : PacketProcessor<StartGameMessage>
                 var pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData(),
                     Multiplayer.Session.NumPlayers); // Remove inventory from mecha data
 
-                Server.SendPacket(packet);
+                Server.SendToAll(packet);
 
                 //Add current tech bonuses to the connecting player based on the Host's mecha
                 ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);

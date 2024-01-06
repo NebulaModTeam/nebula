@@ -68,7 +68,7 @@ internal class StationComponent_Patch
         }
         var packet = new ILSIdleShipBackToWork(__instance.workShipDatas[__instance.workShipCount - 1], __instance.gid,
             __instance.workShipDatas.Length, __instance.warperCount);
-        Multiplayer.Session.Network.SendPacket(packet);
+        Multiplayer.Session.Network.SendToAll(packet);
     }
 
     // as we unload PlanetFactory objects when leaving the star system we need to prevent the call on ILS entries in the gStationPool array

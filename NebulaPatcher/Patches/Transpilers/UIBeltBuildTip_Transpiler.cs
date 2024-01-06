@@ -77,7 +77,7 @@ internal class UIBeltBuildTip_Transpiler
         }
 
         // Notify others about storageIdx changes
-        Multiplayer.Session.Network.SendPacketToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id,
+        Multiplayer.Session.Network.SendToLocalStar(new ILSUpdateSlotData(stationComponent.planetId, stationComponent.id,
             stationComponent.gid, outputSlotId, selectedIndex));
         Multiplayer.Session.Ships.ItemSlotStationId = stationComponent.id;
         Multiplayer.Session.Ships.ItemSlotStationGId = stationComponent.gid;

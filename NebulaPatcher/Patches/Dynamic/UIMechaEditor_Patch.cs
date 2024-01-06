@@ -23,7 +23,7 @@ public class UIMechaEditor_Patch
         }
         using var writer = new BinaryUtils.Writer();
         GameMain.mainPlayer.mecha.appearance.Export(writer.BinaryWriter);
-        Multiplayer.Session.Network.SendPacket(new PlayerMechaArmor(Multiplayer.Session.LocalPlayer.Id,
+        Multiplayer.Session.Network.SendToAll(new PlayerMechaArmor(Multiplayer.Session.LocalPlayer.Id,
             writer.CloseAndGetBytes()));
     }
 
@@ -37,7 +37,7 @@ public class UIMechaEditor_Patch
         }
         using var writer = new BinaryUtils.Writer();
         GameMain.mainPlayer.mecha.diyAppearance.Export(writer.BinaryWriter);
-        Multiplayer.Session.Network.SendPacket(new PlayerMechaDIYArmor(writer.CloseAndGetBytes(),
+        Multiplayer.Session.Network.SendToAll(new PlayerMechaDIYArmor(writer.CloseAndGetBytes(),
             GameMain.mainPlayer.mecha.diyItems.items.Keys.ToArray(),
             GameMain.mainPlayer.mecha.diyItems.items.Values.ToArray()));
     }

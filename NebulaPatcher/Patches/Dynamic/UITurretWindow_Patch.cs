@@ -31,7 +31,7 @@ internal class UITurretWindow_Patch
 
         var turret = defenseSystem.turrets.buffer[__instance.turretId];
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret,
+        Multiplayer.Session.Network.SendToLocalStar(new TurretStorageUpdatePacket(turret,
             GameMain.localPlanet?.id ?? -1));
     }
 
@@ -48,7 +48,7 @@ internal class UITurretWindow_Patch
 
         var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret,
+        Multiplayer.Session.Network.SendToLocalStar(new TurretStorageUpdatePacket(turret,
             GameMain.localPlanet?.id ?? -1));
 
         //Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
@@ -67,7 +67,7 @@ internal class UITurretWindow_Patch
         }
         var turret = __instance.defenseSystem.turrets.buffer[__instance.turretId];
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret,
+        Multiplayer.Session.Network.SendToLocalStar(new TurretStorageUpdatePacket(turret,
             GameMain.localPlanet?.id ?? -1));
     }
 
@@ -82,7 +82,7 @@ internal class UITurretWindow_Patch
 
         var group = __instance.defenseSystem.turrets.buffer[__instance.turretId].group;
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretGroupUpdatePacket(__instance.turretId, group,
+        Multiplayer.Session.Network.SendToLocalStar(new TurretGroupUpdatePacket(__instance.turretId, group,
             GameMain.localPlanet?.id ?? -1));
     }
 
@@ -95,7 +95,7 @@ internal class UITurretWindow_Patch
             return;
         }
 
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretBurstUpdatePacket(__instance.turretId, obj,
+        Multiplayer.Session.Network.SendToLocalStar(new TurretBurstUpdatePacket(__instance.turretId, obj,
             GameMain.localPlanet?.id ?? -1));
     }
 
@@ -124,7 +124,7 @@ internal class UITurretWindow_Patch
         }
 
         var vsSettings = __instance.defenseSystem.turrets.buffer[__instance.turretId].vsSettings;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretPriorityUpdatePacket(__instance.turretId, vsSettings,
+        Multiplayer.Session.Network.SendToLocalStar(new TurretPriorityUpdatePacket(__instance.turretId, vsSettings,
             GameMain.localPlanet?.id ?? -1));
     }
 

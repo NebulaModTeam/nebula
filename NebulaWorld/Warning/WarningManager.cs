@@ -63,7 +63,7 @@ public class WarningManager : IDisposable
         if (hasChanged)
         {
             warningSignalPacket.Tick = unchecked((int)GameMain.gameTick);
-            Multiplayer.Session.Network.SendPacket(warningSignalPacket);
+            Multiplayer.Session.Network.SendToAll(warningSignalPacket);
             idleCycle = 0;
         }
         else
@@ -72,7 +72,7 @@ public class WarningManager : IDisposable
             {
                 // In case of warning content is changed but signal stays the same, force update
                 warningSignalPacket.Tick = unchecked((int)GameMain.gameTick);
-                Multiplayer.Session.Network.SendPacket(warningSignalPacket);
+                Multiplayer.Session.Network.SendToAll(warningSignalPacket);
                 idleCycle = 0;
             }
         }

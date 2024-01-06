@@ -18,7 +18,7 @@ internal class TrashSystem_Patch
         //Send notification, that somebody clicked on "ClearAllTrash"
         if (Multiplayer.IsActive && !Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers)
         {
-            Multiplayer.Session.Network.SendPacket(new TrashSystemClearAllTrashPacket());
+            Multiplayer.Session.Network.SendToAll(new TrashSystemClearAllTrashPacket());
         }
     }
 }

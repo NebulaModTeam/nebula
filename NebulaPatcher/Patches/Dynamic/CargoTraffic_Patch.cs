@@ -39,7 +39,7 @@ internal class CargoTraffic_Patch
         // Only send packet when insertion successes
         if (Multiplayer.IsActive && __result && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, 1, itemInc,
+            Multiplayer.Session.Network.SendToLocalStar(new BeltUpdatePutItemOnPacket(beltId, itemId, 1, itemInc,
                 GameMain.data.localPlanet.id));
         }
     }
@@ -101,7 +101,7 @@ internal class CargoTraffic_Patch
         if (Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value ||
             Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToMonitorPacket(monitorId, targetBeltId, offset,
+            Multiplayer.Session.Network.SendToLocalStar(new ConnectToMonitorPacket(monitorId, targetBeltId, offset,
                 GameMain.data.localPlanet.id));
         }
     }
@@ -118,7 +118,7 @@ internal class CargoTraffic_Patch
         if (Multiplayer.Session.LocalPlayer.IsHost && !Multiplayer.Session.Factories.IsIncomingRequest.Value ||
             Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new ConnectToSpraycoaterPacket(spraycoaterId, cargoBeltId,
+            Multiplayer.Session.Network.SendToLocalStar(new ConnectToSpraycoaterPacket(spraycoaterId, cargoBeltId,
                 incBeltId, GameMain.data.localPlanet.id));
         }
     }
@@ -130,7 +130,7 @@ internal class CargoTraffic_Patch
         // Notify others about belt memo icon changes
         if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalIconPacket(entityId, signalId,
+            Multiplayer.Session.Network.SendToLocalStar(new BeltSignalIconPacket(entityId, signalId,
                 GameMain.data.localPlanet.id));
         }
     }
@@ -141,7 +141,7 @@ internal class CargoTraffic_Patch
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalNumberPacket(entityId, number,
+            Multiplayer.Session.Network.SendToLocalStar(new BeltSignalNumberPacket(entityId, number,
                 GameMain.data.localPlanet.id));
         }
     }

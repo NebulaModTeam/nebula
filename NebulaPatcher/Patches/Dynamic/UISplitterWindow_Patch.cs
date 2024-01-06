@@ -18,7 +18,7 @@ internal class UISplitterWindow_Patch
         //Send notification about changing splitter output filter
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId,
+            Multiplayer.Session.Network.SendToLocalStar(new SplitterFilterChangePacket(__instance.splitterId,
                 item?.ID ?? 0, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -40,7 +40,7 @@ internal class UISplitterWindow_Patch
 
         if (sendResetOutputFilter && thisComponent.outFilter != 0)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, 0,
+            Multiplayer.Session.Network.SendToLocalStar(new SplitterFilterChangePacket(__instance.splitterId, 0,
                 GameMain.localPlanet?.id ?? -1));
         }
     }

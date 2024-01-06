@@ -107,7 +107,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                     DroneManager.RemoveBuildRequest(packet.EntityId);
 
                     // others need to remove drones that are rendered for us.
-                    Multiplayer.Session.Network.SendPacketToLocalPlanet(new RemoveDroneOrdersPacket([packet.EntityId], packet.PlanetId));
+                    Multiplayer.Session.Network.SendToLocalPlanet(new RemoveDroneOrdersPacket([packet.EntityId], packet.PlanetId));
                     break;
             }
 
@@ -146,7 +146,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
         DroneManager.AddPlayerDronePlan(closestPlayerId, packet.EntityId);
 
         // tell players to send out drones
-        Multiplayer.Session.Network.SendPacketToPlanet(
+        Multiplayer.Session.Network.SendToPlanet(
         new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayerId, packet.Priority),
             packet.PlanetId);
         factory.constructionSystem.constructServing.Add(packet.EntityId);
@@ -164,7 +164,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
         DroneManager.AddPlayerDronePlan(closestPlayerId, packet.EntityId);
 
         // tell players to send out drones
-        Multiplayer.Session.Network.SendPacketToPlanet(
+        Multiplayer.Session.Network.SendToPlanet(
             new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayerId, packet.Priority),
             packet.PlanetId);
 

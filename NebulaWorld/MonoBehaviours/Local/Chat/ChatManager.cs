@@ -93,7 +93,7 @@ public class ChatManager : MonoBehaviour
         var newMessage = chatWindow.GetQueuedMessage();
         if (Multiplayer.IsActive && newMessage != null)
         {
-            Multiplayer.Session.Network?.SendPacket(new NewChatMessagePacket(newMessage.ChatMessageType,
+            Multiplayer.Session.Network?.SendToAll(new NewChatMessagePacket(newMessage.ChatMessageType,
                 newMessage.MessageText, DateTime.Now, GetUserName()));
         }
 

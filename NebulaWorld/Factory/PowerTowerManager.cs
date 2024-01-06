@@ -30,7 +30,7 @@ public class PowerTowerManager : IDisposable
         // Procast event to reset all
         LocalChargerIds.Clear();
         RemoteChargerHashIds.Clear();
-        Multiplayer.Session.Network.SendPacket(new PowerTowerChargerUpdate(
+        Multiplayer.Session.Network.SendToAll(new PowerTowerChargerUpdate(
             -1,
             0,
             false));

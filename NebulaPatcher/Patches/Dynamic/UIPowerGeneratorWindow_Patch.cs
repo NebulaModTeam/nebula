@@ -23,7 +23,7 @@ internal class UIPowerGeneratorWindow_Patch
         //Notify about change of ray receiver to mode "electricity"
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId,
+            Multiplayer.Session.Network.SendToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId,
                 RayReceiverMode.Electricity, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -35,7 +35,7 @@ internal class UIPowerGeneratorWindow_Patch
         //Notify about change of ray receiver to mode "produce photons"
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId,
+            Multiplayer.Session.Network.SendToLocalStar(new RayReceiverChangeModePacket(__instance.generatorId,
                 RayReceiverMode.Photon, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -53,7 +53,7 @@ internal class UIPowerGeneratorWindow_Patch
             __instance.powerSystem.genPool[__instance.generatorId].catalystPoint,
             __instance.powerSystem.genPool[__instance.generatorId].catalystIncPoint,
             GameMain.localPlanet?.id ?? -1);
-        Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+        Multiplayer.Session.Network.SendToLocalStar(packet);
     }
 
     [HarmonyPostfix]
@@ -66,7 +66,7 @@ internal class UIPowerGeneratorWindow_Patch
             return;
         }
         var thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId,
+        Multiplayer.Session.Network.SendToLocalStar(new PowerGeneratorFuelUpdatePacket(__instance.generatorId,
             thisComponent.fuelId, thisComponent.fuelCount, thisComponent.fuelInc, GameMain.localPlanet?.id ?? -1));
     }
 
@@ -79,7 +79,7 @@ internal class UIPowerGeneratorWindow_Patch
             return;
         }
         var thisComponent = __instance.powerSystem.genPool[__instance.generatorId];
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new PowerGeneratorProductUpdatePacket(thisComponent, __instance.factory.planetId));
     }
 
@@ -104,7 +104,7 @@ internal class UIPowerGeneratorWindow_Patch
             return;
         }
         boost = __instance.boostSwitch.isOn;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
+        Multiplayer.Session.Network.SendToLocalStar(new EntityBoostSwitchPacket
             (GameMain.localPlanet?.id ?? -1, EBoostEntityType.ArtificialStar, __instance.generatorId, boost));
     }
 }

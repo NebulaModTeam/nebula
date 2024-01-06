@@ -25,7 +25,7 @@ internal class UIEjectorWindow_Patch
             return;
         }
         var storage = __instance.servingStorage;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorStorageUpdatePacket(__instance.ejectorId,
+        Multiplayer.Session.Network.SendToLocalStar(new EjectorStorageUpdatePacket(__instance.ejectorId,
             storage.grids[0].count, storage.grids[0].inc, GameMain.localPlanet?.id ?? -1));
     }
 
@@ -36,7 +36,7 @@ internal class UIEjectorWindow_Patch
         //Notify about target orbit change
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorOrbitUpdatePacket(__instance.ejectorId, orbitId,
+            Multiplayer.Session.Network.SendToLocalStar(new EjectorOrbitUpdatePacket(__instance.ejectorId, orbitId,
                 GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -62,7 +62,7 @@ internal class UIEjectorWindow_Patch
             return;
         }
         boost = __instance.boostSwitch.isOn;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new EntityBoostSwitchPacket
+        Multiplayer.Session.Network.SendToLocalStar(new EntityBoostSwitchPacket
             (GameMain.localPlanet?.id ?? -1, EBoostEntityType.Ejector, __instance.ejectorId, boost));
     }
 }

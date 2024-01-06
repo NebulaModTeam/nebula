@@ -18,7 +18,7 @@ internal class UIPowerExchangerWindow_Patch
         //Notify other players about changing mode of the Power Exchenger
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(
+            Multiplayer.Session.Network.SendToLocalStar(
                 new PowerExchangerChangeModePacket(__instance.exchangerId, targetState, GameMain.localPlanet?.id ?? -1));
         }
     }
@@ -33,7 +33,7 @@ internal class UIPowerExchangerWindow_Patch
             return;
         }
         var powerExchangerComponent = __instance.powerSystem.excPool[__instance.exchangerId];
-        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId,
+        Multiplayer.Session.Network.SendToLocalStar(new PowerExchangerStorageUpdatePacket(__instance.exchangerId,
             powerExchangerComponent.emptyCount, powerExchangerComponent.fullCount, GameMain.localPlanet?.id ?? -1, powerExchangerComponent.fullInc));
     }
 }

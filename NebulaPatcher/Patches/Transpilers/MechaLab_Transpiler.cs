@@ -47,7 +47,7 @@ public class MechaLab_Transpiler
                         }
 
                         //Clients just sends contributing packet to the server
-                        Multiplayer.Session.Network.SendPacket(
+                        Multiplayer.Session.Network.SendToAll(
                             new GameHistoryResearchContributionPacket(addcnt, history.currentTech));
                     })
                 )

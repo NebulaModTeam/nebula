@@ -17,7 +17,7 @@ internal class UIAssemblerWindow_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id,
+            Multiplayer.Session.Network.SendToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id,
                 __instance.assemblerId, 0));
         }
     }
@@ -28,7 +28,7 @@ internal class UIAssemblerWindow_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id,
+            Multiplayer.Session.Network.SendToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id,
                 __instance.assemblerId, recipe.ID));
         }
     }
@@ -40,7 +40,7 @@ internal class UIAssemblerWindow_Patch
         if (Multiplayer.IsActive)
         {
             // Notify others about production switch
-            Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id,
+            Multiplayer.Session.Network.SendToLocalStar(new AssemblerRecipeEventPacket(GameMain.data.localPlanet.id,
                 __instance.assemblerId, -1));
         }
     }
@@ -51,7 +51,7 @@ internal class UIAssemblerWindow_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateProducesPacket(0,
+            Multiplayer.Session.Network.SendToLocalStar(new AssemblerUpdateProducesPacket(0,
                 __instance.factorySystem.assemblerPool[__instance.assemblerId].produced[0], GameMain.data.localPlanet.id,
                 __instance.assemblerId));
         }
@@ -63,7 +63,7 @@ internal class UIAssemblerWindow_Patch
     {
         if (Multiplayer.IsActive)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateProducesPacket(1,
+            Multiplayer.Session.Network.SendToLocalStar(new AssemblerUpdateProducesPacket(1,
                 __instance.factorySystem.assemblerPool[__instance.assemblerId].produced[1], GameMain.data.localPlanet.id,
                 __instance.assemblerId));
         }
@@ -86,7 +86,7 @@ internal class UIAssemblerWindow_Patch
             served[i] = assemblerStorage.grids[i].count;
             incServed[i] = assemblerStorage.grids[i].inc;
         }
-        Multiplayer.Session.Network.SendPacketToLocalStar(new AssemblerUpdateStoragePacket(GameMain.data.localPlanet.id,
+        Multiplayer.Session.Network.SendToLocalStar(new AssemblerUpdateStoragePacket(GameMain.data.localPlanet.id,
             __instance.assemblerId, served, incServed));
     }
 }

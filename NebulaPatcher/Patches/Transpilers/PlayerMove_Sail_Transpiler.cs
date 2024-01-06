@@ -37,7 +37,7 @@ internal class PlayerMove_Sail_Transpiler
                     {
                         if (Multiplayer.IsActive)
                         {
-                            Multiplayer.Session.Network.SendPacket(new DysonSailDataPacket(swarm.dysonSphere.starData.index,
+                            Multiplayer.Session.Network.SendToAll(new DysonSailDataPacket(swarm.dysonSphere.starData.index,
                                 ref sail, orbitId, expiryTime));
                         }
                         return swarm.AddSolarSail(sail, orbitId, expiryTime);

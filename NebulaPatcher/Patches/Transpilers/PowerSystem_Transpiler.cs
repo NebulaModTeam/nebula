@@ -185,7 +185,7 @@ internal class PowerSystem_Transpiler
                     {
                         // If player start requesting power and the node id hasn't been record, broadcast to other players
                         Multiplayer.Session.PowerTowers.LocalChargerIds.Add(powerNode.id);
-                        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerChargerUpdate(
+                        Multiplayer.Session.Network.SendToLocalStar(new PowerTowerChargerUpdate(
                             powerSystem.factory.planetId,
                             powerNode.id,
                             true));
@@ -201,7 +201,7 @@ internal class PowerSystem_Transpiler
                     {
                         // If player stop requesting power and the node id has been record, broadcast to other players
                         Multiplayer.Session.PowerTowers.LocalChargerIds.Remove(powerNode.id);
-                        Multiplayer.Session.Network.SendPacketToLocalStar(new PowerTowerChargerUpdate(
+                        Multiplayer.Session.Network.SendToLocalStar(new PowerTowerChargerUpdate(
                             powerSystem.factory.planetId,
                             powerNode.id,
                             false));

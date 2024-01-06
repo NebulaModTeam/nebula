@@ -22,7 +22,7 @@ internal class MonitorComponent_Patch
         }
         //Assume the monitor is on local planet
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetPassColorId, __0));
     }
 
@@ -35,7 +35,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetFailColorId, __0));
     }
 
@@ -48,7 +48,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetPassOperator, __0));
     }
 
@@ -66,7 +66,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetSpawnOperator, __0));
     }
 
@@ -79,7 +79,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetMonitorMode, __0));
     }
 
@@ -92,7 +92,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetSystemWarningMode, __0));
     }
 
@@ -105,7 +105,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetSystemWarningSignalId, __0));
     }
 
@@ -118,7 +118,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetCargoFilter, __0));
     }
 
@@ -131,7 +131,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetTargetCargoBytes, __0));
     }
 
@@ -144,7 +144,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetPeriodTickCount, __0));
     }
 
@@ -158,7 +158,7 @@ internal class MonitorComponent_Patch
             return;
         }
         var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
-        Multiplayer.Session.Network.SendPacketToLocalStar(
+        Multiplayer.Session.Network.SendToLocalStar(
             new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetTargetBelt, __0, __1));
     }
 
