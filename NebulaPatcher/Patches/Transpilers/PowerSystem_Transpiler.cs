@@ -150,16 +150,17 @@ internal class PowerSystem_Transpiler
         }
     }
 
+#pragma warning disable IDE0060 // Temporarily fix
     private static bool IsNotLocal(PowerSystem powerSystem, int nodeId)
     {
         if (!Multiplayer.IsActive)
             return false;
 
-        if (GameMain.mainPlayer.planetId != powerSystem.factory.planetId)
-            return true;
-
-        return !Multiplayer.Session.PowerTowers.LocalChargerIds.Contains(nodeId);
+        // Temporarily disable local planet and LocalChargerIds check to solve weird animation issue
+        // All mecha will receive the charging effect for now
+        return false;
     }
+#pragma warning restore IDE0060
 
 #pragma warning disable CA1868
     private static void SetChargerRequiredPower(PowerSystem powerSystem, int nodeId, float coreEnergyRatio)
