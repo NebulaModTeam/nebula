@@ -30,8 +30,6 @@ namespace NebulaNetwork;
 
 public class Client : IClient
 {
-    [Obsolete] public IPlayerManager PlayerManager { get; } = new PlayerManager();
-
     public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
 
     private const float FRAGEMENT_UPDATE_INTERVAL = 0.1f;

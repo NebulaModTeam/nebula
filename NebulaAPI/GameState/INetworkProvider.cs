@@ -9,9 +9,6 @@ namespace NebulaAPI.GameState;
 
 public interface INetworkProvider : IDisposable
 {
-    [Obsolete("Deprecated API, use IServer.GetPlayer instead.")]
-    IPlayerManager PlayerManager { get; }
-
     [Obsolete("Dev note: we need to move this out of the public API, but it'll need a lot of packet processor updates.")]
     INetPacketProcessor PacketProcessor { get; }
 
