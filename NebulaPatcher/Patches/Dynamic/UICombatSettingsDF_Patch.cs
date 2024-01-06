@@ -1,7 +1,10 @@
 ﻿#region
 
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using HarmonyLib;
+using NebulaAPI.Extensions;
+using NebulaAPI.Networking;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Session;
@@ -25,21 +28,15 @@ namespace NebulaPatcher.Patches.Dynamic
             {
                 return;
             }
+
             // syncing players are those who have not loaded into the game yet, so they might still be in the lobby. they need to check if this packet is relevant for them in the corresponding handler.
             // just remembered others cant be in game anyways when host ist still in lobby >.>
-            using (Multiplayer.Session.Network.PlayerManager.GetSyncingPlayers(out var syncingPlayers))
+            var loadingPlayers = Multiplayer.Session.Server.Players
+                .Where(p => p.Connection.ConnectionStatus is not EConnectionStatus.Connected);
+
+            foreach (var player in loadingPlayers)
             {
-                foreach (var entry in syncingPlayers)
-                {
-                    entry.Key.SendPacket(new LobbyUpdateCombatValues(__instance.gameDesc.combatSettings));
-                }
-            }
-            using (Multiplayer.Session.Network.PlayerManager.GetPendingPlayers(out var pendingPlayers))
-            {
-                foreach (var entry in pendingPlayers)
-                {
-                    entry.Key.SendPacket(new LobbyUpdateCombatValues(__instance.gameDesc.combatSettings));
-                }
+                player.SendPacket(new LobbyUpdateCombatValues(__instance.gameDesc.combatSettings));
             }
         }
     }

@@ -45,7 +45,7 @@ internal class Player_Patch
 
     private static void UpdateSyncedSandCount(long deltaSandCount)
     {
-        var connectedPlayers = Multiplayer.Session.Server.Players.GetConnected();
+        var connectedPlayers = Multiplayer.Session.Server.Players.Connected();
         foreach (var player in connectedPlayers)
         {
             player.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
