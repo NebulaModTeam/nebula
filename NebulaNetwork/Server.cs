@@ -147,13 +147,13 @@ public class Server : IServer
 
             UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount,
                 GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
-            SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+            SendToAll(new PlayerSandCount(GameMain.mainPlayer.sandCount));
 
             return;
         }
 
         // player is valid
-        SendPacketExclude(new PlayerDisconnected(player.Id, Multiplayer.Session.NumPlayers), conn);
+        SendToAllExcept(new PlayerDisconnected(player.Id, Multiplayer.Session.NumPlayers), conn);
         // For sync completed player who triggered OnPlayerJoinedGame() before
         if (conn.ConnectionStatus == EConnectionStatus.Connected)
         {
@@ -170,7 +170,7 @@ public class Server : IServer
         var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
         if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
         {
-            SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans, player.Data.LocalPlanetId),
+            SendToPlanet(new RemoveDroneOrdersPacket(DronePlans, player.Data.LocalPlanetId),
                 player.Data.LocalPlanetId);
             //Remove it also from host queue, if host is on the same planet
             if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
@@ -190,7 +190,7 @@ public class Server : IServer
             return;
         }
 
-        SendPacket(new SyncComplete());
+        SendToAll(new SyncComplete());
         Multiplayer.Session.World.OnAllPlayersSyncCompleted();
         Disconnected?.Invoke(this, conn);
     }
@@ -362,7 +362,7 @@ public class Server : IServer
         players.ForEach(p => p.SendPacket(packet));
     }
 
-    public void SendPacket<T>(T packet) where T : class, new()
+    public void SendToAll<T>(T packet) where T : class, new()
     {
         SendTo(Players.Connected(), packet);
     }
@@ -383,37 +383,37 @@ public class Server : IServer
         SendTo(players, packet);
     }
 
-    public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+    public void SendToStar<T>(T packet, int starId) where T : class, new()
     {
         SendToMatching(packet, p => p.Data.LocalStarId == starId);
     }
 
-    public void SendPacketToLocalStar<T>(T packet) where T : class, new()
+    public void SendToLocalStar<T>(T packet) where T : class, new()
     {
         var starId = GameMain.data.localStar.id;
-        SendPacketToStar(packet, starId);
+        SendToStar(packet, starId);
     }
 
-    public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+    public void SendToPlanet<T>(T packet, int planetId) where T : class, new()
     {
         SendToMatching(packet, p => p.Data.LocalPlanetId == planetId);
     }
 
-    public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+    public void SendToLocalPlanet<T>(T packet) where T : class, new()
     {
         var planetId = GameMain.data.mainPlayer.planetId;
-        SendPacketToPlanet(packet, planetId);
+        SendToPlanet(packet, planetId);
     }
 
 
-    public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
+    public void SendToAllExcept<T>(T packet, INebulaConnection except) where T : class, new()
     {
-        SendToMatching(packet, p => !p.Connection.Equals(exclude));
+        SendToMatching(packet, p => !p.Connection.Equals(except));
     }
 
-    public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
+    public void SendToStarExcept<T>(T packet, int starId, INebulaConnection except) where T : class, new()
     {
-        SendToMatching(packet, p => p.Data.LocalStarId == starId && !p.Connection.Equals(exclude));
+        SendToMatching(packet, p => p.Data.LocalStarId == starId && !p.Connection.Equals(except));
     }
 
     public void Update()
@@ -437,7 +437,7 @@ public class Server : IServer
             if (GameMain.data.history.currentTech != 0)
             {
                 var state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
-                SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded,
+                SendToAll(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded,
                     state.hashNeeded, GameMain.statistics.techHashedFor10Frames));
             }
         }

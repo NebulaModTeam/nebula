@@ -155,7 +155,7 @@ public class Client : IClient
         GC.SuppressFinalize(this);
     }
 
-    public void SendPacket<T>(T packet) where T : class, new()
+    public void SendToAll<T>(T packet) where T : class, new()
     {
         serverConnection?.SendPacket(packet);
     }
@@ -165,35 +165,35 @@ public class Client : IClient
         throw new NotImplementedException();
     }
 
-    public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
+    public void SendToAllExcept<T>(T packet, INebulaConnection except) where T : class, new()
     {
         // Only possible from host
         throw new NotImplementedException();
     }
 
-    public void SendPacketToLocalStar<T>(T packet) where T : class, new()
+    public void SendToLocalStar<T>(T packet) where T : class, new()
     {
         serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
     }
 
-    public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
+    public void SendToLocalPlanet<T>(T packet) where T : class, new()
     {
         serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
     }
 
-    public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
+    public void SendToPlanet<T>(T packet, int planetId) where T : class, new()
     {
         // Only possible from host
         throw new NotImplementedException();
     }
 
-    public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
+    public void SendToStar<T>(T packet, int starId) where T : class, new()
     {
         // Only possible from host
         throw new NotImplementedException();
     }
 
-    public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
+    public void SendToStarExcept<T>(T packet, int starId, INebulaConnection except) where T : class, new()
     {
         // Only possible from host
         throw new NotImplementedException();
@@ -208,7 +208,7 @@ public class Client : IClient
             mechaSynchonizationTimer += Time.deltaTime;
             if (mechaSynchonizationTimer > MECHA_SYNCHONIZATION_INTERVAL)
             {
-                SendPacket(new PlayerMechaData(GameMain.mainPlayer));
+                SendToAll(new PlayerMechaData(GameMain.mainPlayer));
                 mechaSynchonizationTimer = 0f;
             }
 
@@ -217,7 +217,7 @@ public class Client : IClient
             {
                 if (!GameMain.isFullscreenPaused)
                 {
-                    SendPacket(new GameStateRequest());
+                    SendToAll(new GameStateRequest());
                 }
 
                 gameStateUpdateTimer = 0f;
@@ -255,7 +255,7 @@ public class Client : IClient
 
         //TODO: Maybe some challenge-response authentication mechanism?
 
-        SendPacket(new LobbyRequest(
+        SendToAll(new LobbyRequest(
             CryptoUtils.GetPublicKey(CryptoUtils.GetOrCreateUserCert()),
             !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName));
     }
