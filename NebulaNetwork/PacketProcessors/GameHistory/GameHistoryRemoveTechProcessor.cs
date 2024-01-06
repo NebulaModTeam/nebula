@@ -1,6 +1,8 @@
 ﻿#region
 
 using System;
+using System.Linq;
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
@@ -16,11 +18,8 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryRemoveTechProcessor : PacketProcessor<GameHistoryRemoveTechPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public GameHistoryRemoveTechProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
@@ -28,10 +27,9 @@ internal class GameHistoryRemoveTechProcessor : PacketProcessor<GameHistoryRemov
         var valid = true;
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
-            if (player != null)
+            if (Players.Connected().Contains(conn))
             {
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                Server.SendPacketExclude(packet, conn);
             }
             else
             {

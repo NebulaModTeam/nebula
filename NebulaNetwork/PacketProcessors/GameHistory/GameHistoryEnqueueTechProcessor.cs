@@ -1,6 +1,6 @@
 ﻿#region
 
-using NebulaAPI.GameState;
+using NebulaAPI.Extensions;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -14,27 +14,25 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqueueTechPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public GameHistoryEnqueueTechProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(GameHistoryEnqueueTechPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
-            if (player == null)
+            if (Players.Connected().Contains(conn))
             {
                 return;
             }
+
             using (Multiplayer.Session.History.IsIncomingRequest.On())
             {
                 GameMain.history.EnqueueTech(packet.TechId);
             }
-            playerManager.SendPacketToOtherPlayers(packet, player);
+
+            Server.SendPacketExclude(packet, conn);
         }
         else
         {

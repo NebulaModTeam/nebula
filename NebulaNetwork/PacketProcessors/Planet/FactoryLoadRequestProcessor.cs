@@ -39,7 +39,7 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
         }
 
         // Set requesting client status to connected player, so he can receive following update
-        var player = Multiplayer.Session.Server.Players.GetByConnectionHandle(conn);
+        var player = Players.Syncing().GetPlayer(conn);
         player.Data.LocalPlanetId = packet.PlanetID;
         player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
     }
