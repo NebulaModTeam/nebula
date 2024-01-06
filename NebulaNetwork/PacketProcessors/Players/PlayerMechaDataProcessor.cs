@@ -27,7 +27,7 @@ internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
             return;
         }
 
-        var player = Multiplayer.Session.Server.Players.GetByConnectionHandle(conn);
+        var player = Players.Connected().GetPlayer(conn);
 
         //Find correct player for data to update, preserve sand count if syncing is enabled
         var sandCount = player.Data.Mecha.SandCount;

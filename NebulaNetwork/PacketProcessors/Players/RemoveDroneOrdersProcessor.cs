@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Linq;
+using NebulaAPI.Extensions;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -28,7 +29,7 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
             // host needs to remove targets from DroneManager
             // but he also needs to RecycleDrone any rendered drone of this player
             // and as clients only send this when they are unable to handle a NewDroneOrder the host should search for the next closest player to ask for construction.
-            var player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
+            var player = Players.Connected().GetPlayer(conn);
             var factory = GameMain.galaxy.PlanetById(player.Data.LocalPlanetId)?.factory;
             Vector3 vector;
 

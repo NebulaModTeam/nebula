@@ -1,5 +1,6 @@
 ﻿#region
 
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -14,18 +15,15 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 public class PlayerMechaArmorProcessor : PacketProcessor<PlayerMechaArmor>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(PlayerMechaArmor packet, NebulaConnection conn)
     {
         INebulaPlayer player = null;
         if (IsHost)
         {
             // broadcast to other players
-            player = playerManager.GetPlayer(conn);
-            if (player != null)
+            if (Players.Connected().Contains(conn))
             {
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                Server.SendPacketExclude(packet, conn);
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI.DataStructures;
+using NebulaAPI.Extensions;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -21,7 +22,7 @@ public class PlayerMechaStatProcessor : PacketProcessor<PlayerMechaStat>
             return;
         }
 
-        var player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
+        var player = Players.Connected().GetPlayer(conn);
         if (player == null)
         {
             return;

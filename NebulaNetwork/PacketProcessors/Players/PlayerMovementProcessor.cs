@@ -1,5 +1,6 @@
 ﻿#region
 
+using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -14,11 +15,8 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 public class PlayerMovementProcessor : PacketProcessor<PlayerMovement>
 {
-    private readonly IPlayerManager playerManager;
-
     public PlayerMovementProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
@@ -26,7 +24,7 @@ public class PlayerMovementProcessor : PacketProcessor<PlayerMovement>
         var valid = true;
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
+            var player = Players.Connected().GetPlayer(conn);
             if (player != null)
             {
                 player.Data.LocalPlanetId = packet.LocalPlanetId;
@@ -35,7 +33,7 @@ public class PlayerMovementProcessor : PacketProcessor<PlayerMovement>
                 player.Data.BodyRotation = packet.BodyRotation;
                 player.Data.LocalPlanetPosition = packet.LocalPlanetPosition;
 
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                Server.SendPacketExclude(packet, conn);
             }
             else
             {
