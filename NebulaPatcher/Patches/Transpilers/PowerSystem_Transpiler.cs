@@ -102,8 +102,8 @@ internal class PowerSystem_Transpiler
                 );
 
             // Check if chargers are local before adding the energy to the mecha
-            // from: if (this.nodePool[num75].id == num75)
-            // get:  num75 (nodeId)
+            // from: if (this.nodePool[num71].id == num71)
+            // get:  num71 (nodeId)
             codeMatcher.End()
                 .MatchBack(true,
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.id))),
@@ -116,28 +116,41 @@ internal class PowerSystem_Transpiler
             }
             var loadNodeIdInstruction = codeMatcher.InstructionAt(-1);
 
-            /*
+            /* A transpiler bug in BepInEx 5.4.22 will break charging part
+               so the whole part need to handle early to fix the issue
             from:
-                if (num77 <= 0 || entityAnimPool[entityId5].state != 2U)
+				if (num73 <= 0 || entityAnimPool[entityId5].state != 2U)
+				{
+					goto IL_19FA;
+				}
+                ...
             to:
-                if (num77 <= 0 || entityAnimPool[entityId5].state != 2U || !IsNotLocal(this, num75))
+            	if (num77 <= 0 || entityAnimPool[entityId5].state != 2U)
+				{
+					goto IL_19FA;
+				}
+                AddMechaEnergy(this, num75) //Handle mecha energy increae here to not go to broken code part
+                goto IL_19FA;
+                ...
             */
             codeMatcher.MatchForward(true,
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(AnimData), nameof(AnimData.state))),
                     new CodeMatch(OpCodes.Ldc_I4_2),
-                new CodeMatch(OpCodes.Bne_Un));
+                    new CodeMatch(OpCodes.Bne_Un));
             if (codeMatcher.IsInvalid)
             {
                 Log.Error("PowerSystem_GameTick_Transpiler 4 failed. Mod version not compatible with game version.");
                 return codeInstructions;
             }
+            var continueLoopInstruction = new CodeInstruction(OpCodes.Br_S, codeMatcher.Operand);
 
             codeMatcher
-                 .Insert(
+                .Advance(1)
+                .Insert(
                     new CodeInstruction(OpCodes.Ldarg_0),
                     loadNodeIdInstruction,
-                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PowerSystem_Transpiler), nameof(IsNotLocal))),
-                    new CodeInstruction(OpCodes.Or)
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PowerSystem_Transpiler), nameof(AddMechaEnergy))),
+                    continueLoopInstruction
                 );
 
             return codeMatcher.InstructionEnumeration();
@@ -151,14 +164,27 @@ internal class PowerSystem_Transpiler
     }
 
 #pragma warning disable IDE0060 // Temporarily fix
-    private static bool IsNotLocal(PowerSystem powerSystem, int nodeId)
+    private static void AddMechaEnergy(PowerSystem powerSystem, int nodeId)
     {
-        if (!Multiplayer.IsActive)
-            return false;
+        if (GameMain.mainPlayer.planetId != powerSystem.factory.planetId)
+            return; //Not in local planet
 
-        // Temporarily disable local planet and LocalChargerIds check to solve weird animation issue
-        // All mecha will receive the charging effect for now
-        return false;
+        if (Multiplayer.IsActive && !Multiplayer.Session.PowerTowers.LocalChargerIds.Contains(nodeId))
+            return; //In MP: this charger is used by other players
+
+        var mecha = GameMain.mainPlayer.mecha;
+        ref var powerNode = ref powerSystem.nodePool[nodeId];
+        var energyCharged = (int)((powerNode.requiredEnergy - powerNode.idleEnergyPerTick) * powerSystem.networkServes[powerNode.networkId]);
+        lock (mecha)
+        {
+            mecha.coreEnergy += energyCharged;
+            mecha.MarkEnergyChange(2, energyCharged);
+            mecha.AddChargerDevice(powerNode.entityId);
+            if (mecha.coreEnergy > mecha.coreEnergyCap)
+            {
+                mecha.coreEnergy = mecha.coreEnergyCap;
+            }
+        }
     }
 #pragma warning restore IDE0060
 
