@@ -279,4 +279,43 @@ public class DroneManager : IDisposable
     {
         return CachedPositions.TryGetValue(playerId, out var value) ? value.Position : GameMain.mainPlayer.position;
     }
+
+    public static bool IsPrebuildGreen(PlanetFactory factory, int targetObjectId)
+    {
+        return factory.prebuildPool[-targetObjectId].itemRequired <= 0;
+    }
+    public static bool PlayerHasEnoughItemsForConstruction(PlanetFactory factory, int targetObjectId)
+    {
+        ref PrebuildData prebuildData = ref factory.prebuildPool[-targetObjectId];
+        return prebuildData.itemRequired <= GameMain.mainPlayer.package.GetItemCount((int)prebuildData.protoId);
+    }
+    public static bool TakeEnoughItemsFromBattleBase(PlanetFactory factory, int targetObjectId, ConstructionModuleComponent battleBaseCMC)
+    {
+        ref PrebuildData prebuildData = ref factory.prebuildPool[-targetObjectId];
+        StorageComponent sc = factory.defenseSystem.battleBases.buffer[battleBaseCMC.battleBaseId].storage.topStorage;
+
+        if (prebuildData.itemRequired > 0)
+        {
+            int protoId = (int)prebuildData.protoId;
+            int itemRequired = prebuildData.itemRequired;
+            int inc;
+
+            sc.TakeTailItems(ref protoId, ref itemRequired, out inc, false);
+            while (itemRequired == 0 && sc.previousStorage != null)
+            {
+                protoId = (int)prebuildData.protoId;
+                itemRequired = prebuildData.itemRequired;
+                sc = sc.previousStorage;
+                sc.TakeTailItems(ref protoId, ref itemRequired, out inc, false);
+            }
+
+            prebuildData.itemRequired = prebuildData.itemRequired - itemRequired;
+            if (factory.planet.factoryLoaded || factory.planet.factingCompletedStage >= 3)
+            {
+                factory.AlterPrebuildModelState(-targetObjectId, false);
+            }
+        }
+
+        return prebuildData.itemRequired == 0;
+    }
 }

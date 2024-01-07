@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -77,9 +78,11 @@ internal class ConstructionModuleComponent_Transpiler
 
                         // one of these must be != 0 because original method checks for it.
                         var targetObjectId = 0;
+                        var constructing = false;
                         if (targetConstructionObjectId != 0)
                         {
                             targetObjectId = targetConstructionObjectId;
+                            constructing = true;
                         }
                         if (targetRepairObjectId != 0)
                         {
@@ -125,6 +128,10 @@ internal class ConstructionModuleComponent_Transpiler
                                 new NewMechaDroneOrderPacket(GameMain.mainPlayer.planetId, targetObjectId, closestPlayer,
                                     priority), GameMain.mainPlayer.planetId);
 
+                            if (constructing)
+                            {
+                                factory.constructionSystem.TakeEnoughItemsFromPlayer(targetObjectId);
+                            }
                             GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer,
                                 targetObjectId, priority);
                             factory.constructionSystem.constructServing.Add(targetObjectId);
@@ -182,6 +189,7 @@ internal class ConstructionModuleComponent_Transpiler
                                 Multiplayer.Session.Network.SendPacketToPlanet(
                                     new NewBattleBaseDroneOrderPacket(factory.planetId, targetId, _this.id, true),
                                     factory.planetId);
+                                DroneManager.TakeEnoughItemsFromBattleBase(factory, targetId, _this);
                                 _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
                                 factory.constructionSystem.constructServing.Add(targetId);
                             }))

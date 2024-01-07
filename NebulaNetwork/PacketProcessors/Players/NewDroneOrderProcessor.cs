@@ -33,21 +33,23 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
             }
             var entityPos = factory.constructionSystem._obj_hpos(packet.EntityId, ref initialVector);
             var closestPlayer = DroneManager.GetClosestPlayerTo(packet.PlanetId, ref entityPos);
+            var elected = closestPlayer == Multiplayer.Session.LocalPlayer.Id;
 
             // only one drone per building allowed
             if (DroneManager.IsPendingBuildRequest(packet.EntityId))
             {
                 return;
             }
-            if (closestPlayer == Multiplayer.Session.LocalPlayer.Id &&
+            if (elected &&
                 GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 &&
-                GameMain.mainPlayer.mecha.constructionModule.droneEnabled)
+                GameMain.mainPlayer.mecha.constructionModule.droneEnabled &&
+                (DroneManager.IsPrebuildGreen(factory, packet.EntityId) || DroneManager.PlayerHasEnoughItemsForConstruction(factory, packet.EntityId)))
             {
                 informAndEjectLocalDrones(packet, factory, closestPlayer);
             }
-            else if (closestPlayer == Multiplayer.Session.LocalPlayer.Id)
+            else if (elected)
             {
-                // we are closest one but we do not have enough drones or they are disabled, so search next closest player
+                // we are closest one but we do not have enough drones or they are disabled, or we just have not enough items to make the constructon green, so search next closest player
                 var nextClosestPlayer =
                     DroneManager.GetNextClosestPlayerToAfter(packet.PlanetId, closestPlayer, ref entityPos);
                 if (nextClosestPlayer == closestPlayer)
@@ -58,7 +60,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
 
                 informAndEjectRemoteDrones(packet, factory, nextClosestPlayer);
             }
-            else if (closestPlayer != Multiplayer.Session.LocalPlayer.Id)
+            else if (!elected)
             {
                 informAndEjectRemoteDrones(packet, factory, closestPlayer);
             }
@@ -67,6 +69,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
         {
             var elected = packet.PlayerId == Multiplayer.Session.LocalPlayer.Id;
             var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
+            var playerCanBuildIt = factory == null ? false : (DroneManager.IsPrebuildGreen(factory, packet.EntityId) || DroneManager.PlayerHasEnoughItemsForConstruction(factory, packet.EntityId));
 
             switch (elected)
             {
@@ -89,12 +92,13 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                         }
                         break;
                     }
-                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 && GameMain.mainPlayer.mecha.constructionModule.droneEnabled:
+                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 && GameMain.mainPlayer.mecha.constructionModule.droneEnabled && playerCanBuildIt:
                     {
                         // we should send out drones, so do it.
 
                         if (factory != null)
                         {
+                            factory.constructionSystem.TakeEnoughItemsFromPlayer(packet.EntityId);
                             GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer,
                                 packet.EntityId,
                                 packet.Priority);
@@ -102,7 +106,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                         }
                         break;
                     }
-                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount <= 0 || !GameMain.mainPlayer.mecha.constructionModule.droneEnabled:
+                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount <= 0 || !GameMain.mainPlayer.mecha.constructionModule.droneEnabled || !playerCanBuildIt:
                     // remove drone order request if we cant handle it
                     DroneManager.RemoveBuildRequest(packet.EntityId);
 
@@ -154,6 +158,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
         // only render other drones when on same planet
         if (packet.PlanetId == GameMain.mainPlayer.planetId)
         {
+            // dont turn white prebuilds green here as drone plans can be rewoked by remote players and then we cant tell if it was a green or white prebuild.
             DroneManager.EjectDronesOfOtherPlayer(closestPlayerId, packet.PlanetId, packet.EntityId);
         }
     }
@@ -168,6 +173,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
             new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayerId, packet.Priority),
             packet.PlanetId);
 
+        factory.constructionSystem.TakeEnoughItemsFromPlayer(packet.EntityId);
         GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer, packet.EntityId,
             packet.Priority);
         factory.constructionSystem.constructServing.Add(packet.EntityId);
