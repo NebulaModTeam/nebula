@@ -16,7 +16,7 @@ internal class ConstructionModuleComponent_Patch
             return;
         }
 
-        if (drone.owner < 0 && drone.owner * -1 != Multiplayer.Session.LocalPlayer.Id)
+        if (drone.owner < 0 && drone.owner * -1 != Multiplayer.Session.LocalPlayer.Id || __instance.droneIdleCount > __instance.droneCount)
         {
             __instance.droneIdleCount--;
         }

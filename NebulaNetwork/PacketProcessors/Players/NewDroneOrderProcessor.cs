@@ -43,7 +43,8 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
             if (elected &&
                 GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 &&
                 GameMain.mainPlayer.mecha.constructionModule.droneEnabled &&
-                (DroneManager.IsPrebuildGreen(factory, packet.EntityId) || DroneManager.PlayerHasEnoughItemsForConstruction(factory, packet.EntityId)))
+                (DroneManager.IsPrebuildGreen(factory, packet.EntityId) || DroneManager.PlayerHasEnoughItemsForConstruction(factory, packet.EntityId)) &&
+                GameMain.mainPlayer.mecha.CheckEjectConstructionDroneCondition())
             {
                 informAndEjectLocalDrones(packet, factory, closestPlayer);
             }
@@ -70,6 +71,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
             var elected = packet.PlayerId == Multiplayer.Session.LocalPlayer.Id;
             var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
             var playerCanBuildIt = factory == null ? false : (DroneManager.IsPrebuildGreen(factory, packet.EntityId) || DroneManager.PlayerHasEnoughItemsForConstruction(factory, packet.EntityId));
+            var ejectConstructionConditionsGiven = GameMain.mainPlayer.mecha.CheckEjectConstructionDroneCondition();
 
             switch (elected)
             {
@@ -92,7 +94,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                         }
                         break;
                     }
-                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 && GameMain.mainPlayer.mecha.constructionModule.droneEnabled && playerCanBuildIt:
+                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount > 0 && GameMain.mainPlayer.mecha.constructionModule.droneEnabled && playerCanBuildIt && ejectConstructionConditionsGiven:
                     {
                         // we should send out drones, so do it.
 
@@ -106,7 +108,7 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                         }
                         break;
                     }
-                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount <= 0 || !GameMain.mainPlayer.mecha.constructionModule.droneEnabled || !playerCanBuildIt:
+                case true when GameMain.mainPlayer.mecha.constructionModule.droneIdleCount <= 0 || !GameMain.mainPlayer.mecha.constructionModule.droneEnabled || !playerCanBuildIt || !ejectConstructionConditionsGiven:
                     // remove drone order request if we cant handle it
                     DroneManager.RemoveBuildRequest(packet.EntityId);
 

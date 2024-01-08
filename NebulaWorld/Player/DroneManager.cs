@@ -135,7 +135,7 @@ public class DroneManager : IDisposable
         }
         // clients can run in a situation where they have requested sending out drones but never received an answer, potentially leading to a deadlock
         // thus we need to free up requests after a specific amount of time if there was no response yet.
-        if (GameMain.gameTick - PendingBuildRequests[entityId] <= 600)
+        if (GameMain.gameTick - PendingBuildRequests[entityId] <= 250)
         {
             return true;
         }
@@ -216,7 +216,28 @@ public class DroneManager : IDisposable
         var shortestDistance = 0.0f;
         ushort nearestPlayer = 0;
 
-        if (GameMain.mainPlayer.planetId == planetId)
+        var factory = GameMain.galaxy.PlanetById(planetId)?.factory;
+        if (factory == null)
+        {
+            return nearestPlayer;
+        }
+
+        var sqrMinBuildAlt = factory.constructionSystem.sqrMinBuildAlt;
+        var buildArea = GameMain.mainPlayer.mecha.buildArea; // this should be same for every player
+
+        if (entityPos.sqrMagnitude < sqrMinBuildAlt)
+        {
+            return nearestPlayer;
+        }
+        // this is from game code
+        buildArea *= buildArea;
+        if (factory.planet.type == EPlanetType.Gas)
+        {
+            buildArea *= 10f;
+        }
+
+        // host is not in cache so check separately as long as its not a dedicated server.
+        if (GameMain.mainPlayer.planetId == planetId && (GameMain.mainPlayer.position - entityPos).sqrMagnitude <= buildArea && !Multiplayer.IsDedicated)
         {
             nearestPlayer = 1; // this is host
             shortestDistance = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
@@ -225,21 +246,21 @@ public class DroneManager : IDisposable
         foreach (var playerPosition in CachedPositions.Where(playerPosition =>
                      playerPosition.Value.PlanetId == planetId))
         {
-            if (nearestPlayer == 0)
+            var dist = (playerPosition.Value.Position - entityPos).sqrMagnitude;
+
+            if (nearestPlayer == 0 && dist <= buildArea)
             {
                 nearestPlayer = playerPosition.Key;
-                shortestDistance = (playerPosition.Value.Position - entityPos).sqrMagnitude;
+                shortestDistance = dist;
 
                 continue;
             }
 
-            var dist = (playerPosition.Value.Position - entityPos).sqrMagnitude;
-            if (!(shortestDistance > dist))
+            if (dist < shortestDistance && dist <= buildArea)
             {
-                continue;
+                shortestDistance = dist;
+                nearestPlayer = playerPosition.Key;
             }
-            shortestDistance = dist;
-            nearestPlayer = playerPosition.Key;
         }
         return nearestPlayer;
     }
@@ -255,17 +276,46 @@ public class DroneManager : IDisposable
         var nextShortestDistance = afterPlayerDistance;
         var nearestPlayer = afterPlayerId;
 
+        var factory = GameMain.galaxy.PlanetById(planetId)?.factory;
+        if (factory == null)
+        {
+            return nearestPlayer;
+        }
+
+        var sqrMinBuildAlt = factory.constructionSystem.sqrMinBuildAlt;
+        var buildArea = GameMain.mainPlayer.mecha.buildArea; // this should be same for every player
+
+        if (entityPos.sqrMagnitude < sqrMinBuildAlt)
+        {
+            return nearestPlayer;
+        }
+
+        // this is from game code
+        buildArea *= buildArea;
+        if (factory.planet.type == EPlanetType.Gas)
+        {
+            buildArea *= 10f;
+        }
+
+        // host is not in cache so check separately as long as its not a dedicated server.
+        var distHost = (GameMain.mainPlayer.position - entityPos).sqrMagnitude;
+        if (GameMain.mainPlayer.planetId == planetId && distHost <= buildArea && distHost > afterPlayerDistance && !Multiplayer.IsDedicated)
+        {
+            nearestPlayer = 1; // this is host
+            nextShortestDistance = distHost;
+        }
+
         foreach (var playerPosition in CachedPositions.Where(playerPosition =>
                      playerPosition.Value.PlanetId == planetId))
         {
             var dist = (playerPosition.Value.Position - entityPos).sqrMagnitude;
 
-            if (nextShortestDistance == afterPlayerDistance && dist > nextShortestDistance)
+            if (nextShortestDistance == afterPlayerDistance && dist > nextShortestDistance && dist <= buildArea)
             {
                 nextShortestDistance = dist;
                 nearestPlayer = playerPosition.Key;
             }
-            else if (nextShortestDistance > dist && dist > afterPlayerDistance)
+            else if (nextShortestDistance != afterPlayerDistance && dist > afterPlayerDistance && dist < nextShortestDistance && dist <= buildArea)
             {
                 nextShortestDistance = dist;
                 nearestPlayer = playerPosition.Key;
