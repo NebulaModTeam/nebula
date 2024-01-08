@@ -43,7 +43,8 @@ internal class StorageSyncRealtimeChangeProcessor : PacketProcessor<StorageSyncR
                 case StorageSyncRealtimeChangeEvent.TakeItemFromGrid:
                     storage.TakeItemFromGrid(packet.Length, ref itemId, ref count, out _);
                     break;
-                case StorageSyncRealtimeChangeEvent.AddItem1:
+                case StorageSyncRealtimeChangeEvent.AddItem1: //BattleBase AutoPickTrash
+                    storage.AddItem(itemId, count, inc, out _, true);
                     break;
                 case StorageSyncRealtimeChangeEvent.TakeItem:
                     break;

@@ -14,7 +14,7 @@ public class PlayerSandCountProcessor : PacketProcessor<PlayerSandCount>
 {
     protected override void ProcessPacket(PlayerSandCount packet, NebulaConnection conn)
     {
-        if (IsHost)
+        if (IsHost && packet.SandChange == 0)
         {
             // when receive update request, host UpdateSyncedSandCount and send to other players
             GameMain.mainPlayer.SetSandCount(packet.SandCount);
@@ -22,18 +22,24 @@ public class PlayerSandCountProcessor : PacketProcessor<PlayerSandCount>
         }
 
         // taken from Player.SetSandCount()
-        var sandCount = packet.SandCount;
         var player = GameMain.mainPlayer;
-
-        if (sandCount > 1000000000)
+        var originalSandCount = player.sandCount;
+        if (packet.SandChange != 0)
         {
-            sandCount = 1000000000;
+            player.sandCount += packet.SandChange;
         }
-        var num = sandCount - player.sandCount;
-        player.sandCount = sandCount;
-        if (num != 0)
+        else
         {
-            UIRoot.instance.uiGame.OnSandCountChanged(player.sandCount, num);
+            var sandCount = packet.SandCount;
+            if (sandCount > 1000000000)
+            {
+                sandCount = 1000000000;
+            }
+            player.sandCount = sandCount;
+        }
+        if (player.sandCount != originalSandCount)
+        {
+            UIRoot.instance.uiGame.OnSandCountChanged(player.sandCount, player.sandCount - originalSandCount);
         }
     }
 }
