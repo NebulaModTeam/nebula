@@ -4,12 +4,12 @@ public class PlayerSandCount
 {
     public PlayerSandCount() { }
 
-    public PlayerSandCount(long sandCount, long sandChange = 0)
+    public PlayerSandCount(long sandCount, bool isDelta = false)
     {
         SandCount = sandCount;
-        SandChange = sandChange;
+        IsDelta = isDelta;
     }
 
     public long SandCount { get; set; }
-    public long SandChange { get; set; }
+    public bool IsDelta { get; set; }
 }

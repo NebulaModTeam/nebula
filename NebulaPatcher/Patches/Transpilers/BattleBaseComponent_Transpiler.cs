@@ -111,7 +111,7 @@ internal class BattleBaseComponent_Transpiler
                 {
                     // Sand gain is split between all connecting players
                     sandCount = (int)((float)sandCount / totalPlayerCount + 0.5f);
-                    var packet = new PlayerSandCount(0, sandCount);
+                    var packet = new PlayerSandCount(sandCount, true);
                     foreach (var kvp in connectedPlayers)
                     {
                         kvp.Value.SendPacket(packet);
