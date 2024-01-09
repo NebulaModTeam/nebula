@@ -1,5 +1,30 @@
 ## Changelog
 
+0.9.0:
+- Now compatible with Dark Fog (DSP 0.10.x) with enemies disabled
+- @phantomgamers: fix compilation after update and overall fixes/cleanup
+- @phantomgamers: fix UIVirtualStarmap patches
+- @phantomgamers: reviewing code from other contributers
+- @azure#3930: fix runtime issues after the update and overall fixes/cleanup
+- @azure#3930: fix multiplayer menu and lobby UI
+- @azure#3930: fix CanPause patch (clients catching up fast and dedicated server time freeze)
+- @azure#3930: improve UI and Keybinding
+- @azure#3930: fix station name syncing and UI
+- @azure#3930: update and fix PrebuildRequests and InserterPickTarget
+- @azure#3930: rework PowerTower syncing
+- @azure#3930: add syncing for BattleBase
+- @azure#3930: fix /who chat command
+- @azure#3930: fix packet spam regarding sand syncing
+- @mmjr: disable dark fog switch in lobby and prevent df enabled saves to be loaded.
+- @ajh16: sync dark fog lobby settings
+- @highrizk: sync storage filters
+- @highrizk: update serializer and fix broken packets
+- @highrizk: add serialization support and unit tests for dictionaries
+- @zzarek: add turret UI syncing
+- @sp00ktober: add syncing for new mecha settings and features
+- @sp00ktober: sync mecha and battle base construction drones
+- @sp00ktober: overall NRE fixes
+
 0.8.14:
 - @starfi5h: Fix mecha animation when player count > 2  
 - @starfi5h: Fix UIPerformance save test in multiplayer  

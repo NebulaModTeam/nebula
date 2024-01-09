@@ -2,6 +2,13 @@
 
 An open-source, multiplayer mod for the game [Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/).
 
+# Download Prerelease
+
+[![Build - Win x64](https://github.com/NebulaModTeam/nebula/actions/workflows/build-winx64.yml/badge.svg?branch=master)](https://nightly.link/NebulaModTeam/nebula/workflows/build-winx64/master/build-artifacts-Release.zip)
+Note: This is the bleeding edge build, for the more stable build see below. You can use this one if you want to try out the latest development builds, which may contain bugs and unfinished work.
+
+You will also need some extra steps to get this installed, see 2nd point in "How can i play this mod?".
+
 # FAQ
 
 ## Where can I get mod support?
@@ -28,8 +35,10 @@ The chat window can opened/closed using Alt + Backtick (configurable in game set
 
 Major refactors will happen while the project grows. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development.
 
+The prerelease version does support DSP `0.10.x`, but dark fog enemies and buildings are not supported as of this date (09. January 2024). This is what we will focus on now.
+
 <details>
-<summary>Here is a short list of what is currently implemented</summary>
+<summary>Here is a short list of what is currently implemented (outdated, we support more)</summary>
 
 - [x] Server / Client communication
 - [x] Custom Multiplayer menu in-game
