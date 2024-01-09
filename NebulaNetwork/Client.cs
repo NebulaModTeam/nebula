@@ -188,6 +188,11 @@ public class Client : NetworkProvider, IClient
         throw new NotImplementedException();
     }
 
+    public override void SendPacketToClient<T>(T packet, string clientUsername)
+    {
+        serverConnection?.SendPacket(new ClientRelayPacket(PacketProcessor.Write(packet), clientUsername));
+    }
+
     public override void Update()
     {
         PacketProcessor.ProcessPacketQueue();

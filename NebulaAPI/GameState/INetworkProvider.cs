@@ -46,5 +46,10 @@ public interface INetworkProvider : IDisposable
     /// </summary>
     void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
 
+    /// <summary>
+    ///     Send packet to Client directly (If possible) or indirectly by relaying via host (If Client is not directly reachable)
+    /// </summary>
+    void SendPacketToClient<T>(T packet, string clientUsername) where T : class, new ();
+
     void Update();
 }
