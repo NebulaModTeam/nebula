@@ -5,16 +5,10 @@
 - @phantomgamers: fix compilation after update and overall fixes/cleanup
 - @phantomgamers: fix UIVirtualStarmap patches
 - @phantomgamers: reviewing code from other contributers
-- @azure#3930: fix runtime issues after the update and overall fixes/cleanup
-- @azure#3930: fix multiplayer menu and lobby UI
-- @azure#3930: fix CanPause patch (clients catching up fast and dedicated server time freeze)
-- @azure#3930: improve UI and Keybinding
-- @azure#3930: fix station name syncing and UI
-- @azure#3930: update and fix PrebuildRequests and InserterPickTarget
-- @azure#3930: rework PowerTower syncing
-- @azure#3930: add syncing for BattleBase
-- @azure#3930: fix /who chat command
-- @azure#3930: fix packet spam regarding sand syncing
+- @starfi5h: fix runtime issues after the update and overall fixes/cleanup
+- @starfi5h: improve UI and Keybinding
+- @starfi5h: rework Wireless Power Tower syncing
+- @starfi5h: add syncing for Battlefield Analysis Base
 - @mmjr: disable dark fog switch in lobby and prevent df enabled saves to be loaded.
 - @ajh16: sync dark fog lobby settings
 - @highrizk: sync storage filters
