@@ -7,7 +7,7 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 [![Build - Win x64](https://github.com/NebulaModTeam/nebula/actions/workflows/build-winx64.yml/badge.svg?branch=master)](https://nightly.link/NebulaModTeam/nebula/workflows/build-winx64/master/build-artifacts-Release.zip)
 Note: This is the bleeding edge build, for the more stable build see below. You can use this one if you want to try out the latest development builds, which may contain bugs and unfinished work.
 
-You will also need some extra steps to get this installed, see 2nd point in ["How can I play this mod?"](https://github.com/NebulaModTeam/nebula/blob/0.10.x/README.md#how-can-i-play-this-mod).
+You will also need some extra steps to get this installed, see 2nd point in ["How can I play this mod?"](#how-can-i-play-this-mod).
 
 # FAQ
 
