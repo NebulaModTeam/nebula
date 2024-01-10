@@ -1,4 +1,4 @@
-# Nebula Multiplayer Mod
+# Nebula Multiplayer Mod ![GitHub Release](https://img.shields.io/github/v/release/NebulaModTeam/nebula) ![Nightly Build](https://img.shields.io/badge/nightly-Build-8A2BE2?link=https%3A%2F%2Fnightly.link%2FNebulaModTeam%2Fnebula%2Fworkflows%2Fbuild-winx64%2Fmaster%2Fbuild-artifacts-Release.zip) [![Build - Win x64](https://github.com/NebulaModTeam/nebula/actions/workflows/build-winx64.yml/badge.svg)](https://github.com/NebulaModTeam/nebula/actions/workflows/build-winx64.yml)
 
 An open-source, multiplayer mod for the game [Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/).
 
@@ -7,7 +7,7 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 [![Build - Win x64](https://github.com/NebulaModTeam/nebula/actions/workflows/build-winx64.yml/badge.svg?branch=master)](https://nightly.link/NebulaModTeam/nebula/workflows/build-winx64/master/build-artifacts-Release.zip)
 Note: This is the bleeding edge build, for the more stable build see below. You can use this one if you want to try out the latest development builds, which may contain bugs and unfinished work.
 
-You will also need some extra steps to get this installed, see 2nd point in "How can i play this mod?".
+You will also need some extra steps to get this installed, see 2nd point in "How can I play this mod?".
 
 # FAQ
 
