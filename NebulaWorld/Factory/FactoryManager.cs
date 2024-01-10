@@ -204,27 +204,6 @@ public class FactoryManager : IFactoryManager
         return prebuildRecycleCursor <= 0 ? factory.prebuildCursor + 1 : prebuildRecycle[prebuildRecycleCursor - 1];
     }
 
-    public void OnNewSetInserterPickTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
-    {
-        // 1. Client receives the build request from itself 2. Host sends the build request
-        if (Multiplayer.IsActive && (Multiplayer.Session.LocalPlayer.Id == PacketAuthor ||
-                                     Multiplayer.Session.LocalPlayer.IsHost && !IsIncomingRequest.Value))
-        {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterPickTargetPacket(objId, otherObjId, inserterId,
-                offset, pointPos, GameMain.localPlanet?.id ?? -1));
-        }
-    }
-
-    public void OnNewSetInserterInsertTarget(int objId, int otherObjId, int inserterId, int offset, Vector3 pointPos)
-    {
-        if (Multiplayer.IsActive && (Multiplayer.Session.LocalPlayer.Id == PacketAuthor ||
-                                     Multiplayer.Session.LocalPlayer.IsHost && !IsIncomingRequest.Value))
-        {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new NewSetInserterInsertTargetPacket(objId, otherObjId,
-                inserterId, offset, pointPos, GameMain.localPlanet?.id ?? -1));
-        }
-    }
-
     private Locker GetPrebuildRequests(out Dictionary<PrebuildOwnerKey, ushort> prebuildRequests)
     {
         return threadSafe.PrebuildRequests.GetLocked(out prebuildRequests);

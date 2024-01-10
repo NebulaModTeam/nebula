@@ -23,4 +23,15 @@ public class GameMain_Patch
         }
         DiscordManager.Cleanup();
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(GameMain.DetermineGameTickRate))]
+    public static void DetermineGameTickRate_Postfix(ref int __result)
+    {
+        // If in multiplayer game and Multiplayer.Session.CanPause is false, prevent the pause
+        if (Multiplayer.Session != null && Multiplayer.Session.CanPause == false)
+        {
+            __result = 1;
+        }
+    }
 }

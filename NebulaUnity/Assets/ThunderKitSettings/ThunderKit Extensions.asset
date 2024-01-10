@@ -13,18 +13,18 @@ MonoBehaviour:
   m_Name: ThunderKit Extensions
   m_EditorClassIdentifier: 
   Packages:
-  - {fileID: 114709690003354224}
-  - {fileID: 114537624205059120}
-  - {fileID: 114043823509773458}
-  - {fileID: 114090205977539058}
-  - {fileID: 114147901859390396}
-  - {fileID: 114962948247569206}
-  - {fileID: 114617964359792232}
-  - {fileID: 114087481242095026}
-  - {fileID: 114238689400106230}
-  - {fileID: 114760161296999942}
-  - {fileID: 114842863779470864}
-  - {fileID: 114976073477798802}
+  - {fileID: 114106559555717890}
+  - {fileID: 114975717655728408}
+  - {fileID: 114698676172901638}
+  - {fileID: 114371792487161874}
+  - {fileID: 114314484921897512}
+  - {fileID: 114856817079267576}
+  - {fileID: 114156710449408228}
+  - {fileID: 114112606628236238}
+  - {fileID: 114956840598252984}
+  - {fileID: 114208982539199306}
+  - {fileID: 114734465081389126}
+  - {fileID: 114420798545052278}
   Url: https://thunderkit.thunderstore.io
 --- !u!114 &114000609550068100
 MonoBehaviour:
@@ -91,6 +91,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114750052517437512}
+--- !u!114 &114005052219275032
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
+  m_EditorClassIdentifier: 
+  version: 0.0.1
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114006791632786532
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -121,6 +137,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.3
   dependencyId: Twiner-UnityGameImporter-1.0.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114008220426612910
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.3.0
+  m_EditorClassIdentifier: 
+  version: 1.3.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.3.0
+  group: {fileID: 114208982539199306}
+  dependencies:
+  - {fileID: 114748582200989878}
+--- !u!114 &114011951298377152
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2103
+  m_EditorClassIdentifier: 
+  version: 5.4.2103
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2103
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114012880649571404
@@ -235,6 +284,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114021152625389396
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.1
+  m_EditorClassIdentifier: 
+  version: 4.0.1
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.1
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114021283238483660
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -332,6 +397,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-3.2.2
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114027281898940044
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: Nebby-UnityMultiplayerHLAPI-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: Nebby-UnityMultiplayerHLAPI-1.0.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114027795862472640
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -411,6 +492,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 2.1.0
   dependencyId: RiskofThunder-RoR2EditorKit-2.1.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114034131495531742
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.2.0
+  m_EditorClassIdentifier: 
+  version: 1.2.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.2.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114034210541801494
@@ -526,6 +623,22 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114042048918548452
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2MultiplayerHLAPI-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: RiskofThunder-RoR2MultiplayerHLAPI-1.0.1
+  group: {fileID: 114156710449408228}
+  dependencies: []
 --- !u!114 &114042648975880366
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -540,9 +653,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 5.4.2105
   dependencyId: ThunderKit-BepInEx_KSP2-5.4.2105
-  group: {fileID: 114962948247569206}
+  group: {fileID: 0}
   dependencies: []
---- !u!114 &114043823509773458
+--- !u!114 &114042952141238878
 MonoBehaviour:
   m_ObjectHideFlags: 9
   m_CorrespondingSourceObject: {fileID: 0}
@@ -551,19 +664,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: CoreKeeperImportExtensions
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.2.1
   m_EditorClassIdentifier: 
-  PackageName: CoreKeeperImportExtensions
-  Author: CoreMods
-  Description: Import extensions for ThunderKit to stabilize and complete the Core
-    Keeper import process
-  DependencyId: CoreMods-CoreKeeperImportExtensions
-  Tags: []
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114844000732366660}
-  - {fileID: 114144025900727368}
+  version: 3.2.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.2.1
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114044244479700862
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -724,6 +831,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114059902403159454
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInExPack-5.4.2103
+  m_EditorClassIdentifier: 
+  version: 5.4.2103
+  dependencyId: ThunderKit-BepInExPack-5.4.2103
+  group: {fileID: 114734465081389126}
+  dependencies: []
 --- !u!114 &114061809384511194
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -838,6 +961,39 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114072130678328850
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.1
+  m_EditorClassIdentifier: 
+  version: 1.3.1
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.1
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114073588612580580
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.2
+  m_EditorClassIdentifier: 
+  version: 1.1.2
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.2
+  group: {fileID: 0}
+  dependencies:
+  - {fileID: 114752509172623922}
 --- !u!114 &114073790286885416
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -855,6 +1011,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114603271556096718}
+--- !u!114 &114074599821795064
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.4.0
+  m_EditorClassIdentifier: 
+  version: 3.4.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.4.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114075107875643140
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -885,7 +1057,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.1
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.1
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114077253284418456
 MonoBehaviour:
@@ -934,7 +1106,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.3
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114078320370037176
 MonoBehaviour:
@@ -998,7 +1170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.1
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.1
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies:
   - {fileID: 114084057011307828}
 --- !u!114 &114080330075530478
@@ -1064,7 +1236,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.1.4
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114085046682982090
 MonoBehaviour:
@@ -1082,28 +1254,6 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-4.0.3
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114087481242095026
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: UnityMultiplayerHLAPI
-  m_EditorClassIdentifier: 
-  PackageName: UnityMultiplayerHLAPI
-  Author: Nebby
-  Description: The Unity Multiplayer High Level API is the open source component of
-    the Unity Multiplayer system. This version does not contain an explicit dependency
-    on Mono.Cecil
-  DependencyId: Nebby-UnityMultiplayerHLAPI
-  Tags: []
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114318504385971032}
 --- !u!114 &114088268662485830
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1118,7 +1268,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 2.0.1
   dependencyId: RiskofThunder-RoR2EditorKit-2.0.1
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114089459067998042
 MonoBehaviour:
@@ -1136,40 +1286,6 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114090205977539058
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: RoR2ImportExtensions
-  m_EditorClassIdentifier: 
-  PackageName: RoR2ImportExtensions
-  Author: RiskofThunder
-  Description: Import extensions for ThunderKit to stabilize and complete the RoR2
-    import process
-  DependencyId: RiskofThunder-RoR2ImportExtensions
-  Tags:
-  - Risk of Rain 2
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114259609963156692}
-  - {fileID: 114882493987552680}
-  - {fileID: 114096404622475240}
-  - {fileID: 114330330696301894}
-  - {fileID: 114916066336267132}
-  - {fileID: 114822688981962504}
-  - {fileID: 114894297896198460}
-  - {fileID: 114170370367797092}
-  - {fileID: 114528885162995292}
-  - {fileID: 114430953614194912}
-  - {fileID: 114298212228131108}
-  - {fileID: 114543945643118438}
-  - {fileID: 114448929069527822}
 --- !u!114 &114092465250525412
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1264,7 +1380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 2.0.2
   dependencyId: RiskofThunder-RoR2EditorKit-2.0.2
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114095443977413964
 MonoBehaviour:
@@ -1296,7 +1412,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.5
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.5
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114097014574628234
 MonoBehaviour:
@@ -1428,6 +1544,22 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.4
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114103324100819870
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.1.1
+  m_EditorClassIdentifier: 
+  version: 1.1.1
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.1.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114103921010389174
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1492,6 +1624,54 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114106559555717890
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: RoR2EditorKit
+  m_EditorClassIdentifier: 
+  PackageName: RoR2EditorKit
+  Author: RiskofThunder
+  Description: The Risk of Rain 2 Editor Kit (Abreviated as ROR2EK) is a Thunderkit
+    Extension designed specifically for helping mod creators create content for Risk
+    of Rain 2.
+  DependencyId: RiskofThunder-RoR2EditorKit
+  Tags:
+  - Risk of Rain 2
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114951915501635128}
+  - {fileID: 114286655334003152}
+  - {fileID: 114706570149371042}
+  - {fileID: 114892195406339764}
+  - {fileID: 114021152625389396}
+  - {fileID: 114804497617681306}
+  - {fileID: 114856176294901248}
+  - {fileID: 114605678545278554}
+  - {fileID: 114280537756944622}
+  - {fileID: 114965170539803456}
+  - {fileID: 114512667008358356}
+  - {fileID: 114120744104683840}
+  - {fileID: 114753597238553086}
+  - {fileID: 114042952141238878}
+  - {fileID: 114355133615501110}
+  - {fileID: 114398591348107994}
+  - {fileID: 114223614723510916}
+  - {fileID: 114330852547524934}
+  - {fileID: 114631842591999768}
+  - {fileID: 114622138248240282}
+  - {fileID: 114227006085431556}
+  - {fileID: 114201867284656364}
+  - {fileID: 114607877543941870}
+  - {fileID: 114748314806840668}
+  - {fileID: 114126166983793458}
+  - {fileID: 114748582200989878}
 --- !u!114 &114108842385521224
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1574,6 +1754,28 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-3.2.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114112606628236238
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: UnityMultiplayerHLAPI
+  m_EditorClassIdentifier: 
+  PackageName: UnityMultiplayerHLAPI
+  Author: Nebby
+  Description: The Unity Multiplayer High Level API is the open source component of
+    the Unity Multiplayer system. This version does not contain an explicit dependency
+    on Mono.Cecil
+  DependencyId: Nebby-UnityMultiplayerHLAPI
+  Tags: []
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114676197521254562}
 --- !u!114 &114114356080502446
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1687,6 +1889,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114858359144501094}
+--- !u!114 &114118382344140762
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.4
+  m_EditorClassIdentifier: 
+  version: 1.3.4
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.4
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114118750868426866
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1702,6 +1920,22 @@ MonoBehaviour:
   version: 1.3.1
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.1
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114120744104683840
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.3.0
+  m_EditorClassIdentifier: 
+  version: 3.3.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.3.0
+  group: {fileID: 114106559555717890}
   dependencies: []
 --- !u!114 &114120989933896566
 MonoBehaviour:
@@ -1753,6 +1987,38 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 0}
+--- !u!114 &114125809440625598
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.2.0
+  m_EditorClassIdentifier: 
+  version: 1.2.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.2.0
+  group: {fileID: 114371792487161874}
+  dependencies: []
+--- !u!114 &114126166983793458
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.0.0
+  m_EditorClassIdentifier: 
+  version: 2.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-2.0.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114128432043679250
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1767,7 +2033,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 2.1.0
   dependencyId: RiskofThunder-RoR2EditorKit-2.1.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114129008536868162
 MonoBehaviour:
@@ -1801,6 +2067,23 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114129413597318206
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.2.0
+  m_EditorClassIdentifier: 
+  version: 1.2.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.2.0
+  group: {fileID: 0}
+  dependencies:
+  - {fileID: 114460294823473908}
 --- !u!114 &114130305556186792
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -1815,7 +2098,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 4.0.4
   dependencyId: RiskofThunder-RoR2EditorKit-4.0.4
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114131334148854142
 MonoBehaviour:
@@ -1960,7 +2243,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.0
-  group: {fileID: 114043823509773458}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114144447156639672
 MonoBehaviour:
@@ -2010,27 +2293,6 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114147901859390396
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: CoreKeeperEditorKit
-  m_EditorClassIdentifier: 
-  PackageName: CoreKeeperEditorKit
-  Author: CoreMods
-  Description: The Core Keeper Editor Kit is a Thunderkit Extension designed specifically
-    for helping mod creators create content for Core Keeper
-  DependencyId: CoreMods-CoreKeeperEditorKit
-  Tags: []
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114854455677964010}
 --- !u!114 &114148406944417564
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2046,6 +2308,22 @@ MonoBehaviour:
   version: 2.0.0
   dependencyId: RiskofThunder-RoR2EditorKit-2.0.0
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114148979266193786
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
+  m_EditorClassIdentifier: 
+  version: 0.0.1
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
+  group: {fileID: 114420798545052278}
   dependencies: []
 --- !u!114 &114149743155367340
 MonoBehaviour:
@@ -2111,6 +2389,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114152663853800782
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.7
+  m_EditorClassIdentifier: 
+  version: 1.3.7
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.7
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114153473651999776
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2127,6 +2421,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.2
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114154279056528334
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.1
+  m_EditorClassIdentifier: 
+  version: 0.2.1
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114156225898659862
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2141,6 +2451,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.2.1
   dependencyId: RiskofThunder-RoR2EditorKit-3.2.1
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114156710449408228
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: RoR2MultiplayerHLAPI
+  m_EditorClassIdentifier: 
+  PackageName: RoR2MultiplayerHLAPI
+  Author: RiskofThunder
+  Description: The high level API component of the Unity Multiplayer system with custom
+    modifications for Risk of Rain 2 modding.
+  DependencyId: RiskofThunder-RoR2MultiplayerHLAPI
+  Tags:
+  - Risk of Rain 2
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114042048918548452}
+  - {fileID: 114897015855796190}
+--- !u!114 &114157578007506118
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.6
+  m_EditorClassIdentifier: 
+  version: 1.3.6
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.6
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114158655806463288
@@ -2175,6 +2524,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114159468789639216
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2103
+  m_EditorClassIdentifier: 
+  version: 5.4.2103
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2103
+  group: {fileID: 114856817079267576}
+  dependencies: []
 --- !u!114 &114160121225995282
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2189,7 +2554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.1.1
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.1
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114161391573656406
 MonoBehaviour:
@@ -2239,6 +2604,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114163691847514336
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.2
+  m_EditorClassIdentifier: 
+  version: 4.0.2
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.2
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114166695757696642
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2253,6 +2634,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.4
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114166940953754160
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.2.0
+  m_EditorClassIdentifier: 
+  version: 3.2.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.2.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114167784740508906
@@ -2301,7 +2698,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.2.0
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.2.0
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114170387990479130
 MonoBehaviour:
@@ -2333,6 +2730,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.3
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114173013419655458
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.0
+  m_EditorClassIdentifier: 
+  version: 1.3.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114173013472603896
@@ -2432,6 +2845,23 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114337431004780108}
+--- !u!114 &114181571046932336
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.2
+  m_EditorClassIdentifier: 
+  version: 1.0.2
+  dependencyId: CommonAPI-DSPEditorKit-1.0.2
+  group: {fileID: 0}
+  dependencies:
+  - {fileID: 0}
 --- !u!114 &114184120708321546
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2448,6 +2878,38 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114187768043620126
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.4
+  m_EditorClassIdentifier: 
+  version: 1.3.4
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.4
+  group: {fileID: 114371792487161874}
+  dependencies: []
+--- !u!114 &114189946464947022
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2106
+  m_EditorClassIdentifier: 
+  version: 5.4.2106
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2106
+  group: {fileID: 114856817079267576}
+  dependencies: []
 --- !u!114 &114191331058337944
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2462,6 +2924,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.0.1
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114196459010249134
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.1.0
+  m_EditorClassIdentifier: 
+  version: 4.1.0
+  dependencyId: RiskofThunder-RoR2EditorKit-4.1.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114199222558864140
@@ -2498,6 +2976,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114559290871131524}
+--- !u!114 &114201867284656364
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.1.0
+  m_EditorClassIdentifier: 
+  version: 2.1.0
+  dependencyId: RiskofThunder-RoR2EditorKit-2.1.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114203768117826584
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2564,6 +3058,36 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114208982539199306
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: MoonstormSharedEditorUtils
+  m_EditorClassIdentifier: 
+  PackageName: MoonstormSharedEditorUtils
+  Author: TeamMoonstorm
+  Description: Editor Classes used by team members of TeamMoonstorm for Risk of Rain
+    2 Modding
+  DependencyId: TeamMoonstorm-MoonstormSharedEditorUtils
+  Tags:
+  - Risk of Rain 2
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114008220426612910}
+  - {fileID: 114881035174589612}
+  - {fileID: 114340446504172138}
+  - {fileID: 114701601329847592}
+  - {fileID: 114635800625070860}
+  - {fileID: 114457947283478544}
+  - {fileID: 114340150026228484}
+  - {fileID: 114339897846205296}
+  - {fileID: 114669120347295858}
 --- !u!114 &114209917599477580
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2578,7 +3102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 5.4.2103
   dependencyId: ThunderKit-BepInEx_KSP2-5.4.2103
-  group: {fileID: 114962948247569206}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114210104236791284
 MonoBehaviour:
@@ -2626,7 +3150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 4.0.0
   dependencyId: RiskofThunder-RoR2EditorKit-4.0.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114217115446652220
 MonoBehaviour:
@@ -2674,7 +3198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 2.0.0
   dependencyId: RiskofThunder-RoR2EditorKit-2.0.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114219378246229758
 MonoBehaviour:
@@ -2738,7 +3262,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 2.2.0
   dependencyId: RiskofThunder-RoR2EditorKit-2.2.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114221232751859240
 MonoBehaviour:
@@ -2804,6 +3328,22 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.2
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114223614723510916
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.0.2
+  m_EditorClassIdentifier: 
+  version: 3.0.2
+  dependencyId: RiskofThunder-RoR2EditorKit-3.0.2
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114223908480382846
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2835,6 +3375,38 @@ MonoBehaviour:
   version: 1.0.0
   dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.0
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114226160466451788
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.3
+  m_EditorClassIdentifier: 
+  version: 1.3.3
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.3
+  group: {fileID: 114371792487161874}
+  dependencies: []
+--- !u!114 &114227006085431556
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.2.0
+  m_EditorClassIdentifier: 
+  version: 2.2.0
+  dependencyId: RiskofThunder-RoR2EditorKit-2.2.0
+  group: {fileID: 114106559555717890}
   dependencies: []
 --- !u!114 &114227824297163252
 MonoBehaviour:
@@ -2868,6 +3440,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114228908843114508
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.0.2
+  m_EditorClassIdentifier: 
+  version: 1.0.2
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.2
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114230195990172090
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -2898,6 +3486,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.3
   dependencyId: CommonAPI-DSPEditorKit-1.0.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114231812316273392
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
+  m_EditorClassIdentifier: 
+  version: 0.2.0
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114231961913204664
@@ -2962,7 +3566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.2.0
   dependencyId: RiskofThunder-RoR2EditorKit-3.2.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114235260934848984
 MonoBehaviour:
@@ -3044,30 +3648,6 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.4
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114238689400106230
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: DSPEditorKit
-  m_EditorClassIdentifier: 
-  PackageName: DSPEditorKit
-  Author: CommonAPI
-  Description: DSPEditorKit is a toolkit built around developing mods for Dyson Sphere
-    Program
-  DependencyId: CommonAPI-DSPEditorKit
-  Tags: []
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114987409908583814}
-  - {fileID: 114982265606609370}
-  - {fileID: 114912225678844510}
-  - {fileID: 114312442024661242}
 --- !u!114 &114239270843481244
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -3084,6 +3664,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114243377629189258
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
+  m_EditorClassIdentifier: 
+  version: 0.2.3
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
+  group: {fileID: 114420798545052278}
+  dependencies: []
 --- !u!114 &114244581844134900
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -3098,7 +3694,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.3.0
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies:
   - {fileID: 114246726233055856}
 --- !u!114 &114246726233055856
@@ -3115,7 +3711,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: RiskofThunder-RoR2EditorKit-1.0.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114246797478515924
 MonoBehaviour:
@@ -3291,7 +3887,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.7
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.7
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114260442084353082
 MonoBehaviour:
@@ -3340,6 +3936,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: ThunderKit-UnityGameImporter-1.0.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114262198551335836
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2MultiplayerHLAPI-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: RiskofThunder-RoR2MultiplayerHLAPI-1.0.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114265497752361658
@@ -3391,6 +4003,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114251174672858602}
+--- !u!114 &114266050100390836
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.1
+  m_EditorClassIdentifier: 
+  version: 4.0.1
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114268003082496302
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -3453,6 +4081,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.1
   dependencyId: Twiner-UnityGameImporter-1.1.1
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114274921303100406
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.3.1
+  m_EditorClassIdentifier: 
+  version: 3.3.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.3.1
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114275411557889892
@@ -3551,6 +4195,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114280537756944622
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.5.0
+  m_EditorClassIdentifier: 
+  version: 3.5.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.5.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114280788230462386
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -3630,6 +4290,22 @@ MonoBehaviour:
   version: 1.0.2
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.2
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114286655334003152
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.4
+  m_EditorClassIdentifier: 
+  version: 4.0.4
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.4
+  group: {fileID: 114106559555717890}
   dependencies: []
 --- !u!114 &114287422221049036
 MonoBehaviour:
@@ -3758,7 +4434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.2
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.2
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114298380254055386
 MonoBehaviour:
@@ -3806,7 +4482,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.0
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114301226777487946
 MonoBehaviour:
@@ -3870,7 +4546,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.2
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.2
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114306480499835916
 MonoBehaviour:
@@ -3984,7 +4660,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: CommonAPI-DSPEditorKit-1.0.0
-  group: {fileID: 114238689400106230}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114313022785183012
 MonoBehaviour:
@@ -4002,6 +4678,27 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.4
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114314484921897512
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: CoreKeeperEditorKit
+  m_EditorClassIdentifier: 
+  PackageName: CoreKeeperEditorKit
+  Author: CoreMods
+  Description: The Core Keeper Editor Kit is a Thunderkit Extension designed specifically
+    for helping mod creators create content for Core Keeper
+  DependencyId: CoreMods-CoreKeeperEditorKit
+  Tags: []
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114430583421252816}
 --- !u!114 &114317779918673924
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4032,7 +4729,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: Nebby-UnityMultiplayerHLAPI-1.0.0
-  group: {fileID: 114087481242095026}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114318823470651332
 MonoBehaviour:
@@ -4146,6 +4843,22 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114323752412392898
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.3
+  m_EditorClassIdentifier: 
+  version: 1.0.3
+  dependencyId: CommonAPI-DSPEditorKit-1.0.3
+  group: {fileID: 114956840598252984}
+  dependencies: []
 --- !u!114 &114323783449338840
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4256,7 +4969,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: RiskofThunder-RoR2MultiplayerHLAPI-1.0.0
-  group: {fileID: 114617964359792232}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114327382723685244
 MonoBehaviour:
@@ -4338,7 +5051,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.4
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.4
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114330852547524934
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.0.1
+  m_EditorClassIdentifier: 
+  version: 3.0.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.0.1
+  group: {fileID: 114106559555717890}
+  dependencies: []
+--- !u!114 &114331055519363570
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CoreMods-CoreKeeperImportExtensions-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.1
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114331068762010992
 MonoBehaviour:
@@ -4402,6 +5147,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114335087121303376
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: Tobbert-ModIoUpload-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: Tobbert-ModIoUpload-1.0.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114335355594889558
@@ -4500,6 +5261,55 @@ MonoBehaviour:
   dependencyId: CommonAPI-DSPEditorKit-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114339897846205296
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
+  m_EditorClassIdentifier: 
+  version: 0.0.1
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
+  group: {fileID: 114208982539199306}
+  dependencies: []
+--- !u!114 &114340150026228484
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
+  m_EditorClassIdentifier: 
+  version: 0.1.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
+  group: {fileID: 114208982539199306}
+  dependencies: []
+--- !u!114 &114340446504172138
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.2
+  m_EditorClassIdentifier: 
+  version: 1.1.2
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.2
+  group: {fileID: 114208982539199306}
+  dependencies:
+  - {fileID: 114914853789018312}
 --- !u!114 &114344965420439432
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4514,7 +5324,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.0.1
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114345723488653688
 MonoBehaviour:
@@ -4546,6 +5356,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 4.0.1
   dependencyId: RiskofThunder-RoR2EditorKit-4.0.1
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114350731268493640
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.4
+  m_EditorClassIdentifier: 
+  version: 4.0.4
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.4
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114352096231143336
@@ -4613,6 +5439,22 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.2
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114355133615501110
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.2.0
+  m_EditorClassIdentifier: 
+  version: 3.2.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.2.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114357560066415712
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4677,6 +5519,22 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.1.5
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114369733487538966
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.3
+  m_EditorClassIdentifier: 
+  version: 1.0.3
+  dependencyId: CommonAPI-DSPEditorKit-1.0.3
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114370464627787606
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4693,6 +5551,40 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.1.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114371792487161874
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: RoR2ImportExtensions
+  m_EditorClassIdentifier: 
+  PackageName: RoR2ImportExtensions
+  Author: RiskofThunder
+  Description: Import extensions for ThunderKit to stabilize and complete the RoR2
+    import process
+  DependencyId: RiskofThunder-RoR2ImportExtensions
+  Tags:
+  - Risk of Rain 2
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114717622283500450}
+  - {fileID: 114745331192396136}
+  - {fileID: 114564118533391852}
+  - {fileID: 114187768043620126}
+  - {fileID: 114226160466451788}
+  - {fileID: 114843919944848302}
+  - {fileID: 114692008022584382}
+  - {fileID: 114125809440625598}
+  - {fileID: 114471951170600824}
+  - {fileID: 114803403280714778}
+  - {fileID: 114557867664556998}
+  - {fileID: 114829201309855572}
+  - {fileID: 114727440329753714}
 --- !u!114 &114372134526065946
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4741,6 +5633,23 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114376676161737616
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.0.0
+  group: {fileID: 0}
+  dependencies:
+  - {fileID: 114575702279176750}
 --- !u!114 &114377413203333534
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4756,6 +5665,22 @@ MonoBehaviour:
   version: 0.1.3
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114378925214454654
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
+  m_EditorClassIdentifier: 
+  version: 0.1.3
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
+  group: {fileID: 114420798545052278}
   dependencies: []
 --- !u!114 &114378976373605588
 MonoBehaviour:
@@ -4886,6 +5811,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-2.2.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114394319804784840
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: CommonAPI-DSPEditorKit-1.0.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114395016894941552
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -4916,6 +5857,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.3
   dependencyId: Twiner-UnityGameImporter-1.1.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114398591348107994
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.1.0
+  m_EditorClassIdentifier: 
+  version: 3.1.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.1.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
+--- !u!114 &114401095460594258
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.3
+  m_EditorClassIdentifier: 
+  version: 1.3.3
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114401401491528516
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.0.1
+  m_EditorClassIdentifier: 
+  version: 2.0.1
+  dependencyId: RiskofThunder-RoR2EditorKit-2.0.1
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114401462108170030
@@ -4999,6 +5988,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114409143441192466
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-1.0.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114412405774630054
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -5047,6 +6052,36 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114420798545052278
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: RoR2EditorKit
+  m_EditorClassIdentifier: 
+  PackageName: RoR2EditorKit
+  Author: RoR2EditorKitTeam
+  Description: RoR2EditorKit is a toolkit built around developing mods for Risk of
+    Rain 2
+  DependencyId: RoR2EditorKitTeam-RoR2EditorKit
+  Tags:
+  - Risk of Rain 2
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114879815507896276}
+  - {fileID: 114243377629189258}
+  - {fileID: 114835781235892226}
+  - {fileID: 114808897714423314}
+  - {fileID: 114968108846035874}
+  - {fileID: 114914853789018312}
+  - {fileID: 114378925214454654}
+  - {fileID: 114644102582656948}
+  - {fileID: 114148979266193786}
 --- !u!114 &114421838930401586
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -5061,7 +6096,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: Tobbert-ModIoUpload-1.0.0
-  group: {fileID: 114537624205059120}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114422472013668636
 MonoBehaviour:
@@ -5177,6 +6212,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114927710659149564}
+--- !u!114 &114430583421252816
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CoreMods-CoreKeeperEditorKit-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: CoreMods-CoreKeeperEditorKit-1.0.0
+  group: {fileID: 114314484921897512}
+  dependencies: []
 --- !u!114 &114430953614194912
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -5191,7 +6242,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.0
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.1.0
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114430988177072272
 MonoBehaviour:
@@ -5271,7 +6322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 5.4.2104
   dependencyId: ThunderKit-BepInEx_KSP2-5.4.2104
-  group: {fileID: 114962948247569206}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114434620641827676
 MonoBehaviour:
@@ -5415,7 +6466,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.0
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114451324831892144
 MonoBehaviour:
@@ -5515,6 +6566,23 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114705929114109436}
+--- !u!114 &114457947283478544
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.0.0
+  group: {fileID: 114208982539199306}
+  dependencies:
+  - {fileID: 114378925214454654}
 --- !u!114 &114458448784026408
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -5561,6 +6629,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.3
   dependencyId: Twiner-UnityGameImporter-1.1.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114460294823473908
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
+  m_EditorClassIdentifier: 
+  version: 0.2.4
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114464312464324788
@@ -5676,6 +6760,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114471951170600824
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.1.1
+  m_EditorClassIdentifier: 
+  version: 1.1.1
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.1.1
+  group: {fileID: 114371792487161874}
+  dependencies: []
 --- !u!114 &114472328696002634
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -5690,7 +6790,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 2.2.1
   dependencyId: RiskofThunder-RoR2EditorKit-2.2.1
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114475812816539414
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.3.0
+  m_EditorClassIdentifier: 
+  version: 3.3.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.3.0
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114475897565917454
 MonoBehaviour:
@@ -5836,6 +6952,23 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.2
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114485755154747054
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.1
+  m_EditorClassIdentifier: 
+  version: 1.1.1
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.1
+  group: {fileID: 0}
+  dependencies:
+  - {fileID: 114752509172623922}
 --- !u!114 &114486937398597360
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -5997,6 +7130,38 @@ MonoBehaviour:
   dependencyId: ThunderKit-BepInEx_KSP2-5.4.2106
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114497507585989256
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CoreMods-CoreKeeperImportExtensions-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114499441723809846
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInExPack-5.4.2103
+  m_EditorClassIdentifier: 
+  version: 5.4.2103
+  dependencyId: ThunderKit-BepInExPack-5.4.2103
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114499648551874464
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6093,6 +7258,38 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114508239606912710
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.5.1
+  m_EditorClassIdentifier: 
+  version: 3.5.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.5.1
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114508329227897294
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: CommonAPI-DSPEditorKit-1.0.0
+  group: {fileID: 114956840598252984}
+  dependencies: []
 --- !u!114 &114511496381887316
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6123,7 +7320,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.5.2
   dependencyId: RiskofThunder-RoR2EditorKit-3.5.2
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114512388186179790
 MonoBehaviour:
@@ -6141,6 +7338,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114512667008358356
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.3.1
+  m_EditorClassIdentifier: 
+  version: 3.3.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.3.1
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114514220660496100
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6155,7 +7368,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.0.1
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114517351328426820
 MonoBehaviour:
@@ -6171,6 +7384,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.4
   dependencyId: Twiner-UnityGameImporter-1.1.4
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114517529569608620
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.2
+  m_EditorClassIdentifier: 
+  version: 1.0.2
+  dependencyId: CommonAPI-DSPEditorKit-1.0.2
+  group: {fileID: 114956840598252984}
+  dependencies:
+  - {fileID: 0}
+--- !u!114 &114519982208916598
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.1.0
+  m_EditorClassIdentifier: 
+  version: 3.1.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.1.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114522143275741674
@@ -6270,6 +7516,22 @@ MonoBehaviour:
   dependencyId: CommonAPI-DSPEditorKit-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114525843254149610
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.5.2
+  m_EditorClassIdentifier: 
+  version: 3.5.2
+  dependencyId: RiskofThunder-RoR2EditorKit-3.5.2
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114528885162995292
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6284,7 +7546,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.1
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.1.1
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114530883298098252
 MonoBehaviour:
@@ -6316,7 +7578,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.1.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114533387734720600
 MonoBehaviour:
@@ -6415,26 +7677,6 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-3.4.0
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114537624205059120
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: ModIoUpload
-  m_EditorClassIdentifier: 
-  PackageName: ModIoUpload
-  Author: Tobbert
-  Description: Small extension that allows for uploading mods to mod.io.
-  DependencyId: Tobbert-ModIoUpload
-  Tags: []
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114421838930401586}
 --- !u!114 &114538530656181914
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6497,7 +7739,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.1
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.1
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114551784702656774
 MonoBehaviour:
@@ -6513,7 +7755,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.4
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114557152003340974
 MonoBehaviour:
@@ -6580,6 +7822,22 @@ MonoBehaviour:
   dependencyId: CommonAPI-DSPEditorKit-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114557867664556998
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.0.2
+  m_EditorClassIdentifier: 
+  version: 1.0.2
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.2
+  group: {fileID: 114371792487161874}
+  dependencies: []
 --- !u!114 &114558203666195686
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6594,7 +7852,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.1
   dependencyId: RiskofThunder-RoR2MultiplayerHLAPI-1.0.1
-  group: {fileID: 114617964359792232}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114558354922940098
 MonoBehaviour:
@@ -6610,8 +7868,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.5.0
   dependencyId: RiskofThunder-RoR2EditorKit-3.5.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
+--- !u!114 &114558793961300684
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.3.0
+  m_EditorClassIdentifier: 
+  version: 1.3.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.3.0
+  group: {fileID: 0}
+  dependencies:
+  - {fileID: 114409143441192466}
 --- !u!114 &114559290871131524
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6661,6 +7936,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114512388186179790}
+--- !u!114 &114564118533391852
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.5
+  m_EditorClassIdentifier: 
+  version: 1.3.5
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.5
+  group: {fileID: 114371792487161874}
+  dependencies: []
 --- !u!114 &114564139371026028
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -6854,6 +8145,38 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114166695757696642}
+--- !u!114 &114575702279176750
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
+  m_EditorClassIdentifier: 
+  version: 0.1.3
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114579638927400902
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.1.0
+  m_EditorClassIdentifier: 
+  version: 2.1.0
+  dependencyId: RiskofThunder-RoR2EditorKit-2.1.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114582468646747994
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7045,7 +8368,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.0.2
   dependencyId: RiskofThunder-RoR2EditorKit-3.0.2
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114603271556096718
 MonoBehaviour:
@@ -7079,6 +8402,22 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.2
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114605678545278554
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.5.1
+  m_EditorClassIdentifier: 
+  version: 3.5.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.5.1
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114605937392595972
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7109,9 +8448,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.2
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.2
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies:
   - {fileID: 114084057011307828}
+--- !u!114 &114607877543941870
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.0.2
+  m_EditorClassIdentifier: 
+  version: 2.0.2
+  dependencyId: RiskofThunder-RoR2EditorKit-2.0.2
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114608770955552694
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7176,29 +8531,6 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114617964359792232
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: RoR2MultiplayerHLAPI
-  m_EditorClassIdentifier: 
-  PackageName: RoR2MultiplayerHLAPI
-  Author: RiskofThunder
-  Description: The high level API component of the Unity Multiplayer system with custom
-    modifications for Risk of Rain 2 modding.
-  DependencyId: RiskofThunder-RoR2MultiplayerHLAPI
-  Tags:
-  - Risk of Rain 2
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114558203666195686}
-  - {fileID: 114326923380113444}
 --- !u!114 &114620472686663348
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7213,6 +8545,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.0
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114621307347574410
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.1.1
+  m_EditorClassIdentifier: 
+  version: 0.1.1
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.1
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114621693519912408
@@ -7230,6 +8578,22 @@ MonoBehaviour:
   version: 1.1.0
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.1.0
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114622138248240282
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.2.1
+  m_EditorClassIdentifier: 
+  version: 2.2.1
+  dependencyId: RiskofThunder-RoR2EditorKit-2.2.1
+  group: {fileID: 114106559555717890}
   dependencies: []
 --- !u!114 &114622162076887704
 MonoBehaviour:
@@ -7278,7 +8642,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.3.0
   dependencyId: RiskofThunder-RoR2EditorKit-3.3.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114624911877371130
 MonoBehaviour:
@@ -7294,6 +8658,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.3
   dependencyId: Twiner-UnityGameImporter-1.1.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114627200327126630
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
+  m_EditorClassIdentifier: 
+  version: 1.1.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114628662864870192
@@ -7345,6 +8725,22 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114631842591999768
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.0.0
+  m_EditorClassIdentifier: 
+  version: 3.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.0.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114632747361072676
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7377,6 +8773,22 @@ MonoBehaviour:
   dependencyId: CommonAPI-DSPEditorKit-1.0.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114633652348284846
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.0.0
+  m_EditorClassIdentifier: 
+  version: 2.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-2.0.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114635671885726730
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7392,6 +8804,22 @@ MonoBehaviour:
   version: 1.0.2
   dependencyId: Twiner-UnityGameImporter-1.0.2
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114635800625070860
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
+  m_EditorClassIdentifier: 
+  version: 1.1.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
+  group: {fileID: 114208982539199306}
   dependencies: []
 --- !u!114 &114638643529693048
 MonoBehaviour:
@@ -7425,6 +8853,38 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114641643868213736
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CoreMods-CoreKeeperImportExtensions-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.0
+  group: {fileID: 114698676172901638}
+  dependencies: []
+--- !u!114 &114644102582656948
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.1.1
+  m_EditorClassIdentifier: 
+  version: 0.1.1
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.1
+  group: {fileID: 114420798545052278}
+  dependencies: []
 --- !u!114 &114644602258936268
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7439,7 +8899,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.4.0
   dependencyId: RiskofThunder-RoR2EditorKit-3.4.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114645964624669068
 MonoBehaviour:
@@ -7540,6 +9000,38 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114651819718383044
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.2.1
+  m_EditorClassIdentifier: 
+  version: 3.2.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.2.1
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114651914436462616
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2104
+  m_EditorClassIdentifier: 
+  version: 5.4.2104
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2104
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114652731619484230
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7621,6 +9113,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.6
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114657355070759350
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
+  m_EditorClassIdentifier: 
+  version: 0.2.3
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114658329620766052
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7667,6 +9175,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.0.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114659203711689364
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.1.0
+  m_EditorClassIdentifier: 
+  version: 1.1.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.1.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114663436053986854
@@ -7747,7 +9271,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.5.1
   dependencyId: RiskofThunder-RoR2EditorKit-3.5.1
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114665871825624340
 MonoBehaviour:
@@ -7765,6 +9289,38 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.0.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114669120347295858
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
+  m_EditorClassIdentifier: 
+  version: 0.0.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
+  group: {fileID: 114208982539199306}
+  dependencies: []
+--- !u!114 &114673380440265924
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
+  m_EditorClassIdentifier: 
+  version: 0.0.1
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114673475629058886
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -7779,7 +9335,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.1.3
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
-  group: {fileID: 114976073477798802}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114674131410775730
 MonoBehaviour:
@@ -7795,7 +9351,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 4.0.1
   dependencyId: RiskofThunder-RoR2EditorKit-4.0.1
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114675689352118530
 MonoBehaviour:
@@ -7812,6 +9368,22 @@ MonoBehaviour:
   version: 1.0.2
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.2
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114676197521254562
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: Nebby-UnityMultiplayerHLAPI-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: Nebby-UnityMultiplayerHLAPI-1.0.0
+  group: {fileID: 114112606628236238}
   dependencies: []
 --- !u!114 &114677334666193568
 MonoBehaviour:
@@ -7843,7 +9415,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 4.0.3
   dependencyId: RiskofThunder-RoR2EditorKit-4.0.3
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114678371042323280
 MonoBehaviour:
@@ -7940,7 +9512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.2.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.2.0
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies:
   - {fileID: 114551784702656774}
 --- !u!114 &114682825970323628
@@ -8041,6 +9613,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114685308309904304
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.0.2
+  m_EditorClassIdentifier: 
+  version: 2.0.2
+  dependencyId: RiskofThunder-RoR2EditorKit-2.0.2
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114685365395738668
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8122,6 +9710,22 @@ MonoBehaviour:
   dependencyId: CommonAPI-DSPEditorKit-1.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114688562748646494
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2105
+  m_EditorClassIdentifier: 
+  version: 5.4.2105
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2105
+  group: {fileID: 114856817079267576}
+  dependencies: []
 --- !u!114 &114688786369871800
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8169,6 +9773,22 @@ MonoBehaviour:
   version: 0.0.1
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114692008022584382
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.0
+  m_EditorClassIdentifier: 
+  version: 1.3.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.0
+  group: {fileID: 114371792487161874}
   dependencies: []
 --- !u!114 &114692157121816866
 MonoBehaviour:
@@ -8250,6 +9870,44 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114698676172901638
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: CoreKeeperImportExtensions
+  m_EditorClassIdentifier: 
+  PackageName: CoreKeeperImportExtensions
+  Author: CoreMods
+  Description: Import extensions for ThunderKit to stabilize and complete the Core
+    Keeper import process
+  DependencyId: CoreMods-CoreKeeperImportExtensions
+  Tags: []
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114720286668822978}
+  - {fileID: 114641643868213736}
+--- !u!114 &114698800799734804
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.2.1
+  m_EditorClassIdentifier: 
+  version: 2.2.1
+  dependencyId: RiskofThunder-RoR2EditorKit-2.2.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114699568246627996
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8282,6 +9940,39 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2MultiplayerHLAPI-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114699989523547136
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: Tobbert-ModIoUpload-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: Tobbert-ModIoUpload-1.0.0
+  group: {fileID: 114975717655728408}
+  dependencies: []
+--- !u!114 &114701601329847592
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.1
+  m_EditorClassIdentifier: 
+  version: 1.1.1
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.1
+  group: {fileID: 114208982539199306}
+  dependencies:
+  - {fileID: 114914853789018312}
 --- !u!114 &114705559625034940
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8314,6 +10005,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114706570149371042
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.3
+  m_EditorClassIdentifier: 
+  version: 4.0.3
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.3
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114707257175009396
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8328,7 +10035,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.0.1
   dependencyId: RiskofThunder-RoR2EditorKit-3.0.1
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114707455543401128
 MonoBehaviour:
@@ -8362,54 +10069,6 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.1
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114709690003354224
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: RoR2EditorKit
-  m_EditorClassIdentifier: 
-  PackageName: RoR2EditorKit
-  Author: RiskofThunder
-  Description: The Risk of Rain 2 Editor Kit (Abreviated as ROR2EK) is a Thunderkit
-    Extension designed specifically for helping mod creators create content for Risk
-    of Rain 2.
-  DependencyId: RiskofThunder-RoR2EditorKit
-  Tags:
-  - Risk of Rain 2
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114892360868598522}
-  - {fileID: 114130305556186792}
-  - {fileID: 114677875263823298}
-  - {fileID: 114839481976403454}
-  - {fileID: 114674131410775730}
-  - {fileID: 114216495761261758}
-  - {fileID: 114511954190991742}
-  - {fileID: 114664973346956550}
-  - {fileID: 114558354922940098}
-  - {fileID: 114644602258936268}
-  - {fileID: 114835068153062576}
-  - {fileID: 114624845147299822}
-  - {fileID: 114800791928221100}
-  - {fileID: 114952097857307002}
-  - {fileID: 114233902246286684}
-  - {fileID: 114804689464149732}
-  - {fileID: 114602944583007854}
-  - {fileID: 114707257175009396}
-  - {fileID: 114939815966430614}
-  - {fileID: 114472328696002634}
-  - {fileID: 114220687239244432}
-  - {fileID: 114128432043679250}
-  - {fileID: 114095091235612498}
-  - {fileID: 114088268662485830}
-  - {fileID: 114218634457166540}
-  - {fileID: 114246726233055856}
 --- !u!114 &114710413723138724
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8506,7 +10165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 5.4.2103
   dependencyId: ThunderKit-BepInExPack-5.4.2103
-  group: {fileID: 114842863779470864}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114714943611930140
 MonoBehaviour:
@@ -8557,6 +10216,22 @@ MonoBehaviour:
   dependencyId: CommonAPI-DSPEditorKit-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114717622283500450
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.7
+  m_EditorClassIdentifier: 
+  version: 1.3.7
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.7
+  group: {fileID: 114371792487161874}
+  dependencies: []
 --- !u!114 &114718405032842696
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8573,6 +10248,22 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114720286668822978
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CoreMods-CoreKeeperImportExtensions-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.1
+  group: {fileID: 114698676172901638}
+  dependencies: []
 --- !u!114 &114722042727904406
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8587,6 +10278,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.1.0
   dependencyId: RiskofThunder-RoR2EditorKit-3.1.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114722121302493804
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
+  m_EditorClassIdentifier: 
+  version: 0.0.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114723551370881214
@@ -8701,6 +10408,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-2.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114727440329753714
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.0
+  group: {fileID: 114371792487161874}
+  dependencies: []
 --- !u!114 &114728916250768068
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8765,6 +10488,43 @@ MonoBehaviour:
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114734465081389126
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: BepInExPack
+  m_EditorClassIdentifier: 
+  PackageName: BepInExPack
+  Author: ThunderKit
+  Description: Unified BepInEx all-in-one modding pack - plugin framework, detour
+    library
+  DependencyId: ThunderKit-BepInExPack
+  Tags: []
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114059902403159454}
+--- !u!114 &114735057710032296
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.0.1
+  m_EditorClassIdentifier: 
+  version: 3.0.1
+  dependencyId: RiskofThunder-RoR2EditorKit-3.0.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114738031472023106
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8812,7 +10572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 5.4.2106
   dependencyId: ThunderKit-BepInEx_KSP2-5.4.2106
-  group: {fileID: 114962948247569206}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114740696635672616
 MonoBehaviour:
@@ -8912,6 +10672,54 @@ MonoBehaviour:
   dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114745331192396136
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.6
+  m_EditorClassIdentifier: 
+  version: 1.3.6
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.6
+  group: {fileID: 114371792487161874}
+  dependencies: []
+--- !u!114 &114748314806840668
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.0.1
+  m_EditorClassIdentifier: 
+  version: 2.0.1
+  dependencyId: RiskofThunder-RoR2EditorKit-2.0.1
+  group: {fileID: 114106559555717890}
+  dependencies: []
+--- !u!114 &114748582200989878
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-1.0.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114748699961382136
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -8943,6 +10751,38 @@ MonoBehaviour:
   version: 0.1.3
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114752509172623922
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
+  m_EditorClassIdentifier: 
+  version: 0.1.4
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114753597238553086
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.2.2
+  m_EditorClassIdentifier: 
+  version: 3.2.2
+  dependencyId: RiskofThunder-RoR2EditorKit-3.2.2
+  group: {fileID: 114106559555717890}
   dependencies: []
 --- !u!114 &114754660433830538
 MonoBehaviour:
@@ -9009,36 +10849,6 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.1
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114760161296999942
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: MoonstormSharedEditorUtils
-  m_EditorClassIdentifier: 
-  PackageName: MoonstormSharedEditorUtils
-  Author: TeamMoonstorm
-  Description: Editor Classes used by team members of TeamMoonstorm for Risk of Rain
-    2 Modding
-  DependencyId: TeamMoonstorm-MoonstormSharedEditorUtils
-  Tags:
-  - Risk of Rain 2
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114244581844134900}
-  - {fileID: 114681810674081618}
-  - {fileID: 114606651513752504}
-  - {fileID: 114079923393791494}
-  - {fileID: 114962184687449432}
-  - {fileID: 114906594143703972}
-  - {fileID: 114532114255596568}
-  - {fileID: 114344965420439432}
-  - {fileID: 114960013113249648}
 --- !u!114 &114762653187255486
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -9137,6 +10947,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114894572786822630}
+--- !u!114 &114775640418916382
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2104
+  m_EditorClassIdentifier: 
+  version: 5.4.2104
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2104
+  group: {fileID: 114856817079267576}
+  dependencies: []
 --- !u!114 &114777320960854372
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -9251,6 +11077,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-3.5.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114785134534131934
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114785929809010118
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -9283,6 +11125,22 @@ MonoBehaviour:
   dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114788468665197110
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.2
+  m_EditorClassIdentifier: 
+  version: 0.2.2
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.2
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114789385016511822
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -9297,6 +11155,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.2.0
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114793832152440846
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: CommonAPI-DSPEditorKit-1.0.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114796177906641434
@@ -9425,7 +11299,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.2.2
   dependencyId: RiskofThunder-RoR2EditorKit-3.2.2
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114803403280714778
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.1.0
+  m_EditorClassIdentifier: 
+  version: 1.1.0
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.1.0
+  group: {fileID: 114371792487161874}
+  dependencies: []
+--- !u!114 &114804497617681306
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.0
+  m_EditorClassIdentifier: 
+  version: 4.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.0
+  group: {fileID: 114106559555717890}
   dependencies: []
 --- !u!114 &114804689464149732
 MonoBehaviour:
@@ -9441,7 +11347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.1.0
   dependencyId: RiskofThunder-RoR2EditorKit-3.1.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114805221396308192
 MonoBehaviour:
@@ -9507,6 +11413,22 @@ MonoBehaviour:
   dependencyId: ThunderKit-BepInExPack-5.4.2103
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114808897714423314
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.1
+  m_EditorClassIdentifier: 
+  version: 0.2.1
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.1
+  group: {fileID: 114420798545052278}
+  dependencies: []
 --- !u!114 &114813210833986038
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -9521,6 +11443,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.1.4
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114814272153483198
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.0.2
+  m_EditorClassIdentifier: 
+  version: 3.0.2
+  dependencyId: RiskofThunder-RoR2EditorKit-3.0.2
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114814407127231818
@@ -9553,6 +11491,70 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.4
   dependencyId: Twiner-UnityGameImporter-1.1.4
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114816153547710262
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.5.0
+  m_EditorClassIdentifier: 
+  version: 3.5.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.5.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114816515941197522
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.3
+  m_EditorClassIdentifier: 
+  version: 4.0.3
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.3
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114816552413718900
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.5
+  m_EditorClassIdentifier: 
+  version: 1.3.5
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.5
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114816741394440264
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-2.2.0
+  m_EditorClassIdentifier: 
+  version: 2.2.0
+  dependencyId: RiskofThunder-RoR2EditorKit-2.2.0
   group: {fileID: 0}
   dependencies: []
 --- !u!114 &114816977977117162
@@ -9665,7 +11667,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.1
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.1
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114822691915874530
 MonoBehaviour:
@@ -9813,6 +11815,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-3.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114829201309855572
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.1
+  group: {fileID: 114371792487161874}
+  dependencies: []
 --- !u!114 &114831902372279488
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -9859,7 +11877,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.3.1
   dependencyId: RiskofThunder-RoR2EditorKit-3.3.1
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114835781235892226
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.2
+  m_EditorClassIdentifier: 
+  version: 0.2.2
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.2
+  group: {fileID: 114420798545052278}
   dependencies: []
 --- !u!114 &114839481976403454
 MonoBehaviour:
@@ -9875,7 +11909,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 4.0.2
   dependencyId: RiskofThunder-RoR2EditorKit-4.0.2
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114839658836714384
 MonoBehaviour:
@@ -9941,27 +11975,6 @@ MonoBehaviour:
   dependencyId: CommonAPI-DSPEditorKit-1.0.1
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114842863779470864
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: BepInExPack
-  m_EditorClassIdentifier: 
-  PackageName: BepInExPack
-  Author: ThunderKit
-  Description: Unified BepInEx all-in-one modding pack - plugin framework, detour
-    library
-  DependencyId: ThunderKit-BepInExPack
-  Tags: []
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114714498261732228}
 --- !u!114 &114843232768038350
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -9994,6 +12007,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-2.2.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114843919944848302
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.3.1
+  m_EditorClassIdentifier: 
+  version: 1.3.1
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.1
+  group: {fileID: 114371792487161874}
+  dependencies: []
 --- !u!114 &114844000732366660
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -10008,7 +12037,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.1
   dependencyId: CoreMods-CoreKeeperImportExtensions-1.0.1
-  group: {fileID: 114043823509773458}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114845179357769792
 MonoBehaviour:
@@ -10105,8 +12134,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: CoreMods-CoreKeeperEditorKit-1.0.0
-  group: {fileID: 114147901859390396}
+  group: {fileID: 0}
   dependencies: []
+--- !u!114 &114856176294901248
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.5.2
+  m_EditorClassIdentifier: 
+  version: 3.5.2
+  dependencyId: RiskofThunder-RoR2EditorKit-3.5.2
+  group: {fileID: 114106559555717890}
+  dependencies: []
+--- !u!114 &114856817079267576
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: BepInEx_KSP2
+  m_EditorClassIdentifier: 
+  PackageName: BepInEx_KSP2
+  Author: ThunderKit
+  Description: Unified BepInEx all-in-one modding pack - plugin framework, detour
+    library
+  DependencyId: ThunderKit-BepInEx_KSP2
+  Tags: []
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114189946464947022}
+  - {fileID: 114688562748646494}
+  - {fileID: 114775640418916382}
+  - {fileID: 114159468789639216}
 --- !u!114 &114858359144501094
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -10300,6 +12369,39 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114879815507896276
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
+  m_EditorClassIdentifier: 
+  version: 0.2.4
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.4
+  group: {fileID: 114420798545052278}
+  dependencies: []
+--- !u!114 &114881035174589612
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-1.2.0
+  m_EditorClassIdentifier: 
+  version: 1.2.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.2.0
+  group: {fileID: 114208982539199306}
+  dependencies:
+  - {fileID: 114879815507896276}
 --- !u!114 &114882493987552680
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -10314,7 +12416,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.6
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.6
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114883078104257502
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2ImportExtensions-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.1
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114883595375410312
 MonoBehaviour:
@@ -10429,6 +12547,22 @@ MonoBehaviour:
   group: {fileID: 0}
   dependencies:
   - {fileID: 114145548836894164}
+--- !u!114 &114892195406339764
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.2
+  m_EditorClassIdentifier: 
+  version: 4.0.2
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.2
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114892360868598522
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -10443,7 +12577,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 4.1.0
   dependencyId: RiskofThunder-RoR2EditorKit-4.1.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114893798377706362
 MonoBehaviour:
@@ -10475,7 +12609,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.0
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.0
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114894572786822630
 MonoBehaviour:
@@ -10493,6 +12627,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114895130175470610
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2MultiplayerHLAPI-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: RiskofThunder-RoR2MultiplayerHLAPI-1.0.1
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114895451458462168
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -10508,6 +12658,22 @@ MonoBehaviour:
   version: 0.2.0
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114897015855796190
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2MultiplayerHLAPI-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: RiskofThunder-RoR2MultiplayerHLAPI-1.0.0
+  group: {fileID: 114156710449408228}
   dependencies: []
 --- !u!114 &114898936727175666
 MonoBehaviour:
@@ -10555,7 +12721,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.0.0
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies:
   - {fileID: 114673475629058886}
 --- !u!114 &114909026793429322
@@ -10620,7 +12786,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.1
   dependencyId: CommonAPI-DSPEditorKit-1.0.1
-  group: {fileID: 114238689400106230}
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114914530718052978
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.0.0
+  m_EditorClassIdentifier: 
+  version: 4.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-4.0.0
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114914853789018312
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
+  m_EditorClassIdentifier: 
+  version: 0.1.4
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.4
+  group: {fileID: 114420798545052278}
   dependencies: []
 --- !u!114 &114916066336267132
 MonoBehaviour:
@@ -10636,7 +12834,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.3.3
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.3
-  group: {fileID: 114090205977539058}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114917595092168754
 MonoBehaviour:
@@ -10799,6 +12997,22 @@ MonoBehaviour:
   dependencyId: ThunderKit-BepInEx_KSP2-5.4.2105
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114929643401671600
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.2.2
+  m_EditorClassIdentifier: 
+  version: 3.2.2
+  dependencyId: RiskofThunder-RoR2EditorKit-3.2.2
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114930850887439518
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -10864,6 +13078,22 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114935297318662056
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CoreMods-CoreKeeperEditorKit-1.0.0
+  m_EditorClassIdentifier: 
+  version: 1.0.0
+  dependencyId: CoreMods-CoreKeeperEditorKit-1.0.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114935359536109230
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -10910,7 +13140,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.0.0
   dependencyId: RiskofThunder-RoR2EditorKit-3.0.0
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114939870280279272
 MonoBehaviour:
@@ -10976,6 +13206,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-3.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114943757239770342
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2105
+  m_EditorClassIdentifier: 
+  version: 5.4.2105
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2105
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114945188618699632
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11024,6 +13270,22 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.1.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114951915501635128
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-4.1.0
+  m_EditorClassIdentifier: 
+  version: 4.1.0
+  dependencyId: RiskofThunder-RoR2EditorKit-4.1.0
+  group: {fileID: 114106559555717890}
+  dependencies: []
 --- !u!114 &114952097857307002
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11038,7 +13300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 3.2.1
   dependencyId: RiskofThunder-RoR2EditorKit-3.2.1
-  group: {fileID: 114709690003354224}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114952856387650950
 MonoBehaviour:
@@ -11088,6 +13350,30 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.0.1
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114956840598252984
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: DSPEditorKit
+  m_EditorClassIdentifier: 
+  PackageName: DSPEditorKit
+  Author: CommonAPI
+  Description: DSPEditorKit is a toolkit built around developing mods for Dyson Sphere
+    Program
+  DependencyId: CommonAPI-DSPEditorKit
+  Tags: []
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114323752412392898}
+  - {fileID: 114517529569608620}
+  - {fileID: 114983962980938526}
+  - {fileID: 114508329227897294}
 --- !u!114 &114958557808440210
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11150,7 +13436,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 0.0.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.0.0
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114961038775401650
 MonoBehaviour:
@@ -11182,7 +13468,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.1.0
   dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-1.1.0
-  group: {fileID: 114760161296999942}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114962217452351412
 MonoBehaviour:
@@ -11216,30 +13502,6 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-2.0.0
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114962948247569206
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: BepInEx_KSP2
-  m_EditorClassIdentifier: 
-  PackageName: BepInEx_KSP2
-  Author: ThunderKit
-  Description: Unified BepInEx all-in-one modding pack - plugin framework, detour
-    library
-  DependencyId: ThunderKit-BepInEx_KSP2
-  Tags: []
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114740576646538200}
-  - {fileID: 114042648975880366}
-  - {fileID: 114434453759180978}
-  - {fileID: 114209917599477580}
 --- !u!114 &114963474984646264
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11255,6 +13517,22 @@ MonoBehaviour:
   version: 1.0.0
   dependencyId: Nebby-UnityMultiplayerHLAPI-1.0.0
   group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114965170539803456
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.4.0
+  m_EditorClassIdentifier: 
+  version: 3.4.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.4.0
+  group: {fileID: 114106559555717890}
   dependencies: []
 --- !u!114 &114965446700020996
 MonoBehaviour:
@@ -11288,6 +13566,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2EditorKit-3.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114968108846035874
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
+  m_EditorClassIdentifier: 
+  version: 0.2.0
+  dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.2.0
+  group: {fileID: 114420798545052278}
+  dependencies: []
 --- !u!114 &114969144379689150
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11320,6 +13614,38 @@ MonoBehaviour:
   dependencyId: RoR2EditorKitTeam-RoR2EditorKit-0.1.3
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114971043290033950
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: ThunderKit-BepInEx_KSP2-5.4.2106
+  m_EditorClassIdentifier: 
+  version: 5.4.2106
+  dependencyId: ThunderKit-BepInEx_KSP2-5.4.2106
+  group: {fileID: 0}
+  dependencies: []
+--- !u!114 &114971287283040742
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: RiskofThunder-RoR2EditorKit-3.0.0
+  m_EditorClassIdentifier: 
+  version: 3.0.0
+  dependencyId: RiskofThunder-RoR2EditorKit-3.0.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114974786127510810
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11336,6 +13662,26 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.0.0
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114975717655728408
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
+  m_Name: ModIoUpload
+  m_EditorClassIdentifier: 
+  PackageName: ModIoUpload
+  Author: Tobbert
+  Description: Small extension that allows for uploading mods to mod.io.
+  DependencyId: Tobbert-ModIoUpload
+  Tags: []
+  Source: {fileID: 11400000}
+  Versions:
+  - {fileID: 114699989523547136}
 --- !u!114 &114975911028200178
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11352,36 +13698,6 @@ MonoBehaviour:
   dependencyId: Twiner-UnityGameImporter-1.1.5
   group: {fileID: 0}
   dependencies: []
---- !u!114 &114976073477798802
-MonoBehaviour:
-  m_ObjectHideFlags: 9
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8992d2da66df46a488eb7fb4d66fc814, type: 3}
-  m_Name: RoR2EditorKit
-  m_EditorClassIdentifier: 
-  PackageName: RoR2EditorKit
-  Author: RoR2EditorKitTeam
-  Description: RoR2EditorKit is a toolkit built around developing mods for Risk of
-    Rain 2
-  DependencyId: RoR2EditorKitTeam-RoR2EditorKit
-  Tags:
-  - Risk of Rain 2
-  Source: {fileID: 11400000}
-  Versions:
-  - {fileID: 114551784702656774}
-  - {fileID: 114077483251487262}
-  - {fileID: 114305460152037186}
-  - {fileID: 114075466589504958}
-  - {fileID: 114300838995640178}
-  - {fileID: 114084057011307828}
-  - {fileID: 114673475629058886}
-  - {fileID: 114160121225995282}
-  - {fileID: 114514220660496100}
 --- !u!114 &114976286485876962
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11476,9 +13792,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.2
   dependencyId: CommonAPI-DSPEditorKit-1.0.2
-  group: {fileID: 114238689400106230}
+  group: {fileID: 0}
   dependencies:
   - {fileID: 0}
+--- !u!114 &114983962980938526
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: CommonAPI-DSPEditorKit-1.0.1
+  m_EditorClassIdentifier: 
+  version: 1.0.1
+  dependencyId: CommonAPI-DSPEditorKit-1.0.1
+  group: {fileID: 114956840598252984}
+  dependencies: []
 --- !u!114 &114984182158676378
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11544,6 +13876,22 @@ MonoBehaviour:
   dependencyId: RiskofThunder-RoR2ImportExtensions-1.3.7
   group: {fileID: 0}
   dependencies: []
+--- !u!114 &114986527596311790
+MonoBehaviour:
+  m_ObjectHideFlags: 9
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0a728491a95ad42a7ff3ee6e35e430, type: 3}
+  m_Name: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
+  m_EditorClassIdentifier: 
+  version: 0.1.0
+  dependencyId: TeamMoonstorm-MoonstormSharedEditorUtils-0.1.0
+  group: {fileID: 0}
+  dependencies: []
 --- !u!114 &114986971309407136
 MonoBehaviour:
   m_ObjectHideFlags: 9
@@ -11590,7 +13938,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   version: 1.0.3
   dependencyId: CommonAPI-DSPEditorKit-1.0.3
-  group: {fileID: 114238689400106230}
+  group: {fileID: 0}
   dependencies: []
 --- !u!114 &114987843507141836
 MonoBehaviour:

@@ -16,24 +16,33 @@ public class PlayerSandCountProcessor : PacketProcessor<PlayerSandCount>
     {
         if (IsHost)
         {
-            // when receive update request, host UpdateSyncedSandCount and send to other players
-            GameMain.mainPlayer.SetSandCount(packet.SandCount);
+            if (!packet.IsDelta)
+            {
+                // when receive update request, host UpdateSyncedSandCount and send to other players
+                GameMain.mainPlayer.SetSandCount(packet.SandCount);
+            }
             return;
         }
 
         // taken from Player.SetSandCount()
-        var sandCount = packet.SandCount;
         var player = GameMain.mainPlayer;
-
-        if (sandCount > 1000000000)
+        var originalSandCount = player.sandCount;
+        if (packet.IsDelta)
         {
-            sandCount = 1000000000;
+            player.sandCount += packet.SandCount;
         }
-        var num = sandCount - player.sandCount;
-        player.sandCount = sandCount;
-        if (num != 0)
+        else
         {
-            UIRoot.instance.uiGame.OnSandCountChanged(player.sandCount, num);
+            var sandCount = packet.SandCount;
+            if (sandCount > 1000000000)
+            {
+                sandCount = 1000000000;
+            }
+            player.sandCount = sandCount;
+        }
+        if (player.sandCount != originalSandCount)
+        {
+            UIRoot.instance.uiGame.OnSandCountChanged(player.sandCount, player.sandCount - originalSandCount);
         }
     }
 }

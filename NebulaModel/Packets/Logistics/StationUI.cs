@@ -18,7 +18,6 @@ public class StationUI
         SetWarperCount,
         PilerCount,
         MaxMiningSpeed,
-        NameInput,
         DroneAutoReplenish,
         ShipAutoReplenish
     }

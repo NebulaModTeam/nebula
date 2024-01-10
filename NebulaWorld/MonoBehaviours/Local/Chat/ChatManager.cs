@@ -58,6 +58,12 @@ public class ChatManager : MonoBehaviour
                 DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
                 var EmojiPickerbackground = backgroundGo.AddComponent<Image>();
                 EmojiPickerbackground.color = new Color(0f, 0f, 0f, 1f);
+
+                var notifications = chatGo.transform.Find("NotificationsMask/Notifications");
+                notifications.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+
+                var uiWindowDrag = chatGo.GetComponent<UIWindowDrag>();
+                uiWindowDrag.screenRect = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows").GetComponent<RectTransform>();
             }
             catch (Exception e)
             {
@@ -111,10 +117,17 @@ public class ChatManager : MonoBehaviour
         var defaultPos = ChatUtils.GetDefaultPosition(options.DefaultChatPosition, options.DefaultChatSize);
         var defaultSize = ChatUtils.GetDefaultSize(options.DefaultChatSize);
 
-        var trans = (RectTransform)Instance.chatWindow.transform;
-        trans.anchoredPosition = defaultPos;
-        trans.sizeDelta = defaultSize;
-        Instance.backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+        if (Instance.chatWindow != null)
+        {
+            var trans = (RectTransform)Instance.chatWindow.transform;
+            trans.anchoredPosition = defaultPos;
+            trans.sizeDelta = defaultSize;
+        }
+
+        if (Instance.backgroundImage != null)
+        {
+            Instance.backgroundImage.color = new Color(0f, 0f, 0f, options.ChatWindowOpacity);
+        }
     }
 
     private static string GetUserName()

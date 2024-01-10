@@ -187,7 +187,7 @@ public class StatisticsManager : IDisposable
         //Export production statistics for every planet
         for (var i = 0; i < GameMain.data.factoryCount; i++)
         {
-            Stats.production.factoryStatPool[i].Export(bw);
+            Stats.production.factoryStatPool[i].Export(bw.BaseStream, bw);
         }
 
         //Export Research statistics
@@ -223,7 +223,7 @@ public class StatisticsManager : IDisposable
                 Stats.production.factoryStatPool[i] = new FactoryProductionStat();
                 Stats.production.factoryStatPool[i].Init();
             }
-            Stats.production.factoryStatPool[i].Import(br);
+            Stats.production.factoryStatPool[i].Import(br.BaseStream, br);
         }
 
         //Import Research Statistics

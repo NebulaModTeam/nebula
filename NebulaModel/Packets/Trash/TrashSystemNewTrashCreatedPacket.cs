@@ -31,9 +31,9 @@ public class TrashSystemNewTrashCreatedPacket
     }
 
     public int TrashId { get; set; }
-    private byte[] TrashObjectByte { get; set; }
-    private byte[] TrashDataByte { get; set; }
-    private int Count { get; set; }
+    public byte[] TrashObjectByte { get; set; }
+    public byte[] TrashDataByte { get; set; }
+    public int Count { get; set; }
     public ushort PlayerId { get; set; }
     public int LocalPlanetId { get; set; }
 

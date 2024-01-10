@@ -156,7 +156,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
         {
             if (!batchmode)
             {
-                Log.Warn("Dedicate server should start with -batchmode argument");
+                Log.Warn("Dedicated server should be started with -batchmode argument");
             }
         }
 
@@ -328,7 +328,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
             Log.Error("Unhandled exception occurred while patching the game:", ex);
             // Show error in UIFatalErrorTip to inform normal users
             Harmony.CreateAndPatchAll(typeof(UIFatalErrorTip_Patch));
-            Log.Error("Nebula Multiplayer Mod is incompatible\nUnhandled exception occurred while patching the game.");
+            Log.Error("Nebula Multiplayer Mod is incompatible with game version\nUnhandled exception occurred while patching the game.");
         }
     }
 

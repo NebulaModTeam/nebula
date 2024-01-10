@@ -38,8 +38,6 @@ internal class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSyn
             gStationPool[packet.stationGId[i]].shipDockRot = packet.DockRot[i].ToQuaternion();
 
             gStationPool[packet.stationGId[i]].id = packet.stationId[i];
-            gStationPool[packet.stationGId[i]].name =
-                string.IsNullOrEmpty(packet.stationName[i]) ? null : packet.stationName[i];
             gStationPool[packet.stationGId[i]].planetId = packet.planetId[i];
             gStationPool[packet.stationGId[i]].workShipCount = packet.workShipCount[i];
             gStationPool[packet.stationGId[i]].idleShipCount = packet.idleShipCount[i];
@@ -47,7 +45,7 @@ internal class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSyn
             gStationPool[packet.stationGId[i]].idleShipIndices = packet.idleShipIndices[i];
             gStationPool[packet.stationGId[i]].shipRenderers = new ShipRenderingData[packet.stationMaxShipCount[i]];
             gStationPool[packet.stationGId[i]].shipUIRenderers = new ShipUIRenderingData[packet.stationMaxShipCount[i]];
-            gStationPool[packet.stationGId[i]].storage = Array.Empty<StationStore>(); // zero-length array for mod compatibility
+            gStationPool[packet.stationGId[i]].storage = []; // zero-length array for mod compatibility
 
             gStationPool[packet.stationGId[i]].shipDiskPos = new Vector3[packet.stationMaxShipCount[i]];
             gStationPool[packet.stationGId[i]].shipDiskRot = new Quaternion[packet.stationMaxShipCount[i]];

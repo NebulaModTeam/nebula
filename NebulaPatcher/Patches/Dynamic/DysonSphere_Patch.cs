@@ -41,7 +41,7 @@ internal class DysonSphere_Patch
                 if (nodePool[j] != null && nodePool[j].id == j)
                 {
                     dysonSphereLayer.energyGenCurrentTick += nodePool[j]
-                        .EnergyGenCurrentTick(__instance.energyGenPerNode, __instance.energyGenPerFrame, 0L);
+                        .EnergyGenCurrentTick((int)__instance.energyGenPerNode, (int)__instance.energyGenPerFrame);
                 }
             }
             for (var k = 1; k < dysonSphereLayer.shellCursor; k++)

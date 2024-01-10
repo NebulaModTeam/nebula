@@ -483,45 +483,21 @@ internal class UIOptionWindow_Patch
     private static void CreateHotkeyControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr,
         PropertyInfo prop, Vector2 anchorPosition, Transform container)
     {
-        var characterLimitAttr = prop.GetCustomAttribute<UICharacterLimitAttribute>();
-        var contentTypeAttr = prop.GetCustomAttribute<UIContentTypeAttribute>();
-
-        var element = Object.Instantiate(inputTemplate, container, false);
-        SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
-
-        var input = element.GetComponentInChildren<InputField>();
-        if (characterLimitAttr != null)
+        var element = KeyBinder.CreateKeyBinder(control.DisplayName.Translate());
+        element.SetParent(container);
+        element.anchoredPosition = anchorPosition;
+        if (descriptionAttr != null)
         {
-            input.characterLimit = characterLimitAttr.Max;
-        }
-        if (contentTypeAttr != null)
-        {
-            input.contentType = contentTypeAttr.ContentType;
+            element.gameObject.AddComponent<Tooltip>();
+            element.gameObject.GetComponent<Tooltip>().Title = control.DisplayName.Translate();
+            element.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description.Translate();
         }
 
-        input.onValueChanged.RemoveAllListeners();
-        input.onValueChanged.AddListener(value =>
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return;
-            }
-            var hotkey = KeyboardShortcut.Deserialize(value);
-            if (hotkey.Equals(KeyboardShortcut.Empty))
-            {
-                // Show text color in red when the shortcut is not valid
-                input.textComponent.color = Color.red;
-            }
-            else
-            {
-                input.textComponent.color = Color.white;
-                prop.SetValue(tempMultiplayerOptions, hotkey, null);
-            }
-        });
-
+        var keybinder = element.GetComponent<KeyBinder>();
+        keybinder.OnEdit += hotkey => prop.SetValue(tempMultiplayerOptions, hotkey, null);
         tempToUICallbacks[prop.Name] = () =>
         {
-            input.text = ((KeyboardShortcut)prop.GetValue(tempMultiplayerOptions, null)).ToString();
+            keybinder.SetShortcut((KeyboardShortcut)prop.GetValue(tempMultiplayerOptions, null));
         };
     }
 
@@ -565,6 +541,184 @@ internal class UIOptionWindow_Patch
             if (tip != null)
             {
                 Destroy(tip.gameObject);
+            }
+        }
+    }
+
+    // MyKeyBinder modified from LSTM: https://github.com/hetima/DSP_LSTM/blob/main/LSTM/MyKeyBinder.cs
+    public class KeyBinder : MonoBehaviour
+    {
+        public Action<KeyboardShortcut> OnEdit;
+
+        private Text functionText;
+        private Text keyText;
+        private UnityEngine.UI.Toggle setTheKeyToggle;
+        private UIButton inputUIButton;
+        private Text waitingText;
+        private bool nextNotOn;
+        private KeyboardShortcut shortcut;
+
+        public static RectTransform CreateKeyBinder(string label = "")
+        {
+            var optionWindow = UIRoot.instance.optionWindow;
+            var uikeyEntry = Instantiate(optionWindow.entryPrefab);
+            uikeyEntry.gameObject.SetActive(true);
+
+            var go = uikeyEntry.gameObject;
+            go.name = "keybinder";
+            var kb = go.AddComponent<KeyBinder>();
+
+            kb.functionText = uikeyEntry.functionText;
+            kb.functionText.text = label;
+            kb.functionText.fontSize = 18;
+
+            kb.keyText = uikeyEntry.keyText;
+            kb.keyText.fontSize = 18;
+            kb.keyText.transform.localPosition += new Vector3(-200f, 0f);
+
+            kb.setTheKeyToggle = uikeyEntry.setTheKeyToggle;
+            kb.inputUIButton = uikeyEntry.inputUIButton;
+            kb.inputUIButton.onClick += kb.OnInputUIButtonClick;
+            kb.waitingText = uikeyEntry.waitingText;
+            kb.inputUIButton.transform.parent.localPosition += new Vector3(-350f, 0f);
+
+            Destroy(uikeyEntry.setDefaultUIButton.gameObject);
+            Destroy(uikeyEntry.setNoneKeyUIButton.gameObject);
+            Destroy(uikeyEntry);
+            var rect = go.transform as RectTransform;
+            rect.anchorMax = new Vector2(0, 0);
+            rect.anchorMin = new Vector2(0, 0);
+            return rect;
+        }
+
+        public void SetShortcut(KeyboardShortcut keyboardShortcut)
+        {
+            shortcut = keyboardShortcut;
+            keyText.text = shortcut.Serialize();
+            OnEdit.Invoke(shortcut);
+        }
+
+        private void Update()
+        {
+            if (!setTheKeyToggle.isOn && inputUIButton.highlighted)
+            {
+                setTheKeyToggle.isOn = true;
+            }
+            if (setTheKeyToggle.isOn)
+            {
+                if (!inputUIButton._isPointerEnter && Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    inputUIButton.highlighted = false;
+                    setTheKeyToggle.isOn = false;
+                    Reset();
+                }
+                else if (!inputUIButton.highlighted)
+                {
+                    setTheKeyToggle.isOn = false;
+                    Reset();
+                }
+                else
+                {
+                    waitingText.gameObject.SetActive(true);
+                    if (TrySetValue())
+                    {
+                        setTheKeyToggle.isOn = false;
+                        inputUIButton.highlighted = false;
+                        Reset();
+                    }
+                }
+            }
+        }
+
+        public bool TrySetValue()
+        {
+            if (Input.GetKey(KeyCode.Escape))
+            {
+                VFInput.UseEscape();
+                return true;
+            }
+            if (Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1))
+            {
+                return true;
+            }
+            var anyKey = IsKeyInput();
+            if (!anyKey && lastKey != KeyCode.None)
+            {
+                var k = GetPressedKeysString();
+                if (string.IsNullOrEmpty(k))
+                {
+                    return false;
+                }
+                lastKey = KeyCode.None;
+
+                SetShortcut(KeyboardShortcut.Deserialize(k));
+                return true;
+            }
+
+            return false;
+        }
+
+        private KeyCode lastKey;
+        [SuppressMessage("Style", "IDE0300")]
+        private static readonly KeyCode[] modKeys = { KeyCode.RightShift, KeyCode.LeftShift,
+                 KeyCode.RightControl, KeyCode.LeftControl,
+                 KeyCode.RightAlt, KeyCode.LeftAlt,
+                 KeyCode.LeftCommand,  KeyCode.LeftApple, KeyCode.LeftWindows,
+                 KeyCode.RightCommand,  KeyCode.RightApple, KeyCode.RightWindows };
+
+        public string GetPressedKeysString()
+        {
+            var key = lastKey.ToString();
+            if (string.IsNullOrEmpty(key))
+            {
+                return null;
+            }
+            var mod = "";
+            foreach (var modKey in modKeys)
+            {
+                if (Input.GetKey(modKey))
+                {
+                    mod += "+" + modKey.ToString();
+                }
+            }
+
+            if (!string.IsNullOrEmpty(mod))
+            {
+                key += mod;
+            }
+            return key;
+        }
+
+        public bool IsKeyInput()
+        {
+            var isPressed = false;
+            foreach (KeyCode item in Enum.GetValues(typeof(KeyCode)))
+            {
+                if (item != KeyCode.None && !modKeys.Contains(item) && Input.GetKey(item))
+                {
+                    lastKey = item;
+                    isPressed = true;
+                }
+            }
+            return isPressed;
+        }
+
+        public void Reset()
+        {
+            waitingText.gameObject.SetActive(false);
+            lastKey = KeyCode.None;
+        }
+
+        public void OnInputUIButtonClick(int data)
+        {
+            inputUIButton.highlighted = true;
+
+            if (nextNotOn)
+            {
+                nextNotOn = false;
+                inputUIButton.highlighted = false;
+                setTheKeyToggle.isOn = false;
+                waitingText.gameObject.SetActive(false);
             }
         }
     }

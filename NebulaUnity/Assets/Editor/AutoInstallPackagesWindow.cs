@@ -11,7 +11,7 @@ public class AutoInstallPackagesWindow : EditorWindow
 {
     public static string[] Packages =
     {
-        "CommonAPI-CommonAPI-1.5.7", 
+        "CommonAPI-CommonAPI-1.6.2", 
         "CommonAPI-DSPEditorKit-1.0.3"
     };
 

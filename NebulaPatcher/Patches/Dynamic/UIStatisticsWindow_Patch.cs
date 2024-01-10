@@ -40,10 +40,11 @@ internal class UIStatisticsWindow_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(UIStatisticsWindow.AddStatGroup))]
-    public static bool AddStatGroup_Prefix(int __0, ProductionStatistics ___productionStat)
+    [HarmonyPatch(nameof(UIStatisticsWindow.AddFactoryStatGroup))]
+    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+    public static bool AddFactoryStatGroup_Prefix(int _factoryIndex, ProductionStatistics ___productionStat)
     {
         //Skip when StatisticsDataPacket hasn't arrived yet
-        return __0 >= 0 && ___productionStat.factoryStatPool[__0] != null;
+        return _factoryIndex >= 0 && ___productionStat.factoryStatPool[_factoryIndex] != null;
     }
 }

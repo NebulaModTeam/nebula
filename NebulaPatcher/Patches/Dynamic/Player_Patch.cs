@@ -15,7 +15,7 @@ internal class Player_Patch
 {
     [HarmonyPrefix]
     [HarmonyPatch(nameof(Player.SetSandCount))]
-    public static bool SetSandCount_Prefix(int newSandCount)
+    public static bool SetSandCount_Prefix(long newSandCount)
     {
         if (!Config.Options.SyncSoil)
         {
@@ -28,8 +28,12 @@ internal class Player_Patch
         {
             //Soil should be given in singleplayer or to the host who then syncs it back to all players.
             case true when Multiplayer.Session.LocalPlayer.IsHost:
-                Multiplayer.Session.Network.PlayerManager.UpdateSyncedSandCount(newSandCount - GameMain.mainPlayer.sandCount);
-                Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
+                var deltaSandCount = (int)(newSandCount - GameMain.mainPlayer.sandCount);
+                if (deltaSandCount != 0)
+                {
+                    Multiplayer.Session.Network.PlayerManager.UpdateSyncedSandCount(deltaSandCount);
+                    Multiplayer.Session.Network.SendPacket(new PlayerSandCount(newSandCount));
+                }
                 break;
             //Or client that use reform tool
             case true when GameMain.mainPlayer.controller.actionBuild.reformTool.drawing:

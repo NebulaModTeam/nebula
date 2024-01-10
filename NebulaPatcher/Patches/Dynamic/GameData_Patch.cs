@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
@@ -67,7 +68,7 @@ internal class GameData_Patch
                 __instance.factories[factoryIndex] = new PlanetFactory();
                 try
                 {
-                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader.BaseStream, reader.BinaryReader);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -81,7 +82,7 @@ internal class GameData_Patch
                 factoryIndex = planet.factoryIndex;
                 try
                 {
-                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader);
+                    __instance.factories[factoryIndex].Import(factoryIndex, __instance, reader.BinaryReader.BaseStream, reader.BinaryReader);
                 }
                 catch (InvalidOperationException e)
                 {
@@ -276,7 +277,7 @@ internal class GameData_Patch
             var planet = __instance.galaxy.PlanetById(Multiplayer.Session.LocalPlayer.Data.LocalPlanetId);
             __instance.ArrivePlanet(planet);
         }
-        else if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1)
+        else if (UIVirtualStarmap_Transpiler.CustomBirthPlanet == -1)
         {
             StarData nearestStar = null;
             PlanetData nearestPlanet = null;
@@ -291,7 +292,7 @@ internal class GameData_Patch
         }
         else
         {
-            var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet);
+            var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet);
             __instance.ArrivePlanet(planet);
         }
     }
@@ -416,7 +417,9 @@ internal class GameData_Patch
         //Players should clear the list of drone orders of other players when they leave the planet
         if (Multiplayer.IsActive)
         {
-            GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
+            Multiplayer.Session.PowerTowers.ResetAndBroadcast();
+            //todo:replace
+            //GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
         }
     }
 
@@ -424,7 +427,7 @@ internal class GameData_Patch
     [HarmonyPatch(nameof(GameData.DetermineLocalPlanet))]
     public static bool DetermineLocalPlanet_Prefix(ref bool __result)
     {
-        if (UIVirtualStarmap_Transpiler.customBirthPlanet == -1 || !Multiplayer.IsActive || Multiplayer.Session.IsGameLoaded)
+        if (UIVirtualStarmap_Transpiler.CustomBirthPlanet == -1 || !Multiplayer.IsActive || Multiplayer.Session.IsGameLoaded)
         {
             return true;
         }

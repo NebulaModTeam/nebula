@@ -99,28 +99,15 @@ public class SimulatedWorld : IDisposable
             GameMain.mainPlayer.uRotation = Quaternion.Euler(player.Data.Rotation.ToVector3());
 
             // Load client's saved data from the last session.
-            GameMain.mainPlayer.package = player.Data.Mecha.Inventory;
-            using (var ms = new MemoryStream())
-            {
-                var bw = new BinaryWriter(ms);
-                player.Data.Mecha.DeliveryPackage.Export(bw);
-                ms.Seek(0, SeekOrigin.Begin);
-                var br = new BinaryReader(ms);
-                GameMain.mainPlayer.deliveryPackage.Import(br);
-                player.Data.Mecha.DeliveryPackage = GameMain.mainPlayer.deliveryPackage;
-            }
-            GameMain.mainPlayer.mecha.forge = player.Data.Mecha.Forge;
-            GameMain.mainPlayer.mecha.coreEnergy = player.Data.Mecha.CoreEnergy;
-            GameMain.mainPlayer.mecha.reactorEnergy = player.Data.Mecha.ReactorEnergy;
-            GameMain.mainPlayer.mecha.reactorStorage = player.Data.Mecha.ReactorStorage;
-            GameMain.mainPlayer.mecha.warpStorage = player.Data.Mecha.WarpStorage;
-            GameMain.mainPlayer.SetSandCount(player.Data.Mecha.SandCount);
+            player.Data.Mecha.UpdateMech(GameMain.mainPlayer);
 
             // Fix references that broke during import
             GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
             GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
             GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
+            GameMain.mainPlayer.mecha.groundCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
+            GameMain.mainPlayer.mecha.spaceCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
         }
 
         // Initialization on the host side after game is loaded
@@ -133,8 +120,10 @@ public class SimulatedWorld : IDisposable
 
             if (player.IsNewPlayer)
             {
-                // Set mecha to full energy so new client won't have low energy when starting
+                // Set mecha to full energy, shield and hp so new client won't have low stats when starting
                 GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
+                GameMain.mainPlayer.mecha.energyShieldEnergy = GameMain.mainPlayer.mecha.energyShieldCapacity;
+                GameMain.mainPlayer.mecha.hp = GameMain.mainPlayer.mecha.hpMaxApplied;
                 if (GameMain.history.logisticShipWarpDrive)
                 {
                     // If warp has unlocked, give new client few warpers
@@ -227,6 +216,8 @@ public class SimulatedWorld : IDisposable
             GameMain.mainPlayer.sandCount += player.Data.Mecha.SandCount;
             Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
+        // Reset local and remote chargers ids to recalculate and broadcast the current ids to new player
+        Multiplayer.Session.PowerTowers.ResetAndBroadcast();
 
         // (Host only) Trigger when a new client added to connected players
         Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} joined");
@@ -250,6 +241,8 @@ public class SimulatedWorld : IDisposable
             UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
             Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
+        // Reset local and remote chargers ids to remove the ids used by the disconnected player
+        Multiplayer.Session.PowerTowers.ResetAndBroadcast();
 
         // (Host only) Trigger when a connected client leave the game
         Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} left");
@@ -325,50 +318,6 @@ public class SimulatedWorld : IDisposable
         }
     }
 
-    public void UpdateRemotePlayerDrone(NewDroneOrderPacket packet)
-    {
-        using (GetRemotePlayersModels(out var remotePlayersModels))
-        {
-            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
-            {
-                return;
-            }
-            //Setup drone of remote player based on the drone data
-            ref var drone = ref player.PlayerInstance.mecha.drones[packet.DroneId];
-            var droneLogic = player.PlayerInstance.mecha.droneLogic;
-            var tmpFactory = droneLogic.factory;
-
-            droneLogic.factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
-
-            // factory can sometimes be null when transitioning to or from a planet, in this case we do not want to continue
-            if (droneLogic.factory == null)
-            {
-                droneLogic.factory = tmpFactory;
-                return;
-            }
-
-            drone.stage = packet.Stage;
-            drone.targetObject = packet.Stage < 3 ? packet.EntityId : 0;
-            drone.movement = droneLogic.player.mecha.droneMovement;
-            if (packet.Stage == 1)
-            {
-                drone.position = player.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
-            }
-            drone.target = droneLogic._obj_hpos(packet.EntityId);
-            drone.initialVector = drone.position + drone.position.normalized * 4.5f +
-                                  ((drone.target - drone.position).normalized + Random.insideUnitSphere) * 1.5f;
-            drone.forward = drone.initialVector;
-            drone.progress = 0f;
-            player.MechaInstance.droneCount = GameMain.mainPlayer.mecha.droneCount;
-            player.MechaInstance.droneSpeed = GameMain.mainPlayer.mecha.droneSpeed;
-            if (packet.Stage == 3)
-            {
-                GameMain.mainPlayer.mecha.droneLogic.serving.Remove(packet.EntityId);
-            }
-            droneLogic.factory = tmpFactory;
-        }
-    }
-
     public int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
@@ -404,11 +353,12 @@ public class SimulatedWorld : IDisposable
     {
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var remoteModel in remotePlayersModels.Where(remoteModel =>
-                         GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId))
-            {
-                remoteModel.Value.MechaInstance.droneRenderer.Draw();
-            }
+            //todo:replace
+            //foreach (var remoteModel in remotePlayersModels.Where(remoteModel =>
+            //             GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId))
+            //{
+            //    //remoteModel.Value.MechaInstance.droneRenderer.Draw();
+            //}
         }
     }
 
@@ -425,7 +375,8 @@ public class SimulatedWorld : IDisposable
             foreach (var remoteModel in remotePlayersModels)
             {
                 var remoteMecha = remoteModel.Value.MechaInstance;
-                var drones = remoteMecha.drones;
+                //todo:replace
+                /*var drones = remoteMecha.drones;
                 var droneCount = remoteMecha.droneCount;
                 var remotePosition = remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
 
@@ -445,7 +396,7 @@ public class SimulatedWorld : IDisposable
                     GameMain.mainPlayer.mecha.droneLogic.serving.Remove(drones[i].targetObject);
                     drones[i].targetObject = 0;
                 }
-                remoteMecha.droneRenderer.Update();
+                remoteMecha.droneRenderer.Update();*/
             }
         }
     }

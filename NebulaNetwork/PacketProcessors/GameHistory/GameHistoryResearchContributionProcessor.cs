@@ -5,7 +5,6 @@ using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
-using NebulaWorld;
 
 #endregion
 
@@ -25,9 +24,6 @@ internal class GameHistoryResearchContributionProcessor : PacketProcessor<GameHi
         if (packet.TechId == GameMain.history.currentTech)
         {
             GameMain.history.AddTechHash(packet.Hashes);
-            var playerManager = Multiplayer.Session.Network.PlayerManager;
-            Log.Debug(
-                $"ProcessPacket researchContribution: playerid by: {playerManager.GetPlayer(conn).Id} - hashes {packet.Hashes}");
         }
         else
         {

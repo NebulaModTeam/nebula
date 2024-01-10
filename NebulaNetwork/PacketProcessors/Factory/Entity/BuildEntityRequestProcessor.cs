@@ -43,9 +43,6 @@ public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
 
             Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
 
-            //Remove building from drone queue
-            GameMain.mainPlayer.mecha.droneLogic.serving.Remove(-packet.PrebuildId);
-
             // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
             var pData = GameMain.gpuiManager.specifyPlanet;
 
@@ -61,11 +58,6 @@ public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
             }
             planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
             GameMain.gpuiManager.specifyPlanet = pData;
-
-            if (IsClient)
-            {
-                DroneManager.RemoveBuildRequest(-packet.PrebuildId);
-            }
 
             Multiplayer.Session.Factories.EventFactory = null;
             Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;

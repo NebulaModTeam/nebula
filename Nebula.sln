@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NebulaAPI", "NebulaAPI\Nebu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "discord_game_sdk_dotnet", "dep\discord_game_sdk\discord_game_sdk_dotnet.csproj", "{E691A758-2D19-47EF-9410-3C78D99E2488}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NebulaTests", "NebulaTests\NebulaTests.csproj", "{2F4901A9-8BDB-49A7-AD89-9E38B0B3350A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{E691A758-2D19-47EF-9410-3C78D99E2488}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E691A758-2D19-47EF-9410-3C78D99E2488}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E691A758-2D19-47EF-9410-3C78D99E2488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F4901A9-8BDB-49A7-AD89-9E38B0B3350A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F4901A9-8BDB-49A7-AD89-9E38B0B3350A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F4901A9-8BDB-49A7-AD89-9E38B0B3350A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F4901A9-8BDB-49A7-AD89-9E38B0B3350A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,6 +9,7 @@ using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using UnityEngine;
 using UnityEngine.UI;
+using static NebulaPatcher.Patches.Dynamic.UIOptionWindow_Patch;
 
 #endregion
 
@@ -19,6 +20,12 @@ internal class UIGalaxySelect_Patch
 {
     private static int MainMenuStarID = -1;
 
+    private static Toggle DFToggle;
+    private static bool OriginalDFToggleIsOn;
+    private static bool OriginalDFToggleInteractable;
+    private static Color OriginalDFToggleDisabledColor;
+    private static Tooltip DFToggleTooltip;
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIGalaxySelect._OnOpen))]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
@@ -27,14 +34,14 @@ internal class UIGalaxySelect_Patch
         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
         {
             var galaxySelectRect = __instance.gameObject.GetComponent<RectTransform>();
-
-            galaxySelectRect.Find("star-count").gameObject.SetActive(false);
-            galaxySelectRect.Find("resource-multiplier").gameObject.SetActive(false);
-            galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = false;
             galaxySelectRect.Find("random-button").gameObject.SetActive(false);
-            galaxySelectRect.Find("property-multiplier").gameObject.SetActive(false);
-            galaxySelectRect.Find("seed-key").gameObject.SetActive(false);
-            galaxySelectRect.Find("sandbox-mode").gameObject.SetActive(false);
+            var settingGroupRect = galaxySelectRect.Find("setting-group");
+            for (var i = 0; i < settingGroupRect.childCount; i++)
+            {
+                var childObject = settingGroupRect.GetChild(i).gameObject;
+                if (childObject.name != "top-title" && childObject.name != "galaxy-seed")
+                    childObject.SetActive(false);
+            }
         }
         if (!Multiplayer.IsActive)
         {
@@ -72,6 +79,11 @@ internal class UIGalaxySelect_Patch
         {
             MainMenuStarID = GameMain.localStar.id;
         }
+
+#if RELEASE
+        DisableDarkFogToggle();
+#endif
+
         var button = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button").GetComponent<Button>();
         button.interactable = true;
     }
@@ -80,18 +92,18 @@ internal class UIGalaxySelect_Patch
     [HarmonyPatch(nameof(UIGalaxySelect.EnterGame))]
     public static bool EnterGame_Prefix(UIGalaxySelect __instance)
     {
-        if (!Multiplayer.IsInMultiplayerMenu)
+        if (!Multiplayer.IsInMultiplayerMenu || __instance.uiCombat.active)
         {
             return true;
         }
         Multiplayer.Session.IsInLobby = false;
 
-        if (UIVirtualStarmap_Transpiler.customBirthPlanet != -1)
+        if (UIVirtualStarmap_Transpiler.CustomBirthPlanet != -1)
         {
-            Log.Debug(GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet) == null
+            Log.Debug(GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet) == null
                 ? "null"
                 : "not null");
-            GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.customBirthPlanet)?.UnloadFactory();
+            GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet)?.UnloadFactory();
         }
 
         if (((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost)
@@ -121,8 +133,8 @@ internal class UIGalaxySelect_Patch
             Multiplayer.Session.IsInLobby = false;
             Multiplayer.LeaveGame();
 
-            UIVirtualStarmap_Transpiler.customBirthStar = -1;
-            UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+            UIVirtualStarmap_Transpiler.CustomBirthStar = -1;
+            UIVirtualStarmap_Transpiler.CustomBirthPlanet = -1;
 
             // restore main menu if needed.
             if (GameMain.localStar.id != MainMenuStarID && MainMenuStarID != -1)
@@ -137,20 +149,25 @@ internal class UIGalaxySelect_Patch
         // cant check anymore if we are in multiplayer or not, so just do this without check. will not do any harm C:
         var galaxySelectRect = __instance.gameObject.GetComponent<RectTransform>();
 
-        galaxySelectRect.Find("star-count").gameObject.SetActive(true);
-        galaxySelectRect.Find("resource-multiplier").gameObject.SetActive(true);
-        galaxySelectRect.Find("galaxy-seed").GetComponentInChildren<InputField>().enabled = true;
         galaxySelectRect.Find("random-button").gameObject.SetActive(true);
+        var settingGroupRect = galaxySelectRect.Find("setting-group");
+        for (var i = 0; i < settingGroupRect.childCount; i++)
+        {
+            var childObject = settingGroupRect.GetChild(i).gameObject;
+            if (childObject.name != "top-title" && childObject.name != "galaxy-seed")
+                childObject.SetActive(true);
+        }
+
+        RestoreDarkFogToggleState();
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UIGalaxySelect.Rerand))]
-    public static void Rerand_Prefix()
+    public static void Rerand_Prefix(UIGalaxySelect __instance)
     {
-        UIVirtualStarmap_Transpiler.customBirthStar = -1;
-        UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
-        GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button/start-text").GetComponent<Text>().text =
-            "Start Game";
+        UIVirtualStarmap_Transpiler.CustomBirthStar = -1;
+        UIVirtualStarmap_Transpiler.CustomBirthPlanet = -1;
+        __instance.startButtonText.text = "开始游戏".Translate();
     }
 
     [HarmonyPrefix]
@@ -161,8 +178,8 @@ internal class UIGalaxySelect_Patch
         {
             return;
         }
-        UIVirtualStarmap_Transpiler.customBirthStar = -1;
-        UIVirtualStarmap_Transpiler.customBirthPlanet = -1;
+        UIVirtualStarmap_Transpiler.CustomBirthStar = -1;
+        UIVirtualStarmap_Transpiler.CustomBirthPlanet = -1;
     }
 
     [HarmonyPostfix]
@@ -181,7 +198,7 @@ internal class UIGalaxySelect_Patch
             {
                 entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed,
                     __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier,
-                    __instance.gameDesc.isSandboxMode));
+                    __instance.gameDesc.isSandboxMode, __instance.gameDesc.isPeaceMode, __instance.gameDesc.combatSettings));
             }
         }
         using (Multiplayer.Session.Network.PlayerManager.GetPendingPlayers(out var pendingPlayers))
@@ -190,7 +207,7 @@ internal class UIGalaxySelect_Patch
             {
                 entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed,
                     __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier,
-                    __instance.gameDesc.isSandboxMode));
+                    __instance.gameDesc.isSandboxMode, __instance.gameDesc.isPeaceMode, __instance.gameDesc.combatSettings));
             }
         }
     }
@@ -221,5 +238,39 @@ internal class UIGalaxySelect_Patch
         InGamePopup.FadeOut();
         Config.Options.ShowLobbyHints = false;
         Config.SaveOptions();
+    }
+
+    private static void DisableDarkFogToggle()
+    {
+        DFToggle = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/setting-group/DF-toggle/check-box").GetComponent<Toggle>();
+        OriginalDFToggleIsOn = DFToggle.isOn;
+        DFToggle.isOn = false;
+        OriginalDFToggleInteractable = DFToggle.interactable;
+        DFToggle.interactable = false;
+
+        // fixes the color scheme so disabled state is acctualy visible
+        OriginalDFToggleDisabledColor = DFToggle.colors.disabledColor;
+        var colors = DFToggle.colors;
+        colors.disabledColor = new Color(1, 1, 1, colors.disabledColor.a);
+        DFToggle.colors = colors;
+
+        DFToggleTooltip = DFToggle.gameObject.AddComponent<Tooltip>();
+        DFToggleTooltip.Title = "Not supported in multiplayer";
+        DFToggleTooltip.Text = "Enabling enemy forces is currently not supported in multiplayer.";
+    }
+
+    private static void RestoreDarkFogToggleState()
+    {
+
+        if (DFToggle != null)
+        {
+            // we are setting the (originally) private m_IsOn here since setting the public isOn will fire an event which leads to a NRE
+            DFToggle.m_IsOn = OriginalDFToggleIsOn;
+            DFToggle.interactable = OriginalDFToggleInteractable;
+            var colors = DFToggle.colors;
+            colors.disabledColor = OriginalDFToggleDisabledColor;
+            DFToggle.colors = colors;
+            Object.Destroy(DFToggleTooltip);
+        }
     }
 }

@@ -77,8 +77,11 @@ public class BuildToolManager : IDisposable
         {
             tmpList.AddRange(buildTool.buildPreviews);
             buildTool.buildPreviews.Clear();
-            buildTool.buildPreviews.AddRange(packet.GetBuildPreviews());
-            pos = buildTool.buildPreviews[0].lpos;
+            if (packet.TryGetBuildPreviews(out var incomingPreviews))
+            {
+                buildTool.buildPreviews.AddRange(incomingPreviews);
+                pos = buildTool.buildPreviews[0].lpos;
+            }
         }
 
         Multiplayer.Session.Factories.EventFactory = planet.factory;
@@ -123,6 +126,10 @@ public class BuildToolManager : IDisposable
                     WarningManager.DisplayTemporaryWarning(warningText, 15000);
                 }
             }
+            else
+            {
+                // Should there be check that the buildPreviews sent by client don't contain outdated objId?
+            }
 
             if (packet.BuildToolType == typeof(BuildTool_Click).ToString())
             {
@@ -134,8 +141,6 @@ public class BuildToolManager : IDisposable
             }
             else if (packet.BuildToolType == typeof(BuildTool_Addon).ToString())
             {
-                ((BuildTool_Addon)buildTool).handbp =
-                    buildTool.buildPreviews[0]; // traffic monitors cannot be drag build atm, so its always only one.
                 ((BuildTool_Addon)buildTool).CreatePrebuilds();
             }
             else if (packet.BuildToolType == typeof(BuildTool_Inserter).ToString())
@@ -151,11 +156,13 @@ public class BuildToolManager : IDisposable
                     var previousPool = bpTool.bpPool;
 
                     // Perform the requested CreatePrebuilds();
-                    var incomingPreviews = packet.GetBuildPreviews();
-                    bpTool.bpCursor = incomingPreviews.Count;
-                    bpTool.bpPool = incomingPreviews.ToArray();
-                    bpTool.CreatePrebuilds();
-                    pos = incomingPreviews[0].lpos;
+                    if (packet.TryGetBuildPreviews(out var incomingPreviews))
+                    {
+                        bpTool.bpCursor = incomingPreviews.Count;
+                        bpTool.bpPool = incomingPreviews.ToArray();
+                        bpTool.CreatePrebuilds();
+                        pos = incomingPreviews[0].lpos;
+                    }
 
                     // Revert to previous data
                     bpTool.bpCursor = previousCursor;

@@ -1,9 +1,9 @@
 ﻿#region
 
 using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Logistics;
 using NebulaWorld;
+#pragma warning disable IDE1006
 
 #endregion
 
@@ -81,13 +81,5 @@ internal class StationComponent_Patch
             return true;
         }
         return !__instance.isStellar;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(StationComponent.Reset))]
-    public static bool Reset_Prefix(StationComponent __instance)
-    {
-        Log.Debug($"Reset called on gid {__instance.gid}");
-        return true;
     }
 }

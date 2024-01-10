@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.IO;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;

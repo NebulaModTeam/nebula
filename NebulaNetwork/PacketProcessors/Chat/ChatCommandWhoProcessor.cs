@@ -19,9 +19,9 @@ internal class ChatCommandWhoProcessor : PacketProcessor<ChatCommandWhoPacket>
 {
     protected override void ProcessPacket(ChatCommandWhoPacket packet, NebulaConnection conn)
     {
-        var recipient = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
         if (IsHost)
         {
+            var recipient = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
             var playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
             var hostPlayer = Multiplayer.Session.LocalPlayer;
             var resultPayload = WhoCommandHandler.BuildResultPayload(playerDatas, hostPlayer);

@@ -16,14 +16,14 @@ public class StorageSyncRealtimeChangePacket
     }
 
     public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int itemId, int count,
-        bool useBan)
+        bool useBan, int planetId)
     {
         StorageEvent = storageEvent;
         ItemId = itemId;
         Count = count;
         UseBan = useBan;
         StorageIndex = storageIndex;
-        PlanetId = GameMain.localPlanet?.id ?? -1;
+        PlanetId = planetId;
     }
 
     public StorageSyncRealtimeChangePacket(int storageIndex, StorageSyncRealtimeChangeEvent storageEvent, int itemId, int count,
