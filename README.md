@@ -13,7 +13,7 @@ You will also need some extra steps to get this installed, see 2nd point in ["Ho
 
 ## Where can I get mod support?
 
-Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) and ask your question in the `General` channel. We have a really nice community that will be able to answer your questions.
+Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) and ask your question in the `support` channel. We have a really nice community that will be able to answer your questions.
 
 ## How can I play this mod?
 
@@ -29,7 +29,7 @@ This mod has an API, that makes it easier for other mod developers to make their
 
 ## Chat 
 
-The chat window can opened/closed using Alt + Backtick (configurable in game settings under Control). Also in settings (under Multiplayer) is an option to disable the chat window from automatically opening when a message is received.
+The chat window can opened/closed using Alt + Backtick (configurable in Settings - Multiplayer - Chat). Also in settings is an option to disable the chat window from automatically opening when a message is received.
 
 ## What is the current status?
 
@@ -46,7 +46,7 @@ The prerelease version does support DSP `0.10.x`, but dark fog enemies and build
 - [x] Player Movement syncing in Space
 - [x] Player VFX syncing (jetpack, torch, ...)
 - [x] Player SFX syncing (footsteps sound, torch sound, ...)
-- [x] Players have different colors
+- [x] Players have different appearances
 - [x] Game Time syncing
 - [x] Universe settings syncing
 - [x] Client planet loading from server
@@ -68,6 +68,7 @@ The prerelease version does support DSP `0.10.x`, but dark fog enemies and build
 - [x] Foundation syncing (terrain deformation)
 - [x] Server state persistence
 - [x] Power network syncing
+- [x] Warning alarm syncing
 
 </details>
 
