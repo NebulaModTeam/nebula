@@ -65,12 +65,10 @@ public class Server : IServer
     private WebSocketServer socket;
     private float warningUpdateTimer;
 
-    private readonly ConcurrentDictionary<INebulaConnection, INebulaPlayer> playerConnections = new();
+    public ConcurrentPlayerCollection Players { get; } = new();
+
     private ConcurrentQueue<ushort> PlayerIdPool = new();
     private int highestPlayerID;
-
-    public IReadOnlyDictionary<INebulaConnection, INebulaPlayer> PlayerConnections => playerConnections;
-    public IReadOnlyCollection<INebulaPlayer> Players => playerConnections.Values.ToList();
 
     public Server(ushort port, bool loadSaveFile = false)
     {
@@ -101,7 +99,7 @@ public class Server : IServer
         conn.ConnectionStatus = EConnectionStatus.Pending;
 
         INebulaPlayer newPlayer = new NebulaPlayer(conn, playerData);
-        if (!playerConnections.TryAdd(conn, newPlayer))
+        if (!Players.TryAdd(conn, newPlayer))
             throw new InvalidOperationException($"Connection {conn.Id} already exists!");
 
         // return newPlayer;
@@ -122,7 +120,7 @@ public class Server : IServer
         Multiplayer.Session.NumPlayers -= 1;
         DiscordManager.UpdateRichPresence();
 
-        playerConnections.TryRemove(conn, out var player);
+        Players.TryRemove(conn, out var player);
 
         // @TODO: Why can this happen in the first place?
         // Figure out why it was possible before the move and fix that issue at the root.
@@ -139,8 +137,7 @@ public class Server : IServer
             GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
             // using (GetConnectedPlayers(out var connectedPlayers))
             {
-                var connectedPlayers = playerConnections
-                    .Where(kvp => kvp.Key.ConnectionStatus == EConnectionStatus.Connected);
+                var connectedPlayers = Players.Connected;
                 foreach (var entry in connectedPlayers)
                 {
                     GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
@@ -186,7 +183,7 @@ public class Server : IServer
         }
 
         // Note: using Keys or Values directly creates a readonly snapshot at the moment of call, as opposed to enumerating the dict.
-        var syncCount = playerConnections.Keys.Count(key => key.ConnectionStatus == EConnectionStatus.Syncing);
+        var syncCount = Players.Syncing.Count;
         if (conn.ConnectionStatus is not EConnectionStatus.Syncing || syncCount != 0)
         {
             return;
@@ -341,7 +338,7 @@ public class Server : IServer
 
     public void Disconnect(INebulaConnection conn, DisconnectionReason reason, string reasonMessage = "")
     {
-        playerConnections.TryRemove(conn, out var player);
+        Players.TryRemove(conn, out var player);
         if (Encoding.UTF8.GetBytes(reasonMessage).Length <= 123)
         {
             ((NebulaConnection)conn).peerSocket.Close((ushort)reason, reasonMessage);
@@ -359,14 +356,17 @@ public class Server : IServer
     }
 
     // Just to make a single entry point for all sends.
-    private void SendToPlayers<T>(IEnumerable<INebulaPlayer> players, T packet) where T : class, new()
+    private void SendToPlayers<T>(IEnumerable<KeyValuePair<INebulaConnection, INebulaPlayer>> players, T packet) where T : class, new()
     {
-        players.ForEach(p => p.SendPacket(packet));
+        foreach (var kvp in players)
+        {
+            kvp.Key.SendPacket(packet);
+        }
     }
 
     public void SendPacket<T>(T packet) where T : class, new()
     {
-        SendToPlayers(Players, packet);
+        SendToPlayers(Players.Connected, packet);
     }
 
     /// <summary>
@@ -378,9 +378,8 @@ public class Server : IServer
     public void SendToMatching<T>(T packet, Predicate<INebulaPlayer> condition)
         where T : class, new()
     {
-        var players = Players
-            .GetConnected()
-            .Where(p => condition(p));
+        var players = Players.Connected
+            .Where(kvp => condition(kvp.Value));
         SendToPlayers(players, packet);
     }
 

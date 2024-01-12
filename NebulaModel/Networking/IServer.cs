@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NebulaAPI.DataStructures;
 using NebulaAPI.GameState;
 using NebulaAPI.Networking;
 using NebulaAPI.Packets;
@@ -16,8 +17,7 @@ public interface IServer : INetworkProvider
     public event EventHandler<INebulaConnection> Connected;
     public event EventHandler<INebulaConnection> Disconnected;
 
-    public IReadOnlyDictionary<INebulaConnection, INebulaPlayer> PlayerConnections { get; }
-    public IReadOnlyCollection<INebulaPlayer> Players { get; }
+    public ConcurrentPlayerCollection Players { get; }
 
     public void Update();
 

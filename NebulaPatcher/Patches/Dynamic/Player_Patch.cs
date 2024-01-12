@@ -49,14 +49,14 @@ internal class Player_Patch
 
     private static void UpdateSyncedSandCount(long deltaSandCount)
     {
-        var connectedPlayers = Multiplayer.Session.Server.Players.GetConnected();
-        foreach (var player in connectedPlayers)
+        var connectedPlayers = Multiplayer.Session.Server.Players.Connected;
+        foreach (var kvp in connectedPlayers)
         {
-            player.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
+            kvp.Value.Data.Mecha.SandCount += deltaSandCount / (connectedPlayers.Count + 1);
             // dont be too picky here, a little bit more or less sand is ignorable i guess
-            if (player.Data.Mecha.SandCount < 0)
+            if (kvp.Value.Data.Mecha.SandCount < 0)
             {
-                player.Data.Mecha.SandCount = 0;
+                kvp.Value.Data.Mecha.SandCount = 0;
             }
         }
 

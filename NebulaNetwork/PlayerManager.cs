@@ -1,4 +1,4 @@
-#region
+﻿#region
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ public class PlayerManager : IPlayerManager
     [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public Locker GetPendingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> pendingPlayers)
     {
-        pendingPlayers = Multiplayer.Session.Server.PlayerConnections.GetPending();
+        pendingPlayers = Multiplayer.Session.Server.Players.Pending;
 
         return new Locker(new object());
     }
@@ -29,14 +29,14 @@ public class PlayerManager : IPlayerManager
     [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public Locker GetSyncingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> syncingPlayers)
     {
-        syncingPlayers = Multiplayer.Session.Server.PlayerConnections.GetSyncing();
+        syncingPlayers = Multiplayer.Session.Server.Players.Syncing;
         return new Locker(new object());
     }
 
     [Obsolete("Use Server.Players or Server.PlayerConnections")]
     public Locker GetConnectedPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> connectedPlayers)
     {
-        connectedPlayers = Multiplayer.Session.Server.PlayerConnections.GetConnected();
+        connectedPlayers = Multiplayer.Session.Server.Players.Connected;
         return new Locker(new object());
     }
 
@@ -51,28 +51,27 @@ public class PlayerManager : IPlayerManager
     public INebulaPlayer GetPlayer(INebulaConnection conn)
     {
         // This shouldn't be nullable, if we have a NebulaConnection we definitely have a NebulaPlayer so First() > FirstOrDefault.
-        return Multiplayer.Session.Server.Players.GetByConnectionHandle(conn);
+        return Multiplayer.Session.Server.Players.Get(conn);
     }
 
     [Obsolete]
     public INebulaPlayer GetPlayerById(ushort playerId)
     {
         // Let First() throw on nulls, this should only be safe for existing players.
-        return Multiplayer.Session.Server.PlayerConnections.First(kvp => kvp.Key.Id == playerId).Value;
+        return Multiplayer.Session.Server.Players.Get(playerId);
     }
 
     [Obsolete]
     public INebulaPlayer GetConnectedPlayerByUsername(string username)
     {
         // Let First() throw on nulls, this should only be safe for existing players.
-        return Multiplayer.Session.Server.PlayerConnections
-            .First(kvp => kvp.Value.Data.Username == username).Value;
+        return Multiplayer.Session.Server.Players.Get(username);
     }
 
     [Obsolete]
     public INebulaPlayer GetSyncingPlayer(INebulaConnection conn)
     {
-        return Multiplayer.Session.Server.Players.GetSyncing().GetByConnectionHandle(conn);
+        return Multiplayer.Session.Server.Players.Get(conn, EConnectionStatus.Syncing);
     }
 
     public void SendPacketToAllPlayers<T>(T packet) where T : class, new()
@@ -107,24 +106,11 @@ public class PlayerManager : IPlayerManager
 
     public void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value)
-                         .Where(player => !player.Connection.Equals(exclude)))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacketExclude(packet, exclude);
     }
 
     public void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new()
     {
-        using (GetConnectedPlayers(out var connectedPlayers))
-        {
-            foreach (var player in connectedPlayers.Select(kvp => kvp.Value).Where(player => player != sender))
-            {
-                player.SendPacket(packet);
-            }
-        }
+        Multiplayer.Session.Server.SendPacketExclude(packet, sender.Connection);
     }
 }

@@ -63,7 +63,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
         // Since the player is now connected, we can safely spawn his player model
         SimulatedWorld.OnPlayerJoinedGame(player);
 
-        var syncingCount = Multiplayer.Session.Server.Players.GetSyncing().Count;
+        var syncingCount = Multiplayer.Session.Server.Players.Syncing.Count;
         if (syncingCount != 0)
         {
             return;
