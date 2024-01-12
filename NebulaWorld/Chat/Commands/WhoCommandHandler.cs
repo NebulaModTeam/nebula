@@ -2,7 +2,6 @@
 
 using System.Linq;
 using System.Text;
-using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Packets.Chat;

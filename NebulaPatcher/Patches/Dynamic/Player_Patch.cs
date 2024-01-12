@@ -2,7 +2,6 @@
 
 using HarmonyLib;
 using NebulaAPI;
-using NebulaAPI.Extensions;
 using NebulaModel;
 using NebulaModel.Packets.Players;
 using NebulaWorld;

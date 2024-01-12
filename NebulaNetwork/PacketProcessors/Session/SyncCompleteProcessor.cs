@@ -1,7 +1,5 @@
 ﻿#region
 
-using System.Linq;
-using NebulaAPI.Extensions;
 using NebulaAPI.GameState;
 using NebulaAPI.Networking;
 using NebulaAPI.Packets;

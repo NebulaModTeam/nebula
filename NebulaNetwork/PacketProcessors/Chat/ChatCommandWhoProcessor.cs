@@ -1,7 +1,6 @@
-#region
+﻿#region
 
 using System.Linq;
-using NebulaAPI.Extensions;
 using NebulaAPI.Packets;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
