@@ -244,12 +244,12 @@ public class Server : NetworkProvider, IServer
         PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
     }
 
-    public override void SendPacketToClient<T>(T packet, string clientUsername)
+    public override void SendPacketToClient<T>(T packet, ushort clientUserId)
     {
-        var recipient = PlayerManager.GetConnectedPlayerByUsername(clientUsername);
+        var recipient = PlayerManager.GetPlayerById(clientUserId);
         if (recipient == null)
         {
-            Log.Warn($"Could not send packet to client, Recipient not found {clientUsername}");
+            Log.Warn($"Could not send packet to client, Recipient not found with clientId: {clientUserId}");
             return;
         }
 

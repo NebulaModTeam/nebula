@@ -188,9 +188,9 @@ public class Client : NetworkProvider, IClient
         throw new NotImplementedException();
     }
 
-    public override void SendPacketToClient<T>(T packet, string clientUsername)
+    public override void SendPacketToClient<T>(T packet, ushort clientUserId)
     {
-        serverConnection?.SendPacket(new ClientRelayPacket(PacketProcessor.Write(packet), clientUsername));
+        serverConnection?.SendPacket(new ClientRelayPacket(PacketProcessor.Write(packet), clientUserId));
     }
 
     public override void Update()

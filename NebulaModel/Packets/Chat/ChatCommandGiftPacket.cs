@@ -6,16 +6,16 @@ public class ChatCommandGiftPacket
 {
     public ChatCommandGiftPacket() { }
 
-    public ChatCommandGiftPacket(string sender, string recipient, ChatCommandGiftType type, long quantity)
+    public ChatCommandGiftPacket(ushort senderUserId, ushort recipientUserId, ChatCommandGiftType type, long quantity)
     {
-        SenderUsername = sender;
-        RecipientUsername = recipient;
+        SenderUserId = senderUserId;
+        RecipientUserId = recipientUserId;
         Type = type;
         Quantity = quantity;
     }
 
-    public string SenderUsername { get; set; }
-    public string RecipientUsername { get; set; }
+    public ushort SenderUserId { get; set; }
+    public ushort RecipientUserId { get; set; }
     public ChatCommandGiftType Type { get; set; }
     public long Quantity { get; set; }
 }

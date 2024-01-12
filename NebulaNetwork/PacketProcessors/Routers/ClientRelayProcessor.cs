@@ -35,7 +35,7 @@ internal class ClientRelayProcessor : PacketProcessor<ClientRelayPacket>
         // If the processor is either host or client and the recipient is the processor unwrap and process the packet
         // (This happens in the case that either client -> host or host -> client sends this packet directly,
         // as you do not want manually account for the sender recipient relation when using this packet we have to handle this case as wel)
-        if (Multiplayer.Session.LocalPlayer.Data.Username == packet.ClientUsername)
+        if (Multiplayer.Session.LocalPlayer.Data.PlayerId == packet.ClientUserId)
         {
             //Process the packet on the host
             // NOTE: Since PacketProcessor is not part of INetworkProvider this will not work if we ever swap it out with another network provider that does not expose this
@@ -53,10 +53,10 @@ internal class ClientRelayProcessor : PacketProcessor<ClientRelayPacket>
 
         // If the processor is the host and not the recipient, unwrap and relay packet to recipient client
         var recipient = Multiplayer.Session.Network
-            .PlayerManager.GetConnectedPlayerByUsername(packet.ClientUsername);
+            .PlayerManager.GetPlayerById(packet.ClientUserId);
         if (recipient == null)
         {
-            Log.Warn($"Could not relay packet because client was not found {packet.ClientUsername}");
+            Log.Warn($"Could not relay packet because client was not found with clientId: {packet.ClientUserId}");
 
             // TODO: We might want to communicate back to the sender that the relaying failed
             return;

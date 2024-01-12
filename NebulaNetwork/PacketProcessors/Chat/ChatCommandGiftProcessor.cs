@@ -10,6 +10,7 @@ using NebulaModel.Packets.Chat;
 using NebulaWorld;
 using NebulaWorld.Chat.Commands;
 using NebulaWorld.MonoBehaviours.Local.Chat;
+using static UnityEngine.Analytics.Analytics;
 
 #endregion
 
@@ -22,6 +23,20 @@ internal class ChatCommandGiftProcessor : PacketProcessor<ChatCommandGiftPacket>
     {
 
         //window.SendLocalChatMessage("Invalid gift type".Translate(), ChatMessageType.CommandErrorMessage);
+        string senderUserName = null;
+        // TODO: Unify this into something
+        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+        {
+            foreach (var remotePlayerModel in remotePlayersModels)
+            {
+                var movement = remotePlayerModel.Value.Movement;
+                if (movement.PlayerID == packet.SenderUserId)
+                {
+                    senderUserName = movement.Username;
+                    break;
+                }
+            }
+        }
 
         switch (packet.Type)
         {
@@ -32,7 +47,7 @@ internal class ChatCommandGiftProcessor : PacketProcessor<ChatCommandGiftPacket>
                     mainPlayer.SetSandCount(mainPlayer.sandCount + packet.Quantity);
                     // TODO: Do we need to do something with soil sync?
                 }
-                ChatManager.Instance.SendChatMessage($"[{DateTime.Now:HH:mm}] {packet.SenderUsername} gifted you {packet.Quantity} soil", ChatMessageType.SystemInfoMessage);
+                ChatManager.Instance.SendChatMessage($"[{DateTime.Now:HH:mm}] [{packet.SenderUserId}] {senderUserName} gifted you soil ({packet.Quantity})", ChatMessageType.SystemInfoMessage);
                 break;
             // TODO: Implement Item and Energy variants.
             default:

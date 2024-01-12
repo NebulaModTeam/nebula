@@ -4,12 +4,12 @@ public class ClientRelayPacket
 {
     public ClientRelayPacket() { }
 
-    public ClientRelayPacket(byte[] packetObject, string clientUsername)
+    public ClientRelayPacket(byte[] packetObject, ushort clientUserId)
     {
         PacketObject = packetObject;
-        ClientUsername = clientUsername;
+        ClientUserId = clientUserId;
     }
 
     public byte[] PacketObject { get; set; }
-    public string ClientUsername { get; set; }
+    public ushort ClientUserId { get; set; }
 }
