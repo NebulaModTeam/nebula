@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using BepInEx.Bootstrap;
 using NebulaAPI.Interfaces;
 using NebulaAPI.Packets;
@@ -40,11 +41,17 @@ internal class LobbyResponseProcessor : PacketProcessor<LobbyResponse>
 
         var gameDesc = new GameDesc();
         gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
-        gameDesc.savedThemeIds = packet.SavedThemeIds;
+        gameDesc.isPeaceMode = packet.IsPeaceMode;
         gameDesc.isSandboxMode = packet.IsSandboxMode;
+        gameDesc.savedThemeIds = new int[packet.SavedThemeIds.Length];
+        Array.Copy(packet.SavedThemeIds, gameDesc.savedThemeIds, packet.SavedThemeIds.Length);
+        using (var p = new BinaryUtils.Reader(packet.CombatSettingsData))
+        {
+            gameDesc.combatSettings.Import(p.BinaryReader);
+        }
 
         UIRoot.instance.galaxySelect.gameDesc = gameDesc;
         UIRoot.instance.galaxySelect.SetStarmapGalaxy();
-        UIRoot.instance.galaxySelect.sandboxToggle.isOn = packet.IsSandboxMode;
+        UIRoot.instance.galaxySelect.sandboxToggle.isOn = gameDesc.isSandboxMode;
     }
 }
