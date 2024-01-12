@@ -44,8 +44,13 @@ public class HandshakeResponseProcessor : PacketProcessor<HandshakeResponse>
         // Using GameDesc.Import will break GS2, so use GameDesc.SetForNewGame instead
         var gameDesc = new GameDesc();
         gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
-        gameDesc.savedThemeIds = packet.SavedThemeIds;
+        gameDesc.isPeaceMode = packet.IsPeaceMode;
         gameDesc.isSandboxMode = packet.IsSandboxMode;
+        gameDesc.savedThemeIds = packet.SavedThemeIds;
+        using (var p = new BinaryUtils.Reader(packet.CombatSettingsData))
+        {
+            gameDesc.combatSettings.Import(p.BinaryReader);
+        }
         DSPGame.StartGameSkipPrologue(gameDesc);
 
         InGamePopup.ShowInfo("Loading".Translate(), "Loading state from server, please wait".Translate(), null);

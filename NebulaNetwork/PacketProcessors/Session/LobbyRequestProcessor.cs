@@ -34,7 +34,7 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
             return;
         }
 
-        INebulaPlayer player = Players.Get(conn, EConnectionStatus.Pending);
+        var player = Players.Get(conn, EConnectionStatus.Pending);
 
         if (player is null)
         {
@@ -107,52 +107,51 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
             //Add current tech bonuses to the connecting player based on the Host's mecha
             ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);
 
-            using var p = new BinaryUtils.Writer();
-            var count = 0;
-            foreach (var pluginInfo in Chainloader.PluginInfos)
-            {
-                if (pluginInfo.Value.Instance is not IMultiplayerModWithSettings mod)
-                {
-                    continue;
-                }
-
-                p.BinaryWriter.Write(pluginInfo.Key);
-                mod.Export(p.BinaryWriter);
-                count++;
-            }
-
             var gameDesc = GameMain.data.gameDesc;
-            player.SendPacket(new HandshakeResponse(in gameDesc, false, (PlayerData)player.Data, p.CloseAndGetBytes(),
-                count, Config.Options.SyncSoil, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
+            byte[] combatSettingsData;
+            using (var p = new BinaryUtils.Writer())
+            {
+                gameDesc.combatSettings.Export(p.BinaryWriter);
+                combatSettingsData = p.CloseAndGetBytes();
+            }
+            var modsSettings = GetModSetting(out var modSettingCount);
+            player.SendPacket(new HandshakeResponse(in gameDesc, combatSettingsData, false, (PlayerData)player.Data, modsSettings,
+                modSettingCount, Config.Options.SyncSoil, Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
         }
         else
         {
             var gameDesc = Multiplayer.Session.IsGameLoaded ? GameMain.data.gameDesc : UIRoot.instance.galaxySelect.gameDesc;
-
+            byte[] combatSettingsData;
             using (var p = new BinaryUtils.Writer())
             {
-                var count = 0;
-                foreach (var pluginInfo in Chainloader.PluginInfos)
-                {
-                    if (pluginInfo.Value.Instance is not IMultiplayerModWithSettings mod)
-                    {
-                        continue;
-                    }
-
-                    p.BinaryWriter.Write(pluginInfo.Key);
-                    mod.Export(p.BinaryWriter);
-                    count++;
-                }
-
-                player.SendPacket(new LobbyResponse(in gameDesc, p.CloseAndGetBytes(), count, Multiplayer.Session.NumPlayers,
-                    DiscordManager.GetPartyId()));
+                gameDesc.combatSettings.Export(p.BinaryWriter);
+                combatSettingsData = p.CloseAndGetBytes();
             }
+            var modsSettings = GetModSetting(out var modSettingCount);
+            player.SendPacket(new LobbyResponse(in gameDesc, combatSettingsData, modsSettings, modSettingCount,
+                Multiplayer.Session.NumPlayers, DiscordManager.GetPartyId()));
 
             // Send overriden Planet and Star names
             player.SendPacket(new NameInputPacket(GameMain.galaxy));
         }
     }
 
+    private static byte[] GetModSetting(out int settingsCount)
+    {
+        settingsCount = 0;
+        using var p = new BinaryUtils.Writer();
+        foreach (var pluginInfo in Chainloader.PluginInfos)
+        {
+            if (pluginInfo.Value.Instance is not IMultiplayerModWithSettings mod)
+            {
+                continue;
+            }
+            p.BinaryWriter.Write(pluginInfo.Key);
+            mod.Export(p.BinaryWriter);
+            settingsCount++;
+        }
+        return p.CloseAndGetBytes();
+    }
 
     private static bool ModsVersionCheck(in LobbyRequest packet, out DisconnectionReason reason, out string reasonString)
     {
