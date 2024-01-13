@@ -43,7 +43,7 @@ internal class StartGameMessageProcessor : PacketProcessor<StartGameMessage>
                     }
                 }
 
-                conn.ConnectionStatus = EConnectionStatus.Syncing;
+                Multiplayer.Session.Server.Players.TryUpgrade(player, EConnectionStatus.Syncing);
 
                 Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 

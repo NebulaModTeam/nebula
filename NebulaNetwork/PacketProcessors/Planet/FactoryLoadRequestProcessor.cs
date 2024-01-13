@@ -1,5 +1,6 @@
 ﻿#region
 
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -35,7 +36,7 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
         }
 
         // Set requesting client status to connected player, so he can receive following update
-        var player = Multiplayer.Session.Server.Players.Get(conn);
+        var player = Multiplayer.Session.Server.Players.Get(conn, EConnectionStatus.Syncing);
         player.Data.LocalPlanetId = packet.PlanetID;
         player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
     }

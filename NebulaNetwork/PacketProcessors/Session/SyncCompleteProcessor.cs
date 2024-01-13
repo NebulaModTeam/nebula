@@ -56,7 +56,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
 
         SaveManager.TryAdd(clientCertHash, player.Data);
 
-        player.Connection.ConnectionStatus = EConnectionStatus.Connected;
+        Multiplayer.Session.Server.Players.TryUpgrade(player, EConnectionStatus.Connected);
 
         // Since the player is now connected, we can safely spawn his player model
         SimulatedWorld.OnPlayerJoinedGame(player);

@@ -101,7 +101,7 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
         // if user is known and host is ingame dont put him into lobby but let him join the game
         if (!isNewUser && Multiplayer.Session.IsGameLoaded)
         {
-            conn.ConnectionStatus = EConnectionStatus.Syncing;
+            Multiplayer.Session.Server.Players.TryUpgrade(player, EConnectionStatus.Syncing);
 
             Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 
