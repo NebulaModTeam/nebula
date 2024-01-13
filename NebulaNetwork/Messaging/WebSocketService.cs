@@ -57,8 +57,8 @@ public class WebSocketService : WebSocketBehavior
 
     protected override void OnClose(CloseEventArgs e)
     {
-        connections.Remove(Context.UserEndPoint.GetHashCode());
-
+        var connection = connections[Context.UserEndPoint.GetHashCode()];
+        connections.Remove(connection.GetHashCode());
         // If the reason of a client disconnect is because we are still loading the game,
         // we don't need to inform the other clients since the disconnected client never
         // joined the game in the first place.
@@ -74,8 +74,7 @@ public class WebSocketService : WebSocketBehavior
             // if it is because we have stopped the server and are not in a multiplayer game anymore.
             if (Multiplayer.IsActive)
             {
-                Server.OnSocketDisconnection(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
-                    PacketProcessor));
+                Server.OnSocketDisconnection(connection);
             }
         });
     }
