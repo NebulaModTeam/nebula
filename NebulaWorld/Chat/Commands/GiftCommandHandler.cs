@@ -1,8 +1,10 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NebulaModel.DataStructures.Chat;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Chat;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 
@@ -45,33 +47,39 @@ public class GiftCommandHandler : IChatCommandHandler
             };
         }
 
-        var userIdOrNameParameter = parameters[0];
-
-        var foundRecipient = false;
-        var recipient = new UserInfo();
-        // TODO: Abstract this into a utility function to get the user data by id (that also works on clients
-        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+        UserInfo recipient;
         {
-            foreach (var remotePlayerModel in remotePlayersModels)
+            var userIdOrNameParameter = parameters[0];
+            var couldParseUserId = ushort.TryParse(userIdOrNameParameter, out var recipientUserId);
+
+            UserInfo? recipientOrNull = null;
+            if (couldParseUserId)
             {
-                var movement = remotePlayerModel.Value.Movement;
-                if ((ushort.TryParse(userIdOrNameParameter, out var recipientUserId) && movement.PlayerID == recipientUserId) || movement.Username == userIdOrNameParameter)
-                {
-                    foundRecipient = true;
-                    recipient = new UserInfo
-                    {
-                        id = movement.PlayerID,
-                        name = movement.Username
-                    };
-                    break;
-                }
+                recipientOrNull = getUserInfoById(recipientUserId);
             }
-        }
 
-        if (!foundRecipient)
-        {
-            window.SendLocalChatMessage("Invalid recipient (user id or username not found), can't send gift".Translate(), ChatMessageType.CommandErrorMessage);
-            return;
+            if (recipientOrNull is UserInfo recipientNotNull)
+            {
+                recipient = recipientNotNull;
+            }
+            else
+            {
+                var recipientsByUsername = getUserInfosByUsername(userIdOrNameParameter);
+
+                if (recipientsByUsername.Count == 0)
+                {
+                    window.SendLocalChatMessage("Invalid recipient (user id or username not found), can't send gift".Translate(), ChatMessageType.CommandErrorMessage);
+                    return;
+                }
+
+                if (recipientsByUsername.Count > 1)
+                {
+                    window.SendLocalChatMessage("Ambiguous recipient (multiple recipients with same username), can't send gift".Translate(), ChatMessageType.CommandErrorMessage);
+                    return;
+                }
+
+                recipient = recipientsByUsername.First();
+            }
         }
 
         if (sender.id == recipient.id)
@@ -95,8 +103,7 @@ public class GiftCommandHandler : IChatCommandHandler
         }
 
         // Add support for scientific notation and other notation types
-        long quantity;
-        if (!long.TryParse(parameters[2], out quantity) || quantity == 0)
+        if (!long.TryParse(parameters[2], out var quantity) || quantity == 0)
         {
             window.SendLocalChatMessage("Invalid gift quantity, can't send gift".Translate(), ChatMessageType.CommandErrorMessage);
             return;
@@ -128,7 +135,7 @@ public class GiftCommandHandler : IChatCommandHandler
         switch (type)
         {
             case ChatCommandGiftType.Soil:
-                ChatManager.Instance.SendChatMessage($"[{DateTime.Now:HH:mm}] You gifted [{recipient.id}] {recipient.name} soil ({packet.Quantity})", ChatMessageType.SystemInfoMessage);
+                window.SendLocalChatMessage($"[{DateTime.Now:HH:mm}] You gifted [{recipient.id}] {recipient.name} soil ({packet.Quantity})", ChatMessageType.SystemInfoMessage);
                 break;
                 // TODO: Implement Item and Energy variants.
         }
@@ -150,4 +157,48 @@ public class GiftCommandHandler : IChatCommandHandler
     //    ChatManager.Instance.SendChatMessage($"[{DateTime.Now:HH:mm}] [{sender} whispered] : {mesageBody}",
     //        ChatMessageType.PlayerMessagePrivate);
     //}
+
+    private UserInfo? getUserInfoById(ushort userId)
+    {
+        // TODO: This does not include self, perhaps we should include this
+        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+        {
+            foreach (var remotePlayerModel in remotePlayersModels)
+            {
+                var movement = remotePlayerModel.Value.Movement;
+                if (movement.PlayerID == userId)
+                {
+                    return new UserInfo
+                    {
+                        id = movement.PlayerID,
+                        name = movement.Username
+                    };
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<UserInfo> getUserInfosByUsername(string username)
+    {
+        List<UserInfo> userInfos = new();
+        // TODO: This does not include self, perhaps we should include this
+        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+        {
+            foreach (var remotePlayerModel in remotePlayersModels)
+            {
+                var movement = remotePlayerModel.Value.Movement;
+                if (movement.Username == username)
+                {
+                    userInfos.Add(new UserInfo
+                    {
+                        id = movement.PlayerID,
+                        name = movement.Username
+                    });
+                }
+            }
+        }
+
+        return userInfos;
+    }
 }
