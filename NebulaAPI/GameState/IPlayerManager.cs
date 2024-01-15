@@ -1,24 +1,25 @@
-﻿#region
+#region
 
+using System;
 using System.Collections.Generic;
 using NebulaAPI.DataStructures;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 
 #endregion
 
 namespace NebulaAPI.GameState;
 
+[Obsolete()]
 public interface IPlayerManager
 {
-    Locker GetPendingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> pendingPlayers);
+    Locker GetPendingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> pendingPlayers);
 
-    Locker GetSyncingPlayers(out Dictionary<INebulaConnection, INebulaPlayer> syncingPlayers);
+    Locker GetSyncingPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> syncingPlayers);
 
-    Locker GetConnectedPlayers(out Dictionary<INebulaConnection, INebulaPlayer> connectedPlayers);
+    Locker GetConnectedPlayers(out IReadOnlyDictionary<INebulaConnection, INebulaPlayer> connectedPlayers);
 
-    Locker GetSavedPlayerData(out Dictionary<string, IPlayerData> savedPlayerData);
-
-    IPlayerData[] GetAllPlayerDataIncludingHost();
+    Locker GetSavedPlayerData(out IReadOnlyDictionary<string, IPlayerData> savedPlayerData);
 
     INebulaPlayer GetPlayer(INebulaConnection conn);
 
@@ -40,21 +41,7 @@ public interface IPlayerManager
 
     void SendPacketToStarExcept<T>(T packet, int starId, INebulaConnection exclude) where T : class, new();
 
-    void SendRawPacketToStar(byte[] rawPacket, int starId, INebulaConnection sender);
-
-    void SendRawPacketToPlanet(byte[] rawPacket, int planetId, INebulaConnection sender);
-
     void SendPacketToOtherPlayers<T>(T packet, INebulaConnection exclude) where T : class, new();
 
     void SendPacketToOtherPlayers<T>(T packet, INebulaPlayer sender) where T : class, new();
-
-    INebulaPlayer PlayerConnected(INebulaConnection conn);
-
-    void PlayerDisconnected(INebulaConnection conn);
-
-    ushort GetNextAvailablePlayerId();
-
-    void UpdateMechaData(IMechaData mechaData, INebulaConnection conn);
-
-    void UpdateSyncedSandCount(int deltaSandCount);
 }

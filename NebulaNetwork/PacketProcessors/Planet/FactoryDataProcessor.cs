@@ -1,5 +1,6 @@
 ﻿#region
 
+using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
@@ -26,7 +27,7 @@ public class FactoryDataProcessor : PacketProcessor<FactoryData>
         GameStatesManager.FragmentSize = 0;
 
         // Stop packet processing until factory is imported and loaded
-        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = false;
+        Multiplayer.Session.Network.PacketProcessor.EnablePacketProcessing = false;
         Log.Info("Pause PacketProcessor (FactoryDataProcessor)");
 
         var planet = GameMain.galaxy.PlanetById(packet.PlanetId);

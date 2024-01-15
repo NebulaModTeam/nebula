@@ -1,7 +1,7 @@
 ﻿#region
 
-using NebulaAPI.GameState;
 using NebulaAPI.Packets;
+using NebulaModel;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -14,11 +14,8 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
 {
-    private readonly IPlayerManager playerManager;
-
     public PlayerMechaDataProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)
@@ -28,6 +25,14 @@ internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
             return;
         }
 
-        playerManager.UpdateMechaData(packet.Data, conn);
+        var player = Multiplayer.Session.Server.Players.Get(conn);
+
+        //Find correct player for data to update, preserve sand count if syncing is enabled
+        var sandCount = player.Data.Mecha.SandCount;
+        player.Data.Mecha = packet.Data;
+        if (Config.Options.SyncSoil)
+        {
+            player.Data.Mecha.SandCount = sandCount;
+        }
     }
 }

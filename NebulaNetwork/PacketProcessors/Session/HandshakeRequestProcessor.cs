@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -31,15 +32,13 @@ public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
         {
             if (!pendingPlayers.TryGetValue(conn, out _))
             {
-                conn.Disconnect(DisconnectionReason.InvalidData);
+                Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
                 Log.Warn(
                     "WARNING: Player tried to handshake without being in the pending list. And he uses an outdated nebula version.");
                 return;
             }
-
-            pendingPlayers.Remove(conn);
         }
 
-        conn.Disconnect(DisconnectionReason.ModVersionMismatch, "Nebula;0.7.7 or earlier;0.7.8 or greater");
+        Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.ModVersionMismatch, "Nebula;0.7.7 or earlier;0.7.8 or greater");
     }
 }

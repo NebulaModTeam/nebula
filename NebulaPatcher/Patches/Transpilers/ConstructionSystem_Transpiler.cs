@@ -12,7 +12,7 @@ internal delegate bool RemoveExtraSpawnedDrones(ConstructionSystem _this, ref Dr
 
 internal delegate bool IsOwnerAMecha(int owner);
 
-internal delegate bool OwnerAndIdMatchMecha(int id, int owner);
+internal delegate bool OwnerAndIdMatchMecha(ConstructionModuleComponent constructionModuleComponent, int owner);
 internal delegate bool AreDronesEnabled(bool droneEnabled, ref DroneComponent drone);
 
 [HarmonyPatch(typeof(ConstructionSystem))]
@@ -158,7 +158,7 @@ internal class ConstructionSystem_Transpiler
                         owner <= 0; // we set owner to negative values in ConstructionModuleComponent_Transpiler to mark drones from other players.
                 }));
         matcher
-            .MatchForward(true,
+            .MatchForward(false,
                 new CodeMatch(OpCodes.Ldloc_S),
                 new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "id"),
                 new CodeMatch(OpCodes.Ldloc_S),
@@ -175,13 +175,20 @@ internal class ConstructionSystem_Transpiler
         // change: if (constructionModuleComponent.id != ptr.owner || ptr2.id != ptr.craftId)
         // to: if (ptr2.id != ptr.craftId)
         matcher
+            .Advance(1)
+            .Set(OpCodes.Nop, null) // dont grab id but pass whole object, as it can be null in certain situations
+            .Advance(3)
             .InsertAndAdvance(
-                HarmonyLib.Transpilers.EmitDelegate<OwnerAndIdMatchMecha>((id, owner) =>
+                HarmonyLib.Transpilers.EmitDelegate<OwnerAndIdMatchMecha>((constructionModuleComponent, owner) =>
                 {
                     if (!Multiplayer.IsActive)
                     {
-                        return
-                            id != owner; // game does exit when id does not match owner, so we do too when multiplayer is inactive
+                        return constructionModuleComponent.id != owner; // game does exit when id does not match owner, so we do too when multiplayer is inactive
+                    }
+                    if (constructionModuleComponent == null)
+                    {
+                        // this might happen when battle bases are removed while drones are still around
+                        return true; // this will stop rendering of those drones
                     }
 
                     return false; // this might be a bit too open but will render any drone regardless of the games checks.
