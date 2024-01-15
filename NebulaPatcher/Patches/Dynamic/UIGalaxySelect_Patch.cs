@@ -43,10 +43,12 @@ internal class UIGalaxySelect_Patch
                     childObject.SetActive(false);
             }
         }
+
         if (!Multiplayer.IsActive)
         {
             return;
         }
+
         // show lobby hints if needed
         if (Config.Options.ShowLobbyHints)
         {
@@ -72,6 +74,7 @@ internal class UIGalaxySelect_Patch
                 "Okay, cool :)",
                 CloseLobbyInfo);
         }
+
         // prepare PlanetModelingManager for the use of its compute thread as we need that for the planet details view in the lobby
         PlanetModelingManager.PrepareWorks();
         // store current star id because entering the solar system details view messes up the main menu background system.
@@ -96,6 +99,7 @@ internal class UIGalaxySelect_Patch
         {
             return true;
         }
+
         Multiplayer.Session.IsInLobby = false;
 
         if (UIVirtualStarmap_Transpiler.CustomBirthPlanet != -1)
@@ -117,8 +121,8 @@ internal class UIGalaxySelect_Patch
         {
             Multiplayer.Session.Network.SendPacket(new StartGameMessage());
         }
-        return false;
 
+        return false;
     }
 
     [HarmonyPrefix]
@@ -178,6 +182,7 @@ internal class UIGalaxySelect_Patch
         {
             return;
         }
+
         UIVirtualStarmap_Transpiler.CustomBirthStar = -1;
         UIVirtualStarmap_Transpiler.CustomBirthPlanet = -1;
     }
@@ -190,26 +195,18 @@ internal class UIGalaxySelect_Patch
         {
             return;
         }
+
         // syncing players are those who have not loaded into the game yet, so they might still be in the lobby. they need to check if this packet is relevant for them in the corresponding handler.
         // just remembered others cant be in game anyways when host ist still in lobby >.>
-        using (Multiplayer.Session.Network.PlayerManager.GetSyncingPlayers(out var syncingPlayers))
-        {
-            foreach (var entry in syncingPlayers)
-            {
-                entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed,
-                    __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier,
-                    __instance.gameDesc.isSandboxMode, __instance.gameDesc.isPeaceMode, __instance.gameDesc.combatSettings));
-            }
-        }
-        using (Multiplayer.Session.Network.PlayerManager.GetPendingPlayers(out var pendingPlayers))
-        {
-            foreach (var entry in pendingPlayers)
-            {
-                entry.Key.SendPacket(new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed,
-                    __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier,
-                    __instance.gameDesc.isSandboxMode, __instance.gameDesc.isPeaceMode, __instance.gameDesc.combatSettings));
-            }
-        }
+        var packet = new LobbyUpdateValues(__instance.gameDesc.galaxyAlgo, __instance.gameDesc.galaxySeed,
+            __instance.gameDesc.starCount, __instance.gameDesc.resourceMultiplier,
+            __instance.gameDesc.isSandboxMode, __instance.gameDesc.isPeaceMode, __instance.gameDesc.combatSettings);
+
+        var server = Multiplayer.Session.Server;
+        var players = server.Players;
+
+        server.SendToPlayers(players.Syncing, packet);
+        server.SendToPlayers(players.Pending, packet);
     }
 
     [HarmonyPostfix]
@@ -221,6 +218,7 @@ internal class UIGalaxySelect_Patch
         {
             return;
         }
+
         // as we need to load and generate planets for the detail view in the lobby, update the loading process here
         PlanetModelingManager.ModelingPlanetCoroutine();
         UIRoot.instance.uiGame.planetDetail._OnUpdate();
@@ -228,6 +226,7 @@ internal class UIGalaxySelect_Patch
         {
             return;
         }
+
         // zoom in/out when scrolling
         var delta = (Input.mouseScrollDelta.y < 0 ? 1f : -1f) * (VFInput.shift ? 1f : 0.1f);
         __instance.cameraPoser.distRatio += delta;
@@ -261,7 +260,6 @@ internal class UIGalaxySelect_Patch
 
     private static void RestoreDarkFogToggleState()
     {
-
         if (DFToggle != null)
         {
             // we are setting the (originally) private m_IsOn here since setting the public isOn will fire an event which leads to a NRE

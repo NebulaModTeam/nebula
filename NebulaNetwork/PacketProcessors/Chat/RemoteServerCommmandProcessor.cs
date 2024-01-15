@@ -98,7 +98,7 @@ internal class RemoteServerCommmandProcessor : PacketProcessor<RemoteServerComma
                 return string.Format("Cooldown: {0}s".Translate(), cdtime);
             }
             LastLoginTime = DateTime.Now;
-            var playerData = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn)?.Data;
+            var playerData = Players.Get(conn)?.Data;
             var salt = playerData != null ? playerData.Username + playerData.PlayerId : "";
             var hash = CryptoUtils.Hash(Config.Options.RemoteAccessPassword + salt);
             if (hash != passwordHash)

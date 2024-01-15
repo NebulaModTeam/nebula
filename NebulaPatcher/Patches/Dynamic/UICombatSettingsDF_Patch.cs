@@ -27,20 +27,10 @@ namespace NebulaPatcher.Patches.Dynamic
             }
             // syncing players are those who have not loaded into the game yet, so they might still be in the lobby. they need to check if this packet is relevant for them in the corresponding handler.
             // just remembered others cant be in game anyways when host ist still in lobby >.>
-            using (Multiplayer.Session.Network.PlayerManager.GetSyncingPlayers(out var syncingPlayers))
-            {
-                foreach (var entry in syncingPlayers)
-                {
-                    entry.Key.SendPacket(new LobbyUpdateCombatValues(__instance.gameDesc.combatSettings));
-                }
-            }
-            using (Multiplayer.Session.Network.PlayerManager.GetPendingPlayers(out var pendingPlayers))
-            {
-                foreach (var entry in pendingPlayers)
-                {
-                    entry.Key.SendPacket(new LobbyUpdateCombatValues(__instance.gameDesc.combatSettings));
-                }
-            }
+            var server = Multiplayer.Session.Server;
+            var players = server.Players;
+            server.SendToPlayers(players.Syncing, new LobbyUpdateCombatValues(__instance.gameDesc.combatSettings));
+            server.SendToPlayers(players.Pending, new LobbyUpdateCombatValues(__instance.gameDesc.combatSettings));
         }
     }
 }

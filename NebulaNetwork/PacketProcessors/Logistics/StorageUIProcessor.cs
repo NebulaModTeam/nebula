@@ -14,8 +14,6 @@ namespace NebulaNetwork.PacketProcessors.Logistics;
 [RegisterPacketProcessor]
 internal class StorageUIProcessor : PacketProcessor<StorageUI>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(StorageUI packet, NebulaConnection conn)
     {
         if (IsHost)
@@ -25,8 +23,8 @@ internal class StorageUIProcessor : PacketProcessor<StorageUI>
             Multiplayer.Session.StationsUI.UpdateStorage(packet);
 
             // broadcast to other clients 
-            var player = playerManager.GetPlayer(conn);
-            playerManager.SendPacketToOtherPlayers(packet, player);
+            var player = Players.Get(conn);
+            Server.SendPacketExclude(packet, conn);
 
             // as we block some methods for the client he must run it once he receives this packet.
             // but only the one issued the request should get items refund

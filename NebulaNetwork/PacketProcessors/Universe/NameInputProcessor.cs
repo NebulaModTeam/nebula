@@ -19,21 +19,18 @@ namespace NebulaNetwork.PacketProcessors.Universe;
 [RegisterPacketProcessor]
 internal class NameInputProcessor : PacketProcessor<NameInputPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public NameInputProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
+            var player = Players.Get(conn);
             if (player != null)
             {
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                Server.SendPacketExclude(packet, conn);
             }
         }
 

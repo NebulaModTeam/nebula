@@ -26,8 +26,8 @@ internal class NewChatMessageProcessor : PacketProcessor<NewChatMessagePacket>
 
         if (IsHost)
         {
-            var player = Multiplayer.Session.Network.PlayerManager?.GetPlayer(conn);
-            Multiplayer.Session.Network.PlayerManager?.SendPacketToOtherPlayers(packet, player);
+            var player = Players.Get(conn);
+            Server.SendPacketExclude(packet, conn);
         }
 
         var sentAt = packet.SentAt == 0 ? DateTime.Now : DateTime.FromBinary(packet.SentAt);
