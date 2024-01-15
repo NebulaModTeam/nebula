@@ -371,13 +371,15 @@ internal class GameData_Patch
                 {
                     continue;
                 }
-                if (__instance.localStar.planets[i].factory == null)
+                var planet = __instance.localStar.planets[i];
+                if (planet.factory == null)
                 {
                     continue;
                 }
-                __instance.localStar.planets[i].factory.Free();
-                __instance.localStar.planets[i].factory = null;
-                GameMain.data.factoryCount--;
+                planet.factory.Free();
+                planet.factory = null;
+                __instance.galaxy.astrosFactory[planet.id] = null; //Assigned by UpdateRuntimePose
+                __instance.factoryCount--;
             }
         }
         if (!Multiplayer.Session.IsInLobby)
