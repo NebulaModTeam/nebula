@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -17,6 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" />
+      <ProjectReference Include="..\NebulaNetwork\NebulaNetwork.csproj" />
     </ItemGroup>
 
 </Project>

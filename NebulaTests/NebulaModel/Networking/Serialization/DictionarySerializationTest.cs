@@ -1,6 +1,4 @@
 using NebulaModel.Networking.Serialization;
-// Not sure why I had to do this, I think unity stuff interfering
-using UnitTesting = Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NebulaTests.NebulaModel.Networking.Serialization;
 
