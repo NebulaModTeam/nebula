@@ -160,45 +160,36 @@ public class GiftCommandHandler : IChatCommandHandler
 
     private UserInfo? getUserInfoById(ushort userId)
     {
-        // TODO: This does not include self, perhaps we should include this
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var remotePlayerModel in remotePlayersModels)
-            {
-                var movement = remotePlayerModel.Value.Movement;
-                if (movement.PlayerID == userId)
+            // TODO: This does not include self, perhaps we should include this
+            var result = remotePlayersModels
+                .Select(remotePlayerModel => remotePlayerModel.Value.Movement)
+                .Where(movement => movement.PlayerID == userId)
+                .Select(movement => new UserInfo
                 {
-                    return new UserInfo
-                    {
-                        id = movement.PlayerID,
-                        name = movement.Username
-                    };
-                }
-            }
+                    id = movement.PlayerID,
+                    name = movement.Username
+                });
+
+            return result.Any() ? result.First() : null;
         }
-        return null;
     }
 
     private List<UserInfo> getUserInfosByUsername(string username)
     {
-        List<UserInfo> userInfos = new();
-        // TODO: This does not include self, perhaps we should include this
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            foreach (var remotePlayerModel in remotePlayersModels)
-            {
-                var movement = remotePlayerModel.Value.Movement;
-                if (movement.Username == username)
+            // TODO: This does not include self, perhaps we should include this
+            return remotePlayersModels
+                .Select(remotePlayerModel => remotePlayerModel.Value.Movement)
+                .Where(movement => movement.Username == username)
+                .Select(movement => new UserInfo
                 {
-                    userInfos.Add(new UserInfo
-                    {
-                        id = movement.PlayerID,
-                        name = movement.Username
-                    });
-                }
-            }
+                    id = movement.PlayerID,
+                    name = movement.Username
+                })
+                .ToList();
         }
-
-        return userInfos;
     }
 }
