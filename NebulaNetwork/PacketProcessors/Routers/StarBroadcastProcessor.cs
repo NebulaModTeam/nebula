@@ -15,11 +15,8 @@ namespace NebulaNetwork.PacketProcessors.Routers;
 [RegisterPacketProcessor]
 internal class StarBroadcastProcessor: PacketProcessor<StarBroadcastPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public StarBroadcastProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(StarBroadcastPacket packet, NebulaConnection conn)

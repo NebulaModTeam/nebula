@@ -14,11 +14,8 @@ namespace NebulaNetwork.PacketProcessors.Trash;
 [RegisterPacketProcessor]
 internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemClearAllTrashPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public TrashSystemClearAllTrashProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
@@ -26,10 +23,10 @@ internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemCl
         var valid = true;
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
+            var player = Players.Get(conn);
             if (player != null)
             {
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                Server.SendPacketExclude(packet, conn);
             }
             else
             {
