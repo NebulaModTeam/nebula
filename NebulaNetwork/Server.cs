@@ -354,7 +354,7 @@ public class Server : IServer
     }
 
     // Just to make a single entry point for all sends.
-    private void SendToPlayers<T>(IEnumerable<KeyValuePair<INebulaConnection, INebulaPlayer>> players, T packet) where T : class, new()
+    public void SendToPlayers<T>(IEnumerable<KeyValuePair<INebulaConnection, INebulaPlayer>> players, T packet) where T : class, new()
     {
         foreach (var kvp in players)
         {
