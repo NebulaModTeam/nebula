@@ -1,4 +1,4 @@
-#region
+﻿#region
 
 using System;
 using System.Collections.Concurrent;
@@ -308,6 +308,7 @@ public class Server : IServer
 
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(true);
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
         catch (Exception e)
@@ -324,6 +325,7 @@ public class Server : IServer
 
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(false);
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
         catch (Exception e)

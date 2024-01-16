@@ -1,4 +1,4 @@
-#region
+﻿#region
 
 using System;
 using System.IO;
@@ -125,6 +125,7 @@ public class Client : IClient
 
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(true);
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
         catch (Exception e)
@@ -141,6 +142,7 @@ public class Client : IClient
         Config.LoadOptions();
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(false);
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
         catch (Exception e)
