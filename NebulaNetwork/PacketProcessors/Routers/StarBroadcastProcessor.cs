@@ -13,7 +13,7 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Routers;
 
 [RegisterPacketProcessor]
-internal class StarBroadcastProcessor: PacketProcessor<StarBroadcastPacket>
+internal class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
 {
     public StarBroadcastProcessor()
     {

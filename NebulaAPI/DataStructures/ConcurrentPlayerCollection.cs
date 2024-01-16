@@ -11,9 +11,11 @@ public class ConcurrentPlayerCollection
 {
     private class ReducedConcurrentDictionary<TKey, TValue> : ConcurrentDictionary<TKey, TValue>
     {
+#pragma warning disable CA1822
         // These are disabled as they create a new snapshot copy of the existing values.
-        public ICollection<TKey> Keys => throw new InvalidOperationException("Accessing keys directly is not allowed.");
-        public ICollection<TValue> Values => throw new InvalidOperationException("Accessing keys directly is not allowed.");
+        public new ICollection<TKey> Keys => throw new InvalidOperationException("Accessing keys directly is not allowed.");
+        public new ICollection<TValue> Values => throw new InvalidOperationException("Accessing keys directly is not allowed.");
+#pragma warning restore CA1822
     }
 
     private readonly Dictionary<EConnectionStatus, ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>> playerCollections = new()

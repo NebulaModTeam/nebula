@@ -1,9 +1,7 @@
 ﻿#region
 
 using System;
-using JetBrains.Annotations;
 using NebulaAPI.GameState;
-using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaWorld.Factory;
@@ -156,7 +154,6 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         GC.SuppressFinalize(this);
     }
 
-    [Obsolete("Use Server or Client instead.")]
     public INetworkProvider Network { get; set; }
 
     public IServer Server { get; set; }
@@ -181,8 +178,6 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         Log.Info("Game load completed");
         IsGameLoaded = true;
         DiscordManager.UpdateRichPresence();
-        Multiplayer.Session.Network.PacketProcessor.EnablePacketProcessing = true;
-        Log.Info("OnGameLoadCompleted: Resume PacketProcessor");
 
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {

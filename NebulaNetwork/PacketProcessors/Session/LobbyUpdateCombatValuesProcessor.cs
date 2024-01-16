@@ -10,7 +10,7 @@ using NebulaModel.Packets.Session;
 namespace NebulaNetwork.PacketProcessors.Session
 {
     [RegisterPacketProcessor]
-    internal class LobbyUpdateCombatValuesProcessor:PacketProcessor<LobbyUpdateCombatValues>
+    internal class LobbyUpdateCombatValuesProcessor : PacketProcessor<LobbyUpdateCombatValues>
     {
         protected override void ProcessPacket(LobbyUpdateCombatValues packet, NebulaConnection conn)
         {
