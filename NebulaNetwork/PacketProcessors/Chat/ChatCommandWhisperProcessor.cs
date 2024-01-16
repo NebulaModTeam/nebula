@@ -31,12 +31,11 @@ internal class ChatCommandWhisperProcessor : PacketProcessor<ChatCommandWhisperP
             }
 
             // second case, relay message to recipient
-            var recipient = Multiplayer.Session.Network
-                .PlayerManager.GetConnectedPlayerByUsername(packet.RecipientUsername);
+            var recipient = Players.Get(packet.RecipientUsername);
             if (recipient == null)
             {
                 Log.Warn($"Recipient not found {packet.RecipientUsername}");
-                var sender = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
+                var sender = Players.Get(conn);
                 sender.SendPacket(new ChatCommandWhisperPacket("SYSTEM".Translate(), packet.SenderUsername,
                     string.Format("User not found {0}".Translate(), packet.RecipientUsername)));
                 return;

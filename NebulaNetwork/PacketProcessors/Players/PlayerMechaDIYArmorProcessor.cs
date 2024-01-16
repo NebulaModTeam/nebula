@@ -14,15 +14,13 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 public class PlayerMechaDIYArmorProcessor : PacketProcessor<PlayerMechaDIYArmor>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(PlayerMechaDIYArmor packet, NebulaConnection conn)
     {
         // store DIYAppearance and items to serve them when player connects again
         if (IsHost)
         {
             using var reader = new BinaryUtils.Reader(packet.DIYAppearanceData);
-            var player = playerManager.GetPlayer(conn);
+            var player = Players.Get(conn);
             if (player == null)
             {
                 return;

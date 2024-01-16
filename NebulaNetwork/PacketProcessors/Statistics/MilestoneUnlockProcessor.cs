@@ -15,15 +15,14 @@ internal class MilestoneUnlockProcessor : PacketProcessor<MilestoneUnlockPacket>
 {
     protected override void ProcessPacket(MilestoneUnlockPacket packet, NebulaConnection conn)
     {
-        var playerManager = Multiplayer.Session.Network.PlayerManager;
         var valid = true;
 
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
+            var player = Players.Get(conn);
             if (player != null)
             {
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                Server.SendPacketExclude(packet, conn);
             }
             else
             {

@@ -21,7 +21,7 @@ public class PlayerMechaStatProcessor : PacketProcessor<PlayerMechaStat>
             return;
         }
 
-        var player = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
+        var player = Players.Get(conn);
         if (player == null)
         {
             return;

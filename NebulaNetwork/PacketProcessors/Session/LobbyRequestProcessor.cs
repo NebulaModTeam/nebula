@@ -27,8 +27,6 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(LobbyRequest packet, NebulaConnection conn)
     {
         if (IsClient)
@@ -36,60 +34,55 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
             return;
         }
 
-        INebulaPlayer player;
-        using (playerManager.GetPendingPlayers(out var pendingPlayers))
+        INebulaPlayer player = Players.Get(conn, EConnectionStatus.Pending);
+
+        if (player is null)
         {
-            if (!pendingPlayers.TryGetValue(conn, out player))
-            {
-                Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
-                Log.Warn("WARNING: Player tried to enter lobby without being in the pending list");
-                return;
-            }
-
-            if (GameMain.isFullscreenPaused)
-            {
-                Log.Warn("Reject connection because server is still loading");
-                Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.HostStillLoading);
-                // pendingPlayers.Remove(conn);
-                return;
-            }
-
-            if (!ModsVersionCheck(packet, out var disconnectionReason, out var reasonMessage))
-            {
-                Log.Warn("Reject connection because mods mismatch");
-
-                Multiplayer.Session.Server.Disconnect(conn, disconnectionReason, reasonMessage);
-                // pendingPlayers.Remove(conn);
-                return;
-            }
+            Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
+            Log.Warn("WARNING: Player tried to enter lobby without being in the pending list");
+            return;
         }
+
+        if (GameMain.isFullscreenPaused)
+        {
+            Log.Warn("Reject connection because server is still loading");
+            Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.HostStillLoading);
+            // pendingPlayers.Remove(conn);
+            return;
+        }
+
+        if (!ModsVersionCheck(packet, out var disconnectionReason, out var reasonMessage))
+        {
+            Log.Warn("Reject connection because mods mismatch");
+
+            Multiplayer.Session.Server.Disconnect(conn, disconnectionReason, reasonMessage);
+            // pendingPlayers.Remove(conn);
+            return;
+        }
+
 
         var isNewUser = false;
 
         //TODO: some validation of client cert / generating auth challenge for the client
         // Load old data of the client
         var clientCertHash = CryptoUtils.Hash(packet.ClientCert);
-        using (playerManager.GetSavedPlayerData(out var savedPlayerData))
+        if (SaveManager.PlayerSaves.TryGetValue(clientCertHash, out var value))
         {
-            if (savedPlayerData.TryGetValue(clientCertHash, out var value))
+            var playerData = value;
             {
-                var playerData = value;
-                using (playerManager.GetConnectedPlayers(out var connectedPlayers))
+                foreach (var connectedPlayer in Players.Connected.Values.Where(connectedPlayer => connectedPlayer.Data == playerData))
                 {
-                    foreach (var connectedPlayer in connectedPlayers.Values.Where(connectedPlayer => connectedPlayer.Data == playerData))
-                    {
-                        playerData = value.CreateCopyWithoutMechaData();
-                        Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
-                    }
+                    playerData = value.CreateCopyWithoutMechaData();
+                    Log.Warn($"Copy playerData for duplicated player{playerData.PlayerId} {playerData.Username}");
                 }
+            }
 
-                player.LoadUserData(playerData);
-            }
-            else
-            {
-                // store player data once he fully loaded into the game (SyncCompleteProcessor)
-                isNewUser = true;
-            }
+            player.LoadUserData(playerData);
+        }
+        else
+        {
+            // store player data once he fully loaded into the game (SyncCompleteProcessor)
+            isNewUser = true;
         }
 
         // Add the username to the player data
@@ -108,13 +101,8 @@ public class LobbyRequestProcessor : PacketProcessor<LobbyRequest>
             // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
             var pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData(),
                 Multiplayer.Session.NumPlayers); // Remove inventory from mecha data
-            using (playerManager.GetConnectedPlayers(out var connectedPlayers))
-            {
-                foreach (var kvp in connectedPlayers)
-                {
-                    kvp.Value.SendPacket(pdata);
-                }
-            }
+
+            Server.SendPacket(pdata);
 
             //Add current tech bonuses to the connecting player based on the Host's mecha
             ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);

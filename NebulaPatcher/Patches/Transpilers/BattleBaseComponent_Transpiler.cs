@@ -104,7 +104,7 @@ internal class BattleBaseComponent_Transpiler
     {
         if (Multiplayer.IsActive && !Config.Options.SyncSoil) // Host
         {
-            using (Multiplayer.Session.Network.PlayerManager.GetConnectedPlayers(out var connectedPlayers))
+            var connectedPlayers = Multiplayer.Session.Server.Players.Connected;
             {
                 var totalPlayerCount = connectedPlayers.Count + (Multiplayer.IsDedicated ? 0 : 1);
                 if (totalPlayerCount > 0)
@@ -112,10 +112,7 @@ internal class BattleBaseComponent_Transpiler
                     // Sand gain is split between all connecting players
                     sandCount = (int)((float)sandCount / totalPlayerCount + 0.5f);
                     var packet = new PlayerSandCount(sandCount, true);
-                    foreach (var kvp in connectedPlayers)
-                    {
-                        kvp.Value.SendPacket(packet);
-                    }
+                    Multiplayer.Session.Server.SendPacket(packet);
                 }
             }
         }

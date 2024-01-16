@@ -41,8 +41,6 @@ namespace NebulaNetwork;
 
 public class Server : IServer
 {
-    [Obsolete] public IPlayerManager PlayerManager { get; } = new PlayerManager();
-
     public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
 
     private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
@@ -354,7 +352,7 @@ public class Server : IServer
     }
 
     // Just to make a single entry point for all sends.
-    private void SendToPlayers<T>(IEnumerable<KeyValuePair<INebulaConnection, INebulaPlayer>> players, T packet) where T : class, new()
+    public void SendToPlayers<T>(IEnumerable<KeyValuePair<INebulaConnection, INebulaPlayer>> players, T packet) where T : class, new()
     {
         foreach (var kvp in players)
         {

@@ -19,8 +19,6 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(HandshakeRequest packet, NebulaConnection conn)
     {
         if (IsClient)
@@ -28,15 +26,13 @@ public class HandshakeRequestProcessor : PacketProcessor<HandshakeRequest>
             return;
         }
 
-        using (playerManager.GetPendingPlayers(out var pendingPlayers))
+        var pendingPlayer = Players.Get(conn, EConnectionStatus.Pending);
+        if (pendingPlayer is null)
         {
-            if (!pendingPlayers.TryGetValue(conn, out _))
-            {
-                Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
-                Log.Warn(
-                    "WARNING: Player tried to handshake without being in the pending list. And he uses an outdated nebula version.");
-                return;
-            }
+            Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
+            Log.Warn(
+                "WARNING: Player tried to handshake without being in the pending list. And he uses an outdated nebula version.");
+            return;
         }
 
         Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.ModVersionMismatch, "Nebula;0.7.7 or earlier;0.7.8 or greater");

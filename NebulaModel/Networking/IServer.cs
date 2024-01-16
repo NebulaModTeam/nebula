@@ -25,4 +25,6 @@ public interface IServer : INetworkProvider
 
     public void Stop();
     void Disconnect(INebulaConnection conn, DisconnectionReason reason, string reasonMessage = "");
+
+    public void SendToPlayers<T>(IEnumerable<KeyValuePair<INebulaConnection, INebulaPlayer>> players, T packet) where T : class, new();
 }

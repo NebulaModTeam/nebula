@@ -18,8 +18,6 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
 {
-    private readonly IPlayerManager playerManager = Multiplayer.Session.Network.PlayerManager;
-
     protected override void ProcessPacket(SyncComplete packet, NebulaConnection conn)
     {
         if (IsHost)
@@ -43,7 +41,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
 
     private void ServerSyncComplete(SyncComplete packet, NebulaConnection conn)
     {
-        var player = playerManager.GetSyncingPlayer(conn);
+        var player = Players.Get(conn, EConnectionStatus.Syncing);
         if (player == null)
         {
             Log.Warn("Received a SyncComplete packet, but no player is joining.");
@@ -68,7 +66,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
         }
 
         var inGamePlayersDatas = Multiplayer.Session.Server.Players.GetAllPlayerData();
-        playerManager.SendPacketToAllPlayers(new SyncComplete(inGamePlayersDatas));
+        Server.SendPacket(new SyncComplete(inGamePlayersDatas));
 
         // Since the host is always in the game he could already have changed his mecha armor, so send it to the new player.
         using (var writer = new BinaryUtils.Writer())
@@ -83,7 +81,7 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
             using (var writer = new BinaryUtils.Writer())
             {
                 player.Data.Appearance.Export(writer.BinaryWriter);
-                playerManager.SendPacketToAllPlayers(new PlayerMechaArmor(player.Id, writer.CloseAndGetBytes()));
+                Server.SendPacket(new PlayerMechaArmor(player.Id, writer.CloseAndGetBytes()));
             }
 
             // and load custom appearance on host side too
