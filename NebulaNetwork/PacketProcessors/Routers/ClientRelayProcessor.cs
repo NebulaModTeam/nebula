@@ -1,11 +1,14 @@
 ﻿#region
 
+using System;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Chat;
 using NebulaModel.Packets.Routers;
 using NebulaWorld;
 
@@ -57,6 +60,27 @@ internal class ClientRelayProcessor : PacketProcessor<ClientRelayPacket>
         if (recipient == null)
         {
             Log.Warn($"Could not relay packet because client was not found with clientId: {packet.ClientUserId}");
+
+            //var packetType = ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.GetPacketTypeFromData(new NetDataReader(packet.PacketObject));
+
+            //if (packetType == new ChatCommandGiftPacket().GetType()) { }
+
+            var packetProcessor = ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor;
+
+            var reader = new NetDataReader(packet.PacketObject);
+            var packetType = packetProcessor.GetPacketTypeFromData(reader);
+
+            switch (Activator.CreateInstance(packetType))
+            {
+                case ChatCommandGiftPacket _:
+                    //var innerPacket = packetProcessor.GetPacketFromData<ChatCommandGiftPacket>(reader);
+                    Log.Warn($"Packet is ChatCommandGiftPacket");
+                    break;
+            }
+
+
+            //var failurePacket = new ClientRelayFailurePacket(packet.PacketObject, packet.ClientUserId);
+            //conn.SendPacket(failurePacket);
 
             // TODO: We might want to communicate back to the sender that the relaying failed
             return;

@@ -1,12 +1,12 @@
 ﻿namespace NebulaModel.Packets.Routers;
 
-public class ClientRelayPacket
+public class ClientRelayFailurePacket
 {
-    public ClientRelayPacket() { }
+    public ClientRelayFailurePacket() { }
 
-    public ClientRelayPacket(byte[] packetObject, ushort clientUserId)
+    public ClientRelayFailurePacket(byte[] packetObject, ushort clientUserId)
     {
-        // TODO: We should probably rename this to PacketObjectToRelay or something
+        // TODO: We should probably rename this to PacketObjectThatFailedToBeRelayed or something
         PacketObject = packetObject;
         // TODO: We should probably rename this to RecipientClientUserId or something
         ClientUserId = clientUserId;

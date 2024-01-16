@@ -291,5 +291,23 @@ namespace NebulaModel.Networking.Serialization
             _callbacksDebugInfo.Remove(GetHash<T>());
             return _callbacks.Remove(GetHash<T>());
         }
+
+        public Type GetPacketTypeFromData(NetDataReader reader)
+        {
+            var originalPosition = reader.Position;
+            var hash = reader.GetULong();
+            reader.SetPosition(originalPosition);
+            // TODO: Probably use TryGetValue instead
+            return _callbacksDebugInfo[hash];
+        }
+
+        //public T GetPacketFromData<T>(NetDataReader reader) where T : INetSerializable, new()
+        //{
+        //    var reference = new T();
+        //    var originalPosition = reader.Position;
+        //    reference.Deserialize(reader);
+        //    reader.SetPosition(originalPosition);
+        //    return reference;
+        //}
     }
 }
