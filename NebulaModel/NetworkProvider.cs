@@ -38,9 +38,6 @@ public abstract class NetworkProvider : INetworkProvider
     public abstract void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
         where T : class, new();
 
-    public abstract void SendPacketToClient<T>(T packet, ushort clientUserId)
-        where T : class, new();
-
     public abstract void Update();
 
     public abstract void Start();

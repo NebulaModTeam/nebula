@@ -130,7 +130,24 @@ public class GiftCommandHandler : IChatCommandHandler
         }
 
         var packet = new ChatCommandGiftPacket(sender.id, recipient.id, type, quantity);
-        Multiplayer.Session.Network.SendPacketToClient(packet, recipient.id);
+        if (Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            // If you are the host, you can directly send the packet to the recipient
+            var recipientConnection = Multiplayer.Session.Network.PlayerManager.GetPlayerById(recipient.id);
+            // TODO: This determination should be done before the sand acctually gets deducted (no need to do deduct sand if this fails
+            if (recipientConnection == null)
+            {
+                window.SendLocalChatMessage("Player not found: ".Translate() + recipient.name, ChatMessageType.CommandErrorMessage);
+                return;
+            }
+
+            recipientConnection.SendPacket(packet);
+        }
+        else
+        {
+            // Else send it to the host who can relay it
+            Multiplayer.Session.Network.SendPacket(packet);
+        }
 
         switch (type)
         {

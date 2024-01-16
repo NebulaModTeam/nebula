@@ -21,6 +21,26 @@ internal class ChatCommandGiftProcessor : PacketProcessor<ChatCommandGiftPacket>
 {
     protected override void ProcessPacket(ChatCommandGiftPacket packet, NebulaConnection conn)
     {
+        // If you are not the intended recipient of this packet do not process this packet
+        if (packet.RecipientUserId != Multiplayer.Session.LocalPlayer.Data.PlayerId)
+        {
+            // However if you are the host relay the packet to the recipient
+            if (IsHost)
+            {
+                var recipient = Multiplayer.Session.Network.PlayerManager.GetPlayerById(packet.RecipientUserId);
+                if (recipient != null)
+                {
+                    recipient.SendPacket(packet);
+                }
+                else
+                {
+                    Log.Warn($"Could not relay packet because recipient was not found with clientId: {packet.RecipientUserId}");
+                    // TODO: if the recipient is not found return the failure packet
+                    //conn.SendPacket(giftFailedPacket); // the giftFailedPacket needs the same kind of handling as that can also need to be relayed
+                }
+            }
+            return;
+        }
 
         //window.SendLocalChatMessage("Invalid gift type".Translate(), ChatMessageType.CommandErrorMessage);
         string senderUserName = null;
