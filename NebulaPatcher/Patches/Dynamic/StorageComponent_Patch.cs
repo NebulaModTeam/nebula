@@ -71,7 +71,8 @@ internal class StorageComponent_Patch
     [HarmonyPatch(nameof(StorageComponent.SetBans))]
     public static void SetBans_Postfix(StorageComponent __instance, int _bans)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest && GameMain.data.localPlanet != null)
+        if (Multiplayer.IsActive && !Multiplayer.Session.Storage.IsIncomingRequest &&
+            Multiplayer.Session.Storage.IsHumanInput && GameMain.data.localPlanet != null)
         {
             HandleUserInteraction(__instance, new StorageSyncSetBansPacket(__instance.id, GameMain.data.localPlanet.id, _bans));
         }

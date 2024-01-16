@@ -1,5 +1,24 @@
 ## Changelog
 
+0.9.0:
+- Now compatible with Dark Fog (DSP 0.10.x) with enemies disabled
+- @phantomgamers: fix compilation after update and overall fixes/cleanup
+- @phantomgamers: fix UIVirtualStarmap patches
+- @phantomgamers: reviewing code from other contributers
+- @starfi5h: fix runtime issues after the update and overall fixes/cleanup
+- @starfi5h: improve UI and Keybinding
+- @starfi5h: rework Wireless Power Tower syncing
+- @starfi5h: add syncing for Battlefield Analysis Base
+- @mmjr: disable dark fog switch in lobby and prevent df enabled saves to be loaded.
+- @ajh16: sync dark fog lobby settings
+- @highrizk: sync storage filters
+- @highrizk: update serializer and fix broken packets
+- @highrizk: add serialization support and unit tests for dictionaries
+- @zzarek: add turret UI syncing
+- @sp00ktober: add syncing for new mecha settings and features
+- @sp00ktober: sync mecha and battle base construction drones
+- @sp00ktober: overall NRE fixes
+
 0.8.14:
 - @starfi5h: Fix mecha animation when player count > 2  
 - @starfi5h: Fix UIPerformance save test in multiplayer  
