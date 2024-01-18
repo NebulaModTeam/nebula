@@ -1,5 +1,16 @@
 ## Changelog
 
+2.0.0:
+
+- Remove `IPlayerManager`. Use the new class `ConcurrentPlayerCollection` instead.
+- Add `IsDedicated`, `IsClient`, `IsServer` properties in `IMultiplayerSession`
+- Add `SendToMatching` method in `INetworkProvider`
+- Add `ConstructionModule`, `FightData`, `UpdateMech` in `IMechaData`
+- Add combat-related upgrade settings in `IPlayerTechBonuses`
+
+<details>
+<summary>Previous Changelog</summary>
+
 1.3.1:
 
 - Added DeliveryPackage to IMechaData and IPlayerTechBonuses
@@ -42,3 +53,5 @@
 1.0.0:
 
 - initial release on thunderstore
+
+</details>
