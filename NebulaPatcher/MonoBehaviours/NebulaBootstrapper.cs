@@ -24,7 +24,6 @@ public class NebulaBootstrapper : MonoBehaviour
     {
         if (Multiplayer.IsActive)
         {
-            //@TODO: Make this a single call
             (Multiplayer.Session.Network as IServer)?.Update();
             (Multiplayer.Session.Network as IClient)?.Update();
         }

@@ -9,22 +9,6 @@ namespace NebulaAPI.DataStructures;
 
 public class ConcurrentPlayerCollection
 {
-    private class ReducedConcurrentDictionary<TKey, TValue> : ConcurrentDictionary<TKey, TValue>
-    {
-#pragma warning disable CA1822
-        // These are disabled as they create a new snapshot copy of the existing values.
-        public new ICollection<TKey> Keys => throw new InvalidOperationException("Accessing keys directly is not allowed.");
-        public new ICollection<TValue> Values => throw new InvalidOperationException("Accessing keys directly is not allowed.");
-#pragma warning restore CA1822
-    }
-
-    private readonly Dictionary<EConnectionStatus, ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>> playerCollections = new()
-    {
-        { EConnectionStatus.Pending, new ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>() },
-        { EConnectionStatus.Syncing, new ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>() },
-        { EConnectionStatus.Connected, new ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>() },
-    };
-
     /// <summary>
     /// Get a key value pair collection of pending players.
     /// </summary>
@@ -157,4 +141,20 @@ public class ConcurrentPlayerCollection
 
         return saves;
     }
+
+    private class ReducedConcurrentDictionary<TKey, TValue> : ConcurrentDictionary<TKey, TValue>
+    {
+#pragma warning disable CA1822
+        // These are disabled as they create a new snapshot copy of the existing values.
+        public new ICollection<TKey> Keys => throw new InvalidOperationException("Accessing keys directly is not allowed.");
+        public new ICollection<TValue> Values => throw new InvalidOperationException("Accessing keys directly is not allowed.");
+#pragma warning restore CA1822
+    }
+
+    private readonly Dictionary<EConnectionStatus, ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>> playerCollections = new()
+    {
+        { EConnectionStatus.Pending, new ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>() },
+        { EConnectionStatus.Syncing, new ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>() },
+        { EConnectionStatus.Connected, new ReducedConcurrentDictionary<INebulaConnection, INebulaPlayer>() },
+    };
 }

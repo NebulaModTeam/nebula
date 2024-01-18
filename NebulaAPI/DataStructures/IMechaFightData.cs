@@ -4,7 +4,6 @@ namespace NebulaAPI.DataStructures
 {
     public interface IMechaFightData
     {
-        // TODO: what about spaceSector? Will it be synced in dynamically? Or should it be stored?
         bool AutoReplenishFuel { get; set; }
         bool AutoReplenishAmmo { get; set; }
         bool AutoReplenishHangar { get; set; }

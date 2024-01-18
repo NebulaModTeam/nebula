@@ -103,25 +103,6 @@ public class NebulaConnection : INebulaConnection
         }
     }
 
-    // public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
-    // {
-    //     if (string.IsNullOrEmpty(reasonString))
-    //     {
-    //         peerSocket.Close((ushort)reason);
-    //     }
-    //     else
-    //     {
-    //         if (Encoding.UTF8.GetBytes(reasonString).Length <= 123)
-    //         {
-    //             peerSocket.Close((ushort)reason, reasonString);
-    //         }
-    //         else
-    //         {
-    //             throw new ArgumentException("Reason string cannot take up more than 123 bytes");
-    //         }
-    //     }
-    // }
-
     public static bool operator ==(NebulaConnection left, NebulaConnection right)
     {
         return Equals(left, right);

@@ -102,6 +102,7 @@ public class NebulaModAPI : BaseUnityPlugin
     /// </summary>
     public static IMultiplayerSession MultiplayerSession { get; private set; }
 
+    // internal use
     public static void OnMultiplayerSessionChange(bool isActive)
     {
         IsMultiplayerActive = isActive;

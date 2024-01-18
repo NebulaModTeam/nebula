@@ -32,7 +32,7 @@ internal class Player_Patch
                 var deltaSandCount = (int)(newSandCount - GameMain.mainPlayer.sandCount);
                 if (deltaSandCount != 0)
                 {
-                    UpdateSyncedSandCount(newSandCount - GameMain.mainPlayer.sandCount);
+                    UpdateSyncedSandCount(deltaSandCount);
                     Multiplayer.Session.Server.SendPacket(new PlayerSandCount(newSandCount));
                 }
                 break;
