@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -63,7 +63,7 @@ namespace NebulaModel.Networking.Serialization
                 netDataWriter.Put(bytes);
                 return netDataWriter;
             }
-            return new NetDataWriter(true, 0) {_data = bytes, _position = bytes.Length};
+            return new NetDataWriter(true, 0) { _data = bytes, _position = bytes.Length };
         }
 
         /// <summary>

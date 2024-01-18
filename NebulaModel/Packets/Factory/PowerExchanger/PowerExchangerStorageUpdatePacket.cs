@@ -18,6 +18,5 @@ public class PowerExchangerStorageUpdatePacket
     public short EmptyAccumulatorCount { get; set; }
     public short FullAccumulatorCount { get; set; }
     public int PlanetId { get; set; }
-    
     public int Inc { get; set; }
 }

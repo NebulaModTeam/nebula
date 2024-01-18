@@ -354,16 +354,6 @@ internal class GameData_Patch
         gameData.mainPlayer.controller.velocityOnLanding = Vector3.zero;
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(GameData.OnDraw))]
-    public static void OnDraw_Postfix()
-    {
-        if (Multiplayer.IsActive)
-        {
-            Multiplayer.Session.World.OnDronesDraw();
-        }
-    }
-
     [HarmonyPrefix]
     [HarmonyPatch(nameof(GameData.LeaveStar))]
     public static void LeaveStar_Prefix(GameData __instance)

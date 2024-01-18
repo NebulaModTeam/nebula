@@ -11,16 +11,6 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(Mecha))]
 internal class Mecha_Patch
 {
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(Mecha.GameTick))]
-    public static void GameTick_Postfix(float dt)
-    {
-        if (Multiplayer.IsActive)
-        {
-            Multiplayer.Session.World.OnDronesGameTick(dt);
-        }
-    }
-
     [HarmonyPrefix]
     [HarmonyPatch(nameof(Mecha.GenerateEnergy))]
     public static bool Mecha_GenerateEnergy_Prefix(Mecha __instance)
