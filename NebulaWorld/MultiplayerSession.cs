@@ -4,6 +4,7 @@ using System;
 using NebulaAPI.GameState;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaWorld.Combat;
 using NebulaWorld.Factory;
 using NebulaWorld.GameDataHistory;
 using NebulaWorld.GameStates;
@@ -38,6 +39,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
 
         LocalPlayer = new LocalPlayer();
         World = new SimulatedWorld();
+        Combat = new CombatManager();
         Factories = new FactoryManager();
         Storage = new StorageManager();
         PowerTowers = new PowerTowerManager();
@@ -60,6 +62,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     }
 
     public SimulatedWorld World { get; set; }
+    public CombatManager Combat { get; set; }
     public StorageManager Storage { get; set; }
     public PowerTowerManager PowerTowers { get; set; }
     public BeltManager Belts { get; set; }
@@ -100,6 +103,9 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
 
         World?.Dispose();
         World = null;
+
+        Combat?.Dispose();
+        Combat = null;
 
         Factories?.Dispose();
         Factories = null;
