@@ -388,7 +388,7 @@ public class Server : IServer
 
     public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
-        var starId = GameMain.data.localStar.id;
+        var starId = GameMain.data.localStar?.id ?? -1;
         SendPacketToStar(packet, starId);
     }
 
@@ -399,7 +399,7 @@ public class Server : IServer
 
     public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
     {
-        var planetId = GameMain.data.mainPlayer.planetId;
+        var planetId = GameMain.data.localPlanet?.id ?? -1;
         SendPacketToPlanet(packet, planetId);
     }
 

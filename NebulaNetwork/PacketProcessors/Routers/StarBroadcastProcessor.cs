@@ -1,8 +1,6 @@
 ﻿#region
 
-using NebulaAPI.GameState;
 using NebulaAPI.Packets;
-using NebulaModel;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Routers;
@@ -25,7 +23,7 @@ internal class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
         if (IsHost)
             Multiplayer.Session.Server.SendToMatching(packet, p =>
                 p.Data.LocalStarId == packet.StarId &&
-                p.Connection.Equals(conn)
+                !p.Connection.Equals(conn)
             );
 
         //Forward packet data to be processed

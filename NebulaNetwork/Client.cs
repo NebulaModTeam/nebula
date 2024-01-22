@@ -175,12 +175,12 @@ public class Client : IClient
 
     public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
-        serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
+        serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.data.localStar?.id ?? -1));
     }
 
     public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
     {
-        serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
+        serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.data.localPlanet?.id ?? -1));
     }
 
     public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
