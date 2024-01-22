@@ -109,50 +109,57 @@ public class GiftCommandHandler : IChatCommandHandler
             return;
         }
 
-        // Validate that you acctually have the required soil/items/energy to gift
-        switch (type)
-        {
-            case ChatCommandGiftType.Soil:
-                var mainPlayer = GameMain.data.mainPlayer;
-                lock (mainPlayer)
-                {
-                    if (mainPlayer.sandCount < quantity)
-                    {
-                        window.SendLocalChatMessage("You dont have enough soil to send, can't send gift".Translate(), ChatMessageType.CommandErrorMessage);
-                        return;
-                    }
-
-                    mainPlayer.SetSandCount(mainPlayer.sandCount - quantity);
-                    // TODO: Do we need to do something with soil sync?
-                }
-                break;
-                // TODO: Implement Item and Energy variants.
-        }
-
-        var packet = new ChatCommandGiftPacket(sender.id, recipient.id, type, quantity);
+        Action<ChatCommandGiftPacket> sendPacket;
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
             // If you are the host, you can directly send the packet to the recipient
             var recipientConnection = Multiplayer.Session.Network.PlayerManager.GetPlayerById(recipient.id);
-            // TODO: This determination should be done before the sand acctually gets deducted (no need to do deduct sand if this fails
             if (recipientConnection == null)
             {
-                window.SendLocalChatMessage("Player not found: ".Translate() + recipient.name, ChatMessageType.CommandErrorMessage);
+                window.SendLocalChatMessage("Invalid recipient (no connection), can't send gift".Translate(), ChatMessageType.CommandErrorMessage);
                 return;
             }
 
-            recipientConnection.SendPacket(packet);
+            sendPacket = (packet) =>
+            {
+                recipientConnection.SendPacket(packet);
+            };
         }
         else
         {
             // Else send it to the host who can relay it
-            Multiplayer.Session.Network.SendPacket(packet);
+            sendPacket = (packet) =>
+            {
+                Multiplayer.Session.Network.SendPacket(packet);
+            };
         }
 
+        // Validate that you actually have the required soil/items/energy to gift
         switch (type)
         {
             case ChatCommandGiftType.Soil:
-                window.SendLocalChatMessage($"[{DateTime.Now:HH:mm}] You gifted [{recipient.id}] {recipient.name} soil ({packet.Quantity})", ChatMessageType.SystemInfoMessage);
+                var packet = new ChatCommandGiftPacket(sender.id, recipient.id, type, quantity);
+                var mainPlayer = GameMain.data.mainPlayer;
+                bool sufficient;
+                lock (mainPlayer)
+                {
+                    var remainingSand = mainPlayer.sandCount - quantity;
+                    sufficient = remainingSand >= 0;
+                    if (sufficient)
+                    {
+                        sendPacket(packet);
+                        mainPlayer.SetSandCount(remainingSand);
+                        // TODO: Do we need to do something with soil sync?
+                    }
+                }
+
+                if (!sufficient)
+                {
+                    window.SendLocalChatMessage("You dont have enough soil to send, can't send gift".Translate(), ChatMessageType.CommandErrorMessage);
+                    return;
+                }
+                // TODO: I don't think this is translatable since it contains dynamic data, look into this
+                window.SendLocalChatMessage($"[{DateTime.Now:HH:mm}] You gifted [{recipient.id}] {recipient.name} soil ({quantity})".Translate(), ChatMessageType.SystemInfoMessage);
                 break;
                 // TODO: Implement Item and Energy variants.
         }
@@ -165,7 +172,7 @@ public class GiftCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return ["<player> <type> <quantity>"];
+        return ["<player name|id> <soil|item|energy> <quantity>"];
     }
 
     // TODO: We should add logic here that acctually adds the gifted materials (and devise something to substract the materials)
