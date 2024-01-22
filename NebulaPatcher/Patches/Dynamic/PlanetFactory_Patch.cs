@@ -4,6 +4,7 @@ using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Factory.Assembler;
 using NebulaModel.Packets.Factory.Ejector;
@@ -720,4 +721,27 @@ internal class PlanetFactory_patch
             stationComponent.idleShipCount = __state.Item4;
         }
     }
+
+    #region Combat
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.KillEnemyFinally))]
+    public static void KillEnemyFinally_Prefix(PlanetFactory __instance, int enemyId)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        {
+            return;
+        }
+
+        if (enemyId <= 0)
+        {
+            return;
+        }
+
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new KillEnemyPacket(__instance.planetId, enemyId));
+    }
+
+    #endregion
+
 }
