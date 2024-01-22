@@ -55,6 +55,7 @@ public class RemotePlayerModel
         {
             PlayerInstance.mecha = MechaInstance;
             MechaInstance.Init(GameMain.data, PlayerInstance);
+            PlayerInstance.animator = Animator.PlayerAnimator;
 
             //Fix MechaDroneRenderers
             //todo:replace
