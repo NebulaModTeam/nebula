@@ -4,6 +4,7 @@ using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameHistory;
+using NebulaModel.Packets.Combat;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Statistics;
 using NebulaModel.Packets.Trash;
@@ -33,14 +34,23 @@ internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRe
 
         using (var writer = new BinaryUtils.Writer())
         {
-            GameMain.data.trashSystem.Export(writer.BinaryWriter);
-            conn.SendPacket(new TrashSystemResponseDataPacket(writer.CloseAndGetBytes()));
+            // Initial syncing from vanilla, to be refined later in future.
+            GameMain.data.spaceSector.BeginSave();
+            GameMain.data.spaceSector.Export(writer.BinaryWriter);
+            GameMain.data.spaceSector.EndSave();
+            conn.SendPacket(new SpaceSectorResponseDataPacket(writer.CloseAndGetBytes()));
         }
 
         using (var writer = new BinaryUtils.Writer())
         {
             GameMain.data.milestoneSystem.Export(writer.BinaryWriter);
             conn.SendPacket(new MilestoneDataResponse(writer.CloseAndGetBytes()));
+        }
+
+        using (var writer = new BinaryUtils.Writer())
+        {
+            GameMain.data.trashSystem.Export(writer.BinaryWriter);
+            conn.SendPacket(new TrashSystemResponseDataPacket(writer.CloseAndGetBytes()));
         }
     }
 }
