@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using NebulaAPI.DataStructures;
 using NebulaModel.DataStructures;
 using UnityEngine;
@@ -24,6 +23,7 @@ public class CombatManager : IDisposable
         public ushort id;
         public int planetId;
         public Vector3 position;
+        public VectorLF3 uPostion;
     }
 
     public PlayerPosition[] Players; // include self
@@ -63,6 +63,7 @@ public class CombatManager : IDisposable
             Players[0].id = Multiplayer.Session.LocalPlayer.Id;
             Players[0].planetId = GameMain.localPlanet?.id ?? -1;
             Players[0].position = GameMain.mainPlayer.position;
+            Players[0].uPostion = GameMain.mainPlayer.uPosition;
             ActivedPlanets.Add(Players[0].planetId);
             var index = 1;
             foreach (var pair in remotePlayersModels)
@@ -71,8 +72,35 @@ public class CombatManager : IDisposable
                 Players[index].id = pair.Key;
                 Players[index].planetId = snapshot.LocalPlanetId;
                 Players[index].position = snapshot.LocalPlanetPosition.ToVector3();
+                Players[index].uPostion = snapshot.UPosition.ToVectorLF3();
                 ActivedPlanets.Add(snapshot.LocalPlanetId);
                 ++index;
+            }
+        }
+
+        if (Multiplayer.Session.IsClient)
+        {
+            return;
+        }
+
+        // ActivateNearbyEnemyBase
+        for (var pid = 0; pid < Players.Length; pid++)
+        {
+            var planet = GameMain.galaxy.PlanetById(Players[pid].planetId);
+            if (planet != null && planet.factoryLoaded)
+            {
+                var bases = planet.factory.enemySystem.bases;
+                var buffer = bases.buffer;
+                var enemyPool = planet.factory.enemyPool;
+                GameMain.data.spaceSector.InverseTransformToAstro_ref(planet.astroId, ref Players[pid].uPostion, out var vectorLF);
+                for (var i = 1; i < bases.cursor; i++)
+                {
+                    var dfgbaseComponent = buffer[i];
+                    if (dfgbaseComponent != null && dfgbaseComponent.id == i && (enemyPool[dfgbaseComponent.enemyId].pos - vectorLF).sqrMagnitude < 8100.0)
+                    {
+                        dfgbaseComponent.UnderAttack(vectorLF, 50f, 120);
+                    }
+                }
             }
         }
     }

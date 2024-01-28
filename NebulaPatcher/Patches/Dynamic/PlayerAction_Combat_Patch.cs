@@ -1,6 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
+using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaModel.Packets.Combat.Mecha;
 using NebulaWorld;
 
@@ -11,6 +12,51 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(PlayerAction_Combat))]
 internal class PlayerAction_Combat_Patch
 {
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlayerAction_Combat.ActivateBaseEnemyManually))]
+    public static bool ActivateBaseEnemyManually_Prefix(PlayerAction_Combat __instance)
+    {
+        if (!Multiplayer.IsActive)
+        {
+            return true;
+        }
+
+        if (__instance.localPlanet != null && __instance.localPlanet.factoryLoaded)
+        {
+            var raycastLogic = __instance.localPlanet.physics.raycastLogic;
+            DFGBaseComponent dFGBase;
+            if (raycastLogic.castEnemy.id > 0)
+            {
+                dFGBase = __instance.localPlanet.factory.enemySystem.bases.buffer[raycastLogic.castEnemy.owner];
+            }
+            else if (raycastLogic.castEnemyBaseId > 0)
+            {
+                dFGBase = __instance.localPlanet.factory.enemySystem.bases.buffer[raycastLogic.castEnemyBaseId];
+            }
+            else
+            {
+                return false;
+            }
+
+            if (dFGBase.activeTick > 0)
+            {
+                return false;
+            }
+            dFGBase.activeTick = 6;
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new ActivateBasePacket(__instance.localPlanet.id, dFGBase.id));
+        }
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlayerAction_Combat.ActivateNearbyEnemyBase))]
+    public static bool ActivateNearbyEnemy_Prefix()
+    {
+        // Trigger nearby enemy in CombatManager.GameTick()
+        return !Multiplayer.IsActive;
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(PlayerAction_Combat.ShootTarget))]
     public static void ShootTarget_Postfix(PlayerAction_Combat __instance, EAmmoType ammoType, in SkillTarget target, bool __result)
