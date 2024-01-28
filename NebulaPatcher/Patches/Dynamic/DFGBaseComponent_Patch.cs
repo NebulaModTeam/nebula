@@ -170,4 +170,17 @@ internal class DFGBaseComponent_Patch
         // Note: Figure out hatred mechanism in the future
         return false;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(DFGBaseComponent.LaunchAssault))]
+    public static bool LaunchAssault_Prefix(DFGBaseComponent __instance, Vector3 tarPos, float expandRadius,
+        int unitCount0, int unitCount1, int ap0, int ap1, int unitThreat)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return Multiplayer.Session.Combat.IsIncomingRequest.Value;
+
+        var packet = new LaunchAssaultPacket(__instance, in tarPos, expandRadius, unitCount0, unitCount1, ap0, ap1, unitThreat);
+        Multiplayer.Session.Network.SendPacketToStar(packet, __instance.groundSystem.planet.star.id);
+        return true;
+    }
 }
