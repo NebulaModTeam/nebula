@@ -12,6 +12,51 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class EnemyDFGroundSystem_Patch
 {
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.ExecuteDeferredEnemyChange))]
+    public static bool ExecuteDeferredEnemyChange_Prefix(EnemyDFGroundSystem __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        if (Multiplayer.Session.IsClient)
+        {
+            // Wait for server to authorize
+            if (__instance._rmv_id_list != null && __instance._rmv_id_list.Count > 0)
+            {
+                __instance._rmv_id_list.Clear();
+            }
+            if (__instance._add_bidx_list != null && __instance._add_bidx_list.Count > 0)
+            {
+                __instance._add_bidx_list.Clear();
+            }
+            return false;
+        }
+
+        var planetId = __instance.planet.id;
+        var starId = __instance.planet.star.id;
+        if (__instance._rmv_id_list != null && __instance._rmv_id_list.Count > 0)
+        {
+            foreach (var enemyId in __instance._rmv_id_list)
+            {
+                var packet = new DeferredRemoveEnemyPacket(planetId, enemyId);
+                Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                __instance.factory.RemoveEnemyFinal(enemyId);
+            }
+            __instance._rmv_id_list.Clear();
+        }
+        if (__instance._add_bidx_list != null && __instance._add_bidx_list.Count > 0)
+        {
+            foreach (var (baseId, builderIndex) in __instance._add_bidx_list)
+            {
+                var packet = new DeferredCreateEnemyPacket(planetId, baseId, builderIndex);
+                Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                __instance.factory.CreateEnemyFinal(baseId, builderIndex);
+            }
+            __instance._add_bidx_list.Clear();
+        }
+        return false;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFGroundSystem.InitiateUnitDeferred))]
     public static bool InitiateUnitDeferred_Prefix()
     {
@@ -21,9 +66,24 @@ internal class EnemyDFGroundSystem_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFGroundSystem.ExecuteDeferredUnitFormation))]
-    public static void ExecuteDeferredUnitFormation_Prefix(EnemyDFGroundSystem __instance)
+    public static bool ExecuteDeferredUnitFormation_Prefix(EnemyDFGroundSystem __instance)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsClient) return;
+        if (!Multiplayer.IsActive) return true;
+
+        if (__instance._initiate_unit_list != null && __instance._initiate_unit_list.Count > 0)
+        {
+            __instance._initiate_unit_list.Clear();
+        }
+
+        if (Multiplayer.Session.IsClient)
+        {
+            // Wait for server to authorize
+            if (__instance._deactivate_unit_list != null && __instance._deactivate_unit_list.Count > 0)
+            {
+                __instance._deactivate_unit_list.Clear();
+            }
+            return false;
+        }
 
         if (__instance._deactivate_unit_list != null && __instance._deactivate_unit_list.Count > 0)
         {
@@ -33,7 +93,10 @@ internal class EnemyDFGroundSystem_Patch
             {
                 var packet = new DeactivateGroundUnitPacket(planetId, unitId);
                 Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                __instance.DeactivateUnit(unitId);
             }
+            __instance._deactivate_unit_list.Clear();
         }
+        return false;
     }
 }
