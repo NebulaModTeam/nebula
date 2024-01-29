@@ -2,7 +2,6 @@
 
 using System;
 using HarmonyLib;
-using Microsoft.SqlServer.Server;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
 using UnityEngine;
@@ -28,6 +27,7 @@ internal class DFGBaseComponent_Patch
     public static bool ActiveAllUnit_Prefix(DFGBaseComponent __instance, long gameTick)
     {
         if (!Multiplayer.IsActive) return true;
+        if (!Multiplayer.Session.Combat.IsIncomingRequest.Value) return false;
 
         ref var ptr = ref __instance.groundSystem.units.buffer;
         var cursor = __instance.groundSystem.units.cursor;
@@ -38,12 +38,11 @@ internal class DFGBaseComponent_Patch
                 var behavior = ptr[i].behavior;
                 if (behavior != EEnemyBehavior.Initial && behavior != EEnemyBehavior.Defense)
                 {
-                    ptr[i].stateTick = 120;
+                    ptr[i].stateTick = 240; // active tick (3+1) * keyFrame 60
                 }
             }
         }
 
-        if (Multiplayer.Session.IsClient) return false;
         var formLength = __instance.forms.Length;
         for (var formId = 0; formId < formLength; formId++)
         {
@@ -57,14 +56,7 @@ internal class DFGBaseComponent_Patch
                     if (unitId > 0)
                     {
                         ptr[unitId].behavior = EEnemyBehavior.KeepForm;
-                        ptr[unitId].stateTick = 120;
-
-                        // Broadcast the active unit event to clients
-                        var planetId = __instance.groundSystem.planet.id;
-                        var starId = __instance.groundSystem.planet.star.id;
-                        Multiplayer.Session.Network.SendPacketToStar(
-                            new ActivateGroundUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, 120),
-                            starId);
+                        ptr[unitId].stateTick = 240; // active tick (3+1) * keyFrame 60
                     }
                 }
             }

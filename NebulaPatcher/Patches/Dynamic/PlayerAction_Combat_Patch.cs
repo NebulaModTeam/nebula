@@ -42,9 +42,21 @@ internal class PlayerAction_Combat_Patch
             {
                 return false;
             }
-            dFGBase.activeTick = 6;
-            Multiplayer.Session.Network.SendPacketToLocalStar(
-                new ActivateBasePacket(__instance.localPlanet.id, dFGBase.id));
+            dFGBase.activeTick = 3; // keyTick = 1 sec, trigger every 3s
+            var packet = new ActivateBasePacket(__instance.localPlanet.id, dFGBase.id);
+            if (Multiplayer.Session.IsServer)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+                using (Multiplayer.Session.Combat.IsIncomingRequest.On())
+                {
+                    dFGBase.ActiveAllUnit(GameMain.gameTick);
+                }
+            }
+            else
+            {
+                // Request for ActiveAllUnit
+                Multiplayer.Session.Network.SendPacket(packet);
+            }
         }
         return false;
     }

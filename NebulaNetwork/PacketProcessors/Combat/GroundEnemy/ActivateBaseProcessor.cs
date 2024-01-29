@@ -19,16 +19,15 @@ public class ActivateBaseProcessor : PacketProcessor<ActivateBasePacket>
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;
 
-        var DFBase = factory.enemySystem.bases.buffer[packet.BaseId];
-        if (IsHost)
+        if (IsHost) // Forward and approve the active base event
         {
-            DFBase.activeTick = 6;
             Multiplayer.Session.Network.SendPacketToStar(packet, factory.planet.star.id);
         }
-        else
+        var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
+        dFBase.activeTick = 3;
+        using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
-            DFBase.activeTick = 6;
-            return;
+            dFBase.ActiveAllUnit(GameMain.gameTick);
         }
     }
 }
