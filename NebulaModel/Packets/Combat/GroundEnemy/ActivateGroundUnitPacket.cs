@@ -4,20 +4,22 @@ public class ActivateGroundUnitPacket
 {
     public ActivateGroundUnitPacket() { }
 
-    public ActivateGroundUnitPacket(int planetId, int baseId, int formId, int portId, byte behavior, byte stateTick)
+    public ActivateGroundUnitPacket(int planetId, int baseId, int formId, int portId, byte behavior, int stateTick, int unitId)
     {
         PlanetId = planetId;
-        BaseId = baseId;
-        FormId = formId;
-        PortId = portId;
+        BaseId = (ushort)baseId;
+        FormId = (byte)formId;          // current max: 2
+        PortId = (ushort)portId;        // current max: 1440
         Behavior = behavior;
-        StateTick = stateTick;
+        StateTick = (short)stateTick;   // current max: 120
+        UnitId = (ushort)unitId;
     }
 
     public int PlanetId { get; set; }
-    public int BaseId { get; set; }
-    public int FormId { get; set; }
-    public int PortId { get; set; }
+    public ushort BaseId { get; set; }
+    public byte FormId { get; set; }
+    public ushort PortId { get; set; }
     public byte Behavior { get; set; }
-    public byte StateTick { get; set; }
+    public short StateTick { get; set; }
+    public ushort UnitId { get; set; }
 }

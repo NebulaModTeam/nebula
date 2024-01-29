@@ -88,7 +88,7 @@ internal class DFGBaseComponent_Patch
                     var planetId = __instance.groundSystem.planet.id;
                     var starId = __instance.groundSystem.planet.star.id;
                     Multiplayer.Session.Network.SendPacketToStar(
-                        new ActivateGroundUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, 120),
+                        new ActivateGroundUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, 120, unitId),
                         starId);
                 }
             }
@@ -143,7 +143,7 @@ internal class DFGBaseComponent_Patch
                             var planetId = __instance.groundSystem.planet.id;
                             var starId = __instance.groundSystem.planet.star.id;
                             Multiplayer.Session.Network.SendPacketToStar(
-                                new ActivateGroundUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, (byte)setStateTick),
+                                new ActivateGroundUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, setStateTick, unitId),
                                 starId);
                         }
                     }
