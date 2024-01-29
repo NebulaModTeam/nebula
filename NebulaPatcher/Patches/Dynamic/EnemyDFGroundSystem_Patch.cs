@@ -99,4 +99,23 @@ internal class EnemyDFGroundSystem_Patch
         }
         return false;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.NotifyEnemyKilled))]
+    public static bool NotifyEnemyKilled_Prefix()
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+        // Wait for server to authorize
+        return Multiplayer.Session.Combat.IsIncomingRequest;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.PostKeyTick))]
+    public static bool PostKeyTick_Prefix()
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+        // Don't remove unit in formation because it may still waiting for server
+        return false;
+    }
+
 }
