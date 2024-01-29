@@ -4,6 +4,7 @@ using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
+using NebulaWorld;
 
 #endregion
 
@@ -17,6 +18,9 @@ public class DeactivateGroundUnitProcessor : PacketProcessor<DeactivateGroundUni
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;
 
-        factory.enemySystem.DeactivateUnit(packet.UnitId);
+        using (Multiplayer.Session.Combat.IsIncomingRequest.On())
+        {
+            factory.enemySystem.DeactivateUnit(packet.UnitId);
+        }
     }
 }
