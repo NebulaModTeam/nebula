@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using NebulaAPI.Interfaces;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 
 namespace NebulaModel.Networking.Serialization;
 
-public class NebulaNetPacketProcessor : NetPacketProcessor
+public class NebulaNetPacketProcessor : NetPacketProcessor, INetPacketProcessor
 {
     // Packet simulation stuff
     private readonly Dictionary<ulong, Type> _callbacksDebugInfo = [];
@@ -24,7 +25,7 @@ public class NebulaNetPacketProcessor : NetPacketProcessor
     /// <summary>
     /// Whether or not packet processing is enabled
     /// </summary>
-    public bool Enable { get; set; } = true;
+    public bool EnablePacketProcessing { get; set; } = true;
 
     public NebulaNetPacketProcessor()
     {
@@ -59,7 +60,7 @@ public class NebulaNetPacketProcessor : NetPacketProcessor
         {
             ProcessDelayedPackets();
 
-            while (pendingPackets.Count > 0 && Enable)
+            while (pendingPackets.Count > 0 && EnablePacketProcessing)
             {
                 var packet = pendingPackets.Dequeue();
                 ReadPacket(new NetDataReader(packet.Data), packet.UserData);
@@ -94,6 +95,11 @@ public class NebulaNetPacketProcessor : NetPacketProcessor
                 delayedPackets.RemoveRange(0, deleteCount);
             }
         }
+    }
+
+    public void EnqueuePacketForProcessing<T>(T packet, object userData) where T : class, new()
+    {
+        EnqueuePacketForProcessing(Write(packet), userData);
     }
 
     public void EnqueuePacketForProcessing(byte[] rawData, object userData)

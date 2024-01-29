@@ -1,7 +1,9 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using NebulaAPI.GameState;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
@@ -17,27 +19,28 @@ public static class SaveManager
     private const string FILE_EXTENSION = ".server";
     private const ushort REVISION = 8;
 
+    private static readonly Dictionary<string, IPlayerData> playerSaves = new();
+    public static IReadOnlyDictionary<string, IPlayerData> PlayerSaves => playerSaves;
+
     public static void SaveServerData(string saveName)
     {
         var path = GameConfig.gameSaveFolder + saveName + FILE_EXTENSION;
-        var playerManager = Multiplayer.Session.Network.PlayerManager;
+        // var playerManager = Multiplayer.Session.Network.PlayerManager;
         var netDataWriter = new NetDataWriter();
         netDataWriter.Put("REV");
         netDataWriter.Put(REVISION);
 
-        using (playerManager.GetSavedPlayerData(out var savedPlayerData))
+        netDataWriter.Put(playerSaves.Count + 1);
+        //Add data about all players
+        foreach (var data in playerSaves)
         {
-            netDataWriter.Put(savedPlayerData.Count + 1);
-            //Add data about all players
-            foreach (var data in savedPlayerData)
-            {
-                var hash = data.Key;
-                netDataWriter.Put(hash);
-                data.Value.Serialize(netDataWriter);
-            }
-            Log.Info(
-                $"Saving server data to {saveName + FILE_EXTENSION}, Revision:{REVISION} PlayerCount:{savedPlayerData.Count}");
+            var hash = data.Key;
+            netDataWriter.Put(hash);
+            data.Value.Serialize(netDataWriter);
         }
+
+        Log.Info(
+            $"Saving server data to {saveName + FILE_EXTENSION}, Revision:{REVISION} PlayerCount:{playerSaves.Count}");
 
         //Add host's data
         netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash());
@@ -64,6 +67,7 @@ public static class SaveManager
         {
             return;
         }
+
         if (File.Exists(str5))
         {
             File.Delete(str5);
@@ -91,8 +95,8 @@ public static class SaveManager
     {
         var path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
 
-        var playerManager = Multiplayer.Session.Network.PlayerManager;
-        if (!File.Exists(path) || playerManager == null)
+        // var playerManager = Multiplayer.Session.Network.PlayerManager;
+        if (!File.Exists(path))
         {
             return;
         }
@@ -127,32 +131,41 @@ public static class SaveManager
 
         var playerNum = netDataReader.GetInt();
 
-        using (playerManager.GetSavedPlayerData(out var savedPlayerData))
-        {
-            for (var i = 0; i < playerNum; i++)
-            {
-                var hash = netDataReader.GetString();
-                PlayerData playerData = null;
-                switch (revision)
-                {
-                    case REVISION:
-                        playerData = netDataReader.Get(() => new PlayerData());
-                        break;
-                    case >= 5:
-                        playerData = new PlayerData();
-                        playerData.Import(netDataReader, revision);
-                        break;
-                }
 
-                if (!savedPlayerData.ContainsKey(hash) && playerData != null)
-                {
-                    savedPlayerData.Add(hash, playerData);
-                }
-                else if (playerData == null)
-                {
-                    Log.Warn($"could not load player data from unsupported save file revision {revision}");
-                }
+        for (var i = 0; i < playerNum; i++)
+        {
+            var hash = netDataReader.GetString();
+            PlayerData playerData = null;
+            switch (revision)
+            {
+                case REVISION:
+                    playerData = netDataReader.Get(() => new PlayerData());
+                    break;
+                case >= 5:
+                    playerData = new PlayerData();
+                    playerData.Import(netDataReader, revision);
+                    break;
+            }
+
+            if (playerSaves.ContainsKey(hash) && playerData != null)
+            {
+                playerSaves.Add(hash, playerData);
+            }
+            else if (playerData == null)
+            {
+                Log.Warn($"could not load player data from unsupported save file revision {revision}");
             }
         }
+    }
+
+    public static bool TryAdd(string clientCertHash, IPlayerData playerData)
+    {
+        if (playerSaves.ContainsKey(clientCertHash))
+        {
+            return false;
+        }
+
+        playerSaves.Add(clientCertHash, playerData);
+        return true;
     }
 }

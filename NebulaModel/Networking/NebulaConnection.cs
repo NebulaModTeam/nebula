@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
-using NebulaAPI.Packets;
+using NebulaAPI.Networking;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using WebSocketSharp;
@@ -16,19 +16,40 @@ namespace NebulaModel.Networking;
 public class NebulaConnection : INebulaConnection
 {
     private readonly NebulaNetPacketProcessor packetProcessor;
+
     private readonly EndPoint peerEndpoint;
-    private readonly WebSocket peerSocket;
+
+    // Temporarily public until refactor finished
+    public WebSocket peerSocket { get; private set; }
+
     private readonly Queue<byte[]> pendingPackets = new();
     private bool enable = true;
+    private EConnectionStatus connectionStatus = EConnectionStatus.Undefined;
+
+    public bool IsAlive => peerSocket?.IsAlive ?? false;
+
+    public int Id { get; }
+
+    public EConnectionStatus ConnectionStatus
+    {
+        get => connectionStatus;
+        set
+        {
+            if (value < connectionStatus)
+                throw new InvalidOperationException("Connection Status cannot be rolled back to a lower state.");
+
+            connectionStatus = value;
+        }
+    }
 
     public NebulaConnection(WebSocket peerSocket, EndPoint peerEndpoint, NebulaNetPacketProcessor packetProcessor)
     {
         this.peerEndpoint = peerEndpoint;
         this.peerSocket = peerSocket;
         this.packetProcessor = packetProcessor;
+        this.Id = peerEndpoint.GetHashCode();
     }
 
-    public bool IsAlive => peerSocket?.IsAlive ?? false;
 
     public void SendPacket<T>(T packet) where T : class, new()
     {
@@ -60,6 +81,7 @@ public class NebulaConnection : INebulaConnection
         {
             return;
         }
+
         var packet = pendingPackets.Dequeue();
         if (peerSocket.ReadyState == WebSocketState.Open)
         {
@@ -81,25 +103,6 @@ public class NebulaConnection : INebulaConnection
         }
     }
 
-    public void Disconnect(DisconnectionReason reason = DisconnectionReason.Normal, string reasonString = null)
-    {
-        if (string.IsNullOrEmpty(reasonString))
-        {
-            peerSocket.Close((ushort)reason);
-        }
-        else
-        {
-            if (Encoding.UTF8.GetBytes(reasonString).Length <= 123)
-            {
-                peerSocket.Close((ushort)reason, reasonString);
-            }
-            else
-            {
-                throw new ArgumentException("Reason string cannot take up more than 123 bytes");
-            }
-        }
-    }
-
     public static bool operator ==(NebulaConnection left, NebulaConnection right)
     {
         return Equals(left, right);
@@ -116,10 +119,12 @@ public class NebulaConnection : INebulaConnection
         {
             return false;
         }
+
         if (ReferenceEquals(this, obj))
         {
             return true;
         }
+
         return obj.GetType() == GetType() && ((NebulaConnection)obj).peerEndpoint.Equals(peerEndpoint);
     }
 

@@ -349,58 +349,6 @@ public class SimulatedWorld : IDisposable
         }
     }
 
-    public void OnDronesDraw()
-    {
-        using (GetRemotePlayersModels(out var remotePlayersModels))
-        {
-            //todo:replace
-            //foreach (var remoteModel in remotePlayersModels.Where(remoteModel =>
-            //             GameMain.mainPlayer.planetId == remoteModel.Value.Movement.localPlanetId))
-            //{
-            //    //remoteModel.Value.MechaInstance.droneRenderer.Draw();
-            //}
-        }
-    }
-
-    public void OnDronesGameTick(float dt)
-    {
-        var tmp = 1e10; //fake energy of remote player, needed to do the Update()
-        double tmp2 = 1;
-
-        using (GetRemotePlayersModels(out var remotePlayersModels))
-        {
-            //Update drones positions based on their targets
-            var prebuildPool = GameMain.localPlanet?.factory?.prebuildPool;
-
-            foreach (var remoteModel in remotePlayersModels)
-            {
-                var remoteMecha = remoteModel.Value.MechaInstance;
-                //todo:replace
-                /*var drones = remoteMecha.drones;
-                var droneCount = remoteMecha.droneCount;
-                var remotePosition = remoteModel.Value.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
-
-                for (var i = 0; i < droneCount; i++)
-                {
-                    //Update only moving drones of players on the same planet
-                    if (drones[i].stage == 0 || GameMain.mainPlayer.planetId != remoteModel.Value.Movement.localPlanetId)
-                    {
-                        continue;
-                    }
-                    if (drones[i].Update(prebuildPool, remotePosition, dt, ref tmp, ref tmp2, 0) == 0)
-                    {
-                        continue;
-                    }
-                    //Reset drone and release lock
-                    drones[i].stage = 3;
-                    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(drones[i].targetObject);
-                    drones[i].targetObject = 0;
-                }
-                remoteMecha.droneRenderer.Update();*/
-            }
-        }
-    }
-
     public void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
     {
         // Make a copy of the "Icarus" text from the starmap

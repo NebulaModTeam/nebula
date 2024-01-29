@@ -2,7 +2,7 @@
 
 API for [Nebula multiplayer mod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/). This API allows mod
 developers to support Nebula. You can find setting up guide, examples and
-documentation [here](https://github.com/hubastard/nebula/wiki)
+documentation [here](https://github.com/NebulaModTeam/nebula/wiki/Nebula-mod-API)
 
 # FAQ
 
@@ -15,7 +15,7 @@ a really nice community that will be able to answer your questions.
 
 Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) to ask if someone is already working on the task that
 you want to do. Once, you are done with your modification, simply submit a pull request. Contribution documentation can
-be found here: [Wiki](https://github.com/hubastard/nebula/wiki/Setting-up-a-development-environment).
+be found here: [Wiki](https://github.com/NebulaModTeam/nebula/wiki/Setting-up-a-development-environment).
 
 ## How can I support the team?
 

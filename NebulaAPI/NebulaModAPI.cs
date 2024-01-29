@@ -33,10 +33,9 @@ public class NebulaModAPI : BaseUnityPlugin
     public const int AUTHOR_NONE = -1;
     public const int STAR_NONE = -1;
 
-    private static Type multiplayer;
-
-    private static Type binaryWriter;
-    private static Type binaryReader;
+    private static PropertyInfo multiplayerSessionGetter;
+    private static ConstructorInfo binaryWriterConstructor;
+    private static ConstructorInfo binaryReaderConstructor;
 
     public static readonly List<Assembly> TargetAssemblies = [];
 
@@ -96,33 +95,18 @@ public class NebulaModAPI : BaseUnityPlugin
     ///     Is this session in multiplayer
     /// </summary>
     // ReSharper disable once UnusedMember.Global
-    public static bool IsMultiplayerActive
-    {
-        get
-        {
-            if (!NebulaIsInstalled)
-            {
-                return false;
-            }
-
-            return (bool)multiplayer.GetProperty("IsActive")?.GetValue(null)!;
-        }
-    }
+    public static bool IsMultiplayerActive { get; private set; }
 
     /// <summary>
     ///     Provides access to MultiplayerSession class
     /// </summary>
-    public static IMultiplayerSession MultiplayerSession
-    {
-        get
-        {
-            if (!NebulaIsInstalled)
-            {
-                return null;
-            }
+    public static IMultiplayerSession MultiplayerSession { get; private set; }
 
-            return (IMultiplayerSession)multiplayer.GetProperty("Session")?.GetValue(null);
-        }
+    // internal use
+    public static void OnMultiplayerSessionChange(bool isActive)
+    {
+        IsMultiplayerActive = isActive;
+        MultiplayerSession = isActive ? (IMultiplayerSession)multiplayerSessionGetter?.GetValue(null) : null;
     }
 
     private void Awake()
@@ -140,12 +124,10 @@ public class NebulaModAPI : BaseUnityPlugin
             return;
         }
 
-        multiplayer = AccessTools.TypeByName("NebulaWorld.Multiplayer");
-
+        multiplayerSessionGetter = AccessTools.TypeByName("NebulaWorld.Multiplayer").GetProperty("Session");
         var binaryUtils = AccessTools.TypeByName("NebulaModel.Networking.BinaryUtils");
-
-        binaryWriter = binaryUtils.GetNestedType("Writer");
-        binaryReader = binaryUtils.GetNestedType("Reader");
+        binaryWriterConstructor = binaryUtils.GetNestedType("Writer").GetConstructor(Type.EmptyTypes);
+        binaryReaderConstructor = binaryUtils.GetNestedType("Reader").GetConstructor([typeof(byte[])]);
 
         Logger.LogInfo("Nebula API is ready!");
     }
@@ -169,7 +151,7 @@ public class NebulaModAPI : BaseUnityPlugin
             return null;
         }
 
-        return (IWriterProvider)binaryWriter.GetConstructor(Type.EmptyTypes)?.Invoke(Array.Empty<object>());
+        return (IWriterProvider)binaryWriterConstructor.Invoke([]);
     }
 
     /// <summary>
@@ -183,6 +165,6 @@ public class NebulaModAPI : BaseUnityPlugin
             return null;
         }
 
-        return (IReaderProvider)binaryReader.GetConstructor(new[] { typeof(byte[]) })?.Invoke(new object[] { bytes });
+        return (IReaderProvider)binaryReaderConstructor.Invoke([bytes]);
     }
 }

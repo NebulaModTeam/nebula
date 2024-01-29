@@ -1,23 +1,32 @@
 ﻿#region
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.DataStructures;
 using NebulaAPI.GameState;
-using NebulaAPI.Packets;
+using NebulaAPI.Networking;
 using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameHistory;
+using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Session;
 using NebulaModel.Utils;
+using NebulaNetwork.Messaging;
 using NebulaNetwork.Ngrok;
 using NebulaWorld;
+using NebulaWorld.Player;
 using NebulaWorld.SocialIntegration;
 using Open.Nat;
 using UnityEngine;
@@ -30,8 +39,10 @@ using NetworkCredential = WebSocketSharp.Net.NetworkCredential;
 
 namespace NebulaNetwork;
 
-public class Server : NetworkProvider, IServer
+public class Server : IServer
 {
+    public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
+
     private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
     private const float STATISTICS_UPDATE_INTERVAL = 1;
     private const float LAUNCH_UPDATE_INTERVAL = 4;
@@ -46,10 +57,16 @@ public class Server : NetworkProvider, IServer
     private NgrokManager ngrokManager;
     private float productionStatisticsUpdateTimer;
 
+
     private WebSocketServer socket;
     private float warningUpdateTimer;
 
-    public Server(ushort port, bool loadSaveFile = false) : base(new PlayerManager())
+    public ConcurrentPlayerCollection Players { get; } = new();
+
+    private ConcurrentQueue<ushort> PlayerIdPool = new();
+    private int highestPlayerID;
+
+    public Server(ushort port, bool loadSaveFile = false)
     {
         Port = port;
         this.loadSaveFile = loadSaveFile;
@@ -61,8 +78,119 @@ public class Server : NetworkProvider, IServer
     public bool NgrokActive => ngrokManager.IsNgrokActive();
     public bool NgrokEnabled => ngrokManager.NgrokEnabled;
     public string NgrokLastErrorCode => ngrokManager.NgrokLastErrorCode;
+    public event EventHandler<INebulaConnection> Connected;
+    public event EventHandler<INebulaConnection> Disconnected;
 
-    public override void Start()
+    // Placeholder until we implement Connected and Disconnected event on the socket level.
+    internal void OnSocketConnection(INebulaConnection conn)
+    {
+        // Generate new data for the player
+        var playerId = GetNextPlayerId();
+
+        // this is truncated to ushort.MaxValue
+        var birthPlanet = GameMain.galaxy.PlanetById(GameMain.galaxy.birthPlanetId);
+        var playerData = new PlayerData(playerId, -1,
+            position: new Double3(birthPlanet.uPosition.x, birthPlanet.uPosition.y, birthPlanet.uPosition.z));
+
+        conn.ConnectionStatus = EConnectionStatus.Pending;
+
+        INebulaPlayer newPlayer = new NebulaPlayer(conn, playerData);
+        if (!Players.TryAdd(conn, newPlayer))
+            throw new InvalidOperationException($"Connection {conn.Id} already exists!");
+
+        // return newPlayer;
+        Connected?.Invoke(this, conn);
+    }
+
+    private ushort GetNextPlayerId()
+    {
+        ushort nextId;
+        if (!PlayerIdPool.TryDequeue(out nextId))
+            nextId = (ushort)Interlocked.Increment(ref highestPlayerID);
+        return nextId;
+    }
+
+    // Placeholder until we implement Connected and Disconnected event on the socket level.
+    internal void OnSocketDisconnection(INebulaConnection conn)
+    {
+        Multiplayer.Session.NumPlayers -= 1;
+        DiscordManager.UpdateRichPresence();
+
+        Players.TryRemove(conn, out var player);
+
+        // @TODO: Why can this happen in the first place?
+        // Figure out why it was possible before the move and fix that issue at the root.
+        if (player is null)
+        {
+            Log.Warn("Player is null - Disconnect logic NOT CALLED!");
+
+            if (!Config.Options.SyncSoil)
+            {
+                return;
+            }
+
+            // now we need to recalculate the current sand amount :C
+            GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+            // using (GetConnectedPlayers(out var connectedPlayers))
+            {
+                var connectedPlayers = Players.Connected;
+                foreach (var entry in connectedPlayers)
+                {
+                    GameMain.mainPlayer.sandCount += entry.Value.Data.Mecha.SandCount;
+                }
+            }
+
+            UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount,
+                GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
+            SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
+
+            return;
+        }
+
+        // player is valid
+        SendPacketExclude(new PlayerDisconnected(player.Id, Multiplayer.Session.NumPlayers), conn);
+        // For sync completed player who triggered OnPlayerJoinedGame() before
+        if (conn.ConnectionStatus == EConnectionStatus.Connected)
+        {
+            SimulatedWorld.OnPlayerLeftGame(player);
+        }
+
+        PlayerIdPool.Enqueue(player.Id);
+
+        Multiplayer.Session.PowerTowers.ResetAndBroadcast();
+        Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
+        Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
+
+        //Notify players about queued building plans for drones
+        var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
+        if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
+        {
+            SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans, player.Data.LocalPlanetId),
+                player.Data.LocalPlanetId);
+            //Remove it also from host queue, if host is on the same planet
+            if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
+            {
+                //todo:replace
+                //foreach (var t in DronePlans)
+                //{
+                //    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
+                //}
+            }
+        }
+
+        // Note: using Keys or Values directly creates a readonly snapshot at the moment of call, as opposed to enumerating the dict.
+        var syncCount = Players.Syncing.Count;
+        if (conn.ConnectionStatus is not EConnectionStatus.Syncing || syncCount != 0)
+        {
+            return;
+        }
+
+        SendPacket(new SyncComplete());
+        Multiplayer.Session.World.OnAllPlayersSyncCompleted();
+        Disconnected?.Invoke(this, conn);
+    }
+
+    public void Start()
     {
         if (loadSaveFile)
         {
@@ -71,14 +199,15 @@ public class Server : NetworkProvider, IServer
 
         foreach (var assembly in AssembliesUtils.GetNebulaAssemblies())
         {
-            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor);
         }
-        PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, true);
+
+        PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor as NebulaNetPacketProcessor, true);
 
         foreach (var assembly in NebulaModAPI.TargetAssemblies)
         {
-            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
-            PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, true);
+            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor);
+            PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor, true);
         }
 #if DEBUG
         PacketProcessor.SimulateLatency = true;
@@ -129,8 +258,8 @@ public class Server : NetworkProvider, IServer
         }
 
         DisableNagleAlgorithm(socket);
-        WebSocketService.PacketProcessor = PacketProcessor;
-        WebSocketService.PlayerManager = PlayerManager;
+        WebSocketService.PacketProcessor = PacketProcessor as NebulaNetPacketProcessor;
+        WebSocketService.Server = this;
         socket.AddWebSocketService<WebSocketService>("/socket", wse => new WebSocketService());
         try
         {
@@ -151,7 +280,7 @@ public class Server : NetworkProvider, IServer
         ((LocalPlayer)Multiplayer.Session.LocalPlayer).IsHost = true;
 
         ((LocalPlayer)Multiplayer.Session.LocalPlayer).SetPlayerData(new PlayerData(
-                PlayerManager.GetNextAvailablePlayerId(),
+                GetNextPlayerId(),
                 GameMain.localPlanet?.id ?? -1,
                 !string.IsNullOrWhiteSpace(Config.Options.Nickname) ? Config.Options.Nickname : GameMain.data.account.userName),
             loadSaveFile);
@@ -179,6 +308,7 @@ public class Server : NetworkProvider, IServer
 
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(true);
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
         catch (Exception e)
@@ -187,7 +317,7 @@ public class Server : NetworkProvider, IServer
         }
     }
 
-    public override void Stop()
+    public void Stop()
     {
         socket?.Stop();
 
@@ -195,6 +325,7 @@ public class Server : NetworkProvider, IServer
 
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(false);
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
         catch (Exception e)
@@ -203,48 +334,87 @@ public class Server : NetworkProvider, IServer
         }
     }
 
-    public override void Dispose()
+    public void Disconnect(INebulaConnection conn, DisconnectionReason reason, string reasonMessage = "")
+    {
+        Players.TryRemove(conn, out var player);
+        if (Encoding.UTF8.GetBytes(reasonMessage).Length <= 123)
+        {
+            ((NebulaConnection)conn).peerSocket.Close((ushort)reason, reasonMessage);
+        }
+        else
+        {
+            throw new ArgumentException("Reason string cannot take up more than 123 bytes");
+        }
+    }
+
+    public void Dispose()
     {
         Stop();
         GC.SuppressFinalize(this);
     }
 
-    public override void SendPacket<T>(T packet)
+    // Just to make a single entry point for all sends.
+    public void SendToPlayers<T>(IEnumerable<KeyValuePair<INebulaConnection, INebulaPlayer>> players, T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToAllPlayers(packet);
+        foreach (var kvp in players)
+        {
+            kvp.Key.SendPacket(packet);
+        }
     }
 
-    public override void SendPacketToLocalStar<T>(T packet)
+    public void SendPacket<T>(T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToLocalStar(packet);
+        SendToPlayers(Players.Connected, packet);
     }
 
-    public override void SendPacketToLocalPlanet<T>(T packet)
+    /// <summary>
+    /// Send a packet to all players that match a predicate
+    /// </summary>
+    /// <param name="packet"></param>
+    /// <param name="condition"></param>
+    /// <typeparam name="T"></typeparam>
+    public void SendToMatching<T>(T packet, Predicate<INebulaPlayer> condition)
+        where T : class, new()
     {
-        PlayerManager.SendPacketToLocalPlanet(packet);
+        var players = Players.Connected
+            .Where(kvp => condition(kvp.Value));
+        SendToPlayers(players, packet);
     }
 
-    public override void SendPacketToPlanet<T>(T packet, int planetId)
+    public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
     {
-        PlayerManager.SendPacketToPlanet(packet, planetId);
+        SendToMatching(packet, p => p.Data.LocalStarId == starId);
     }
 
-    public override void SendPacketToStar<T>(T packet, int starId)
+    public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToStar(packet, starId);
+        var starId = GameMain.data.localStar?.id ?? -1;
+        SendPacketToStar(packet, starId);
     }
 
-    public override void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+    public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
     {
-        PlayerManager.SendPacketToOtherPlayers(packet, exclude);
+        SendToMatching(packet, p => p.Data.LocalPlanetId == planetId);
     }
 
-    public override void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
+    public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
     {
-        PlayerManager.SendPacketToStarExcept(packet, starId, exclude);
+        var planetId = GameMain.data.localPlanet?.id ?? -1;
+        SendPacketToPlanet(packet, planetId);
     }
 
-    public override void Update()
+
+    public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
+    {
+        SendToMatching(packet, p => !p.Connection.Equals(exclude));
+    }
+
+    public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
+    {
+        SendToMatching(packet, p => p.Data.LocalStarId == starId && !p.Connection.Equals(exclude));
+    }
+
+    public void Update()
     {
         PacketProcessor.ProcessPacketQueue();
 
@@ -252,6 +422,7 @@ public class Server : NetworkProvider, IServer
         {
             return;
         }
+
         gameResearchHashUpdateTimer += Time.deltaTime;
         productionStatisticsUpdateTimer += Time.deltaTime;
         dysonLaunchUpateTimer += Time.deltaTime;
@@ -291,6 +462,7 @@ public class Server : NetworkProvider, IServer
         {
             return;
         }
+
         warningUpdateTimer = 0;
         Multiplayer.Session.Warning.SendBroadcastIfNeeded();
     }
@@ -299,93 +471,5 @@ public class Server : NetworkProvider, IServer
     {
         var listener = AccessTools.FieldRefAccess<WebSocketServer, TcpListener>("_listener")(socketServer);
         listener.Server.NoDelay = true;
-    }
-
-    private class WebSocketService : WebSocketBehavior
-    {
-        public static IPlayerManager PlayerManager;
-        public static NebulaNetPacketProcessor PacketProcessor;
-        private static readonly Dictionary<int, NebulaConnection> ConnectionDictionary = new();
-
-        public WebSocketService() { }
-
-        public WebSocketService(IPlayerManager playerManager, NebulaNetPacketProcessor packetProcessor)
-        {
-            PlayerManager = playerManager;
-            PacketProcessor = packetProcessor;
-            ConnectionDictionary.Clear();
-        }
-
-        protected override void OnOpen()
-        {
-            if (Multiplayer.Session.IsGameLoaded == false && Multiplayer.Session.IsInLobby == false)
-            {
-                // Reject any connection that occurs while the host's game is loading.
-                Context.WebSocket.Close((ushort)DisconnectionReason.HostStillLoading,
-                    "Host still loading, please try again later.".Translate());
-                return;
-            }
-
-            Log.Info($"Client connected ID: {ID}");
-            var conn = new NebulaConnection(Context.WebSocket, Context.UserEndPoint, PacketProcessor);
-            PlayerManager.PlayerConnected(conn);
-            ConnectionDictionary.Add(Context.UserEndPoint.GetHashCode(), conn);
-        }
-
-        protected override void OnMessage(MessageEventArgs e)
-        {
-            // Find created NebulaConnection
-            if (ConnectionDictionary.TryGetValue(Context.UserEndPoint.GetHashCode(), out var conn))
-            {
-                PacketProcessor.EnqueuePacketForProcessing(e.RawData, conn);
-            }
-            else
-            {
-                Log.Warn($"Unregister socket {Context.UserEndPoint.GetHashCode()}");
-            }
-        }
-
-        protected override void OnClose(CloseEventArgs e)
-        {
-            ConnectionDictionary.Remove(Context.UserEndPoint.GetHashCode());
-
-            // If the reason of a client disconnect is because we are still loading the game,
-            // we don't need to inform the other clients since the disconnected client never
-            // joined the game in the first place.
-            if (e.Code == (short)DisconnectionReason.HostStillLoading)
-            {
-                return;
-            }
-
-            Log.Info($"Client disconnected: {ID}, reason: {e.Reason}");
-            UnityDispatchQueue.RunOnMainThread(() =>
-            {
-                // This is to make sure that we don't try to deal with player disconnection
-                // if it is because we have stopped the server and are not in a multiplayer game anymore.
-                if (Multiplayer.IsActive)
-                {
-                    PlayerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
-                        PacketProcessor));
-                }
-            });
-        }
-
-        protected override void OnError(ErrorEventArgs e)
-        {
-            ConnectionDictionary.Remove(Context.UserEndPoint.GetHashCode());
-
-            // TODO: seems like clients erroring out in the sync process can lock the host with the joining player message, maybe this fixes it
-            Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
-            UnityDispatchQueue.RunOnMainThread(() =>
-            {
-                // This is to make sure that we don't try to deal with player disconnection
-                // if it is because we have stopped the server and are not in a multiplayer game anymore.
-                if (Multiplayer.IsActive)
-                {
-                    PlayerManager.PlayerDisconnected(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
-                        PacketProcessor));
-                }
-            });
-        }
     }
 }

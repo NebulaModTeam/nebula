@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaModel;
+using NebulaModel.Networking;
 using NebulaWorld.SocialIntegration;
 using UnityEngine;
 
@@ -21,20 +22,20 @@ public static class Multiplayer
 
     public static bool IsDedicated { get; set; }
 
-    public static void HostGame(NetworkProvider server)
+    public static void HostGame(IServer server)
     {
         IsLeavingGame = false;
 
         Session = new MultiplayerSession(server);
-        ((NetworkProvider)Session.Network).Start();
+        Session.Server!.Start();
     }
 
-    public static void JoinGame(NetworkProvider client)
+    public static void JoinGame(IClient client)
     {
         IsLeavingGame = false;
 
         Session = new MultiplayerSession(client);
-        ((NetworkProvider)Session.Network).Start();
+        Session.Client!.Start();
     }
 
     public static void LeaveGame()

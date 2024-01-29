@@ -6,10 +6,13 @@ using System.Net;
 using System.Net.Sockets;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Networking.Serialization;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Routers;
@@ -25,8 +28,10 @@ using WebSocketSharp;
 
 namespace NebulaNetwork;
 
-public class Client : NetworkProvider, IClient
+public class Client : IClient
 {
+    public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
+
     private const float FRAGEMENT_UPDATE_INTERVAL = 0.1f;
     private const float GAME_STATE_UPDATE_INTERVAL = 1f;
     private const float MECHA_SYNCHONIZATION_INTERVAL = 30f;
@@ -49,7 +54,7 @@ public class Client : NetworkProvider, IClient
     {
     }
 
-    public Client(IPEndPoint endpoint, string password = "") : base(null)
+    public Client(IPEndPoint endpoint, string password = "")
     {
         ServerEndpoint = endpoint;
         serverPassword = password;
@@ -57,18 +62,19 @@ public class Client : NetworkProvider, IClient
 
     public IPEndPoint ServerEndpoint { get; set; }
 
-    public override void Start()
+    public void Start()
     {
         foreach (var assembly in AssembliesUtils.GetNebulaAssemblies())
         {
-            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
+            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor);
         }
-        PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor, false);
+
+        PacketUtils.RegisterAllPacketProcessorsInCallingAssembly(PacketProcessor as NebulaNetPacketProcessor, false);
 
         foreach (var assembly in NebulaModAPI.TargetAssemblies)
         {
-            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor);
-            PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor, false);
+            PacketUtils.RegisterAllPacketNestedTypesInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor);
+            PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor, false);
         }
 #if DEBUG
         PacketProcessor.SimulateLatency = true;
@@ -119,6 +125,7 @@ public class Client : NetworkProvider, IClient
 
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(true);
             NebulaModAPI.OnMultiplayerGameStarted?.Invoke();
         }
         catch (Exception e)
@@ -127,7 +134,7 @@ public class Client : NetworkProvider, IClient
         }
     }
 
-    public override void Stop()
+    public void Stop()
     {
         clientSocket?.Close((ushort)DisconnectionReason.ClientRequestedDisconnect, "Player left the game");
 
@@ -135,6 +142,7 @@ public class Client : NetworkProvider, IClient
         Config.LoadOptions();
         try
         {
+            NebulaModAPI.OnMultiplayerSessionChange(false);
             NebulaModAPI.OnMultiplayerGameEnded?.Invoke();
         }
         catch (Exception e)
@@ -143,52 +151,57 @@ public class Client : NetworkProvider, IClient
         }
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
         Stop();
         GC.SuppressFinalize(this);
     }
 
-    public override void SendPacket<T>(T packet)
+    public void SendPacket<T>(T packet) where T : class, new()
     {
         serverConnection?.SendPacket(packet);
     }
 
-    public override void SendPacketExclude<T>(T packet, INebulaConnection exclude)
+    public void SendToMatching<T>(T packet, Predicate<INebulaPlayer> condition) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SendPacketExclude<T>(T packet, INebulaConnection exclude) where T : class, new()
     {
         // Only possible from host
         throw new NotImplementedException();
     }
 
-    public override void SendPacketToLocalStar<T>(T packet)
+    public void SendPacketToLocalStar<T>(T packet) where T : class, new()
     {
         serverConnection?.SendPacket(new StarBroadcastPacket(PacketProcessor.Write(packet), GameMain.data.localStar?.id ?? -1));
     }
 
-    public override void SendPacketToLocalPlanet<T>(T packet)
+    public void SendPacketToLocalPlanet<T>(T packet) where T : class, new()
     {
-        serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.mainPlayer.planetId));
+        serverConnection?.SendPacket(new PlanetBroadcastPacket(PacketProcessor.Write(packet), GameMain.data.localPlanet?.id ?? -1));
     }
 
-    public override void SendPacketToPlanet<T>(T packet, int planetId)
-    {
-        // Only possible from host
-        throw new NotImplementedException();
-    }
-
-    public override void SendPacketToStar<T>(T packet, int starId)
+    public void SendPacketToPlanet<T>(T packet, int planetId) where T : class, new()
     {
         // Only possible from host
         throw new NotImplementedException();
     }
 
-    public override void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude)
+    public void SendPacketToStar<T>(T packet, int starId) where T : class, new()
     {
         // Only possible from host
         throw new NotImplementedException();
     }
 
-    public override void Update()
+    public void SendPacketToStarExclude<T>(T packet, int starId, INebulaConnection exclude) where T : class, new()
+    {
+        // Only possible from host
+        throw new NotImplementedException();
+    }
+
+    public void Update()
     {
         PacketProcessor.ProcessPacketQueue();
 
@@ -208,6 +221,7 @@ public class Client : NetworkProvider, IClient
                 {
                     SendPacket(new GameStateRequest());
                 }
+
                 gameStateUpdateTimer = 0f;
             }
         }
@@ -217,10 +231,12 @@ public class Client : NetworkProvider, IClient
         {
             return;
         }
+
         if (GameStatesManager.FragmentSize > 0)
         {
             GameStatesManager.UpdateBufferLength(GetFragmentBufferLength());
         }
+
         fragmentUpdateTimer = 0f;
     }
 
@@ -237,7 +253,7 @@ public class Client : NetworkProvider, IClient
         DisableNagleAlgorithm(clientSocket);
 
         Log.Info("Server connection established");
-        serverConnection = new NebulaConnection(clientSocket, ServerEndpoint, PacketProcessor);
+        serverConnection = new NebulaConnection(clientSocket, ServerEndpoint, PacketProcessor as NebulaNetPacketProcessor);
 
         //TODO: Maybe some challenge-response authentication mechanism?
 
@@ -339,6 +355,7 @@ public class Client : NetworkProvider, IClient
                 {
                     return;
                 }
+
                 Multiplayer.ShouldReturnToJoinMenu = false;
                 Multiplayer.Session.IsInLobby = false;
                 UIRoot.instance.galaxySelect.CancelSelect();

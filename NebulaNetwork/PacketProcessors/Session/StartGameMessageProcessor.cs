@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI.GameState;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.DataStructures;
@@ -18,11 +19,8 @@ namespace NebulaNetwork.PacketProcessors.Session;
 [RegisterPacketProcessor]
 internal class StartGameMessageProcessor : PacketProcessor<StartGameMessage>
 {
-    private readonly IPlayerManager playerManager;
-
     public StartGameMessageProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(StartGameMessage packet, NebulaConnection conn)
@@ -31,37 +29,23 @@ internal class StartGameMessageProcessor : PacketProcessor<StartGameMessage>
         {
             if (Multiplayer.Session.IsGameLoaded && !GameMain.isFullscreenPaused)
             {
-                INebulaPlayer player;
-                using (playerManager.GetPendingPlayers(out var pendingPlayers))
+                INebulaPlayer player = Players.Get(conn, EConnectionStatus.Pending);
+                if (player is null)
                 {
-                    if (!pendingPlayers.TryGetValue(conn, out player))
-                    {
-                        conn.Disconnect(DisconnectionReason.InvalidData);
-                        Log.Warn("WARNING: Player tried to enter the game without being in the pending list");
-                        return;
-                    }
-
-                    pendingPlayers.Remove(conn);
+                    Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);
+                    Log.Warn("WARNING: Player tried to enter the game without being in the pending list");
+                    return;
                 }
 
-                // Add the new player to the list
-                using (playerManager.GetSyncingPlayers(out var syncingPlayers))
-                {
-                    syncingPlayers.Add(conn, player);
-                }
+                Multiplayer.Session.Server.Players.TryUpgrade(player, EConnectionStatus.Syncing);
 
                 Multiplayer.Session.World.OnPlayerJoining(player.Data.Username);
 
                 // Make sure that each player that is currently in the game receives that a new player as join so they can create its RemotePlayerCharacter
                 var pdata = new PlayerJoining((PlayerData)player.Data.CreateCopyWithoutMechaData(),
                     Multiplayer.Session.NumPlayers); // Remove inventory from mecha data
-                using (playerManager.GetConnectedPlayers(out var connectedPlayers))
-                {
-                    foreach (var kvp in connectedPlayers)
-                    {
-                        kvp.Value.SendPacket(pdata);
-                    }
-                }
+
+                Server.SendPacket(pdata);
 
                 //Add current tech bonuses to the connecting player based on the Host's mecha
                 ((MechaData)player.Data.Mecha).TechBonuses = new PlayerTechBonuses(GameMain.mainPlayer.mecha);

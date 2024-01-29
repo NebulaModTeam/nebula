@@ -22,7 +22,7 @@ using UnityEngine;
 namespace NebulaPatcher;
 
 [BepInPlugin(PluginInfo.PLUGIN_ID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-[BepInDependency("dsp.common - api.CommonAPI", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("dsp.common-api.CommonAPI", BepInDependency.DependencyFlags.SoftDependency)]
 public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
 {
     private static int command_ups;

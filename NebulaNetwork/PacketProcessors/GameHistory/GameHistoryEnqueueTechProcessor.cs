@@ -14,18 +14,15 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqueueTechPacket>
 {
-    private readonly IPlayerManager playerManager;
-
     public GameHistoryEnqueueTechProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(GameHistoryEnqueueTechPacket packet, NebulaConnection conn)
     {
         if (IsHost)
         {
-            var player = playerManager.GetPlayer(conn);
+            var player = Players.Get(conn);
             if (player == null)
             {
                 return;
@@ -34,7 +31,7 @@ internal class GameHistoryEnqueueTechProcessor : PacketProcessor<GameHistoryEnqu
             {
                 GameMain.history.EnqueueTech(packet.TechId);
             }
-            playerManager.SendPacketToOtherPlayers(packet, player);
+            Server.SendPacketExclude(packet, conn);
         }
         else
         {

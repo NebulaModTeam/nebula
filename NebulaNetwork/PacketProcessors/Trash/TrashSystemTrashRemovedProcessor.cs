@@ -17,7 +17,7 @@ internal class TrashSystemTrashRemovedProcessor : PacketProcessor<TrashSystemTra
     {
         if (IsHost)
         {
-            Multiplayer.Session.Network.PlayerManager.SendPacketToOtherPlayers(packet, conn);
+            Server.SendPacketExclude(packet, conn);
         }
         using (Multiplayer.Session.Trashes.RemoveTrashFromOtherPlayers.On())
         {

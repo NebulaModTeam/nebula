@@ -1,4 +1,4 @@
-﻿namespace NebulaModel.Networking;
+﻿namespace NebulaAPI.Networking;
 
 public enum DisconnectionReason
 {

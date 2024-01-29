@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Linq;
 using NebulaAPI.Packets;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
@@ -21,8 +22,8 @@ internal class ChatCommandWhoProcessor : PacketProcessor<ChatCommandWhoPacket>
     {
         if (IsHost)
         {
-            var recipient = Multiplayer.Session.Network.PlayerManager.GetPlayer(conn);
-            var playerDatas = Multiplayer.Session.Network.PlayerManager.GetAllPlayerDataIncludingHost();
+            var recipient = Players.Get(conn);
+            var playerDatas = Multiplayer.Session.Server.Players.GetAllPlayerData().ToArray();
             var hostPlayer = Multiplayer.Session.LocalPlayer;
             var resultPayload = WhoCommandHandler.BuildResultPayload(playerDatas, hostPlayer);
 

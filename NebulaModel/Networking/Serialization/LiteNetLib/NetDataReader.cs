@@ -630,7 +630,8 @@ namespace NebulaModel.Networking.Serialization
 
         public bool TryGetStringArray(out string[] result)
         {
-            if (!TryGetUShort(out ushort strArrayLength)) {
+            if (!TryGetUShort(out ushort strArrayLength))
+            {
                 result = null;
                 return false;
             }

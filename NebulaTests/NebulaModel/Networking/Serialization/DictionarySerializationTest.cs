@@ -1,10 +1,12 @@
-using NebulaModel.Networking.Serialization;
+﻿using NebulaModel.Networking.Serialization;
 // Not sure why I had to do this, I think unity stuff interfering
 using UnitTesting = Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NebulaTests.NebulaModel.Networking.Serialization;
 
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 public class SampleDictionaryPacket
+#pragma warning restore CS0659
 {
     public Dictionary<int, int> SampleInts { get; set; } = new();
 
@@ -66,7 +68,9 @@ public class DictionarySerializationTest
         packetProcessor.RegisterNestedType<SampleNetSerializableClass>(() => new SampleNetSerializableClass());
 
         // Subscribe first to force a packet type register call
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
         SampleDictionaryPacket receivedPacket = null;
+#pragma warning restore CS8600
         packetProcessor.SubscribeReusable<SampleDictionaryPacket>(
             packet =>
             {

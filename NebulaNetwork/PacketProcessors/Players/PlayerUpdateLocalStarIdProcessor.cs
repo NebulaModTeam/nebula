@@ -14,11 +14,8 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 internal class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLocalStarId>
 {
-    private readonly IPlayerManager playerManager;
-
     public PlayerUpdateLocalStarIdProcessor()
     {
-        playerManager = Multiplayer.Session.Network.PlayerManager;
     }
 
     protected override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
@@ -28,7 +25,7 @@ internal class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLo
             return;
         }
 
-        var player = playerManager.GetPlayer(conn);
+        var player = Players.Get(conn);
         if (player != null)
         {
             player.Data.LocalStarId = packet.StarId;

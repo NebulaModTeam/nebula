@@ -2,8 +2,8 @@
 
 using System;
 using NebulaAPI.GameState;
-using NebulaModel;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaWorld.Factory;
 using NebulaWorld.GameDataHistory;
 using NebulaWorld.GameStates;
@@ -27,9 +27,14 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     // Some Patch Flags
     public DateTime StartTime;
 
-    public MultiplayerSession(NebulaAPI.GameState.INetworkProvider networkProvider)
+    public MultiplayerSession(INetworkProvider networkProvider)
     {
         Network = networkProvider;
+        if (networkProvider is IServer server)
+            Server = server;
+
+        if (networkProvider is IClient client)
+            Client = client;
 
         LocalPlayer = new LocalPlayer();
         World = new SimulatedWorld();
@@ -149,9 +154,17 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         GC.SuppressFinalize(this);
     }
 
-    public NebulaAPI.GameState.INetworkProvider Network { get; set; }
+    public INetworkProvider Network { get; set; }
+
+    public IServer Server { get; set; }
+
+    public IClient Client { get; set; }
+
     public ILocalPlayer LocalPlayer { get; set; }
     public IFactoryManager Factories { get; set; }
+    public bool IsDedicated => Multiplayer.IsDedicated;
+    public bool IsServer => Server is not null;
+    public bool IsClient => Client is not null;
 
     public bool IsGameLoaded { get; set; }
 
@@ -161,11 +174,10 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
         {
             return;
         }
+
         Log.Info("Game load completed");
         IsGameLoaded = true;
         DiscordManager.UpdateRichPresence();
-        ((NetworkProvider)Multiplayer.Session.Network).PacketProcessor.Enable = true;
-        Log.Info("OnGameLoadCompleted: Resume PacketProcessor");
 
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {

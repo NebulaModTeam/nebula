@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NebulaAPI.DataStructures;
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.DataStructures;
 using NebulaModel.Logger;
