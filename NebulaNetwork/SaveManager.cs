@@ -147,7 +147,7 @@ public static class SaveManager
                     break;
             }
 
-            if (playerSaves.ContainsKey(hash) && playerData != null)
+            if (!playerSaves.ContainsKey(hash) && playerData != null)
             {
                 playerSaves.Add(hash, playerData);
             }
