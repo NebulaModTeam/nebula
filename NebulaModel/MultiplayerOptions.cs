@@ -22,6 +22,8 @@ public class MultiplayerOptions : ICloneable
 
     [DisplayName("Nickname")] public string Nickname { get; set; } = string.Empty;
 
+    [DisplayName("NameTagSize")] public int NameTagSize { get; set; } = 100;
+
     [DisplayName("Server Password")]
     [Category("Network")]
     [Description("If provided, this will set a password for your hosted server.")]

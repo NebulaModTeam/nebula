@@ -455,54 +455,50 @@ public class SimulatedWorld : IDisposable
 
     public void RenderPlayerNameTagsInGame()
     {
-        TextMesh uiSailIndicator_targetText = null;
-
         using (GetRemotePlayersModels(out var remotePlayersModels))
         {
             foreach (var playerModel in remotePlayersModels.Select(player => player.Value))
             {
-                GameObject playerNameText;
+                TextMesh playerNameText;
                 if (playerModel.InGameNameText != null)
                 {
                     playerNameText = playerModel.InGameNameText;
                 }
                 else
                 {
-                    // Only get the field required if we actually need to, no point getting it every time
-                    if (uiSailIndicator_targetText == null)
-                    {
-                        uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
-                    }
+                    var uiSailIndicator_targetText = UIRoot.instance.uiGame.sailIndicator.targetText;
 
                     // Initialise a new game object to contain the text
-                    playerModel.InGameNameText = playerNameText = new GameObject();
+                    var go = new GameObject();
                     // Make it follow the player transform
-                    playerNameText.transform.SetParent(playerModel.PlayerTransform, false);
+                    go.transform.SetParent(playerModel.PlayerTransform, false);
                     // Add a meshrenderer and textmesh component to show the text with a different font
-                    var meshRenderer = playerNameText.AddComponent<MeshRenderer>();
-                    var textMesh = playerNameText.AddComponent<TextMesh>();
+                    var meshRenderer = go.AddComponent<MeshRenderer>();
+                    meshRenderer.sharedMaterial =
+                        uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
 
+                    var textMesh = go.AddComponent<TextMesh>();
                     // Set the text to be their name
                     textMesh.text = $"{playerModel.Username}";
                     // Align it to be centered below them
                     textMesh.anchor = TextAnchor.UpperCenter;
                     // Copy the font over from the sail indicator
                     textMesh.font = uiSailIndicator_targetText.font;
-                    meshRenderer.sharedMaterial =
-                        uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
+                    textMesh.fontSize = 36;
 
-                    playerNameText.SetActive(true);
+                    playerModel.InGameNameText = playerNameText = textMesh;
+                    playerNameText.gameObject.SetActive(true);
                 }
 
                 // If the player is not on the same planet or is in space, then do not render their in-world tag
                 if (playerModel.Movement.localPlanetId != Multiplayer.Session.LocalPlayer.Data.LocalPlanetId &&
                     playerModel.Movement.localPlanetId <= 0)
                 {
-                    playerNameText.SetActive(false);
+                    playerNameText.gameObject.SetActive(false);
                 }
-                else if (!playerNameText.activeSelf)
+                else if (!playerNameText.gameObject.activeSelf)
                 {
-                    playerNameText.SetActive(true);
+                    playerNameText.gameObject.SetActive(true);
                 }
 
                 // Make sure the text is pointing at the camera
@@ -512,23 +508,9 @@ public class SimulatedWorld : IDisposable
                 // Resizes the text based on distance from camera for better visual quality
                 var distanceFromCamera =
                     Vector3.Distance(playerNameText.transform.position, transform.position);
-                var nameTextMesh = playerNameText.GetComponent<TextMesh>();
 
-                switch (distanceFromCamera)
-                {
-                    case > 100f:
-                        nameTextMesh.characterSize = 0.2f;
-                        nameTextMesh.fontSize = 60;
-                        break;
-                    case > 50f:
-                        nameTextMesh.characterSize = 0.15f;
-                        nameTextMesh.fontSize = 48;
-                        break;
-                    default:
-                        nameTextMesh.characterSize = 0.1f;
-                        nameTextMesh.fontSize = 36;
-                        break;
-                }
+                var scaleRatio = Config.Options.NameTagSize / (GameCamera.instance.planetMode ? 10000f : 30000f);
+                playerNameText.characterSize = scaleRatio * Mathf.Clamp(distanceFromCamera, 20f, 200f);
             }
         }
     }
