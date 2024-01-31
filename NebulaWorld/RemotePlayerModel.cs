@@ -25,7 +25,7 @@ public class RemotePlayerModel
             Object.Destroy(PlayerTransform.GetComponent<PlayerFootsteps>());
             Object.Destroy(PlayerTransform.GetComponent<PlayerEffect>());
             Object.Destroy(PlayerTransform.GetComponent<PlayerAudio>());
-            Object.Destroy(PlayerTransform.GetComponent<PlayerController>());
+            // Leave PlayerController to later use
             PlayerTransform.GetComponent<Rigidbody>().isKinematic = true;
 
             // Add remote player components
@@ -79,6 +79,13 @@ public class RemotePlayerModel
                     PlayerModelTransform.GetChild(i).gameObject.SetActive(true);
                 }
             }
+
+            PlayerInstance.controller = PlayerTransform.gameObject.GetComponent<PlayerController>();
+            PlayerInstance.controller.gameData = GameMain.data;
+            PlayerInstance.controller.player = PlayerInstance;
+            PlayerInstance.controller.mecha = PlayerInstance.mecha;
+            PlayerInstance.controller.model = PlayerModelTransform;
+            PlayerInstance.controller.enabled = false; // Disable updates 
         }
 
         PlayerId = playerId;
