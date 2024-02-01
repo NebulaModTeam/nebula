@@ -21,4 +21,12 @@ internal class TrashSystem_Patch
             Multiplayer.Session.Network.SendPacket(new TrashSystemClearAllTrashPacket());
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(TrashSystem.AddTrashFromGroundEnemy))]
+    public static bool AddTrashFromGroundEnemy_Prefix()
+    {
+        // Tempoaray ban enemy drop
+        return !Multiplayer.IsActive;
+    }
 }
