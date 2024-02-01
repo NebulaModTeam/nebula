@@ -81,11 +81,19 @@ public class RemotePlayerModel
             }
 
             PlayerInstance.controller = PlayerTransform.gameObject.GetComponent<PlayerController>();
-            PlayerInstance.controller.gameData = GameMain.data;
-            PlayerInstance.controller.player = PlayerInstance;
-            PlayerInstance.controller.mecha = PlayerInstance.mecha;
-            PlayerInstance.controller.model = PlayerModelTransform;
-            PlayerInstance.controller.enabled = false; // Disable updates 
+            var controller = PlayerInstance.controller;
+            controller.gameData = GameMain.data;
+            controller.player = PlayerInstance;
+            controller.mecha = PlayerInstance.mecha;
+            controller.model = PlayerModelTransform;
+            controller.enabled = false; // Disable updates 
+            controller.actionDeath = new PlayerAction_Death();
+            controller.actionDeath.Init(PlayerInstance);
+
+            PlayerInstance.isAlive = true; // TODO: Load remote player alive state
+            var gameObject = new GameObject("Camera Target"); // Dummy object to avoid NRE
+            gameObject.transform.SetParent(PlayerInstance.transform, false);
+            PlayerInstance.cameraTarget = gameObject.transform;
         }
 
         PlayerId = playerId;

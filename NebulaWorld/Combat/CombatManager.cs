@@ -64,6 +64,7 @@ public class CombatManager : IDisposable
         {
             return;
         }
+        var gameTick = GameMain.gameTick;
         ActivedPlanets.Clear();
         IndexByPlayerId.Clear();
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
@@ -90,20 +91,26 @@ public class CombatManager : IDisposable
             foreach (var pair in remotePlayersModels)
             {
                 var snapshot = pair.Value.Movement.GetLastPosition();
-                Players[index].id = pair.Key;
-                Players[index].planetId = snapshot.LocalPlanetId;
-                Players[index].position = snapshot.LocalPlanetPosition.ToVector3();
-                Players[index].uPostion = pair.Value.Movement.absolutePosition;
-                pair.Value.PlayerInstance.uPosition = Players[index].uPostion;
+                ref var ptr = ref Players[index];
+                ptr.id = pair.Key;
+                ptr.planetId = snapshot.LocalPlanetId;
+                ptr.position = snapshot.LocalPlanetPosition.ToVector3();
+                ptr.uPostion = pair.Value.Movement.absolutePosition;
+
+                var player = pair.Value.PlayerInstance;
+                player.uPosition = ptr.uPostion;
+
                 macha = pair.Value.MechaInstance;
-                Players[index].mecha = macha;
-                Players[index].skillTargetL = macha.skillTargetLCenter;
-                Players[index].skillTargetULast = Players[index].skillTargetU;
-                Players[index].skillTargetU = macha.skillTargetUCenter;
+                ptr.mecha = macha;
+                ptr.skillTargetL = macha.skillTargetLCenter;
+                ptr.skillTargetULast = ptr.skillTargetU;
+                ptr.skillTargetU = macha.skillTargetUCenter;
 
                 ActivedPlanets.Add(snapshot.LocalPlanetId);
                 IndexByPlayerId[pair.Key] = index;
                 ++index;
+
+                player.controller.actionDeath.GameTick(gameTick);
             }
         }
 
