@@ -57,8 +57,12 @@ public class WebSocketService : WebSocketBehavior
 
     protected override void OnClose(CloseEventArgs e)
     {
-        var connection = connections[Context.UserEndPoint.GetHashCode()];
-        connections.Remove(connection.GetHashCode());
+        if (!connections.TryGetValue(Context.UserEndPoint.GetHashCode(), out var connection))
+        {
+            return;
+        }
+        connections.Remove(Context.UserEndPoint.GetHashCode());
+
         // If the reason of a client disconnect is because we are still loading the game,
         // we don't need to inform the other clients since the disconnected client never
         // joined the game in the first place.
@@ -81,9 +85,13 @@ public class WebSocketService : WebSocketBehavior
 
     protected override void OnError(ErrorEventArgs e)
     {
+        if (!connections.TryGetValue(Context.UserEndPoint.GetHashCode(), out var connection))
+        {
+            return;
+        }
         connections.Remove(Context.UserEndPoint.GetHashCode());
 
-        // TODO: seems like clients erroring out in the sync process can lock the host with the joining player message, maybe this fixes it
+
         Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
         UnityDispatchQueue.RunOnMainThread(() =>
         {
@@ -91,8 +99,7 @@ public class WebSocketService : WebSocketBehavior
             // if it is because we have stopped the server and are not in a multiplayer game anymore.
             if (Multiplayer.IsActive)
             {
-                Server.OnSocketDisconnection(new NebulaConnection(Context.WebSocket, Context.UserEndPoint,
-                    PacketProcessor));
+                Server.OnSocketDisconnection(connection);
             }
         });
     }

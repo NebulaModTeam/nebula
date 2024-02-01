@@ -90,7 +90,7 @@ public class RemotePlayerModel
     public Transform PlayerModelTransform { get; set; }
     public RemotePlayerMovement Movement { get; set; }
     public RemotePlayerAnimation Animator { get; set; }
-    public GameObject InGameNameText { get; set; }
+    public TextMesh InGameNameText { get; set; }
     public Text StarmapNameText { get; set; }
     public Transform StarmapTracker { get; set; }
 

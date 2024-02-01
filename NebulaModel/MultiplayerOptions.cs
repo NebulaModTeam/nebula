@@ -22,6 +22,8 @@ public class MultiplayerOptions : ICloneable
 
     [DisplayName("Nickname")] public string Nickname { get; set; } = string.Empty;
 
+    [DisplayName("NameTagSize")] public int NameTagSize { get; set; } = 100;
+
     [DisplayName("Server Password")]
     [Category("Network")]
     [Description("If provided, this will set a password for your hosted server.")]
@@ -117,6 +119,10 @@ public class MultiplayerOptions : ICloneable
             UpdateInputFieldContentType(ref hostIpInput);
         }
     }
+
+    [DisplayName("Enable Achievement")]
+    [Description("Toggle to enable achievement in multiplayer game")]
+    public bool EnableAchievement { get; set; } = true;
 
     [DisplayName("Chat Hotkey")]
     [Category("Chat")]

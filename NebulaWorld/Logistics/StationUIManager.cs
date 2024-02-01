@@ -46,7 +46,7 @@ public class StationUIManager : IDisposable
     public void UpdateStorage(StorageUI packet)
     {
         var stationComponent = GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
-        if (stationComponent == null || stationComponent.storage.Length == 0)
+        if (stationComponent?.storage == null || stationComponent.storage.Length == 0)
         {
             return;
         }

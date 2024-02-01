@@ -60,6 +60,29 @@ public class DysonSphereRequestProcessor : PacketProcessor<DysonSphereLoadReques
             case DysonSphereRequestEvent.Unload:
                 Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn, packet.StarIndex);
                 break;
+
+            case DysonSphereRequestEvent.Query:
+                // Ignore query if dyson sphere doesn't exist on host
+                if (packet.StarIndex < 0 || packet.StarIndex >= GameMain.data.galaxy.starCount)
+                {
+                    return;
+                }
+                dysonSphere = GameMain.data.dysonSpheres[packet.StarIndex];
+                if (dysonSphere == null)
+                {
+                    return;
+                }
+                using (var writer = new BinaryUtils.Writer())
+                {
+                    dysonSphere.Export(writer.BinaryWriter);
+                    var data = writer.CloseAndGetBytes();
+                    Log.Info($"Sent {data.Length} bytes of data for DysonSphereData (INDEX: {packet.StarIndex})");
+                    conn.SendPacket(new FragmentInfo(data.Length));
+                    conn.SendPacket(new DysonSphereData(packet.StarIndex, data, DysonSphereRespondEvent.Load));
+                    Multiplayer.Session.DysonSpheres.RegisterPlayer(conn, packet.StarIndex);
+                }
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(packet), "Unknown DysonSphereRequestEvent: " + packet.Event);
         }
