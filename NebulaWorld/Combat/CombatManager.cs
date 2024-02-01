@@ -23,7 +23,7 @@ public class CombatManager : IDisposable
         public ushort id;
         public int planetId;
         public Vector3 position;
-        public VectorLF3 uPostion;
+        public VectorLF3 uPosition;
         public Mecha mecha;
         public Vector3 skillTargetL;
         public VectorLF3 skillTargetULast;
@@ -78,7 +78,7 @@ public class CombatManager : IDisposable
             Players[0].id = Multiplayer.Session.LocalPlayer.Id;
             Players[0].planetId = GameMain.localPlanet?.id ?? -1;
             Players[0].position = GameMain.mainPlayer.position;
-            Players[0].uPostion = GameMain.mainPlayer.uPosition;
+            Players[0].uPosition = GameMain.mainPlayer.uPosition;
             var macha = GameMain.mainPlayer.mecha;
             Players[0].mecha = macha;
             Players[0].skillTargetL = macha.skillTargetLCenter;
@@ -91,14 +91,22 @@ public class CombatManager : IDisposable
             foreach (var pair in remotePlayersModels)
             {
                 var snapshot = pair.Value.Movement.GetLastPosition();
+                var planetData = GameMain.galaxy.PlanetById(snapshot.LocalPlanetId);
+                var player = pair.Value.PlayerInstance;
+                if (planetData != null) // On planet
+                {
+                    player.uPosition = planetData.uPosition + (VectorLF3)(planetData.runtimeRotation * player.position);
+                    player.uRotation = planetData.runtimeRotation * Maths.SphericalRotation(player.position, 0f);
+                }
+                else // In space
+                {
+                    player.uPosition = pair.Value.Movement.absolutePosition;
+                }
                 ref var ptr = ref Players[index];
                 ptr.id = pair.Key;
                 ptr.planetId = snapshot.LocalPlanetId;
-                ptr.position = snapshot.LocalPlanetPosition.ToVector3();
-                ptr.uPostion = pair.Value.Movement.absolutePosition;
-
-                var player = pair.Value.PlayerInstance;
-                player.uPosition = ptr.uPostion;
+                ptr.position = player.position;
+                ptr.uPosition = player.uPosition;
 
                 macha = pair.Value.MechaInstance;
                 ptr.mecha = macha;
@@ -128,7 +136,7 @@ public class CombatManager : IDisposable
                 var bases = planet.factory.enemySystem.bases;
                 var buffer = bases.buffer;
                 var enemyPool = planet.factory.enemyPool;
-                GameMain.data.spaceSector.InverseTransformToAstro_ref(planet.astroId, ref Players[pid].uPostion, out var vectorLF);
+                GameMain.data.spaceSector.InverseTransformToAstro_ref(planet.astroId, ref Players[pid].uPosition, out var vectorLF);
                 for (var i = 1; i < bases.cursor; i++)
                 {
                     var dfgbaseComponent = buffer[i];
@@ -151,22 +159,22 @@ public class CombatManager : IDisposable
 
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (!remotePlayersModels.TryGetValue(playerId, out var player))
+            if (!remotePlayersModels.TryGetValue(playerId, out var playerModel))
             {
                 return false;
             }
             PlayerId = playerId;
-            actionCombat.player = player.PlayerInstance;
-            player.PlayerInstance.uPosition = player.Movement.absolutePosition;
-            actionCombat.mecha = player.MechaInstance;
-            actionCombat.mecha.laserEnergy = int.MaxValue;
-            actionCombat.mecha.ammoItemId = ammoItemId;
 
             // CollectStates
-            actionCombat.localPlanet = GameMain.galaxy.PlanetById(player.Movement.localPlanetId);
+            actionCombat.localPlanet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
             actionCombat.localStar = actionCombat.localPlanet?.star; // TODO: Assign real star
             actionCombat.localFactory = actionCombat.localPlanet?.factory;
             actionCombat.localAstroId = actionCombat.localPlanet?.astroId ?? 0;
+
+            actionCombat.player = playerModel.PlayerInstance;
+            actionCombat.mecha = playerModel.MechaInstance;
+            actionCombat.mecha.laserEnergy = int.MaxValue;
+            actionCombat.mecha.ammoItemId = ammoItemId;
 
             var isLocal = targetId == actionCombat.localAstroId;
             var pool = isLocal ? actionCombat.localFactory.enemyPool : actionCombat.spaceSector.enemyPool;
