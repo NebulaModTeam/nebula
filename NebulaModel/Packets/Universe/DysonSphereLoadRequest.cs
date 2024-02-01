@@ -18,5 +18,6 @@ public enum DysonSphereRequestEvent
 {
     List = 1,
     Load = 2,
-    Unload = 3
+    Unload = 3,
+    Query = 4
 }
