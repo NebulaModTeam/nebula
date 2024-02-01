@@ -62,7 +62,7 @@ public class DysonSphereRequestProcessor : PacketProcessor<DysonSphereLoadReques
                 break;
 
             case DysonSphereRequestEvent.Query:
-                // Ingroe query if dyson sphere doesn't exist on host
+                // Ignore query if dyson sphere doesn't exist on host
                 if (packet.StarIndex < 0 || packet.StarIndex >= GameMain.data.galaxy.starCount)
                 {
                     return;
