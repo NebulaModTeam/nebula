@@ -49,7 +49,7 @@ internal class BattleBaseSettingUpdateProcessor : PacketProcessor<BattleBaseSett
                 break;
 
             case BattleBaseSettingEvent.ChangeDronesPriority:
-                battleBase.constructionModule.ChangeDronesPriority(factory, packet.Arg1);
+                battleBase.constructionModule.ChangeDronesPriority(factory, (int)packet.Arg1);
                 break;
 
             case BattleBaseSettingEvent.ToggleCombatModuleEnabled:

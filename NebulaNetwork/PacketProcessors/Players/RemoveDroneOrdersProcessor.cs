@@ -52,7 +52,8 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
                 {
                     continue;
                 }
-                factory.constructionSystem.constructServing.Remove(targetObjectId); // in case it was a construction drone.
+                // TODO(0.10.29.21869)
+                // factory.constructionSystem.constructServing.Remove(targetObjectId); // in case it was a construction drone.
 
                 if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
                 {
@@ -81,7 +82,9 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
                 Multiplayer.Session.Network.SendPacketToPlanet(
                     new NewMechaDroneOrderPacket(player.Data.LocalPlanetId, targetObjectId,
                         nextClosestPlayer, /*TODO: rip*/true), player.Data.LocalPlanetId);
-                factory.constructionSystem.constructServing.Add(targetObjectId);
+
+                // TODO(0.10.29.21869)
+                //factory.constructionSystem.constructServing.Add(targetObjectId);
 
                 // only render other drones when on same planet
                 if (player.Data.LocalPlanetId == GameMain.mainPlayer.planetId)
@@ -117,8 +120,9 @@ internal class RemoveDroneOrdersProcessor : PacketProcessor<RemoveDroneOrdersPac
                 }
 
                 DroneManager.RemoveBuildRequest(drone.targetObjectId);
-                factory.constructionSystem.constructServing
-                    .Remove(drone.targetObjectId); // in case it was a construction drone.
+                // TODO(0.10.29.21869)
+                //factory.constructionSystem.constructServing
+                //    .Remove(drone.targetObjectId); // in case it was a construction drone.
             }
         }
     }

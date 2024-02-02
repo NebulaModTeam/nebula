@@ -18,8 +18,9 @@ namespace NebulaPatcher.Patches.Transpilers;
 [HarmonyPatch(typeof(BattleBaseComponent))]
 internal class BattleBaseComponent_Transpiler
 {
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(BattleBaseComponent.AutoPickTrash))]
+    // TODO(0.10.29.21869): runtime error
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(BattleBaseComponent.AutoPickTrash))]
     public static IEnumerable<CodeInstruction> BattleBaseComponent_AutoPickTrash_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
     {
         try

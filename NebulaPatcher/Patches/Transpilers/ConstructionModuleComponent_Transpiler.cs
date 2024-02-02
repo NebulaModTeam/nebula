@@ -23,8 +23,9 @@ internal delegate bool UseThisTarget(bool alreadyContained, int targetConstructi
 [HarmonyPatch(typeof(ConstructionModuleComponent))]
 internal class ConstructionModuleComponent_Transpiler
 {
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
+    // TODO(0.10.29.21869)
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
     public static IEnumerable<CodeInstruction> IdleDroneProcedure_Transpiler(IEnumerable<CodeInstruction> instructions,
         ILGenerator il)
     {
@@ -128,6 +129,8 @@ internal class ConstructionModuleComponent_Transpiler
                                 new NewMechaDroneOrderPacket(GameMain.mainPlayer.planetId, targetObjectId, closestPlayer,
                                     priority), GameMain.mainPlayer.planetId);
 
+                            // TODO(0.10.29.21869)
+                            /*
                             if (constructing)
                             {
                                 factory.constructionSystem.TakeEnoughItemsFromPlayer(targetObjectId);
@@ -135,6 +138,7 @@ internal class ConstructionModuleComponent_Transpiler
                             GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer,
                                 targetObjectId, priority);
                             factory.constructionSystem.constructServing.Add(targetObjectId);
+                            */
                         }
 
                         return false;
@@ -177,7 +181,8 @@ internal class ConstructionModuleComponent_Transpiler
                             {
                                 if (!Multiplayer.IsActive)
                                 {
-                                    _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                    // TODO(0.10.29.21869)
+                                    // _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
                                     return;
                                 }
                                 if (DroneManager.IsPendingBuildRequest(targetId))
@@ -190,8 +195,9 @@ internal class ConstructionModuleComponent_Transpiler
                                     new NewBattleBaseDroneOrderPacket(factory.planetId, targetId, _this.id, true),
                                     factory.planetId);
                                 DroneManager.TakeEnoughItemsFromBattleBase(factory, targetId, _this);
-                                _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
-                                factory.constructionSystem.constructServing.Add(targetId);
+                                // TODO(0.10.29.21869)
+                                // _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                // factory.constructionSystem.constructServing.Add(targetId);
                             }))
                     .Set(OpCodes.Nop, null); // remove original call
             });
@@ -230,7 +236,8 @@ internal class ConstructionModuleComponent_Transpiler
                             {
                                 if (!Multiplayer.IsActive)
                                 {
-                                    _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                    // TODO(0.10.29.21869)
+                                    //_this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
                                     return;
                                 }
                                 if (!DroneManager.IsPendingBuildRequest(targetId))
@@ -240,7 +247,8 @@ internal class ConstructionModuleComponent_Transpiler
                                     Multiplayer.Session.Network.SendPacketToPlanet(
                                         new NewBattleBaseDroneOrderPacket(factory.planetId, targetId, _this.id, false),
                                         factory.planetId);
-                                    _this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
+                                    // TODO(0.10.29.21869)
+                                    //_this.EjectBaseDrone(factory, ref drone, ref cData, targetId);
                                 }
                             }))
                     .Set(OpCodes.Nop, null); // remove original call
@@ -252,8 +260,10 @@ internal class ConstructionModuleComponent_Transpiler
     // skip targets that we already asked the host about, but only ask as much as we can handle with our idle drones.
     // replace: if (!factory.constructionSystem.constructServing.Contains(num12))
     // with the checks from below
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(ConstructionModuleComponent.SearchForNewTargets))]
+
+    // TODO(0.10.29.21869)
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(ConstructionModuleComponent.SearchForNewTargets))]
     public static IEnumerable<CodeInstruction> SearchForNewTargets_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
