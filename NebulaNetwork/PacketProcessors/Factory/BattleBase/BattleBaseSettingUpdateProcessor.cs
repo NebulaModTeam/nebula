@@ -58,6 +58,10 @@ internal class BattleBaseSettingUpdateProcessor : PacketProcessor<BattleBaseSett
 
             case BattleBaseSettingEvent.ToggleAutoReconstruct:
                 battleBase.constructionModule.autoReconstruct = packet.Arg1 != 0f;
+                if (battleBase.constructionModule.autoReconstruct)
+                {
+                    battleBase.constructionModule.SearchAutoReconstructTargets(factory, GameMain.mainPlayer, true);
+                }
                 break;
 
             case BattleBaseSettingEvent.ToggleAutoPickEnabled:

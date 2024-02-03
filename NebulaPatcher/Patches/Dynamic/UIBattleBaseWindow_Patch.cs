@@ -59,10 +59,9 @@ internal class UIBattleBaseWindow_Patch
         {
             return true;
         }
-        // TODO(0.10.29.21869)
-        // var ratio = __instance.constructionModule.dronePriorConstructRatio;
-        // var newRatio = ratio < 0.25f ? 0.5f : ratio < 0.75f ? 1f : 0f;
-        // SendEvent(__instance, BattleBaseSettingEvent.ChangeDronesPriority, newRatio);
+        var dronePriority = __instance.constructionModule.dronePriority;
+        var newDronePriority = (dronePriority + 1) % 3;
+        SendEvent(__instance, BattleBaseSettingEvent.ChangeDronesPriority, newDronePriority);
         return Multiplayer.Session.LocalPlayer.IsHost;
     }
 

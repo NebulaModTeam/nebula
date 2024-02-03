@@ -81,9 +81,10 @@ public enum StorageSyncRealtimeChangeEvent
     AddItem1 = 1,
     AddItem2 = 2,
     AddItemStacked = 3,
-    TakeItem = 4,
-    TakeItemFromGrid = 5,
-    TakeHeadItems = 6,
-    TakeTailItems1 = 7,
-    TakeTailItems2 = 8
+    AddItemFiltered = 4,
+    TakeItem = 5,
+    TakeItemFromGrid = 6,
+    TakeHeadItems = 7,
+    TakeTailItems1 = 8,
+    TakeTailItems2 = 9
 }
