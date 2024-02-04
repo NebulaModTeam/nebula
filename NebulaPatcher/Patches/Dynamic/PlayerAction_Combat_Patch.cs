@@ -43,7 +43,7 @@ internal class PlayerAction_Combat_Patch
                 return false;
             }
             dFGBase.activeTick = 3; // keyTick = 1 sec, trigger every 3s
-            var packet = new ActivateBasePacket(__instance.localPlanet.id, dFGBase.id);
+            var packet = new ActivateBasePacket(__instance.localPlanet.id, dFGBase.id, false);
             if (Multiplayer.Session.IsServer)
             {
                 Multiplayer.Session.Network.SendPacketToLocalStar(packet);
