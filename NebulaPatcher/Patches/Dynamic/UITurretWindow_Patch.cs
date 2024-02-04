@@ -12,6 +12,30 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class UITurretWindow_Patch
 {
     [HarmonyPostfix]
+    [HarmonyPatch(nameof(UITurretWindow.OnTurretShiftValueChange))]
+    public static void OnTurretShiftValueChange_Postfix(UITurretWindow __instance)
+    {
+        //Notify about manual bullet inserting / withdrawing change
+        if (!Multiplayer.IsActive || __instance is null)
+        {
+            return;
+        }
+
+        if (__instance._turretId == 0 || __instance.factory == null || __instance.player == null)
+        {
+            return;
+        }
+        ref var turret = ref __instance.defenseSystem.turrets.buffer[__instance.turretId];
+        if (turret.id != __instance.turretId || turret.type != ETurretType.Disturb)
+        {
+            return;
+        }
+
+        Multiplayer.Session.Network.SendPacketToLocalStar(new TurretPhaseUpdatePacket(
+            turret.id, turret.phasePos, __instance.factory.planetId));
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(nameof(UITurretWindow.OnHandFillAmmoButtonClick))]
     public static void OnHandFillAmmoButtonClick_Postfix(UITurretWindow __instance)
     {
@@ -50,9 +74,6 @@ internal class UITurretWindow_Patch
 
         Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(turret,
             GameMain.localPlanet?.id ?? -1));
-
-        //Multiplayer.Session.Network.SendPacketToLocalStar(new TurretStorageUpdatePacket(__instance.turretId,
-        // turret.itemId, turret.itemCount, turret.itemInc, GameMain.localPlanet?.id ?? -1));
     }
 
 
@@ -99,19 +120,40 @@ internal class UITurretWindow_Patch
             GameMain.localPlanet?.id ?? -1));
     }
 
-    //TODO: Work In Progress on SuperNova
-    //[HarmonyPostfix]
-    //[HarmonyPatch(nameof(UITurretWindow.SuperNovaBtn_onClick))]
-    //public static void OnSetSuperNova_Postfix(UITurretWindow __instance, int obj)
-    //{
-    //    if (!Multiplayer.IsActive)
-    //        return;
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UITurretWindow.SuperNovaBtn_onClick))]
+    public static bool OnSetSuperNova_Prefix(UITurretWindow __instance)
+    {
+        if (!Multiplayer.IsActive)
+        {
+            return true;
+        }
 
-    //    bool superNovaOn = __instance.defenseSystem.turrets.buffer[__instance.turretId].inSupernova;
+        if (__instance.turretId == 0 || __instance.factory == null || __instance.player == null)
+        {
+            return false;
+        }
+        ref var turret = ref __instance.defenseSystem.turrets.buffer[__instance.turretId];
+        if (turret.id != __instance.turretId)
+        {
+            return false;
+        }
+        var packet = new TurretSuperNovaPacket(__instance.turretId,
+            UITurretWindow.burstModeIndex, !turret.inSupernova, __instance.factory.planetId);
 
-    //    Multiplayer.Session.Network.SendPacketToLocalStar(new TurretSuperNovaPacket(__instance.turretId, superNovaOn,
-    //        GameMain.localPlanet?.id ?? -1));
-    //}
+        if (Multiplayer.Session.IsClient)
+        {
+            // Client will wait for server to authorize
+            Multiplayer.Session.Network.SendPacket(packet);
+            __instance.supernovaWait &= !turret.inSupernova;
+            return false;
+        }
+        else
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+            return true;
+        }
+    }
 
 
     [HarmonyPostfix]

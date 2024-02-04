@@ -4,14 +4,16 @@ public class TurretSuperNovaPacket
 {
     public TurretSuperNovaPacket() { }
 
-    public TurretSuperNovaPacket(int turretIndex, bool inSuperNova, int planetId)
+    public TurretSuperNovaPacket(int turretIndex, int brustModeIndex, bool setSuperNova, int planetId)
     {
         TurretIndex = turretIndex;
-        InSuperNova = inSuperNova;
+        BrustModeIndex = brustModeIndex;
+        SetSuperNova = setSuperNova;
         PlanetId = planetId;
     }
 
     public int TurretIndex { get; set; }
-    public bool InSuperNova { get; set; }
+    public int BrustModeIndex { get; set; }
+    public bool SetSuperNova { get; set; }
     public int PlanetId { get; set; }
 }
