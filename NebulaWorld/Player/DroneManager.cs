@@ -141,7 +141,8 @@ public class DroneManager : IDisposable
         }
         Multiplayer.Session.Network.SendPacket(new RemoveDroneOrdersPacket(new[] { entityId }, GameMain.mainPlayer.planetId));
         RemoveBuildRequest(entityId);
-        GameMain.galaxy.PlanetById(GameMain.mainPlayer.planetId)?.factory?.constructionSystem.constructServing.Remove(entityId);
+        // TODO(0.10.29.21869)
+        // GameMain.galaxy.PlanetById(GameMain.mainPlayer.planetId)?.factory?.constructionSystem.constructServing.Remove(entityId);
         return false;
     }
 

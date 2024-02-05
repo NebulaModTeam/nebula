@@ -42,17 +42,22 @@ internal class NewBattleBaseDroneOrderProcessor : PacketProcessor<NewBattleBaseD
 
             switch (packet.IsConstruction)
             {
+                // TODO(0.10.29.21869)
+                /*
                 case true when
                     factory.constructionSystem.TakeEnoughItemsFromBase(battleBaseComponent, packet.EntityId):
                     battleBaseComponent.constructionModule.EjectBaseDrone(factory, ref drone, ref craftData,
                         packet.EntityId);
                     battleBaseComponent.energy -= (long)droneEjectEnergy;
+                    
                     factory.constructionSystem.constructServing.Add(packet.EntityId);
 
                     return;
+                */
                 case false:
-                    battleBaseComponent.constructionModule.EjectBaseDrone(factory, ref drone, ref craftData,
-                        packet.EntityId);
+                    // TODO(0.10.29.21869)
+                    // battleBaseComponent.constructionModule.EjectBaseDrone(factory, ref drone, ref craftData,
+                    //    packet.EntityId);
                     battleBaseComponent.energy -= (long)droneEjectEnergy;
 
                     /* TODO: needed?

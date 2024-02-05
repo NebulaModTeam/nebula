@@ -19,10 +19,22 @@ internal class TurretGroupUpdateProcessor : PacketProcessor<TurretGroupUpdatePac
         {
             return;
         }
-        var turret = pool.buffer[packet.TurretIndex];
+        ref var turret = ref pool.buffer[packet.TurretIndex];
         if (turret.id != -1)
         {
             turret.SetGroup(packet.Group);
+        }
+
+        // Refresh UI if viewing on the same turret
+        var uiTurret = UIRoot.instance.uiGame.turretWindow;
+        if (uiTurret.factory == null || uiTurret.factory.planetId != packet.PlanetId || uiTurret.turretId != packet.TurretIndex)
+        {
+            return;
+        }
+        for (var i = 0; i < uiTurret.groupSelectionBtns.Length; i++)
+        {
+            var uibutton = uiTurret.groupSelectionBtns[i];
+            uibutton.highlighted = uibutton.data == (int)turret.group;
         }
     }
 }

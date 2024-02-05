@@ -34,19 +34,22 @@ internal class StorageSyncRealtimeChangeProcessor : PacketProcessor<StorageSyncR
             var inc = packet.Inc;
             switch (packet.StorageEvent)
             {
+                case StorageSyncRealtimeChangeEvent.AddItem1:
+                    storage.AddItem(itemId, count, inc, out _, true);
+                    break;
                 case StorageSyncRealtimeChangeEvent.AddItem2:
                     storage.AddItem(itemId, count, packet.StartIndex, packet.Length, inc, out _);
                     break;
                 case StorageSyncRealtimeChangeEvent.AddItemStacked:
                     storage.AddItemStacked(itemId, count, inc, out _);
                     break;
-                case StorageSyncRealtimeChangeEvent.TakeItemFromGrid:
-                    storage.TakeItemFromGrid(packet.Length, ref itemId, ref count, out _);
-                    break;
-                case StorageSyncRealtimeChangeEvent.AddItem1: //BattleBase AutoPickTrash
-                    storage.AddItem(itemId, count, inc, out _, true);
+                case StorageSyncRealtimeChangeEvent.AddItemFiltered: // Use by BattleBaseComponent.AutoPickTrash
+                    storage.AddItemFiltered(itemId, count, inc, out _, true);
                     break;
                 case StorageSyncRealtimeChangeEvent.TakeItem:
+                    break;
+                case StorageSyncRealtimeChangeEvent.TakeItemFromGrid:
+                    storage.TakeItemFromGrid(packet.Length, ref itemId, ref count, out _);
                     break;
                 case StorageSyncRealtimeChangeEvent.TakeHeadItems:
                     break;

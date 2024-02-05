@@ -49,7 +49,7 @@ internal class BattleBaseSettingUpdateProcessor : PacketProcessor<BattleBaseSett
                 break;
 
             case BattleBaseSettingEvent.ChangeDronesPriority:
-                battleBase.constructionModule.ChangeDronesPriority(factory, packet.Arg1);
+                battleBase.constructionModule.ChangeDronesPriority(factory, (int)packet.Arg1);
                 break;
 
             case BattleBaseSettingEvent.ToggleCombatModuleEnabled:
@@ -58,6 +58,10 @@ internal class BattleBaseSettingUpdateProcessor : PacketProcessor<BattleBaseSett
 
             case BattleBaseSettingEvent.ToggleAutoReconstruct:
                 battleBase.constructionModule.autoReconstruct = packet.Arg1 != 0f;
+                if (battleBase.constructionModule.autoReconstruct)
+                {
+                    battleBase.constructionModule.SearchAutoReconstructTargets(factory, GameMain.mainPlayer, true);
+                }
                 break;
 
             case BattleBaseSettingEvent.ToggleAutoPickEnabled:

@@ -18,8 +18,9 @@ internal delegate bool AreDronesEnabled(bool droneEnabled, ref DroneComponent dr
 [HarmonyPatch(typeof(ConstructionSystem))]
 internal class ConstructionSystem_Transpiler
 {
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(ConstructionSystem.UpdateDrones))]
+    // TODO(0.10.29.21869): runtime error
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(ConstructionSystem.UpdateDrones))]
     public static IEnumerable<CodeInstruction> UpdateDrones_Transpiler1(IEnumerable<CodeInstruction> instructions)
     {
         /*
@@ -119,8 +120,10 @@ internal class ConstructionSystem_Transpiler
     }
 
     // still update rendering of other player drones, make sure this happens here.
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(ConstructionSystem.UpdateDrones))]
+
+    // TODO(0.10.29.21869): runtime error
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(ConstructionSystem.UpdateDrones))]
     public static IEnumerable<CodeInstruction> UpdateDrones_Transpiler2(IEnumerable<CodeInstruction> instructions,
         ILGenerator generator)
     {

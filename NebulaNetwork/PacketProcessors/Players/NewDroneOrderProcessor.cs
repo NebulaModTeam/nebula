@@ -90,7 +90,8 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
                         if (factory != null)
                         {
                             DroneManager.EjectDronesOfOtherPlayer(packet.PlayerId, packet.PlanetId, packet.EntityId);
-                            factory.constructionSystem.constructServing.Add(packet.EntityId);
+                            // TODO(0.10.29.21869)
+                            // factory.constructionSystem.constructServing.Add(packet.EntityId);
                         }
                         break;
                     }
@@ -100,11 +101,15 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
 
                         if (factory != null)
                         {
+                            // TODO(0.10.29.21869)
+                            /*
                             factory.constructionSystem.TakeEnoughItemsFromPlayer(packet.EntityId);
                             GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer,
                                 packet.EntityId,
                                 packet.Priority);
+                            
                             factory.constructionSystem.constructServing.Add(packet.EntityId);
+                            */
                         }
                         break;
                     }
@@ -155,7 +160,8 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
         Multiplayer.Session.Network.SendPacketToPlanet(
         new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayerId, packet.Priority),
             packet.PlanetId);
-        factory.constructionSystem.constructServing.Add(packet.EntityId);
+        // TODO(0.10.29.21869)
+        // factory.constructionSystem.constructServing.Add(packet.EntityId);
 
         // only render other drones when on same planet
         if (packet.PlanetId == GameMain.mainPlayer.planetId)
@@ -175,9 +181,12 @@ internal class NewDroneOrderProcessor : PacketProcessor<NewMechaDroneOrderPacket
             new NewMechaDroneOrderPacket(packet.PlanetId, packet.EntityId, closestPlayerId, packet.Priority),
             packet.PlanetId);
 
+        // TODO(0.10.29.21869)
+        /*
         factory.constructionSystem.TakeEnoughItemsFromPlayer(packet.EntityId);
         GameMain.mainPlayer.mecha.constructionModule.EjectMechaDrone(factory, GameMain.mainPlayer, packet.EntityId,
             packet.Priority);
         factory.constructionSystem.constructServing.Add(packet.EntityId);
+        */
     }
 }

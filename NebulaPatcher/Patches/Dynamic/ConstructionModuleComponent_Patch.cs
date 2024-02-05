@@ -23,8 +23,9 @@ internal class ConstructionModuleComponent_Patch
     }
 
     // clients should skip the procedure for BattleBases. The host will tell them when to eject drones.
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
+    // TODO(0.10.29.21869)
+    //[HarmonyPrefix]
+    //[HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
     public static bool IdleDroneProcedure_Prefix(ConstructionModuleComponent __instance)
     {
         if (!Multiplayer.IsActive)

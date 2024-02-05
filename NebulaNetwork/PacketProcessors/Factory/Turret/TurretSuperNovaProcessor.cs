@@ -4,6 +4,7 @@ using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Factory.Turret;
+using NebulaWorld;
 
 #endregion
 
@@ -14,23 +15,29 @@ internal class TurretSuperNovaProcessor : PacketProcessor<TurretSuperNovaPacket>
 {
     protected override void ProcessPacket(TurretSuperNovaPacket packet, NebulaConnection conn)
     {
-        var defenseSystem = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.defenseSystem;
+        var planet = GameMain.galaxy.PlanetById(packet.PlanetId);
+        var defenseSystem = planet?.factory?.defenseSystem;
         var pool = defenseSystem?.turrets;
         if (pool == null || packet.TurretIndex == -1 || packet.TurretIndex >= pool.buffer.Length ||
             pool.buffer[packet.TurretIndex].id == -1)
         {
             return;
         }
-        //TODO: Evaluate in PR, should I count on other packet, or should I pass through?
-        var burstModeIndex = UITurretWindow.burstModeIndex;
-        var inSuperNova = packet.InSuperNova;
 
-        var refTurret = pool.buffer[packet.TurretIndex];
+        if (IsHost)
+        {
+            // Broadcast supernova events to other players in the system
+            var starId = planet.star.id;
+            Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+        }
 
-        switch (burstModeIndex)
+        var setSuperNova = packet.SetSuperNova;
+        UITurretWindow.burstModeIndex = packet.BrustModeIndex; // Leave a mark in UI
+        ref var refTurret = ref pool.buffer[packet.TurretIndex];
+        switch (packet.BrustModeIndex)
         {
             case 1:
-                if (inSuperNova)
+                if (setSuperNova)
                 {
                     refTurret.SetSupernova();
                 }
@@ -40,7 +47,7 @@ internal class TurretSuperNovaProcessor : PacketProcessor<TurretSuperNovaPacket>
                 }
                 break;
             case 2:
-                if (inSuperNova)
+                if (setSuperNova)
                 {
                     defenseSystem.SetGroupTurretsSupernova(refTurret.group);
                 }
@@ -50,7 +57,7 @@ internal class TurretSuperNovaProcessor : PacketProcessor<TurretSuperNovaPacket>
                 }
                 break;
             case 3:
-                if (inSuperNova)
+                if (setSuperNova)
                 {
                     defenseSystem.SetGlobalTurretsSupernova();
                 }
@@ -59,6 +66,17 @@ internal class TurretSuperNovaProcessor : PacketProcessor<TurretSuperNovaPacket>
                     defenseSystem.CancelGlobalTurretSupernova();
                 }
                 break;
+        }
+
+        var uiTurret = UIRoot.instance.uiGame.turretWindow;
+        if (uiTurret.factory == null || uiTurret.factory.planetId != packet.PlanetId || uiTurret.turretId != packet.TurretIndex)
+        {
+            return;
+        }
+        uiTurret.supernovaWait = packet.SetSuperNova;
+        if (refTurret.inSupernova)
+        {
+            GameMain.gameScenario.NotifyOnSupernovaUITriggered();
         }
     }
 }
