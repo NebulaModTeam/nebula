@@ -70,25 +70,39 @@ internal class PlayerAction_Combat_Patch
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlayerAction_Combat.ShieldBurst))]
+    public static void ShieldBurst_Postfix(PlayerAction_Combat __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        {
+            return;
+        }
+
+        var mecha = __instance.mecha;
+        var packet = new MechaShieldBurstPacket(Multiplayer.Session.LocalPlayer.Id,
+            mecha.energyShieldBurstProgress, mecha.energyShieldCapacity,
+            mecha.energyShieldEnergy, mecha.energyShieldBurstDamageRate);
+
+        if (GameMain.localStar != null)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+        }
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(nameof(PlayerAction_Combat.ShootTarget))]
     public static void ShootTarget_Postfix(PlayerAction_Combat __instance, EAmmoType ammoType, in SkillTarget target, bool __result)
     {
-        NebulaModel.Logger.Log.Debug($"{ammoType} {target.id} {__result}");
         if (!__result || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value)
         {
             return;
         }
 
-        var isLocal = target.astroId == __instance.localAstroId;
         var ammoItemId = __instance.mecha.ammoItemId;
         var packet = new MechaShootPacket(Multiplayer.Session.LocalPlayer.Id,
             (byte)ammoType, ammoItemId, target.astroId, target.id);
 
-        if (isLocal)
-        {
-            Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
-        }
-        else
+        if (GameMain.localStar != null)
         {
             // Currently mecha weapon can not cross star system, so broadcast only to local star
             Multiplayer.Session.Network.SendPacketToLocalStar(packet);

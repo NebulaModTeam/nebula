@@ -22,6 +22,7 @@ internal class PlayerAction_Combat_Transpiler
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Cannon_Space))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Laser_Local))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Laser_Space))]
+    [HarmonyPatch(nameof(PlayerAction_Combat.ShieldBurst))]
     public static IEnumerable<CodeInstruction> Shoot_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         try

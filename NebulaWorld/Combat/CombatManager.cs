@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NebulaAPI.DataStructures;
 using NebulaModel.DataStructures;
+using NebulaModel.Packets.Combat.Mecha;
 using UnityEngine;
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -147,6 +148,49 @@ public class CombatManager : IDisposable
                 }
             }
         }
+    }
+
+    public bool ShieldBrust(MechaShieldBurstPacket packet)
+    {
+        if (actionCombat == null)
+        {
+            actionCombat = new PlayerAction_Combat();
+            actionCombat.Init(GameMain.mainPlayer);
+        }
+
+        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+        {
+            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var playerModel))
+            {
+                return false;
+            }
+            PlayerId = packet.PlayerId;
+
+            // CollectStates
+            actionCombat.localPlanet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
+            actionCombat.localStar = actionCombat.localPlanet?.star; // TODO: Assign real star
+            actionCombat.localFactory = actionCombat.localPlanet?.factory;
+            actionCombat.localAstroId = actionCombat.localPlanet?.astroId ?? 0;
+
+            actionCombat.player = playerModel.PlayerInstance;
+            actionCombat.mecha = playerModel.MechaInstance;
+            actionCombat.localPlayerPos = actionCombat.localPlanet != null ? actionCombat.player.position : actionCombat.player.uPosition;
+
+            var mecha = actionCombat.mecha;
+            mecha.energyShieldBurstProgress = packet.EnergyShieldBurstProgress;
+            mecha.energyShieldCapacity = packet.EnergyShieldCapacity;
+            mecha.energyShieldEnergy = packet.EnergyShieldEnergy;
+            mecha.energyShieldBurstDamageRate = packet.EnergyShieldBurstDamageRate;
+
+            var localPlanetOrStarAstroId = actionCombat.skillSystem.localPlanetOrStarAstroId;
+            actionCombat.skillSystem.localPlanetOrStarAstroId = actionCombat.localAstroId;
+            actionCombat.ShieldBurst();
+
+            // Restore
+            actionCombat.skillSystem.localPlanetOrStarAstroId = localPlanetOrStarAstroId;
+            PlayerId = Multiplayer.Session.LocalPlayer.Id;
+        }
+        return true;
     }
 
     public bool ShootTarget(ushort playerId, int ammoItemId, EAmmoType ammoType, int targetAstroId, int targetId)

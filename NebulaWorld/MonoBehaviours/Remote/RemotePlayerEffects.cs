@@ -247,6 +247,12 @@ public class RemotePlayerEffects : MonoBehaviour
 
     private ParticleSystem[] WaterEffect;
 
+    private float shieldBurstPrepareTime;
+    private GameObject shieldBurstPrepareEffect1;
+    private Material shieldBurstPrepareEffectMat1;
+    private GameObject shieldBurstPrepareEffect2;
+    private Material shieldBurstPrepareEffectMat2;
+
     public void Awake()
     {
         rootAnimation = GetComponent<PlayerAnimator>();
@@ -279,6 +285,17 @@ public class RemotePlayerEffects : MonoBehaviour
         FootSmallSmoke[1] = rootTransform.Find("VFX").Find("vfx-r-footsteps/smoke").GetComponent<ParticleSystem>();
         FootLargeSmoke[0] = rootTransform.Find("VFX").Find("vfx-l-footsteps/smoke-2").GetComponent<ParticleSystem>();
         FootLargeSmoke[1] = rootTransform.Find("VFX").Find("vfx-r-footsteps/smoke-2").GetComponent<ParticleSystem>();
+
+        shieldBurstPrepareEffect1 = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/upbody/vfx-shield-burst-prepare1").gameObject;
+        shieldBurstPrepareEffect1.SetActive(false);
+        MeshRenderer meshRenderer = shieldBurstPrepareEffect1.GetComponent<MeshRenderer>();
+        shieldBurstPrepareEffectMat1 = Instantiate(meshRenderer.sharedMaterial);
+        meshRenderer.material = shieldBurstPrepareEffectMat1;
+        shieldBurstPrepareEffect2 = rootModelTransform.Find("bip/pelvis/spine-1/spine-2/spine-3/upbody/vfx-shield-burst-prepare2").gameObject;
+        shieldBurstPrepareEffect2.SetActive(false);
+        meshRenderer = shieldBurstPrepareEffect2.GetComponent<MeshRenderer>();
+        shieldBurstPrepareEffectMat2 = Instantiate(meshRenderer.sharedMaterial);
+        meshRenderer.material = shieldBurstPrepareEffectMat2;
 
         collider = new Collider[16];
 
@@ -591,6 +608,7 @@ public class RemotePlayerEffects : MonoBehaviour
         isGrounded = (packet.Flags & PlayerMovement.EFlags.isGrounded) == PlayerMovement.EFlags.isGrounded;
         inWater = (packet.Flags & PlayerMovement.EFlags.inWater) == PlayerMovement.EFlags.inWater;
         var warping = (packet.Flags & PlayerMovement.EFlags.warping) == PlayerMovement.EFlags.warping;
+        var chargeShieldBurst = (packet.Flags & PlayerMovement.EFlags.chargeShieldBurst) == PlayerMovement.EFlags.chargeShieldBurst;
 
         if (runActive || !isGrounded || maxAltitude > 0)
         {
@@ -687,6 +705,41 @@ public class RemotePlayerEffects : MonoBehaviour
         else
         {
             rootWarp.StopWarp();
+        }
+
+        if (chargeShieldBurst)
+        {
+            shieldBurstPrepareTime += 2f * Time.deltaTime;
+        }
+        else
+        {
+            shieldBurstPrepareTime -= 2f * Time.deltaTime;
+        }
+        if (shieldBurstPrepareTime > 1f)
+        {
+            shieldBurstPrepareTime = 1f;
+        }
+        if (shieldBurstPrepareTime < 0f)
+        {
+            shieldBurstPrepareTime = 0f;
+        }
+        shieldBurstPrepareEffect1.SetActive(shieldBurstPrepareTime > 0f);
+        shieldBurstPrepareEffect2.SetActive(shieldBurstPrepareTime > 0f);
+        if (shieldBurstPrepareTime > 0f)
+        {
+            var num6 = Mathf.Repeat(Time.time / 2f, 1f);
+            var num7 = Mathf.Repeat(Time.time / 2f + 0.5f, 1f);
+            var num8 = ((num6 < 0.5f) ? (num6 * 2f) : (-num6 * 2f + 2f));
+            var num9 = 1f - num8;
+            var num10 = 0.5f + 0.5f * 3f; // assume mecha.energyShieldBurstProgress is half full
+            shieldBurstPrepareEffectMat1.SetFloat("_Ani1", num6);
+            shieldBurstPrepareEffectMat2.SetFloat("_Ani1", num7);
+            shieldBurstPrepareEffectMat1.SetFloat("_AlphaMultiplier", num8 * shieldBurstPrepareTime);
+            shieldBurstPrepareEffectMat2.SetFloat("_AlphaMultiplier", num9 * shieldBurstPrepareTime);
+            shieldBurstPrepareEffectMat1.SetFloat("_Radius", num10);
+            shieldBurstPrepareEffectMat2.SetFloat("_Radius", num10);
+            shieldBurstPrepareEffectMat1.SetVector("_FlareSize", new Vector4(30f, 30f, 40f, 0f));
+            shieldBurstPrepareEffectMat2.SetVector("_FlareSize", new Vector4(50f, 50f, 40f, 0f));
         }
     }
 }

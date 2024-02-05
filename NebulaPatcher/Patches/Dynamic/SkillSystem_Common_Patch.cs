@@ -10,6 +10,29 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch]
 internal class SkillSystem_Common_Patch
 {
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(GeneralShieldBurst), nameof(GeneralShieldBurst.TickSkillLogic))]
+
+    public static bool GeneralShieldBurst_Prefix(ref GeneralShieldBurst __instance, SkillSystem skillSystem)
+    {
+        if (!Multiplayer.IsActive || __instance.caster.type != ETargetType.Player) return true;
+        if (!Multiplayer.Session.Combat.IndexByPlayerId.TryGetValue(__instance.caster.id, out var index)) return true;
+
+        // Overwrite the original function
+        ref var playerData = ref Multiplayer.Session.Combat.Players[index];
+        __instance.upos = playerData.mecha.skillShieldBurstUCenter;
+        __instance.rpos = playerData.mecha.skillShieldBurstLCenter;
+        if ((__instance.lifeMax - __instance.life) % __instance.damageInterval == 0)
+        {
+            __instance.DoRangeDamage(skillSystem);
+        }
+        if (__instance.life > 0)
+        {
+            __instance.life--;
+        }
+        return false;
+    }
+
     static void SwtichPlayerState(int playerId)
     {
         if (!Multiplayer.Session.Combat.IndexByPlayerId.TryGetValue(playerId, out var index)) return;
