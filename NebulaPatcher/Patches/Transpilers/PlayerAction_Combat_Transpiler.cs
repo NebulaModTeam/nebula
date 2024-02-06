@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Combat.Mecha;
+using NebulaWorld;
 
 #endregion
 
@@ -14,6 +16,7 @@ namespace NebulaPatcher.Patches.Transpilers;
 internal class PlayerAction_Combat_Transpiler
 {
     [HarmonyTranspiler]
+    [HarmonyPatch(nameof(PlayerAction_Combat.Bombing))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Gauss_Local))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Cannon_Local))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Plasma))]
@@ -23,7 +26,7 @@ internal class PlayerAction_Combat_Transpiler
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Laser_Local))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Laser_Space))]
     [HarmonyPatch(nameof(PlayerAction_Combat.ShieldBurst))]
-    public static IEnumerable<CodeInstruction> Shoot_Transpiler(IEnumerable<CodeInstruction> instructions)
+    public static IEnumerable<CodeInstruction> ReplacePlayerId_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         try
         {
@@ -39,9 +42,11 @@ internal class PlayerAction_Combat_Transpiler
                     new CodeMatch(i => i.opcode == OpCodes.Ldflda && ((FieldInfo)i.operand).Name == "caster"),
                     new CodeMatch(OpCodes.Ldc_I4_1),
                     new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "id"))
-                .Advance(-1)
-                .Set(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(NebulaWorld.Combat.CombatManager),
-                    nameof(NebulaWorld.Combat.CombatManager.PlayerId)));
+                .Repeat(matcher => matcher
+                    .Advance(-1)
+                    .Set(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(NebulaWorld.Combat.CombatManager),
+                        nameof(NebulaWorld.Combat.CombatManager.PlayerId)))
+                );
 
             return codeMatcher.InstructionEnumeration();
         }
@@ -51,5 +56,94 @@ internal class PlayerAction_Combat_Transpiler
             Log.Error(e);
             return instructions;
         }
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(PlayerAction_Combat.Bombing))]
+    public static IEnumerable<CodeInstruction> Bombing_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
+            //  Broadcast bombing event to other players by replacing ptr.ApplyConfigs();
+
+            var codeMatcher = new CodeMatcher(instructions)
+                .MatchForward(true, new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Bomb_Liquid), nameof(Bomb_Liquid.ApplyConfigs))))
+                .Insert(new CodeInstruction(OpCodes.Ldarg_0))
+                .Advance(1)
+                .SetOperandAndAdvance(AccessTools.Method(typeof(PlayerAction_Combat_Transpiler), nameof(SendBomb_Liquid)))
+                .MatchForward(true, new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Bomb_Explosive), nameof(Bomb_Explosive.ApplyConfigs))))
+                .Insert(new CodeInstruction(OpCodes.Ldarg_0))
+                .Advance(1)
+                .SetOperandAndAdvance(AccessTools.Method(typeof(PlayerAction_Combat_Transpiler), nameof(SendBomb_Explosive)))
+                .MatchForward(true, new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Bomb_EMCapsule), nameof(Bomb_EMCapsule.ApplyConfigs))))
+                .Insert(new CodeInstruction(OpCodes.Ldarg_0))
+                .Advance(1)
+                .SetOperandAndAdvance(AccessTools.Method(typeof(PlayerAction_Combat_Transpiler), nameof(SendBomb_EMCapsule)));
+
+            return codeMatcher.InstructionEnumeration();
+        }
+        catch (System.Exception e)
+        {
+            Log.Error("Transpiler PlayerAction_Combat.Bombing failed.");
+            Log.Error(e);
+            return instructions;
+        }
+    }
+
+    static void SendBomb_Liquid(ref Bomb_Liquid ptr, PlayerAction_Combat combat)
+    {
+        ptr.ApplyConfigs();
+        if (!Multiplayer.IsActive)
+        {
+            return;
+        }
+
+        var packet = new MechaBombPacket(
+            Multiplayer.Session.LocalPlayer.Id,
+            ptr.nearStarId,
+            in combat.player.uVelocity,
+            in ptr.uVel,
+            in ptr.uAgl,
+            ptr.protoId);
+
+        Multiplayer.Session.Network.SendPacket(packet);
+    }
+
+    static void SendBomb_Explosive(ref Bomb_Explosive ptr, PlayerAction_Combat combat)
+    {
+        ptr.ApplyConfigs();
+        if (!Multiplayer.IsActive)
+        {
+            return;
+        }
+
+        var packet = new MechaBombPacket(
+            Multiplayer.Session.LocalPlayer.Id,
+            ptr.nearStarId,
+            in combat.player.uVelocity,
+            in ptr.uVel,
+            in ptr.uAgl,
+            ptr.protoId);
+
+        Multiplayer.Session.Network.SendPacket(packet);
+    }
+
+    static void SendBomb_EMCapsule(ref Bomb_EMCapsule ptr, PlayerAction_Combat combat)
+    {
+        ptr.ApplyConfigs();
+        if (!Multiplayer.IsActive)
+        {
+            return;
+        }
+
+        var packet = new MechaBombPacket(
+            Multiplayer.Session.LocalPlayer.Id,
+            ptr.nearStarId,
+            in combat.player.uVelocity,
+            in ptr.uVel,
+            in ptr.uAgl,
+            ptr.protoId);
+
+        Multiplayer.Session.Network.SendPacket(packet);
     }
 }
