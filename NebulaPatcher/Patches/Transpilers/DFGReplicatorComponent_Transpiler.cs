@@ -62,8 +62,9 @@ internal class DFGReplicatorComponent_Transpiler
             return 0;
         }
 
-        var packet = new DFGFormationAddUnitPacket(gbase.groundSystem.planet.id, gbase.id, formId);
+        var portId = enemyFormation.AddUnit();
+        var packet = new DFGFormationAddUnitPacket(gbase.groundSystem.planet.id, gbase.id, formId, portId);
         Multiplayer.Session.Network.SendPacketToStar(packet, gbase.groundSystem.planet.star.id);
-        return enemyFormation.AddUnit();
+        return portId;
     }
 }

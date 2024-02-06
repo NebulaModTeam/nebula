@@ -37,9 +37,9 @@ internal class EnemyDFGroundSystem_Patch
         {
             foreach (var enemyId in __instance._rmv_id_list)
             {
+                __instance.factory.RemoveEnemyFinal(enemyId);
                 var packet = new DeferredRemoveEnemyPacket(planetId, enemyId);
                 Multiplayer.Session.Network.SendPacketToStar(packet, starId);
-                __instance.factory.RemoveEnemyFinal(enemyId);
             }
             __instance._rmv_id_list.Clear();
         }
@@ -47,9 +47,9 @@ internal class EnemyDFGroundSystem_Patch
         {
             foreach (var (baseId, builderIndex) in __instance._add_bidx_list)
             {
-                var packet = new DeferredCreateEnemyPacket(planetId, baseId, builderIndex);
+                var enemyId = __instance.factory.CreateEnemyFinal(baseId, builderIndex);
+                var packet = new DeferredCreateEnemyPacket(planetId, baseId, builderIndex, enemyId);
                 Multiplayer.Session.Network.SendPacketToStar(packet, starId);
-                __instance.factory.CreateEnemyFinal(baseId, builderIndex);
             }
             __instance._add_bidx_list.Clear();
         }

@@ -37,18 +37,10 @@ public class KillEnemyProcessor : PacketProcessor<KillEnemyPacket>
                 }
                 else if (factory.enemyPool[packet.EnemyId].isInvincible) // Mark
                 {
-                    // Lower part
                     ref var ptr = ref factory.enemyPool[packet.EnemyId];
                     ptr.id = packet.EnemyId;
                     ptr.isInvincible = false;
-                    if (ptr.owner > 0)
-                    {
-                        factory.enemySystem.NotifyEnemyKilled(ref ptr);
-                    }
-                    if (ptr.dfGBaseId == 0)
-                    {
-                        factory.RemoveEnemyWithComponents(packet.EnemyId);
-                    }
+                    factory.KillEnemyFinally(GameMain.mainPlayer, packet.EnemyId, ref CombatStat.empty);
                 }
             }
         }

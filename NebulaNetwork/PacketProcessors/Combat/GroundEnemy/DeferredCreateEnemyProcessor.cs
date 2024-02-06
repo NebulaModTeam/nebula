@@ -4,6 +4,7 @@ using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
+using NebulaWorld;
 
 #endregion
 
@@ -17,6 +18,13 @@ public class DeferredCreateEnemyProcessor : PacketProcessor<DeferredCreateEnemyP
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;
 
-        factory.CreateEnemyFinal(packet.BaseId, packet.BuilderIndex);
+        using (Multiplayer.Session.Combat.IsIncomingRequest.On())
+        {
+            var enemyId = factory.CreateEnemyFinal(packet.BaseId, packet.BuilderIndex);
+            if (enemyId != packet.EnemyId)
+            {
+                NebulaModel.Logger.Log.Warn($"DeferredCreateEnemyPacket wrong id {packet.EnemyId} => {enemyId}");
+            }
+        }
     }
 }

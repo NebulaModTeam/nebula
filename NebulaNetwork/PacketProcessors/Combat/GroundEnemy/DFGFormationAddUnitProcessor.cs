@@ -5,6 +5,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
+using static UnityEngine.UI.CanvasScaler;
 
 #endregion
 
@@ -19,6 +20,13 @@ public class DFGFormationAddUnitProcessor : PacketProcessor<DFGFormationAddUnitP
         if (factory == null) return;
 
         var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
-        dFBase.forms[packet.FormId].AddUnit();
+        using (Multiplayer.Session.Combat.IsIncomingRequest.On())
+        {
+            var portId = dFBase.forms[packet.FormId].AddUnit();
+            if (portId != packet.PortId)
+            {
+                NebulaModel.Logger.Log.Warn($"DFGFormationAddUnitPacket wrong id {packet.PortId} => {portId}");
+            }
+        }
     }
 }

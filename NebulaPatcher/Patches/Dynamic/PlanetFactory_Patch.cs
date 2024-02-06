@@ -726,31 +726,31 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.KillEnemyFinally))]
-    public static void KillEnemyFinally_Prefix(PlanetFactory __instance, int enemyId)
+    public static bool KillEnemyFinally_Prefix(PlanetFactory __instance, int enemyId)
     {
-        if (!Multiplayer.IsActive)
+        if (!Multiplayer.IsActive || enemyId <= 0)
         {
-            return;
+            return true;
         }
         if (Multiplayer.Session.IsServer)
         {
             var starId = __instance.planet.star.id;
             Multiplayer.Session.Network.SendPacketToStar(new KillEnemyPacket(__instance.planetId, enemyId), starId);
-            return;
+            return true;
         }
         if (Multiplayer.Session.Combat.IsIncomingRequest.Value)
         {
-            return;
+            return true;
         }
 
-        // Client: Do the upper part for instant animation feedback
-        // Then wait for server to approve the unitId and enmeyId recycle
+        // Client: wait for server to approve the unitId and enmeyId recycle
         // Make this enemyData appear as empty
         ref var enemyPtr = ref __instance.enemyPool[enemyId];
         enemyPtr.isInvincible = true;
         enemyPtr.id = 0;
         Multiplayer.Session.Network.SendPacket(new KillEnemyPacket(__instance.planetId, enemyId));
-        return;
+
+        return false;
     }
 
     [HarmonyPrefix]

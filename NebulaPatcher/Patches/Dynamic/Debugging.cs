@@ -3,12 +3,41 @@
 #region
 
 using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaWorld;
 // ReSharper disable RedundantAssignment
 
 #endregion
 
 namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(EnemyFormation))]
+internal class Debug_EnemyFormation_Patch
+{
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(EnemyFormation.AddUnit))]
+    public static void AddUnit_Postfix(int __result)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        {
+            return;
+        }
+        Log.Warn($"EnemyFormation.AddUnit {__result} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(EnemyFormation.RemoveUnit))]
+    public static void RemoveUnit_Postfix(int port)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        {
+            return;
+        }
+        Log.Warn($"EnemyFormation.RemoveUnit {port} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+}
 
 [HarmonyPatch(typeof(GameHistoryData))]
 internal class Debug_GameHistoryData_Patch
@@ -113,6 +142,34 @@ internal class Debug_MechaForge_Patch
         }
         __result = null;
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(PlanetFactory))]
+internal class Debug_PlanetFactory_Patch
+{
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlanetFactory.AddEnemyDataWithComponents))]
+    public static void AddEnemyDataWithComponents_Postfix(int __result)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        {
+            return;
+        }
+        Log.Warn($"PlanetFactory.AddEnemyDataWithComponents {__result} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlanetFactory.RemoveEnemyWithComponents))]
+    public static void RemoveEnemyWithComponents_Postfix(int id)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        {
+            return;
+        }
+        Log.Warn($"PlanetFactory.RemoveEnemyWithComponents {id} without approve!");
+        Log.Warn(System.Environment.StackTrace);
     }
 }
 
