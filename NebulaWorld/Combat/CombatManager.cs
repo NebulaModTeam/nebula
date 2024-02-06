@@ -2,9 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using NebulaAPI.DataStructures;
 using NebulaModel.DataStructures;
 using NebulaModel.Packets.Combat.Mecha;
+using NebulaModel.Packets.Players;
 using UnityEngine;
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -114,6 +116,7 @@ public class CombatManager : IDisposable
                 ptr.skillTargetL = macha.skillTargetLCenter;
                 ptr.skillTargetULast = ptr.skillTargetU;
                 ptr.skillTargetU = macha.skillTargetUCenter;
+                macha.energyShieldEnergy = macha.energyShieldEnergyRate > 1 ? 0 : int.MaxValue;
 
                 ActivedPlanets.Add(snapshot.LocalPlanetId);
                 IndexByPlayerId[pair.Key] = index;

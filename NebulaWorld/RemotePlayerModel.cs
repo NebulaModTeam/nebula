@@ -3,6 +3,7 @@
 using NebulaWorld.MonoBehaviours.Remote;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.MeshSubsetCombineUtility;
 
 #endregion
 
@@ -55,6 +56,7 @@ public class RemotePlayerModel
         {
             PlayerInstance.mecha = MechaInstance;
             MechaInstance.Init(GameMain.data, PlayerInstance);
+            MechaInstance.SetForNewGame();
             PlayerInstance.animator = Animator.PlayerAnimator;
 
             //Fix MechaDroneRenderers

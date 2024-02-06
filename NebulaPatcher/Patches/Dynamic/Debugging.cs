@@ -56,6 +56,10 @@ internal class Debug_Mecha_Patch
     [HarmonyPatch(nameof(Mecha.SetForNewGame))]
     public static void SetForNewGame_Postfix(Mecha __instance)
     {
+        if (GameMain.mainPlayer != __instance.player)
+        {
+            return;
+        }
         __instance.coreEnergyCap = 30000000000;
         __instance.coreEnergy = 30000000000;
         __instance.corePowerGen = 5000000;
@@ -76,6 +80,15 @@ internal class Debug_Mecha_Patch
         __instance.player.package.AddItemStacked(2003, 600, 1, out _); //add MK3 belts
         __instance.player.package.AddItemStacked(2013, 100, 1, out _); //add MK3 inserters
         __instance.player.package.AddItemStacked(2212, 20, 1, out _); //add satelite sub-station
+        __instance.player.package.AddItemStacked(1128, 100, 1, out _); // add combustible unit
+        __instance.player.package.AddItemStacked(1601, 100, 1, out _); // add magnum ammo box
+        __instance.player.package.AddItemStacked(1604, 100, 1, out _); // add shell set
+        __instance.player.package.AddItemStacked(1607, 100, 1, out _); // add plasma capsule
+        __instance.player.package.AddItemStacked(1609, 100, 1, out _); // add missile set
+        __instance.player.package.AddItemStacked(1613, 100, 1, out _); // add jammer
+
+        // temporay fix before PlayerTechBonuses update
+        __instance.energyShieldUnlocked = true;
     }
 }
 

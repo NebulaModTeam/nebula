@@ -315,8 +315,9 @@ public class SimulatedWorld : IDisposable
             }
             player.Movement.UpdatePosition(packet);
             player.Animator.UpdateState(packet);
-            player.MechaInstance.energyShieldEnergy = (packet.Flags & PlayerMovement.EFlags.hasShield) != 0 ?
-                player.MechaInstance.energyShieldCapacity : 0;
+
+            // Mark to let combat manager update energyShieldEnergy
+            player.MechaInstance.energyShieldEnergyRate = (packet.Flags & PlayerMovement.EFlags.hasShield) != 0 ? 1 : 2;
         }
     }
 
