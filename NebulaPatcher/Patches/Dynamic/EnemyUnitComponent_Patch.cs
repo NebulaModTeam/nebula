@@ -29,7 +29,7 @@ internal class EnemyUnitComponent_Patch
                 if (players[i].id == targetId)
                 {
                     target = players[i].position;
-                    __result = true;
+                    __result = players[i].isAlive;
                     return;
                 }
             }
@@ -90,14 +90,14 @@ internal class EnemyUnitComponent_Patch
             var num8 = (float)enemy.pos.z;
 
 
-            // Find the nearest player to enemy unit
+            // Find the nearest alive player to enemy unit
             var index = 0;
             var distance = float.MaxValue;
-            var playerId = 0;
+            var playerId = -1;
             for (var j = 0; j < Multiplayer.Session.Combat.Players.Length; j++)
             {
                 ref var player = ref Multiplayer.Session.Combat.Players[j];
-                if (player.planetId != planetId)
+                if (player.planetId != planetId || !player.isAlive)
                 {
                     continue;
                 }
@@ -112,8 +112,14 @@ internal class EnemyUnitComponent_Patch
                     playerId = player.id;
                 }
             }
-            var num39 = distance;
+            if (playerId == -1)
+            {
+                // If there is no alive player, return the original value
+                return;
+            }
 
+
+            var num39 = distance;
             ref var ptr3 = ref Multiplayer.Session.Combat.Players[index].position;
             var num26 = 0f;
             if (__instance.assaults.count > 0)

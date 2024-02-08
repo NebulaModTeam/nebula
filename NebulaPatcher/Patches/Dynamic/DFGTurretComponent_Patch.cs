@@ -30,8 +30,9 @@ internal class DFGTurretComponent_Patch
             {
                 if (players[i].id == playerId)
                 {
-                    dist2 = Vector3.SqrMagnitude(players[i].skillTargetL - __instance.muzzleWPos);
-                    __result = __instance.CounterAttackPlayer(factory, @base) || dist2 <= (__instance.sensorRange * __instance.sensorRange);
+                    ref var ptr = ref players[i];
+                    dist2 = Vector3.SqrMagnitude(ptr.skillTargetL - __instance.muzzleWPos);
+                    __result = ptr.isAlive && (__instance.CounterAttackPlayer(factory, @base) || dist2 <= (__instance.sensorRange * __instance.sensorRange));
                     return false;
                 }
             }
@@ -54,22 +55,28 @@ internal class DFGTurretComponent_Patch
             return true;
         }
 
-        // Find the closest player to the turret
-        var playerId = 0;
+        // Find the closest alive player to the turret
+        var playerId = -1;
         var cloestDist = float.MaxValue;
         var players = Multiplayer.Session.Combat.Players;
         for (var i = 0; i < players.Length; i++)
         {
-            if (players[i].planetId != planetId)
+            ref var ptr = ref players[i];
+            if (ptr.planetId != planetId || !ptr.isAlive)
             {
                 continue;
             }
-            var dist = Vector3.SqrMagnitude(players[i].skillTargetL - __instance.muzzleWPos);
+            var dist = Vector3.SqrMagnitude(ptr.skillTargetL - __instance.muzzleWPos);
             if (dist < cloestDist)
             {
-                playerId = players[i].id;
+                playerId = ptr.id;
                 cloestDist = dist;
             }
+        }
+        if (playerId == -1)
+        {
+            // If there is no alive player, return to original function
+            return true;
         }
 
         var counterAttackFlag = __instance.CounterAttackPlayer(factory, @base)

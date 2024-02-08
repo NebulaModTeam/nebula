@@ -27,6 +27,7 @@ public class CombatManager : IDisposable
         public int planetId;
         public Vector3 position;
         public VectorLF3 uPosition;
+        public bool isAlive;
         public Mecha mecha;
         public Vector3 skillTargetL;
         public VectorLF3 skillTargetULast;
@@ -82,6 +83,7 @@ public class CombatManager : IDisposable
             Players[0].planetId = GameMain.localPlanet?.id ?? -1;
             Players[0].position = GameMain.mainPlayer.position;
             Players[0].uPosition = GameMain.mainPlayer.uPosition;
+            Players[0].isAlive = GameMain.mainPlayer.isAlive;
             var macha = GameMain.mainPlayer.mecha;
             Players[0].mecha = macha;
             Players[0].skillTargetL = macha.skillTargetLCenter;
@@ -110,6 +112,7 @@ public class CombatManager : IDisposable
                 ptr.planetId = snapshot.LocalPlanetId;
                 ptr.position = player.position;
                 ptr.uPosition = player.uPosition;
+                ptr.isAlive = player.isAlive;
 
                 macha = pair.Value.MechaInstance;
                 ptr.mecha = macha;
