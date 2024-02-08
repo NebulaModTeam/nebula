@@ -20,6 +20,7 @@ public class CombatManager : IDisposable
 
     public static bool LockBuildHp { get; private set; }
     public static int PlayerId { get; private set; }
+    public static bool SerializeOverwrite { get; set; }
 
     public struct PlayerPosition
     {
@@ -243,5 +244,25 @@ public class CombatManager : IDisposable
             PlayerId = Multiplayer.Session.LocalPlayer.Id;
         }
         return true;
+    }
+
+    public void OnFactoryLoadFinished(PlanetFactory factory)
+    {
+        var cursor = factory.defenseSystem.turrets.cursor;
+        var buffer = factory.defenseSystem.turrets.buffer;
+        for (var id = 1; id < cursor; id++)
+        {
+            if (buffer[id].id == id)
+            {
+                //Remove turretLaserContinuous
+                buffer[id].projectileId = 0;
+            }
+        }
+    }
+
+    public void OnAstroFactoryUnload()
+    {
+        //Remove all projectiles
+        GameMain.data.spaceSector.skillSystem.SetForNewGame();
     }
 }

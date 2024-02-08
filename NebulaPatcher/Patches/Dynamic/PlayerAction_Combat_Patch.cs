@@ -102,10 +102,10 @@ internal class PlayerAction_Combat_Patch
         var packet = new MechaShootPacket(Multiplayer.Session.LocalPlayer.Id,
             (byte)ammoType, ammoItemId, target.astroId, target.id);
 
-        if (GameMain.localStar != null)
+        if (GameMain.localPlanet != null)
         {
-            // Currently mecha weapon can not cross star system, so broadcast only to local star
-            Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+            // Make sure the receiver has loaded factory
+            Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
         }
     }
 }

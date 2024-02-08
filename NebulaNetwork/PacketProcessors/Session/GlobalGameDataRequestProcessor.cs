@@ -35,9 +35,11 @@ internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRe
         using (var writer = new BinaryUtils.Writer())
         {
             // Initial syncing from vanilla, to be refined later in future.
+            NebulaWorld.Combat.CombatManager.SerializeOverwrite = true;
             GameMain.data.spaceSector.BeginSave();
             GameMain.data.spaceSector.Export(writer.BinaryWriter);
             GameMain.data.spaceSector.EndSave();
+            NebulaWorld.Combat.CombatManager.SerializeOverwrite = false;
             conn.SendPacket(new SpaceSectorResponseDataPacket(writer.CloseAndGetBytes()));
         }
 

@@ -22,7 +22,9 @@ internal class SpaceSectorResponseDataProcessor : PacketProcessor<SpaceSectorRes
 
         using (var reader = new BinaryUtils.Reader(packet.SpaceSectorResponseData))
         {
+            NebulaWorld.Combat.CombatManager.SerializeOverwrite = true;
             GameMain.data.spaceSector.Import(reader.BinaryReader);
+            NebulaWorld.Combat.CombatManager.SerializeOverwrite = false;
         }
         GameMain.mainPlayer.mecha.CheckCombatModuleDataIsValidPatch();
     }

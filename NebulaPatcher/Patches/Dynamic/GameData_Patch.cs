@@ -220,6 +220,8 @@ internal class GameData_Patch
                 RefreshMissingMeshes();
             });
 
+            Multiplayer.Session.Combat.OnFactoryLoadFinished(planet.factory);
+
             try
             {
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
@@ -383,6 +385,7 @@ internal class GameData_Patch
                 __instance.galaxy.astrosFactory[planet.id] = null; //Assigned by UpdateRuntimePose
                 __instance.factoryCount--;
             }
+            Multiplayer.Session.Combat.OnAstroFactoryUnload();
         }
         if (!Multiplayer.Session.IsInLobby)
         {
