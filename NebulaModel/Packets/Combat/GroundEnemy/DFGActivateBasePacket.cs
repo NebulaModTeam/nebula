@@ -1,10 +1,10 @@
 ﻿namespace NebulaModel.Packets.Combat.GroundEnemy;
 
-public class ActivateBasePacket
+public class DFGActivateBasePacket
 {
-    public ActivateBasePacket() { }
+    public DFGActivateBasePacket() { }
 
-    public ActivateBasePacket(int planetId, int baseId, bool setToSeekForm)
+    public DFGActivateBasePacket(int planetId, int baseId, bool setToSeekForm)
     {
         PlanetId = planetId;
         BaseId = baseId;

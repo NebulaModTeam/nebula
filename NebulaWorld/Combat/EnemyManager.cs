@@ -11,7 +11,7 @@ namespace NebulaWorld.Combat;
 
 public class EnemyManager : IDisposable
 {
-    private readonly Dictionary<int, UpdateBaseStatusPacket> basePackets = [];
+    private readonly Dictionary<int, DFGUpdateBaseStatusPacket> basePackets = [];
 
     public EnemyManager()
     {
@@ -40,7 +40,7 @@ public class EnemyManager : IDisposable
                 var hashId = (factoryIndex << 16) | baseId; //assume max base count on a planet < 2^16
                 if (!basePackets.TryGetValue(hashId, out var packet))
                 {
-                    packet = new UpdateBaseStatusPacket(in dFbase);
+                    packet = new DFGUpdateBaseStatusPacket(in dFbase);
                     basePackets.Add(hashId, packet);
                 }
                 if (packet.Level != dFbase.evolve.level || (hashId % 300) == (int)gameTick % 300)

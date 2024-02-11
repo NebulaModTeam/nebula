@@ -10,9 +10,9 @@ using NebulaModel.Packets.Combat.GroundEnemy;
 namespace NebulaNetwork.PacketProcessors.Combat.GroundEnemy;
 
 [RegisterPacketProcessor]
-public class UpdateBaseStatusProcessor : PacketProcessor<UpdateBaseStatusPacket>
+public class DFGUpdateBaseStatusProcessor : PacketProcessor<DFGUpdateBaseStatusPacket>
 {
-    protected override void ProcessPacket(UpdateBaseStatusPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DFGUpdateBaseStatusPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;

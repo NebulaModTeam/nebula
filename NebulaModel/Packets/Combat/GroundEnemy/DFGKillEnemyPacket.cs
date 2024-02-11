@@ -1,10 +1,10 @@
 ﻿namespace NebulaModel.Packets.Combat.GroundEnemy;
 
-public class KillEnemyPacket
+public class DFGKillEnemyPacket
 {
-    public KillEnemyPacket() { }
+    public DFGKillEnemyPacket() { }
 
-    public KillEnemyPacket(int planetId, int enemyId)
+    public DFGKillEnemyPacket(int planetId, int enemyId)
     {
         PlanetId = planetId;
         EnemyId = enemyId;

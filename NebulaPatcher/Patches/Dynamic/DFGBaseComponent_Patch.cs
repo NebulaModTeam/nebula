@@ -89,7 +89,7 @@ internal class DFGBaseComponent_Patch
                     var planetId = __instance.groundSystem.planet.id;
                     var starId = __instance.groundSystem.planet.star.id;
                     Multiplayer.Session.Network.SendPacketToStar(
-                        new ActivateGroundUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, 120, unitId),
+                        new DFGActivateUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, 120, unitId),
                         starId);
                 }
             }
@@ -116,7 +116,7 @@ internal class DFGBaseComponent_Patch
                     buffer[i].behavior = EEnemyBehavior.SeekForm;
                 }
             }
-            var packet = new ActivateBasePacket(__instance.groundSystem.planet.id, __instance.id, true);
+            var packet = new DFGActivateBasePacket(__instance.groundSystem.planet.id, __instance.id, true);
             Multiplayer.Session.Network.SendPacketToStar(packet, __instance.groundSystem.planet.star.id);
         }
         if (__instance.activeTick > 0)
@@ -164,7 +164,7 @@ internal class DFGBaseComponent_Patch
                             var planetId = __instance.groundSystem.planet.id;
                             var starId = __instance.groundSystem.planet.star.id;
                             Multiplayer.Session.Network.SendPacketToStar(
-                                new ActivateGroundUnitPacket(planetId, __instance.id, formId, portId, (byte)eenemyBehavior, setStateTick, unitId),
+                                new DFGActivateUnitPacket(planetId, __instance.id, formId, portId, (byte)eenemyBehavior, setStateTick, unitId),
                                 starId);
                         }
                     }
@@ -192,7 +192,7 @@ internal class DFGBaseComponent_Patch
         if (!Multiplayer.IsActive) return true;
         if (Multiplayer.Session.IsClient) return Multiplayer.Session.Combat.IsIncomingRequest.Value;
 
-        var packet = new LaunchAssaultPacket(__instance, in tarPos, expandRadius, unitCount0, unitCount1, ap0, ap1, unitThreat);
+        var packet = new DFGLaunchAssaultPacket(__instance, in tarPos, expandRadius, unitCount0, unitCount1, ap0, ap1, unitThreat);
         Multiplayer.Session.Network.SendPacketToStar(packet, __instance.groundSystem.planet.star.id);
         return true;
     }

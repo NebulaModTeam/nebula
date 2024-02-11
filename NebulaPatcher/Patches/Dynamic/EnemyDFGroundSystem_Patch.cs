@@ -38,7 +38,7 @@ internal class EnemyDFGroundSystem_Patch
             foreach (var enemyId in __instance._rmv_id_list)
             {
                 __instance.factory.RemoveEnemyFinal(enemyId);
-                var packet = new DeferredRemoveEnemyPacket(planetId, enemyId);
+                var packet = new DFGDeferredRemoveEnemyPacket(planetId, enemyId);
                 Multiplayer.Session.Network.SendPacketToStar(packet, starId);
             }
             __instance._rmv_id_list.Clear();
@@ -48,7 +48,7 @@ internal class EnemyDFGroundSystem_Patch
             foreach (var (baseId, builderIndex) in __instance._add_bidx_list)
             {
                 var enemyId = __instance.factory.CreateEnemyFinal(baseId, builderIndex);
-                var packet = new DeferredCreateEnemyPacket(planetId, baseId, builderIndex, enemyId);
+                var packet = new DFGDeferredCreateEnemyPacket(planetId, baseId, builderIndex, enemyId);
                 Multiplayer.Session.Network.SendPacketToStar(packet, starId);
             }
             __instance._add_bidx_list.Clear();
@@ -91,7 +91,7 @@ internal class EnemyDFGroundSystem_Patch
             var starId = __instance.planet.star.id;
             foreach (var unitId in __instance._deactivate_unit_list)
             {
-                var packet = new DeactivateGroundUnitPacket(planetId, unitId);
+                var packet = new DFGDeactivateUnitPacket(planetId, unitId);
                 Multiplayer.Session.Network.SendPacketToStar(packet, starId);
                 __instance.DeactivateUnit(unitId);
             }

@@ -1,10 +1,10 @@
 ﻿namespace NebulaModel.Packets.Combat.GroundEnemy;
 
-public class UpdateBaseStatusPacket
+public class DFGUpdateBaseStatusPacket
 {
-    public UpdateBaseStatusPacket() { }
+    public DFGUpdateBaseStatusPacket() { }
 
-    public UpdateBaseStatusPacket(in DFGBaseComponent dFGBase)
+    public DFGUpdateBaseStatusPacket(in DFGBaseComponent dFGBase)
     {
         PlanetId = dFGBase.groundSystem.planet.id;
         BaseId = dFGBase.id;

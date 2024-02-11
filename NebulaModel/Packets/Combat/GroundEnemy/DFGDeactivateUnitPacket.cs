@@ -1,10 +1,10 @@
 ﻿namespace NebulaModel.Packets.Combat.GroundEnemy;
 
-public class DeactivateGroundUnitPacket
+public class DFGDeactivateUnitPacket
 {
-    public DeactivateGroundUnitPacket() { }
+    public DFGDeactivateUnitPacket() { }
 
-    public DeactivateGroundUnitPacket(int planetId, int unitId)
+    public DFGDeactivateUnitPacket(int planetId, int unitId)
     {
         PlanetId = planetId;
         UnitId = unitId;

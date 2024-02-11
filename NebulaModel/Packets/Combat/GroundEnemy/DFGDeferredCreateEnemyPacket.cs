@@ -1,10 +1,10 @@
 ﻿namespace NebulaModel.Packets.Combat.GroundEnemy;
 
-public class DeferredCreateEnemyPacket
+public class DFGDeferredCreateEnemyPacket
 {
-    public DeferredCreateEnemyPacket() { }
+    public DFGDeferredCreateEnemyPacket() { }
 
-    public DeferredCreateEnemyPacket(int planetId, int baseId, int builderIndex, int enemyId)
+    public DFGDeferredCreateEnemyPacket(int planetId, int baseId, int builderIndex, int enemyId)
     {
         PlanetId = planetId;
         BaseId = baseId;

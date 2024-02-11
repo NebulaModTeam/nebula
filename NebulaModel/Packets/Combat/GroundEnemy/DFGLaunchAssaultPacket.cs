@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace NebulaModel.Packets.Combat.GroundEnemy;
 
-public class LaunchAssaultPacket
+public class DFGLaunchAssaultPacket
 {
-    public LaunchAssaultPacket() { }
+    public DFGLaunchAssaultPacket() { }
 
-    public LaunchAssaultPacket(in DFGBaseComponent dFGBase,
+    public DFGLaunchAssaultPacket(in DFGBaseComponent dFGBase,
         in Vector3 tarPos, float expandRadius, int unitCount0, int unitCount1, int ap0, int ap1, int unitThreat)
     {
         PlanetId = dFGBase.groundSystem.planet.id;

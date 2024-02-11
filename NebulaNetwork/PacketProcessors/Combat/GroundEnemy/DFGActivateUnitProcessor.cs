@@ -11,9 +11,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Combat.GroundEnemy;
 
 [RegisterPacketProcessor]
-public class ActivateGroundUnitProcessor : PacketProcessor<ActivateGroundUnitPacket>
+public class DFGActivateUnitProcessor : PacketProcessor<DFGActivateUnitPacket>
 {
-    protected override void ProcessPacket(ActivateGroundUnitPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DFGActivateUnitPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;

@@ -11,16 +11,20 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Combat.GroundEnemy;
 
 [RegisterPacketProcessor]
-public class DeactivateGroundUnitProcessor : PacketProcessor<DeactivateGroundUnitPacket>
+public class DFGDeferredCreateEnemyProcessor : PacketProcessor<DFGDeferredCreateEnemyPacket>
 {
-    protected override void ProcessPacket(DeactivateGroundUnitPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(DFGDeferredCreateEnemyPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;
 
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
-            factory.enemySystem.DeactivateUnit(packet.UnitId);
+            var enemyId = factory.CreateEnemyFinal(packet.BaseId, packet.BuilderIndex);
+            if (enemyId != packet.EnemyId)
+            {
+                NebulaModel.Logger.Log.Warn($"DeferredCreateEnemyPacket wrong id {packet.EnemyId} => {enemyId}");
+            }
         }
     }
 }
