@@ -185,6 +185,33 @@ internal class DFGBaseComponent_Patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(DFGBaseComponent.UpdateFactoryThreat))]
+    public static bool UpdateFactoryThreat_Prefix(DFGBaseComponent __instance, EAggressiveLevel agglv)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+
+        //Client: Let threat update by DFGUpdateBaseStatusPacket
+        if (agglv <= EAggressiveLevel.Passive)
+        {
+            return false;
+        }
+        //Set threat share to 0 so it doesn't modify threat of the base
+        __instance.evolve.threatshr = 0;
+        if (__instance.evolve.waveTicks <= 0)
+        {
+            __instance.evolve.waveAsmTicks = 0;
+            return false;
+        }
+        if (__instance.hasAssaultingUnit)
+        {
+            __instance.evolve.waveTicks++;
+            return false;
+        }
+        __instance.evolve.waveTicks = 0;
+        return false;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(DFGBaseComponent.LaunchAssault))]
     public static bool LaunchAssault_Prefix(DFGBaseComponent __instance, Vector3 tarPos, float expandRadius,
         int unitCount0, int unitCount1, int ap0, int ap1, int unitThreat)

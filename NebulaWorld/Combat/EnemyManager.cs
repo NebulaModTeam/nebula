@@ -47,8 +47,8 @@ public class EnemyManager : IDisposable
                 {
                     // Update when base level changes, or every 5s
                     packet.Record(in dFbase);
-                    var starId = GameMain.data.factories[factoryIndex].planet.star.id;
-                    Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                    var planetId = GameMain.data.factories[factoryIndex].planet.id;
+                    Multiplayer.Session.Network.SendPacketToPlanet(packet, planetId);
                 }
             }
         }
