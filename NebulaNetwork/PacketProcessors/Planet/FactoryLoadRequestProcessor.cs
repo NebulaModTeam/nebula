@@ -25,6 +25,8 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
 
         var planet = GameMain.galaxy.PlanetById(packet.PlanetID);
         var factory = GameMain.data.GetOrCreateFactory(planet);
+        GameMain.galaxy.astrosFactory[planet.id] = factory;
+        OnPlanetFactoryLoad(planet);
 
         using (var writer = new BinaryUtils.Writer())
         {
@@ -41,6 +43,23 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
         {
             player.Data.LocalPlanetId = packet.PlanetID;
             player.Data.LocalStarId = GameMain.galaxy.PlanetById(packet.PlanetID).star.id;
+        }
+    }
+
+    static void OnPlanetFactoryLoad(PlanetData planet)
+    {
+        //Realize planet bases before sending the factory data
+        var spaceSector = GameMain.data.spaceSector;
+        for (var enemyDFHiveSystem = spaceSector.dfHives[planet.star.index]; enemyDFHiveSystem != null; enemyDFHiveSystem = enemyDFHiveSystem.nextSibling)
+        {
+            for (var i = 0; i < enemyDFHiveSystem.relays.cursor; i++)
+            {
+                var dfrelayComponent = enemyDFHiveSystem.relays[i];
+                if (dfrelayComponent != null && (dfrelayComponent.targetAstroId == planet.astroId && dfrelayComponent.baseState == 1 && dfrelayComponent.stage == 2))
+                {
+                    dfrelayComponent.RealizePlanetBase(spaceSector);
+                }
+            }
         }
     }
 }
