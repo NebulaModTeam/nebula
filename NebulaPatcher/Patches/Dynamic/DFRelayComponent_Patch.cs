@@ -64,4 +64,21 @@ internal class DFRelayComponent_Patch
         Multiplayer.Session.Network.SendPacket(new DFRelayLeaveDockPacket(__instance));
         return true;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(DFRelayComponent.LogicTickBaseMaintain))]
+    public static bool LogicTickBaseMaintain_Prefix(DFRelayComponent __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+
+        if (__instance.baseState == 2)
+        {
+            if (__instance.hive.galaxy.astrosFactory[__instance.targetAstroId] == null)
+            {
+                //the target factory is not loaded on client
+                return false;
+            }
+        }
+        return true;
+    }
 }

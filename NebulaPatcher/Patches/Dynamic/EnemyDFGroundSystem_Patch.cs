@@ -127,4 +127,35 @@ internal class EnemyDFGroundSystem_Patch
         return false;
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.RemoveBasePit))]
+    public static bool RemoveBasePit_Prefix(EnemyDFGroundSystem __instance, int pitRuinId)
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        var buffer = __instance.bases.buffer;
+        var cursor = __instance.bases.cursor;
+        for (var baseId = 1; baseId < cursor; baseId++)
+        {
+            var dfgbaseComponent = buffer[baseId];
+            if (dfgbaseComponent != null && dfgbaseComponent.id == baseId && dfgbaseComponent.ruinId == pitRuinId)
+            {
+                var packet = new DFGRemoveBasePitPacket(__instance.factory.planetId, baseId);
+                if (Multiplayer.Session.IsServer)
+                {
+                    Multiplayer.Session.Network.SendPacketToStar(packet, __instance.factory.planet.star.id);
+                    return true;
+                }
+                else
+                {
+                    // Request server to remove base pit
+                    Multiplayer.Session.Network.SendPacket(packet);
+                    return false;
+                }
+            }
+        }
+        // Is it possible to go here in vanilla?
+        __instance.factory.RemoveRuinWithComponet(pitRuinId);
+        return false;
+    }
 }

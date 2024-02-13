@@ -762,7 +762,8 @@ internal class PlanetFactory_patch
             return true;
         }
         // Only execute RemoveEnemyFinal when server approve on client
-        return Multiplayer.Session.Combat.IsIncomingRequest.Value;
+        // Factories.IsIncomingRequest is for RemoveBasePit called on putting down Geothermal Power Station
+        return Multiplayer.Session.Combat.IsIncomingRequest.Value || Multiplayer.Session.Factories.IsIncomingRequest.Value;
     }
 
     #endregion

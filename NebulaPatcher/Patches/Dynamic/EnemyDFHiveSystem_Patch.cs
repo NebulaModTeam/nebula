@@ -12,16 +12,6 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class EnemyDFHiveSystem_Patch
 {
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(EnemyDFHiveSystem.KeyTickLogic))]
-    public static bool KeyTickLogic_Prefix()
-    {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
-
-        // Skip KeyTickLogic in client
-        return false;
-    }
-
-    [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFHiveSystem.NotifyRelayKilled))]
     public static bool NotifyRelayKilled(EnemyDFHiveSystem __instance, ref EnemyData enemy)
     {
