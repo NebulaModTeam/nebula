@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using NebulaModel.DataStructures;
 using NebulaModel.Packets.Combat.GroundEnemy;
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -11,6 +12,8 @@ namespace NebulaWorld.Combat;
 
 public class EnemyManager : IDisposable
 {
+    public readonly ToggleSwitch IsIncomingRelayRequest = new();
+
     private readonly Dictionary<int, DFGUpdateBaseStatusPacket> basePackets = [];
 
     public EnemyManager()

@@ -110,6 +110,15 @@ internal class EnemyDFGroundSystem_Patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.NotifyBaseRemoving))]
+    public static bool NotifyBaseRemoving_Prefix()
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+        // Wait for DFRelayLeaveBasePacket from server
+        return false;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFGroundSystem.PostKeyTick))]
     public static bool PostKeyTick_Prefix()
     {
