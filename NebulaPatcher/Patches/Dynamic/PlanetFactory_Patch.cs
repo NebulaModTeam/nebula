@@ -24,6 +24,7 @@ using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaWorld.Factory;
 using NebulaWorld.Player;
+using UnityEngine;
 
 #endregion
 
@@ -147,13 +148,13 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
-    public static void FlattenTerrainReform_Prefix(float radius, int reformSize,
+    public static void FlattenTerrainReform_Prefix(Vector3 center, float radius, int reformSize,
         bool veinBuried, float fade0)
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
             Multiplayer.Session.Network.SendPacketToLocalStar(
-                new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
+                new FoundationBuildUpdatePacket(center, radius, reformSize, veinBuried, fade0));
         }
     }
 

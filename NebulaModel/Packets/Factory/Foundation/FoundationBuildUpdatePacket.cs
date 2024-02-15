@@ -11,18 +11,30 @@ public class FoundationBuildUpdatePacket
 {
     public FoundationBuildUpdatePacket() { }
 
-    public FoundationBuildUpdatePacket(float radius, int reformSize, bool veinBuried, float fade0)
+    public FoundationBuildUpdatePacket(Vector3 center, float radius, int reformSize, bool veinBuried, float fade0)
     {
         Radius = radius;
         ReformSize = reformSize;
         VeinBuried = veinBuried;
         Fade0 = fade0;
+        //Assume FlattenTerrainReform are all called in BuildTool_Reform
         var btr = GameMain.mainPlayer.controller.actionBuild.reformTool;
         ReformType = btr?.brushType ?? -1;
         ReformColor = btr?.brushColor ?? -1;
         PlanetId = GameMain.mainPlayer.planetId;
-        ReformIndices = btr?.cursorIndices;
         GroundTestPos = new Float3(btr?.castGroundPos ?? Vector3.zero);
+        if (center != btr?.reformCenterPoint) //Pit (circle)
+        {
+            ReformIndices = btr?.extraCircleIndices;
+            ExtraCenter = center.ToFloat3();
+            CirclePointCount = btr.circlePointCount;
+        }
+        else //Normal reform
+        {
+            ReformIndices = btr?.cursorIndices;
+            ExtraCenter = new Float3(Vector3.zero);
+            CirclePointCount = 0;
+        }
     }
 
     public float Radius { get; set; }
@@ -34,4 +46,6 @@ public class FoundationBuildUpdatePacket
     public int PlanetId { get; set; }
     public int[] ReformIndices { get; set; }
     public Float3 GroundTestPos { get; set; }
+    public Float3 ExtraCenter { get; set; }
+    public int CirclePointCount { get; set; }
 }
