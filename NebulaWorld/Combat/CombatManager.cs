@@ -175,7 +175,7 @@ public class CombatManager : IDisposable
 
             // CollectStates
             actionCombat.localPlanet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
-            actionCombat.localStar = actionCombat.localPlanet?.star; // TODO: Assign real star
+            actionCombat.localStar = GameMain.galaxy.StarById(playerModel.Movement.LocalStarId);
             actionCombat.localFactory = actionCombat.localPlanet?.factory;
             actionCombat.localAstroId = actionCombat.localPlanet?.astroId ?? 0;
 
@@ -218,7 +218,7 @@ public class CombatManager : IDisposable
 
             // CollectStates
             actionCombat.localPlanet = GameMain.galaxy.PlanetById(playerModel.Movement.localPlanetId);
-            actionCombat.localStar = actionCombat.localPlanet?.star; // TODO: Assign real star
+            actionCombat.localStar = GameMain.galaxy.StarById(playerModel.Movement.LocalStarId);
             actionCombat.localFactory = actionCombat.localPlanet?.factory;
             actionCombat.localAstroId = actionCombat.localPlanet?.astroId ?? 0;
 

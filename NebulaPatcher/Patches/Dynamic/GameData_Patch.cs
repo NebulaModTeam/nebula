@@ -389,7 +389,7 @@ internal class GameData_Patch
         }
         if (!Multiplayer.Session.IsInLobby)
         {
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
+            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, -1));
         }
     }
 
@@ -402,7 +402,7 @@ internal class GameData_Patch
         {
             return;
         }
-        Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
+        Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, star.id));
         Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id));
     }
 

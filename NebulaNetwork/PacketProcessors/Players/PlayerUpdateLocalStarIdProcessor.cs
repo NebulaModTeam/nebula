@@ -14,21 +14,24 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 internal class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLocalStarId>
 {
-    public PlayerUpdateLocalStarIdProcessor()
-    {
-    }
-
     protected override void ProcessPacket(PlayerUpdateLocalStarId packet, NebulaConnection conn)
     {
-        if (IsClient)
+        if (IsHost)
         {
-            return;
+            var player = Players.Get(conn);
+            if (player != null)
+            {
+                player.Data.LocalStarId = packet.StarId;
+            }
+            Server.SendPacketToStarExclude(packet, packet.StarId, conn);
         }
 
-        var player = Players.Get(conn);
-        if (player != null)
+        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            player.Data.LocalStarId = packet.StarId;
+            if (remotePlayersModels.TryGetValue(packet.PlayerId, out var remotePlayerModel))
+            {
+                remotePlayerModel.Movement.LocalStarId = packet.StarId;
+            }
         }
     }
 }

@@ -161,7 +161,7 @@ public class SimulatedWorld : IDisposable
             Multiplayer.Session.Network.SendPacket(new SyncComplete(clientCert));
 
             // Subscribe for the local star events
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, GameMain.data.localStar.id));
 
             // Request latest warning signal
             Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Signal));
