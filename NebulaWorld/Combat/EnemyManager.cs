@@ -12,6 +12,8 @@ namespace NebulaWorld.Combat;
 
 public class EnemyManager : IDisposable
 {
+    public readonly ToggleSwitch IsIncomingRequest = new();
+
     public readonly ToggleSwitch IsIncomingRelayRequest = new();
 
     private readonly Dictionary<int, DFGUpdateBaseStatusPacket> basePackets = [];
