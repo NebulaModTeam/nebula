@@ -1,6 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
+using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
 
@@ -35,5 +36,45 @@ internal class EnemyDFHiveSystem_Patch
             }
         }
         return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.Realize))]
+    public static bool Realize_Prefix(EnemyDFHiveSystem __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return Multiplayer.Session.Enemies.IsIncomingRequest;
+
+        if (!__instance.realized)
+        {
+            Multiplayer.Session.Network.SendPacket(new DFHiveRealizePacket(__instance.hiveAstroId));
+        }
+        return true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.OpenPreview))]
+    public static bool OpenPreview_Prefix(EnemyDFHiveSystem __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        if (!Multiplayer.Session.Enemies.IsIncomingRequest)
+        {
+            Multiplayer.Session.Network.SendPacket(new DFHivePreviewPacket(__instance.hiveAstroId, true));
+        }
+        return Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.ClosePreview))]
+    public static bool ClosePreview_Prefix(EnemyDFHiveSystem __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        if (!Multiplayer.Session.Enemies.IsIncomingRequest)
+        {
+            Multiplayer.Session.Network.SendPacket(new DFHivePreviewPacket(__instance.hiveAstroId, false));
+        }
+        return Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value;
     }
 }

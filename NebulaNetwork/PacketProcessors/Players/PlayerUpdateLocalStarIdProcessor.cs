@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -24,6 +25,18 @@ internal class PlayerUpdateLocalStarIdProcessor : PacketProcessor<PlayerUpdateLo
                 player.Data.LocalStarId = packet.StarId;
             }
             Server.SendPacketToStarExclude(packet, packet.StarId, conn);
+
+            //Realize hives in this star system
+            var star = GameMain.galaxy.StarById(packet.StarId);
+            if (star != null)
+            {
+                var enemyDFHiveSystem = GameMain.spaceSector.dfHives[star.index];
+                while (enemyDFHiveSystem != null)
+                {
+                    enemyDFHiveSystem.Realize();
+                    enemyDFHiveSystem = enemyDFHiveSystem.nextSibling;
+                }
+            }
         }
 
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
