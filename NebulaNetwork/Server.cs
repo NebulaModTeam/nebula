@@ -26,7 +26,6 @@ using NebulaModel.Utils;
 using NebulaNetwork.Messaging;
 using NebulaNetwork.Ngrok;
 using NebulaWorld;
-using NebulaWorld.Player;
 using NebulaWorld.SocialIntegration;
 using Open.Nat;
 using UnityEngine;
@@ -160,23 +159,6 @@ public class Server : IServer
         Multiplayer.Session.PowerTowers.ResetAndBroadcast();
         Multiplayer.Session.Statistics.UnRegisterPlayer(player.Id);
         Multiplayer.Session.DysonSpheres.UnRegisterPlayer(conn);
-
-        //Notify players about queued building plans for drones
-        var DronePlans = DroneManager.GetPlayerDronePlans(player.Id);
-        if (DronePlans is { Length: > 0 } && player.Data.LocalPlanetId > 0)
-        {
-            SendPacketToPlanet(new RemoveDroneOrdersPacket(DronePlans, player.Data.LocalPlanetId),
-                player.Data.LocalPlanetId);
-            //Remove it also from host queue, if host is on the same planet
-            if (GameMain.mainPlayer.planetId == player.Data.LocalPlanetId)
-            {
-                //todo:replace
-                //foreach (var t in DronePlans)
-                //{
-                //    GameMain.mainPlayer.mecha.droneLogic.serving.Remove(t);
-                //}
-            }
-        }
 
         // Note: using Keys or Values directly creates a readonly snapshot at the moment of call, as opposed to enumerating the dict.
         var syncCount = Players.Syncing.Count;

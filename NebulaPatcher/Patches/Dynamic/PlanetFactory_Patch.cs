@@ -22,7 +22,6 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaWorld.Factory;
-using NebulaWorld.Player;
 
 #endregion
 
@@ -56,16 +55,12 @@ internal class PlanetFactory_patch
             return true;
         }
 
-        DroneManager.RemoveBuildRequest(-prebuildId);
-
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
-            DroneManager.RemovePlayerDronePlan(-prebuildId);
             if (!Multiplayer.Session.Factories.ContainsPrebuildRequest(__instance.planetId, prebuildId))
             {
                 // This prevents duplicating the entity when multiple players trigger the BuildFinally for the same entity at the same time.
-                // If it occurs in any other circumstances, it means that we have some desynchronization between clients and host prebuilds buffers.
-                Log.Warn(
+                Log.Debug(
                     $"BuildFinally was called without having a corresponding PrebuildRequest for the prebuild {prebuildId} on the planet {__instance.planetId}");
                 return false;
             }
