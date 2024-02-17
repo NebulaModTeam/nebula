@@ -382,6 +382,10 @@ internal class GameData_Patch
         }
         if (!Multiplayer.Session.IsInLobby)
         {
+            if (Multiplayer.Session.IsClient)
+            {
+                Multiplayer.Session.Drones.ClearAllRemoteDrones();
+            }
             Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
         }
     }

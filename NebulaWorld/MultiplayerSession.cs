@@ -64,7 +64,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     public PowerTowerManager PowerTowers { get; set; }
     public BeltManager Belts { get; set; }
     public BuildToolManager BuildTools { get; set; }
-    private DroneManager Drones { get; set; }
+    public DroneManager Drones { get; set; }
     public GameDataHistoryManager History { get; set; }
     private GameStatesManager State { get; set; }
     public CourierManager Couriers { get; set; }

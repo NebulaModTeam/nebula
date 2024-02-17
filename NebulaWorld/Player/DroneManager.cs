@@ -2,12 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NebulaAPI.DataStructures;
 using NebulaModel.DataStructures;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 using Random = UnityEngine.Random;
+#pragma warning disable IDE1006 // Naming Styles
 
 #endregion
 
@@ -15,49 +15,59 @@ namespace NebulaWorld.Player;
 
 public class DroneManager : IDisposable
 {
-    private static Dictionary<ushort, PlayerPosition> CachedPositions = [];
-    private static long lastCheckedTick = 0;
+    private readonly Dictionary<ushort, PlayerPosition> cachedPositions = [];
+    private long lastCheckedTick = 0;
+    private readonly List<CraftData> crafts = [];
+    private readonly Stack<int> craftRecyleIds = [];
+    private readonly DataPool<DroneComponent> drones = new();
 
     public DroneManager()
     {
-        CachedPositions = [];
         lastCheckedTick = 0;
     }
 
     public void Dispose()
     {
-        CachedPositions = null;
         lastCheckedTick = 0;
         GC.SuppressFinalize(this);
     }
 
-    public static void EjectDronesOfOtherPlayer(ushort playerId, int planetId, int targetObjectId)
+    public void EjectMechaDroneFromOtherPlayer(PlayerEjectMechaDronePacket packet)
     {
         RefreshCachedPositions();
 
-        var ejectPos = GetPlayerPosition(playerId);
-        ejectPos = ejectPos.normalized * (ejectPos.magnitude + 2.8f);
-        var factory = GameMain.galaxy.PlanetById(planetId).factory;
-        var targetPos = factory.constructionSystem._obj_hpos(targetObjectId, ref ejectPos);
-        var vector3 = ejectPos + ejectPos.normalized * 4.5f +
+        var ejectPos = GetPlayerEjectPosition(packet.PlayerId);
+        var factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
+        var targetPos = factory.constructionSystem._obj_hpos(packet.TargetObjectId, ref ejectPos);
+        var initialVector = ejectPos + ejectPos.normalized * 4.5f +
                       ((targetPos - ejectPos).normalized + Random.insideUnitSphere) * 1.5f;
-
-        ref var ptr =
-            ref GameMain.mainPlayer.mecha.constructionModule.CreateDrone(factory, ejectPos, Quaternion.LookRotation(vector3),
-                Vector3.zero);
+        // Use custom CreateDrone to store in separate pool
+        ref var ptr = ref CreateDrone(factory, ejectPos, Quaternion.LookRotation(initialVector), Vector3.zero, packet.PlayerId);
         ptr.stage = 1;
-        ptr.targetObjectId = targetObjectId;
+        ptr.priority = packet.DronePriority;
+        ptr.targetObjectId = packet.TargetObjectId;
+        ptr.nextTarget1ObjectId = packet.Next1ObjectId;
+        ptr.nextTarget2ObjectId = packet.Next2ObjectId;
+        ptr.nextTarget3ObjectId = packet.Next3ObjectId;
         ptr.targetPos = targetPos;
-        ptr.initialVector = vector3;
+        ptr.initialVector = initialVector;
         ptr.progress = 0f;
-        ptr.priority = 1;
-        ptr.owner = playerId *
-                    -1; // to prevent the ConstructionSystem_Transpiler.UpdateDrones_Transpiler() to remove them. Must be negative, positive ones are owned by battle bases. Store playerId in here.
+        ptr.owner = packet.PlanetId; // Use drone.owner field to store planetId
+
+        if (packet.TargetObjectId > 0) // Repair
+        {
+            ref var entity = ref factory.entityPool[packet.TargetObjectId];
+            if (entity.id != packet.TargetObjectId || entity.constructStatId == 0)
+            {
+                return;
+            }
+            factory.constructionSystem.constructStats.buffer[entity.constructStatId].repairerCount++;
+        }
     }
 
-    public static void RefreshCachedPositions()
+    public void RefreshCachedPositions()
     {
-        if (GameMain.gameTick - lastCheckedTick > 10)
+        if (GameMain.gameTick != lastCheckedTick)
         {
             lastCheckedTick = GameMain.gameTick;
             //CachedPositions.Clear();
@@ -67,23 +77,215 @@ public class DroneManager : IDisposable
                 // host needs it for all players since they can build on other planets too.
                 foreach (var model in remotePlayersModels.Values)
                 {
+                    var playerPos = model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
+                    var ejectPos = playerPos.normalized * (playerPos.magnitude + 2.8f);
+                    var localPlanetId = model.Movement.localPlanetId;
+
                     // Cache players positions
-                    if (!CachedPositions.ContainsKey(model.Movement.PlayerID))
+                    if (cachedPositions.TryGetValue(model.Movement.PlayerID, out var playerPosition))
                     {
-                        CachedPositions.Add(model.Movement.PlayerID, new PlayerPosition(model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3(), model.Movement.localPlanetId));
+                        playerPosition.Position = ejectPos;
+                        playerPosition.PlanetId = localPlanetId;
                     }
                     else
                     {
-                        CachedPositions[model.Movement.PlayerID].Position = model.Movement.GetLastPosition().LocalPlanetPosition.ToVector3();
-                        CachedPositions[model.Movement.PlayerID].PlanetId = model.Movement.localPlanetId;
+                        cachedPositions.Add(model.Movement.PlayerID, new PlayerPosition(ejectPos, model.Movement.localPlanetId));
                     }
                 }
             }
         }
     }
 
-    public static Vector3 GetPlayerPosition(ushort playerId)
+    public Vector3 GetPlayerEjectPosition(ushort playerId)
     {
-        return CachedPositions.TryGetValue(playerId, out var value) ? value.Position : GameMain.mainPlayer.position;
+        return cachedPositions.TryGetValue(playerId, out var value) ? value.Position : GameMain.mainPlayer.position;
     }
+
+    public void ClearAllRemoteDrones()
+    {
+        crafts.Clear();
+        craftRecyleIds.Clear();
+        drones.Reset();
+    }
+
+    public void UpdateDrones(PlanetFactory factory, ObjectRenderer[] renderers, bool sync_gpu_inst, float dt, long time)
+    {
+        // Mimic from ConstructionSystem.UpdateDrones
+        RefreshCachedPositions();
+        var entityPool = factory.entityPool;
+        var constructionDroneSpeed = factory.gameData.history.constructionDroneSpeed;
+        var planetId = factory.planetId;
+
+        for (var droneId = 1; droneId < drones.cursor; droneId++)
+        {
+            ref var ptr = ref drones.buffer[droneId];
+            if (ptr.owner != planetId) //ptr.owner is planetId in the custom pool
+            {
+                continue;
+            }
+            var craftData = crafts[ptr.craftId];
+            var playerId = (ushort)craftData.owner;
+            if (!cachedPositions.TryGetValue(playerId, out var playerPosition) || playerPosition.PlanetId != planetId)
+            {
+                // If the owner leave the planet, recycle the drone
+                RecycleDrone(factory, ref ptr, droneId);
+                continue;
+            }
+
+            // Update drone stage and craft position
+            var flag2 = false;
+            var ejectPos = playerPosition.Position;
+            var meachEnerey = (double)float.MaxValue; // Dummy value for remote drones
+            var mecahEnergyChange = 0.0;
+            var result = ptr.InternalUpdate(ref craftData, factory, ref ejectPos, constructionDroneSpeed, dt,
+                ref meachEnerey, ref mecahEnergyChange, 0, 0, out _);
+            crafts[ptr.craftId] = craftData;
+
+            if (ptr.stage == 3) // Hovering state?
+            {
+                if (ptr.targetObjectId > 0) // Repair entity
+                {
+                    result = (factory.constructionSystem.Repair(ptr.targetObjectId, 1.0f, time) ? 1 : 0); // Assume energy ratio is 1.0f
+                    if (result == 1)
+                    {
+                        ptr.targetObjectId = 0;
+                    }
+                }
+                else if (result == 0) // Mod: Do not wait for prebuild to finished, just advance to the next target
+                {
+                    result = 1;
+                }
+            }
+            if (result == 1 && ptr.stage == 4)
+            {
+                RecycleDrone(factory, ref ptr, droneId);
+            }
+            if (result != 0 && (ptr.stage == 2 || ptr.stage == 3 || ptr.stage == 4))
+            {
+                ptr.movement--;
+                if (ptr.movement <= 0 || flag2)
+                {
+                    ptr.movement = 0;
+                    ptr.stage = 4;
+                    ptr.targetObjectId = 0;
+                }
+                else if (ptr.nextTarget1ObjectId != 0)
+                {
+                    ptr.stage = 2;
+                    ptr.targetObjectId = ptr.nextTarget1ObjectId;
+                    ptr.targetPos = factory.constructionSystem._obj_hpos(ptr.nextTarget1ObjectId);
+                    ptr.nextTarget1ObjectId = 0;
+                }
+                else if (ptr.nextTarget2ObjectId != 0)
+                {
+                    ptr.stage = 2;
+                    ptr.targetObjectId = ptr.nextTarget2ObjectId;
+                    ptr.targetPos = factory.constructionSystem._obj_hpos(ptr.nextTarget2ObjectId);
+                    ptr.nextTarget2ObjectId = 0;
+                }
+                else if (ptr.nextTarget3ObjectId != 0)
+                {
+                    ptr.stage = 2;
+                    ptr.targetObjectId = ptr.nextTarget3ObjectId;
+                    ptr.targetPos = factory.constructionSystem._obj_hpos(ptr.nextTarget3ObjectId);
+                    ptr.nextTarget3ObjectId = 0;
+                }
+                else if (factory.constructionSystem.FindNextRepair(0, craftData.pos, out var foundPos, out var targetId))
+                {
+                    ptr.stage = 2;
+                    ptr.targetObjectId = targetId;
+                    ptr.targetPos = foundPos;
+                    var buffer = factory.constructionSystem.constructStats.buffer;
+                    var constructStatId = entityPool[targetId].constructStatId;
+                    buffer[constructStatId].repairerCount++;
+                }
+                else
+                {
+                    ptr.stage = 4;
+                    ptr.targetObjectId = 0;
+                }
+            }
+
+            if (sync_gpu_inst)
+            {
+                if (craftData.modelId > 0 && renderers[craftData.modelIndex] is DynamicRenderer dynamicRenderer)
+                {
+                    var instPool = dynamicRenderer.instPool;
+                    var modelId = craftData.modelId;
+                    instPool[modelId].posx = (float)craftData.pos.x;
+                    instPool[modelId].posy = (float)craftData.pos.y;
+                    instPool[modelId].posz = (float)craftData.pos.z;
+                    instPool[modelId].rotx = craftData.rot.x;
+                    instPool[modelId].roty = craftData.rot.y;
+                    instPool[modelId].rotz = craftData.rot.z;
+                    instPool[modelId].rotw = craftData.rot.w;
+                    dynamicRenderer.extraPool[craftData.modelId].x = ptr.stage;
+                }
+            }
+        }
+    }
+
+    private ref DroneComponent CreateDrone(PlanetFactory factory, Vector3 pos, Quaternion rot, Vector3 vel, ushort playerId)
+    {
+        int craftId;
+        if (craftRecyleIds.Count > 0)
+        {
+            craftId = craftRecyleIds.Pop();
+        }
+        else
+        {
+            crafts.Add(default);
+            craftId = crafts.Count - 1;
+        }
+
+        var craftData = default(CraftData);
+        craftData.id = craftId;
+        craftData.protoId = 0;
+        craftData.modelIndex = 454;
+        craftData.astroId = factory.planetId;
+        craftData.owner = playerId; // Use craft.owner field to store playerId
+        craftData.port = 0;
+        craftData.prototype = EPrototype.ConstructionDrone;
+        craftData.dynamic = true;
+        craftData.isSpace = false;
+        craftData.pos = pos;
+        craftData.rot = rot;
+        craftData.vel = vel;
+        var planet = factory.planet;
+        if (planet.factoryLoaded || planet.factingCompletedStage >= 5)
+        {
+            craftData.modelId = GameMain.gpuiManager.AddModel(454, craftId, pos, rot, true);
+        }
+        crafts[craftId] = craftData;
+
+        ref var drone = ref drones.Add();
+        drone.craftId = craftId;
+
+        return ref drone;
+    }
+
+    private void RecycleDrone(PlanetFactory factory, ref DroneComponent dronePtr, int droneId)
+    {
+        if (dronePtr.targetObjectId > 0)
+        {
+            ref var entity = ref factory.entityPool[dronePtr.targetObjectId];
+            if (entity.id == dronePtr.targetObjectId && entity.constructStatId > 0)
+            {
+                ref var constructStat = ref factory.constructionSystem.constructStats.buffer[entity.constructStatId];
+                constructStat.repairerCount--;
+                if (constructStat.repairerCount < 0) constructStat.repairerCount = 0;
+            }
+        }
+
+        var craftId = dronePtr.craftId;
+        var modelId = crafts[craftId].modelId;
+        if (modelId != 0 && GameMain.gpuiManager.activeFactory == factory)
+        {
+            GameMain.gpuiManager.RemoveModel(454, modelId, true);
+        }
+        crafts[craftId].SetEmpty();
+        craftRecyleIds.Push(craftId);
+        drones.Remove(droneId);
+    }
+
 }
