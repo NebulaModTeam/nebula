@@ -18,7 +18,6 @@ public class CombatManager : IDisposable
 {
     public readonly ToggleSwitch IsIncomingRequest = new();
 
-    public static bool LockBuildHp { get; private set; }
     public static int PlayerId { get; private set; }
     public static bool SerializeOverwrite { get; set; }
 
@@ -44,7 +43,6 @@ public class CombatManager : IDisposable
 
     public CombatManager()
     {
-        LockBuildHp = true;
         Players = new PlayerPosition[2];
         ActivedPlanets = [];
         IndexByPlayerId = [];
@@ -53,7 +51,6 @@ public class CombatManager : IDisposable
 
     public void Dispose()
     {
-        LockBuildHp = false;
         PlayerId = 1;
         actionCombat = null;
         Players = null;

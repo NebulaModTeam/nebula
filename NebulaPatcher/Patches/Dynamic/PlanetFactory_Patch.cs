@@ -764,6 +764,26 @@ internal class PlanetFactory_patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.KillEntityFinally))]
+    public static bool KillEntityFinally_Prefix(PlanetFactory __instance, int objId)
+    {
+        if (!Multiplayer.IsActive || objId <= 0)
+        {
+            return true;
+        }
+
+        if (Multiplayer.Session.IsClient) // Let server decide when to kill entity
+        {
+            return Multiplayer.Session.Factories.IsIncomingRequest.Value;
+        }
+
+        var packet = new KillEntityRequest(__instance.planetId, objId);
+        var starId = __instance.planet.star.id;
+        Multiplayer.Session.Server.SendPacketToStar(packet, starId);
+        return true;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.ReconstructTargetFinally))]
     public static void ReconstructTargetFinally_Prefix(PlanetFactory __instance, int prebuildId)
     {
