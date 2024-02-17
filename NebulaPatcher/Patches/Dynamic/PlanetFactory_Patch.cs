@@ -763,6 +763,28 @@ internal class PlanetFactory_patch
         return Multiplayer.Session.Combat.IsIncomingRequest.Value || Multiplayer.Session.Factories.IsIncomingRequest.Value;
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.ReconstructTargetFinally))]
+    public static void ReconstructTargetFinally_Prefix(PlanetFactory __instance, int prebuildId)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        {
+            return;
+        }
+
+        // Broadcast the change of isDestroyed state to other players
+        var packet = new PrebuildReconstructPacket(__instance.planetId, prebuildId);
+        if (Multiplayer.Session.IsServer)
+        {
+            var starId = __instance.planet.star.id;
+            Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+        }
+        else
+        {
+            Multiplayer.Session.Network.SendPacket(packet);
+        }
+    }
+
     #endregion
 
 }
