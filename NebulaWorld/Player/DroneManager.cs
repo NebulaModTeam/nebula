@@ -23,12 +23,10 @@ public class DroneManager : IDisposable
 
     public DroneManager()
     {
-        lastCheckedTick = 0;
     }
 
     public void Dispose()
     {
-        lastCheckedTick = 0;
         GC.SuppressFinalize(this);
     }
 
@@ -110,8 +108,7 @@ public class DroneManager : IDisposable
 
     public void UpdateDrones(PlanetFactory factory, ObjectRenderer[] renderers, bool sync_gpu_inst, float dt, long time)
     {
-        // Mimic from ConstructionSystem.UpdateDrones
-        RefreshCachedPositions();
+        // Mimic from ConstructionSystem.UpdateDrones        
         var constructionDroneSpeed = factory.gameData.history.constructionDroneSpeed;
         var planetId = factory.planetId;
 
@@ -124,6 +121,7 @@ public class DroneManager : IDisposable
             }
             var craftData = crafts[ptr.craftId];
             var playerId = (ushort)craftData.owner;
+            RefreshCachedPositions();
             if (!cachedPositions.TryGetValue(playerId, out var playerPosition) || playerPosition.PlanetId != planetId)
             {
                 // If the owner leave the planet, recycle the drone
