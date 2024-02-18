@@ -33,7 +33,7 @@ jobs:
           echo "::set-output name=dir::$(npm config get cache)"
         
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
           key: npm-${{ hashFiles('package-lock.json') }}
@@ -85,7 +85,7 @@ jobs:
           echo "::set-output name=ver::$ver"
 
       # Create release
-      - uses: hubastard/release-action@v1
+      - uses: NebulaModTeam/release-action@v1
         with:
           artifactErrorsFailBuild: true
           bodyFile: "${{ env.DIST_RELEASE_FOLDER }}BODY.md"
