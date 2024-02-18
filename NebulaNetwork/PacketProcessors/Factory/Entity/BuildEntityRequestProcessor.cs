@@ -22,8 +22,7 @@ public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
     {
         if (IsHost && !Multiplayer.Session.Factories.ContainsPrebuildRequest(packet.PlanetId, packet.PrebuildId))
         {
-            Log.Warn(
-                $"BuildEntityRequest received does not have a corresponding PrebuildRequest with the id {packet.PrebuildId} for the planet {packet.PlanetId}");
+            // Prebuild has already been removed, so skip it.
             return;
         }
 
