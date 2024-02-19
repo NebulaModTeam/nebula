@@ -367,6 +367,7 @@ internal class GameData_Patch
         {
             return;
         }
+        Multiplayer.Session.Drones.ClearAllRemoteDrones();
         using (Multiplayer.Session.Ships.PatchLockILS.On())
         {
             for (var i = 0; i < __instance.localStar.planetCount; i++)

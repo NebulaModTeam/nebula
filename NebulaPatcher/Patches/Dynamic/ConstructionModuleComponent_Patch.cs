@@ -1,38 +1,28 @@
-﻿using HarmonyLib;
+﻿#region
+
+using HarmonyLib;
+using NebulaModel.Packets.Players;
 using NebulaWorld;
+
+#endregion
 
 namespace NebulaPatcher.Patches.Dynamic;
 
 [HarmonyPatch(typeof(ConstructionModuleComponent))]
 internal class ConstructionModuleComponent_Patch
 {
-    // dont give back idle construction drones to player if it was a drone owned by a remote player
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(ConstructionModuleComponent.RecycleDrone))]
-    public static void RecycleDrone_Postfix(ConstructionModuleComponent __instance, ref DroneComponent drone)
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(ConstructionModuleComponent.EjectMechaDrone))]
+    public static void EjectMechaDrone_Prefix(PlanetFactory factory, Player player, int targetObjectId,
+        int next1ObjectId, int next2ObjectId, int next3ObjectId)
     {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive) return;
 
-        if (drone.owner < 0 && drone.owner * -1 != Multiplayer.Session.LocalPlayer.Id || __instance.droneIdleCount > __instance.droneCount)
-        {
-            __instance.droneIdleCount--;
-        }
-    }
-
-    // clients should skip the procedure for BattleBases. The host will tell them when to eject drones.
-    // TODO(0.10.29.21869)
-    //[HarmonyPrefix]
-    //[HarmonyPatch(nameof(ConstructionModuleComponent.IdleDroneProcedure))]
-    public static bool IdleDroneProcedure_Prefix(ConstructionModuleComponent __instance)
-    {
-        if (!Multiplayer.IsActive)
-        {
-            return true;
-        }
-
-        return !(Multiplayer.Session.LocalPlayer.IsClient && __instance.entityId > 0);
+        // Notify other players for eject of mecha drone
+        var playerId = Multiplayer.Session.LocalPlayer.Id;
+        var planetId = factory.planetId;
+        var priority = player.mecha.constructionModule.dronePriority;
+        var packet = new PlayerEjectMechaDronePacket(playerId, planetId, targetObjectId, next1ObjectId, next2ObjectId, next3ObjectId, priority);
+        Multiplayer.Session.Network.SendPacketToLocalStar(packet);
     }
 }
