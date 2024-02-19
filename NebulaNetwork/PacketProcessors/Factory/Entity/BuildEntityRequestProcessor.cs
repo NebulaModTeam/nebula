@@ -40,12 +40,6 @@ public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
             Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
             Multiplayer.Session.Factories.PacketAuthor = packet.AuthorId;
 
-            Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
-
-            // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
-            var pData = GameMain.gpuiManager.specifyPlanet;
-
-            GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
             if (packet.EntityId != -1 && packet.EntityId != FactoryManager.GetNextEntityId(planet.factory))
             {
                 var warningText =
@@ -55,8 +49,16 @@ public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
                 Log.WarnInform(warningText);
                 WarningManager.DisplayTemporaryWarning(warningText, 5000);
             }
-            planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId);
-            GameMain.gpuiManager.specifyPlanet = pData;
+
+            if (planet.factoryLoaded)
+            {
+                planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId, true, true);
+            }
+            else
+            {
+                // Remote planets, or the factory is not loaded yet
+                planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId, false, false);
+            }
 
             Multiplayer.Session.Factories.EventFactory = null;
             Multiplayer.Session.Factories.PacketAuthor = NebulaModAPI.AUTHOR_NONE;

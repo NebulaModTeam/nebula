@@ -223,14 +223,18 @@ public class FactoryManager : IFactoryManager
         ThreadingHelper.Instance.StartSyncInvoke(() => UnloadPlanetData(planetId));
     }
 
-    private bool RemovePlanetTimer(int planetId)
+    public bool RemovePlanetTimer(int planetId)
     {
         using (GetPlanetTimers(out var planetTimers))
         {
-            planetTimers[planetId].Stop();
-            planetTimers[planetId].Dispose();
-            planetTimers[planetId] = null;
-            return planetTimers.Remove(planetId);
+            if (planetTimers.TryGetValue(planetId, out var planetTimer))
+            {
+                planetTimer.Stop();
+                planetTimer.Dispose();
+                planetTimers.Remove(planetId);
+                return true;
+            }
+            return false;
         }
     }
 
