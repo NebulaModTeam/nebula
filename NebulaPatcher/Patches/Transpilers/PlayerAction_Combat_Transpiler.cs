@@ -16,6 +16,42 @@ namespace NebulaPatcher.Patches.Transpilers;
 internal class PlayerAction_Combat_Transpiler
 {
     [HarmonyTranspiler]
+    [HarmonyPatch(nameof(PlayerAction_Combat.ShootTarget))]
+    public static IEnumerable<CodeInstruction> ShootTarget_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
+            /*  Overwrite casterId in AddGroundEnemyHatred and AddSpaceEnemyHatred to playerId
+            from:
+                this.skillSystem.AddGroundEnemyHatred(dfgbaseComponent, ref ptr, ETargetType.Player, 1);
+            to:
+                this.skillSystem.AddGroundEnemyHatred(dfgbaseComponent, ref ptr, ETargetType.Player, NebulaWorld.Combat.CombatManager.PlayerId);
+            */
+
+            var codeMatcher = new CodeMatcher(instructions)
+                .End()
+                .MatchBack(false,
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddSpaceEnemyHatred"))
+                .Set(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(NebulaWorld.Combat.CombatManager),
+                    nameof(NebulaWorld.Combat.CombatManager.PlayerId)))
+                .MatchBack(false,
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "AddGroundEnemyHatred"))
+                .Set(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(NebulaWorld.Combat.CombatManager),
+                    nameof(NebulaWorld.Combat.CombatManager.PlayerId)));
+
+            return codeMatcher.InstructionEnumeration();
+        }
+        catch (System.Exception e)
+        {
+            Log.Error("Transpiler PlayerAction_Combat.Shoot failed.");
+            Log.Error(e);
+            return instructions;
+        }
+    }
+
+    [HarmonyTranspiler]
     [HarmonyPatch(nameof(PlayerAction_Combat.Bombing))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Gauss_Local))]
     [HarmonyPatch(nameof(PlayerAction_Combat.Shoot_Cannon_Local))]
