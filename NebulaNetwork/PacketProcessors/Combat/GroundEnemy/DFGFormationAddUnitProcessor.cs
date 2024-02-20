@@ -23,10 +23,12 @@ public class DFGFormationAddUnitProcessor : PacketProcessor<DFGFormationAddUnitP
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
             var portId = dFBase.forms[packet.FormId].AddUnit();
+#if DEBUG
             if (portId != packet.PortId)
             {
                 NebulaModel.Logger.Log.Warn($"DFGFormationAddUnitPacket wrong id {packet.PortId} => {portId}");
             }
+#endif
         }
     }
 }

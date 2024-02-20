@@ -65,6 +65,6 @@ internal class DFGReplicatorComponent_Transpiler
         var portId = enemyFormation.AddUnit();
         var packet = new DFGFormationAddUnitPacket(gbase.groundSystem.planet.id, gbase.id, formId, portId);
         Multiplayer.Session.Network.SendPacketToStar(packet, gbase.groundSystem.planet.star.id);
-        return portId;
+        return 0; // Skip the following call to InitiateUnitDeferred
     }
 }
