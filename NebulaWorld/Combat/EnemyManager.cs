@@ -58,4 +58,23 @@ public class EnemyManager : IDisposable
             }
         }
     }
+
+    public static void SetSpaceSectorNextEnemyId(int enemyId)
+    {
+        var spaceSector = GameMain.spaceSector;
+
+        if (enemyId >= spaceSector.enemyCursor)
+        {
+            spaceSector.enemyCursor = enemyId;
+            while (spaceSector.enemyCursor >= spaceSector.enemyCapacity)
+            {
+                spaceSector.SetEnemyCapacity(spaceSector.enemyCapacity * 2);
+            }
+        }
+        else
+        {
+            spaceSector.enemyRecycle[0] = enemyId;
+            spaceSector.enemyRecycleCursor = 1;
+        }
+    }
 }
