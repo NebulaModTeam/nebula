@@ -152,4 +152,12 @@ internal class EnemyDFHiveSystem_Patch
         }
         return Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.KillCorruptedUnits))]
+    public static bool KillCorruptedUnits_Prefix()
+    {
+        // Don't run enemy position check on client
+        return !Multiplayer.IsActive || Multiplayer.Session.IsServer;
+    }
 }
