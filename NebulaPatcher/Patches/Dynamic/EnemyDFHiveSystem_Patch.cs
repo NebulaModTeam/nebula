@@ -4,6 +4,7 @@ using HarmonyLib;
 using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.SpaceEnemy;
 using NebulaWorld;
+using UnityEngine;
 
 #endregion
 
@@ -12,6 +13,51 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(EnemyDFHiveSystem))]
 internal class EnemyDFHiveSystem_Patch
 {
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.ActiveAllUnit))]
+    public static bool ActiveAllUnit_Prefix(EnemyDFHiveSystem __instance, long gameTick)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return false;
+
+        if (!__instance.realized)
+        {
+            return false;
+        }
+        var cursor = __instance.units.cursor;
+        for (var unitId = 1; unitId < cursor; unitId++)
+        {
+            if (__instance.units.buffer[unitId].behavior == EEnemyBehavior.KeepForm)
+            {
+                __instance.units.buffer[unitId].stateTick = 600;
+            }
+        }
+        var formLength = __instance.forms.Length;
+        for (var formId = 0; formId < formLength; formId++)
+        {
+            var enemyFormation = __instance.forms[formId];
+            var portCount = enemyFormation.portCount;
+            for (var portId = 1; portId <= portCount; portId++)
+            {
+                if (enemyFormation.units[portId] == 1)
+                {
+                    var unitId = __instance.ActivateUnit(formId, portId, gameTick);
+                    if (unitId > 0)
+                    {
+                        var buffer = __instance.units.buffer;
+                        buffer[unitId].behavior = EEnemyBehavior.KeepForm;
+                        buffer[unitId].stateTick = 600;
+                        var packet = new DFSActivateUnitPacket(__instance.hiveAstroId, formId, portId,
+                            (byte)EEnemyBehavior.KeepForm, 600, unitId, buffer[unitId].enemyId);
+                        Multiplayer.Session.Server.SendPacket(packet);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
     [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFHiveSystem.DeactivateUnit))]
     public static bool DeactivateUnit_Prefix(EnemyDFHiveSystem __instance, int unitId)
@@ -215,5 +261,66 @@ internal class EnemyDFHiveSystem_Patch
     {
         // Don't run enemy position check on client
         return !Multiplayer.IsActive || Multiplayer.Session.IsServer;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.UpdateHatred))]
+    public static bool UpdateHatred_Prefix()
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        // Note: Figure out hatred mechanism in the future
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.UnderAttack),
+        [typeof(VectorLF3), typeof(float)], [ArgumentType.Ref, ArgumentType.Normal])]
+    public static bool UnderAttack_Prefix(EnemyDFHiveSystem __instance, ref VectorLF3 centerUPos, float radius)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return false;
+
+        if (!__instance.realized)
+        {
+            return false;
+        }
+        __instance.sector.InverseTransformToAstro_ref(__instance.hiveAstroId, ref centerUPos, out var localPos);
+        var enemyData = default(EnemyData);
+        var formTicks = (int)((__instance.starData.seed + GameMain.gameTick) % 1512000L);
+        var pos = VectorLF3.zero;
+        var vel = Vector3.zero;
+        var rot = Quaternion.identity;
+        for (var formId = 0; formId < __instance.forms.Length; formId++)
+        {
+            var enemyFormation = __instance.forms[formId];
+            for (var portId = 1; portId <= enemyFormation.portCount; portId++)
+            {
+                if (enemyFormation.units[portId] == 1)
+                {
+                    enemyData.protoId = (short)(8113 - formId);
+                    enemyData.port = (short)portId;
+                    enemyData.owner = (short)(__instance.hiveAstroId - 1000000);
+                    enemyData.Formation(formTicks, (float)__instance.orbitRadius, ref pos, ref rot, ref vel);
+                    var dx = localPos.x - pos.x;
+                    var dy = localPos.y - pos.y;
+                    var dz = localPos.z - pos.z;
+                    if (dx * dx + dy * dy + dz * dz <= (double)(radius * radius))
+                    {
+                        var unitId = __instance.ActivateUnit(formId, portId, GameMain.gameTick);
+                        if (unitId > 0)
+                        {
+                            var buffer = __instance.units.buffer;
+                            buffer[unitId].behavior = EEnemyBehavior.KeepForm;
+                            buffer[unitId].stateTick = 600;
+                            var packet = new DFSActivateUnitPacket(__instance.hiveAstroId, formId, portId,
+                                (byte)EEnemyBehavior.KeepForm, 600, unitId, buffer[unitId].enemyId);
+                            Multiplayer.Session.Server.SendPacket(packet);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
