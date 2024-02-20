@@ -13,6 +13,38 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class EnemyDFHiveSystem_Patch
 {
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.DeactivateUnit))]
+    public static bool DeactivateUnit_Prefix(EnemyDFHiveSystem __instance, int unitId)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return Multiplayer.Session.Enemies.IsIncomingRequest;
+
+        var enemyId = __instance.units.buffer[unitId].enemyId;
+        if (enemyId == 0)
+        {
+            return false;
+        }
+        ref var ptr = ref __instance.sector.enemyPool[enemyId];
+        if (ptr.id != 0 && ptr.id == enemyId)
+        {
+            var port = (int)ptr.port;
+            var formId = 8113 - ptr.protoId;
+            if (__instance.hiveAstroId != ptr.originAstroId) // Assert.True(__instance.hiveAstroId == ptr.originAstroId)
+            {
+                return false;
+            }
+            var enemyFormation = __instance.forms[formId];
+            if (enemyFormation.units[port] > 1) // Assert.True(enemyFormation.units[port] > 1
+            {
+                enemyFormation.units[port] = 1;
+            }
+            __instance.sector.RemoveEnemyFinal(enemyId);
+            Multiplayer.Session.Network.SendPacket(new DFSDeactivateUnitPacket(__instance.hiveAstroId, enemyId));
+        }
+        return false;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFHiveSystem.ExecuteDeferredEnemyChange))]
     public static bool ExecuteDeferredEnemyChange_Prefix(EnemyDFHiveSystem __instance)
     {
@@ -83,6 +115,30 @@ internal class EnemyDFHiveSystem_Patch
                 Multiplayer.Session.Network.SendPacket(new DFSAddEnemyDeferredPacket(hiveAstroId, builderIndex, enemyId));
             }
             __instance._add_bidx_list.Clear();
+        }
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.ExecuteDeferredUnitFormation))]
+    public static bool ExecuteDeferredUnitFormation_Prefix(EnemyDFHiveSystem __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient)
+        {
+            __instance._initiate_unit_list?.Clear();
+            __instance._add_tinder_list?.Clear();
+            return false;
+        }
+
+        __instance._initiate_unit_list?.Clear();
+        if (__instance._deactivate_unit_list != null && __instance._deactivate_unit_list.Count > 0)
+        {
+            foreach (var unitId in __instance._deactivate_unit_list)
+            {
+                __instance.DeactivateUnit(unitId);
+            }
+            __instance._deactivate_unit_list.Clear();
         }
         return false;
     }
