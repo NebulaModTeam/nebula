@@ -57,6 +57,27 @@ internal class EnemyDFHiveSystem_Patch
         return false;
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.AssaultingWavesDetermineAI))]
+    public static bool AssaultingWavesDetermineAI_Prefix(EnemyDFHiveSystem __instance, EAggressiveLevel aggressiveLevel)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+
+        if (aggressiveLevel <= EAggressiveLevel.Passive)
+        {
+            return false;
+        }
+        if (__instance.lancerAssaultCountBase < 1f || __instance.lancerAssaultCountBase > 1500f)
+        {
+            __instance.lancerAssaultCountBase = __instance.GetLancerAssaultCountInitial(aggressiveLevel);
+        }
+        if (__instance.lancerAssaultCountBase > 360f)
+        {
+            __instance.lancerAssaultCountBase = 360f;
+        }
+        // Skip the part of if (this.evolve.threat >= this.evolve.maxThreat) in client
+        return false;
+    }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFHiveSystem.DeactivateUnit))]
@@ -187,6 +208,21 @@ internal class EnemyDFHiveSystem_Patch
             __instance._deactivate_unit_list.Clear();
         }
         return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.LaunchLancerAssault))]
+    public static bool LaunchLancerAssault_Prefix(EnemyDFHiveSystem __instance, EAggressiveLevel aggressiveLevel, 
+        Vector3 tarPos, Vector3 maxHatredPos, int targetAstroId, int unitCount0, int unitThreat)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return Multiplayer.Session.Enemies.IsIncomingRequest;
+
+        // Brocast launch assault events to all players
+        var packet = new DFSLaunchLancerAssaultPacket(in __instance, aggressiveLevel,
+            in tarPos, in maxHatredPos, targetAstroId, unitCount0, unitThreat);
+        Multiplayer.Session.Server.SendPacket(packet);
+        return true;
     }
 
     [HarmonyPrefix]
