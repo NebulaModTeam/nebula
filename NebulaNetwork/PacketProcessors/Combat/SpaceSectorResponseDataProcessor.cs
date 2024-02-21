@@ -4,6 +4,7 @@ using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat;
+using NebulaWorld;
 
 
 #endregion
@@ -20,12 +21,16 @@ internal class SpaceSectorResponseDataProcessor : PacketProcessor<SpaceSectorRes
             return;
         }
 
-        using (var reader = new BinaryUtils.Reader(packet.SpaceSectorResponseData))
+
+        using (Multiplayer.Session.Enemies.IsIncomingRequest.On())
         {
-            NebulaWorld.Combat.CombatManager.SerializeOverwrite = true;
-            GameMain.data.spaceSector.Import(reader.BinaryReader);
-            NebulaWorld.Combat.CombatManager.SerializeOverwrite = false;
+            using (var reader = new BinaryUtils.Reader(packet.SpaceSectorResponseData))
+            {
+                NebulaWorld.Combat.CombatManager.SerializeOverwrite = true;
+                GameMain.data.spaceSector.Import(reader.BinaryReader);
+                NebulaWorld.Combat.CombatManager.SerializeOverwrite = false;
+            }
+            GameMain.mainPlayer.mecha.CheckCombatModuleDataIsValidPatch();
         }
-        GameMain.mainPlayer.mecha.CheckCombatModuleDataIsValidPatch();
     }
 }

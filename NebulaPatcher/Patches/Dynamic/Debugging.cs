@@ -173,6 +173,34 @@ internal class Debug_PlanetFactory_Patch
     }
 }
 
+[HarmonyPatch(typeof(SpaceSector))]
+internal class Debug_SpaceSector_Patch
+{
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(SpaceSector.AddEnemyDataWithComponents))]
+    public static void AddEnemyDataWithComponents_Postfix(int __result)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value || !Multiplayer.Session.IsGameLoaded)
+        {
+            return;
+        }
+        Log.Warn($"SpaceSector.AddEnemyDataWithComponents {__result} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(SpaceSector.RemoveEnemyWithComponents))]
+    public static void RemoveEnemyWithComponents_Postfix(int id)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value)
+        {
+            return;
+        }
+        Log.Warn($"SpaceSector.RemoveEnemyWithComponents {id} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+}
+
 [HarmonyPatch(typeof(UIAdvisorTip))]
 internal class Debug_UIAdvisorTip_Patch
 {
