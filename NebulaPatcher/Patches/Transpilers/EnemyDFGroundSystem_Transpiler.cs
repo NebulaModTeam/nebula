@@ -1,9 +1,11 @@
 ﻿#region
 
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
 
 #endregion
@@ -67,6 +69,46 @@ internal class EnemyDFGroundSystem_Transpiler
             Log.Error("Transpiler EnemyDFGroundSystem.GameTickLogic failed. Ground DF untis aggro will not in sync.");
             Log.Error(e);
             return instructions;
+        }
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.DeactivateUnit))]
+    public static IEnumerable<CodeInstruction> DeactivateUnit_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
+            /*  Broadcast when removing is success
+            from:
+                this.factory.RemoveEnemyFinal(enemyId);
+            to:
+                EnemyDFGroundSystem_Transpiler.RemoveEnemyFinal(this.factory, enemyId)
+            */
+
+            var codeMatcher = new CodeMatcher(instructions)
+                .End()
+                .MatchBack(true, new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "RemoveEnemyFinal"))
+                .Set(OpCodes.Call, AccessTools.Method(typeof(EnemyDFGroundSystem_Transpiler), nameof(RemoveEnemyFinal)));
+
+            return codeMatcher.InstructionEnumeration();
+        }
+        catch (System.Exception e)
+        {
+            Log.Error("Transpiler DeactivateUnit_Transpiler failed.");
+            Log.Error(e);
+            return instructions;
+        }
+    }
+
+    public static void RemoveEnemyFinal(PlanetFactory factory, int id)
+    {
+        factory.RemoveEnemyFinal(id);
+        if (Multiplayer.IsActive && Multiplayer.Session.IsServer)
+        {
+            var planetId = factory.planetId;
+            var starId = factory.planet.star.id;
+            var pakcet = new DFGDeactivateUnitPacket(planetId, id);
+            Multiplayer.Session.Server.SendPacketToStar(pakcet, starId);
         }
     }
 }

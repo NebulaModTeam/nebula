@@ -20,7 +20,14 @@ public class DFGDeactivateUnitProcessor : PacketProcessor<DFGDeactivateUnitPacke
 
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
-            factory.enemySystem.DeactivateUnit(packet.UnitId);
+            ref var ptr = ref factory.enemyPool[packet.EnemyId];
+            if (ptr.isInvincible && ptr.id != packet.EnemyId)
+            {
+                // Restore the pending to kill enemy back to normal state
+                ptr.id = packet.EnemyId;
+                ptr.isInvincible = false;
+            }
+            factory.enemySystem.DeactivateUnit(ptr.unitId);
         }
     }
 }

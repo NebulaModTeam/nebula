@@ -60,7 +60,7 @@ internal class EnemyDFGroundSystem_Patch
     [HarmonyPatch(nameof(EnemyDFGroundSystem.InitiateUnitDeferred))]
     public static bool InitiateUnitDeferred_Prefix()
     {
-        // Do not call InitiateUnit in multiplayer game
+        // Skip InitiateUnit in multiplayer game
         return !Multiplayer.IsActive;
     }
 
@@ -69,35 +69,17 @@ internal class EnemyDFGroundSystem_Patch
     public static bool ExecuteDeferredUnitFormation_Prefix(EnemyDFGroundSystem __instance)
     {
         if (!Multiplayer.IsActive) return true;
-
-        if (__instance._initiate_unit_list != null && __instance._initiate_unit_list.Count > 0)
-        {
-            __instance._initiate_unit_list.Clear();
-        }
-
         if (Multiplayer.Session.IsClient)
         {
             // Wait for server to authorize
-            if (__instance._deactivate_unit_list != null && __instance._deactivate_unit_list.Count > 0)
-            {
-                __instance._deactivate_unit_list.Clear();
-            }
+            __instance._initiate_unit_list?.Clear();
+            __instance._deactivate_unit_list?.Clear();
             return false;
         }
 
-        if (__instance._deactivate_unit_list != null && __instance._deactivate_unit_list.Count > 0)
-        {
-            var planetId = __instance.planet.id;
-            var starId = __instance.planet.star.id;
-            foreach (var unitId in __instance._deactivate_unit_list)
-            {
-                var packet = new DFGDeactivateUnitPacket(planetId, unitId);
-                Multiplayer.Session.Network.SendPacketToStar(packet, starId);
-                __instance.DeactivateUnit(unitId);
-            }
-            __instance._deactivate_unit_list.Clear();
-        }
-        return false;
+        // Skip InitiateUnit in multiplayer game
+        __instance._initiate_unit_list?.Clear();
+        return true;
     }
 
     [HarmonyPrefix]
