@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using NebulaAPI.DataStructures;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -21,6 +22,20 @@ public class DFGLaunchAssaultProcessor : PacketProcessor<DFGLaunchAssaultPacket>
 
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
+            // Set enemyRecycle pool to make enemyId stay in sync
+            factory.enemyCursor = packet.EnemyCursor;
+            var capacity = factory.enemyCapacity;
+            while (capacity <= factory.enemyCursor)
+            {
+                capacity *= 2;
+            }
+            if (capacity > factory.enemyCapacity)
+            {
+                factory.SetEnemyCapacity(capacity);
+            }
+            factory.enemyRecycleCursor = packet.EnemyRecyle.Length;
+            Array.Copy(packet.EnemyRecyle, factory.enemyRecycle, packet.EnemyRecyle.Length);
+
             var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
             dFBase.turboTicks = 60;
             dFBase.turboRepress = 0;

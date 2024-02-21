@@ -1,4 +1,5 @@
-﻿using NebulaAPI.DataStructures;
+﻿using System;
+using NebulaAPI.DataStructures;
 using UnityEngine;
 
 namespace NebulaModel.Packets.Combat.GroundEnemy;
@@ -20,6 +21,11 @@ public class DFGLaunchAssaultPacket
         Ap0 = ap0;
         Ap1 = ap1;
         UnitThreat = unitThreat;
+
+        var factory = dFGBase.groundSystem.factory;
+        EnemyCursor = factory.enemyCursor;
+        EnemyRecyle = new int[factory.enemyRecycleCursor];
+        Array.Copy(factory.enemyRecycle, EnemyRecyle, EnemyRecyle.Length);
     }
 
     public int PlanetId { get; set; }
@@ -32,4 +38,6 @@ public class DFGLaunchAssaultPacket
     public int Ap0 { get; set; }
     public int Ap1 { get; set; }
     public int UnitThreat { get; set; }
+    public int EnemyCursor { get; set; }
+    public int[] EnemyRecyle { get; set; }
 }
