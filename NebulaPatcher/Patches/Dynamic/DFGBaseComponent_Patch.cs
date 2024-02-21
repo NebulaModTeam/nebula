@@ -43,7 +43,11 @@ internal class DFGBaseComponent_Patch
                 }
             }
         }
+        if (Multiplayer.Session.IsClient) return false;
 
+        // Server trigger active event and broadcast to clients
+        var planetId = __instance.groundSystem.planet.id;
+        var starId = __instance.groundSystem.planet.star.id;
         var formLength = __instance.forms.Length;
         for (var formId = 0; formId < formLength; formId++)
         {
@@ -58,6 +62,11 @@ internal class DFGBaseComponent_Patch
                     {
                         ptr[unitId].behavior = EEnemyBehavior.KeepForm;
                         ptr[unitId].stateTick = 240; // active tick (3+1) * keyFrame 60
+
+                        // Broadcast the active unit event to clients
+                        var packet = new DFGActivateUnitPacket(planetId, __instance.id,
+                            formId, portId, EEnemyBehavior.KeepForm, 240, ptr[unitId].enemyId);
+                        Multiplayer.Session.Network.SendPacketToStar(packet, starId);
                     }
                 }
             }

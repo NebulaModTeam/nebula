@@ -46,7 +46,7 @@ internal class PlayerAction_Combat_Patch
             var packet = new DFGActivateBasePacket(__instance.localPlanet.id, dFGBase.id, false);
             if (Multiplayer.Session.IsServer)
             {
-                Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+                Multiplayer.Session.Server.SendPacketToLocalStar(packet);
                 using (Multiplayer.Session.Combat.IsIncomingRequest.On())
                 {
                     dFGBase.ActiveAllUnit(GameMain.gameTick);
@@ -54,8 +54,8 @@ internal class PlayerAction_Combat_Patch
             }
             else
             {
-                // Request for ActiveAllUnit
-                Multiplayer.Session.Network.SendPacket(packet);
+                // Request for ActiveAllUnit approve
+                Multiplayer.Session.Client.SendPacket(packet);
             }
         }
         return false;
