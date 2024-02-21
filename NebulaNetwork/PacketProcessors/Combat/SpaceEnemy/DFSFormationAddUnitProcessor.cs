@@ -18,9 +18,13 @@ public class DFSFormationAddUnitProcessor : PacketProcessor<DFSFormationAddUnitP
         var hive = GameMain.spaceSector.GetHiveByAstroId(packet.HiveAstroId);
         if (hive == null) return;
 
-        using (Multiplayer.Session.Combat.IsIncomingRequest.On())
+        using (Multiplayer.Session.Enemies.IsIncomingRequest.On())
         {
-            var portId = hive.forms[packet.FormId].AddUnit();
+            // Set the next id in EnemyFormation
+            var enemyFrom = hive.forms[packet.FormId];
+            enemyFrom.vacancies[enemyFrom.vacancyCursor - 1] = packet.PortId;
+
+            var portId = enemyFrom.AddUnit();
 #if DEBUG
             if (portId != packet.PortId)
             {

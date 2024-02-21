@@ -22,7 +22,11 @@ public class DFGFormationAddUnitProcessor : PacketProcessor<DFGFormationAddUnitP
         var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
-            var portId = dFBase.forms[packet.FormId].AddUnit();
+            // Set the next id in EnemyFormation
+            var enemyFrom = dFBase.forms[packet.FormId];
+            enemyFrom.vacancies[enemyFrom.vacancyCursor - 1] = packet.PortId;
+
+            var portId = enemyFrom.AddUnit();
 #if DEBUG
             if (portId != packet.PortId)
             {

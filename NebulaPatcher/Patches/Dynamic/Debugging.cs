@@ -18,7 +18,9 @@ internal class Debug_EnemyFormation_Patch
     [HarmonyPatch(nameof(EnemyFormation.AddUnit))]
     public static void AddUnit_Postfix(int __result)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer
+            || Multiplayer.Session.Combat.IsIncomingRequest.Value
+            || Multiplayer.Session.Enemies.IsIncomingRequest.Value)
         {
             return;
         }
@@ -30,7 +32,9 @@ internal class Debug_EnemyFormation_Patch
     [HarmonyPatch(nameof(EnemyFormation.RemoveUnit))]
     public static void RemoveUnit_Postfix(int port)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer
+            || Multiplayer.Session.Combat.IsIncomingRequest.Value
+            || Multiplayer.Session.Enemies.IsIncomingRequest.Value)
         {
             return;
         }
