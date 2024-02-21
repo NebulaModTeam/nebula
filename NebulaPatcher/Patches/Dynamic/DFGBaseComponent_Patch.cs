@@ -81,16 +81,16 @@ internal class DFGBaseComponent_Patch
                 var unitId = __instance.groundSystem.ActivateUnit(__instance.id, formId, portId, gameTick);
                 if (unitId > 0)
                 {
-                    var buffer = __instance.groundSystem.units.buffer;
-                    buffer[unitId].behavior = EEnemyBehavior.KeepForm;
-                    buffer[unitId].stateTick = 120;
+                    ref var enemyUnit = ref __instance.groundSystem.units.buffer[unitId];
+                    enemyUnit.behavior = EEnemyBehavior.KeepForm;
+                    enemyUnit.stateTick = 120;
 
                     // Broadcast the active unit event to clients
                     var planetId = __instance.groundSystem.planet.id;
                     var starId = __instance.groundSystem.planet.star.id;
-                    Multiplayer.Session.Network.SendPacketToStar(
-                        new DFGActivateUnitPacket(planetId, __instance.id, formId, portId, (byte)EEnemyBehavior.KeepForm, 120, unitId),
-                        starId);
+                    var packet = new DFGActivateUnitPacket(planetId, __instance.id,
+                        formId, portId, EEnemyBehavior.KeepForm, 120, enemyUnit.enemyId);
+                    Multiplayer.Session.Network.SendPacketToStar(packet, starId);
                 }
             }
         }
@@ -156,16 +156,16 @@ internal class DFGBaseComponent_Patch
                         var unitId = __instance.groundSystem.ActivateUnit(__instance.id, formId, portId, gameTick);
                         if (unitId > 0)
                         {
-                            var buffer = __instance.groundSystem.units.buffer;
-                            buffer[unitId].behavior = eenemyBehavior;
-                            buffer[unitId].stateTick = setStateTick;
+                            ref var enemyUnit = ref __instance.groundSystem.units.buffer[unitId];
+                            enemyUnit.behavior = eenemyBehavior;
+                            enemyUnit.stateTick = setStateTick;
 
                             // Broadcast the active unit event to clients
                             var planetId = __instance.groundSystem.planet.id;
                             var starId = __instance.groundSystem.planet.star.id;
-                            Multiplayer.Session.Network.SendPacketToStar(
-                                new DFGActivateUnitPacket(planetId, __instance.id, formId, portId, (byte)eenemyBehavior, setStateTick, unitId),
-                                starId);
+                            var packet = new DFGActivateUnitPacket(planetId, __instance.id,
+                                formId, portId, eenemyBehavior, setStateTick, enemyUnit.enemyId);
+                            Multiplayer.Session.Network.SendPacketToStar(packet, starId);
                         }
                     }
                 }

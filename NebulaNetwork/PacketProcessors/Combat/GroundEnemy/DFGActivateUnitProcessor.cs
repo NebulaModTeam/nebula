@@ -1,10 +1,12 @@
 ﻿#region
 
 using NebulaAPI.Packets;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
+using NebulaWorld.Combat;
 
 #endregion
 
@@ -18,49 +20,33 @@ public class DFGActivateUnitProcessor : PacketProcessor<DFGActivateUnitPacket>
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;
 
-        var nextUnitId = factory.enemySystem.units.cursor;
-        if (factory.enemySystem.units.recycleCursor > 0)
-            nextUnitId = factory.enemySystem.units.recycleIds[factory.enemySystem.units.recycleCursor - 1];
-        if (nextUnitId != packet.UnitId)
-        {
-            // UnitId desync. This part is attmept to fix by assigning a correct unitId
-            NebulaModel.Logger.Log.Debug($"Activate unit correction {nextUnitId} => {packet.UnitId}, recycle={factory.enemySystem.units.recycleCursor}");
-            if (packet.UnitId > factory.enemySystem.units.cursor)
-            {
-                factory.enemySystem.units.cursor = packet.UnitId;
-            }
-            else
-            {
-                factory.enemySystem.units.recycleIds[factory.enemySystem.units.recycleCursor++] = packet.UnitId;
-            }
-            if (factory.enemySystem.units.cursor >= factory.enemySystem.units.capacity)
-            {
-                factory.enemySystem.units.SetCapacity(factory.enemySystem.units.capacity * 2);
-            }
-        }
-
-        var unitId = 0;
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
+            EnemyManager.SetPlanetFactoryNextEnemyId(factory, packet.EnemyId);
+            var dfBase = factory.enemySystem.bases.buffer[packet.BaseId];
             var gameTick = GameMain.gameTick;
-            unitId = factory.enemySystem.ActivateUnit(packet.BaseId, packet.FormId, packet.PortId, gameTick);
-        }
 
-        if (unitId == 0)
-        {
-            // enemyFormation.units[portId] != 1
-            NebulaModel.Logger.Log.Warn($"Activate unit {packet.UnitId} didn't success!");
-            return;
-        }
+            // the value inside enemyFormation.units[portId] is not reliable, so just overwrite it
+            var enemyFormation = dfBase.forms[packet.FormId];
+            enemyFormation.units[packet.PortId] = 1;
+            var unitId = factory.enemySystem.ActivateUnit(packet.BaseId, packet.FormId, packet.PortId, gameTick);
 
-        ref var enemyUnit = ref factory.enemySystem.units.buffer[unitId];
-        enemyUnit.behavior = (EEnemyBehavior)packet.Behavior;
-        enemyUnit.stateTick = packet.StateTick;
+#if DEBUG
+            if (unitId == 0)
+            {
+                Log.Warn($"DFSActivateUnitPacket unitId = 0!");
+                return;
+            }
+            var enemyId = factory.enemySystem.units.buffer[unitId].enemyId;
+            if (enemyId != packet.EnemyId)
+            {
+                Log.Warn($"DFSActivateUnitPacket enemyId mismatch! {packet.EnemyId} => {enemyId}");
+            }
+#endif
 
-        if (packet.UnitId != unitId)
-        {
-            // UnitId desync and beyond fixable. Recommend to reconnect
-            NebulaModel.Logger.Log.Warn($"Activate unit wrong id {packet.UnitId} => {enemyUnit.enemyId}");
+            ref var enemyUnit = ref factory.enemySystem.units.buffer[unitId];
+            enemyUnit.behavior = (EEnemyBehavior)packet.Behavior;
+            enemyUnit.stateTick = packet.StateTick;
         }
     }
 }

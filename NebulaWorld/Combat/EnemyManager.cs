@@ -59,6 +59,23 @@ public class EnemyManager : IDisposable
         }
     }
 
+    public static void SetPlanetFactoryNextEnemyId(PlanetFactory factory, int enemyId)
+    {
+        if (enemyId >= factory.enemyCursor)
+        {
+            factory.enemyCursor = enemyId;
+            while (factory.enemyCursor >= factory.enemyCapacity)
+            {
+                factory.SetEnemyCapacity(factory.enemyCapacity * 2);
+            }
+        }
+        else
+        {
+            factory.enemyRecycle[0] = enemyId;
+            factory.enemyRecycleCursor = 1;
+        }
+    }
+
     public static void SetSpaceSectorNextEnemyId(int enemyId)
     {
         var spaceSector = GameMain.spaceSector;

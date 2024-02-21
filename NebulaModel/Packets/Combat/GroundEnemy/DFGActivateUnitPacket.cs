@@ -4,15 +4,15 @@ public class DFGActivateUnitPacket
 {
     public DFGActivateUnitPacket() { }
 
-    public DFGActivateUnitPacket(int planetId, int baseId, int formId, int portId, byte behavior, int stateTick, int unitId)
+    public DFGActivateUnitPacket(int planetId, int baseId, int formId, int portId, EEnemyBehavior behavior, int stateTick, int enemyId)
     {
         PlanetId = planetId;
         BaseId = (ushort)baseId;
         FormId = (byte)formId;          // current max: 2
         PortId = (ushort)portId;        // current max: 1440
-        Behavior = behavior;
+        Behavior = (byte)behavior;
         StateTick = (short)stateTick;   // current max: 120
-        UnitId = (ushort)unitId;
+        EnemyId = enemyId;
     }
 
     public int PlanetId { get; set; }
@@ -21,5 +21,5 @@ public class DFGActivateUnitPacket
     public ushort PortId { get; set; }
     public byte Behavior { get; set; }
     public short StateTick { get; set; }
-    public ushort UnitId { get; set; }
+    public int EnemyId { get; set; }
 }
