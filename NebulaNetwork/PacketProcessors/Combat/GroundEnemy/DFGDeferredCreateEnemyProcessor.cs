@@ -1,10 +1,12 @@
 ﻿#region
 
 using NebulaAPI.Packets;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
+using NebulaWorld.Combat;
 
 #endregion
 
@@ -20,11 +22,15 @@ public class DFGDeferredCreateEnemyProcessor : PacketProcessor<DFGDeferredCreate
 
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
+            EnemyManager.SetPlanetFactoryNextEnemyId(factory, packet.EnemyId);
             var enemyId = factory.CreateEnemyFinal(packet.BaseId, packet.BuilderIndex);
+
+#if DEBUG
             if (enemyId != packet.EnemyId)
             {
-                NebulaModel.Logger.Log.Warn($"DeferredCreateEnemyPacket wrong id {packet.EnemyId} => {enemyId}");
+                Log.Warn($"DFGDeferredCreateEnemyPacket enemyId mismatch! {packet.EnemyId} => {enemyId}");
             }
+#endif
         }
     }
 }

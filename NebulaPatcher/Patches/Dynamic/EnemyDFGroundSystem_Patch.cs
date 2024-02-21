@@ -20,14 +20,8 @@ internal class EnemyDFGroundSystem_Patch
         if (Multiplayer.Session.IsClient)
         {
             // Wait for server to authorize
-            if (__instance._rmv_id_list != null && __instance._rmv_id_list.Count > 0)
-            {
-                __instance._rmv_id_list.Clear();
-            }
-            if (__instance._add_bidx_list != null && __instance._add_bidx_list.Count > 0)
-            {
-                __instance._add_bidx_list.Clear();
-            }
+            __instance._rmv_id_list?.Clear();
+            __instance._add_bidx_list?.Clear();
             return false;
         }
 
