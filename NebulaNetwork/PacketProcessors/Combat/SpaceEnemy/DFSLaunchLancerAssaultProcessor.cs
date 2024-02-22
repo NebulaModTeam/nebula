@@ -7,6 +7,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.SpaceEnemy;
 using NebulaWorld;
+using NebulaWorld.Combat;
 
 #endregion
 
@@ -24,18 +25,7 @@ public class DFSLaunchLancerAssaultProcessor : PacketProcessor<DFSLaunchLancerAs
         using (Multiplayer.Session.Enemies.IsIncomingRequest.On())
         {
             // Set enemyRecycle pool to make enemyId stay in sync
-            spaceSector.enemyCursor = packet.EnemyCursor;
-            var capacity = spaceSector.enemyCapacity;
-            while (capacity <= spaceSector.enemyCursor)
-            {
-                capacity *= 2;
-            }
-            if (capacity > spaceSector.enemyCapacity)
-            {
-                spaceSector.SetEnemyCapacity(capacity);
-            }
-            spaceSector.enemyRecycleCursor = packet.EnemyRecyle.Length;
-            Array.Copy(packet.EnemyRecyle, spaceSector.enemyRecycle, packet.EnemyRecyle.Length);
+            EnemyManager.SetSpaceSectorRecycle(packet.EnemyCursor, packet.EnemyRecycle);
 
             var aggressiveLevel = (EAggressiveLevel)packet.AggressiveLevel;
             hive.turboTicks = 120;

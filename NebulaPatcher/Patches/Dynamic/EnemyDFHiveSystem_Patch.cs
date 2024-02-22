@@ -271,11 +271,24 @@ internal class EnemyDFHiveSystem_Patch
     {
         if (!Multiplayer.IsActive) return true;
 
-        if (!Multiplayer.Session.Enemies.IsIncomingRequest)
+        if (!__instance.realized && !__instance.isEmpty)
         {
-            Multiplayer.Session.Network.SendPacket(new DFHivePreviewPacket(__instance.hiveAstroId, true));
+            if (Multiplayer.Session.IsServer)
+            {
+                Multiplayer.Session.Server.SendPacket(new DFHiveOpenPreviewPacket(__instance, true));
+                __instance.InstantiateEnemies();
+            }
+            else if (!Multiplayer.Session.Enemies.IsIncomingRequest)
+            {
+                Multiplayer.Session.Client.SendPacket(new DFHiveOpenPreviewPacket(__instance, false));
+            }
+            else
+            {
+                __instance.InstantiateEnemies();
+            }
         }
-        return Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value;
+        __instance.isPreview = true;
+        return false;
     }
 
     [HarmonyPrefix]
@@ -284,11 +297,24 @@ internal class EnemyDFHiveSystem_Patch
     {
         if (!Multiplayer.IsActive) return true;
 
-        if (!Multiplayer.Session.Enemies.IsIncomingRequest)
+        if (!__instance.realized)
         {
-            Multiplayer.Session.Network.SendPacket(new DFHivePreviewPacket(__instance.hiveAstroId, false));
+            if (Multiplayer.Session.IsServer)
+            {
+                Multiplayer.Session.Server.SendPacket(new DFHiveClosePreviewPacket(__instance));
+                __instance.UninstantiateEnemies();
+            }
+            else if (!Multiplayer.Session.Enemies.IsIncomingRequest)
+            {
+                Multiplayer.Session.Client.SendPacket(new DFHiveClosePreviewPacket(__instance));
+            }
+            else
+            {
+                __instance.UninstantiateEnemies();
+            }
         }
-        return Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value;
+        __instance.isPreview = false;
+        return false;
     }
 
     [HarmonyPrefix]

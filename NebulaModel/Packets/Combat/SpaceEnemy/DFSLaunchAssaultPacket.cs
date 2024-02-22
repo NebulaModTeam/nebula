@@ -21,8 +21,8 @@ public class DFSLaunchLancerAssaultPacket
         UnitThreat = unitThreat;
 
         EnemyCursor = hive.sector.enemyCursor;
-        EnemyRecyle = new int[hive.sector.enemyRecycleCursor];
-        Array.Copy(hive.sector.enemyRecycle, EnemyRecyle, EnemyRecyle.Length);
+        EnemyRecycle = new int[hive.sector.enemyRecycleCursor];
+        Array.Copy(hive.sector.enemyRecycle, EnemyRecycle, EnemyRecycle.Length);
     }
 
     public int HiveAstroId { get; set; }
@@ -34,5 +34,5 @@ public class DFSLaunchLancerAssaultPacket
     public int UnitCount0 { get; set; }
     public int UnitThreat { get; set; }
     public int EnemyCursor { get; set; }
-    public int[] EnemyRecyle { get; set; }
+    public int[] EnemyRecycle { get; set; }
 }

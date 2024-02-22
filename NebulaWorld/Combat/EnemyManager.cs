@@ -94,4 +94,22 @@ public class EnemyManager : IDisposable
             spaceSector.enemyRecycleCursor = 1;
         }
     }
+
+    public static void SetSpaceSectorRecycle(int enemyCusor, int[] enemyRecycle)
+    {
+        var spaceSector = GameMain.spaceSector;
+
+        spaceSector.enemyCursor = enemyCusor;
+        var capacity = spaceSector.enemyCapacity;
+        while (capacity <= spaceSector.enemyCursor)
+        {
+            capacity *= 2;
+        }
+        if (capacity > spaceSector.enemyCapacity)
+        {
+            spaceSector.SetEnemyCapacity(capacity);
+        }
+        spaceSector.enemyRecycleCursor = enemyRecycle.Length;
+        Array.Copy(enemyRecycle, spaceSector.enemyRecycle, enemyRecycle.Length);
+    }
 }
