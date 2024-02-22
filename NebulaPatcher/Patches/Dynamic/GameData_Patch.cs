@@ -15,6 +15,7 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 using NebulaWorld.Warning;
 using UnityEngine;
 
@@ -265,9 +266,6 @@ internal class GameData_Patch
         {
             return;
         }
-        //Request global part of GameData from host
-        Log.Info("Requesting global GameData from the server");
-        Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
 
         //Update player's position before searching for closest planet (GS2: Modeler.ModelingCoroutine)
         __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x,
@@ -296,6 +294,19 @@ internal class GameData_Patch
             var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet);
             __instance.ArrivePlanet(planet);
         }
+    }
+
+    [HarmonyPostfix, HarmonyPriority(Priority.High)]
+    [HarmonyPatch(nameof(GameData.NewGame))]
+    public static void NewGame_Postfix(GameData __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            return;
+        }
+
+        // Overwrite from binaryData in GlobalGameDataResponse
+        GameStatesManager.OverwriteGlobalGameData(__instance);
     }
 
     [HarmonyPostfix]

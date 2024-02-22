@@ -13,6 +13,18 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class SpaceSector_Patch
 {
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(SpaceSector.SetForNewGame))]
+    public static void SetForNewGame_Prefix(SpaceSector __instance)
+    {
+        if (Multiplayer.IsActive && Multiplayer.Session.IsClient)
+        {
+            // Set this.isCombatMode to false to skip the part of initial enemyDFHiveSystem
+            // Will revert it to the correct value during SpaceSector.Import called in GameStatesManager.OverwriteGlobalGameData
+            __instance.isCombatMode = false;
+        }
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(SpaceSector.KillEnemyFinal))]
     public static bool KillEnemyFinal_Prefix(SpaceSector __instance, int enemyId)
     {

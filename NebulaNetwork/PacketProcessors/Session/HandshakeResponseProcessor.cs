@@ -4,6 +4,7 @@ using BepInEx.Bootstrap;
 using NebulaAPI.Interfaces;
 using NebulaAPI.Packets;
 using NebulaModel;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -51,8 +52,17 @@ public class HandshakeResponseProcessor : PacketProcessor<HandshakeResponse>
         {
             gameDesc.combatSettings.Import(p.BinaryReader);
         }
-        DSPGame.StartGameSkipPrologue(gameDesc);
+        //Request global part of GameData from host
+        Log.Info("Requesting global GameData from the server");
+        Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
+        if (DSPGame.Game != null)
+        {
+            DSPGame.EndGame();
+        }
+        // Prepare gameDesc to later start in GlobalGameDataResponseProcessor
+        DSPGame.GameDesc = gameDesc;
 
+        UIRoot.instance.OpenLoadingUI();
         InGamePopup.ShowInfo("Loading".Translate(), "Loading state from server, please wait".Translate(), null);
 
         Multiplayer.Session.NumPlayers = packet.NumPlayers;
