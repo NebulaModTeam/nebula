@@ -1,6 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
+using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaModel.Packets.Combat.Mecha;
 using NebulaWorld;
@@ -67,6 +68,63 @@ internal class PlayerAction_Combat_Patch
     {
         // Trigger nearby enemy in CombatManager.GameTick()
         return !Multiplayer.IsActive;
+    }
+
+    static long s_lastSentTime;
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlayerAction_Combat.ActivateHiveEnemyManually))]
+    public static bool ActivateHiveEnemyManually_Prefix(PlayerAction_Combat __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+        var sendTimeDiff = GameMain.gameTick - s_lastSentTime;
+
+        var spaceColliderLogic = __instance.spaceSector.physics.spaceColliderLogic;
+        if (spaceColliderLogic.cursorCastAllCount > 0 && spaceColliderLogic.cursorCastAll[0].objType == EObjectType.Enemy)
+        {
+            ref var ptr = ref __instance.spaceSector.enemyPool[spaceColliderLogic.cursorCastAll[0].objId];
+            __instance.spaceSector.TransformFromAstro_ref(ptr.astroId, out var centerUPos, ref ptr.pos);
+            var hive = __instance.spaceSector.dfHivesByAstro[ptr.originAstroId - 1000000];
+            if (hive.realized && (sendTimeDiff > 300 || sendTimeDiff < -300))
+            {
+                Multiplayer.Session.Client.SendPacket(new DFHiveUnderAttackRequest(hive.hiveAstroId, ref centerUPos, 5000f));
+                s_lastSentTime = GameMain.gameTick;
+            }
+        }
+        else if (spaceColliderLogic.castEnemyhiveIndex > 0)
+        {
+            var hive = __instance.spaceSector.dfHivesByAstro[spaceColliderLogic.castEnemyhiveIndex];
+            if (hive.realized && (sendTimeDiff > 300 || sendTimeDiff < -300))
+            {
+                var packet = new DFHiveUnderAttackRequest
+                {
+                    HiveAstroId = hive.hiveAstroId
+                };
+                Multiplayer.Session.Client.SendPacket(packet);
+                s_lastSentTime = GameMain.gameTick;
+            }
+        }
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlayerAction_Combat.ActivateNearbyEnemyHive))]
+    public static bool ActivateNearbyEnemyHive(PlayerAction_Combat __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+
+        // Check every 5s to wake up the nearby enemy hive
+        if (__instance.localStar != null && GameMain.gameTick % 300 == 0)
+        {
+            for (var hive = __instance.spaceSector.dfHives[__instance.localStar.index]; hive != null; hive = hive.nextSibling)
+            {
+                if ((__instance.spaceSector.astros[hive.hiveAstroId - 1000000].uPos - __instance.player.uPosition).sqrMagnitude < 400000000.0)
+                {
+                    Multiplayer.Session.Client.SendPacket(new DFHiveUnderAttackRequest(hive.hiveAstroId, ref __instance.player.uPosition, 12000f));
+                }
+            }
+        }
+        return false;
     }
 
     [HarmonyPostfix]
