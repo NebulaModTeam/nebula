@@ -25,6 +25,7 @@ public class CombatManager : IDisposable
     {
         public ushort id;
         public int planetId;
+        public int starId;
         public Vector3 position;
         public VectorLF3 uPosition;
         public bool isAlive;
@@ -36,6 +37,7 @@ public class CombatManager : IDisposable
 
     public PlayerPosition[] Players; // include self
     public HashSet<int> ActivedPlanets;
+    public HashSet<int> ActivedStars;
     public Dictionary<int, int> IndexByPlayerId;
 
     private PlayerAction_Combat actionCombat;
@@ -45,6 +47,7 @@ public class CombatManager : IDisposable
     {
         Players = new PlayerPosition[2];
         ActivedPlanets = [];
+        ActivedStars = [];
         IndexByPlayerId = [];
         instance = this;
     }
@@ -55,6 +58,7 @@ public class CombatManager : IDisposable
         actionCombat = null;
         Players = null;
         ActivedPlanets = null;
+        ActivedStars = null;
         IndexByPlayerId = null;
         instance = null;
         GC.SuppressFinalize(this);
@@ -68,6 +72,7 @@ public class CombatManager : IDisposable
         }
         var gameTick = GameMain.gameTick;
         ActivedPlanets.Clear();
+        ActivedStars.Clear();
         IndexByPlayerId.Clear();
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
@@ -79,6 +84,7 @@ public class CombatManager : IDisposable
             PlayerId = Multiplayer.Session.LocalPlayer.Id;
             Players[0].id = Multiplayer.Session.LocalPlayer.Id;
             Players[0].planetId = GameMain.localPlanet?.id ?? -1;
+            Players[0].starId = GameMain.localStar?.id ?? -1;
             Players[0].position = GameMain.mainPlayer.position;
             Players[0].uPosition = GameMain.mainPlayer.uPosition;
             Players[0].isAlive = GameMain.mainPlayer.isAlive;
@@ -89,6 +95,7 @@ public class CombatManager : IDisposable
             Players[0].skillTargetU = macha.skillTargetUCenter;
 
             ActivedPlanets.Add(Players[0].planetId);
+            ActivedStars.Add(Players[0].starId);
             IndexByPlayerId[Players[0].id] = 0;
             var index = 1;
             foreach (var pair in remotePlayersModels)
@@ -108,6 +115,7 @@ public class CombatManager : IDisposable
                 ref var ptr = ref Players[index];
                 ptr.id = pair.Key;
                 ptr.planetId = snapshot.LocalPlanetId;
+                ptr.starId = pair.Value.Movement.LocalStarId;
                 ptr.position = player.position;
                 ptr.uPosition = player.uPosition;
                 ptr.isAlive = player.isAlive;
@@ -119,7 +127,8 @@ public class CombatManager : IDisposable
                 ptr.skillTargetU = macha.skillTargetUCenter;
                 macha.energyShieldEnergy = macha.energyShieldEnergyRate > 1 ? 0 : int.MaxValue;
 
-                ActivedPlanets.Add(snapshot.LocalPlanetId);
+                ActivedPlanets.Add(ptr.planetId);
+                ActivedPlanets.Add(ptr.starId);
                 IndexByPlayerId[pair.Key] = index;
                 ++index;
 
