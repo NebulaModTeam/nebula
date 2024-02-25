@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using NebulaModel.DataStructures;
+using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.GroundEnemy;
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -17,15 +18,18 @@ public class EnemyManager : IDisposable
     public readonly ToggleSwitch IsIncomingRelayRequest = new();
 
     private readonly Dictionary<int, DFGUpdateBaseStatusPacket> basePackets = [];
+    private readonly Dictionary<int, DFHiveUpdateStatusPacket> hivePackets = [];
 
     public EnemyManager()
     {
         basePackets.Clear();
+        hivePackets.Clear();
     }
 
     public void Dispose()
     {
         basePackets.Clear();
+        hivePackets.Clear();
         GC.SuppressFinalize(this);
     }
 
@@ -65,6 +69,26 @@ public class EnemyManager : IDisposable
                 else
                     Multiplayer.Session.Server.SendPacketToPlanet(packet, planetId);
             }
+        }
+    }
+
+    public void BroadcastHiveStatusPackets(EnemyDFHiveSystem hive, long gameTick)
+    {
+        var hashId = hive.hiveAstroId;
+        if (!hivePackets.TryGetValue(hashId, out var packet))
+        {
+            packet = new DFHiveUpdateStatusPacket(in hive);
+            hivePackets.Add(hashId, packet);
+        }
+        var levelChanged = packet.Level != hive.evolve.level;
+        if (levelChanged || (hashId % 600) == (int)gameTick % 600)
+        {
+            // Update when base level changes, or every 10s to local system
+            packet.Record(in hive);
+            if (levelChanged)
+                Multiplayer.Session.Server.SendPacket(packet);
+            else
+                Multiplayer.Session.Server.SendPacketToStar(packet, hive.starData.id);
         }
     }
 

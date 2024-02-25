@@ -212,6 +212,19 @@ internal class EnemyDFHiveSystem_Patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.GameTickLogic))]
+    public static void GameTickLogic_Prefix(EnemyDFHiveSystem __instance, long gameTick)
+    {
+        if (!Multiplayer.IsActive) return;
+
+        if (Multiplayer.Session.IsServer)
+        {
+            // Broadcast hive level changes before adding units
+            Multiplayer.Session.Enemies.BroadcastHiveStatusPackets(__instance, gameTick);
+        }
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFHiveSystem.LaunchLancerAssault))]
     public static bool LaunchLancerAssault_Prefix(EnemyDFHiveSystem __instance, EAggressiveLevel aggressiveLevel, 
         Vector3 tarPos, Vector3 maxHatredPos, int targetAstroId, int unitCount0, int unitThreat)
