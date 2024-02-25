@@ -105,6 +105,8 @@ public class CombatManager : IDisposable
                 ActivedStarsMechaInSpace.Add(Players[0].starId);
             }
             IndexByPlayerId[Players[0].id] = 0;
+
+            var localPlanetId = Players[0].planetId;
             var index = 1;
             foreach (var pair in remotePlayersModels)
             {
@@ -124,7 +126,9 @@ public class CombatManager : IDisposable
                 ptr.id = pair.Key;
                 ptr.planetId = snapshot.LocalPlanetId;
                 ptr.starId = pair.Value.Movement.LocalStarId;
-                ptr.position = player.position;
+                // If the remote player is on the same planet, player.position is more precise
+                // Otherwise it has to use the interpolated recevied position
+                ptr.position = ptr.id == localPlanetId ? player.position : snapshot.LocalPlanetPosition.ToVector3();
                 ptr.uPosition = player.uPosition;
                 ptr.isAlive = player.isAlive;
 
