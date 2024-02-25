@@ -17,17 +17,21 @@ public class EnemyManager : IDisposable
 
     public readonly ToggleSwitch IsIncomingRelayRequest = new();
 
+    public readonly Dictionary<int, int[]> GroundTargets = new();
+
     private readonly Dictionary<int, DFGUpdateBaseStatusPacket> basePackets = [];
     private readonly Dictionary<int, DFHiveUpdateStatusPacket> hivePackets = [];
 
     public EnemyManager()
     {
+        GroundTargets.Clear();
         basePackets.Clear();
         hivePackets.Clear();
     }
 
     public void Dispose()
     {
+        GroundTargets.Clear();
         basePackets.Clear();
         hivePackets.Clear();
         GC.SuppressFinalize(this);
@@ -89,6 +93,22 @@ public class EnemyManager : IDisposable
                 Multiplayer.Session.Server.SendPacket(packet);
             else
                 Multiplayer.Session.Server.SendPacketToStar(packet, hive.starData.id);
+        }
+    }
+
+    public void OnFactoryLoadFinished(PlanetFactory factory)
+    {
+        var planetId = factory.planetId;
+
+        // Set GroundTargets to current values
+        var targets = new int[factory.enemyCapacity];
+        GroundTargets[planetId] = targets;
+        var unitCursor = factory.enemySystem.units.cursor;
+        var unitBuffer = factory.enemySystem.units.buffer;
+        for (var i = 1; i < unitCursor; i++)
+        {
+            var enemyId = unitBuffer[i].enemyId;
+            targets[enemyId] = unitBuffer[i].hatred.max.target;
         }
     }
 

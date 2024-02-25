@@ -62,6 +62,32 @@ internal class EnemyDFGroundSystem_Transpiler
                     new CodeInstruction(OpCodes.Brtrue_S, jumpOperand)
                 );
 
+            /*  Sync max hatred target before excuting unit behavior in MP                
+            before:
+				switch (ptr6.behavior)
+				{
+                    ...
+                }
+            insert:
+                SyncHatredTarget(this, ptr)
+            */
+
+            codeMatcher
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(EnemyUnitComponent), nameof(EnemyUnitComponent.behavior))),
+                    new CodeMatch(OpCodes.Stloc_S),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Switch)
+                );
+
+            var ptr = codeMatcher.Instruction.operand;
+            codeMatcher.Insert(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Ldloc_S, ptr),
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(EnemyDFGroundSystem_Transpiler), nameof(SyncHatredTarget)))
+                );
+
             return codeMatcher.InstructionEnumeration();
         }
         catch (System.Exception e)
@@ -69,6 +95,38 @@ internal class EnemyDFGroundSystem_Transpiler
             Log.Error("Transpiler EnemyDFGroundSystem.GameTickLogic failed. Ground DF untis aggro will not in sync.");
             Log.Error(e);
             return instructions;
+        }
+    }
+
+    private static void SyncHatredTarget(EnemyDFGroundSystem groundSystem, ref EnemyUnitComponent enemyUnit)
+    {
+        if (!Multiplayer.IsActive) return;
+
+        var planetId = groundSystem.planet.id;
+        var targets = Multiplayer.Session.Enemies.GroundTargets[planetId];
+        var enemyId = enemyUnit.enemyId;
+        if (enemyId >= targets.Length) return;
+
+        if (Multiplayer.Session.IsServer)
+        {
+            // TODO: Sync fighter drones in future. For now stop enemy unit from targeting craft.
+            if (enemyUnit.hatred.max.objectType == EObjectType.Craft)
+            {
+                enemyUnit.hatred.ClearMax();
+            }
+            var currentTarget = enemyUnit.hatred.max.target;
+            if (targets[enemyId] != currentTarget)
+            {
+                targets[enemyId] = currentTarget;
+                var starId = planetId / 100;
+                var packet = new DFGRetargetPacket(planetId, enemyId, currentTarget);
+                Multiplayer.Session.Server.SendPacketToStar(packet, starId);
+            }
+        }
+        else
+        {
+            enemyUnit.hatred.max.target = targets[enemyId]; // overwrite with value from server
+            enemyUnit.hatred.max.value = 100000; // dummy max value
         }
     }
 

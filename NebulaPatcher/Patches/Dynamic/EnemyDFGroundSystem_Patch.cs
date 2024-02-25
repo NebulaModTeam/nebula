@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using HarmonyLib;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
@@ -140,6 +141,17 @@ internal class EnemyDFGroundSystem_Patch
     public static void GameTickLogic_Prefix(EnemyDFGroundSystem __instance, long gameTick)
     {
         if (!Multiplayer.IsActive) return;
+
+        var planetId = __instance.planet.id;
+        var targets = Multiplayer.Session.Enemies.GroundTargets;
+        if (!targets.TryGetValue(planetId, out var array) || array.Length < __instance.factory.enemyCapacity)
+        {
+            targets[planetId] = new int[__instance.factory.enemyCapacity];
+            if (array != null)
+            {
+                Array.Copy(array, targets[planetId], array.Length);
+            }
+        }
 
         if (Multiplayer.Session.IsServer)
         {

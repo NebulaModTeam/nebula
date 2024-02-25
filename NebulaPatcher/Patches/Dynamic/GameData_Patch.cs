@@ -222,6 +222,7 @@ internal class GameData_Patch
             });
 
             Multiplayer.Session.Combat.OnFactoryLoadFinished(planet.factory);
+            Multiplayer.Session.Enemies.OnFactoryLoadFinished(planet.factory);
 
             try
             {
