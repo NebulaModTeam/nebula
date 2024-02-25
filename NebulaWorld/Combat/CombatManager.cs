@@ -38,6 +38,7 @@ public class CombatManager : IDisposable
     public PlayerPosition[] Players; // include self
     public HashSet<int> ActivedPlanets;
     public HashSet<int> ActivedStars;
+    public HashSet<int> ActivedStarsMechaInSpace; // player in the system and not on a planet
     public Dictionary<int, int> IndexByPlayerId;
 
     private PlayerAction_Combat actionCombat;
@@ -48,6 +49,7 @@ public class CombatManager : IDisposable
         Players = new PlayerPosition[2];
         ActivedPlanets = [];
         ActivedStars = [];
+        ActivedStarsMechaInSpace = [];
         IndexByPlayerId = [];
         instance = this;
     }
@@ -59,6 +61,7 @@ public class CombatManager : IDisposable
         Players = null;
         ActivedPlanets = null;
         ActivedStars = null;
+        ActivedStarsMechaInSpace = null;
         IndexByPlayerId = null;
         instance = null;
         GC.SuppressFinalize(this);
@@ -73,6 +76,7 @@ public class CombatManager : IDisposable
         var gameTick = GameMain.gameTick;
         ActivedPlanets.Clear();
         ActivedStars.Clear();
+        ActivedStarsMechaInSpace.Clear();
         IndexByPlayerId.Clear();
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
@@ -96,6 +100,10 @@ public class CombatManager : IDisposable
 
             ActivedPlanets.Add(Players[0].planetId);
             ActivedStars.Add(Players[0].starId);
+            if (Players[0].planetId <= 0 && Players[0].starId > 0)
+            {
+                ActivedStarsMechaInSpace.Add(Players[0].starId);
+            }
             IndexByPlayerId[Players[0].id] = 0;
             var index = 1;
             foreach (var pair in remotePlayersModels)
@@ -129,6 +137,10 @@ public class CombatManager : IDisposable
 
                 ActivedPlanets.Add(ptr.planetId);
                 ActivedPlanets.Add(ptr.starId);
+                if (ptr.planetId <= 0 && ptr.starId > 0)
+                {
+                    ActivedStarsMechaInSpace.Add(ptr.starId);
+                }
                 IndexByPlayerId[pair.Key] = index;
                 ++index;
 
