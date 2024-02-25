@@ -134,4 +134,17 @@ internal class EnemyDFGroundSystem_Patch
         __instance.factory.RemoveRuinWithComponet(pitRuinId);
         return false;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic))]
+    public static void GameTickLogic_Prefix(EnemyDFGroundSystem __instance, long gameTick)
+    {
+        if (!Multiplayer.IsActive) return;
+
+        if (Multiplayer.Session.IsServer)
+        {
+            // Broadcast base level changes before adding units
+            Multiplayer.Session.Enemies.BroadcastBaseStatusPackets(__instance, gameTick);
+        }
+    }
 }

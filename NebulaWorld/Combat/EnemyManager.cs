@@ -31,30 +31,39 @@ public class EnemyManager : IDisposable
 
     public void GameTick(long gameTick)
     {
-        if (!Multiplayer.Session.IsGameLoaded) return;
-        if (Multiplayer.Session.IsClient) return;
-
-        for (var factoryIndex = 0; factoryIndex < GameMain.data.factoryCount; factoryIndex++)
+        if (!Multiplayer.Session.IsGameLoaded)
         {
-            var bases = GameMain.data.factories[factoryIndex].enemySystem.bases;
-            for (var baseId = 1; baseId < bases.cursor; baseId++)
-            {
-                var dFbase = bases.buffer[baseId];
-                if (dFbase == null || dFbase.id != baseId) continue;
+            return;
+        }
+        // Place holder for future
+        var _ = gameTick;
+    }
 
-                var hashId = (factoryIndex << 16) | baseId; //assume max base count on a planet < 2^16
-                if (!basePackets.TryGetValue(hashId, out var packet))
-                {
-                    packet = new DFGUpdateBaseStatusPacket(in dFbase);
-                    basePackets.Add(hashId, packet);
-                }
-                if (packet.Level != dFbase.evolve.level || (hashId % 300) == (int)gameTick % 300)
-                {
-                    // Update when base level changes, or every 5s
-                    packet.Record(in dFbase);
-                    var planetId = GameMain.data.factories[factoryIndex].planet.id;
-                    Multiplayer.Session.Network.SendPacketToPlanet(packet, planetId);
-                }
+    public void BroadcastBaseStatusPackets(EnemyDFGroundSystem enemySystem, long gameTick)
+    {
+        var factoryIndex = enemySystem.factory.index;
+        var bases = enemySystem.bases;
+        for (var baseId = 1; baseId < bases.cursor; baseId++)
+        {
+            var dFbase = bases.buffer[baseId];
+            if (dFbase == null || dFbase.id != baseId) continue;
+
+            var hashId = (factoryIndex << 16) | baseId; //assume max base count on a planet < 2^16
+            if (!basePackets.TryGetValue(hashId, out var packet))
+            {
+                packet = new DFGUpdateBaseStatusPacket(in dFbase);
+                basePackets.Add(hashId, packet);
+            }
+            var levelChanged = packet.Level != dFbase.evolve.level;
+            if (levelChanged || (hashId % 300) == (int)gameTick % 300)
+            {
+                // Update when base level changes, or every 5s
+                packet.Record(in dFbase);
+                var planetId = enemySystem.planet.id;
+                if (levelChanged)
+                    Multiplayer.Session.Server.SendPacket(packet);
+                else
+                    Multiplayer.Session.Server.SendPacketToPlanet(packet, planetId);
             }
         }
     }
