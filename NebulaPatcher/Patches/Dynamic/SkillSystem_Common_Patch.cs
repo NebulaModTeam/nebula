@@ -59,7 +59,6 @@ internal class SkillSystem_Common_Patch
         skillSystem.playerSkillTargetL = playerData.skillTargetL;
         skillSystem.playerSkillTargetULast = playerData.skillTargetULast;
         skillSystem.playerSkillTargetU = playerData.skillTargetU;
-        skillSystem.playerSkillColliderL = playerData.mecha.skillColliderL;
     }
 
     [HarmonyPrefix]

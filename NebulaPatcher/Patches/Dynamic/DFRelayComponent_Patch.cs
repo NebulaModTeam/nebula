@@ -15,7 +15,8 @@ internal class DFRelayComponent_Patch
     [HarmonyPatch(nameof(DFRelayComponent.SearchTargetPlaceProcess))]
     public static bool SearchTargetPlaceProcess_Prefix()
     {
-        if (!Multiplayer.IsActive && Multiplayer.Session.IsServer) return true;
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsServer) return true;
 
         // Let server perform the search target and LeaveDock()
         return false;
