@@ -160,10 +160,15 @@ internal class PlayerAction_Combat_Patch
         var packet = new MechaShootPacket(Multiplayer.Session.LocalPlayer.Id,
             (byte)ammoType, ammoItemId, target.astroId, target.id);
 
-        if (GameMain.localPlanet != null)
+        if (GameMain.localPlanet != null && target.astroId == __instance.localAstroId)
         {
             // Make sure the receiver has loaded factory
             Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
+        }
+        else if (GameMain.localStar != null)
+        {
+            // Shooting enemy in space or on across planet
+            Multiplayer.Session.Network.SendPacketToLocalStar(packet);
         }
     }
 }

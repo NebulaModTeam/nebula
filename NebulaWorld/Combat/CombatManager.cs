@@ -223,11 +223,10 @@ public class CombatManager : IDisposable
             actionCombat.mecha.laserEnergy = int.MaxValue;
             actionCombat.mecha.ammoItemId = ammoItemId;
 
-            var isLocal = targetId == actionCombat.localAstroId;
-            var pool = isLocal ? actionCombat.localFactory.enemyPool : actionCombat.spaceSector.enemyPool;
-            if (targetId >= pool.Length || pool[targetId].id != targetId)
+            var isLocal = targetAstroId == actionCombat.localAstroId;
+            var pool = isLocal ? actionCombat.localFactory?.enemyPool : actionCombat.spaceSector.enemyPool;
+            if (pool == null || targetId >= pool.Length)
             {
-                NebulaModel.Logger.Log.Debug($"{ammoType} {targetId} doesn't exist!");
                 return false;
             }
             var target = new SkillTarget
