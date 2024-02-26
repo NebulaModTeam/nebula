@@ -185,11 +185,46 @@ internal class DFGBaseComponent_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(DFGBaseComponent.UpdateHatred))]
-    public static bool UpdateHatred_Prefix()
+    public static bool UpdateHatred_Prefix(DFGBaseComponent __instance, long gameTick, int hatredTake, int maxDispatch)
     {
         if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return false;
+        if (__instance.hatred.max.value < hatredTake) return false;
 
-        // Note: Figure out hatred mechanism in the future
+        // Active units for each hatredTake until maxDispatch is reach
+        ref var unitBuffer = ref __instance.groundSystem.units.buffer;
+        for (var formId = 0; formId < 3; formId++)
+        {
+            var portCount = __instance.forms[formId].portCount;
+            for (var portId = 1; portId <= portCount; portId++)
+            {
+                if (__instance.forms[formId].units[portId] == 1)
+                {
+                    if (maxDispatch <= 0 || __instance.hatred.max.value < hatredTake)
+                    {
+                        return false;
+                    }
+                    var unitId = __instance.groundSystem.ActivateUnit(__instance.id, formId, portId, gameTick);
+                    if (unitId > 0)
+                    {
+                        ref var enemyUnit = ref unitBuffer[unitId];
+                        enemyUnit.hatred.HateTarget(__instance.hatred.max.objectType, __instance.hatred.max.objectId, hatredTake, hatredTake, EHatredOperation.Set);
+                        enemyUnit.behavior = EEnemyBehavior.SeekForm;
+                        enemyUnit.stateTick = 120;
+                        __instance.hatred.max.value -= hatredTake;
+                        __instance.hatred.Arrange();
+                        maxDispatch--;
+
+                        // Broadcast the active unit event to clients
+                        var planetId = __instance.groundSystem.planet.id;
+                        var starId = planetId / 100;
+                        var packet = new DFGActivateUnitPacket(planetId, __instance.id,
+                            formId, portId, EEnemyBehavior.SeekForm, 120, enemyUnit.enemyId);
+                        Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                    }
+                }
+            }
+        }
         return false;
     }
 
