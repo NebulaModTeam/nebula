@@ -189,9 +189,22 @@ internal class DFGBaseComponent_Patch
     {
         if (!Multiplayer.IsActive) return true;
         if (Multiplayer.Session.IsClient) return false;
-        if (__instance.hatred.max.value < hatredTake) return false;
+
+        // PlayerAction_Combat.ActivateNearbyEnemyBase
+        var planetId = __instance.groundSystem.planet.id;
+        var enemyPool = __instance.groundSystem.factory.enemyPool;
+        var players = Multiplayer.Session.Combat.Players;
+        for (var pid = 0; pid < players.Length; pid++)
+        {
+            if (players[pid].planetId != planetId) continue;
+            if (((Vector3)enemyPool[__instance.enemyId].pos - players[pid].position).sqrMagnitude < 8100.0)
+            {
+                __instance.UnderAttack(players[pid].position, 50f, 120);
+            }
+        }
 
         // Active units for each hatredTake until maxDispatch is reach
+        if (__instance.hatred.max.value < hatredTake) return false;
         ref var unitBuffer = ref __instance.groundSystem.units.buffer;
         for (var formId = 0; formId < 3; formId++)
         {
@@ -216,7 +229,6 @@ internal class DFGBaseComponent_Patch
                         maxDispatch--;
 
                         // Broadcast the active unit event to clients
-                        var planetId = __instance.groundSystem.planet.id;
                         var starId = planetId / 100;
                         var packet = new DFGActivateUnitPacket(planetId, __instance.id,
                             formId, portId, EEnemyBehavior.SeekForm, 120, enemyUnit.enemyId);

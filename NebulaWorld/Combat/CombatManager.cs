@@ -151,32 +151,6 @@ public class CombatManager : IDisposable
                 player.controller.actionDeath.GameTick(gameTick);
             }
         }
-
-        if (Multiplayer.Session.IsClient)
-        {
-            return;
-        }
-
-        // ActivateNearbyEnemyBase
-        for (var pid = 0; pid < Players.Length; pid++)
-        {
-            var planet = GameMain.galaxy.PlanetById(Players[pid].planetId);
-            if (planet != null && planet.factoryLoaded)
-            {
-                var bases = planet.factory.enemySystem.bases;
-                var buffer = bases.buffer;
-                var enemyPool = planet.factory.enemyPool;
-                GameMain.data.spaceSector.InverseTransformToAstro_ref(planet.astroId, ref Players[pid].uPosition, out var vectorLF);
-                for (var i = 1; i < bases.cursor; i++)
-                {
-                    var dfgbaseComponent = buffer[i];
-                    if (dfgbaseComponent != null && dfgbaseComponent.id == i && (enemyPool[dfgbaseComponent.enemyId].pos - vectorLF).sqrMagnitude < 8100.0)
-                    {
-                        dfgbaseComponent.UnderAttack(vectorLF, 50f, 120);
-                    }
-                }
-            }
-        }
     }
 
     public bool ShieldBrust(MechaShieldBurstPacket packet)

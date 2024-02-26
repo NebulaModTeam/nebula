@@ -64,9 +64,9 @@ internal class PlayerAction_Combat_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlayerAction_Combat.ActivateNearbyEnemyBase))]
-    public static bool ActivateNearbyEnemy_Prefix()
+    public static bool ActivateNearbyEnemyBase_Prefix()
     {
-        // Trigger nearby enemy in CombatManager.GameTick()
+        // Trigger nearby enemy base in DFGBaseComponent.UpdateHatred_Prefix
         return !Multiplayer.IsActive;
     }
 
