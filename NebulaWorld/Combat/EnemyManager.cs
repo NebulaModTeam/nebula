@@ -19,6 +19,8 @@ public class EnemyManager : IDisposable
 
     public readonly Dictionary<int, int[]> GroundTargets = new();
 
+    public const bool DISABLE_DFCommunicator = true;
+
     private readonly Dictionary<int, DFGUpdateBaseStatusPacket> basePackets = [];
     private readonly Dictionary<int, DFHiveUpdateStatusPacket> hivePackets = [];
 
