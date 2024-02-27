@@ -9,7 +9,6 @@ using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using UnityEngine;
 using UnityEngine.UI;
-using static NebulaPatcher.Patches.Dynamic.UIOptionWindow_Patch;
 
 #endregion
 
@@ -19,12 +18,6 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class UIGalaxySelect_Patch
 {
     private static int MainMenuStarID = -1;
-
-    private static Toggle DFToggle;
-    private static bool OriginalDFToggleIsOn;
-    private static bool OriginalDFToggleInteractable;
-    private static Color OriginalDFToggleDisabledColor;
-    private static Tooltip DFToggleTooltip;
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(UIGalaxySelect._OnOpen))]
@@ -82,10 +75,6 @@ internal class UIGalaxySelect_Patch
         {
             MainMenuStarID = GameMain.localStar.id;
         }
-
-#if RELEASE
-        DisableDarkFogToggle();
-#endif
 
         var button = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/start-button").GetComponent<Button>();
         button.interactable = true;
@@ -161,8 +150,6 @@ internal class UIGalaxySelect_Patch
             if (childObject.name != "top-title" && childObject.name != "galaxy-seed")
                 childObject.SetActive(true);
         }
-
-        RestoreDarkFogToggleState();
     }
 
     [HarmonyPrefix]
@@ -237,38 +224,5 @@ internal class UIGalaxySelect_Patch
         InGamePopup.FadeOut();
         Config.Options.ShowLobbyHints = false;
         Config.SaveOptions();
-    }
-
-    private static void DisableDarkFogToggle()
-    {
-        DFToggle = GameObject.Find("UI Root/Overlay Canvas/Galaxy Select/setting-group/DF-toggle/check-box").GetComponent<Toggle>();
-        OriginalDFToggleIsOn = DFToggle.isOn;
-        DFToggle.isOn = false;
-        OriginalDFToggleInteractable = DFToggle.interactable;
-        DFToggle.interactable = false;
-
-        // fixes the color scheme so disabled state is acctualy visible
-        OriginalDFToggleDisabledColor = DFToggle.colors.disabledColor;
-        var colors = DFToggle.colors;
-        colors.disabledColor = new Color(1, 1, 1, colors.disabledColor.a);
-        DFToggle.colors = colors;
-
-        DFToggleTooltip = DFToggle.gameObject.AddComponent<Tooltip>();
-        DFToggleTooltip.Title = "Not supported in multiplayer";
-        DFToggleTooltip.Text = "Enabling enemy forces is currently not supported in multiplayer.";
-    }
-
-    private static void RestoreDarkFogToggleState()
-    {
-        if (DFToggle != null)
-        {
-            // we are setting the (originally) private m_IsOn here since setting the public isOn will fire an event which leads to a NRE
-            DFToggle.m_IsOn = OriginalDFToggleIsOn;
-            DFToggle.interactable = OriginalDFToggleInteractable;
-            var colors = DFToggle.colors;
-            colors.disabledColor = OriginalDFToggleDisabledColor;
-            DFToggle.colors = colors;
-            Object.Destroy(DFToggleTooltip);
-        }
     }
 }
