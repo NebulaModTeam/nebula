@@ -175,9 +175,14 @@ public class WarningManager : IDisposable
 
             // reassign warningId for trash
             var trashId = br.ReadInt32();
-            if (trashId >= 0 && trashId < GameMain.data.trashSystem.container.trashCursor)
+            var continaer = GameMain.data.trashSystem.container;
+            if (trashId >= 0 && trashId < continaer.trashCursor)
             {
-                GameMain.data.trashSystem.container.trashDataPool[trashId].warningId = i;
+                // assign warningId only if item exist
+                if (continaer.trashObjPool[trashId].item > 0)
+                {
+                    continaer.trashDataPool[trashId].warningId = i;
+                }
             }
         }
     }

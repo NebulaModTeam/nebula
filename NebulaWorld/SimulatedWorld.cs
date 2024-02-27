@@ -333,37 +333,6 @@ public class SimulatedWorld : IDisposable
         }
     }
 
-    public int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
-    {
-        using (GetRemotePlayersModels(out var remotePlayersModels))
-        {
-            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
-            {
-                return 0;
-            }
-            var trashData = packet.GetTrashData();
-            //Calculate trash position based on the current player's model position
-            var lastPosition = player.Movement.GetLastPosition();
-            if (lastPosition.LocalPlanetId < 1)
-            {
-                trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y,
-                    lastPosition.UPosition.z);
-            }
-            else
-            {
-                trashData.lPos = lastPosition.LocalPlanetPosition.ToVector3();
-                var planet = GameMain.galaxy.PlanetById(lastPosition.LocalPlanetId);
-                trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
-            }
-
-            using (Multiplayer.Session.Trashes.NewTrashFromOtherPlayers.On())
-            {
-                var myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
-                return myId;
-            }
-        }
-    }
-
     public void RenderPlayerNameTagsOnStarmap(UIStarmap starmap)
     {
         // Make a copy of the "Icarus" text from the starmap

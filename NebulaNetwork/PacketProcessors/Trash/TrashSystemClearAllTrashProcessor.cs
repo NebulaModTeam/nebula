@@ -20,25 +20,11 @@ internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemCl
 
     protected override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
     {
-        var valid = true;
         if (IsHost)
         {
-            var player = Players.Get(conn);
-            if (player != null)
-            {
-                Server.SendPacketExclude(packet, conn);
-            }
-            else
-            {
-                valid = false;
-            }
+            Server.SendPacketExclude(packet, conn);
         }
-
-        if (!valid)
-        {
-            return;
-        }
-        using (Multiplayer.Session.Trashes.ClearAllTrashFromOtherPlayers.On())
+        using (Multiplayer.Session.Trashes.IsIncomingRequest.On())
         {
             GameMain.data.trashSystem.ClearAllTrash();
         }

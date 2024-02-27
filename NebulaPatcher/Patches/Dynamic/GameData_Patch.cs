@@ -221,6 +221,7 @@ internal class GameData_Patch
                 RefreshMissingMeshes();
             });
 
+            Multiplayer.Session.Trashes.Refresh();
             Multiplayer.Session.Combat.OnFactoryLoadFinished(planet.factory);
             Multiplayer.Session.Enemies.OnFactoryLoadFinished(planet.factory);
 
@@ -426,6 +427,7 @@ internal class GameData_Patch
         //Players should clear the list of drone orders of other players when they leave the planet
         if (Multiplayer.IsActive)
         {
+            Multiplayer.Session.Trashes.Refresh();
             Multiplayer.Session.PowerTowers.ResetAndBroadcast();
             //todo:replace
             //GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
