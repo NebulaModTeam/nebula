@@ -160,15 +160,22 @@ internal class PlayerAction_Combat_Patch
         var packet = new MechaShootPacket(Multiplayer.Session.LocalPlayer.Id,
             (byte)ammoType, ammoItemId, target.astroId, target.id);
 
-        if (GameMain.localPlanet != null && target.astroId == __instance.localAstroId)
+        if (GameMain.localStar != null)
         {
-            // Make sure the receiver has loaded factory
-            Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
+            // Send to all players within the same system
+            if (Multiplayer.Session.IsServer)
+            {
+                Multiplayer.Session.Server.SendPacketToLocalStar(packet);
+            }
+            else
+            {
+                Multiplayer.Session.Client.SendPacket(packet);
+            }
         }
-        else if (GameMain.localStar != null)
+        else
         {
-            // Shooting enemy in space or on across planet
-            Multiplayer.Session.Network.SendPacketToLocalStar(packet);
+            // Outerspace: Broadcast to all players
+            Multiplayer.Session.Network.SendPacket(packet);
         }
     }
 }
