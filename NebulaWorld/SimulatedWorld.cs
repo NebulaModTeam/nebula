@@ -11,6 +11,7 @@ using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
@@ -218,6 +219,17 @@ public class SimulatedWorld : IDisposable
         }
         // Reset local and remote chargers ids to recalculate and broadcast the current ids to new player
         Multiplayer.Session.PowerTowers.ResetAndBroadcast();
+
+        // Sync enemyDropBans for joined client
+        using (var writer = new BinaryUtils.Writer())
+        {
+            writer.BinaryWriter.Write(GameMain.data.trashSystem.enemyDropBans.Count);
+            foreach (var itemId in GameMain.data.trashSystem.enemyDropBans)
+            {
+                writer.BinaryWriter.Write(itemId);
+            }
+            player.SendPacket(new TrashSystemLootFilterPacket(writer.CloseAndGetBytes()));
+        }
 
         // (Host only) Trigger when a new client added to connected players
         Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} joined");
