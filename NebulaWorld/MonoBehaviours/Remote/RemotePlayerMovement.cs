@@ -68,12 +68,6 @@ public class RemotePlayerMovement : MonoBehaviour
             return;
         }
 
-        // update navigation indicator if requested
-        if (GameMain.mainPlayer.navigation.indicatorAstroId > 100000)
-        {
-            UpdateNavigationGizmo();
-        }
-
         // update player dot on minimap if on same planet
         if (playerDot != null && playerName != null && localPlanetId == GameMain.mainPlayer.planetId)
         {
@@ -175,45 +169,6 @@ public class RemotePlayerMovement : MonoBehaviour
         {
             Destroy(playerName);
         }
-    }
-
-    private void UpdateNavigationGizmo()
-    {
-        if (PlayerID != GameMain.mainPlayer.navigation.indicatorAstroId - 100000)
-        {
-            return;
-        }
-        var gizmo = GameMain.mainPlayer.gizmo;
-        var starmap = UIRoot.instance.uiGame.starmap;
-
-        if (gizmo.naviIndicatorGizmo == null)
-        {
-            gizmo.naviIndicatorGizmo = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
-            gizmo.naviIndicatorGizmo.autoRefresh = true;
-            gizmo.naviIndicatorGizmo.multiplier = 1.5f;
-            gizmo.naviIndicatorGizmo.alphaMultiplier = 0.6f;
-            gizmo.naviIndicatorGizmo.width = 1.8f;
-            gizmo.naviIndicatorGizmo.color = Configs.builtin.gizmoColors[4];
-            gizmo.naviIndicatorGizmo.spherical = gizmo.player.planetId == localPlanetId;
-            gizmo.naviIndicatorGizmo.Open();
-        }
-        if (gizmo.naviIndicatorGizmoStarmap == null)
-        {
-            gizmo.naviIndicatorGizmoStarmap = LineGizmo.Create(1, gizmo.player.position, rootTransform.position);
-            gizmo.naviIndicatorGizmoStarmap.autoRefresh = true;
-            gizmo.naviIndicatorGizmoStarmap.multiplier = 1.5f;
-            gizmo.naviIndicatorGizmoStarmap.alphaMultiplier = 0.3f;
-            gizmo.naviIndicatorGizmoStarmap.width = 0.01f;
-            gizmo.naviIndicatorGizmoStarmap.color = Configs.builtin.gizmoColors[4];
-            gizmo.naviIndicatorGizmoStarmap.spherical = false;
-            gizmo.naviIndicatorGizmoStarmap.Open();
-        }
-
-        gizmo.naviIndicatorGizmo.startPoint = gizmo.player.position;
-        gizmo.naviIndicatorGizmo.endPoint = rootTransform.position;
-        gizmo.naviIndicatorGizmoStarmap.startPoint = (gizmo.player.uPosition - starmap.viewTargetUPos) * 0.00025;
-        gizmo.naviIndicatorGizmoStarmap.endPoint = (absolutePosition - starmap.viewTargetUPos) * 0.00025;
-        gizmo.naviIndicatorGizmoStarmap.gameObject.layer = 20;
     }
 
     public void UpdatePosition(PlayerMovement movement)

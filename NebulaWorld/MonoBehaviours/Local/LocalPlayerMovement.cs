@@ -27,6 +27,9 @@ public class LocalPlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        // update navigation indicator
+        Multiplayer.Session.Gizmos.OnUpdate();
+
         time += Time.deltaTime;
 
         if (!(time >= BROADCAST_INTERVAL))

@@ -11,18 +11,19 @@ namespace NebulaWorld.Chat.ChatLinks;
 
 public class NavigateChatLinkHandler : IChatLinkHandler
 {
+    const char SplitSeparator = '\t';
+
     public void OnClick(string data)
     {
-        using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+        var substrings = data.Split(SplitSeparator);
+        switch (substrings.Length)
         {
-            foreach (var model in remotePlayersModels.Where(model => model.Value.Movement.Username == data))
-            {
-                // handle indicator position update in RemotePlayerMovement.cs
-                GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
-                ChatManager.Instance.SendChatMessage("Starting navigation to ".Translate() + model.Value.Movement.Username,
+            case 2: // PlayerId
+                if (!ushort.TryParse(substrings[0], out var playerId)) return;
+                Multiplayer.Session.Gizmos.SetIndicatorPlayerId(playerId);
+                ChatManager.Instance.SendChatMessage("Starting navigation to ".Translate() + substrings[1],
                     ChatMessageType.CommandOutputMessage);
-                return;
-            }
+                break;
         }
     }
 
@@ -85,6 +86,13 @@ public class NavigateChatLinkHandler : IChatLinkHandler
 
     public static string FormatNavigateString(string data)
     {
-        return $"<link=\"navigate {data}\"><color=\"white\"><u>{data}</u></color></link>";
+        var substrings = data.Split(SplitSeparator);
+        return $"<link=\"navigate {data}\"><color=\"white\"><u>{substrings[substrings.Length - 1]}</u></color></link>";
+    }
+
+    public static string FormatNavigateToPlayerString(ushort playerId, string displayString)
+    {
+        var data = playerId + SplitSeparator.ToString() + displayString;
+        return FormatNavigateString(data);
     }
 }

@@ -53,7 +53,7 @@ public class WhoCommandHandler : IChatCommandHandler
 
     private static string BuildWhoMessageTextForPlayer(IPlayerData playerData, ILocalPlayer localPlayer)
     {
-        var sb = new StringBuilder($"[{playerData.PlayerId}] {FormatNavigateString(playerData.Username)}");
+        var sb = new StringBuilder($"[{playerData.PlayerId}] {FormatNavigateToPlayerString(playerData.PlayerId, playerData.Username)}");
         if (localPlayer.Id == playerData.PlayerId)
         {
             sb.Append(" (host)".Translate());
