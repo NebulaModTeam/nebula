@@ -16,10 +16,7 @@ internal class TrashSystemTrashRemovedProcessor : PacketProcessor<TrashSystemTra
     protected override void ProcessPacket(TrashSystemTrashRemovedPacket packet, NebulaConnection conn)
     {
         var objPool = GameMain.data.trashSystem.container.trashObjPool;
-        if (packet.TrashId < 0 || packet.TrashId >= objPool.Length)
-        {
-            return;
-        }
+        if (packet.TrashId < 0 || packet.TrashId >= objPool.Length) return;
 
         ref var trashObj = ref objPool[packet.TrashId];
 

@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using NebulaAPI.DataStructures;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -27,6 +26,7 @@ public class DFSLaunchLancerAssaultProcessor : PacketProcessor<DFSLaunchLancerAs
             // Set enemyRecycle pool to make enemyId stay in sync
             EnemyManager.SetSpaceSectorRecycle(packet.EnemyCursor, packet.EnemyRecycle);
 
+            // Modify from EnemyDFHiveSystem.AssaultingWavesDetermineAI
             var aggressiveLevel = (EAggressiveLevel)packet.AggressiveLevel;
             hive.turboTicks = 120;
             hive.turboRepress = 0;

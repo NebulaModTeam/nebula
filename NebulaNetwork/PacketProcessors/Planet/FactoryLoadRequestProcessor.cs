@@ -50,7 +50,8 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
     {
         //Realize planet bases before sending the factory data
         var spaceSector = GameMain.data.spaceSector;
-        for (var enemyDFHiveSystem = spaceSector.dfHives[planet.star.index]; enemyDFHiveSystem != null; enemyDFHiveSystem = enemyDFHiveSystem.nextSibling)
+        var enemyDFHiveSystem = spaceSector.dfHives[planet.star.index];
+        while (enemyDFHiveSystem != null)
         {
             for (var i = 0; i < enemyDFHiveSystem.relays.cursor; i++)
             {
@@ -60,6 +61,7 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
                     dfrelayComponent.RealizePlanetBase(spaceSector);
                 }
             }
+            enemyDFHiveSystem = enemyDFHiveSystem.nextSibling;
         }
     }
 }

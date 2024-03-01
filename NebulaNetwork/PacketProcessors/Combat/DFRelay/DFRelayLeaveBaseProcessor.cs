@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.Buffers.Text;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -31,7 +30,8 @@ public class DFRelayLeaveBaseProcessor : PacketProcessor<DFRelayLeaveBasePacket>
             dfrelayComponent.LeaveBase();
 
             //In NotifyBaseRemoving, set all relay that target the same planet and baseId to 0
-            for (var enemyDFHiveSystem = hiveSystem.firstSibling; enemyDFHiveSystem != null; enemyDFHiveSystem = enemyDFHiveSystem.nextSibling)
+            var enemyDFHiveSystem = hiveSystem.firstSibling;
+            while (enemyDFHiveSystem != null)
             {
                 for (var i = 1; i < enemyDFHiveSystem.relays.cursor; i++)
                 {
@@ -41,6 +41,7 @@ public class DFRelayLeaveBaseProcessor : PacketProcessor<DFRelayLeaveBasePacket>
                         dfrelayComponent.baseId = 0;
                     }
                 }
+                enemyDFHiveSystem = enemyDFHiveSystem.nextSibling;
             }
         }
     }

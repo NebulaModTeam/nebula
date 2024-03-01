@@ -226,7 +226,7 @@ internal class EnemyDFHiveSystem_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFHiveSystem.LaunchLancerAssault))]
-    public static bool LaunchLancerAssault_Prefix(EnemyDFHiveSystem __instance, EAggressiveLevel aggressiveLevel, 
+    public static bool LaunchLancerAssault_Prefix(EnemyDFHiveSystem __instance, EAggressiveLevel aggressiveLevel,
         Vector3 tarPos, Vector3 maxHatredPos, int targetAstroId, int unitCount0, int unitThreat)
     {
         if (!Multiplayer.IsActive) return true;
