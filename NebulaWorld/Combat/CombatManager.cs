@@ -89,11 +89,11 @@ public class CombatManager : IDisposable
             Players[0].position = GameMain.mainPlayer.position;
             Players[0].uPosition = GameMain.mainPlayer.uPosition;
             Players[0].isAlive = GameMain.mainPlayer.isAlive;
-            var macha = GameMain.mainPlayer.mecha;
-            Players[0].mecha = macha;
-            Players[0].skillTargetL = macha.skillTargetLCenter;
+            var mecha = GameMain.mainPlayer.mecha;
+            Players[0].mecha = mecha;
+            Players[0].skillTargetL = mecha.skillTargetLCenter;
             Players[0].skillTargetULast = Players[0].skillTargetU;
-            Players[0].skillTargetU = macha.skillTargetUCenter;
+            Players[0].skillTargetU = mecha.skillTargetUCenter;
 
             ActivedPlanets.Add(Players[0].planetId);
             ActivedStars.Add(Players[0].starId);
@@ -124,17 +124,17 @@ public class CombatManager : IDisposable
                 ptr.planetId = snapshot.LocalPlanetId;
                 ptr.starId = pair.Value.Movement.LocalStarId;
                 // If the remote player is on the same planet, player.position is more precise
-                // Otherwise it has to use the interpolated recevied position
+                // Otherwise it has to use the interpolated received position
                 ptr.position = ptr.id == localPlanetId ? player.position : snapshot.LocalPlanetPosition.ToVector3();
                 ptr.uPosition = player.uPosition;
                 ptr.isAlive = player.isAlive;
 
-                macha = pair.Value.MechaInstance;
-                ptr.mecha = macha;
-                ptr.skillTargetL = macha.skillTargetLCenter;
+                mecha = pair.Value.MechaInstance;
+                ptr.mecha = mecha;
+                ptr.skillTargetL = mecha.skillTargetLCenter;
                 ptr.skillTargetULast = ptr.skillTargetU;
-                ptr.skillTargetU = macha.skillTargetUCenter;
-                macha.energyShieldEnergy = macha.energyShieldEnergyRate > 1 ? 0 : int.MaxValue;
+                ptr.skillTargetU = mecha.skillTargetUCenter;
+                mecha.energyShieldEnergy = mecha.energyShieldEnergyRate > 1 ? 0 : int.MaxValue;
 
                 ActivedPlanets.Add(ptr.planetId);
                 ActivedPlanets.Add(ptr.starId);
@@ -150,7 +150,7 @@ public class CombatManager : IDisposable
         }
     }
 
-    public bool ShieldBrust(MechaShieldBurstPacket packet)
+    public bool ShieldBurst(MechaShieldBurstPacket packet)
     {
         if (actionCombat == null)
         {

@@ -17,7 +17,7 @@ public class MechaShieldBurstProcessor : PacketProcessor<MechaShieldBurstPacket>
     {
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
-            Multiplayer.Session.Combat.ShieldBrust(packet);
+            Multiplayer.Session.Combat.ShieldBurst(packet);
         }
     }
 }
