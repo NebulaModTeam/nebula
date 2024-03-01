@@ -131,10 +131,7 @@ internal class PlayerAction_Combat_Patch
     [HarmonyPatch(nameof(PlayerAction_Combat.ShieldBurst))]
     public static void ShieldBurst_Postfix(PlayerAction_Combat __instance)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
 
         var mecha = __instance.mecha;
         var packet = new MechaShieldBurstPacket(Multiplayer.Session.LocalPlayer.Id,
@@ -151,10 +148,7 @@ internal class PlayerAction_Combat_Patch
     [HarmonyPatch(nameof(PlayerAction_Combat.ShootTarget))]
     public static void ShootTarget_Postfix(PlayerAction_Combat __instance, EAmmoType ammoType, in SkillTarget target, bool __result)
     {
-        if (!__result || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value)
-        {
-            return;
-        }
+        if (!__result || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
 
         var ammoItemId = __instance.mecha.ammoItemId;
         var packet = new MechaShootPacket(Multiplayer.Session.LocalPlayer.Id,

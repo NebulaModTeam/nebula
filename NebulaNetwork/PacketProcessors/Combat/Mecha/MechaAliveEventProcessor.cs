@@ -17,10 +17,7 @@ public class MechaAliveEventProcessor : PacketProcessor<MechaAliveEventPacket>
     {
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var playerModel))
-            {
-                return;
-            }
+            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var playerModel)) return;
 
             switch (packet.Status)
             {

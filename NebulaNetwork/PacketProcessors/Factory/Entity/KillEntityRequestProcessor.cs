@@ -18,10 +18,7 @@ public class KillEntityRequestProcessor : PacketProcessor<KillEntityRequest>
     protected override void ProcessPacket(KillEntityRequest packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-        if (factory == null)
-        {
-            return;
-        }
+        if (factory == null) return;
 
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {

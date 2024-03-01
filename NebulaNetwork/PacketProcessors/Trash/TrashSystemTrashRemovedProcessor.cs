@@ -25,19 +25,13 @@ internal class TrashSystemTrashRemovedProcessor : PacketProcessor<TrashSystemTra
 
         if (IsHost)
         {
-            if (trashObj.item == 0 && trashObj.count == 0)
-            {
-                return; //Already delete
-            }
+            if (trashObj.item == 0 && trashObj.count == 0) return; //Already delete
             //Approve and broadcast the remove event
             GameMain.data.trashSystem.RemoveTrash(packet.TrashId);
         }
         else
         {
-            if (trashObj.count == 0)
-            {
-                return; //Empty
-            }
+            if (trashObj.count == 0) return; //Empty
             //Revert itemId back before removing
             trashObj.item = packet.ItemId;
             using (Multiplayer.Session.Trashes.RemoveTrashFromOtherPlayers.On())

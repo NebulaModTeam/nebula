@@ -55,7 +55,7 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
             for (var i = 0; i < enemyDFHiveSystem.relays.cursor; i++)
             {
                 var dfrelayComponent = enemyDFHiveSystem.relays[i];
-                if (dfrelayComponent != null && (dfrelayComponent.targetAstroId == planet.astroId && dfrelayComponent.baseState == 1 && dfrelayComponent.stage == 2))
+                if (dfrelayComponent?.targetAstroId == planet.astroId && dfrelayComponent.baseState == 1 && dfrelayComponent.stage == 2)
                 {
                     dfrelayComponent.RealizePlanetBase(spaceSector);
                 }

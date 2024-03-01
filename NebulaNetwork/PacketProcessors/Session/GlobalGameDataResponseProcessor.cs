@@ -15,10 +15,7 @@ internal class GlobalGameDataResponseProcessor : PacketProcessor<GlobalGameDataR
 {
     protected override void ProcessPacket(GlobalGameDataResponse packet, NebulaConnection conn)
     {
-        if (IsHost)
-        {
-            return;
-        }
+        if (IsHost) return;
 
         // The whole fragment is received
         GameStatesManager.FragmentSize = 0;

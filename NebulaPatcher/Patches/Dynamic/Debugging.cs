@@ -20,10 +20,7 @@ internal class Debug_EnemyFormation_Patch
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.IsServer
             || Multiplayer.Session.Combat.IsIncomingRequest.Value
-            || Multiplayer.Session.Enemies.IsIncomingRequest.Value)
-        {
-            return;
-        }
+            || Multiplayer.Session.Enemies.IsIncomingRequest.Value) return;
         Log.Warn($"EnemyFormation.AddUnit {__result} without approve!");
         Log.Warn(System.Environment.StackTrace);
     }
@@ -34,10 +31,7 @@ internal class Debug_EnemyFormation_Patch
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.IsServer
             || Multiplayer.Session.Combat.IsIncomingRequest.Value
-            || Multiplayer.Session.Enemies.IsIncomingRequest.Value)
-        {
-            return;
-        }
+            || Multiplayer.Session.Enemies.IsIncomingRequest.Value) return;
         Log.Warn($"EnemyFormation.RemoveUnit {port} without approve!");
         Log.Warn(System.Environment.StackTrace);
     }
@@ -89,10 +83,7 @@ internal class Debug_Mecha_Patch
     [HarmonyPatch(nameof(Mecha.SetForNewGame))]
     public static void SetForNewGame_Postfix(Mecha __instance)
     {
-        if (GameMain.mainPlayer != __instance.player)
-        {
-            return;
-        }
+        if (GameMain.mainPlayer != __instance.player) return;
         __instance.coreEnergyCap = 30000000000;
         __instance.coreEnergy = 30000000000;
         __instance.corePowerGen = 5000000;
@@ -156,10 +147,7 @@ internal class Debug_PlanetFactory_Patch
     [HarmonyPatch(nameof(PlanetFactory.AddEnemyDataWithComponents))]
     public static void AddEnemyDataWithComponents_Postfix(int __result)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
         Log.Warn($"PlanetFactory.AddEnemyDataWithComponents {__result} without approve!");
         Log.Warn(System.Environment.StackTrace);
     }
@@ -168,10 +156,7 @@ internal class Debug_PlanetFactory_Patch
     [HarmonyPatch(nameof(PlanetFactory.RemoveEnemyWithComponents))]
     public static void RemoveEnemyWithComponents_Postfix(int id)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
         Log.Warn($"PlanetFactory.RemoveEnemyWithComponents {id} without approve!");
         Log.Warn(System.Environment.StackTrace);
     }
@@ -184,10 +169,7 @@ internal class Debug_SpaceSector_Patch
     [HarmonyPatch(nameof(SpaceSector.AddEnemyDataWithComponents))]
     public static void AddEnemyDataWithComponents_Postfix(int __result)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value || !Multiplayer.Session.IsGameLoaded)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value || !Multiplayer.Session.IsGameLoaded) return;
         Log.Warn($"SpaceSector.AddEnemyDataWithComponents {__result} without approve!");
         Log.Warn(System.Environment.StackTrace);
     }
@@ -196,10 +178,7 @@ internal class Debug_SpaceSector_Patch
     [HarmonyPatch(nameof(SpaceSector.RemoveEnemyWithComponents))]
     public static void RemoveEnemyWithComponents_Postfix(int id)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value) return;
         Log.Warn($"SpaceSector.RemoveEnemyWithComponents {id} without approve!");
         Log.Warn(System.Environment.StackTrace);
     }

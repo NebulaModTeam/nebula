@@ -28,7 +28,7 @@ internal class EnemyDFGroundSystem_Patch
 
         var planetId = __instance.planet.id;
         var starId = __instance.planet.star.id;
-        if (__instance._rmv_id_list != null && __instance._rmv_id_list.Count > 0)
+        if (__instance._rmv_id_list?.Count > 0)
         {
             foreach (var enemyId in __instance._rmv_id_list)
             {
@@ -38,7 +38,7 @@ internal class EnemyDFGroundSystem_Patch
             }
             __instance._rmv_id_list.Clear();
         }
-        if (__instance._add_bidx_list != null && __instance._add_bidx_list.Count > 0)
+        if (__instance._add_bidx_list?.Count > 0)
         {
             foreach (var (baseId, builderIndex) in __instance._add_bidx_list)
             {
@@ -115,7 +115,7 @@ internal class EnemyDFGroundSystem_Patch
         for (var baseId = 1; baseId < cursor; baseId++)
         {
             var dfgbaseComponent = buffer[baseId];
-            if (dfgbaseComponent != null && dfgbaseComponent.id == baseId && dfgbaseComponent.ruinId == pitRuinId)
+            if (dfgbaseComponent?.id == baseId && dfgbaseComponent.ruinId == pitRuinId)
             {
                 var packet = new DFGRemoveBasePitPacket(__instance.factory.planetId, baseId);
                 if (Multiplayer.Session.IsServer)

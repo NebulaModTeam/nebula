@@ -302,10 +302,7 @@ internal class GameData_Patch
     [HarmonyPatch(nameof(GameData.NewGame))]
     public static void NewGame_Postfix(GameData __instance)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return;
 
         // Overwrite from binaryData in GlobalGameDataResponse
         GameStatesManager.OverwriteGlobalGameData(__instance);

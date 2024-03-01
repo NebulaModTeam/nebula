@@ -69,10 +69,7 @@ public class CombatManager : IDisposable
 
     public void GameTick()
     {
-        if (!Multiplayer.Session.IsGameLoaded)
-        {
-            return;
-        }
+        if (!Multiplayer.Session.IsGameLoaded) return;
         var gameTick = GameMain.gameTick;
         ActivedPlanets.Clear();
         ActivedStars.Clear();

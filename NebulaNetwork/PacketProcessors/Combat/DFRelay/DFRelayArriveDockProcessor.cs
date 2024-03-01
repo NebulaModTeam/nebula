@@ -19,7 +19,7 @@ public class DFRelayArriveDockProcessor : PacketProcessor<DFRelayArriveDockPacke
         if (hiveSystem == null) return;
 
         var dfrelayComponent = hiveSystem.relays.buffer[packet.RelayId];
-        if (dfrelayComponent == null || dfrelayComponent.id != packet.RelayId) return;
+        if (dfrelayComponent?.id != packet.RelayId) return;
 
         ref var enemyData = ref GameMain.spaceSector.enemyPool[dfrelayComponent.enemyId];
         ref var animData = ref GameMain.spaceSector.enemyAnimPool[dfrelayComponent.enemyId];

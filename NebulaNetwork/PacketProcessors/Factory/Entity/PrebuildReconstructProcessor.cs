@@ -16,10 +16,7 @@ public class PrebuildReconstructProcessor : PacketProcessor<PrebuildReconstructP
     protected override void ProcessPacket(PrebuildReconstructPacket packet, NebulaConnection conn)
     {
         var planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-        if (planet.factory == null)
-        {
-            return;
-        }
+        if (planet.factory == null) return;
         var factory = planet.factory;
 
         ref var ptr = ref factory.prebuildPool[packet.PrebuildId];

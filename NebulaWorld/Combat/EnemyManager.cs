@@ -41,10 +41,7 @@ public class EnemyManager : IDisposable
 
     public void GameTick(long gameTick)
     {
-        if (!Multiplayer.Session.IsGameLoaded)
-        {
-            return;
-        }
+        if (!Multiplayer.Session.IsGameLoaded) return;
         // Place holder for future
         var _ = gameTick;
     }
@@ -56,7 +53,7 @@ public class EnemyManager : IDisposable
         for (var baseId = 1; baseId < bases.cursor; baseId++)
         {
             var dFbase = bases.buffer[baseId];
-            if (dFbase == null || dFbase.id != baseId) continue;
+            if (dFbase?.id != baseId) continue;
 
             var hashId = (factoryIndex << 16) | baseId; //assume max base count on a planet < 2^16
             if (!basePackets.TryGetValue(hashId, out var packet))

@@ -33,10 +33,7 @@ public class MechaBombProcessor : PacketProcessor<MechaBombPacket>
         Quaternion uRot;
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
-            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var playerModel))
-            {
-                return;
-            }
+            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var playerModel)) return;
             // Set bomb using the model uPos and uRot that is interpolated in the past
             uPos = playerModel.MechaInstance.skillBombingUCenter - packet.UVelocity.ToVectorLF3() * 0.01666666753590107;
             uRot = playerModel.PlayerInstance.uRotation;
@@ -46,10 +43,7 @@ public class MechaBombProcessor : PacketProcessor<MechaBombPacket>
         var skillSystem = GameMain.data.spaceSector.skillSystem;
         var itemId = packet.ProtoId;
         var itemProto = LDB.items.Select(itemId);
-        if (itemProto == null)
-        {
-            return;
-        }
+        if (itemProto == null) return;
         if (itemProto.BombType == EBombType.Liquid)
         {
             ref var ptr1 = ref skillSystem.liquidBombs.Add();

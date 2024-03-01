@@ -20,10 +20,7 @@ internal class EnemyUnitComponent_Patch
     [HarmonyPatch(nameof(EnemyUnitComponent.GetTargetPosition_Ground))]
     public static void GetTargetPosition_Ground_Postfix(int idType, ref Vector3 target, ref bool __result)
     {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive) return;
         var targetType = idType >> 26;
         var targetId = idType & 67108863;
         if (targetType == 15) //player
@@ -70,16 +67,10 @@ internal class EnemyUnitComponent_Patch
     [HarmonyPatch(nameof(EnemyUnitComponent.SensorLogic_Ground))]
     static void SensorLogic_Ground_Postfix(ref EnemyUnitComponent __instance, ref EnemyData enemy, PlanetFactory factory, int hatred_max_sense, EAggressiveLevel aggressiveLevel)
     {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive) return;
 
         var planetId = __instance.planetId;
-        if (!Multiplayer.Session.Combat.ActivedPlanets.Contains(planetId))
-        {
-            return;
-        }
+        if (!Multiplayer.Session.Combat.ActivedPlanets.Contains(planetId)) return;
 
         var players = Multiplayer.Session.Combat.Players;
         for (var i = 0; i < players.Length; i++)
@@ -142,11 +133,8 @@ internal class EnemyUnitComponent_Patch
                     playerId = player.id;
                 }
             }
-            if (playerId == -1)
-            {
-                // If there is no alive player, return the original value
-                return;
-            }
+            // If there is no alive player, return the original value
+            if (playerId == -1) return;
 
 
             var num39 = distance;
@@ -359,18 +347,12 @@ internal class EnemyUnitComponent_Patch
         if (enemy.astroId == hive.hiveAstroId) // Enemy is in the hive
         {
             var sensorCoef = ((@this.hatred.max.targetType == ETargetType.Player) ? 1f : 0.64f);
-            if (cloestSqrDist > sqrSensorRange * sensorCoef)
-            {
-                return;
-            }
+            if (cloestSqrDist > sqrSensorRange * sensorCoef) return;
             var closestDist = (float)Math.Sqrt(cloestSqrDist);
             var hateValue = sensorRange - closestDist;
             if (@this.protoId == 8113) // Lancer
             {
-                if (cloestSqrDist > 400000000.0)
-                {
-                    return;
-                }
+                if (cloestSqrDist > 400000000.0) return;
             }
             else if (@this.protoId == 8112) // Humpback
             {
@@ -384,10 +366,7 @@ internal class EnemyUnitComponent_Patch
         }
         else if (enemy.astroId == hive.starData.astroId) // Enemy is in the system of the hive
         {
-            if (cloestSqrDist > reachRange * reachRange)
-            {
-                return;
-            }
+            if (cloestSqrDist > reachRange * reachRange) return;
             var closestDist = (float)Math.Sqrt(cloestSqrDist);
             var hateValue = reachRange - closestDist;
             if (hateValue > 0.0)

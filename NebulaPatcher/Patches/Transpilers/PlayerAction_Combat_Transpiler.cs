@@ -129,10 +129,7 @@ internal class PlayerAction_Combat_Transpiler
     static void SendBomb_Liquid(ref Bomb_Liquid ptr, PlayerAction_Combat combat)
     {
         ptr.ApplyConfigs();
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive) return;
 
         var packet = new MechaBombPacket(
             Multiplayer.Session.LocalPlayer.Id,
@@ -148,10 +145,7 @@ internal class PlayerAction_Combat_Transpiler
     static void SendBomb_Explosive(ref Bomb_Explosive ptr, PlayerAction_Combat combat)
     {
         ptr.ApplyConfigs();
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive) return;
 
         var packet = new MechaBombPacket(
             Multiplayer.Session.LocalPlayer.Id,
@@ -167,10 +161,7 @@ internal class PlayerAction_Combat_Transpiler
     static void SendBomb_EMCapsule(ref Bomb_EMCapsule ptr, PlayerAction_Combat combat)
     {
         ptr.ApplyConfigs();
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive) return;
 
         var packet = new MechaBombPacket(
             Multiplayer.Session.LocalPlayer.Id,

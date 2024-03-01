@@ -787,10 +787,7 @@ internal class PlanetFactory_patch
     [HarmonyPatch(nameof(PlanetFactory.ReconstructTargetFinally))]
     public static void ReconstructTargetFinally_Prefix(PlanetFactory __instance, int prebuildId)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.IsIncomingRequest.Value)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.IsIncomingRequest.Value) return;
 
         // Broadcast the change of isDestroyed state to other players
         var packet = new PrebuildReconstructPacket(__instance.planetId, prebuildId);

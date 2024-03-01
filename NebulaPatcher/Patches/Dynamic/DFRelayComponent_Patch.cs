@@ -72,13 +72,10 @@ internal class DFRelayComponent_Patch
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
 
-        if (__instance.baseState == 2)
+        if (__instance.baseState == 2 && __instance.hive.galaxy.astrosFactory[__instance.targetAstroId] == null)
         {
-            if (__instance.hive.galaxy.astrosFactory[__instance.targetAstroId] == null)
-            {
-                //the target factory is not loaded on client
-                return false;
-            }
+            //the target factory is not loaded on client
+            return false;
         }
         return true;
     }

@@ -21,7 +21,7 @@ public class DFRelayLeaveBaseProcessor : PacketProcessor<DFRelayLeaveBasePacket>
 
         hiveSystem.relayNeutralizedCounter = packet.RelayNeutralizedCounter + 1;
         var dfrelayComponent = hiveSystem.relays.buffer[packet.RelayId];
-        if (dfrelayComponent == null || dfrelayComponent.id != packet.RelayId) return;
+        if (dfrelayComponent?.id != packet.RelayId) return;
 
         using (Multiplayer.Session.Enemies.IsIncomingRelayRequest.On())
         {
@@ -36,7 +36,7 @@ public class DFRelayLeaveBaseProcessor : PacketProcessor<DFRelayLeaveBasePacket>
                 for (var i = 1; i < enemyDFHiveSystem.relays.cursor; i++)
                 {
                     dfrelayComponent = enemyDFHiveSystem.relays.buffer[i];
-                    if (dfrelayComponent != null && dfrelayComponent.targetAstroId == astroId && dfrelayComponent.baseId == baseId)
+                    if (dfrelayComponent?.targetAstroId == astroId && dfrelayComponent.baseId == baseId)
                     {
                         dfrelayComponent.baseId = 0;
                     }

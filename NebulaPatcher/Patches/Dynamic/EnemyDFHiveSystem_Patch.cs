@@ -144,7 +144,7 @@ internal class EnemyDFHiveSystem_Patch
             }
             __instance._add_relay_list.Clear();
         }
-        if (__instance._add_tinder_list != null && __instance._add_tinder_list.Count > 0)
+        if (__instance._add_tinder_list?.Count > 0)
         {
             foreach (var dockIndex in __instance._add_tinder_list)
             {
@@ -166,7 +166,7 @@ internal class EnemyDFHiveSystem_Patch
         {
             return false;
         }
-        if (__instance._rmv_id_list != null && __instance._rmv_id_list.Count > 0)
+        if (__instance._rmv_id_list?.Count > 0)
         {
             foreach (var enemyId in __instance._rmv_id_list)
             {
@@ -175,7 +175,7 @@ internal class EnemyDFHiveSystem_Patch
             }
             __instance._rmv_id_list.Clear();
         }
-        if (__instance._add_bidx_list != null && __instance._add_bidx_list.Count > 0)
+        if (__instance._add_bidx_list?.Count > 0)
         {
             foreach (var builderIndex in __instance._add_bidx_list)
             {
@@ -200,7 +200,7 @@ internal class EnemyDFHiveSystem_Patch
         }
 
         __instance._initiate_unit_list?.Clear();
-        if (__instance._deactivate_unit_list != null && __instance._deactivate_unit_list.Count > 0)
+        if (__instance._deactivate_unit_list?.Count > 0)
         {
             foreach (var unitId in __instance._deactivate_unit_list)
             {
@@ -246,7 +246,7 @@ internal class EnemyDFHiveSystem_Patch
         if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
 
         var dfrelayComponent = __instance.relays.buffer[enemy.dfRelayId];
-        if (dfrelayComponent != null && dfrelayComponent.id == enemy.dfRelayId)
+        if (dfrelayComponent?.id == enemy.dfRelayId)
         {
             __instance.relayNeutralizedCounter++;
             if (dfrelayComponent.baseState == 1 && dfrelayComponent.stage == 2)

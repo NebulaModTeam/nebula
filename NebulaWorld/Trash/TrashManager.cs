@@ -52,12 +52,9 @@ public class TrashManager : IDisposable
         var trashDataPool = container.trashDataPool;
         for (var i = 0; i < container.trashCursor; i++)
         {
-            if (trashObjPool[i].item > 0)
+            if (trashObjPool[i].item > 0 && (trashDataPool[i].life == 0 || trashDataPool[i].nearPlanetId == localPlanetId))
             {
-                if (trashDataPool[i].life == 0 || trashDataPool[i].nearPlanetId == localPlanetId)
-                {
-                    ClientTrashCount++;
-                }
+                ClientTrashCount++;
             }
         }
     }

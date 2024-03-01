@@ -102,10 +102,7 @@ internal class DFGTurretComponent_Patch
     [HarmonyPatch(nameof(DFGTurretComponent.Aim))]
     public static void Aim(ref DFGTurretComponent __instance, PlanetFactory factory)
     {
-        if (!Multiplayer.IsActive || __instance.target.type != ETargetType.Player)
-        {
-            return;
-        }
+        if (!Multiplayer.IsActive || __instance.target.type != ETargetType.Player) return;
 
         var pool = Multiplayer.Session.Combat.Players;
         for (var i = 0; i < pool.Length; i++)
