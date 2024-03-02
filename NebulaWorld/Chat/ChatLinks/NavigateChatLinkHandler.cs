@@ -27,6 +27,10 @@ public class NavigateChatLinkHandler : IChatLinkHandler
         }
     }
 
+    public void OnRightClick(string data)
+    {
+    }
+
     public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
     {
         if (!string.IsNullOrEmpty(data))

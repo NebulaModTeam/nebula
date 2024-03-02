@@ -70,6 +70,10 @@ public class ChatLinkTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExit
             {
                 handler.OnClick(linkData);
             }
+            if (Input.GetMouseButtonDown(1))
+            {
+                handler.OnRightClick(linkData);
+            }
         }
         else
         {
