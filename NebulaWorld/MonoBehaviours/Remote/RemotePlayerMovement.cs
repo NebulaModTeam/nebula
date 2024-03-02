@@ -202,6 +202,7 @@ public class RemotePlayerMovement : MonoBehaviour
         var currentAbsolutePosition = GetAbsolutePosition(current);
 
         localPlanetId = current.LocalPlanetId;
+        if (current.LocalPlanetId > 0) LocalStarId = current.LocalPlanetId / 100;
 
         rootTransform.SetPositionAndRotation(Vector3.Lerp(previousRelativePosition, currentRelativePosition, ratio),
             Quaternion.Slerp(previous.Rotation, current.Rotation, ratio));
