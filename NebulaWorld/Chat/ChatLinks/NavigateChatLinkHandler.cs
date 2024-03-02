@@ -29,6 +29,16 @@ public class NavigateChatLinkHandler : IChatLinkHandler
 
     public void OnRightClick(string data)
     {
+        var substrings = data.Split(SplitSeparator);
+        switch (substrings.Length)
+        {
+            case 2: // PlayerId
+                if (!ushort.TryParse(substrings[0], out var playerId)) return;
+                Multiplayer.Session.Gizmos.ObservingPlayerId = playerId;
+                ChatManager.Instance.SendChatMessage("Start tracking to player (ESC to exit)".Translate(),
+                    ChatMessageType.CommandOutputMessage);
+                break;
+        }
     }
 
     public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
@@ -65,7 +75,7 @@ public class NavigateChatLinkHandler : IChatLinkHandler
         if (buttonTip == null)
         {
             buttonTip = UIButtonTip.Create(false, "Navigate".Translate(),
-                "Click to create a navigate line to the target.".Translate(), 2, offset, 0, rect, "", "");
+                "Left click to create a navigate line to the target.\nRight click to track the target.".Translate(), 2, offset, 0, rect, "", "");
             if (tipObject != null)
             {
                 Object.Destroy(tipObject.gameObject);
@@ -77,13 +87,13 @@ public class NavigateChatLinkHandler : IChatLinkHandler
         if (!buttonTip.gameObject.activeSelf)
         {
             buttonTip.gameObject.SetActive(true);
-            buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2,
+            buttonTip.SetTip(false, "Navigate".Translate(), "Left click to create a navigate line to the target.\nRight click to track the target.".Translate(), 2,
                 offset, 0, rect, "", "");
         }
 
         if (buttonTip.isActiveAndEnabled && !buttonTip.titleComp.text.Equals("Navigate"))
         {
-            buttonTip.SetTip(false, "Navigate".Translate(), "Click to create a navigate line to the target.".Translate(), 2,
+            buttonTip.SetTip(false, "Navigate".Translate(), "Left click to create a navigate line to the target.\nRight click to track the target.".Translate(), 2,
                 offset, 0, rect, "", "");
         }
     }

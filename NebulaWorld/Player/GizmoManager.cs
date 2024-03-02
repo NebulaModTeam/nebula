@@ -15,6 +15,8 @@ namespace NebulaWorld.Player;
 
 public class GizmoManager : IDisposable
 {
+    public ushort ObservingPlayerId { get; set; }
+
     private ushort indicatorPlayerId;
     private int indicatorPlanetId;
     private Vector3 indicatorPos;
