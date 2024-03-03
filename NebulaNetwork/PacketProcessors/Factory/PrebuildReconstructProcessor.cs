@@ -8,7 +8,7 @@ using NebulaWorld;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Entity;
+namespace NebulaNetwork.PacketProcessors.Factory;
 
 [RegisterPacketProcessor]
 public class PrebuildReconstructProcessor : PacketProcessor<PrebuildReconstructPacket>

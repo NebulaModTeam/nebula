@@ -9,7 +9,7 @@ using NebulaWorld;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Entity;
+namespace NebulaNetwork.PacketProcessors.Factory;
 
 [RegisterPacketProcessor]
 public class PrebuildItemRequiredUpdateProcessor : PacketProcessor<PrebuildItemRequiredUpdate>

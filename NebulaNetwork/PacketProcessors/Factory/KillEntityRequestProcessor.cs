@@ -10,7 +10,7 @@ using NebulaWorld.Factory;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Entity;
+namespace NebulaNetwork.PacketProcessors.Factory;
 
 [RegisterPacketProcessor]
 public class KillEntityRequestProcessor : PacketProcessor<KillEntityRequest>
