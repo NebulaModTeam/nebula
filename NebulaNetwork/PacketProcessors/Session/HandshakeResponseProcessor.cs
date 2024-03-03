@@ -57,6 +57,8 @@ public class HandshakeResponseProcessor : PacketProcessor<HandshakeResponse>
         Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
         if (DSPGame.Game != null)
         {
+            // Client: Close planetDetail before requesting to prevent error
+            UIRoot.instance.uiGame.SetPlanetDetail(null);
             DSPGame.EndGame();
         }
         // Prepare gameDesc to later start in GlobalGameDataResponseProcessor

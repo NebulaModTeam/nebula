@@ -17,13 +17,7 @@ internal class GlobalGameDataResponseProcessor : PacketProcessor<GlobalGameDataR
     {
         if (IsHost) return;
 
-        // The whole fragment is received
-        GameStatesManager.FragmentSize = 0;
-
         // Store the binary data in GameStatesManager then later overwrite those system in GameData.NewGame
         GameStatesManager.ImportGlobalGameData(packet);
-
-        // We are ready to start the game now
-        DSPGame.StartGameSkipPrologue(DSPGame.GameDesc);
     }
 }
