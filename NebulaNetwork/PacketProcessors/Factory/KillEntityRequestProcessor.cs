@@ -23,6 +23,7 @@ public class KillEntityRequestProcessor : PacketProcessor<KillEntityRequest>
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {
             Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+            Multiplayer.Session.Factories.EventFactory = factory;
 
             if (!factory.planet.factoryLoaded)
             {
@@ -41,6 +42,7 @@ public class KillEntityRequestProcessor : PacketProcessor<KillEntityRequest>
             }
 
             Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
+            Multiplayer.Session.Factories.EventFactory = null;
         }
     }
 }
