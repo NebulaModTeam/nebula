@@ -4,7 +4,6 @@ using System.IO;
 using NebulaAPI.DataStructures;
 using NebulaAPI.Interfaces;
 using NebulaAPI.Packets;
-using NebulaModel.Packets.Players;
 using static NebulaModel.Networking.BinaryUtils;
 
 #endregion

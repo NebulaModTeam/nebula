@@ -2,11 +2,10 @@
 
 using NebulaAPI.DataStructures;
 using NebulaAPI.Interfaces;
-using static NebulaModel.Networking.BinaryUtils;
 
 #endregion
 
-namespace NebulaModel.Packets.Players;
+namespace NebulaModel.DataStructures;
 
 public class PlayerTechBonuses : IPlayerTechBonuses
 {
