@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -29,5 +30,11 @@ internal class GameHistoryResearchUpdateProcessor : PacketProcessor<GameHistoryR
         state.hashNeeded = packet.HashNeeded;
         data.techStates[data.currentTech] = state;
         Multiplayer.Session.Statistics.TechHashedFor10Frames = packet.TechHashedFor10Frames;
+
+        if (packet.TechQueueLength != GameMain.history.techQueueLength)
+        {
+            // TechQueue length mismatch. Ask from server to get a full queue to stay in sync
+            conn.SendPacket(new GameHistoryTechQueueSyncRequest([]));
+        }
     }
 }
