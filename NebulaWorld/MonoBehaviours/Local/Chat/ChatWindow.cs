@@ -203,6 +203,7 @@ public class ChatWindow : MonoBehaviour
             {
                 case ChatMessageType.SystemInfoMessage when !Config.Options.EnableInfoMessage:
                 case ChatMessageType.SystemWarnMessage when !Config.Options.EnableWarnMessage:
+                case ChatMessageType.BattleMessage when !Config.Options.EnableBattleMessage:
                     return null;
                 case ChatMessageType.PlayerMessage:
                     break;

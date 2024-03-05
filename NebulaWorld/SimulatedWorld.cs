@@ -294,7 +294,7 @@ public class SimulatedWorld : IDisposable
             var planetname = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
             var message = string.Format("[{0:HH:mm}] {1} connected ({2})".Translate(), DateTime.Now, playerData.Username,
                 planetname);
-            SendChatMessage(message);
+            ChatManager.Instance.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
         }
     }
 
@@ -308,7 +308,7 @@ public class SimulatedWorld : IDisposable
             }
             // Show disconnected message
             var message = string.Format("[{0:HH:mm}] {1} disconnected".Translate(), DateTime.Now, player.Username);
-            SendChatMessage(message);
+            ChatManager.Instance.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
 
             player.Destroy();
             remotePlayersModels.Remove(playerId);
@@ -582,11 +582,6 @@ public class SimulatedWorld : IDisposable
             break;
         }
         return level;
-    }
-
-    private static void SendChatMessage(string text, ChatMessageType messageType = ChatMessageType.SystemInfoMessage)
-    {
-        ChatManager.Instance.SendChatMessage(text, messageType);
     }
 
     private sealed class ThreadSafe

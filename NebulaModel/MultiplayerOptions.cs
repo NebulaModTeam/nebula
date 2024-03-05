@@ -142,6 +142,10 @@ public class MultiplayerOptions : ICloneable
     [Category("Chat")]
     public bool EnableInfoMessage { get; set; } = true;
 
+    [DisplayName("Show battle notification message")]
+    [Category("Chat")]
+    public bool EnableBattleMessage { get; set; } = true;
+
     [DisplayName("Default chat position")]
     [Category("Chat")]
     public ChatPosition DefaultChatPosition { get; set; } = ChatPosition.LeftMiddle;
