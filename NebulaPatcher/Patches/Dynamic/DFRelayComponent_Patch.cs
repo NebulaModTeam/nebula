@@ -33,6 +33,19 @@ internal class DFRelayComponent_Patch
         return true;
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(DFRelayComponent.ArriveBase))]
+    public static void ArriveBase_Postfix(DFRelayComponent __instance)
+    {
+        if (!Multiplayer.IsActive) return;
+
+        var planet = GameMain.galaxy.PlanetById(__instance.targetAstroId);
+        if (planet != null && __instance.baseId > 0)
+        {
+            Multiplayer.Session.Enemies.DisplayPlanetPingMessage("Relay lands on planet".Translate(), __instance.targetAstroId, __instance.targetLPos);
+        }
+    }
+
     [HarmonyPrefix]
     [HarmonyPatch(nameof(DFRelayComponent.ArriveDock))]
     public static bool ArriveDock_Prefix(DFRelayComponent __instance)
@@ -49,6 +62,16 @@ internal class DFRelayComponent_Patch
     public static bool LeaveBase_Prefix(DFRelayComponent __instance)
     {
         if (!Multiplayer.IsActive) return true;
+
+        if (Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRelayRequest)
+        {
+            var planet = GameMain.galaxy.PlanetById(__instance.targetAstroId);
+            if (planet != null)
+            {
+                Multiplayer.Session.Enemies.DisplayPlanetPingMessage("Relay leaves from planet", __instance.targetAstroId, __instance.targetLPos);
+            }
+        }
+
         if (Multiplayer.Session.IsClient) return Multiplayer.Session.Enemies.IsIncomingRelayRequest;
 
         Multiplayer.Session.Network.SendPacket(new DFRelayLeaveBasePacket(__instance));

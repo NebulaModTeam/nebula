@@ -3,9 +3,14 @@
 using System;
 using System.Collections.Generic;
 using NebulaModel.DataStructures;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.GroundEnemy;
+using NebulaWorld.Chat.ChatLinks;
+using NebulaWorld.MonoBehaviours.Local.Chat;
+using UnityEngine;
 #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable CA1822 // Mark members as static
 
 #endregion
 
@@ -17,19 +22,13 @@ public class EnemyManager : IDisposable
 
     public readonly ToggleSwitch IsIncomingRelayRequest = new();
 
-    public readonly Dictionary<int, int[]> GroundTargets = new();
+    public readonly Dictionary<int, int[]> GroundTargets = [];
 
     public const bool DISABLE_DFCommunicator = true;
 
     private readonly Dictionary<int, DFGUpdateBaseStatusPacket> basePackets = [];
     private readonly Dictionary<int, DFHiveUpdateStatusPacket> hivePackets = [];
 
-    public EnemyManager()
-    {
-        GroundTargets.Clear();
-        basePackets.Clear();
-        hivePackets.Clear();
-    }
 
     public void Dispose()
     {
@@ -37,13 +36,6 @@ public class EnemyManager : IDisposable
         basePackets.Clear();
         hivePackets.Clear();
         GC.SuppressFinalize(this);
-    }
-
-    public void GameTick(long gameTick)
-    {
-        if (!Multiplayer.Session.IsGameLoaded) return;
-        // Place holder for future
-        var _ = gameTick;
     }
 
     public void BroadcastBaseStatusPackets(EnemyDFGroundSystem enemySystem, long gameTick)
@@ -62,9 +54,9 @@ public class EnemyManager : IDisposable
                 basePackets.Add(hashId, packet);
             }
             var levelChanged = packet.Level != dFbase.evolve.level;
-            if (levelChanged || (hashId % 300) == (int)gameTick % 300)
+            if (levelChanged || (hashId % 120) == (int)gameTick % 120)
             {
-                // Update when base level changes, or every 5s
+                // Update when base level changes, or every 2s to players on that planet
                 packet.Record(in dFbase);
                 var planetId = enemySystem.planet.id;
                 if (levelChanged)
@@ -95,6 +87,33 @@ public class EnemyManager : IDisposable
         }
     }
 
+    public void DisplayPlanetPingMessage(string text, int planetId, Vector3 pos)
+    {
+        var planet = GameMain.galaxy.PlanetById(planetId);
+        if (planet == null) return;
+
+        var message = text + " [" + NavigateChatLinkHandler.FormatNavigateToPlanetPos(planetId, pos, planet.displayName) + "]";
+        ChatManager.Instance.SendChatMessage(message, ChatMessageType.BattleMessage);
+    }
+
+    public void DisplayAstroMessage(string text, int astroId)
+    {
+        string displayMessage = null;
+
+        if (GameMain.galaxy.PlanetById(astroId) != null)
+        {
+            displayMessage = GameMain.galaxy.PlanetById(astroId).displayName;
+        }
+        else if (GameMain.galaxy.StarById(astroId / 100) != null)
+        {
+            displayMessage = GameMain.galaxy.StarById(astroId / 100).displayName;
+        }
+        if (displayMessage == null) return;
+
+        var message = text + " [" + NavigateChatLinkHandler.FormatNavigateToAstro(astroId, displayMessage) + "]";
+        ChatManager.Instance.SendChatMessage(message, ChatMessageType.BattleMessage);
+    }
+
     public void OnFactoryLoadFinished(PlanetFactory factory)
     {
         var planetId = factory.planetId;
@@ -108,6 +127,27 @@ public class EnemyManager : IDisposable
         {
             var enemyId = unitBuffer[i].enemyId;
             targets[enemyId] = unitBuffer[i].hatred.max.target;
+        }
+    }
+
+    public void OnLeavePlanet()
+    {
+        if (Multiplayer.Session.IsServer) return;
+
+        // Reset threat on each base on the loaded factory so it doesn't show on the monitor        
+        for (var factoryIdx = 0; factoryIdx < GameMain.data.factoryCount; factoryIdx++)
+        {
+            var factory = GameMain.data.factories[factoryIdx];
+            if (factory == null) continue;
+
+            var bases = factory.enemySystem.bases;
+            for (var baseId = 1; baseId < bases.cursor; baseId++)
+            {
+                if (bases[baseId] != null && bases[baseId].id == baseId && !bases[baseId].hasAssaultingUnit)
+                {
+                    bases[baseId].evolve.threat = 0;
+                }
+            }
         }
     }
 
