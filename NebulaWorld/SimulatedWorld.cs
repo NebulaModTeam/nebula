@@ -109,6 +109,22 @@ public class SimulatedWorld : IDisposable
             GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             GameMain.mainPlayer.mecha.groundCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
             GameMain.mainPlayer.mecha.spaceCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
+
+            // Recycle all fleets
+            var module = GameMain.mainPlayer.mecha.groundCombatModule;
+            for (var fleetIndex = 0; fleetIndex < module.fleetCount; fleetIndex++)
+            {
+                ref var ptr = ref module.moduleFleets[fleetIndex];
+                if (ptr.fleetId == 0) continue;
+                ptr.OnFleetComponentRemoved();
+            }
+            module = GameMain.mainPlayer.mecha.spaceCombatModule;
+            for (var fleetIndex = 0; fleetIndex < module.fleetCount; fleetIndex++)
+            {
+                ref var ptr = ref module.moduleFleets[fleetIndex];
+                if (ptr.fleetId == 0) continue;
+                ptr.OnFleetComponentRemoved();
+            }
         }
 
         // Initialization on the host side after game is loaded
