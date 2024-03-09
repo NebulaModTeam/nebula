@@ -4,6 +4,7 @@ using BepInEx.Bootstrap;
 using NebulaAPI.Interfaces;
 using NebulaAPI.Packets;
 using NebulaModel;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Session;
@@ -44,10 +45,24 @@ public class HandshakeResponseProcessor : PacketProcessor<HandshakeResponse>
         // Using GameDesc.Import will break GS2, so use GameDesc.SetForNewGame instead
         var gameDesc = new GameDesc();
         gameDesc.SetForNewGame(packet.GalaxyAlgo, packet.GalaxySeed, packet.StarCount, 1, packet.ResourceMultiplier);
-        gameDesc.savedThemeIds = packet.SavedThemeIds;
+        gameDesc.isPeaceMode = packet.IsPeaceMode;
         gameDesc.isSandboxMode = packet.IsSandboxMode;
-        DSPGame.StartGameSkipPrologue(gameDesc);
+        gameDesc.savedThemeIds = packet.SavedThemeIds;
+        using (var p = new BinaryUtils.Reader(packet.CombatSettingsData))
+        {
+            gameDesc.combatSettings.Import(p.BinaryReader);
+        }
+        //Request global part of GameData from host
+        Log.Info("Requesting global GameData from the server");
+        Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
+        if (DSPGame.Game != null)
+        {
+            DSPGame.EndGame();
+        }
+        // Prepare gameDesc to later start in GlobalGameDataResponseProcessor
+        DSPGame.GameDesc = gameDesc;
 
+        UIRoot.instance.OpenLoadingUI();
         InGamePopup.ShowInfo("Loading".Translate(), "Loading state from server, please wait".Translate(), null);
 
         Multiplayer.Session.NumPlayers = packet.NumPlayers;

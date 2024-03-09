@@ -11,6 +11,7 @@ using NebulaModel;
 using NebulaModel.DataStructures;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
+using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaModel.Packets.Trash;
@@ -161,7 +162,7 @@ public class SimulatedWorld : IDisposable
             Multiplayer.Session.Network.SendPacket(new SyncComplete(clientCert));
 
             // Subscribe for the local star events
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(GameMain.data.localStar.id));
+            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, GameMain.data.localStar.id));
 
             // Request latest warning signal
             Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Signal));
@@ -218,6 +219,17 @@ public class SimulatedWorld : IDisposable
         }
         // Reset local and remote chargers ids to recalculate and broadcast the current ids to new player
         Multiplayer.Session.PowerTowers.ResetAndBroadcast();
+
+        // Sync enemyDropBans for joined client
+        using (var writer = new BinaryUtils.Writer())
+        {
+            writer.BinaryWriter.Write(GameMain.data.trashSystem.enemyDropBans.Count);
+            foreach (var itemId in GameMain.data.trashSystem.enemyDropBans)
+            {
+                writer.BinaryWriter.Write(itemId);
+            }
+            player.SendPacket(new TrashSystemLootFilterPacket(writer.CloseAndGetBytes()));
+        }
 
         // (Host only) Trigger when a new client added to connected players
         Log.Info($"Client{player.Data.PlayerId} - {player.Data.Username} joined");
@@ -315,37 +327,9 @@ public class SimulatedWorld : IDisposable
             }
             player.Movement.UpdatePosition(packet);
             player.Animator.UpdateState(packet);
-        }
-    }
 
-    public int GenerateTrashOnPlayer(TrashSystemNewTrashCreatedPacket packet)
-    {
-        using (GetRemotePlayersModels(out var remotePlayersModels))
-        {
-            if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var player))
-            {
-                return 0;
-            }
-            var trashData = packet.GetTrashData();
-            //Calculate trash position based on the current player's model position
-            var lastPosition = player.Movement.GetLastPosition();
-            if (lastPosition.LocalPlanetId < 1)
-            {
-                trashData.uPos = new VectorLF3(lastPosition.UPosition.x, lastPosition.UPosition.y,
-                    lastPosition.UPosition.z);
-            }
-            else
-            {
-                trashData.lPos = lastPosition.LocalPlanetPosition.ToVector3();
-                var planet = GameMain.galaxy.PlanetById(lastPosition.LocalPlanetId);
-                trashData.uPos = planet.uPosition + (VectorLF3)Maths.QRotate(planet.runtimeRotation, trashData.lPos);
-            }
-
-            using (Multiplayer.Session.Trashes.NewTrashFromOtherPlayers.On())
-            {
-                var myId = GameMain.data.trashSystem.container.NewTrash(packet.GetTrashObject(), trashData);
-                return myId;
-            }
+            // Mark to let combat manager update energyShieldEnergy
+            player.MechaInstance.energyShieldEnergyRate = (packet.Flags & PlayerMovement.EFlags.hasShield) != 0 ? 1 : 2;
         }
     }
 

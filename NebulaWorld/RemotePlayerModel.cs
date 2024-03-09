@@ -3,6 +3,7 @@
 using NebulaWorld.MonoBehaviours.Remote;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.MeshSubsetCombineUtility;
 
 #endregion
 
@@ -25,7 +26,7 @@ public class RemotePlayerModel
             Object.Destroy(PlayerTransform.GetComponent<PlayerFootsteps>());
             Object.Destroy(PlayerTransform.GetComponent<PlayerEffect>());
             Object.Destroy(PlayerTransform.GetComponent<PlayerAudio>());
-            Object.Destroy(PlayerTransform.GetComponent<PlayerController>());
+            // Leave PlayerController to later use
             PlayerTransform.GetComponent<Rigidbody>().isKinematic = true;
 
             // Add remote player components
@@ -55,6 +56,8 @@ public class RemotePlayerModel
         {
             PlayerInstance.mecha = MechaInstance;
             MechaInstance.Init(GameMain.data, PlayerInstance);
+            MechaInstance.SetForNewGame();
+            PlayerInstance.animator = Animator.PlayerAnimator;
 
             //Fix MechaDroneRenderers
             //todo:replace
@@ -78,6 +81,21 @@ public class RemotePlayerModel
                     PlayerModelTransform.GetChild(i).gameObject.SetActive(true);
                 }
             }
+
+            PlayerInstance.controller = PlayerTransform.gameObject.GetComponent<PlayerController>();
+            var controller = PlayerInstance.controller;
+            controller.gameData = GameMain.data;
+            controller.player = PlayerInstance;
+            controller.mecha = PlayerInstance.mecha;
+            controller.model = PlayerModelTransform;
+            controller.enabled = false; // Disable updates 
+            controller.actionDeath = new PlayerAction_Death();
+            controller.actionDeath.Init(PlayerInstance);
+
+            PlayerInstance.isAlive = true; // TODO: Load remote player alive state
+            var gameObject = new GameObject("Camera Target"); // Dummy object to avoid NRE
+            gameObject.transform.SetParent(PlayerInstance.transform, false);
+            PlayerInstance.cameraTarget = gameObject.transform;
         }
 
         PlayerId = playerId;

@@ -3,6 +3,7 @@
 using HarmonyLib;
 using NebulaAPI;
 using NebulaModel;
+using NebulaModel.Packets.Combat.Mecha;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
 
@@ -102,4 +103,34 @@ internal class Player_Patch
         __result = 1;
         return false;
     }
+
+    #region Combat
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(Player.Kill))]
+    public static bool Kill_Prefix(Player __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (__instance != GameMain.mainPlayer) return false;
+
+        if (__instance.isAlive)
+        {
+            Multiplayer.Session.Network.SendPacket(new MechaAliveEventPacket(
+                Multiplayer.Session.LocalPlayer.Id, MechaAliveEventPacket.EStatus.Kill));
+        }
+        return true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(Player.PrepareRedeploy))]
+    public static bool PrepareRedeploy_Prefix(Player __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        // Don't drop item when Redeploy
+        __instance.mecha.PrepareRedeploy();
+        return false;
+    }
+
+    #endregion
 }

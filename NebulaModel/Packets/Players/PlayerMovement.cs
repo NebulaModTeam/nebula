@@ -16,7 +16,9 @@ public class PlayerMovement
     {
         isGrounded = 1,
         inWater = 2,
-        warping = 4
+        warping = 4,
+        hasShield = 8,
+        chargeShieldBurst = 16
     }
 
     public PlayerMovement() { }
@@ -57,6 +59,15 @@ public class PlayerMovement
         if (animator.player.warping)
         {
             Flags |= EFlags.warping;
+        }
+        var mecha = animator.controller.mecha;
+        if (mecha.energyShieldEnergy > 0)
+        {
+            Flags |= EFlags.hasShield;
+        }
+        if (mecha.energyShieldBurstProgress > 0f)
+        {
+            Flags |= EFlags.chargeShieldBurst;
         }
     }
 

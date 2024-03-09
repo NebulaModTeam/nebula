@@ -34,6 +34,7 @@ public class RemotePlayerMovement : MonoBehaviour
     private Transform rootTransform;
     public string Username { get; set; }
     public ushort PlayerID { get; set; }
+    public int LocalStarId { get; set; }
 
     private void Awake()
     {

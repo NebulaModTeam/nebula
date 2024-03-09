@@ -17,12 +17,12 @@ namespace NebulaNetwork.PacketProcessors.Factory.Foundation;
 [RegisterPacketProcessor]
 internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildUpdatePacket>
 {
-    private Vector3[] reformPoints = new Vector3[100];
+    private Vector3[] reformPoints = new Vector3[400];
 
     protected override void ProcessPacket(FoundationBuildUpdatePacket packet, NebulaConnection conn)
     {
         var planet = GameMain.galaxy.PlanetById(packet.PlanetId);
-        var factory = IsHost ? GameMain.data.GetOrCreateFactory(planet) : planet?.factory;
+        var factory = planet?.factory;
         if (factory != null)
         {
             // Increase reformPoints for mods that increase brush size over 10
@@ -43,39 +43,44 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
             Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
 
             //Perform terrain operation
-            var reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize,
-                packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem,
-                out var reformCenterPoint);
-            factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount);
+            var center = packet.ExtraCenter.ToVector3();
+            var area = packet.CirclePointCount;
+            if (packet.CirclePointCount == 0) //Normal reform
+            {
+                var reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize,
+                    packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem,
+                    out var reformCenterPoint);
+                factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount);
+                center = reformCenterPoint;
+                area = packet.ReformSize * packet.ReformSize;
+            }
+            else //Remove pit
+            {
+                factory.ComputeFlattenTerrainReform(reformPoints, center, packet.Radius, packet.CirclePointCount, 3f, 1f);
+            }
             using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
-                factory.FlattenTerrainReform(reformCenterPoint, packet.Radius, packet.ReformSize, packet.VeinBuried);
+                factory.FlattenTerrainReform(center, packet.Radius, packet.ReformSize, packet.VeinBuried);
             }
-            var area = packet.ReformSize * packet.ReformSize;
+            var platformSystem = factory.platformSystem;
             for (var i = 0; i < area; i++)
             {
-                var num71 = packet.ReformIndices[i];
-                var platformSystem = factory.platformSystem;
-                if (num71 < 0)
+                var index = packet.ReformIndices[i];
+                if (index < 0)
                 {
                     continue;
                 }
-                var type = platformSystem.GetReformType(num71);
-                var color = platformSystem.GetReformColor(num71);
-                if (type == packet.ReformType && color == packet.ReformColor)
+                var type = platformSystem.GetReformType(index);
+                var color = platformSystem.GetReformColor(index);
+                if (type != packet.ReformType || color != packet.ReformColor)
                 {
-                    continue;
+                    factory.platformSystem.SetReformType(index, packet.ReformType);
+                    factory.platformSystem.SetReformColor(index, packet.ReformColor);
                 }
-                factory.platformSystem.SetReformType(num71, packet.ReformType);
-                factory.platformSystem.SetReformColor(num71, packet.ReformColor);
             }
         }
 
-        if (!IsHost)
-        {
-            return;
-        }
-        if (planet != null)
+        if (IsHost && planet != null)
         {
             Multiplayer.Session.Network.SendPacketToStar(packet, planet.star.id);
         }

@@ -3,12 +3,39 @@
 #region
 
 using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaWorld;
 // ReSharper disable RedundantAssignment
 
 #endregion
 
 namespace NebulaPatcher.Patches.Dynamic;
+
+[HarmonyPatch(typeof(EnemyFormation))]
+internal class Debug_EnemyFormation_Patch
+{
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(EnemyFormation.AddUnit))]
+    public static void AddUnit_Postfix(int __result)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer
+            || Multiplayer.Session.Combat.IsIncomingRequest.Value
+            || Multiplayer.Session.Enemies.IsIncomingRequest.Value) return;
+        Log.Warn($"EnemyFormation.AddUnit {__result} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(EnemyFormation.RemoveUnit))]
+    public static void RemoveUnit_Postfix(int port)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer
+            || Multiplayer.Session.Combat.IsIncomingRequest.Value
+            || Multiplayer.Session.Enemies.IsIncomingRequest.Value) return;
+        Log.Warn($"EnemyFormation.RemoveUnit {port} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+}
 
 [HarmonyPatch(typeof(GameHistoryData))]
 internal class Debug_GameHistoryData_Patch
@@ -56,6 +83,7 @@ internal class Debug_Mecha_Patch
     [HarmonyPatch(nameof(Mecha.SetForNewGame))]
     public static void SetForNewGame_Postfix(Mecha __instance)
     {
+        if (GameMain.mainPlayer != __instance.player) return;
         __instance.coreEnergyCap = 30000000000;
         __instance.coreEnergy = 30000000000;
         __instance.corePowerGen = 5000000;
@@ -76,6 +104,15 @@ internal class Debug_Mecha_Patch
         __instance.player.package.AddItemStacked(2003, 600, 1, out _); //add MK3 belts
         __instance.player.package.AddItemStacked(2013, 100, 1, out _); //add MK3 inserters
         __instance.player.package.AddItemStacked(2212, 20, 1, out _); //add satelite sub-station
+        __instance.player.package.AddItemStacked(1128, 100, 1, out _); // add combustible unit
+        __instance.player.package.AddItemStacked(1601, 100, 1, out _); // add magnum ammo box
+        __instance.player.package.AddItemStacked(1604, 100, 1, out _); // add shell set
+        __instance.player.package.AddItemStacked(1607, 100, 1, out _); // add plasma capsule
+        __instance.player.package.AddItemStacked(1609, 100, 1, out _); // add missile set
+        __instance.player.package.AddItemStacked(1613, 100, 1, out _); // add jammer
+
+        // temporay fix before PlayerTechBonuses update
+        __instance.energyShieldUnlocked = true;
     }
 }
 
@@ -100,6 +137,50 @@ internal class Debug_MechaForge_Patch
         }
         __result = null;
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(PlanetFactory))]
+internal class Debug_PlanetFactory_Patch
+{
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlanetFactory.AddEnemyDataWithComponents))]
+    public static void AddEnemyDataWithComponents_Postfix(int __result)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
+        Log.Warn($"PlanetFactory.AddEnemyDataWithComponents {__result} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlanetFactory.RemoveEnemyWithComponents))]
+    public static void RemoveEnemyWithComponents_Postfix(int id)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
+        Log.Warn($"PlanetFactory.RemoveEnemyWithComponents {id} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+}
+
+[HarmonyPatch(typeof(SpaceSector))]
+internal class Debug_SpaceSector_Patch
+{
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(SpaceSector.AddEnemyDataWithComponents))]
+    public static void AddEnemyDataWithComponents_Postfix(int __result)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value || !Multiplayer.Session.IsGameLoaded) return;
+        Log.Warn($"SpaceSector.AddEnemyDataWithComponents {__result} without approve!");
+        Log.Warn(System.Environment.StackTrace);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(SpaceSector.RemoveEnemyWithComponents))]
+    public static void RemoveEnemyWithComponents_Postfix(int id)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer || Multiplayer.Session.Enemies.IsIncomingRequest.Value) return;
+        Log.Warn($"SpaceSector.RemoveEnemyWithComponents {id} without approve!");
+        Log.Warn(System.Environment.StackTrace);
     }
 }
 

@@ -4,6 +4,7 @@ using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
+using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaModel.Packets.Factory;
 using NebulaModel.Packets.Factory.Assembler;
 using NebulaModel.Packets.Factory.Ejector;
@@ -23,6 +24,7 @@ using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaWorld.Factory;
 using NebulaWorld.Player;
+using UnityEngine;
 
 #endregion
 
@@ -142,13 +144,13 @@ internal class PlanetFactory_patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
-    public static void FlattenTerrainReform_Prefix(float radius, int reformSize,
+    public static void FlattenTerrainReform_Prefix(Vector3 center, float radius, int reformSize,
         bool veinBuried, float fade0)
     {
         if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
             Multiplayer.Session.Network.SendPacketToLocalStar(
-                new FoundationBuildUpdatePacket(radius, reformSize, veinBuried, fade0));
+                new FoundationBuildUpdatePacket(center, radius, reformSize, veinBuried, fade0));
         }
     }
 
@@ -716,4 +718,90 @@ internal class PlanetFactory_patch
             stationComponent.idleShipCount = __state.Item4;
         }
     }
+
+    #region Combat
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.KillEnemyFinally))]
+    public static bool KillEnemyFinally_Prefix(PlanetFactory __instance, int enemyId)
+    {
+        if (!Multiplayer.IsActive || enemyId <= 0)
+        {
+            return true;
+        }
+        if (Multiplayer.Session.IsServer)
+        {
+            var starId = __instance.planet.star.id;
+            Multiplayer.Session.Network.SendPacketToStar(new DFGKillEnemyPacket(__instance.planetId, enemyId), starId);
+            return true;
+        }
+        if (Multiplayer.Session.Combat.IsIncomingRequest.Value)
+        {
+            return true;
+        }
+
+        // Client: wait for server to approve the unitId and enmeyId recycle
+        // Make this enemyData appear as empty
+        ref var enemyPtr = ref __instance.enemyPool[enemyId];
+        enemyPtr.isInvincible = true;
+        enemyPtr.id = 0;
+        Multiplayer.Session.Network.SendPacket(new DFGKillEnemyPacket(__instance.planetId, enemyId));
+
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.RemoveEnemyFinal))]
+    public static bool RemoveEnemyFinal_Prefix()
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer)
+        {
+            return true;
+        }
+        // Only execute RemoveEnemyFinal when server approve on client
+        // Factories.IsIncomingRequest is for RemoveBasePit called on putting down Geothermal Power Station
+        return Multiplayer.Session.Combat.IsIncomingRequest.Value || Multiplayer.Session.Factories.IsIncomingRequest.Value;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.KillEntityFinally))]
+    public static bool KillEntityFinally_Prefix(PlanetFactory __instance, int objId)
+    {
+        if (!Multiplayer.IsActive || objId <= 0)
+        {
+            return true;
+        }
+
+        if (Multiplayer.Session.IsClient) // Let server decide when to kill entity
+        {
+            return Multiplayer.Session.Factories.IsIncomingRequest.Value;
+        }
+
+        var packet = new KillEntityRequest(__instance.planetId, objId);
+        var starId = __instance.planet.star.id;
+        Multiplayer.Session.Server.SendPacketToStar(packet, starId);
+        return true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.ReconstructTargetFinally))]
+    public static void ReconstructTargetFinally_Prefix(PlanetFactory __instance, int prebuildId)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Factories.IsIncomingRequest.Value) return;
+
+        // Broadcast the change of isDestroyed state to other players
+        var packet = new PrebuildReconstructPacket(__instance.planetId, prebuildId);
+        if (Multiplayer.Session.IsServer)
+        {
+            var starId = __instance.planet.star.id;
+            Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+        }
+        else
+        {
+            Multiplayer.Session.Network.SendPacket(packet);
+        }
+    }
+
+    #endregion
+
 }

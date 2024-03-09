@@ -15,6 +15,7 @@ using NebulaModel.Packets.Players;
 using NebulaModel.Packets.Session;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 using NebulaWorld.Warning;
 using UnityEngine;
 
@@ -220,6 +221,10 @@ internal class GameData_Patch
                 RefreshMissingMeshes();
             });
 
+            Multiplayer.Session.Trashes.Refresh();
+            Multiplayer.Session.Combat.OnFactoryLoadFinished(planet.factory);
+            Multiplayer.Session.Enemies.OnFactoryLoadFinished(planet.factory);
+
             try
             {
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
@@ -263,9 +268,6 @@ internal class GameData_Patch
         {
             return;
         }
-        //Request global part of GameData from host
-        Log.Info("Requesting global GameData from the server");
-        Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
 
         //Update player's position before searching for closest planet (GS2: Modeler.ModelingCoroutine)
         __instance.mainPlayer.uPosition = new VectorLF3(Multiplayer.Session.LocalPlayer.Data.UPosition.x,
@@ -296,6 +298,16 @@ internal class GameData_Patch
         }
     }
 
+    [HarmonyPostfix, HarmonyPriority(Priority.High)]
+    [HarmonyPatch(nameof(GameData.NewGame))]
+    public static void NewGame_Postfix(GameData __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return;
+
+        // Overwrite from binaryData in GlobalGameDataResponse
+        GameStatesManager.OverwriteGlobalGameData(__instance);
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameData.GameTick))]
     public static void GameTick_Postfix(GameData __instance, long time)
@@ -307,6 +319,8 @@ internal class GameData_Patch
 
         Multiplayer.Session.Couriers.GameTick();
         Multiplayer.Session.Belts.GameTick();
+        Multiplayer.Session.Combat.GameTick();
+        Multiplayer.Session.Enemies.GameTick(time);
 
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
@@ -372,18 +386,21 @@ internal class GameData_Patch
                 {
                     continue;
                 }
-                if (__instance.localStar.planets[i].factory == null)
+                var planet = __instance.localStar.planets[i];
+                if (planet.factory == null)
                 {
                     continue;
                 }
-                __instance.localStar.planets[i].factory.Free();
-                __instance.localStar.planets[i].factory = null;
-                GameMain.data.factoryCount--;
+                planet.factory.Free();
+                planet.factory = null;
+                __instance.galaxy.astrosFactory[planet.id] = null; //Assigned by UpdateRuntimePose
+                __instance.factoryCount--;
             }
+            Multiplayer.Session.Combat.OnAstroFactoryUnload();
         }
         if (!Multiplayer.Session.IsInLobby)
         {
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(-1));
+            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, -1));
         }
     }
 
@@ -396,7 +413,7 @@ internal class GameData_Patch
         {
             return;
         }
-        Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(star.id));
+        Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, star.id));
         Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id));
     }
 
@@ -407,6 +424,7 @@ internal class GameData_Patch
         //Players should clear the list of drone orders of other players when they leave the planet
         if (Multiplayer.IsActive)
         {
+            Multiplayer.Session.Trashes.Refresh();
             Multiplayer.Session.PowerTowers.ResetAndBroadcast();
             //todo:replace
             //GameMain.mainPlayer.mecha.droneLogic.serving.Clear();

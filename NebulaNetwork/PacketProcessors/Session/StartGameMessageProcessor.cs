@@ -69,8 +69,17 @@ internal class StartGameMessageProcessor : PacketProcessor<StartGameMessage>
             Multiplayer.Session.IsInLobby = false;
             Multiplayer.ShouldReturnToJoinMenu = false;
 
-            DSPGame.StartGameSkipPrologue(UIRoot.instance.galaxySelect.gameDesc);
+            //Request global part of GameData from host
+            Log.Info("Requesting global GameData from the server");
+            Multiplayer.Session.Network.SendPacket(new GlobalGameDataRequest());
+            if (DSPGame.Game != null)
+            {
+                DSPGame.EndGame();
+            }
+            // Prepare gameDesc to later start in GlobalGameDataResponseProcessor
+            DSPGame.GameDesc = UIRoot.instance.galaxySelect.gameDesc;
 
+            UIRoot.instance.OpenLoadingUI();
             InGamePopup.ShowInfo("Loading".Translate(), "Loading state from server, please wait".Translate(), null);
         }
         else

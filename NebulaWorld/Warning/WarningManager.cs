@@ -159,6 +159,8 @@ public class WarningManager : IDisposable
         ws.warningCursor = activeWarningCount + 1;
 
         var warningPool = GameMain.data.warningSystem.warningPool;
+        var container = GameMain.data.trashSystem.container;
+
         //index start from 1 in warningPool
         for (var i = 1; i <= activeWarningCount; i++)
         {
@@ -175,10 +177,11 @@ public class WarningManager : IDisposable
 
             // reassign warningId for trash
             var trashId = br.ReadInt32();
-            if (trashId >= 0 && trashId < GameMain.data.trashSystem.container.trashCursor)
-            {
-                GameMain.data.trashSystem.container.trashDataPool[trashId].warningId = i;
-            }
+            if (trashId < 0 || trashId >= container.trashCursor
+                || container.trashObjPool[trashId].item <= 0) continue;
+
+            // assign warningId in trashData only if the trash item exist
+            container.trashDataPool[trashId].warningId = i;
         }
     }
 
