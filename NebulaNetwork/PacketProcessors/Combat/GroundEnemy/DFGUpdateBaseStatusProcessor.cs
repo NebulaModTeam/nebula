@@ -18,6 +18,7 @@ public class DFGUpdateBaseStatusProcessor : PacketProcessor<DFGUpdateBaseStatusP
         if (factory == null) return;
 
         var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
+        if (dFBase == null) return;
         ref var evolveData = ref dFBase.evolve;
         evolveData.threat = packet.Threat;
         if (evolveData.level != packet.Level)
