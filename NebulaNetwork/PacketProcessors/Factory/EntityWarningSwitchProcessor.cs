@@ -7,7 +7,7 @@ using NebulaModel.Packets.Factory;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Entity;
+namespace NebulaNetwork.PacketProcessors.Factory;
 
 [RegisterPacketProcessor]
 internal class EntityWarningSwitchProcessor : PacketProcessor<EntityWarningSwitchPacket>

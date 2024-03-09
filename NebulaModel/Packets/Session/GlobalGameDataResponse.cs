@@ -4,20 +4,21 @@ public class GlobalGameDataResponse
 {
     public GlobalGameDataResponse() { }
 
-    public GlobalGameDataResponse(bool sandboxToolsEnabled,
-        byte[] historyBinaryData, byte[] spaceSectorBinaryData,
-        byte[] milestoneSystemBinaryData, byte[] trashSystemBinaryData)
+    public GlobalGameDataResponse(EDataType dataType, byte[] binaryData)
     {
-        SandboxToolsEnabled = sandboxToolsEnabled;
-        HistoryBinaryData = historyBinaryData;
-        SpaceSectorBinaryData = spaceSectorBinaryData;
-        MilestoneSystemBinaryData = milestoneSystemBinaryData;
-        TrashSystemBinaryData = trashSystemBinaryData;
+        DataType = dataType;
+        BinaryData = binaryData;
     }
 
-    public bool SandboxToolsEnabled { get; set; }
-    public byte[] HistoryBinaryData { get; set; }
-    public byte[] SpaceSectorBinaryData { get; set; }
-    public byte[] MilestoneSystemBinaryData { get; set; }
-    public byte[] TrashSystemBinaryData { get; set; }
+    public enum EDataType : byte
+    {
+        History = 1,
+        SpaceSector,
+        MilestoneSystem,
+        TrashSystem,
+        Ready
+    }
+
+    public EDataType DataType { get; set; }
+    public byte[] BinaryData { get; set; }
 }

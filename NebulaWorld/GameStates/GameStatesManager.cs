@@ -72,11 +72,39 @@ public class GameStatesManager : IDisposable
 
     public static void ImportGlobalGameData(GlobalGameDataResponse packet)
     {
-        SandboxToolsEnabled = packet.SandboxToolsEnabled;
-        HistoryBinaryData = packet.HistoryBinaryData;
-        SpaceSectorBinaryData = packet.SpaceSectorBinaryData;
-        MilestoneSystemBinaryData = packet.MilestoneSystemBinaryData;
-        TrashSystemBinaryData = packet.TrashSystemBinaryData;
+        switch (packet.DataType)
+        {
+            case GlobalGameDataResponse.EDataType.History:
+                HistoryBinaryData = packet.BinaryData;
+                Log.Info("Waiting for SpaceSector data from the server...");
+                break;
+
+            case GlobalGameDataResponse.EDataType.SpaceSector:
+                SpaceSectorBinaryData = packet.BinaryData;
+                Log.Info("Waiting for MilestoneSystem data from the server...");
+                break;
+
+            case GlobalGameDataResponse.EDataType.MilestoneSystem:
+                MilestoneSystemBinaryData = packet.BinaryData;
+                Log.Info("Waiting for TrashSystem data from the server...");
+                break;
+
+            case GlobalGameDataResponse.EDataType.TrashSystem:
+                TrashSystemBinaryData = packet.BinaryData;
+                Log.Info("Waiting for the remaining data from the server...");
+                break;
+
+            case GlobalGameDataResponse.EDataType.Ready:
+                using (var reader = new BinaryUtils.Reader(packet.BinaryData))
+                {
+                    var br = reader.BinaryReader;
+                    SandboxToolsEnabled = br.ReadBoolean();
+                }
+                Log.Info("Loading GlobalGameData complete. Initializing...");
+                // We are ready to start the game now
+                DSPGame.StartGameSkipPrologue(DSPGame.GameDesc);
+                break;
+        }
     }
 
     public static void OverwriteGlobalGameData(GameData data)

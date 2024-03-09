@@ -3,7 +3,6 @@
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
-using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Session;
 
 #endregion
@@ -21,46 +20,51 @@ internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRe
         }
 
         //Export GameHistoryData, SpaceSector, TrashSystem, MilestoneSystem
-        //PlanetFactory, Dysonsphere, GalacticTransport will be handle else where
-        var responsePacket = new GlobalGameDataResponse();
-        var totalSize = 0;
+        //PlanetFactory, Dysonsphere, GalacticTransport will be handle else where        
 
         using (var writer = new BinaryUtils.Writer())
         {
             GameMain.history.Export(writer.BinaryWriter);
-            responsePacket.SandboxToolsEnabled = GameMain.sandboxToolsEnabled;
-            responsePacket.HistoryBinaryData = writer.CloseAndGetBytes();
-            totalSize += responsePacket.HistoryBinaryData.Length;
+
+            conn.SendPacket(new GlobalGameDataResponse(
+                GlobalGameDataResponse.EDataType.History, writer.CloseAndGetBytes()));
         }
 
         using (var writer = new BinaryUtils.Writer())
         {
-            // Initial syncing from vanilla, to be refined later in future.
+            // Note: Initial syncing from vanilla. May be refined later in future
             NebulaWorld.Combat.CombatManager.SerializeOverwrite = true;
             GameMain.data.spaceSector.BeginSave();
             GameMain.data.spaceSector.Export(writer.BinaryWriter);
             GameMain.data.spaceSector.EndSave();
             NebulaWorld.Combat.CombatManager.SerializeOverwrite = false;
 
-            responsePacket.SpaceSectorBinaryData = writer.CloseAndGetBytes();
-            totalSize += responsePacket.SpaceSectorBinaryData.Length;
+            conn.SendPacket(new GlobalGameDataResponse(
+                GlobalGameDataResponse.EDataType.SpaceSector, writer.CloseAndGetBytes()));
         }
 
         using (var writer = new BinaryUtils.Writer())
         {
             GameMain.data.milestoneSystem.Export(writer.BinaryWriter);
-            responsePacket.MilestoneSystemBinaryData = writer.CloseAndGetBytes();
-            totalSize += responsePacket.MilestoneSystemBinaryData.Length;
+
+            conn.SendPacket(new GlobalGameDataResponse(
+                GlobalGameDataResponse.EDataType.MilestoneSystem, writer.CloseAndGetBytes()));
         }
 
         using (var writer = new BinaryUtils.Writer())
         {
             GameMain.data.trashSystem.Export(writer.BinaryWriter);
-            responsePacket.TrashSystemBinaryData = writer.CloseAndGetBytes();
-            totalSize += responsePacket.TrashSystemBinaryData.Length;
+
+            conn.SendPacket(new GlobalGameDataResponse(
+                GlobalGameDataResponse.EDataType.TrashSystem, writer.CloseAndGetBytes()));
         }
 
-        conn.SendPacket(new FragmentInfo(totalSize));
-        conn.SendPacket(responsePacket);
+        using (var writer = new BinaryUtils.Writer())
+        {
+            writer.BinaryWriter.Write(GameMain.sandboxToolsEnabled);
+
+            conn.SendPacket(new GlobalGameDataResponse(
+                GlobalGameDataResponse.EDataType.Ready, writer.CloseAndGetBytes()));
+        }
     }
 }

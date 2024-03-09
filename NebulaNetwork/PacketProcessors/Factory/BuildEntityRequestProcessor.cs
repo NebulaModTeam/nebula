@@ -13,7 +13,7 @@ using NebulaWorld.Warning;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Entity;
+namespace NebulaNetwork.PacketProcessors.Factory;
 
 [RegisterPacketProcessor]
 public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>

@@ -216,4 +216,45 @@ internal class PlanetFactory_Transpiler
         byte itemCount, byte itemInc);
 
     private delegate bool CatchBeltFastTakeOut(bool result, PlanetFactory factory, int beltId, int itemId, int count);
+
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(PlanetFactory.AddPrebuildDataWithComponents))]
+    public static IEnumerable<CodeInstruction> AddPrebuildDataWithComponents_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
+            /*  In server there is PlanetTimer that add dummy physics which will cause error in remote planets
+            
+                Replace: if (this.planet.physics == null) return num;
+                To:      if (!this.planet.factoryLoaded) return num;                                
+            */
+            var matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "get_planet"),
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "physics"),
+                    new CodeMatch(OpCodes.Brtrue)
+                );
+
+            var jumpOprand = matcher.Operand;
+
+            matcher.Advance(-3)
+                .RemoveInstructions(4)
+                .Insert(
+                    new CodeInstruction(OpCodes.Ldarg_0),
+                    new CodeInstruction(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(PlanetFactory), nameof(PlanetFactory.planet))),
+                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.factoryLoaded))),
+                    new CodeInstruction(OpCodes.Brtrue_S, jumpOprand)
+                );
+
+            return matcher.InstructionEnumeration();
+        }
+        catch (Exception e)
+        {
+            Log.Error("Transpiler PlanetFactory.AddPrebuildDataWithComponents error!");
+            Log.Error(e);
+            return instructions;
+        }
+    }
 }

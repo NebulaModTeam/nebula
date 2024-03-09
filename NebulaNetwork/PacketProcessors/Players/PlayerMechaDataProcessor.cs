@@ -2,6 +2,7 @@
 
 using NebulaAPI.Packets;
 using NebulaModel;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
@@ -26,6 +27,11 @@ internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
         }
 
         var player = Multiplayer.Session.Server.Players.Get(conn);
+        if (player == null)
+        {
+            Log.Warn("Can't find the connected player for PlayerMechaData!");
+            return;
+        }
 
         //Find correct player for data to update, preserve sand count if syncing is enabled
         var sandCount = player.Data.Mecha.SandCount;

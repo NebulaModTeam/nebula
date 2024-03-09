@@ -418,7 +418,7 @@ public class Server : IServer
             {
                 var state = GameMain.data.history.techStates[GameMain.data.history.currentTech];
                 SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded,
-                    state.hashNeeded, GameMain.statistics.techHashedFor10Frames));
+                    state.hashNeeded, GameMain.statistics.techHashedFor10Frames, GameMain.data.history.techQueueLength));
             }
         }
 

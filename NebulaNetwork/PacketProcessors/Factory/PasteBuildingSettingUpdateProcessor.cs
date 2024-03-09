@@ -8,7 +8,7 @@ using NebulaWorld;
 
 #endregion
 
-namespace NebulaNetwork.PacketProcessors.Factory.Entity;
+namespace NebulaNetwork.PacketProcessors.Factory;
 
 // Processes pasting settings (e.g. item to make in an assembler) onto buildings events
 [RegisterPacketProcessor]
