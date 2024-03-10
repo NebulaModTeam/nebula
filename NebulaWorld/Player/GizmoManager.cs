@@ -75,8 +75,10 @@ public class GizmoManager : IDisposable
 
     private static void GetMapPing()
     {
-        // Modify from UIGlobemap.TeleportLogic
-        if (Camera.main == null || GameMain.localPlanet == null) return;
+		// Modify from UIGlobemap.TeleportLogic
+        var mainCam = Camera.main;
+        if (mainCam == null || GameMain.localPlanet == null) return;
+        if (!Physics.Raycast(mainCam.ScreenPointToRay(Input.mousePosition), out var hitInfo, 800f, 8720, QueryTriggerInteraction.Collide)) return;
         if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hitInfo, 800f, 8720, QueryTriggerInteraction.Collide)) return;
 
         var starmap = UIRoot.instance.uiGame.starmap;
@@ -128,7 +130,7 @@ public class GizmoManager : IDisposable
     private void UpdateIndicator()
     {
         if (GameMain.mainPlayer.gizmo.naviIndicatorGizmo != null
-            && naviIndicatorGizmo != null) // When main player is navigating to other target, close the exisitng one
+            && naviIndicatorGizmo != null) // When main player is navigating to other target, close the existing one
         {
             indicatorPlayerId = 0;
             indicatorPlanetId = 0;
@@ -159,7 +161,7 @@ public class GizmoManager : IDisposable
             return;
         }
 
-        // Close gizmos if there is no vaild target
+        // Close gizmos if there is no valid target
         indicatorPlayerId = 0;
         indicatorPlanetId = 0;
         if (naviIndicatorGizmoStarmap != null)
