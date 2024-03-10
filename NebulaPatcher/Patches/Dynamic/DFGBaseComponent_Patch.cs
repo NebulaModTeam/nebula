@@ -276,7 +276,7 @@ internal class DFGBaseComponent_Patch
         if (Multiplayer.Session.IsClient) return Multiplayer.Session.Combat.IsIncomingRequest.Value;
 
         var packet = new DFGLaunchAssaultPacket(__instance, in tarPos, expandRadius, unitCount0, unitCount1, ap0, ap1, unitThreat);
-        Multiplayer.Session.Network.SendPacketToStar(packet, __instance.groundSystem.planet.star.id);
+        Multiplayer.Session.Server.SendPacket(packet);
         return true;
     }
 }

@@ -41,7 +41,7 @@ public class NavigateCommandHandler : IChatCommandHandler
                 case "player":
                 case "p":
                     {
-                        isNumeric = int.TryParse(parameters[1], out var ID);
+                        isNumeric = ushort.TryParse(parameters[1], out var playerId);
 
                         if (isNumeric)
                         {
@@ -49,10 +49,9 @@ public class NavigateCommandHandler : IChatCommandHandler
                             using (Multiplayer.Session.World.GetRemotePlayersModels(
                                        out var remotePlayersModels))
                             {
-                                foreach (var model in remotePlayersModels.Where(model => model.Value.Movement.PlayerID == ID))
+                                foreach (var model in remotePlayersModels.Where(model => model.Value.Movement.PlayerID == playerId))
                                 {
-                                    // handle indicator position update in RemotePlayerMovement.cs
-                                    GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + ID;
+                                    Multiplayer.Session.Gizmos.SetIndicatorPlayerId(playerId);
                                     window.SendLocalChatMessage(
                                         "Starting navigation to ".Translate() + model.Value.Movement.Username,
                                         ChatMessageType.CommandOutputMessage);
@@ -69,8 +68,7 @@ public class NavigateCommandHandler : IChatCommandHandler
                                 foreach (var model in
                                          remotePlayersModels.Where(model => model.Value.Movement.Username == parameters[1]))
                                 {
-                                    // handle indicator position update in RemotePlayerMovement.cs
-                                    GameMain.mainPlayer.navigation.indicatorAstroId = 100000 + model.Value.Movement.PlayerID;
+                                    Multiplayer.Session.Gizmos.SetIndicatorPlayerId(model.Value.Movement.PlayerID);
                                     window.SendLocalChatMessage(
                                         "Starting navigation to ".Translate() + model.Value.Movement.Username,
                                         ChatMessageType.CommandOutputMessage);

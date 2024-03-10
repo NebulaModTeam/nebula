@@ -320,7 +320,6 @@ internal class GameData_Patch
         Multiplayer.Session.Couriers.GameTick();
         Multiplayer.Session.Belts.GameTick();
         Multiplayer.Session.Combat.GameTick();
-        Multiplayer.Session.Enemies.GameTick(time);
 
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
@@ -426,8 +425,7 @@ internal class GameData_Patch
         {
             Multiplayer.Session.Trashes.Refresh();
             Multiplayer.Session.PowerTowers.ResetAndBroadcast();
-            //todo:replace
-            //GameMain.mainPlayer.mecha.droneLogic.serving.Clear();
+            Multiplayer.Session.Enemies.OnLeavePlanet();
         }
     }
 

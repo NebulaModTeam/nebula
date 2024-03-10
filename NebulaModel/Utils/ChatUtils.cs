@@ -98,6 +98,9 @@ public static class ChatUtils
             case ChatMessageType.SystemWarnMessage:
                 return new Color(1, 0.95f, 0, 1);
 
+            case ChatMessageType.BattleMessage:
+                return Color.cyan;
+
             case ChatMessageType.CommandUsageMessage:
                 return new Color(1, 0.65f, 0, 1);
 

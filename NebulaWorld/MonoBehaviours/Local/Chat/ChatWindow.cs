@@ -36,6 +36,7 @@ public class ChatWindow : MonoBehaviour
 
 
     internal string UserName;
+    public bool IsActive { get; private set; }
 
 
     private void Awake()
@@ -202,6 +203,7 @@ public class ChatWindow : MonoBehaviour
             {
                 case ChatMessageType.SystemInfoMessage when !Config.Options.EnableInfoMessage:
                 case ChatMessageType.SystemWarnMessage when !Config.Options.EnableWarnMessage:
+                case ChatMessageType.BattleMessage when !Config.Options.EnableBattleMessage:
                     return null;
                 case ChatMessageType.PlayerMessage:
                     break;
@@ -283,6 +285,7 @@ public class ChatWindow : MonoBehaviour
         var desiredStatus = !forceClosed && !chatWindow.activeSelf;
         chatWindow.SetActive(desiredStatus);
         notifier.gameObject.SetActive(!desiredStatus);
+        IsActive = desiredStatus;
         if (chatWindow.activeSelf)
         {
             // when the window is activated we assume user wants to type right away
@@ -321,6 +324,12 @@ public class ChatWindow : MonoBehaviour
             chatBox.Insert(richText);
             FocusInputField();
         });
+    }
+
+    public void InsertText(string richText)
+    {
+        chatBox.Insert(richText);
+        FocusInputField();
     }
 
     public QueuedMessage GetQueuedMessage()

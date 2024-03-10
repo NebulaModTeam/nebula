@@ -2,6 +2,7 @@
 
 using System;
 using HarmonyLib;
+using NebulaAPI.DataStructures;
 using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.SpaceEnemy;
 using NebulaWorld;
@@ -236,6 +237,7 @@ internal class EnemyDFHiveSystem_Patch
         var packet = new DFSLaunchLancerAssaultPacket(in __instance, aggressiveLevel,
             in tarPos, in maxHatredPos, targetAstroId, unitCount0, unitThreat);
         Multiplayer.Session.Server.SendPacket(packet);
+        Multiplayer.Session.Enemies.DisplayAstroMessage("Space hive is attacking".Translate(), packet.TargetAstroId);
         return true;
     }
 

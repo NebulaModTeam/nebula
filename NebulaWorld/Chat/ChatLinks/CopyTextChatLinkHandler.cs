@@ -19,6 +19,11 @@ public class CopyTextChatLinkHandler : IChatLinkHandler
         GUIUtility.systemCopyBuffer = data;
     }
 
+    public void OnRightClick(string data)
+    {
+        OnClick(data);
+    }
+
     public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
     {
         if (!string.IsNullOrEmpty(data))
