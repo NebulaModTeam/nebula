@@ -75,11 +75,10 @@ public class GizmoManager : IDisposable
 
     private static void GetMapPing()
     {
-		// Modify from UIGlobemap.TeleportLogic
+        // Modify from UIGlobemap.TeleportLogic
         var mainCam = Camera.main;
         if (mainCam == null || GameMain.localPlanet == null) return;
         if (!Physics.Raycast(mainCam.ScreenPointToRay(Input.mousePosition), out var hitInfo, 800f, 8720, QueryTriggerInteraction.Collide)) return;
-        if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out var hitInfo, 800f, 8720, QueryTriggerInteraction.Collide)) return;
 
         var starmap = UIRoot.instance.uiGame.starmap;
         if (starmap.active)
