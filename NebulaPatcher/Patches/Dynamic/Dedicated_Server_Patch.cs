@@ -36,6 +36,12 @@ internal class Dedicated_Server_Patch
         {
             GameMain.Pause();
         }
+
+        if (GameMain.mainPlayer != null)
+        {
+            // Don't let the player of dedicated server to interact with enemies
+            GameMain.mainPlayer.isAlive = false;
+        }
     }
 
     // Stop game rendering
