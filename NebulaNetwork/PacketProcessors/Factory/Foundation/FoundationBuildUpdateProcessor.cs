@@ -45,7 +45,7 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
             //Perform terrain operation
             var center = packet.ExtraCenter.ToVector3();
             var area = packet.CirclePointCount;
-            if (packet.CirclePointCount == 0) //Normal reform
+            if (!packet.IsCircle) //Normal reform
             {
                 var reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize,
                     packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem,
