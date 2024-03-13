@@ -12,12 +12,22 @@ internal class PowerSystem_Patch
 {
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PowerSystem.GameTick))]
-    public static void PowerSystem_GameTick_Prefix(long time, ref bool isActive)
+    public static void PowerSystem_GameTick_Prefix(PowerSystem __instance, long time, ref bool isActive)
     {
-        //Enable signType update on remote planet every 64 tick
-        if ((time & 63) == 0 && Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsActive) return;
+
+        // Enable signType update on remote planet every 64 tick
+        if ((time & 63) == 0 && Multiplayer.Session.IsServer)
         {
             isActive = true;
+        }
+
+        // Temporary fix NRE of factoryStatPool in client (note: try to find the root cause in the future)
+        var factoryIndex = __instance.factory.index;
+        if (GameMain.statistics.production.factoryStatPool[factoryIndex] == null)
+        {
+            GameMain.statistics.production.factoryStatPool[factoryIndex] = new FactoryProductionStat();
+            GameMain.statistics.production.factoryStatPool[factoryIndex].Init();
         }
     }
 
