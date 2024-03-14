@@ -1,7 +1,14 @@
 ## Changelog
 
+0.9.1:
+- Support combat mode syncing (game version 0.10.29.21950)  
+- @starfi5h: Implement basic combat syncing framework
+- @starfi5h: Add new config option `EnableBattleMessage` to show battle notifications
+- @starfi5h: Add map ping: when chat is open, `Ctrl+Alt+LeftClick` on the planet can create a link in chatbox
+- @mmjr, @phantomgamers, @sp00ktober: Review code and provide suggestions
+
 0.9.0:
-- Now compatible with Dark Fog (DSP 0.10.x) with enemies disabled
+- Now compatible with game Dark Fog version (DSP 0.10.x). Combat mode is not supported yet.
 - @phantomgamers: fix compilation after update and overall fixes/cleanup
 - @phantomgamers: fix UIVirtualStarmap patches
 - @phantomgamers: reviewing code from other contributers
