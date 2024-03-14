@@ -11,15 +11,26 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(UIBeltWindow))]
 internal class UIBeltWindow_Patch
 {
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(UIBeltWindow), nameof(UIBeltWindow.OnReverseButtonClick))]
-    public static void OnReverseButtonClick_Postfix(UIBeltWindow __instance)
+    public static bool OnReverseButtonClick_Prefix(UIBeltWindow __instance)
     {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.Factories.IsIncomingRequest.Value) return true;
+
         // Notify others about belt direction reverse
-        if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        var packet = new BeltReverseRequestPacket(__instance.beltId, __instance.factory.planetId, Multiplayer.Session.LocalPlayer.Id);
+        if (Multiplayer.Session.IsServer)
         {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltReversePacket(__instance.beltId,
-                __instance.factory.planetId));
+            var starId = __instance.factory.planetId / 100;
+            Multiplayer.Session.Server.SendPacketToStar(packet, starId);
+            return true;
+        }
+        else
+        {
+            // Request reverse change and wait for server to approve
+            Multiplayer.Session.Client.SendPacket(packet);
+            return false;
         }
     }
 }

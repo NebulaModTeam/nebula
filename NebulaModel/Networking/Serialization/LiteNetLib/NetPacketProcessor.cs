@@ -73,7 +73,12 @@ namespace NebulaModel.Networking.Serialization
 
         protected virtual void WriteHash<T>(NetDataWriter writer)
         {
-            writer.Put(GetHash<T>());
+            var hash = GetHash<T>();
+            writer.Put(hash);
+            if (!_callbacks.ContainsKey(hash))
+            {
+                Log.WarnInform($"WriteHash for unregistered type: " + typeof(T).ToString());
+            }
         }
 
         /// <summary>

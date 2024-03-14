@@ -178,7 +178,7 @@ internal class UIGalaxySelect_Patch
     [HarmonyPatch(nameof(UIGalaxySelect.UpdateParametersUIDisplay))]
     public static void UpdateParametersUIDisplay_Postfix(UIGalaxySelect __instance)
     {
-        if (!Multiplayer.IsInMultiplayerMenu || !Multiplayer.Session.LocalPlayer.IsHost)
+        if (!Multiplayer.IsInMultiplayerMenu || !Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
         {
             return;
         }
@@ -201,7 +201,7 @@ internal class UIGalaxySelect_Patch
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnUpdate_Postfix(UIGalaxySelect __instance)
     {
-        if (!Multiplayer.IsInMultiplayerMenu)
+        if (!Multiplayer.IsInMultiplayerMenu || !Multiplayer.IsActive || !Multiplayer.Session.IsInLobby)
         {
             return;
         }

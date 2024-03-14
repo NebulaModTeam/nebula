@@ -28,12 +28,14 @@ public class FoundationBuildUpdatePacket
             ReformIndices = btr?.extraCircleIndices;
             ExtraCenter = center.ToFloat3();
             CirclePointCount = btr.circlePointCount;
+            IsCircle = true;
         }
         else //Normal reform
         {
             ReformIndices = btr?.cursorIndices;
             ExtraCenter = new Float3(Vector3.zero);
             CirclePointCount = 0;
+            IsCircle = false;
         }
     }
 
@@ -48,4 +50,5 @@ public class FoundationBuildUpdatePacket
     public Float3 GroundTestPos { get; set; }
     public Float3 ExtraCenter { get; set; }
     public int CirclePointCount { get; set; }
+    public bool IsCircle { get; set; }
 }

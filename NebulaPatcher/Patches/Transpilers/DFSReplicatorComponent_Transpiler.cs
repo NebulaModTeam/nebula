@@ -63,8 +63,12 @@ internal class DFSReplicatorComponent_Transpiler
         }
 
         var portId = enemyFormation.AddUnit();
-        var packet = new DFSFormationAddUnitPacket(hive.hiveAstroId, formId, portId);
-        Multiplayer.Session.Network.SendPacket(packet);
+        if (portId > 0)
+        {
+            // Only broadcast if add unit success (vacancyCursor > 0)
+            var packet = new DFSFormationAddUnitPacket(hive.hiveAstroId, formId, portId);
+            Multiplayer.Session.Server.SendPacket(packet);
+        }
         return 0; // Skip the following call to InitiateUnitDeferred
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NebulaModel.DataStructures;
 using NebulaModel.DataStructures.Chat;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld.Chat.ChatLinks;
@@ -163,9 +164,50 @@ public class EnemyManager : IDisposable
         }
         else
         {
+            ref var ptr = ref factory.enemyPool[enemyId];
+            if (ptr.id == enemyId)
+            {
+                // This is inside Combat.IsIncomingRequest, so it is approved and won't broadcast back to server
+                Log.Warn("SetPlanetFactoryNextEnemyId: Kill ground enemy " + enemyId);
+                ptr.isInvincible = false;
+                factory.KillEnemyFinally(GameMain.mainPlayer, enemyId, ref CombatStat.empty);
+            }
+
             factory.enemyRecycle[0] = enemyId;
             factory.enemyRecycleCursor = 1;
         }
+    }
+
+    public static void SetPlanetFactoryRecycle(PlanetFactory factory, int enemyCusor, int[] enemyRecycle)
+    {
+        // Make sure the enemyId about to use are empty
+        for (var i = 0; i < enemyRecycle.Length; i++)
+        {
+            var enemyId = enemyRecycle[i];
+            if (enemyId >= factory.enemyCursor) continue;
+
+            ref var ptr = ref factory.enemyPool[enemyId];
+            if (ptr.id == enemyId)
+            {
+                // This is inside Combat.IsIncomingRequest, so it is approved and won't broadcast back to server
+                Log.Warn("SetPlanetFactoryRecycle: Kill ground enemy " + enemyId);
+                ptr.isInvincible = false;
+                factory.KillEnemyFinally(GameMain.mainPlayer, enemyId, ref CombatStat.empty);
+            }
+        }
+
+        factory.enemyCursor = enemyCusor;
+        var capacity = factory.enemyCapacity;
+        while (capacity <= factory.enemyCursor)
+        {
+            capacity *= 2;
+        }
+        if (capacity > factory.enemyCapacity)
+        {
+            factory.SetEnemyCapacity(capacity);
+        }
+        factory.enemyRecycleCursor = enemyRecycle.Length;
+        Array.Copy(enemyRecycle, factory.enemyRecycle, enemyRecycle.Length);
     }
 
     public static void SetSpaceSectorNextEnemyId(int enemyId)
@@ -182,6 +224,14 @@ public class EnemyManager : IDisposable
         }
         else
         {
+            ref var ptr = ref spaceSector.enemyPool[enemyId];
+            if (ptr.id == enemyId)
+            {
+                // This is inside Enemies.IsIncomingRequest, so it is approved and won't broadcast back to server
+                Log.Warn("SetSpaceSectorNextEnemyId: Kill space enemy " + enemyId);
+                ptr.isInvincible = false;
+                spaceSector.KillEnemyFinal(enemyId, ref CombatStat.empty);
+            }
             spaceSector.enemyRecycle[0] = enemyId;
             spaceSector.enemyRecycleCursor = 1;
         }
@@ -190,6 +240,22 @@ public class EnemyManager : IDisposable
     public static void SetSpaceSectorRecycle(int enemyCusor, int[] enemyRecycle)
     {
         var spaceSector = GameMain.spaceSector;
+
+        // Make sure the enemyId about to use are empty
+        for (var i = 0; i < enemyRecycle.Length; i++)
+        {
+            var enemyId = enemyRecycle[i];
+            if (enemyId >= spaceSector.enemyCursor) continue;
+
+            ref var ptr = ref spaceSector.enemyPool[enemyId];
+            if (ptr.id == enemyId)
+            {
+                // This is inside Enemies.IsIncomingRequest, so it is approved and won't broadcast back to server
+                Log.Warn("SetSpaceSectorRecycle: Kill space enemy " + enemyId);
+                ptr.isInvincible = false;
+                spaceSector.KillEnemyFinal(enemyId, ref CombatStat.empty);
+            }
+        }
 
         spaceSector.enemyCursor = enemyCusor;
         var capacity = spaceSector.enemyCapacity;
