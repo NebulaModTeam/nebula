@@ -1,10 +1,10 @@
 ﻿namespace NebulaModel.Packets.Factory.Belt;
 
-public class BeltReverseRequest
+public class BeltReverseRequestPacket
 {
-    public BeltReverseRequest() { }
+    public BeltReverseRequestPacket() { }
 
-    public BeltReverseRequest(int beltId, int planetId, int authorId)
+    public BeltReverseRequestPacket(int beltId, int planetId, int authorId)
     {
         BeltId = beltId;
         PlanetId = planetId;

@@ -19,7 +19,7 @@ internal class UIBeltWindow_Patch
         if (Multiplayer.Session.Factories.IsIncomingRequest.Value) return true;
 
         // Notify others about belt direction reverse
-        var packet = new BeltReverseRequest(__instance.beltId, __instance.factory.planetId, Multiplayer.Session.LocalPlayer.Id);
+        var packet = new BeltReverseRequestPacket(__instance.beltId, __instance.factory.planetId, Multiplayer.Session.LocalPlayer.Id);
         if (Multiplayer.Session.IsServer)
         {
             var starId = __instance.factory.planetId / 100;

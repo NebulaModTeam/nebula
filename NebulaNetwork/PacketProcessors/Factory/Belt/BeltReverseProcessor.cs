@@ -13,9 +13,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Factory.Belt;
 
 [RegisterPacketProcessor]
-internal class BeltReverseProcessor : BasePacketProcessor<BeltReverseRequest>
+internal class BeltReverseProcessor : BasePacketProcessor<BeltReverseRequestPacket>
 {
-    public override void ProcessPacket(BeltReverseRequest packet, INebulaConnection conn)
+    public override void ProcessPacket(BeltReverseRequestPacket packet, INebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId).factory;
         if (factory == null)
@@ -34,6 +34,11 @@ internal class BeltReverseProcessor : BasePacketProcessor<BeltReverseRequest>
             NebulaModAPI.MultiplayerSession.Factories.EventFactory = factory;
             NebulaModAPI.MultiplayerSession.Factories.TargetPlanet = packet.PlanetId;
             NebulaModAPI.MultiplayerSession.Factories.PacketAuthor = packet.AuthorId;
+            if (IsHost)
+            {
+                // Load planet model
+                NebulaModAPI.MultiplayerSession.Factories.AddPlanetTimer(packet.PlanetId);
+            }
 
             var beltWindow = UIRoot.instance.uiGame.beltWindow;
             try
