@@ -33,32 +33,33 @@ public class ILSShipManager
         {
             return;
         }
-        if (GameMain.data.galacticTransport.stationCapacity <= packet.ThisGId)
+        var stationPool = GameMain.data.galacticTransport.stationPool;
+        if (stationPool.Length <= packet.ThisGId)
         {
             CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
         }
-        else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId] == null)
+        else if (stationPool[packet.ThisGId] == null)
         {
             CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
         }
-        else if (GameMain.data.galacticTransport.stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
+        else if (stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
         {
             RequestStationDockPos(packet.ThisGId);
         }
-        if (GameMain.data.galacticTransport.stationCapacity <= packet.OtherGId)
+        if (stationPool.Length <= packet.OtherGId)
         {
             CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
         }
-        else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId] == null)
+        else if (stationPool[packet.OtherGId] == null)
         {
             CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
         }
-        else if (GameMain.data.galacticTransport.stationPool[packet.OtherGId].shipDockPos == Vector3.zero)
+        else if (stationPool[packet.OtherGId].shipDockPos == Vector3.zero)
         {
             RequestStationDockPos(packet.OtherGId);
         }
 
-        var stationComponent = GameMain.data.galacticTransport.stationPool[packet.ThisGId];
+        var stationComponent = stationPool[packet.ThisGId];
 
         stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
         stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
@@ -74,8 +75,11 @@ public class ILSShipManager
         stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
         stationComponent.warperCount = packet.StationWarperCount;
 
-        stationComponent.workShipCount++;
-        stationComponent.idleShipCount--;
+        if (stationComponent.idleShipCount > 0)
+        {
+            stationComponent.workShipCount++;
+            stationComponent.idleShipCount--;
+        }
         stationComponent.IdleShipGetToWork(packet.ShipIndex);
 
         var shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
@@ -100,25 +104,29 @@ public class ILSShipManager
             return;
         }
 
-        if (GameMain.data.galacticTransport.stationCapacity <= packet.GId)
+        var stationPool = GameMain.data.galacticTransport.stationPool;
+        if (stationPool.Length <= packet.GId)
         {
             CreateFakeStationComponent(packet.GId, packet.PlanetA, packet.StationMaxShipCount);
         }
-        else if (GameMain.data.galacticTransport.stationPool[packet.GId] == null)
+        else if (stationPool[packet.GId] == null)
         {
             CreateFakeStationComponent(packet.GId, packet.PlanetA, packet.StationMaxShipCount);
         }
-        else if (GameMain.data.galacticTransport.stationPool[packet.GId].shipDockPos == Vector3.zero)
+        else if (stationPool[packet.GId].shipDockPos == Vector3.zero)
         {
             RequestStationDockPos(packet.GId);
         }
 
-        var stationComponent = GameMain.data.galacticTransport.stationPool[packet.GId];
+        var stationComponent = stationPool[packet.GId];
 
         Array.Copy(stationComponent.workShipDatas, packet.WorkShipIndex + 1, stationComponent.workShipDatas,
             packet.WorkShipIndex, stationComponent.workShipDatas.Length - packet.WorkShipIndex - 1);
-        stationComponent.workShipCount--;
-        stationComponent.idleShipCount++;
+        if (stationComponent.workShipCount > 0)
+        {
+            stationComponent.workShipCount--;
+            stationComponent.idleShipCount++;
+        }
         stationComponent.WorkShipBackToIdle(packet.ShipIndex);
         Array.Clear(stationComponent.workShipDatas, stationComponent.workShipCount,
             stationComponent.workShipDatas.Length - stationComponent.workShipCount);
@@ -129,19 +137,19 @@ public class ILSShipManager
      * The information is needed in StationComponent.InternalTickRemote(), but we use a reverse patched version of that
      * which is stripped down to the ship movement and rendering part.
      */
-    public static void CreateFakeStationComponent(int GId, int planetId, int maxShipCount, bool computeDisk = true)
+    public static void CreateFakeStationComponent(int gId, int planetId, int maxShipCount, bool computeDisk = true)
     {
         // it may be needed to make additional room for the new ILS
-        while (GameMain.data.galacticTransport.stationCapacity <= GId)
+        while (GameMain.data.galacticTransport.stationPool.Length <= gId)
         {
-            GameMain.data.galacticTransport.SetStationCapacity(GameMain.data.galacticTransport.stationCapacity * 2);
+            GameMain.data.galacticTransport.SetStationCapacity(GameMain.data.galacticTransport.stationPool.Length * 2);
         }
 
 
-        GameMain.data.galacticTransport.stationPool[GId] = new StationComponent();
-        var stationComponent = GameMain.data.galacticTransport.stationPool[GId];
+        GameMain.data.galacticTransport.stationPool[gId] = new StationComponent();
+        var stationComponent = GameMain.data.galacticTransport.stationPool[gId];
         stationComponent.isStellar = true;
-        stationComponent.gid = GId;
+        stationComponent.gid = gId;
         stationComponent.planetId = planetId;
         stationComponent.workShipDatas = new ShipData[maxShipCount];
         stationComponent.workShipOrders = new RemoteLogisticOrder[maxShipCount];
@@ -151,7 +159,7 @@ public class ILSShipManager
         stationComponent.idleShipCount = 0;
         stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
         stationComponent.shipDockRot = Quaternion.identity; // gets updated later by server packet
-        stationComponent.storage = Array.Empty<StationStore>(); // zero-length array for mod compatibility
+        stationComponent.storage = []; // zero-length array for mod compatibility
         if (computeDisk)
         {
             stationComponent.shipDiskPos = new Vector3[maxShipCount];
@@ -169,10 +177,10 @@ public class ILSShipManager
                                                   stationComponent.shipDockRot * stationComponent.shipDiskPos[j];
             }
 
-            RequestStationDockPos(GId);
+            RequestStationDockPos(gId);
         }
 
-        GameMain.data.galacticTransport.stationCursor = Math.Max(GameMain.data.galacticTransport.stationCursor, GId + 1);
+        GameMain.data.galacticTransport.stationCursor = Math.Max(GameMain.data.galacticTransport.stationCursor, gId + 1);
     }
 
     /*
