@@ -63,7 +63,19 @@ public class NebulaNetPacketProcessor : NetPacketProcessor, INetPacketProcessor
             while (pendingPackets.Count > 0 && EnablePacketProcessing)
             {
                 var packet = pendingPackets.Dequeue();
-                ReadPacket(new NetDataReader(packet.Data), packet.UserData);
+                try
+                {
+                    ReadPacket(new NetDataReader(packet.Data), packet.UserData);
+                }
+                catch (Exception ex)
+                {
+                    // We can't do anything to ParseException, so just leave a warning in the log file
+                    // For other exception, display a red error pop-up window
+                    if (ex is not ParseException)
+                    {
+                        Log.Error(ex);
+                    }
+                }
             }
         }
     }

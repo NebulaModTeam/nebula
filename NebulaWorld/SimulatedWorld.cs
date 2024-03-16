@@ -109,6 +109,22 @@ public class SimulatedWorld : IDisposable
             GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
             GameMain.mainPlayer.mecha.groundCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
             GameMain.mainPlayer.mecha.spaceCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
+
+            // Recycle all fleets
+            var module = GameMain.mainPlayer.mecha.groundCombatModule;
+            for (var fleetIndex = 0; fleetIndex < module.fleetCount; fleetIndex++)
+            {
+                ref var ptr = ref module.moduleFleets[fleetIndex];
+                if (ptr.fleetId == 0) continue;
+                ptr.OnFleetComponentRemoved();
+            }
+            module = GameMain.mainPlayer.mecha.spaceCombatModule;
+            for (var fleetIndex = 0; fleetIndex < module.fleetCount; fleetIndex++)
+            {
+                ref var ptr = ref module.moduleFleets[fleetIndex];
+                if (ptr.fleetId == 0) continue;
+                ptr.OnFleetComponentRemoved();
+            }
         }
 
         // Initialization on the host side after game is loaded
@@ -162,7 +178,7 @@ public class SimulatedWorld : IDisposable
             Multiplayer.Session.Network.SendPacket(new SyncComplete(clientCert));
 
             // Subscribe for the local star events
-            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, GameMain.data.localStar.id));
+            Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, GameMain.data.localStar?.id ?? -1));
 
             // Request latest warning signal
             Multiplayer.Session.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Signal));
@@ -286,13 +302,15 @@ public class SimulatedWorld : IDisposable
             }
             Log.Info($"Spawn player model {playerData.PlayerId} {playerData.Username}");
             var model = new RemotePlayerModel(playerData.PlayerId, playerData.Username);
+            model.Movement.LocalStarId = playerData.LocalStarId;
+            model.Movement.localPlanetId = playerData.LocalPlanetId;
             remotePlayersModels.Add(playerData.PlayerId, model);
 
             // Show conneted message
             var planetname = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
             var message = string.Format("[{0:HH:mm}] {1} connected ({2})".Translate(), DateTime.Now, playerData.Username,
                 planetname);
-            SendChatMessage(message);
+            ChatManager.Instance.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
         }
     }
 
@@ -306,7 +324,7 @@ public class SimulatedWorld : IDisposable
             }
             // Show disconnected message
             var message = string.Format("[{0:HH:mm}] {1} disconnected".Translate(), DateTime.Now, player.Username);
-            SendChatMessage(message);
+            ChatManager.Instance.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
 
             player.Destroy();
             remotePlayersModels.Remove(playerId);
@@ -580,11 +598,6 @@ public class SimulatedWorld : IDisposable
             break;
         }
         return level;
-    }
-
-    private static void SendChatMessage(string text, ChatMessageType messageType = ChatMessageType.SystemInfoMessage)
-    {
-        ChatManager.Instance.SendChatMessage(text, messageType);
     }
 
     private sealed class ThreadSafe

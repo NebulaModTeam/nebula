@@ -18,6 +18,10 @@ public class SignalChatLinkHandler : IChatLinkHandler
     {
     }
 
+    public void OnRightClick(string data)
+    {
+    }
+
     public void OnHover(string data, ChatLinkTrigger trigger, ref MonoBehaviour tipObject)
     {
         var signalId = GetSignalId(data);

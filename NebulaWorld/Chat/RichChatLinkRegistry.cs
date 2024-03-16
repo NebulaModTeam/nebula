@@ -40,12 +40,12 @@ public static class RichChatLinkRegistry
     {
         linkData = "";
         var splitStrings = linkString.Split(' ');
-        if (splitStrings.Length != 2)
+        if (splitStrings.Length < 2)
         {
             return "";
         }
 
-        linkData = splitStrings[1];
+        linkData = linkString.Substring(splitStrings[0].Length + 1);
         return splitStrings[0];
     }
 

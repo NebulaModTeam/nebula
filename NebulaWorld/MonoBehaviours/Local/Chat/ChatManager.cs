@@ -147,6 +147,17 @@ public class ChatManager : MonoBehaviour
         chatWindow.SendLocalChatMessage(text, messageType);
     }
 
+    public void InsetTextToChatbox(string text, bool forceOpenChatWindow)
+    {
+        if (chatWindow == null) return;
+        if (!chatWindow.IsActive)
+        {
+            if (!forceOpenChatWindow) return;
+            chatWindow.Toggle();
+        }
+        chatWindow.InsertText(text);
+    }
+
     public bool IsPointerIn()
     {
         return chatWindow.DragTrigger.pointerIn;

@@ -7,6 +7,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
+using NebulaWorld.Combat;
 
 #endregion
 
@@ -18,23 +19,17 @@ public class DFGLaunchAssaultProcessor : PacketProcessor<DFGLaunchAssaultPacket>
     protected override void ProcessPacket(DFGLaunchAssaultPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-        if (factory == null) return;
+        if (factory == null)
+        {
+            // Display message in chat if it can't show in UIDarkFogMonitor
+            Multiplayer.Session.Enemies.DisplayPlanetPingMessage("Planetary base is attacking".Translate(), packet.PlanetId, packet.TarPos.ToVector3());
+            return;
+        }
 
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
             // Set enemyRecycle pool to make enemyId stay in sync
-            factory.enemyCursor = packet.EnemyCursor;
-            var capacity = factory.enemyCapacity;
-            while (capacity <= factory.enemyCursor)
-            {
-                capacity *= 2;
-            }
-            if (capacity > factory.enemyCapacity)
-            {
-                factory.SetEnemyCapacity(capacity);
-            }
-            factory.enemyRecycleCursor = packet.EnemyRecyle.Length;
-            Array.Copy(packet.EnemyRecyle, factory.enemyRecycle, packet.EnemyRecyle.Length);
+            EnemyManager.SetPlanetFactoryRecycle(factory, packet.EnemyCursor, packet.EnemyRecyle);
 
             var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
             dFBase.turboTicks = 60;
