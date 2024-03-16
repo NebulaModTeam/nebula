@@ -298,7 +298,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
 
         try
         {
-            Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION}");
+            Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION} made for game version {DSPGameVersion.VERSION}");
 #if DEBUG
             if (Directory.Exists("./mmdump"))
             {
@@ -328,7 +328,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
             Log.Error("Unhandled exception occurred while patching the game:", ex);
             // Show error in UIFatalErrorTip to inform normal users
             Harmony.CreateAndPatchAll(typeof(UIFatalErrorTip_Patch));
-            Log.Error("Nebula Multiplayer Mod is incompatible with game version\nUnhandled exception occurred while patching the game.");
+            Log.Error($"Nebula Multiplayer Mod is incompatible with game version, expected version {DSPGameVersion.VERSION}\nUnhandled exception occurred while patching the game.");
         }
     }
 
