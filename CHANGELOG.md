@@ -8,7 +8,7 @@
 - @mmjr, @phantomgamers, @sp00ktober: Review code and provide suggestions
 
 0.9.0:
-- Now compatible with game Dark Fog version (DSP 0.10.x). Combat mode is not supported yet.
+- Now compatible with Dark Fog game version (DSP 0.10.x). Combat mode is not supported yet.
 - @phantomgamers: fix compilation after update and overall fixes/cleanup
 - @phantomgamers: fix UIVirtualStarmap patches
 - @phantomgamers: reviewing code from other contributers

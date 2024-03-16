@@ -117,7 +117,7 @@ function generateManifest() {
   const manifest = {
     name: pluginInfo.name,
     description:
-      "With this mod you will be able to play with your friends in the same game! Now support combat mode in game version 0.10.29",
+      "With this mod you will be able to play with your friends in the same game! Now supports combat mode in game version 0.10.29",
     version_number: pluginInfo.version,
     dependencies: [
       BEPINEX_DEPENDENCY,
