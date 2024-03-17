@@ -27,6 +27,7 @@ public static class ChatCommandRegistry
         RegisterCommand("system", new SystemCommandHandler(), "s");
         RegisterCommand("reconnect", new ReconnectCommandHandler(), "r");
         RegisterCommand("server", new ServerCommandHandler());
+        RegisterCommand("gift", new GiftCommandHandler(), "g");
     }
 
     private static void RegisterCommand(string commandName, IChatCommandHandler commandHandlerHandler, params string[] aliases)

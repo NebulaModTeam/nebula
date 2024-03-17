@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Utils;
@@ -145,7 +146,13 @@ public class ChatWindow : MonoBehaviour
 
         if (chatBox.text.StartsWith(ChatCommandRegistry.CommandPrefix))
         {
-            var arguments = chatBox.text.Substring(1).Split(' ');
+            //var arguments = chatBox.text.Substring(1).Split(' ');
+            // this handles quoted arguments and supports first lvl escaping using \"
+            var arguments = Regex.Matches(chatBox.text.Substring(1), @"(?<!\\)"".+?(?<!\\)""|[^ ]+")
+                .Cast<Match>()
+                .Select(m => Regex.Replace(m.Value, @"^(?<!\\)""|(?<!\\)""$", ""))
+                .ToArray();
+
             if (arguments.Length > 0)
             {
                 var commandName = arguments[0];
