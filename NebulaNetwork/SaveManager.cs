@@ -91,25 +91,31 @@ public static class SaveManager
         File.Move(str1, str2);
     }
 
-    public static void LoadServerData()
+    public static void LoadServerData(bool loadSaveFile)
     {
-        var path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
+        playerSaves.Clear();
 
-        // var playerManager = Multiplayer.Session.Network.PlayerManager;
-        if (!File.Exists(path))
+        if (!loadSaveFile)
         {
             return;
         }
+        var path = GameConfig.gameSaveFolder + DSPGame.LoadFile + FILE_EXTENSION;
+        if (!File.Exists(path))
+        {
+            Log.Info($"No server file");
+            return;
+        }
 
-        var source = File.ReadAllBytes(path);
-        var netDataReader = new NetDataReader(source);
-        ushort revision;
         try
         {
+            var source = File.ReadAllBytes(path);
+            var netDataReader = new NetDataReader(source);
+            ushort revision;
+
             var revString = netDataReader.GetString();
             if (revString != "REV")
             {
-                throw new Exception();
+                throw new Exception("Incorrect header");
             }
 
             revision = netDataReader.GetUShort();
@@ -119,42 +125,44 @@ public static class SaveManager
                 // Supported revision: 5~8
                 if (revision is < 5 or > REVISION)
                 {
-                    throw new Exception();
+                    throw new Exception($"Unsupport version {revision}");
+                }
+            }
+
+            var playerNum = netDataReader.GetInt();
+
+
+            for (var i = 0; i < playerNum; i++)
+            {
+                var hash = netDataReader.GetString();
+                PlayerData playerData = null;
+                switch (revision)
+                {
+                    case REVISION:
+                        playerData = netDataReader.Get(() => new PlayerData());
+                        break;
+                    case >= 5:
+                        playerData = new PlayerData();
+                        playerData.Import(netDataReader, revision);
+                        break;
+                }
+
+                if (!playerSaves.ContainsKey(hash) && playerData != null)
+                {
+                    playerSaves.Add(hash, playerData);
+                }
+                else if (playerData == null)
+                {
+                    Log.Warn($"Could not load player data from unsupported save file revision {revision}");
                 }
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            Log.Warn("Skipping server data from unsupported Nebula version...");
+            playerSaves.Clear();
+            Log.WarnInform("Skipping server data due to following excpetion:\n" + e.Message);
+            Log.Warn(e);
             return;
-        }
-
-        var playerNum = netDataReader.GetInt();
-
-
-        for (var i = 0; i < playerNum; i++)
-        {
-            var hash = netDataReader.GetString();
-            PlayerData playerData = null;
-            switch (revision)
-            {
-                case REVISION:
-                    playerData = netDataReader.Get(() => new PlayerData());
-                    break;
-                case >= 5:
-                    playerData = new PlayerData();
-                    playerData.Import(netDataReader, revision);
-                    break;
-            }
-
-            if (!playerSaves.ContainsKey(hash) && playerData != null)
-            {
-                playerSaves.Add(hash, playerData);
-            }
-            else if (playerData == null)
-            {
-                Log.Warn($"could not load player data from unsupported save file revision {revision}");
-            }
         }
     }
 
