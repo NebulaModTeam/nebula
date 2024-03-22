@@ -1,6 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
+using NebulaModel.Packets.Combat;
 using NebulaWorld;
 
 #endregion
@@ -24,6 +25,28 @@ internal class CombatStat_Patch
             if (newHp <= 0)
             {
                 __instance.hp = 1;
+            }
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(CombatStat.HandleFullHp))]
+    public static void HandleFullHp_Prefix(ref CombatStat __instance)
+    {
+        if (!Multiplayer.IsActive) return;
+
+        // objectType 0:entity
+        if (__instance.objectType == 0 && __instance.originAstroId > 100 && __instance.originAstroId <= 204899 && __instance.originAstroId % 100 > 0)
+        {
+            var packet = new CombatStatFullHptPacket(__instance.originAstroId, __instance.objectType, __instance.objectId);
+            if (Multiplayer.Session.IsServer)
+            {
+                var starId = __instance.originAstroId / 100;
+                Multiplayer.Session.Server.SendPacketToStar(packet, starId);
+            }
+            else
+            {
+                Multiplayer.Session.Client.SendPacket(packet);
             }
         }
     }

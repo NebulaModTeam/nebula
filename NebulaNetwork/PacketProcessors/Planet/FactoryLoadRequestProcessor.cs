@@ -63,5 +63,19 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
             }
             enemyDFHiveSystem = enemyDFHiveSystem.nextSibling;
         }
+
+        // Set entities (building) on the planet to full health
+        // Note: Try to sync the current value in the future
+        var astroId = planet.astroId;
+        var combatStatCursor = spaceSector.skillSystem.combatStats.cursor;
+        var buffer = spaceSector.skillSystem.combatStats.buffer;
+        for (var id = 1; id < combatStatCursor; id++)
+        {
+            if (buffer[id].id == id && buffer[id].astroId == astroId && buffer[id].objectType == 0)
+            {
+                buffer[id].HandleFullHp(GameMain.data, spaceSector.skillSystem);
+            }
+        }
+
     }
 }
