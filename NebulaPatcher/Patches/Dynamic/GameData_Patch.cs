@@ -464,4 +464,38 @@ internal class GameData_Patch
             Log.Debug("RefreshMissingMeshes");
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(GameData.CreateDysonSphere))]
+    public static bool CreateDysonSphere_Prefix(GameData __instance, int starIndex, ref DysonSphere __result)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+
+
+        if ((ulong)starIndex >= (ulong)((long)__instance.galaxy.starCount))
+        {
+            __result = null;
+            return false;
+        }
+        if (__instance.dysonSpheres[starIndex] != null)
+        {
+            __result = __instance.dysonSpheres[starIndex];
+            return false;
+        }
+
+        // Create a dummy dyson sphere and prevent sending packets
+        Multiplayer.Session.DysonSpheres.InBlueprint = true;
+        __instance.dysonSpheres[starIndex] = new DysonSphere();
+        __instance.dysonSpheres[starIndex].Init(__instance, __instance.galaxy.stars[starIndex]);
+        __instance.dysonSpheres[starIndex].ResetNew();
+        Multiplayer.Session.DysonSpheres.InBlueprint = false;
+
+        if (Multiplayer.Session.DysonSpheres.RequestingIndex == -1)
+        {
+            // If client is not requesting yet, request the target sphere from server
+            Multiplayer.Session.DysonSpheres.RequestDysonSphere(starIndex, false);
+        }
+        __result = __instance.dysonSpheres[starIndex];
+        return false;
+    }
 }
