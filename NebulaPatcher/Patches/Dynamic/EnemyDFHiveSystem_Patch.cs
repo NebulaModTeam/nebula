@@ -251,18 +251,7 @@ internal class EnemyDFHiveSystem_Patch
         if (dfrelayComponent?.id == enemy.dfRelayId)
         {
             __instance.relayNeutralizedCounter++;
-            if (dfrelayComponent.baseState == 1 && dfrelayComponent.stage == 2)
-            {
-                var planetData = __instance.sector.galaxy.PlanetById(dfrelayComponent.targetAstroId);
-                if (planetData != null)
-                {
-                    //Don't call GetOrCreateFactory in client. Only realize if the factory is already load from server
-                    if (planetData.factory != null)
-                    {
-                        dfrelayComponent.RealizePlanetBase(__instance.sector);
-                    }
-                }
-            }
+            // Client will wait for server to send RealizePlanetBase packet
         }
         return false;
     }

@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.DFRelay;
 using NebulaWorld;
+using NebulaWorld.Combat;
 
 #endregion
 
@@ -33,7 +34,16 @@ public class DFRelayArriveBaseProcessor : PacketProcessor<DFRelayArriveBasePacke
         {
             hiveSystem.rtseed = packet.HiveRtseed;
             dfrelayComponent.stage = 2;
-            dfrelayComponent.ArriveBase();
+            using (Multiplayer.Session.Combat.IsIncomingRequest.On())
+            {
+                var factory = dfrelayComponent.hive.galaxy.astrosFactory[dfrelayComponent.targetAstroId];
+                if (factory != null)
+                {
+                    // Prepare enemyId in CreateEnemyPlanetBase
+                    EnemyManager.SetPlanetFactoryNextEnemyId(factory, packet.NextGroundEnemyId);
+                }
+                dfrelayComponent.ArriveBase();
+            }
         }
     }
 }
