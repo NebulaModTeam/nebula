@@ -9,9 +9,16 @@ public class DFRelayArriveBasePacket
         HiveAstroId = dFRelay.hiveAstroId;
         RelayId = dFRelay.id;
         HiveRtseed = dFRelay.hive.rtseed;
+
+        var factory = dFRelay.hive.galaxy.astrosFactory[dFRelay.targetAstroId];
+        if (factory != null)
+        {
+            NextGroundEnemyId = factory.enemyRecycleCursor > 0 ? factory.enemyRecycle[factory.enemyRecycleCursor - 1] : factory.enemyCursor;
+        }
     }
 
     public int HiveAstroId { get; set; }
     public int RelayId { get; set; }
     public int HiveRtseed { get; set; }
+    public int NextGroundEnemyId { get; set; }
 }

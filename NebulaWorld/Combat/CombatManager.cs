@@ -247,6 +247,28 @@ public class CombatManager : IDisposable
                 buffer[id].projectileId = 0;
             }
         }
+
+        // Clear all combatStat to avoid collision or index out of range error (mimic CombatStat.HandleFullHp)
+        for (var i = 1; i < factory.entityCursor; i++)
+        {
+            factory.entityPool[i].combatStatId = 0;
+        }
+        for (var i = 1; i < factory.craftCursor; i++)
+        {
+            factory.craftPool[i].combatStatId = 0;
+        }
+        for (var i = 1; i < factory.vegeCursor; i++)
+        {
+            factory.vegePool[i].combatStatId = 0;
+        }
+        for (var i = 1; i < factory.enemyCursor; i++)
+        {
+            factory.enemyPool[i].combatStatId = 0;
+        }
+        for (var i = 1; i < factory.veinCursor; i++)
+        {
+            factory.veinPool[i].combatStatId = 0;
+        }
     }
 
     public void OnAstroFactoryUnload()

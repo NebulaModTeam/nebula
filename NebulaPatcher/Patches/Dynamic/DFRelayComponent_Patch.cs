@@ -23,6 +23,17 @@ internal class DFRelayComponent_Patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(DFRelayComponent.RealizePlanetBase))]
+    public static bool RealizePlanetBase_Prefix(DFRelayComponent __instance)
+    {
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return Multiplayer.Session.Enemies.IsIncomingRelayRequest;
+
+        Multiplayer.Session.Network.SendPacket(new DFRelayRealizePlanetBasePacket(__instance));
+        return true;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(DFRelayComponent.ArriveBase))]
     public static bool ArriveBase_Prefix(DFRelayComponent __instance)
     {

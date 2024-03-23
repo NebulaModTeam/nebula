@@ -145,7 +145,6 @@ internal class UITurretWindow_Patch
         {
             // Client will wait for server to authorize
             Multiplayer.Session.Network.SendPacket(packet);
-            __instance.supernovaWait &= !turret.inSupernova;
             return false;
         }
         else

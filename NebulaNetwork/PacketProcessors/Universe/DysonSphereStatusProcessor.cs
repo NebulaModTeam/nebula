@@ -19,8 +19,10 @@ internal class DysonSphereStatusProcessor : PacketProcessor<DysonSphereStatusPac
         {
             return;
         }
+        // Replace some values set in DysonSphere.BeforeGameTick
         dysonSphere.grossRadius = packet.GrossRadius;
         dysonSphere.energyReqCurrentTick = packet.EnergyReqCurrentTick;
         dysonSphere.energyGenCurrentTick = packet.EnergyGenCurrentTick;
+        dysonSphere.energyGenOriginalCurrentTick = (long)(dysonSphere.energyGenCurrentTick / dysonSphere.energyDFHivesDebuffCoef);
     }
 }

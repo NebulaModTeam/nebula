@@ -73,7 +73,6 @@ internal class TurretSuperNovaProcessor : PacketProcessor<TurretSuperNovaPacket>
         {
             return;
         }
-        uiTurret.supernovaWait = packet.SetSuperNova;
         if (refTurret.inSupernova)
         {
             GameMain.gameScenario.NotifyOnSupernovaUITriggered();
