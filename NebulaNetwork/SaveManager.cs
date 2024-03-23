@@ -125,7 +125,7 @@ public static class SaveManager
                 // Supported revision: 5~8
                 if (revision is < 5 or > REVISION)
                 {
-                    throw new Exception($"Unsupport version {revision}");
+                    throw new Exception($"Unsupported version {revision}");
                 }
             }
 
@@ -160,7 +160,7 @@ public static class SaveManager
         catch (Exception e)
         {
             playerSaves.Clear();
-            Log.WarnInform("Skipping server data due to following excpetion:\n" + e.Message);
+            Log.WarnInform("Skipping server data due to exception:\n" + e.Message);
             Log.Warn(e);
             return;
         }
