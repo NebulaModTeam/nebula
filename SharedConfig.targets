@@ -26,7 +26,7 @@
             Condition="!Exists('$(DSPGameDir)') And !Exists('$(PropSheetPath).remoteBuild')"/>
 
     <ItemGroup>
-        <ProjectAssembliesForUnityProject Include="$(TargetDir)\*.dll"/>
+        <ProjectAssembliesForUnityProject Include="$(OutputPath)\*.dll"/>
         <ProjectAssembliesMetaFilesFolder Include="..\NebulaUnity\AssemblyMeta\*.meta"/>
     </ItemGroup>
     <Target Name="CopyAssembliesToUnityProject"
