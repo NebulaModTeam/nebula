@@ -11,9 +11,9 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.Combat;
 
 [RegisterPacketProcessor]
-public class CombatStatFullHpProcessor : PacketProcessor<CombatStatFullHptPacket>
+public class CombatStatFullHpProcessor : PacketProcessor<CombatStatFullHpPacket>
 {
-    protected override void ProcessPacket(CombatStatFullHptPacket packet, NebulaConnection conn)
+    protected override void ProcessPacket(CombatStatFullHpPacket packet, NebulaConnection conn)
     {
         var combatStatId = 0;
         var starId = 0;

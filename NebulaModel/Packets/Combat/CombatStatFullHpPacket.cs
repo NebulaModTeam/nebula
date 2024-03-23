@@ -1,10 +1,10 @@
 ﻿namespace NebulaModel.Packets.Combat;
 
-public class CombatStatFullHptPacket
+public class CombatStatFullHpPacket
 {
-    public CombatStatFullHptPacket() { }
+    public CombatStatFullHpPacket() { }
 
-    public CombatStatFullHptPacket(int originAstroId, int objectType, int objectId)
+    public CombatStatFullHpPacket(int originAstroId, int objectType, int objectId)
     {
         OriginAstroId = originAstroId;
         ObjectType = objectType;

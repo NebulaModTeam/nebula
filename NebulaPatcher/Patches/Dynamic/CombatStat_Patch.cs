@@ -38,7 +38,7 @@ internal class CombatStat_Patch
         // objectType 0:entity
         if (__instance.objectType == 0 && __instance.originAstroId > 100 && __instance.originAstroId <= 204899 && __instance.originAstroId % 100 > 0)
         {
-            var packet = new CombatStatFullHptPacket(__instance.originAstroId, __instance.objectType, __instance.objectId);
+            var packet = new CombatStatFullHpPacket(__instance.originAstroId, __instance.objectType, __instance.objectId);
             if (Multiplayer.Session.IsServer)
             {
                 var starId = __instance.originAstroId / 100;
