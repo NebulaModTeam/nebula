@@ -174,10 +174,7 @@ public class Server : IServer
 
     public void Start()
     {
-        if (loadSaveFile)
-        {
-            SaveManager.LoadServerData();
-        }
+        SaveManager.LoadServerData(loadSaveFile);
 
         foreach (var assembly in AssembliesUtils.GetNebulaAssemblies())
         {

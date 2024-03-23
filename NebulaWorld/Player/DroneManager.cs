@@ -15,7 +15,11 @@ namespace NebulaWorld.Player;
 
 public class DroneManager : IDisposable
 {
+    public const float MinSqrDistance = 225.0f;
+
     private readonly Dictionary<ushort, PlayerPosition> cachedPositions = [];
+    private Vector3[] localPlayerPos = new Vector3[2];
+    private int localPlayerCount = 0;
     private long lastCheckedTick = 0;
     private readonly List<CraftData> crafts = [];
     private readonly Stack<int> craftRecyleIds = [];
@@ -68,6 +72,8 @@ public class DroneManager : IDisposable
         if (GameMain.gameTick != lastCheckedTick)
         {
             lastCheckedTick = GameMain.gameTick;
+            localPlayerCount = 0;
+            var currentLocalPlanetId = GameMain.localPlanet?.id ?? int.MinValue;
             //CachedPositions.Clear();
 
             using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
@@ -89,9 +95,29 @@ public class DroneManager : IDisposable
                     {
                         cachedPositions.Add(model.Movement.PlayerID, new PlayerPosition(ejectPos, model.Movement.localPlanetId));
                     }
+
+                    if (currentLocalPlanetId != localPlanetId) continue;
+                    if (localPlayerCount >= localPlayerPos.Length)
+                    {
+                        var newArray = new Vector3[localPlayerPos.Length * 2];
+                        Array.Copy(localPlayerPos, newArray, localPlayerPos.Length);
+                        localPlayerPos = newArray;
+                    }
+                    localPlayerPos[localPlayerCount++] = playerPos;
                 }
             }
         }
+    }
+
+    public float GetClosestRemotePlayerSqrDistance(Vector3 pos)
+    {
+        var result = float.MaxValue;
+        for (var i = 0; i < localPlayerCount; i++)
+        {
+            var sqrMagnitude = (pos - localPlayerPos[i]).sqrMagnitude;
+            if (sqrMagnitude < result) result = sqrMagnitude;
+        }
+        return result;
     }
 
     public Vector3 GetPlayerEjectPosition(ushort playerId)
