@@ -1,5 +1,14 @@
 ## Changelog
 
+0.9.2:
+- Compatible to Steam version 0.10.29.22015 or Game Pass version 0.10.29.21943
+- @sk7725: Added Korean font and TextMeshPro fallback
+- @starfi5h: Add new chat command `/playerdata`
+- @starfi5h: Launch construction drones if local player is closer or within 15m
+- @starfi5h: Fix error when activating super nova in the turret window
+- @starfi5h: Fix desync of dyson sphere when client joins the game
+- @phantomgamers: Log expected game version and review code
+
 0.9.1:
 - Support combat mode syncing (game version 0.10.29.21950)  
 - @starfi5h: Implement basic combat syncing framework
