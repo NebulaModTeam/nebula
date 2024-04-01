@@ -4,6 +4,7 @@ using HarmonyLib;
 using NebulaWorld;
 using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.SpaceEnemy;
+using NebulaModel.Logger;
 
 #endregion
 
@@ -64,5 +65,27 @@ internal class SpaceSector_Patch
             Multiplayer.Session.Network.SendPacket(new DFHiveCreateNewHivePacket(star.id));
         }
         return true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(SpaceSector.GameTick))]
+    public static void GameTick_Prefix(SpaceSector __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return;
+
+        // Fix NRE in DFSTurretComponent.InternalUpdate (PrefabDesc pdesc);(IL_0017)
+        for (var enemyId = 1; enemyId < __instance.enemyCursor; enemyId++)
+        {
+            ref var enemy = ref __instance.enemyPool[enemyId];
+            if (enemy.id != enemyId) continue;
+
+            if (SpaceSector.PrefabDescByModelIndex[enemy.modelIndex] == null)
+            {
+                var msg = $"Remove SpeaceSector enemy[{enemyId}]: modelIndex{enemy.modelIndex}";
+                Log.WarnInform(msg);
+
+                __instance.enemyPool[enemyId].SetEmpty();
+            }
+        }
     }
 }
