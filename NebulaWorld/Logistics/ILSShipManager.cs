@@ -42,10 +42,6 @@ public class ILSShipManager
         {
             CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
         }
-        else if (stationPool[packet.ThisGId].shipDockPos == Vector3.zero)
-        {
-            RequestStationDockPos(packet.ThisGId);
-        }
         if (stationPool.Length <= packet.OtherGId)
         {
             CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
@@ -54,12 +50,12 @@ public class ILSShipManager
         {
             CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
         }
-        else if (stationPool[packet.OtherGId].shipDockPos == Vector3.zero)
-        {
-            RequestStationDockPos(packet.OtherGId);
-        }
 
         var stationComponent = stationPool[packet.ThisGId];
+        if (stationComponent == null)
+        {
+            return; // This shouldn't happen, but guard just in case
+        }
 
         stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
         stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
@@ -113,12 +109,12 @@ public class ILSShipManager
         {
             CreateFakeStationComponent(packet.GId, packet.PlanetA, packet.StationMaxShipCount);
         }
-        else if (stationPool[packet.GId].shipDockPos == Vector3.zero)
-        {
-            RequestStationDockPos(packet.GId);
-        }
 
         var stationComponent = stationPool[packet.GId];
+        if (stationComponent == null)
+        {
+            return; // This shouldn't happen, but guard just in case
+        }
 
         Array.Copy(stationComponent.workShipDatas, packet.WorkShipIndex + 1, stationComponent.workShipDatas,
             packet.WorkShipIndex, stationComponent.workShipDatas.Length - packet.WorkShipIndex - 1);

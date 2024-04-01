@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
@@ -23,14 +24,24 @@ public class ILSAddStationComponentProcessor : PacketProcessor<ILSAddStationComp
         using (Multiplayer.Session.Ships.PatchLockILS.On())
         {
             var galacticTransport = GameMain.data.galacticTransport;
-            var stationPool = GameMain.galaxy.PlanetById(packet.PlanetId).factory?.transport.stationPool;
+            var stationPool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.transport.stationPool;
             if (stationPool != null)
             {
                 // If we have loaded the factory where the new station was created on, should be able to find
                 // it in our PlanetTransport.stationPool
                 // Assgin gid here so this station will go to galacticTransport.stationPool[gid]
                 stationPool[packet.StationId].gid = packet.StationGId;
-                galacticTransport.AddStationComponent(packet.PlanetId, stationPool[packet.StationId]);
+                if (galacticTransport.AddStationComponent(packet.PlanetId, stationPool[packet.StationId]) != packet.StationGId)
+                {
+                    Log.WarnInform($"AddStationComponent gid mismatch: {stationPool[packet.StationId].gid} => packet.StationGId");
+                    galacticTransport.stationPool[packet.StationGId] = stationPool[packet.StationId];
+                }
+                galacticTransport.stationCursor = Math.Max(galacticTransport.stationCursor, packet.StationGId + 1);
+
+                if (stationPool[packet.StationId].entityId != packet.EntityId)
+                {
+                    Log.WarnInform($"Station gid {packet.StationGId} entityId mismatch: {stationPool[packet.StationId].entityId} => {packet.EntityId}");
+                }
             }
             else
             {

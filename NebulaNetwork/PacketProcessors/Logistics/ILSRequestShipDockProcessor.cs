@@ -2,13 +2,10 @@
 
 using System.Collections.Generic;
 using NebulaAPI.DataStructures;
-using NebulaAPI.GameState;
-using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
-using NebulaWorld;
 
 #endregion
 
@@ -30,9 +27,8 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
             return;
         }
 
-        var player = Players.Get(conn, EConnectionStatus.Connected) ?? Players.Get(conn, EConnectionStatus.Syncing);
-
-        if (player == null || GameMain.data.galacticTransport.stationCapacity <= packet.StationGId)
+        var stationPool = GameMain.data.galacticTransport.stationPool;
+        if (stationPool.Length <= packet.StationGId || stationPool[packet.StationGId] == null)
         {
             return;
         }
@@ -47,12 +43,12 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
         // find ShipData that has otherGId set to packet.stationGId
         for (var i = 0; i < GameMain.data.galacticTransport.stationCapacity; i++)
         {
-            if (GameMain.data.galacticTransport.stationPool[i] == null)
+            if (stationPool[i] == null)
             {
                 continue;
             }
 
-            var shipData = GameMain.data.galacticTransport.stationPool[i].workShipDatas;
+            var shipData = stationPool[i].workShipDatas;
 
             for (var j = 0; j < shipData.Length; j++)
             {
@@ -73,7 +69,7 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
 
         // also add add ships of current station as they use the dock pos too in the pos calculation
         // NOTE: we need to set this stations gid as otherStationGId so that the client accesses the array in the right way
-        var shipData2 = GameMain.data.galacticTransport.stationPool[packet.StationGId].workShipDatas;
+        var shipData2 = stationPool[packet.StationGId].workShipDatas;
 
         for (var i = 0; i < shipData2.Length; i++)
         {
@@ -86,14 +82,14 @@ public class ILSRequestShipDockProcessor : PacketProcessor<ILSRequestShipDock>
         }
 
         var packet2 = new ILSShipDock(packet.StationGId,
-            GameMain.data.galacticTransport.stationPool[packet.StationGId].shipDockPos,
-            GameMain.data.galacticTransport.stationPool[packet.StationGId].shipDockRot,
-            shipOtherGId.ToArray(),
-            shipIndex.ToArray(),
-            shipPos.ToArray(),
-            shipRot.ToArray(),
-            shipPPosTemp.ToArray(),
-            shipPRotTemp.ToArray());
-        player.SendPacket(packet2);
+            stationPool[packet.StationGId].shipDockPos,
+            stationPool[packet.StationGId].shipDockRot,
+            [.. shipOtherGId],
+            [.. shipIndex],
+            [.. shipPos],
+            [.. shipRot],
+            [.. shipPPosTemp],
+            [.. shipPRotTemp]);
+        conn.SendPacket(packet2);
     }
 }
