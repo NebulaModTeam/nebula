@@ -1,11 +1,9 @@
 ﻿#region
 
-using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Players;
-using NebulaWorld;
 
 #endregion
 
@@ -69,10 +67,12 @@ public class PlayerMechaDIYArmorProcessor : PacketProcessor<PlayerMechaDIYArmor>
                 editor.mecha.diyAppearance = new MechaAppearance();
                 editor.mecha.diyAppearance.Init();
             }
+            // Modify from UIMechaEditor.ApplyMechaAppearance
             GameMain.mainPlayer.mecha.diyAppearance.CopyTo(editor.mecha.diyAppearance);
             editor.mechaArmorModel.RefreshAllPartObjects();
             editor.mechaArmorModel.RefreshAllBoneObjects();
             editor.mecha.diyAppearance.NotifyAllEvents();
+            editor.CalcMechaProperty(); // set mecha.hp and mecha.energyConsumptionCoef
             editor._left_content_height_max = 0f;
             editor.SetLeftScrollTop();
             editor.saveGroup._Open();
