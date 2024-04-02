@@ -81,7 +81,7 @@ internal class SpaceSector_Patch
 
             if (SpaceSector.PrefabDescByModelIndex[enemy.modelIndex] == null)
             {
-                var msg = $"Remove SpeaceSector enemy[{enemyId}]: modelIndex{enemy.modelIndex}";
+                var msg = $"Remove SpaceSector enemy[{enemyId}]: modelIndex{enemy.modelIndex}";
                 Log.WarnInform(msg);
 
                 __instance.enemyPool[enemyId].SetEmpty();
