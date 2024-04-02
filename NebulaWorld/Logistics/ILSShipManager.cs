@@ -56,6 +56,10 @@ public class ILSShipManager
         {
             return; // This shouldn't happen, but guard just in case
         }
+        if (stationComponent.idleShipCount <= 0 || stationComponent.workShipCount >= stationComponent.workShipDatas.Length)
+        {
+            return; // Ship count is outside the range
+        }
 
         stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
         stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
@@ -71,11 +75,8 @@ public class ILSShipManager
         stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
         stationComponent.warperCount = packet.StationWarperCount;
 
-        if (stationComponent.idleShipCount > 0)
-        {
-            stationComponent.workShipCount++;
-            stationComponent.idleShipCount--;
-        }
+        stationComponent.workShipCount++;
+        stationComponent.idleShipCount--;
         stationComponent.IdleShipGetToWork(packet.ShipIndex);
 
         var shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
@@ -115,14 +116,15 @@ public class ILSShipManager
         {
             return; // This shouldn't happen, but guard just in case
         }
+        if (stationComponent.workShipCount <= 0 || stationComponent.workShipDatas.Length <= packet.WorkShipIndex)
+        {
+            return; // Ship count is outside the range
+        }
 
         Array.Copy(stationComponent.workShipDatas, packet.WorkShipIndex + 1, stationComponent.workShipDatas,
             packet.WorkShipIndex, stationComponent.workShipDatas.Length - packet.WorkShipIndex - 1);
-        if (stationComponent.workShipCount > 0)
-        {
-            stationComponent.workShipCount--;
-            stationComponent.idleShipCount++;
-        }
+        stationComponent.workShipCount--;
+        stationComponent.idleShipCount++;
         stationComponent.WorkShipBackToIdle(packet.ShipIndex);
         Array.Clear(stationComponent.workShipDatas, stationComponent.workShipCount,
             stationComponent.workShipDatas.Length - stationComponent.workShipCount);
@@ -152,7 +154,7 @@ public class ILSShipManager
         stationComponent.shipRenderers = new ShipRenderingData[maxShipCount];
         stationComponent.shipUIRenderers = new ShipUIRenderingData[maxShipCount];
         stationComponent.workShipCount = 0;
-        stationComponent.idleShipCount = 0;
+        stationComponent.idleShipCount = maxShipCount; // add dummy idle ship count to use in ILSShipManager
         stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
         stationComponent.shipDockRot = Quaternion.identity; // gets updated later by server packet
         stationComponent.storage = []; // zero-length array for mod compatibility

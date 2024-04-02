@@ -1,6 +1,8 @@
 ﻿#region
 
+using System;
 using NebulaAPI.Packets;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -15,14 +17,18 @@ public class ILSWorkShipBackToIdleProcessor : PacketProcessor<ILSWorkShipBackToI
 {
     protected override void ProcessPacket(ILSWorkShipBackToIdle packet, NebulaConnection conn)
     {
-        if (IsHost)
+        if (!IsClient)
         {
             return;
         }
 
-        if (IsClient)
+        try
         {
             ILSShipManager.WorkShipBackToIdle(packet);
+        }
+        catch (Exception e)
+        {
+            Log.Warn(e);
         }
     }
 }
