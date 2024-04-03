@@ -260,11 +260,11 @@ public class StationUIManager : IDisposable
             return null;
         }
 
-        var gStationPool = GameMain.data.galacticTransport.stationPool;
-        var stationPool = planet?.factory?.transport?.stationPool;
+        // Get the station from stationId on the planet
+        var stationPool = planet.factory.transport.stationPool;
+        var stationComponent = stationPool[stationId];
+        var _ = stationGid; // Should ILS be dealt with differently?
 
-        // Figure out if we're dealing with a PLS or a ILS station
-        var stationComponent = stationGid > 0 ? gStationPool[stationGid] : stationPool?[stationId];
         return stationComponent;
     }
 

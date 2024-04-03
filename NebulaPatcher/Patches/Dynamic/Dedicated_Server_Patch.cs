@@ -49,6 +49,7 @@ internal class Dedicated_Server_Patch
     [HarmonyPatch(typeof(GameData), nameof(GameData.OnDraw))]
     [HarmonyPatch(typeof(GameData), nameof(GameData.OnPostDraw))]
     [HarmonyPatch(typeof(FactoryModel), nameof(FactoryModel.LateUpdate))]
+    [HarmonyPatch(typeof(SectorModel), nameof(SectorModel.LateUpdate))]
     public static bool OnDraw_Prefix()
     {
         return false;
@@ -158,5 +159,17 @@ internal class Dedicated_Server_Patch
     public static bool DoMeshGeneration_Prefix()
     {
         return false;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlanetATField), nameof(PlanetATField.RecalculatePhysicsShape))]
+    public static void RecalculatePhysicsShape_Postfix(PlanetATField __instance)
+    {
+        // vanilla use GPU to calculate the shape of shield that is not fully covered the whole planet
+        // In this patch it will act as it has been fully covered to make the planet shield effective
+        if (!__instance.isEmpty)
+        {
+            __instance.isSpherical = true;
+        }
     }
 }

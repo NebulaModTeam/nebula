@@ -2,6 +2,7 @@
 
 using System;
 using HarmonyLib;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
 
@@ -159,4 +160,33 @@ internal class EnemyDFGroundSystem_Patch
             Multiplayer.Session.Enemies.BroadcastBaseStatusPackets(__instance, gameTick);
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.KeyTickLogic))]
+    public static void KeyTickLogic_Prefix(EnemyDFGroundSystem __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return;
+
+        // Fix NRE in EnemyDFGroundSystem.KeyTickLogic (System.Int64 time);(IL_0929)
+        var cursor = __instance.builders.cursor;
+        var buffer = __instance.builders.buffer;
+        var baseBuffer = __instance.bases.buffer;
+        var enemyPool = __instance.factory.enemyPool;
+        for (var builderId = 1; builderId < cursor; builderId++)
+        {
+            ref var builder = ref buffer[builderId];
+            if (builder.id == builderId)
+            {
+                if (baseBuffer[enemyPool[builder.enemyId].owner] == null)
+                {
+                    var msg = $"Remove EnemyDFGroundSystem enemy[{builder.enemyId}]: owner = {enemyPool[builder.enemyId].owner}";
+                    Log.WarnInform(msg);
+
+                    __instance.factory.enemyPool[builder.enemyId].SetEmpty();
+                    __instance.builders.Remove(builderId);
+                }
+            }
+        }
+    }
+
 }

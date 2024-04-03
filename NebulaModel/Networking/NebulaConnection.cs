@@ -55,8 +55,11 @@ public class NebulaConnection : INebulaConnection
     {
         lock (pendingPackets)
         {
-            var rawData = packetProcessor.Write(packet);
-            pendingPackets.Enqueue(rawData);
+            lock (packetProcessor)
+            {
+                var rawData = packetProcessor.Write(packet); //not-threadsafe
+                pendingPackets.Enqueue(rawData);
+            }
             ProcessPacketQueue();
         }
     }

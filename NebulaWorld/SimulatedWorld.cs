@@ -110,21 +110,7 @@ public class SimulatedWorld : IDisposable
             GameMain.mainPlayer.mecha.groundCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
             GameMain.mainPlayer.mecha.spaceCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
 
-            // Recycle all fleets
-            var module = GameMain.mainPlayer.mecha.groundCombatModule;
-            for (var fleetIndex = 0; fleetIndex < module.fleetCount; fleetIndex++)
-            {
-                ref var ptr = ref module.moduleFleets[fleetIndex];
-                if (ptr.fleetId == 0) continue;
-                ptr.OnFleetComponentRemoved();
-            }
-            module = GameMain.mainPlayer.mecha.spaceCombatModule;
-            for (var fleetIndex = 0; fleetIndex < module.fleetCount; fleetIndex++)
-            {
-                ref var ptr = ref module.moduleFleets[fleetIndex];
-                if (ptr.fleetId == 0) continue;
-                ptr.OnFleetComponentRemoved();
-            }
+            FixPlayerAfterImport();
         }
 
         // Initialization on the host side after game is loaded
@@ -204,6 +190,30 @@ public class SimulatedWorld : IDisposable
         localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
         // ChatManager should continuous exsit until the game is closed
         GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
+    }
+
+    public static void FixPlayerAfterImport()
+    {
+        var player = GameMain.mainPlayer;
+
+        // Inventory Capacity level 7 will increase package columncount from 10 -> 12
+        var packageRowCount = (player.package.size - 1) / player.GetPackageColumnCount() + 1;
+        // Make sure all slots are available on UI
+        player.package.SetSize(player.packageColCount * packageRowCount);
+        player.deliveryPackage.rowCount = packageRowCount;
+        player.deliveryPackage.NotifySizeChange();
+
+        // Set fleetId = 0, fleetAstroId = 0 and fighter.craftId = 0
+        var moduleFleets = player.mecha.groundCombatModule.moduleFleets;
+        for (var index = 0; index < moduleFleets.Length; index++)
+        {
+            moduleFleets[index].ClearFleetForeignKey();
+        }
+        moduleFleets = player.mecha.spaceCombatModule.moduleFleets;
+        for (var index = 0; index < moduleFleets.Length; index++)
+        {
+            moduleFleets[index].ClearFleetForeignKey();
+        }
     }
 
     public void OnPlayerJoining(string username)

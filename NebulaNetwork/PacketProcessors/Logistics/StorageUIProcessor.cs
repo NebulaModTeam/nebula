@@ -1,6 +1,5 @@
 ﻿#region
 
-using NebulaAPI.GameState;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -23,7 +22,6 @@ internal class StorageUIProcessor : PacketProcessor<StorageUI>
             Multiplayer.Session.StationsUI.UpdateStorage(packet);
 
             // broadcast to other clients 
-            var player = Players.Get(conn);
             Server.SendPacketExclude(packet, conn);
 
             // as we block some methods for the client he must run it once he receives this packet.

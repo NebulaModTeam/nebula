@@ -12,8 +12,6 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(PlanetTransport))]
 internal class PlanetTransport_Patch
 {
-    private static int RemovingStationGId;
-
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetTransport.SetStationStorage))]
     public static bool SetStationStorage_Prefix(PlanetTransport __instance, int stationId, int storageIdx, int itemId,
@@ -62,7 +60,7 @@ internal class PlanetTransport_Patch
         Log.Info(
             $"Send AddStationComponen to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
         Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid,
-            _desc.stationMaxShipCount));
+            __result.entityId, _desc.stationMaxShipCount));
     }
 
     [HarmonyPostfix]
@@ -89,10 +87,9 @@ internal class PlanetTransport_Patch
      */
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
-    public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id)
+    public static bool RemoveStationComponent_Prefix(PlanetTransport __instance, int id, ref int __state)
     {
-        RemovingStationGId =
-            __instance.stationPool[id].gid; // cache this as we need it in the postfix but its gone there already.
+        __state = __instance.stationPool[id].gid; // cache this as we need it in the postfix but its gone there already.
         return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Ships.PatchLockILS;
     }
 
@@ -101,13 +98,13 @@ internal class PlanetTransport_Patch
      */
     [HarmonyPostfix]
     [HarmonyPatch(nameof(PlanetTransport.RemoveStationComponent))]
-    public static void RemoveStationComponent_Postfix(PlanetTransport __instance, int id)
+    public static void RemoveStationComponent_Postfix(PlanetTransport __instance, int id, int __state)
     {
         if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost)
         {
             return;
         }
-        Multiplayer.Session.Network.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, RemovingStationGId));
+        Multiplayer.Session.Network.SendPacket(new ILSRemoveStationComponent(id, __instance.planet.id, __state));
     }
 
     [HarmonyPrefix]
