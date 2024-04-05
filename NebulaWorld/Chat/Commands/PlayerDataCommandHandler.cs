@@ -26,8 +26,7 @@ public class PlayerDataCommandHandler : IChatCommandHandler
         }
 
         // Due to dependency order, get SaveManager.playerSaves by reflection
-        var saveManagerType = AccessTools.TypeByName("NebulaNetwork.SaveManager");
-        var playerSaves = (Dictionary<string, IPlayerData>)AccessTools.Field(saveManagerType, "playerSaves").GetValue(null);
+        var playerSaves = SaveManager.PlayerSaves;
 
         switch (parameters[0])
         {
@@ -72,7 +71,7 @@ public class PlayerDataCommandHandler : IChatCommandHandler
                             break;
                         }
                     }
-                    playerSaves.Remove(removeHash);
+                    SaveManager.TryRemove(removeHash);
                     break;
                 }
         }

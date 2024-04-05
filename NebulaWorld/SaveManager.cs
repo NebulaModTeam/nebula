@@ -8,11 +8,10 @@ using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Utils;
-using NebulaWorld;
 
 #endregion
 
-namespace NebulaNetwork;
+namespace NebulaWorld;
 
 public static class SaveManager
 {
@@ -175,5 +174,10 @@ public static class SaveManager
 
         playerSaves.Add(clientCertHash, playerData);
         return true;
+    }
+
+    public static bool TryRemove(string clientCertHash)
+    {
+        return playerSaves.Remove(clientCertHash);
     }
 }
