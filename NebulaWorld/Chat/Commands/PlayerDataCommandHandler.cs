@@ -1,9 +1,7 @@
 ﻿#region
 
 using NebulaWorld.MonoBehaviours.Local.Chat;
-using System.Collections.Generic;
 using NebulaAPI.GameState;
-using HarmonyLib;
 using NebulaModel.DataStructures.Chat;
 using System.IO;
 using NebulaModel;
@@ -11,6 +9,7 @@ using NebulaModel.Logger;
 using NebulaAPI.DataStructures;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Players;
+using NebulaModel.Packets.Chat;
 
 #endregion
 
@@ -32,19 +31,26 @@ public class PlayerDataCommandHandler : IChatCommandHandler
         {
             case "list":
                 {
-                    var resp = $"Player count in .server file: {playerSaves.Count}\n";
-                    foreach (var pair in playerSaves)
+                    if (Multiplayer.Session.IsClient)
                     {
-                        resp += $"[{pair.Key.Substring(0, 5)}] {pair.Value.Username}";
+                        Multiplayer.Session.Client.SendPacket(new PlayerDataCommandPacket("list", ""));
+                        return;
                     }
-                    window.SendLocalChatMessage(resp, ChatMessageType.CommandOutputMessage);
-                    break;
+
+                    window.SendLocalChatMessage(GetPlayerDataListString(), ChatMessageType.CommandOutputMessage);
+                    return;
                 }
             case "load" when parameters.Length < 2:
                 throw new ChatCommandUsageException("Need to specifiy hash string or name of a player!");
             case "load":
                 {
                     var input = parameters[1];
+                    if (Multiplayer.Session.IsClient)
+                    {
+                        Multiplayer.Session.Client.SendPacket(new PlayerDataCommandPacket("load", input));
+                        return;
+                    }
+
                     foreach (var pair in playerSaves)
                     {
                         if (input == pair.Key.Substring(0, input.Length) || input == pair.Value.Username)
@@ -54,12 +60,18 @@ public class PlayerDataCommandHandler : IChatCommandHandler
                             return;
                         }
                     }
-                    break;
+                    window.SendLocalChatMessage("Unable to find the target player data!", ChatMessageType.CommandOutputMessage);
+                    return;
                 }
             case "remove" when parameters.Length < 2:
                 throw new ChatCommandUsageException("Need to specifiy hash string or name of a player!");
             case "remove":
                 {
+                    if (Multiplayer.Session.IsClient)
+                    {
+                        throw new ChatCommandUsageException("remove command is not available in client!");
+                    }
+
                     var input = parameters[1];
                     var removeHash = "";
                     foreach (var pair in playerSaves)
@@ -71,7 +83,10 @@ public class PlayerDataCommandHandler : IChatCommandHandler
                             break;
                         }
                     }
-                    SaveManager.TryRemove(removeHash);
+                    if (!SaveManager.TryRemove(removeHash))
+                    {
+                        window.SendLocalChatMessage("Unable to find the target player data!", ChatMessageType.CommandOutputMessage);
+                    }
                     break;
                 }
         }
@@ -87,7 +102,19 @@ public class PlayerDataCommandHandler : IChatCommandHandler
         return ["list", "load <hashString>", "remove <hashString>"];
     }
 
-    static void LoadPlayerData(IPlayerData playerData)
+    public static string GetPlayerDataListString()
+    {
+        var playerSaves = SaveManager.PlayerSaves;
+
+        var resp = $"Player count in .server file: {playerSaves.Count}\n";
+        foreach (var pair in playerSaves)
+        {
+            resp += $"[{pair.Key.Substring(0, 5)}] {pair.Value.Username}\n";
+        }
+        return resp;
+    }
+
+    public static void LoadPlayerData(IPlayerData playerData)
     {
         Log.Info($"Teleporting to target planet {GameMain.localPlanet?.id ?? 0} => {playerData.LocalPlanetId}");
         var actionSail = GameMain.mainPlayer.controller.actionSail;
