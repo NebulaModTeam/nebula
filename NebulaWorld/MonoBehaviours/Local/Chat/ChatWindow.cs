@@ -182,7 +182,7 @@ public class ChatWindow : MonoBehaviour
     private void BroadcastChatMessage(string message, ChatMessageType chatMessageType = ChatMessageType.PlayerMessage)
     {
         QueueOutgoingChatMessage(message, chatMessageType);
-        var formattedMessage = $"[{DateTime.Now:HH:mm}] [{UserName}] : {message}";
+        var formattedMessage = ChatManager.FormatChatMessage(DateTime.Now, UserName, message);
         SendLocalChatMessage(formattedMessage, chatMessageType);
     }
 

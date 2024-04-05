@@ -1,11 +1,13 @@
 ﻿#region
 
 using System;
+using System.Linq;
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Chat;
 using NebulaModel.Utils;
+using NebulaWorld.Chat.ChatLinks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +18,7 @@ namespace NebulaWorld.MonoBehaviours.Local.Chat;
 public class ChatManager : MonoBehaviour
 {
     public static ChatManager Instance;
+    private static bool showedWelcome = false;
     private Image backgroundImage;
     private ChatWindow chatWindow;
 
@@ -81,6 +84,13 @@ public class ChatManager : MonoBehaviour
         chatWindow.UserName = GetUserName();
         chatWindow.Toggle(true);
         Config.OnConfigApplied += UpdateChatPosition;
+
+        if (!showedWelcome)
+        {
+            showedWelcome = true;
+            SendChatMessage(string.Format("Welcome to Nebula multiplayer mod! Press {0} to open chat window, type /help to see all commands.".Translate()
+                , Config.Options.ChatHotkey.ToString()), ChatMessageType.SystemInfoMessage);
+        }
     }
 
     private void Update()
@@ -135,6 +145,40 @@ public class ChatManager : MonoBehaviour
         return Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "Unknown";
     }
 
+    public static string FormatChatMessage(in DateTime sentTime, string userName, string messageBody)
+    {
+        // format: $"[{sentTime:HH:mm}] {userName} : {messageBody}
+
+        var formattedString = "";
+        if (!string.IsNullOrEmpty(userName))
+        {
+            ushort playerId = 0;
+            if (Multiplayer.IsActive)
+            {
+                using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
+                {
+                    playerId = remotePlayersModels.FirstOrDefault(x => x.Value.Username == userName).Key;
+                }
+            }
+            if (playerId > 0)
+            {
+                formattedString = NavigateChatLinkHandler.FormatNavigateToPlayerString(playerId, userName);
+            }
+            else
+            {
+                formattedString = userName;
+            }
+        }
+        if (Config.Options.EnableTimestamp)
+        {
+            formattedString = $"[{sentTime:HH:mm}] {formattedString} : ";
+        }
+        else if (!string.IsNullOrEmpty(formattedString))
+        {
+            formattedString += " : ";
+        }
+        return formattedString + messageBody;
+    }
 
     // Queue a message to appear in chat window
     public void SendChatMessage(string text, ChatMessageType messageType)

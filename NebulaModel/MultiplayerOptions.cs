@@ -132,7 +132,11 @@ public class MultiplayerOptions : ICloneable
     [DisplayName("Auto Open Chat")]
     [Category("Chat")]
     [Description("Auto open chat window when receiving message from other players")]
-    public bool AutoOpenChat { get; set; } = true;
+    public bool AutoOpenChat { get; set; } = false;
+
+    [DisplayName("Show Timestamp")]
+    [Category("Chat")]
+    public bool EnableTimestamp { get; set; } = true;
 
     [DisplayName("Show system warn message")]
     [Category("Chat")]
