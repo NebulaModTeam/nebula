@@ -60,7 +60,7 @@ internal class PlanetTransport_Patch
         // so they can add it to their GalacticTransport as they don't do that. Note that we're doing this in
         // PlanetTransport.NewStationComponent and not GalacticTransport.AddStationComponent because stationId will be set at this point.
         Log.Info(
-            $"Send AddStationComponen to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
+            $"Send AddStationComponent to all clients for planet {__result.planetId}, id {__result.id} with gId of {__result.gid}");
         Multiplayer.Session.Network.SendPacket(new ILSAddStationComponent(__result.planetId, __result.id, __result.gid,
             _desc.stationMaxShipCount));
     }
