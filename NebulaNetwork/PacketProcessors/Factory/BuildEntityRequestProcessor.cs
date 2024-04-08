@@ -56,8 +56,13 @@ public class BuildEntityRequestProcessor : PacketProcessor<BuildEntityRequest>
             }
             else
             {
-                // Remote planets, or the factory is not loaded yet
-                planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId, false, false);
+                Multiplayer.Session.Factories.AddPlanetTimer(packet.PlanetId);
+                // setting specifyPlanet here to avoid accessing a null object (see GPUInstancingManager activePlanet getter)
+                var pData = GameMain.gpuiManager.specifyPlanet;
+                GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
+                // Flatten the terrain for remote planet build by other players
+                planet.factory.BuildFinally(GameMain.mainPlayer, packet.PrebuildId, true, true);
+                GameMain.gpuiManager.specifyPlanet = pData;
             }
 
             Multiplayer.Session.Factories.EventFactory = null;
