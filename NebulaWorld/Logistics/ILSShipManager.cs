@@ -29,7 +29,7 @@ public class ILSShipManager
         var planetA = GameMain.galaxy.PlanetById(packet.PlanetA);
         var planetB = GameMain.galaxy.PlanetById(packet.PlanetB);
 
-        if (planetA == null || planetB == null)
+        if (planetA == null || planetB == null || packet.ThisGId < 1)
         {
             return;
         }
@@ -96,7 +96,7 @@ public class ILSShipManager
      */
     public static void WorkShipBackToIdle(ILSWorkShipBackToIdle packet)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+        if (packet.GId < 1)
         {
             return;
         }

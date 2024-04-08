@@ -310,7 +310,7 @@ internal class GameData_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameData.GameTick))]
-    public static void GameTick_Postfix(GameData __instance, long time)
+    public static void GameTick_Postfix(long time)
     {
         if (!Multiplayer.IsActive)
         {
@@ -326,7 +326,26 @@ internal class GameData_Patch
             Multiplayer.Session.Launch.CollectProjectile();
             return;
         }
-        Multiplayer.Session.Launch.LaunchProjectile();
+
+        try
+        {
+            // Client: Update visual effects that don't affect the production
+            Multiplayer.Session.Launch.LaunchProjectile();
+            ILSUpdateShipPos(time);
+        }
+        catch (Exception e)
+        {
+            _ = e;
+#if DEBUG
+            Log.Warn(e);
+#endif
+        }
+    }
+
+    private static void ILSUpdateShipPos(long time)
+    {
+        if (!Multiplayer.Session.IsGameLoaded) return;
+
         // call StationComponent::InternalTickRemote() from here, see StationComponent_Patch.cs for info
         var timeGene = (int)(time % 60L);
         if (timeGene < 0)
@@ -337,18 +356,22 @@ internal class GameData_Patch
         var shipSailSpeed = history.logisticShipSailSpeedModified;
         var shipWarpSpeed = !history.logisticShipWarpDrive ? shipSailSpeed : history.logisticShipWarpSpeedModified;
         var shipCarries = history.logisticShipCarries;
-        var gStationPool = __instance.galacticTransport.stationPool;
-        var astroPoses = __instance.galaxy.astrosData;
-        var relativePos = __instance.relativePos;
-        var relativeRot = __instance.relativeRot;
+        var gameData = GameMain.data;
+        var gStationPool = gameData.galacticTransport.stationPool;
+        var astroPoses = gameData.galaxy.astrosData;
+        var relativePos = gameData.relativePos;
+        var relativeRot = gameData.relativeRot;
         var starmap = UIGame.viewMode == EViewMode.Starmap;
 
         foreach (var stationComponent in GameMain.data.galacticTransport.stationPool)
         {
-            if (stationComponent is { isStellar: true } && !Multiplayer.Session.IsInLobby)
+            if (stationComponent != null && stationComponent.isStellar && stationComponent.planetId > 0)
             {
+                var planet = GameMain.galaxy.PlanetById(stationComponent.planetId);
+                if (planet == null) continue;
+
                 StationComponent_Transpiler.ILSUpdateShipPos(stationComponent,
-                    GameMain.galaxy.PlanetById(stationComponent.planetId).factory, timeGene, shipSailSpeed, shipWarpSpeed,
+                    planet.factory, timeGene, shipSailSpeed, shipWarpSpeed,
                     shipCarries, gStationPool, astroPoses, ref relativePos, ref relativeRot, starmap, null);
             }
         }
