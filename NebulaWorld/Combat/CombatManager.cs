@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NebulaAPI.DataStructures;
 using NebulaModel.DataStructures;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Combat.Mecha;
 using UnityEngine;
 #pragma warning disable IDE1006 // Naming Styles
@@ -269,6 +270,22 @@ public class CombatManager : IDisposable
         {
             factory.veinPool[i].combatStatId = 0;
         }
+
+        // Clear the combatStat pool
+        var astroId = factory.planet.id;
+        var count = 0;
+        var combatStats = GameMain.data.spaceSector.skillSystem.combatStats;
+        var combatStatCursor = combatStats.cursor;
+        var combatStatbuffer = combatStats.buffer;
+        for (var i = 1; i < combatStatCursor; i++)
+        {
+            if (combatStatbuffer[i].id == i && combatStatbuffer[i].astroId == astroId)
+            {
+                combatStats.Remove(i);
+                count++;
+            }
+        }
+        Log.Info($"CombatManager: Clear {count} combatStat on {astroId}");
     }
 
     public void OnAstroFactoryUnload()
