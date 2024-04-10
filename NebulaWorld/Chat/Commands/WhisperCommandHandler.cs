@@ -29,8 +29,8 @@ public class WhisperCommandHandler : IChatCommandHandler
         var recipientUserName = parameters[0];
         var fullMessageBody = string.Join(" ", parameters.Skip(1));
         // first echo what the player typed so they know something actually happened
-        ChatManager.Instance.SendChatMessage($"[{DateTime.Now:HH:mm}] [To: {recipientUserName}] : {fullMessageBody}",
-            ChatMessageType.PlayerMessage);
+        ChatManager.Instance.SendChatMessage(ChatManager.FormatChatMessage(DateTime.Now, $"[To {recipientUserName}]", fullMessageBody),
+            ChatMessageType.PlayerMessagePrivate);
 
         var packet = new ChatCommandWhisperPacket(senderUsername, recipientUserName, fullMessageBody);
 
@@ -64,7 +64,7 @@ public class WhisperCommandHandler : IChatCommandHandler
 
     public static void SendWhisperToLocalPlayer(string sender, string mesageBody)
     {
-        ChatManager.Instance.SendChatMessage($"[{DateTime.Now:HH:mm}] [{sender} whispered] : {mesageBody}",
+        ChatManager.Instance.SendChatMessage(ChatManager.FormatChatMessage(DateTime.Now, $"[From {sender}]", mesageBody),
             ChatMessageType.PlayerMessagePrivate);
     }
 }

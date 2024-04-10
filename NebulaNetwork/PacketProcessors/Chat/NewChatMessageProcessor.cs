@@ -26,14 +26,11 @@ internal class NewChatMessageProcessor : PacketProcessor<NewChatMessagePacket>
 
         if (IsHost)
         {
-            var player = Players.Get(conn);
             Server.SendPacketExclude(packet, conn);
         }
 
         var sentAt = packet.SentAt == 0 ? DateTime.Now : DateTime.FromBinary(packet.SentAt);
-        ChatManager.Instance.SendChatMessage(
-            string.IsNullOrEmpty(packet.UserName)
-                ? $"[{sentAt:HH:mm}] {packet.MessageText}"
-                : $"[{sentAt:HH:mm}] [{packet.UserName}] : {packet.MessageText}", packet.MessageType);
+        ChatManager.Instance.SendChatMessage(ChatManager.FormatChatMessage(sentAt, packet.UserName, packet.MessageText),
+            packet.MessageType);
     }
 }
