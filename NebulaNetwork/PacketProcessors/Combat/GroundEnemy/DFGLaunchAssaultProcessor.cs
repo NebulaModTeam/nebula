@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using NebulaAPI.DataStructures;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -32,6 +31,7 @@ public class DFGLaunchAssaultProcessor : PacketProcessor<DFGLaunchAssaultPacket>
             EnemyManager.SetPlanetFactoryRecycle(factory, packet.EnemyCursor, packet.EnemyRecyle);
 
             var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
+            if (dFBase == null) return;
             dFBase.turboTicks = 60;
             dFBase.turboRepress = 0;
             dFBase.evolve.threat = packet.EvolveThreat;

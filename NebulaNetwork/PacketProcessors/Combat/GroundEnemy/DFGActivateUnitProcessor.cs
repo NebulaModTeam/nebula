@@ -24,6 +24,7 @@ public class DFGActivateUnitProcessor : PacketProcessor<DFGActivateUnitPacket>
         {
             EnemyManager.SetPlanetFactoryNextEnemyId(factory, packet.EnemyId);
             var dfBase = factory.enemySystem.bases.buffer[packet.BaseId];
+            if (dfBase == null) return;
             var gameTick = GameMain.gameTick;
 
             // the value inside enemyFormation.units[portId] is not reliable, so just overwrite it

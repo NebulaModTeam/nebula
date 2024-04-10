@@ -23,6 +23,7 @@ public class DFGDeferredCreateEnemyProcessor : PacketProcessor<DFGDeferredCreate
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
             EnemyManager.SetPlanetFactoryNextEnemyId(factory, packet.EnemyId);
+            if (factory.enemySystem.bases.buffer[packet.BaseId] == null) return;
             var enemyId = factory.CreateEnemyFinal(packet.BaseId, packet.BuilderIndex);
 
 #if DEBUG
