@@ -23,6 +23,7 @@ public class DFGActivateUnitProcessor : PacketProcessor<DFGActivateUnitPacket>
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
             EnemyManager.SetPlanetFactoryNextEnemyId(factory, packet.EnemyId);
+            if (packet.BaseId >= factory.enemySystem.bases.capacity) return;
             var dfBase = factory.enemySystem.bases.buffer[packet.BaseId];
             if (dfBase == null) return;
             var gameTick = GameMain.gameTick;

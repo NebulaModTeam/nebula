@@ -25,6 +25,7 @@ public class DFGActivateBaseProcessor : PacketProcessor<DFGActivateBasePacket>
 
         if (!packet.SetToSeekForm)
         {
+            if (packet.BaseId >= factory.enemySystem.bases.capacity) return;
             var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
             if (dFBase == null) return;
             dFBase.activeTick = 3;

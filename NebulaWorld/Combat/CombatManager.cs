@@ -8,6 +8,7 @@ using NebulaModel.Logger;
 using NebulaModel.Packets.Combat.Mecha;
 using UnityEngine;
 #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable CA1822 // Mark members as static
 
 #endregion
 
@@ -279,7 +280,8 @@ public class CombatManager : IDisposable
         var combatStatbuffer = combatStats.buffer;
         for (var i = 1; i < combatStatCursor; i++)
         {
-            if (combatStatbuffer[i].id == i && combatStatbuffer[i].astroId == astroId)
+            ref var ptr = ref combatStatbuffer[i];
+            if (ptr.id == i && ptr.astroId == astroId)
             {
                 combatStats.Remove(i);
                 count++;
