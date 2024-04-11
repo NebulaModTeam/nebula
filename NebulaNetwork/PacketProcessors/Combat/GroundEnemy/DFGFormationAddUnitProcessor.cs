@@ -5,7 +5,6 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
-using static UnityEngine.UI.CanvasScaler;
 
 #endregion
 
@@ -19,7 +18,9 @@ public class DFGFormationAddUnitProcessor : PacketProcessor<DFGFormationAddUnitP
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null) return;
 
+        if (packet.BaseId >= factory.enemySystem.bases.capacity) return;
         var dFBase = factory.enemySystem.bases.buffer[packet.BaseId];
+        if (dFBase == null) return;
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
             // Set the next id in EnemyFormation

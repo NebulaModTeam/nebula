@@ -14,19 +14,17 @@ public class PlayerSandCountProcessor : PacketProcessor<PlayerSandCount>
 {
     protected override void ProcessPacket(PlayerSandCount packet, NebulaConnection conn)
     {
+        var player = GameMain.mainPlayer;
+        var originalSandCount = player.sandCount;
+
         if (IsHost)
         {
-            if (!packet.IsDelta)
-            {
-                // when receive update request, host UpdateSyncedSandCount and send to other players
-                GameMain.mainPlayer.SetSandCount(packet.SandCount);
-            }
+            // when receive update request, host UpdateSyncedSandCount and send to other players
+            player.SetSandCount(packet.IsDelta ? originalSandCount + packet.SandCount : packet.SandCount);
             return;
         }
 
         // taken from Player.SetSandCount()
-        var player = GameMain.mainPlayer;
-        var originalSandCount = player.sandCount;
         if (packet.IsDelta)
         {
             player.sandCount += packet.SandCount;

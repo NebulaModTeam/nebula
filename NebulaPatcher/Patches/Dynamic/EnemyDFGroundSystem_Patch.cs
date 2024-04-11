@@ -138,6 +138,23 @@ internal class EnemyDFGroundSystem_Patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.RemoveDFGBaseComponent))]
+    public static bool RemoveDFGBaseComponent_Prefix(EnemyDFGroundSystem __instance, int id)
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        if (Multiplayer.Session.IsServer)
+        {
+            var packet = new DFGRemoveBasePacket(__instance.factory.planetId, id);
+            Multiplayer.Session.Network.SendPacketToStar(packet, __instance.factory.planet.star.id);
+            return true;
+        }
+
+        // Client should wait for server to approve the removal of base from the base buffer
+        return Multiplayer.Session.Combat.IsIncomingRequest;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic))]
     public static void GameTickLogic_Prefix(EnemyDFGroundSystem __instance, long gameTick)
     {
