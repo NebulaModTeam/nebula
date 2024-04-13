@@ -1,5 +1,14 @@
 ## Changelog
 
+0.9.3:
+- @starfi5h: Change chat message format. Player's name now has an underlined link to navigate
+- @starfi5h: Add new config option Chat - Show Timestamp to enable/disable timestamp before the chat message
+- @starfi5h: Add new CLI arugment `/newgame-cfg` to load the parameters from the config file `nebulaGameDescSettings.cfg`
+- @starfi5h: Add new chat command `/dev`
+- @starfi5h: Fix inventory error in client
+- @starfi5h: Fix hp bar doesn't vanish after deleting the building when client joins
+- @starfi5h: Fix enemies and ILS related errors
+
 0.9.2:
 - Compatible to Steam version 0.10.29.22015 or Game Pass version 0.10.29.21943
 - @sk7725: Added Korean font and TextMeshPro fallback

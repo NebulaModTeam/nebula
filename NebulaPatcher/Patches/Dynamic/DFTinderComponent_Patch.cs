@@ -24,7 +24,7 @@ internal class DFTinderComponent_Patch
         {
             __instance.targetHiveAstroId = _targetHiveAstroId;
             Multiplayer.Session.Network.SendPacket(new DFTinderDispatchPacket(__instance));
-            Multiplayer.Session.Enemies.DisplayAstroMessage("Dark Fog seed send out from".Translate(), hive1.starData.astroId);
+            Multiplayer.Session.Enemies.DisplayAstroMessage("DF seed sent out from".Translate(), hive1.starData.astroId);
         }
         return true;
     }
