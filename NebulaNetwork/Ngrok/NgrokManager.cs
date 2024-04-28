@@ -276,13 +276,16 @@ public class NgrokManager
 
     public bool IsNgrokActive()
     {
-        if (_ngrokProcess == null)
+        try
         {
+            _ngrokProcess?.Refresh();
+            return !_ngrokProcess?.HasExited ?? false;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e);
             return false;
         }
-
-        _ngrokProcess.Refresh();
-        return !_ngrokProcess?.HasExited ?? false;
     }
 
     public Task<string> GetNgrokAddressAsync()
