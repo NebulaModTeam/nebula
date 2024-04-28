@@ -21,11 +21,11 @@ namespace NebulaNetwork.Ngrok;
 
 public class NgrokManager
 {
-    private readonly string _authtoken;
+    private readonly string _authToken;
     private readonly TaskCompletionSource<bool> _ngrokAddressObtainedSource = new();
     private readonly string _ngrokConfigPath;
 
-    private readonly string _ngrokPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+    private readonly string _ngrokPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidOperationException("_ngrokPath null"),
         "ngrok-v3-stable-windows-amd64", "ngrok.exe");
 
     private readonly int _port;
@@ -39,11 +39,11 @@ public class NgrokManager
     public string NgrokLastErrorCode;
     private static readonly string[] contents = { "version: 2" };
 
-    public NgrokManager(int port, string authtoken = null, string region = null)
+    public NgrokManager(int port, string authToken = null, string region = null)
     {
-        _ngrokConfigPath = Path.Combine(Path.GetDirectoryName(_ngrokPath), "ngrok.yml");
+        _ngrokConfigPath = Path.Combine(Path.GetDirectoryName(_ngrokPath) ?? throw new InvalidOperationException("_ngrokConfigPath null"), "ngrok.yml");
         _port = port;
-        _authtoken = authtoken ?? Config.Options.NgrokAuthtoken;
+        _authToken = authToken ?? Config.Options.NgrokAuthtoken;
         _region = region ?? Config.Options.NgrokRegion;
 
         if (!NgrokEnabled)
@@ -51,7 +51,7 @@ public class NgrokManager
             return;
         }
 
-        if (string.IsNullOrEmpty(_authtoken))
+        if (string.IsNullOrEmpty(_authToken))
         {
             Log.WarnInform("Ngrok support was enabled, however no Authtoken was provided".Translate());
             return;
@@ -97,6 +97,10 @@ public class NgrokManager
                 try
                 {
                     await DownloadAndInstallNgrok();
+                    if (!IsNgrokInstalled())
+                    {
+                        throw new FileNotFoundException();
+                    }
                 }
                 catch
                 {
@@ -124,17 +128,13 @@ public class NgrokManager
     {
         using (var client = new HttpClient())
         {
-            using (var s = client.GetStreamAsync("https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip"))
+            using var s = client.GetStreamAsync("https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip");
+            using var zip = new ZipArchive(await s, ZipArchiveMode.Read);
+            if (File.Exists(_ngrokPath))
             {
-                using (var zip = new ZipArchive(await s, ZipArchiveMode.Read))
-                {
-                    if (File.Exists(_ngrokPath))
-                    {
-                        File.Delete(_ngrokPath);
-                    }
-                    zip.ExtractToDirectory(Path.GetDirectoryName(_ngrokPath));
-                }
+                File.Delete(_ngrokPath);
             }
+            zip.ExtractToDirectory(Path.GetDirectoryName(_ngrokPath));
         }
 
         File.WriteAllLines(_ngrokConfigPath, contents);
@@ -151,36 +151,46 @@ public class NgrokManager
     {
         StopNgrok();
 
-        _ngrokProcess = new Process();
-        _ngrokProcess.StartInfo = new ProcessStartInfo
+        _ngrokProcess = new Process
         {
-            WindowStyle = ProcessWindowStyle.Hidden,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            FileName = _ngrokPath,
-            Arguments =
-                $"tcp {_port} --authtoken {_authtoken} --log stdout --log-format json --config \"{_ngrokConfigPath}\"" +
+            StartInfo = new ProcessStartInfo
+            {
+                WindowStyle = ProcessWindowStyle.Hidden,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                FileName = _ngrokPath,
+                Arguments =
+                $"tcp {_port} --authtoken {_authToken} --log stdout --log-format json --config \"{_ngrokConfigPath}\"" +
                 (!string.IsNullOrEmpty(_region) ? $" --region {_region}" : "")
+            }
         };
 
         _ngrokProcess.OutputDataReceived += OutputDataReceivedEventHandler;
         _ngrokProcess.ErrorDataReceived += ErrorDataReceivedEventHandler;
+        _ngrokProcess.Exited += (_, _) =>
+        {
+            _ngrokProcess = null;
+        };
 
         var started = _ngrokProcess.Start();
         if (IsNgrokActive())
         {
             // This links the process as a child process by attaching a null debugger thus ensuring that the process is killed when its parent dies.
-            new ChildProcessLinker(_ngrokProcess, exception =>
+            _ = new ChildProcessLinker(_ngrokProcess, _ =>
             {
                 Log.Warn(
                     "Failed to link Ngrok process to DSP process as a child! (This might result in a left over ngrok process if the DSP process uncleanly killed)");
             });
         }
+        else
+        {
+            Log.Error("Failed to start Ngrok process!");
+        }
 
-        _ngrokProcess.BeginOutputReadLine();
-        _ngrokProcess.BeginErrorReadLine();
+        _ngrokProcess?.BeginOutputReadLine();
+        _ngrokProcess?.BeginErrorReadLine();
 
         return started;
     }
@@ -266,7 +276,7 @@ public class NgrokManager
         }
 
         _ngrokProcess.Refresh();
-        return !_ngrokProcess.HasExited;
+        return !_ngrokProcess?.HasExited ?? false;
     }
 
     public Task<string> GetNgrokAddressAsync()
