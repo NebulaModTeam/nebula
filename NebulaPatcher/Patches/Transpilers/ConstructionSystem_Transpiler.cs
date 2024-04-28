@@ -34,7 +34,6 @@ internal class ConstructionSystem_Transpiler
                     new CodeMatch(OpCodes.Ldloc_0),
                     new CodeMatch(OpCodes.Bgt_Un)
                 );
-            Log.Info(codeMatcher.IsValid);
             var sqrDist = codeMatcher.InstructionAt(-2).operand;
             var skipLabel = codeMatcher.Operand;
             codeMatcher.Advance(1)
