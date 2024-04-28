@@ -37,6 +37,7 @@ public class NgrokManager
 
     public string NgrokAddress;
     public string NgrokLastErrorCode;
+    public string NgrokLastErrorCodeDesc;
     private static readonly string[] contents = { "version: 2" };
 
     public NgrokManager(int port, string authToken = null, string region = null)
@@ -250,7 +251,12 @@ public class NgrokManager
             return;
         }
         NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
-        Log.WarnInform(string.Format("Ngrok Error! Code: {0}".Translate(), NgrokLastErrorCode));
+        NgrokLastErrorCodeDesc = NgrokLastErrorCode switch
+        {
+            "ERR_NGROK_105" => "Authtoken is invalid".Translate(),
+            _ => string.Empty
+        };
+        Log.WarnInform(string.Format("Ngrok Error! Code: {0} ({1})".Translate(), NgrokLastErrorCode, NgrokLastErrorCodeDesc));
     }
 
     public void StopNgrok()
