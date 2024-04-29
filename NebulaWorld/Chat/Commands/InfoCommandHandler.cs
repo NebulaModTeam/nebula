@@ -18,7 +18,7 @@ namespace NebulaWorld.Chat.Commands;
 
 public class InfoCommandHandler : IChatCommandHandler
 {
-    private static readonly string[] s_separator = { "]:" };
+    private static readonly string[] s_separator = ["]:"];
 
     public void Execute(ChatWindow window, string[] parameters)
     {
@@ -73,7 +73,7 @@ public class InfoCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return new[] { "[full]" };
+        return ["[full]"];
     }
 
     public static string GetServerInfoText(IServer server, IPUtils.IpInfo ipInfo, bool full)
@@ -105,17 +105,17 @@ public class InfoCommandHandler : IChatCommandHandler
         {
             if (server.NgrokActive)
             {
-                sb.Append("\n  ").Append("Ngrok address: ".Translate())
+                sb.Append("\n ").Append("Ngrok address: ".Translate())
                     .Append(FormatCopyString(server.NgrokAddress, true, NgrokAddressFilter));
             }
             else
             {
-                sb.Append("\n ").Append("Ngrok address: Tunnel Inactive!".Translate());
+                sb.Append("\n  ").Append("Ngrok address: Tunnel Inactive!".Translate());
             }
 
-            if (server.NgrokLastErrorCode != null)
+            if (!string.IsNullOrWhiteSpace(server.NgrokLastErrorCode))
             {
-                sb.Append($" ({FormatCopyString(server.NgrokLastErrorCode)})");
+                sb.Append($" ({FormatCopyString(server.NgrokLastErrorCode)}){FormatCopyString(server.NgrokLastErrorCodeDesc)}");
             }
         }
 

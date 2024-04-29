@@ -140,7 +140,14 @@ public class NgrokManager
 
         File.WriteAllLines(_ngrokConfigPath, contents);
 
-        Log.WarnInform("Ngrok install completed in the plugin folder".Translate());
+        if (File.Exists(_ngrokPath))
+        {
+            Log.WarnInform("Ngrok install completed in the plugin folder".Translate());
+        }
+        else
+        {
+            Log.Error("Ngrok installation failed".Translate());
+        }
     }
 
     private bool IsNgrokInstalled()
@@ -172,7 +179,7 @@ public class NgrokManager
         _ngrokProcess.ErrorDataReceived += ErrorDataReceivedEventHandler;
         _ngrokProcess.Exited += (_, _) =>
         {
-            _ngrokProcess = null;
+            StopNgrok();
         };
 
         var started = _ngrokProcess.Start();
@@ -256,7 +263,11 @@ public class NgrokManager
             "ERR_NGROK_105" => "Authtoken is invalid".Translate(),
             _ => string.Empty
         };
-        Log.WarnInform(string.Format("Ngrok Error! Code: {0} ({1})".Translate(), NgrokLastErrorCode, NgrokLastErrorCodeDesc));
+        if (!string.IsNullOrWhiteSpace(NgrokLastErrorCodeDesc))
+        {
+            NgrokLastErrorCodeDesc = $"({NgrokLastErrorCodeDesc})";
+        }
+        Log.WarnInform(string.Format("Ngrok Error! Code: {0} {1}".Translate(), NgrokLastErrorCode, NgrokLastErrorCodeDesc));
     }
 
     public void StopNgrok()
@@ -266,11 +277,18 @@ public class NgrokManager
             return;
         }
         _ngrokProcess.Refresh();
-        if (!_ngrokProcess.HasExited)
+        try
         {
-            _ngrokProcess.Kill();
-            _ngrokProcess.Close();
+            if (!_ngrokProcess.HasExited)
+            {
+                _ngrokProcess.Kill();
+            }
         }
+        catch (Exception e)
+        {
+            Log.Error(e);
+        }
+        _ngrokProcess.Close();
         _ngrokProcess = null;
     }
 
@@ -301,7 +319,7 @@ public class NgrokManager
             if (!_ngrokAddressObtainedSource.Task.Wait(TimeSpan.FromSeconds(15)))
             {
                 throw new TimeoutException(
-                    $"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode}");
+                    $"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode} ({NgrokLastErrorCodeDesc})");
             }
 
             return NgrokAddress;
