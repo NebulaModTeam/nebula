@@ -13,6 +13,7 @@ public class GlobalGameDataResponse
     public enum EDataType : byte
     {
         History = 1,
+        GalacticTransport,
         SpaceSector,
         MilestoneSystem,
         TrashSystem,

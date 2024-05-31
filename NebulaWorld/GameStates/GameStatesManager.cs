@@ -25,6 +25,7 @@ public class GameStatesManager : IDisposable
     // Store data get from GlobalGameDataResponse
     static bool SandboxToolsEnabled { get; set; }
     static byte[] HistoryBinaryData { get; set; }
+    static byte[] GalacticTransportBinaryData { get; set; }
     static byte[] SpaceSectorBinaryData { get; set; }
     static byte[] MilestoneSystemBinaryData { get; set; }
     static byte[] TrashSystemBinaryData { get; set; }
@@ -35,6 +36,7 @@ public class GameStatesManager : IDisposable
         FragmentSize = 0;
         SandboxToolsEnabled = false;
         HistoryBinaryData = null;
+        GalacticTransportBinaryData = null;
         SpaceSectorBinaryData = null;
         MilestoneSystemBinaryData = null;
         TrashSystemBinaryData = null;
@@ -76,6 +78,11 @@ public class GameStatesManager : IDisposable
         {
             case GlobalGameDataResponse.EDataType.History:
                 HistoryBinaryData = packet.BinaryData;
+                Log.Info("Waiting for GalacticTransport data from the server...");
+                break;
+
+            case GlobalGameDataResponse.EDataType.GalacticTransport:
+                GalacticTransportBinaryData = packet.BinaryData;
                 Log.Info("Waiting for SpaceSector data from the server...");
                 break;
 
@@ -119,6 +126,16 @@ public class GameStatesManager : IDisposable
                 data.history.Import(reader.BinaryReader);
             }
             HistoryBinaryData = null;
+        }
+        if (GalacticTransportBinaryData != null)
+        {
+            Log.Info("Parsing GalacticTransport data from the server...");
+            data.galacticTransport.Init(data);
+            using (var reader = new BinaryUtils.Reader(GalacticTransportBinaryData))
+            {
+                data.galacticTransport.Import(reader.BinaryReader);
+            }
+            GalacticTransportBinaryData = null;
         }
         if (SpaceSectorBinaryData != null)
         {

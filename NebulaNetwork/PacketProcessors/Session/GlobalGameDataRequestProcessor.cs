@@ -32,6 +32,14 @@ internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRe
 
         using (var writer = new BinaryUtils.Writer())
         {
+            GameMain.data.galacticTransport.Export(writer.BinaryWriter);
+
+            conn.SendPacket(new GlobalGameDataResponse(
+                GlobalGameDataResponse.EDataType.GalacticTransport, writer.CloseAndGetBytes()));
+        }
+
+        using (var writer = new BinaryUtils.Writer())
+        {
             // Note: Initial syncing from vanilla. May be refined later in future
             NebulaWorld.Combat.CombatManager.SerializeOverwrite = true;
             GameMain.data.spaceSector.BeginSave();
