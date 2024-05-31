@@ -153,6 +153,7 @@ public class ILSShipManager
         stationComponent.workShipOrders = new RemoteLogisticOrder[maxShipCount];
         stationComponent.shipRenderers = new ShipRenderingData[maxShipCount];
         stationComponent.shipUIRenderers = new ShipUIRenderingData[maxShipCount];
+        stationComponent.priorityLocks = new StationPriorityLock[6]; // dummy placeholder. the real length should be stationMaxItemKinds
         stationComponent.workShipCount = 0;
         stationComponent.idleShipCount = maxShipCount; // add dummy idle ship count to use in ILSShipManager
         stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet
