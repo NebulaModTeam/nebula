@@ -373,6 +373,44 @@ internal class UIStationWindow_Patch
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIStationWindow.OnGroupButtonClick))]
+    public static void OnGroupButtonClick_Postfix(UIStationWindow __instance)
+    {
+        if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+        {
+            return;
+        }
+
+        if (__instance.stationId == 0 || __instance.factory == null)
+        {
+            return;
+        }
+        var stationComponent = __instance.transport.stationPool[__instance.stationId];
+        var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
+            StationUI.EUISettings.RemoteGroupMask, BitConverter.Int64BitsToDouble(stationComponent.remoteGroupMask));
+        Multiplayer.Session.Network.SendPacket(packet);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIStationWindow.OnBehaviorBomboBoxItemIndexChange))]
+    public static void OnBehaviorBomboBoxItemIndexChange_Postfix(UIStationWindow __instance)
+    {
+        if (__instance.event_lock || !Multiplayer.IsActive || Multiplayer.Session.Ships.PatchLockILS)
+        {
+            return;
+        }
+
+        if (__instance.stationId == 0 || __instance.factory == null)
+        {
+            return;
+        }
+        var stationComponent = __instance.transport.stationPool[__instance.stationId];
+        var packet = new StationUI(__instance.factory.planet.id, stationComponent.id, stationComponent.gid,
+            StationUI.EUISettings.RoutePriority, (int)stationComponent.routePriority);
+        Multiplayer.Session.Network.SendPacket(packet);
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(nameof(UIStationWindow._OnOpen))]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnOpen_Postfix(UIStationWindow __instance)

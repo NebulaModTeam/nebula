@@ -243,6 +243,16 @@ public class StationUIManager : IDisposable
                     stationComponent.shipAutoReplenish = packet.SettingValue != 0;
                     break;
                 }
+            case StationUI.EUISettings.RemoteGroupMask:
+                {
+                    stationComponent.remoteGroupMask = BitConverter.DoubleToInt64Bits(packet.SettingValue);
+                    break;
+                }
+            case StationUI.EUISettings.RoutePriority:
+                {
+                    stationComponent.routePriority = (ERemoteRoutePriority)packet.SettingValue;
+                    break;
+                }
             case StationUI.EUISettings.None:
                 break;
             default:
