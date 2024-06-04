@@ -127,6 +127,7 @@ public class CreatePrebuildsRequest
         buildPreview.lpos2 = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
         buildPreview.lrot = new Quaternion(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
         buildPreview.lrot2 = new Quaternion(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+        buildPreview.tilt = br.ReadSingle();
         buildPreview.condition = (EBuildCondition)br.ReadInt32();
     }
 
@@ -184,6 +185,7 @@ public class CreatePrebuildsRequest
         bw.Write(buildPreview.lrot2.y);
         bw.Write(buildPreview.lrot2.z);
         bw.Write(buildPreview.lrot2.w);
+        bw.Write(buildPreview.tilt);
         bw.Write((int)buildPreview.condition);
     }
 }
