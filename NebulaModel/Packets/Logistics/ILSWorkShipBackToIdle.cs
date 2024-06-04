@@ -4,7 +4,7 @@ public class ILSWorkShipBackToIdle
 {
     public ILSWorkShipBackToIdle() { }
 
-    public ILSWorkShipBackToIdle(StationComponent stationComponent, ShipData shipData, int workShipIndex)
+    public ILSWorkShipBackToIdle(StationComponent stationComponent, in ShipData shipData, int workShipIndex)
     {
         GId = stationComponent.gid;
         PlanetA = shipData.planetA;

@@ -66,7 +66,7 @@ internal class StationComponent_Patch
         {
             return;
         }
-        var packet = new ILSIdleShipBackToWork(__instance.workShipDatas[__instance.workShipCount - 1], __instance.gid,
+        var packet = new ILSIdleShipBackToWork(in __instance.workShipDatas[__instance.workShipCount - 1], __instance.gid,
             __instance.workShipDatas.Length, __instance.warperCount);
         Multiplayer.Session.Network.SendPacket(packet);
     }

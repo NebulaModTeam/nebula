@@ -4,18 +4,17 @@ public class ILSIdleShipBackToWork
 {
     public ILSIdleShipBackToWork() { }
 
-    public ILSIdleShipBackToWork(ShipData ShipData, int thisGId, int stationMaxShipCount, int stationWarperCount)
+    public ILSIdleShipBackToWork(in ShipData shipData, int thisGId, int stationMaxShipCount, int stationWarperCount)
     {
         ThisGId = thisGId;
-        PlanetA = ShipData.planetA;
-        PlanetB = ShipData.planetB;
-        OtherGId = ShipData.otherGId;
-        ItemId = ShipData.itemId;
-        ItemCount = ShipData.itemCount;
-        Inc = ShipData.inc;
-        Gene = ShipData.gene;
-        ShipIndex = ShipData.shipIndex;
-        ShipWarperCount = ShipData.warperCnt;
+        PlanetA = shipData.planetA;
+        PlanetB = shipData.planetB;
+        OtherGId = shipData.otherGId;
+        ItemId = shipData.itemId;
+        ItemCount = shipData.itemCount;
+        Inc = shipData.inc;
+        ShipIndex = shipData.shipIndex;
+        ShipWarperCount = (byte)shipData.warperCnt;
         StationMaxShipCount = stationMaxShipCount;
         StationWarperCount = stationWarperCount;
     }
@@ -27,9 +26,8 @@ public class ILSIdleShipBackToWork
     public int ItemId { get; set; }
     public int ItemCount { get; set; }
     public int Inc { get; set; }
-    public int Gene { get; set; }
     public int ShipIndex { get; set; }
-    public int ShipWarperCount { get; set; }
+    public byte ShipWarperCount { get; set; } // Max count for round-trip: 2
     public int StationMaxShipCount { get; set; }
     public int StationWarperCount { get; set; }
 }

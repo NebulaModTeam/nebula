@@ -70,7 +70,6 @@ public class ILSShipManager
         stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.ItemId;
         stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.ItemCount;
         stationComponent.workShipDatas[stationComponent.workShipCount].inc = packet.Inc;
-        stationComponent.workShipDatas[stationComponent.workShipCount].gene = packet.Gene;
         stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.ShipIndex;
         stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
         stationComponent.warperCount = packet.StationWarperCount;
