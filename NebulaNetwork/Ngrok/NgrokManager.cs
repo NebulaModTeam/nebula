@@ -265,10 +265,7 @@ public class NgrokManager
             "ERR_NGROK_123" => "Account email not verified".Translate(),
             _ => string.Empty
         };
-        if (!string.IsNullOrWhiteSpace(NgrokLastErrorCodeDesc))
-        {
-            NgrokLastErrorCodeDesc = $"({NgrokLastErrorCodeDesc})";
-        }
+        NgrokLastErrorCodeDesc = !string.IsNullOrWhiteSpace(NgrokLastErrorCodeDesc) ? $"({NgrokLastErrorCodeDesc})" : string.Empty;
         Log.WarnInform(string.Format("Ngrok Error! Code: {0} {1}".Translate(), NgrokLastErrorCode, NgrokLastErrorCodeDesc));
     }
 
