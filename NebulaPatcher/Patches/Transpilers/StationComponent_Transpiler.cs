@@ -293,7 +293,7 @@ public class StationComponent_Transpiler
         return matcher.InstructionEnumeration();
     }
 
-    [HarmonyReversePatch]
+    [HarmonyReversePatch(HarmonyReversePatchType.Original)]
     [HarmonyPatch(nameof(StationComponent.InternalTickRemote))]
     [SuppressMessage("Style", "IDE0060:Remove unused parameter")]
     public static void ILSUpdateShipPos(StationComponent stationComponent, PlanetFactory factory, int timeGene,
@@ -305,30 +305,15 @@ public class StationComponent_Transpiler
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            // find begin of ship movement computation, remove all content in if (timeGene == this.gene) {...}
-            // remove c# 10 - 473
             var matcher = new CodeMatcher(instructions, il);
-            var indexStart = matcher
-                .MatchForward(false,
-                    new CodeMatch(i => i.IsLdarg()), // float num47 = shipSailSpeed / 600f;
-                    new CodeMatch(OpCodes.Ldc_R4),
-                    new CodeMatch(OpCodes.Div),
-                    new CodeMatch(OpCodes.Stloc_S),
-                    new CodeMatch(OpCodes.Ldloc_S), // float num48 = Mathf.Pow(num47, 0.4f);
-                    new CodeMatch(OpCodes.Ldc_R4),
-                    new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Mathf), "Pow")))
-                .Pos;
-            // cut out only that part of original function, but keep the first 5 IL lines (they create the 'bool flag' which is needed)
-            for (matcher.Start().Advance(6); matcher.Pos < indexStart;)
-            {
-                matcher.SetAndAdvance(OpCodes.Nop, null);
-            }
+            int indexStart, indexEnd;
 
-            // c# 502: add null check at the beginning of the while(){} for gStationPool[shipData.otherGId] and if it is null skip this shipData until all data received from server
+            // Part1: Add null check for gStationPool[shipData.otherGId] at the beginning of the major while loop (c# 62)
+            //        If it is null, skip this shipData until all data is received from server
             // 
             // 	while (j < this.workShipCount)
             //  {				
-            //	   ref ShipData ptr3 = ref this.workShipDatas[j];
+            //	   ref ShipData ptr2 = ref this.workShipDatas[j];
             //   >>  insert if (gStationPool[shipData.otherGId] == null) { j++; continue; }
             matcher
                 .MatchForward(true,
@@ -345,19 +330,21 @@ public class StationComponent_Transpiler
             matcher.CreateLabelAt(matcher.Pos + 1, out var jmpNormalFlow);
             matcher
                 .Advance(1)
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_S, 6)) // gStationPool
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, shipDataRef)) // shipData
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldelem, typeof(StationComponent)))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, jmpNormalFlow))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_S, loopIndex)) // j
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_1))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Add))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Stloc_S, loopIndex))
-                .InsertAndAdvance(new CodeInstruction(OpCodes.Br, jmpNextLoopIter));
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldarg_S, 6), // gStationPool
+                    new CodeInstruction(OpCodes.Ldloc_S, shipDataRef), // shipData
+                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")),
+                    new CodeInstruction(OpCodes.Ldelem, typeof(StationComponent)),
+                    new CodeInstruction(OpCodes.Brtrue, jmpNormalFlow),
+                    new CodeInstruction(OpCodes.Ldloc_S, loopIndex),
+                    new CodeInstruction(OpCodes.Ldc_I4_1),
+                    new CodeInstruction(OpCodes.Add),
+                    new CodeInstruction(OpCodes.Stloc_S, loopIndex),
+                    new CodeInstruction(OpCodes.Br, jmpNextLoopIter)
+                );
 
-            // remove c# 537-561 (adding item from landing ship to station and modify remote order and shifitng those arrays AND j-- (as we end up in an endless loop if not))
-            // start: this.AddItem(ptr3.itemId, ptr3.itemCount, ptr3.inc);
+            // Part2: Remove c# 97-121 (adding item from landing ship to station and modify remote order and shifitng those arrays AND j-- (as we end up in an endless loop if not))
+            // start: this.AddItem(ptr2.itemId, ptr2.itemCount, ptr2.inc);
             // end:   j--;
             indexStart = matcher
                 .MatchForward(false,
@@ -370,7 +357,8 @@ public class StationComponent_Transpiler
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "inc")),
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "AddItem"))
                 .Pos;
-            var indexEnd = matcher
+
+            indexEnd = matcher
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Sub),
                     new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Clear"),
@@ -385,85 +373,77 @@ public class StationComponent_Transpiler
                 matcher.SetAndAdvance(OpCodes.Nop, null);
             }
 
-            // remove c# 1103 - 1201 (adding item from landing ship to station and modify remote order)
-            // start: StationComponent stationComponent3 = gStationPool[ptr3.otherGId]; StationStore[] array21 = stationComponent3.storage;
-            // end:   if (this.remotePairCount > 0) {...}
+            // Part3: Remove c# 252 (ptr2.warperCnt--), assume warperCnt is either 0 or 2(allow round-trip)
             indexStart = matcher
                 .MatchForward(false,
-                    new CodeMatch(OpCodes.Ldarg_S),
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")),
-                    new CodeMatch(OpCodes.Ldelem_Ref),
-                    new CodeMatch(OpCodes.Stloc_S),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "storage")))
+                    new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(ShipData), "warperCnt")),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Ldind_I4),
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_I4))
                 .Pos;
-            indexEnd = matcher
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StationComponent), "remotePairCount")),
-                    new CodeMatch(OpCodes.Rem),
-                    new CodeMatch(OpCodes.Stloc_S),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Bne_Un))
-                .Pos;
-            for (matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
+            indexEnd = indexStart + 7;
+            for (matcher.Start().Advance(indexStart); matcher.Pos < indexEnd;)
             {
                 matcher.SetAndAdvance(OpCodes.Nop, null);
             }
 
-            // remove c# 1208 - 1093 (taking item from station and modify remote order)
-            // start: stationComponent3.TakeItem(ref itemId3, ref num120, out inc);
-            // end:   lock (obj) {...}				
-            indexStart = matcher
-                .MatchForward(false,
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(OpCodes.Ldloca_S),
-                    new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "TakeItem"))
-                .Pos;
-            indexEnd = matcher
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Stind_I4),
-                    new CodeMatch(OpCodes.Leave),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Brfalse),
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Call),
-                    new CodeMatch(OpCodes.Endfinally))
-                .Pos;
-            for (matcher.Start().Advance(indexStart); matcher.Pos <= indexEnd;)
-            {
-                matcher.SetAndAdvance(OpCodes.Nop, null);
-            }
-
-            // Switch itemCount in ShipData when ship arrive destination to display correct color
-            // Currently the render only test if itemCount > 0 so we can give it a dummy positive value
-            // c# 1241:
-            //   ptr3.direction = -1;
-            // >>  Insert ptr3.itemCount = ptr3.itemCount > 0 ? 0 : 1;
+            // Part4: Switch itemCount in ShipData when ship arrive destination to display correct color
+            //        Currently the render only test if itemCount > 0 so we can give it a dummy positive value
+            //
+            //  c# 668-880
+            //  if (ptr2.direction > 0)
+            //  {
+            //		ptr2.t -= 0.0334f;
+            //		if (ptr2.t < 0f)
+            //		{
+            //          >> Change the content to following and skip the rest of the calculation
+            //          ptr2.t = 0f;
+            //			ptr2.direction = -1;
+            //			ptr2.itemCount = ptr2.itemCount > 0 ? 0 : 1;
+            //		} >> labelEnd
+            //
             matcher
                 .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldc_I4_M1),
-                    new CodeMatch(OpCodes.Stfld))
+                    new CodeMatch(OpCodes.Ldc_R4, 0.0334f),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(OpCodes.Stind_R4),
+                    new CodeMatch(OpCodes.Ldloc_S, shipDataRef),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "t")),
+                    new CodeMatch(OpCodes.Ldc_R4, 0.0f),
+                    new CodeMatch(OpCodes.Bge_Un));
+            var labelEnd = matcher.Operand;
+
+            matcher
                 .Advance(1)
                 .Insert(
-                    new CodeInstruction(OpCodes.Ldloc_S, matcher.InstructionAt(-3).operand),
-                    new CodeInstruction(OpCodes.Ldloc_S, matcher.InstructionAt(-3).operand),
+                    // ptr2.t = 0.0f;
+                    new CodeInstruction(OpCodes.Ldloc_S, shipDataRef),
+                    new CodeInstruction(OpCodes.Ldc_R4, 0.0f),
+                    new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "t")),
+
+                    // ptr2.direction = -1;
+                    new CodeInstruction(OpCodes.Ldloc_S, shipDataRef),
+                    new CodeInstruction(OpCodes.Ldc_I4_M1),
+                    new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "direction")),
+
+                    // ptr2.itemCount = ptr2.itemCount > 0 ? 0 : 1;
+                    new CodeInstruction(OpCodes.Ldloc_S, shipDataRef),
+                    new CodeInstruction(OpCodes.Ldloc_S, shipDataRef),
                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "itemCount")),
-                    new CodeInstruction(OpCodes.Ldc_I4_0),
-                    new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "itemCount"))
+                    new CodeInstruction(OpCodes.Ldc_I4_0), //CreateLabel labelTo0
+                    new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "itemCount")),
+                    new CodeInstruction(OpCodes.Br_S, labelEnd)
                 )
-                .Advance(3) //OpCodes.Ldc_I4_0
+                .Advance(9) //OpCodes.Ldc_I4_0
                 .CreateLabel(out var labelTo0)
-                .CreateLabelAt(matcher.Pos + 1, out var labelEnd)
                 .Insert(
                     new CodeInstruction(OpCodes.Ldc_I4_0),
                     new CodeInstruction(OpCodes.Bgt_S, labelTo0),
                     new CodeInstruction(OpCodes.Ldc_I4_1),
+                    new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(ShipData), "itemCount")),
                     new CodeInstruction(OpCodes.Br_S, labelEnd)
                 );
 

@@ -70,7 +70,6 @@ public class ILSShipManager
         stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.ItemId;
         stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.ItemCount;
         stationComponent.workShipDatas[stationComponent.workShipCount].inc = packet.Inc;
-        stationComponent.workShipDatas[stationComponent.workShipCount].gene = packet.Gene;
         stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.ShipIndex;
         stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
         stationComponent.warperCount = packet.StationWarperCount;
@@ -153,6 +152,7 @@ public class ILSShipManager
         stationComponent.workShipOrders = new RemoteLogisticOrder[maxShipCount];
         stationComponent.shipRenderers = new ShipRenderingData[maxShipCount];
         stationComponent.shipUIRenderers = new ShipUIRenderingData[maxShipCount];
+        stationComponent.priorityLocks = new StationPriorityLock[6]; // dummy placeholder. the real length should be stationMaxItemKinds
         stationComponent.workShipCount = 0;
         stationComponent.idleShipCount = maxShipCount; // add dummy idle ship count to use in ILSShipManager
         stationComponent.shipDockPos = Vector3.zero; //gets updated later by server packet

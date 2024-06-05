@@ -19,12 +19,14 @@ public class StationUI
         PilerCount,
         MaxMiningSpeed,
         DroneAutoReplenish,
-        ShipAutoReplenish
+        ShipAutoReplenish,
+        RemoteGroupMask,
+        RoutePriority
     }
 
     public StationUI() { }
 
-    public StationUI(int planetId, int stationId, int stationGId, EUISettings settingIndex, float value,
+    public StationUI(int planetId, int stationId, int stationGId, EUISettings settingIndex, double value,
         bool warperShouldTakeFromStorage = false)
     {
         PlanetId = planetId;
@@ -35,21 +37,11 @@ public class StationUI
         WarperShouldTakeFromStorage = warperShouldTakeFromStorage;
     }
 
-    public StationUI(int planetId, int stationId, int stationGId, EUISettings settingIndex, string settingString)
-    {
-        PlanetId = planetId;
-        StationId = stationId;
-        StationGId = stationGId;
-        SettingIndex = settingIndex;
-        SettingString = settingString;
-    }
-
     public int PlanetId { get; set; }
     public int StationId { get; set; }
     public int StationGId { get; set; }
     public EUISettings SettingIndex { get; set; }
-    public float SettingValue { get; set; }
-    public string SettingString { get; set; }
+    public double SettingValue { get; set; }
     public bool WarperShouldTakeFromStorage { get; set; }
     public bool ShouldRefund { get; set; }
 }

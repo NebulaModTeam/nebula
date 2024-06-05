@@ -41,13 +41,15 @@ internal class UIPlanetDetail_Patch
             return true;
         }
 
-        if (Time.frameCount % 30 == 0)
+        if (Time.frameCount % 30 == 0 && __instance.tabIndex == 0)
         {
             __instance.RefreshDynamicProperties();
+            __instance.OnTabButtonClick(0); // baseInfoGroupGo.SetActive(true)
         }
         __instance.trslBg.SetActive(true);
         __instance.imgBg.SetActive(true);
-
+        __instance.displayComboColorCard.color = ((__instance.uiGame.veinAmountDisplayFilter > 0) ? __instance.displayComboFilterColor : __instance.displayComboNormalColor);
+        __instance.RefreshTabPanel();
         return false;
     }
 

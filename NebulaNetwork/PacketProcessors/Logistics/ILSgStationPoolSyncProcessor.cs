@@ -98,5 +98,6 @@ internal class ILSgStationPoolSyncProcessor : PacketProcessor<ILSgStationPoolSyn
         }
 
         gTransport.Arragement();
+        gTransport.RefreshTraffic(0);
     }
 }

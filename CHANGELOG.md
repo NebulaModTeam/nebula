@@ -1,5 +1,12 @@
 ## Changelog
 
+0.9.4:
+- Compatible with Steam or Game Pass version 0.10.30.22292
+- @PhantomGamers: Prevent errors with Ngrok from crashing the game
+- @PhantomGamers: Added error descriptions to Ngrok errors
+- @starfi5h: Sync interstellar routes
+- @starfi5h: Sync tilted conveyor belts
+
 0.9.3:
 - @starfi5h: Change chat message format. Player's name now has an underlined link to navigate
 - @starfi5h: Add new config option Chat - Show Timestamp to enable/disable timestamp before the chat message
@@ -10,7 +17,7 @@
 - @starfi5h: Fix enemies and ILS related errors
 
 0.9.2:
-- Compatible to Steam version 0.10.29.22015 or Game Pass version 0.10.29.21943
+- Compatible with Steam version 0.10.29.22015 or Game Pass version 0.10.29.21943
 - @sk7725: Added Korean font and TextMeshPro fallback
 - @starfi5h: Add new chat command `/playerdata`
 - @starfi5h: Launch construction drones if local player is closer or within 15m
