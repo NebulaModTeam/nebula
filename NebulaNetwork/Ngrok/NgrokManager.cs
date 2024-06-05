@@ -260,7 +260,9 @@ public class NgrokManager
         NgrokLastErrorCode = errorCodeMatches[errorCodeMatches.Count - 1].Value;
         NgrokLastErrorCodeDesc = NgrokLastErrorCode switch
         {
-            "ERR_NGROK_105" => "Authtoken is invalid".Translate(),
+            "ERR_NGROK_105" => "Authtoken is empty or expired".Translate(),
+            "ERR_NGROK_108" => "Session limit reached".Translate(),
+            "ERR_NGROK_123" => "Account email not verified".Translate(),
             _ => string.Empty
         };
         if (!string.IsNullOrWhiteSpace(NgrokLastErrorCodeDesc))
