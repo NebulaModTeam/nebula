@@ -77,6 +77,7 @@ public class Server : IServer
     public bool NgrokActive => ngrokManager.IsNgrokActive();
     public bool NgrokEnabled => ngrokManager.NgrokEnabled;
     public string NgrokLastErrorCode => ngrokManager.NgrokLastErrorCode;
+    public string NgrokLastErrorCodeDesc => ngrokManager.NgrokLastErrorCodeDesc;
     public event EventHandler<INebulaConnection> Connected;
     public event EventHandler<INebulaConnection> Disconnected;
 
