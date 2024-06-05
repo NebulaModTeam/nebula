@@ -113,14 +113,14 @@ public class NgrokManager
             if (!StartNgrok())
             {
                 Log.WarnInform(
-                    string.Format("Failed to start Ngrok tunnel! LastErrorCode: {0}".Translate(), NgrokLastErrorCode));
+                    string.Format("Failed to start Ngrok tunnel! LastErrorCode: {0} {1}".Translate(), NgrokLastErrorCode, NgrokLastErrorCodeDesc));
                 return;
             }
 
             if (!IsNgrokActive())
             {
-                Log.WarnInform(string.Format("Ngrok tunnel has exited prematurely! LastErrorCode: {0}".Translate(),
-                    NgrokLastErrorCode));
+                Log.WarnInform(string.Format("Ngrok tunnel has exited prematurely! LastErrorCode: {0} {1}".Translate(),
+                    NgrokLastErrorCode, NgrokLastErrorCodeDesc));
             }
         });
     }
@@ -313,13 +313,13 @@ public class NgrokManager
             if (!IsNgrokActive())
             {
                 throw new Exception(
-                    $"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
+                    $"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode} {NgrokLastErrorCodeDesc}");
             }
 
             if (!_ngrokAddressObtainedSource.Task.Wait(TimeSpan.FromSeconds(15)))
             {
                 throw new TimeoutException(
-                    $"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode} ({NgrokLastErrorCodeDesc})");
+                    $"Not able to get Ngrok tunnel address because 15s timeout was exceeded! LastErrorCode: {NgrokLastErrorCode} {NgrokLastErrorCodeDesc}");
             }
 
             return NgrokAddress;
@@ -331,7 +331,7 @@ public class NgrokManager
         if (!IsNgrokActive())
         {
             throw new Exception(
-                $"Not able to get Ngrok tunnel address from API because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode}");
+                $"Not able to get Ngrok tunnel address from API because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode} {NgrokLastErrorCodeDesc}");
         }
 
         if (_ngrokAPIAddress == null)
