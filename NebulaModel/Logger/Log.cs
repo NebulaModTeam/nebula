@@ -66,6 +66,15 @@ public static class Log
         LastErrorMsg = message;
         if (UIFatalErrorTip.instance != null)
         {
+            // Test if current code is executing on the main unity thread
+            if (BepInEx.ThreadingHelper.Instance.InvokeRequired)
+            {
+                // ShowError has Unity API and needs to call on the main thread
+                BepInEx.ThreadingHelper.Instance.StartSyncInvoke(() =>
+                    UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "")
+                );
+                return;
+            }
             UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
         }
     }

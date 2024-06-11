@@ -298,9 +298,8 @@ public class NgrokManager
             _ngrokProcess?.Refresh();
             return !_ngrokProcess?.HasExited ?? false;
         }
-        catch (Exception e)
+        catch
         {
-            Log.Error(e);
             return false;
         }
     }
