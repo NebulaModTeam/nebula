@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory.Belt;
+using NebulaModel.Packets.Factory.Foundation;
 using NebulaModel.Packets.Factory.Inserter;
 using NebulaWorld;
 using UnityEngine;
@@ -255,6 +256,57 @@ internal class PlanetFactory_Transpiler
             Log.Error("Transpiler PlanetFactory.AddPrebuildDataWithComponents error!");
             Log.Error(e);
             return instructions;
+        }
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(PlanetFactory.FlattenTerrainReform))]
+    public static IEnumerable<CodeInstruction> FlattenTerrainReform_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
+            /*  Broadcast the change of vein pos to other players, because nearColliderLogic is just dummy placeholder on remote planets (PlanetTimer)
+            
+                Replace: this.veinPool[num18].pos = vector.normalized * num21;
+                To:      SetVeinPos(this, num18, vector.normalized * num21);
+            */
+            var matcher = new CodeMatcher(instructions)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "veinPool"), // =>Nop
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldelema), // =>Nop
+                    new CodeMatch(OpCodes.Ldloca_S),
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Call),
+                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "pos") // =>SetVeinPos 
+                )
+                .Advance(1)
+                .SetAndAdvance(OpCodes.Nop, null)
+                .Advance(1)
+                .SetAndAdvance(OpCodes.Nop, null)
+                .Advance(4)
+                .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(PlanetFactory_Transpiler), nameof(SetVeinPos)));
+
+            return matcher.InstructionEnumeration();
+        }
+        catch (Exception e)
+        {
+            Log.Error("Transpiler PlanetFactory.FlattenTerrainReform error! Burry vein will not sync");
+            Log.Error(e);
+            return instructions;
+        }
+    }
+
+    private static void SetVeinPos(PlanetFactory factory, int veinId, Vector3 pos)
+    {
+        var oldVeinPos = factory.veinPool[veinId].pos;
+        factory.veinPool[veinId].pos = pos;
+
+        if (Multiplayer.IsActive && (oldVeinPos - pos).magnitude > 0.01f)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(new VeinPosUpdatePacket(factory.planetId, veinId, pos));
         }
     }
 }
