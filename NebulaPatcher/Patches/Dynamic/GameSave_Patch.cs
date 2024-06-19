@@ -1,9 +1,11 @@
 ﻿#region
 
+using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NebulaModel;
-using NebulaNetwork;
+using NebulaModel.Packets.GameStates;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 
 #endregion
 
@@ -46,6 +48,9 @@ internal class GameSave_Patch
             (GameMain.mainPlayer.sandCount, Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount) = (
                 Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount, GameMain.mainPlayer.sandCount);
         }
+        // Update last save time in clients
+        GameStatesManager.LastSaveTime = GameMain.gameTick;
+        Multiplayer.Session.Server.SendPacket(new GameStateSaveInfoPacket(GameMain.gameTick));
     }
 
     [HarmonyPrefix]
@@ -66,6 +71,7 @@ internal class GameSave_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameSave.LoadCurrentGame))]
+    [SuppressMessage("Style", "IDE1006:Naming Styles")]
     public static void LoadCurrentGame_Postfix(bool __result)
     {
         // If loading success, check and correct offset for all inserters
@@ -87,6 +93,10 @@ internal class GameSave_Patch
                     inserter.InternalOffsetCorrection(entityPool, traffic, beltPool);
                 }
             }
+        }
+        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            GameStatesManager.LastSaveTime = GameMain.gameTick;
         }
     }
 }

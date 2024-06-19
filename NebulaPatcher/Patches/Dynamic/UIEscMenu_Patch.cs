@@ -6,6 +6,7 @@ using HarmonyLib;
 using NebulaModel.Packets.Players;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +29,21 @@ internal class UIEscMenu_Patch
         // Disable load game button if in a multiplayer session
         var loadGameWindowButton = __instance.button3;
         SetButtonEnableState(loadGameWindowButton, !Multiplayer.IsActive);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIEscMenu._OnOpen))]
+    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+    public static void _OnOpen_Postfix(UIEscMenu __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return;
+
+        var timeSinceSave = GameMain.gameTick - GameStatesManager.LastSaveTime;
+        var second = (int)(timeSinceSave / 60L);
+        var minute = second / 60;
+        var hour = minute / 60;
+        var saveBtnText = "存档时间".Translate() + $" {hour}h{minute % 60}m{second % 60}s ago";
+        __instance.button2Text.text = saveBtnText;
     }
 
     [HarmonyPrefix]

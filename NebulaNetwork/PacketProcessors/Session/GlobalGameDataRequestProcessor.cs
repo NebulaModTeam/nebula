@@ -3,7 +3,9 @@
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Session;
+using NebulaWorld.GameStates;
 
 #endregion
 
@@ -74,5 +76,7 @@ internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRe
             conn.SendPacket(new GlobalGameDataResponse(
                 GlobalGameDataResponse.EDataType.Ready, writer.CloseAndGetBytes()));
         }
+
+        conn.SendPacket(new GameStateSaveInfoPacket(GameStatesManager.LastSaveTime));
     }
 }
