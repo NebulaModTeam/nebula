@@ -35,27 +35,28 @@ internal class VeinPosUpdateProcessor : PacketProcessor<VeinPosUpdatePacket>
         var rot = Maths.SphericalRotation(pos, Random.value * 360f);
         GameMain.gpuiManager.AlterModel(veinData.modelIndex, veinData.modelId, packet.VeinId, pos, rot, false);
         var veinProto = LDB.veins.Select((int)veinData.type);
-        if (veinProto != null)
+        if (veinProto == null)
         {
-            var magnitude = pos.magnitude;
-            var normalVector = pos / magnitude;
-            if (veinData.minerId0 > 0)
-            {
-                GameMain.gpuiManager.AlterModel(veinProto.MinerBaseModelIndex, veinData.minerBaseModelId, veinData.minerId0, normalVector * (magnitude + 0.1f), false);
-                GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId0, veinData.minerId0, normalVector * (magnitude + 0.4f), false);
-            }
-            if (veinData.minerId1 > 0)
-            {
-                GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId1, veinData.minerId1, normalVector * (magnitude + 0.6f), false);
-            }
-            if (veinData.minerId2 > 0)
-            {
-                GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId2, veinData.minerId2, normalVector * (magnitude + 0.8f), false);
-            }
-            if (veinData.minerId3 > 0)
-            {
-                GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId3, veinData.minerId3, normalVector * (magnitude + 1f), false);
-            }
+            return;
+        }
+        var magnitude = pos.magnitude;
+        var normalVector = pos / magnitude;
+        if (veinData.minerId0 > 0)
+        {
+            GameMain.gpuiManager.AlterModel(veinProto.MinerBaseModelIndex, veinData.minerBaseModelId, veinData.minerId0, normalVector * (magnitude + 0.1f), false);
+            GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId0, veinData.minerId0, normalVector * (magnitude + 0.4f), false);
+        }
+        if (veinData.minerId1 > 0)
+        {
+            GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId1, veinData.minerId1, normalVector * (magnitude + 0.6f), false);
+        }
+        if (veinData.minerId2 > 0)
+        {
+            GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId2, veinData.minerId2, normalVector * (magnitude + 0.8f), false);
+        }
+        if (veinData.minerId3 > 0)
+        {
+            GameMain.gpuiManager.AlterModel(veinProto.MinerCircleModelIndex, veinData.minerCircleModelId3, veinData.minerId3, normalVector * (magnitude + 1f), false);
         }
     }
 }
