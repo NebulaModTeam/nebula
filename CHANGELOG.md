@@ -1,5 +1,10 @@
 ## Changelog
 
+0.9.5:
+- @starfi5h: Sync Dark Fog communicator (aggressiveness and truce)
+- @starfi5h: Show server last save time in client esc menu
+- @starfi5h: Fix veins don't get buried by foundations on remote planets and log error crash
+
 0.9.4:
 - Compatible with Steam or Game Pass version 0.10.30.22292
 - @PhantomGamers: Prevent errors with Ngrok from crashing the game
