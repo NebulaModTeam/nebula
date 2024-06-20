@@ -19,6 +19,7 @@ public class GameStatesManager : IDisposable
     public static long RealGameTick => GameMain.gameTick;
     public static float RealUPS => (float)FPSController.currentUPS;
     public static string ImportedSaveName { get; set; }
+    public static long LastSaveTime { get; set; }
     public static GameDesc NewGameDesc { get; set; }
     public static int FragmentSize { get; set; }
 
@@ -33,7 +34,7 @@ public class GameStatesManager : IDisposable
 
     public void Dispose()
     {
-        FragmentSize = 0;
+        LastSaveTime = FragmentSize = 0;
         SandboxToolsEnabled = false;
         HistoryBinaryData = null;
         GalacticTransportBinaryData = null;

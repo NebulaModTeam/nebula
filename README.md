@@ -108,7 +108,7 @@ Most of the battle aspect are sync, only few features are still WIP.
 - [x] Patch DF turret to search for nearest alive mecha (attack when within attack range or counterattack)
 - [x] Show base/hive/relay invasion events in chat
 - [ ] Sync kill stats
-- [ ] Enable Dark Fog communicator (aggressive change and truce)
+- [x] Sync Dark Fog communicator (aggressiveness and truce)
 - [ ] Show remote mecha combat drone fleet
 - [ ] Show remote mecha space craft fleet
 - [ ] Show ground-to-space attacks animation on client for remote planets (missile turrets, plasma cannon)
