@@ -1,9 +1,7 @@
 ﻿#region
 
 using NebulaAPI;
-using NebulaAPI.GameState;
 using NebulaAPI.Packets;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Universe;
@@ -50,14 +48,12 @@ internal class NameInputProcessor : PacketProcessor<NameInputPacket>
                     var star = galaxyData.StarById(packet.StarIds[i]);
                     star.overrideName = packet.Names[i];
                     star.NotifyOnDisplayNameChange();
-                    Log.Debug($"star{star.id}: {star.name} -> {star.overrideName}");
                 }
                 else
                 {
                     var planet = galaxyData.PlanetById(packet.PlanetIds[i]);
                     planet.overrideName = packet.Names[i];
                     planet.NotifyOnDisplayNameChange();
-                    Log.Debug($"planet{planet.id}: {planet.name} -> {planet.overrideName}");
                 }
             }
             galaxyData.NotifyAstroNameChange();

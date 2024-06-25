@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using WebSocketSharp;
 
@@ -21,13 +20,11 @@ public static class Log
         Log.logger = logger;
     }
 
-    [Conditional("DEBUG")]
     public static void Debug(string message)
     {
         logger.LogDebug(message);
     }
 
-    [Conditional("DEBUG")]
     public static void Debug(object message)
     {
         Debug(message?.ToString());
@@ -93,10 +90,10 @@ public static class Log
     public static void SocketOutput(LogData data, string _)
     {
         var log = data.ToString();
-        const string ipv4Regex = @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}";
-        const string ipv6Regex = "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}";
-        log = Regex.Replace(log, ipv4Regex, "(IPv4 Address)");
-        log = Regex.Replace(log, ipv6Regex, "(IPv6 Address)");
+        const string Ipv4Regex = @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}";
+        const string Ipv6Regex = "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}";
+        log = Regex.Replace(log, Ipv4Regex, "(IPv4 Address)");
+        log = Regex.Replace(log, Ipv6Regex, "(IPv6 Address)");
 
         if (data.Level >= LogLevel.Warn)
         {

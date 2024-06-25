@@ -93,9 +93,6 @@ internal class UIGalaxySelect_Patch
 
         if (UIVirtualStarmap_Transpiler.CustomBirthPlanet != -1)
         {
-            Log.Debug(GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet) == null
-                ? "null"
-                : "not null");
             GameMain.data.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet)?.UnloadFactory();
         }
 
