@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using NebulaAPI;
 using NebulaAPI.DataStructures;
@@ -24,7 +23,6 @@ using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 #endregion
 
@@ -127,6 +125,7 @@ public class SimulatedWorld : IDisposable
                 GameMain.mainPlayer.mecha.coreEnergy = GameMain.mainPlayer.mecha.coreEnergyCap;
                 GameMain.mainPlayer.mecha.energyShieldEnergy = GameMain.mainPlayer.mecha.energyShieldCapacity;
                 GameMain.mainPlayer.mecha.hp = GameMain.mainPlayer.mecha.hpMaxApplied;
+                GameMain.mainPlayer.mecha.constructionModule.droneEnabled = true;
                 if (GameMain.history.logisticShipWarpDrive)
                 {
                     // If warp has unlocked, give new client few warpers
@@ -188,7 +187,7 @@ public class SimulatedWorld : IDisposable
         }
         // Finally we need add the local player components to the player character
         localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
-        // ChatManager should continuous exsit until the game is closed
+        // ChatManager should exist continuously until the game is closed
         GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
     }
 
@@ -234,7 +233,7 @@ public class SimulatedWorld : IDisposable
     {
         Multiplayer.Session.World.SpawnRemotePlayerModel(player.Data);
 
-        // Load overriden Planet and Star names
+        // Sync overrideName of planets and stars
         player.SendPacket(new NameInputPacket(GameMain.galaxy));
 
         // add together player sand count and tell others if we are syncing soil
@@ -316,10 +315,10 @@ public class SimulatedWorld : IDisposable
             model.Movement.localPlanetId = playerData.LocalPlanetId;
             remotePlayersModels.Add(playerData.PlayerId, model);
 
-            // Show conneted message
-            var planetname = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
+            // Show connected message
+            var planetName = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
             var message = string.Format("[{0:HH:mm}] {1} connected ({2})".Translate(), DateTime.Now, playerData.Username,
-                planetname);
+                planetName);
             ChatManager.Instance.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
         }
     }

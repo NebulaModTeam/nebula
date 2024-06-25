@@ -41,6 +41,8 @@ internal class Dedicated_Server_Patch
         {
             // Don't let the player of dedicated server to interact with enemies
             GameMain.mainPlayer.isAlive = false;
+            // Don't let the player of dedicated server send out construction drones 
+            GameMain.mainPlayer.mecha.constructionModule.droneEnabled = false;
         }
     }
 
@@ -64,7 +66,7 @@ internal class Dedicated_Server_Patch
         return false;
     }
 
-    // Destory gameObject so Update() won't execute
+    // Destroy gameObject so Update() won't execute
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlanetAtmoBlur), nameof(PlanetAtmoBlur.Start))]
     public static bool PlanetAtmoBlur_Start(PlanetAtmoBlur __instance)
