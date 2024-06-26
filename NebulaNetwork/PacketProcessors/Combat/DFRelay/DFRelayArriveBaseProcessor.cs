@@ -43,6 +43,12 @@ public class DFRelayArriveBaseProcessor : PacketProcessor<DFRelayArriveBasePacke
                     EnemyManager.SetPlanetFactoryNextEnemyId(factory, packet.NextGroundEnemyId);
                 }
                 dfrelayComponent.ArriveBase();
+
+                // Display message when DF relay is successfully landed and the planet has buildings
+                if (packet.HasFactory && dfrelayComponent.baseId > 0)
+                {
+                    Multiplayer.Session.Enemies.DisplayPlanetPingMessage("DF relay landed on planet".Translate(), dfrelayComponent.targetAstroId, dfrelayComponent.targetLPos);
+                }
             }
         }
     }

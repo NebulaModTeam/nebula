@@ -14,6 +14,7 @@ public class DFRelayArriveBasePacket
         if (factory != null)
         {
             NextGroundEnemyId = factory.enemyRecycleCursor > 0 ? factory.enemyRecycle[factory.enemyRecycleCursor - 1] : factory.enemyCursor;
+            HasFactory = factory.entityCount > 0;
         }
     }
 
@@ -21,4 +22,5 @@ public class DFRelayArriveBasePacket
     public int RelayId { get; set; }
     public int HiveRtseed { get; set; }
     public int NextGroundEnemyId { get; set; }
+    public bool HasFactory { get; set; }
 }
