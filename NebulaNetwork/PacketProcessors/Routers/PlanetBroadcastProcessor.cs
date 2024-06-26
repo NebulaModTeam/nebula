@@ -13,10 +13,6 @@ namespace NebulaNetwork.PacketProcessors.Routers;
 [RegisterPacketProcessor]
 internal class PlanetBroadcastProcessor : PacketProcessor<PlanetBroadcastPacket>
 {
-    public PlanetBroadcastProcessor()
-    {
-    }
-
     protected override void ProcessPacket(PlanetBroadcastPacket packet, NebulaConnection conn)
     {
         //Forward packet to other users if we're the host

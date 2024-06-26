@@ -17,10 +17,6 @@ namespace NebulaNetwork.PacketProcessors.Universe;
 [RegisterPacketProcessor]
 internal class NameInputProcessor : PacketProcessor<NameInputPacket>
 {
-    public NameInputProcessor()
-    {
-    }
-
     protected override void ProcessPacket(NameInputPacket packet, NebulaConnection conn)
     {
         if (IsHost)

@@ -13,10 +13,6 @@ namespace NebulaNetwork.PacketProcessors.Routers;
 [RegisterPacketProcessor]
 internal class StarBroadcastProcessor : PacketProcessor<StarBroadcastPacket>
 {
-    public StarBroadcastProcessor()
-    {
-    }
-
     protected override void ProcessPacket(StarBroadcastPacket packet, NebulaConnection conn)
     {
         //Forward packet to other users if we're the host

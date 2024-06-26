@@ -14,7 +14,7 @@ using NebulaWorld;
 
 /*
  * when a client arrives at a star he needs to sync the ILS storages as update events are sent only to corresponding stars
- * and also to sync the belt filters conencted to the ILS
+ * and also to sync the belt filters connected to the ILS
  */
 namespace NebulaNetwork.PacketProcessors.Logistics;
 
@@ -28,11 +28,6 @@ internal class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveSt
             return;
         }
 
-        var player = Players.Get(conn, EConnectionStatus.Connected) ?? Players.Get(conn, EConnectionStatus.Syncing);
-        if (player == null)
-        {
-            return;
-        }
         var stationGId = new List<int>();
         var stationPId = new List<int>();
         var stationMaxShips = new List<int>();
@@ -91,7 +86,7 @@ internal class ILSArriveStarPlanetRequestProcessor : PacketProcessor<ILSArriveSt
             offsetStorage += storageLength[i];
         }
 
-        player.SendPacket(new ILSArriveStarPlanetResponse(stationGId.ToArray(),
+        conn.SendPacket(new ILSArriveStarPlanetResponse(stationGId.ToArray(),
             stationPId.ToArray(),
             stationMaxShips.ToArray(),
             storageLength.ToArray(),

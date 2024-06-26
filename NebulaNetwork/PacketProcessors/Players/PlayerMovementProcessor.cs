@@ -14,10 +14,6 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 public class PlayerMovementProcessor : PacketProcessor<PlayerMovement>
 {
-    public PlayerMovementProcessor()
-    {
-    }
-
     protected override void ProcessPacket(PlayerMovement packet, NebulaConnection conn)
     {
         var valid = true;

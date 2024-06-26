@@ -15,10 +15,6 @@ namespace NebulaNetwork.PacketProcessors.Players;
 [RegisterPacketProcessor]
 internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
 {
-    public PlayerMechaDataProcessor()
-    {
-    }
-
     protected override void ProcessPacket(PlayerMechaData packet, NebulaConnection conn)
     {
         if (IsClient)

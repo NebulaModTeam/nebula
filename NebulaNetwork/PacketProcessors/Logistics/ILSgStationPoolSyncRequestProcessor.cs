@@ -29,11 +29,6 @@ public class ILSgStationPoolSyncRequestProcessor : PacketProcessor<ILSRequestgSt
             return;
         }
 
-        var player = Players.Get(conn, EConnectionStatus.Connected) ?? Players.Get(conn, EConnectionStatus.Syncing);
-        if (player == null)
-        {
-            return;
-        }
         var iter = 0;
 
         var countILS = GameMain.data.galacticTransport.stationPool.Count(stationComponent => stationComponent != null);
@@ -147,6 +142,6 @@ public class ILSgStationPoolSyncRequestProcessor : PacketProcessor<ILSRequestgSt
             shipAngularVel.ToArray(),
             shipPPosTemp.ToArray(),
             shipPRotTemp.ToArray());
-        player.SendPacket(packet2);
+        conn.SendPacket(packet2);
     }
 }
