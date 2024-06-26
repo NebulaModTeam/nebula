@@ -26,7 +26,7 @@ internal class DysonSphereRemoveShellProcessor : PacketProcessor<DysonSphereRemo
         {
             if (packet.ShellId < 1 || packet.ShellId >= layer.shellCursor)
             {
-                Log.Warn($"Cannnot remove shell[{packet.ShellId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                Log.Warn($"Cannot remove shell[{packet.ShellId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
                 Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                 return;
             }

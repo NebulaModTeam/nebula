@@ -28,7 +28,7 @@ internal class DysonSphereRemoveFrameProcessor : PacketProcessor<DysonSphereRemo
         {
             if (!Check(layer, packet))
             {
-                Log.Warn($"Cannnot remove frame[{packet.FrameId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                Log.Warn($"Cannot remove frame[{packet.FrameId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
                 Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                 return;
             }

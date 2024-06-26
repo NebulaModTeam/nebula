@@ -14,7 +14,7 @@ using NebulaWorld.MonoBehaviours.Local.Chat;
 namespace NebulaNetwork.PacketProcessors.Chat;
 
 [RegisterPacketProcessor]
-internal class PlyaerDataCommmandProcessor : PacketProcessor<PlayerDataCommandPacket>
+internal class PlayerDataCommmandProcessor : PacketProcessor<PlayerDataCommandPacket>
 {
     protected override void ProcessPacket(PlayerDataCommandPacket packet, NebulaConnection conn)
     {

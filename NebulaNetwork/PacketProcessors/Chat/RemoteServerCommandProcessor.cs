@@ -21,7 +21,7 @@ using NebulaWorld.GameStates;
 namespace NebulaNetwork.PacketProcessors.Chat;
 
 [RegisterPacketProcessor]
-internal class RemoteServerCommmandProcessor : PacketProcessor<RemoteServerCommandPacket>
+internal class RemoteServerCommandProcessor : PacketProcessor<RemoteServerCommandPacket>
 {
     private const int SERVERSAVE_COOLDOWN = 60;
     private const int SERVERLOGIN_COOLDOWN = 2;
