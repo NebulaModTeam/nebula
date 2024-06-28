@@ -59,7 +59,7 @@ public class PlanetDataRequestProcessor : PacketProcessor<PlanetDataRequest>
             planetAlgorithm.GenerateTerrain(planet.mod_x, planet.mod_y);
             planetAlgorithm.CalcWaterPercent();
 
-            //Load planet meshes and register callback to unload unneccessary stuff
+            // Load planet meshes and register callback to unload unnecessary stuff
             planet.wanted = true;
             planet.onLoaded += OnActivePlanetLoaded;
             PlanetModelingManager.modPlanetReqList.Enqueue(planet);

@@ -29,7 +29,7 @@ internal class StartGameMessageProcessor : PacketProcessor<StartGameMessage>
         {
             if (Multiplayer.Session.IsGameLoaded && !GameMain.isFullscreenPaused)
             {
-                INebulaPlayer player = Players.Get(conn, EConnectionStatus.Pending);
+                var player = Players.Get(conn, EConnectionStatus.Pending);
                 if (player is null)
                 {
                     Multiplayer.Session.Server.Disconnect(conn, DisconnectionReason.InvalidData);

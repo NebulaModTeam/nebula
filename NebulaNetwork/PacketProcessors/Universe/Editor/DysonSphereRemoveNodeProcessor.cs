@@ -26,7 +26,7 @@ internal class DysonSphereRemoveNodeProcessor : PacketProcessor<DysonSphereRemov
         {
             if (!Check(layer, packet))
             {
-                Log.Warn($"Cannnot remove node[{packet.NodeId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
+                Log.Warn($"Cannot remove node[{packet.NodeId}] on layer[{layer.id}], starIndex[{packet.StarIndex}]");
                 Multiplayer.Session.DysonSpheres.HandleDesync(packet.StarIndex, conn);
                 return;
             }

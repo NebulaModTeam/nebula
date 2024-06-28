@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NebulaModel;
@@ -49,8 +50,8 @@ internal class GameSave_Patch
                 Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount, GameMain.mainPlayer.sandCount);
         }
         // Update last save time in clients
-        GameStatesManager.LastSaveTime = GameMain.gameTick;
-        Multiplayer.Session.Server.SendPacket(new GameStateSaveInfoPacket(GameMain.gameTick));
+        GameStatesManager.LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        Multiplayer.Session.Server.SendPacket(new GameStateSaveInfoPacket(GameStatesManager.LastSaveTime));
     }
 
     [HarmonyPrefix]
@@ -96,7 +97,7 @@ internal class GameSave_Patch
         }
         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
         {
-            GameStatesManager.LastSaveTime = GameMain.gameTick;
+            GameStatesManager.LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
     }
 }

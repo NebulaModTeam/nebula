@@ -43,7 +43,7 @@ internal class BeltReverseProcessor : BasePacketProcessor<BeltReverseRequestPack
             var beltWindow = UIRoot.instance.uiGame.beltWindow;
             try
             {
-                beltWindow._Close(); // close the window first to avoid changing unwant variable when setting beltId
+                beltWindow._Close(); // close the window first to avoid changing unrelated variables when setting beltId
                 beltWindow.factory = factory;
                 beltWindow.traffic = factory.cargoTraffic;
                 beltWindow.player = GameMain.mainPlayer;

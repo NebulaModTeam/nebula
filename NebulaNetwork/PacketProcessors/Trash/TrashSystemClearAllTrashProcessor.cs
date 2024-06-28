@@ -14,10 +14,6 @@ namespace NebulaNetwork.PacketProcessors.Trash;
 [RegisterPacketProcessor]
 internal class TrashSystemClearAllTrashProcessor : PacketProcessor<TrashSystemClearAllTrashPacket>
 {
-    public TrashSystemClearAllTrashProcessor()
-    {
-    }
-
     protected override void ProcessPacket(TrashSystemClearAllTrashPacket packet, NebulaConnection conn)
     {
         if (IsHost)

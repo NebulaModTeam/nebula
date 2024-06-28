@@ -191,7 +191,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
             return;
         }
 
-        Log.Info("Game load completed");
+        Log.Info("==== Game load completed ====");
         IsGameLoaded = true;
         DiscordManager.UpdateRichPresence();
 

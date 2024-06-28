@@ -29,7 +29,7 @@ public class ILSAddStationComponentProcessor : PacketProcessor<ILSAddStationComp
             {
                 // If we have loaded the factory where the new station was created on, should be able to find
                 // it in our PlanetTransport.stationPool
-                // Assgin gid here so this station will go to galacticTransport.stationPool[gid]
+                // Assign gid here so this station will go to galacticTransport.stationPool[gid]
                 stationPool[packet.StationId].gid = packet.StationGId;
                 if (galacticTransport.AddStationComponent(packet.PlanetId, stationPool[packet.StationId]) != packet.StationGId)
                 {

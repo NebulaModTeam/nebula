@@ -2,7 +2,6 @@
 
 using NebulaAPI.Packets;
 using NebulaModel.DataStructures;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Statistics;
@@ -74,7 +73,6 @@ internal class StatisticsUpdateProcessor : PacketProcessor<StatisticUpdateDataPa
                 return;
             }
             UIRoot.instance.uiGame.statWindow.OnItemChange();
-            Log.Debug("StatisticsUpdateProcessor: itemChanged");
         }
     }
 }

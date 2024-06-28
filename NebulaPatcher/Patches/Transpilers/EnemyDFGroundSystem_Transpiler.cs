@@ -62,7 +62,7 @@ internal class EnemyDFGroundSystem_Transpiler
                     new CodeInstruction(OpCodes.Brtrue_S, jumpOperand)
                 );
 
-            /*  Sync max hatred target before excuting unit behavior in MP                
+            /*  Sync max hatred target before executing unit behavior in MP                
             before:
 				switch (ptr6.behavior)
 				{
@@ -165,8 +165,8 @@ internal class EnemyDFGroundSystem_Transpiler
         {
             var planetId = factory.planetId;
             var starId = factory.planet.star.id;
-            var pakcet = new DFGDeactivateUnitPacket(planetId, id);
-            Multiplayer.Session.Server.SendPacketToStar(pakcet, starId);
+            var packet = new DFGDeactivateUnitPacket(planetId, id);
+            Multiplayer.Session.Server.SendPacketToStar(packet, starId);
         }
     }
 }

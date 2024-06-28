@@ -16,29 +16,11 @@ namespace NebulaNetwork.PacketProcessors.GameHistory;
 [RegisterPacketProcessor]
 internal class GameHistoryRemoveTechProcessor : PacketProcessor<GameHistoryRemoveTechPacket>
 {
-    public GameHistoryRemoveTechProcessor()
-    {
-    }
-
     protected override void ProcessPacket(GameHistoryRemoveTechPacket packet, NebulaConnection conn)
     {
-        var valid = true;
         if (IsHost)
         {
-            var player = Players.Get(conn);
-            if (player != null)
-            {
-                Server.SendPacketExclude(packet, conn);
-            }
-            else
-            {
-                valid = false;
-            }
-        }
-
-        if (!valid)
-        {
-            return;
+            Server.SendPacketExclude(packet, conn);
         }
         using (Multiplayer.Session.History.IsIncomingRequest.On())
         {

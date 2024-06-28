@@ -1,7 +1,6 @@
 ﻿#region
 
 using NebulaAPI.Packets;
-using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Logistics;
@@ -16,7 +15,6 @@ public class ILSUpdateRouteProcessor : PacketProcessor<ILSUpdateRoute>
 {
     protected override void ProcessPacket(ILSUpdateRoute packet, NebulaConnection conn)
     {
-        Log.Debug($"{packet.Type} id0:{packet.Id0} id1:{packet.Id1}");
         using (Multiplayer.Session.Ships.PatchLockILS.On())
         {
             var galacticTransport = GameMain.data.galacticTransport;

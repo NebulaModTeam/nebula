@@ -48,10 +48,11 @@ internal class DFRelayComponent_Patch
     [HarmonyPatch(nameof(DFRelayComponent.ArriveBase))]
     public static void ArriveBase_Postfix(DFRelayComponent __instance)
     {
-        if (!Multiplayer.IsActive) return;
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsClient) return;
 
-        var planet = GameMain.galaxy.PlanetById(__instance.targetAstroId);
-        if (planet != null && __instance.baseId > 0)
+        // Display message when DF relay is successfully landed and the planet has buildings
+        var factory = __instance.hive.galaxy.astrosFactory[__instance.targetAstroId];
+        if (factory != null && factory.entityCount > 0 && __instance.baseId > 0)
         {
             Multiplayer.Session.Enemies.DisplayPlanetPingMessage("DF relay landed on planet".Translate(), __instance.targetAstroId, __instance.targetLPos);
         }

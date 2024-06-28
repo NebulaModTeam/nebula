@@ -70,7 +70,7 @@ internal class MonitorSettingUpdateProcessor : PacketProcessor<MonitorSettingUpd
                         break;
 
                     default:
-                        Log.Warn($"MonitorSettingUpdatePacket: Unkown MonitorSettingEvent {packet.Event}");
+                        Log.Warn($"MonitorSettingUpdatePacket: Unknown MonitorSettingEvent {packet.Event}");
                         break;
                 }
 

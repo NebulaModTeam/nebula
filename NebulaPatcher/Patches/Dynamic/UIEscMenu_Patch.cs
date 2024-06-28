@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using HarmonyLib;
@@ -38,8 +39,8 @@ internal class UIEscMenu_Patch
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return;
 
-        var timeSinceSave = GameMain.gameTick - GameStatesManager.LastSaveTime;
-        var second = (int)(timeSinceSave / 60L);
+        var timeSinceSave = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - GameStatesManager.LastSaveTime;
+        var second = (int)(timeSinceSave);
         var minute = second / 60;
         var hour = minute / 60;
         var saveBtnText = "存档时间".Translate() + $" {hour}h{minute % 60}m{second % 60}s ago";

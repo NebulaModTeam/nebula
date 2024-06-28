@@ -44,7 +44,7 @@ internal class PowerTowerChargerUpdateProcessor : PacketProcessor<PowerTowerChar
             {
                 Multiplayer.Session.PowerTowers.RemoteChargerHashIds.Add(hashId, 1);
             }
-            NebulaModel.Logger.Log.Debug($"Add remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId]}");
+            // Add remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId]}
         }
         else
         {
@@ -52,7 +52,7 @@ internal class PowerTowerChargerUpdateProcessor : PacketProcessor<PowerTowerChar
             {
                 return;
             }
-            NebulaModel.Logger.Log.Debug($"Remove remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] - 1}");
+            // Remove remote charger [{packet.PlanetId}-{packet.NodeId}]: {Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] - 1}
             Multiplayer.Session.PowerTowers.RemoteChargerHashIds[hashId] = playerCount - 1;
             if (playerCount <= 1)
             {
