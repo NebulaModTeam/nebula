@@ -263,6 +263,7 @@ public class NgrokManager
             "ERR_NGROK_105" => "Authtoken is empty or expired".Translate(),
             "ERR_NGROK_108" => "Session limit reached".Translate(),
             "ERR_NGROK_123" => "Account email not verified".Translate(),
+            "ERR_NGROK_8013" => "Account requires a debit/credit card".Translate(),
             _ => string.Empty
         };
         NgrokLastErrorCodeDesc = !string.IsNullOrWhiteSpace(NgrokLastErrorCodeDesc) ? $"({NgrokLastErrorCodeDesc})" : string.Empty;
