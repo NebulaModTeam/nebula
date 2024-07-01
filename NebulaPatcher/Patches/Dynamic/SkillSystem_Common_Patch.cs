@@ -33,13 +33,14 @@ internal class SkillSystem_Common_Patch
         return false;
     }
 
-    static void SwtichPlayerState(int playerId)
+    static void SwitchPlayerState(int playerId)
     {
         if (!Multiplayer.Session.Combat.IndexByPlayerId.TryGetValue(playerId, out var index)) return;
 
         ref var playerData = ref Multiplayer.Session.Combat.Players[index];
         var skillSystem = GameMain.data.spaceSector.skillSystem;
         skillSystem.mecha = playerData.mecha;
+        skillSystem.playerAlive = playerData.isAlive;
         skillSystem.playerSkillTargetL = playerData.skillTargetL;
         skillSystem.playerSkillTargetULast = playerData.skillTargetULast;
         skillSystem.playerSkillTargetU = playerData.skillTargetU;
@@ -49,13 +50,14 @@ internal class SkillSystem_Common_Patch
         skillSystem.playerSkillCastRightU = playerData.skillTargetU;
     }
 
-    static void SwtichTargetPlayerWithCollider(int playerId)
+    static void SwitchTargetPlayerWithCollider(int playerId)
     {
         if (!Multiplayer.Session.Combat.IndexByPlayerId.TryGetValue(playerId, out var index)) return;
 
         ref var playerData = ref Multiplayer.Session.Combat.Players[index];
         var skillSystem = GameMain.data.spaceSector.skillSystem;
         skillSystem.mecha = playerData.mecha;
+        skillSystem.playerAlive = playerData.isAlive;
         skillSystem.playerSkillTargetL = playerData.skillTargetL;
         skillSystem.playerSkillTargetULast = playerData.skillTargetULast;
         skillSystem.playerSkillTargetU = playerData.skillTargetU;
@@ -66,8 +68,8 @@ internal class SkillSystem_Common_Patch
     public static void GeneralExpImpProjectile_Prefix(ref GeneralExpImpProjectile __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if (__instance.target.type == ETargetType.Player) SwtichTargetPlayerWithCollider(__instance.target.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if (__instance.target.type == ETargetType.Player) SwitchTargetPlayerWithCollider(__instance.target.id);
     }
 
     [HarmonyPrefix]
@@ -75,8 +77,8 @@ internal class SkillSystem_Common_Patch
     public static void GeneralProjectile_Prefix(ref GeneralMissile __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if (__instance.target.type == ETargetType.Player) SwtichTargetPlayerWithCollider(__instance.target.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if (__instance.target.type == ETargetType.Player) SwitchTargetPlayerWithCollider(__instance.target.id);
     }
 
     [HarmonyPrefix]
@@ -84,8 +86,8 @@ internal class SkillSystem_Common_Patch
     public static void GeneralProjectile_Prefix(ref GeneralProjectile __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if (__instance.target.type == ETargetType.Player) SwtichTargetPlayerWithCollider(__instance.target.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if (__instance.target.type == ETargetType.Player) SwitchTargetPlayerWithCollider(__instance.target.id);
     }
 
     [HarmonyPrefix]
@@ -93,8 +95,8 @@ internal class SkillSystem_Common_Patch
     public static void LocalGeneralProjectile_Prefix(ref LocalGeneralProjectile __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if (__instance.target.type == ETargetType.Player) SwtichTargetPlayerWithCollider(__instance.target.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if (__instance.target.type == ETargetType.Player) SwitchTargetPlayerWithCollider(__instance.target.id);
     }
 
     [HarmonyPrefix]
@@ -102,8 +104,8 @@ internal class SkillSystem_Common_Patch
     public static void LocalLaserContinuous_Prefix(ref LocalLaserContinuous __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if (__instance.target.type == ETargetType.Player) SwtichPlayerState(__instance.target.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if (__instance.target.type == ETargetType.Player) SwitchPlayerState(__instance.target.id);
     }
 
     [HarmonyPrefix]
@@ -111,8 +113,8 @@ internal class SkillSystem_Common_Patch
     public static void LocalLaserOneShot_Prefix(ref LocalLaserOneShot __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if (__instance.target.type == ETargetType.Player) SwtichPlayerState(__instance.target.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if (__instance.target.type == ETargetType.Player) SwitchPlayerState(__instance.target.id);
     }
 
     [HarmonyPrefix]
@@ -120,7 +122,7 @@ internal class SkillSystem_Common_Patch
     public static void LocalCannonade_Prefix(ref LocalCannonade __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
     }
 
     [HarmonyPrefix]
@@ -128,8 +130,8 @@ internal class SkillSystem_Common_Patch
     public static void SpaceLaserOneShot_Prefix(ref SpaceLaserOneShot __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if (__instance.target.type == ETargetType.Player) SwtichPlayerState(__instance.target.id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if (__instance.target.type == ETargetType.Player) SwitchPlayerState(__instance.target.id);
     }
 
     [HarmonyPrefix]
@@ -137,7 +139,7 @@ internal class SkillSystem_Common_Patch
     public static void SpaceLaserSweep_Prefix(ref SpaceLaserSweep __instance)
     {
         if (!Multiplayer.IsActive) return;
-        if (__instance.caster.type == ETargetType.Player) SwtichPlayerState(__instance.caster.id);
-        if ((__instance.mask & ETargetTypeMask.Player) != 0) SwtichTargetPlayerWithCollider(Multiplayer.Session.LocalPlayer.Id);
+        if (__instance.caster.type == ETargetType.Player) SwitchPlayerState(__instance.caster.id);
+        if ((__instance.mask & ETargetTypeMask.Player) != 0) SwitchTargetPlayerWithCollider(Multiplayer.Session.LocalPlayer.Id);
     }
 }
