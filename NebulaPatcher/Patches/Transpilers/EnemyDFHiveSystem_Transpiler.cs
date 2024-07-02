@@ -37,6 +37,43 @@ internal class EnemyDFHiveSystem_Transpiler
                 .MatchForward(true, new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(DFRelayComponent), nameof(DFRelayComponent.RealizePlanetBase))))
                 .Set(OpCodes.Call, AccessTools.Method(typeof(EnemyDFHiveSystem_Transpiler), nameof(RealizePlanetBase)));
 
+
+            //  Insert null guard in EnemyUnitComponent loop
+            //  if (ptr10.id == k)
+            //  {
+            //      ref EnemyData ptr11 = ref enemyPool[ptr10.enemyId];
+            //      PrefabDesc prefabDesc = SpaceSector.PrefabDescByModelIndex[(int)ptr11.modelIndex];
+            //      if (prefabDesc == null) continue;  // null guard
+
+            codeMatcher.MatchForward(true,
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(EnemyUnitComponent), nameof(EnemyUnitComponent.id))),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Bne_Un));
+            if (codeMatcher.IsInvalid)
+            {
+                Log.Warn("EnemyDFHiveSystem.GameTickLogic: Can't find operand_continue");
+                return codeMatcher.InstructionEnumeration();
+            }
+            var operand_continue = codeMatcher.Operand;
+
+            codeMatcher.MatchForward(true,
+                new CodeMatch(OpCodes.Ldsfld, AccessTools.Field(typeof(SpaceSector), nameof(SpaceSector.PrefabDescByModelIndex))),
+                new CodeMatch(OpCodes.Ldloc_S),
+                new CodeMatch(OpCodes.Ldfld),
+                new CodeMatch(OpCodes.Ldelem_Ref),
+                new CodeMatch(OpCodes.Stloc_S));
+            if (codeMatcher.IsInvalid)
+            {
+                Log.Warn("EnemyDFHiveSystem.GameTickLogic: Can't find operand_prefabDesc");
+                return codeMatcher.InstructionEnumeration();
+            }
+            var operand_prefabDesc = codeMatcher.Operand;
+
+            codeMatcher.Advance(1).Insert(
+                new CodeInstruction(OpCodes.Ldloc_S, operand_prefabDesc),
+                new CodeInstruction(OpCodes.Brfalse_S, operand_continue));
+
             return codeMatcher.InstructionEnumeration();
         }
         catch (System.Exception e)
