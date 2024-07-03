@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaWorld;
+using Steamworks;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -171,5 +173,13 @@ internal class Dedicated_Server_Patch
         {
             __instance.isSpherical = true;
         }
+    }
+
+    // Fixes a Object Reference UI error when loading the Headless Server.
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(UICommunicatorIndicator), nameof(UICommunicatorIndicator._OnLateUpdate))]
+    public static bool UICommunicatorIndicatorOnLateUpdate_Prefix()
+    {
+        return false;
     }
 }
