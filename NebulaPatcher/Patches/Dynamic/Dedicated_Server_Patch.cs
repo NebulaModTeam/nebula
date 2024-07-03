@@ -182,4 +182,39 @@ internal class Dedicated_Server_Patch
     {
         return false;
     }
+
+    #region NoSteamHeadless
+    // This is a set of patches that allows the headless server to start without the need for Steam to be loaded.
+    // This also negates the need to include such things as Goldberg's Steam Emu in Headless server installs.
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(STEAMX), nameof(STEAMX.Awake))]
+    [HarmonyPatch(typeof(SteamLeaderboardManager_PowerConsumption), nameof(SteamLeaderboardManager_PowerConsumption.Start))]
+    [HarmonyPatch(typeof(SteamLeaderboardManager_ClusterGeneration), nameof(SteamLeaderboardManager_ClusterGeneration.Start))]
+    [HarmonyPatch(typeof(SteamLeaderboardManager_SolarSail), nameof(SteamLeaderboardManager_SolarSail.Start))]
+    [HarmonyPatch(typeof(SteamLeaderboardManager_UniverseMatrix), nameof(SteamLeaderboardManager_UniverseMatrix.Start))]
+    [HarmonyPatch(typeof(SteamAchievementManager), nameof(SteamAchievementManager.Start))]
+    [HarmonyPatch(typeof(SteamClient), nameof(SteamClient.SetWarningMessageHook))]
+    public static bool NoSteamHeadless_Prefix(object __instance)
+    {
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(SteamManager), nameof(SteamManager.Awake))]
+    public static bool SteamManagerAwake_Prefix(SteamManager __instance)
+    {
+        // Fill out some AccountData so the game has something to work with.
+        AccountData.me.platform = ESalePlatform.Standalone;
+        AccountData.me.userId = 1337u;
+        AccountData.me.detail = new AccountData.Detail() { userName = "NebulaHeadlessAssistant" };
+
+        // Without this, s_instance would never be set which causes some problems later on loading
+        __instance.OnEnable();
+
+        // Force the game to thinking steam has successfully initialised.
+        __instance.m_bInitialized = true;
+
+        return false;
+    }
+    #endregion
 }
