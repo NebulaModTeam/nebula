@@ -202,6 +202,9 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
         InitPatches();
         AddNebulaBootstrapper();
+
+        if (Multiplayer.IsDedicated) return; //Do not load discord rich presence on Headless
+
         DiscordManager.Setup(ActivityManager_OnActivityJoin);
     }
 
