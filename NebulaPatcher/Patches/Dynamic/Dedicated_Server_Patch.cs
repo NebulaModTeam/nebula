@@ -161,6 +161,14 @@ internal class Dedicated_Server_Patch
         return false;
     }
 
+    // Fixes a UI Object reference not set error during headless load due to there being no UI enabled.
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(UICommunicatorIndicator), nameof(UICommunicatorIndicator._OnLateUpdate))]
+    public static bool UICommunicatorIndicatorOnLateUpdate_Prefix()
+    {
+        return false;
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlanetATField), nameof(PlanetATField.RecalculatePhysicsShape))]
     public static void RecalculatePhysicsShape_Postfix(PlanetATField __instance)
