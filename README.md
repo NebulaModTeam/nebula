@@ -35,8 +35,8 @@ The chat window can opened/closed using Alt + Backtick (configurable in Settings
 
 Major refactors will happen while the project grows or game updates. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development. Check [Wiki](https://github.com/NebulaModTeam/nebula/wiki/About-Nebula) for overview of features.  
 
-The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.29.x).  
-Most of the battle aspect are sync, only few features are still WIP.  
+The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.30.x).  
+Most of the battle aspects are sync, only few features are still WIP.  
 
 <details>
 <summary>List of peace mode syncing features</summary>
@@ -62,7 +62,7 @@ Most of the battle aspect are sync, only few features are still WIP.
 - [x] Factories statistics syncing
 - [x] Containers inventory syncing
 - [x] Building Interaction syncing
-- [x] Belts syncing
+- [x] Belts interaction syncing (pickup, putdown)
 - [x] Trash (dropped items) syncing
 - [x] Interstellar Station syncing
 - [x] Drones events syncing
@@ -70,6 +70,7 @@ Most of the battle aspect are sync, only few features are still WIP.
 - [x] Server state persistence
 - [x] Power network syncing (charger and request power from dyson sphere)
 - [x] Warning alarm syncing
+- [ ] Broadcast notification syncing
 
 </details>
 
@@ -109,8 +110,8 @@ Most of the battle aspect are sync, only few features are still WIP.
 - [x] Show base/hive/relay invasion events in chat
 - [ ] Sync kill stats
 - [x] Sync Dark Fog communicator (aggressiveness and truce)
-- [ ] Show remote mecha combat drone fleet
-- [ ] Show remote mecha space craft fleet
+- [ ] Show remote mecha combat drone fleet animation
+- [ ] Show remote mecha spacecraft fleet animation
 - [ ] Show ground-to-space attacks animation on client for remote planets (missile turrets, plasma cannon)
 - [ ] Show space-to-ground attacks animation for remote planets (lancers invading with sweep laser and bomber)
 

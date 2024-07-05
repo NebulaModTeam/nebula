@@ -16,7 +16,7 @@ public class DFGKillEnemyProcessor : PacketProcessor<DFGKillEnemyPacket>
     protected override void ProcessPacket(DFGKillEnemyPacket packet, NebulaConnection conn)
     {
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-        if (factory == null) return;
+        if (factory == null || packet.EnemyId >= factory.enemyPool.Length) return;
 
         if (IsHost)
         {

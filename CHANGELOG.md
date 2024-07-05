@@ -1,5 +1,14 @@
 ## Changelog
 
+0.9.6:
+- @AlienXAXS: Fix headless server throwing a small error during boot sequence due to the UI being disabled
+- @PhantomGamers: Add additional error description to ngrokmanager
+- @starfi5h: Enable Log.Debug messages
+- @starfi5h: Fix DF relay landed on planet message in client
+- @starfi5h: Fix client's attacks won't increase DF threat when host player is dead
+- @starfi5h: Fix ACH_BroadcastStar.OnGameTick error on client
+- @starfi5h: Prevent server from sending out construction drones in headless mode
+
 0.9.5:
 - @starfi5h: Sync Dark Fog communicator (aggressiveness and truce)
 - @starfi5h: Show server last save time in client esc menu

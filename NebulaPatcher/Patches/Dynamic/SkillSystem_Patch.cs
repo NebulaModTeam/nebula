@@ -50,6 +50,17 @@ internal class SkillSystem_Patch
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(nameof(SkillSystem.CollectPlayerStates))]
+    public static void CollectPlayerStates_Postfix(SkillSystem __instance)
+    {
+        if (!Multiplayer.IsActive) return;
+
+        // Set those flags to false so AddSpaceEnemyHatred can add threat correctly for client's skill in host
+        __instance.playerIsSailing = false;
+        __instance.playerIsWarping = false;
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(nameof(SkillSystem.AfterTick))]
     public static void AfterTick_Postfix(SkillSystem __instance)
     {
