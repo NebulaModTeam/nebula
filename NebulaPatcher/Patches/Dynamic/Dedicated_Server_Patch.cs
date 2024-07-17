@@ -180,38 +180,33 @@ internal class Dedicated_Server_Patch
         // they become `isEmpty = true`.  This causes some checks to fail such as:
         //  - Relays still landing on a planet when a shield is online
         //  - Some space to surface weaponry ignoring the shields
-        if (Multiplayer.IsDedicated)
+        if (__instance.generatorCount == 0)
         {
-            if (__instance.generatorCount == 0)
-            {
-                __instance.ClearPhysics();
-                __instance.energyMaxTarget = 0L;
-            }
-
-            __instance.CreatePhysics();
-            __instance.isSpherical = true;
-
-            /*
-             * This is usually computed on the GPU, No idea what math the GPU does though, so we're shoving 0.95 here.
-             * On my own testing this goes as low as 0.35 during initial planet shield spin up
-             * and when it hits 1.0 it seems to stop calling this method.
-             */
-            __instance.energyMaxTarget = (long)(1200000000000.0 * 0.95 + 0.5);
-
-            if (__instance.energy > 0)
-            {
-                __instance.isEmpty = false;
-            }
-
-            // I believe these are used in raycasting tests to see if a relay would hit a shield, so we need them.
-            if (__instance.colliderHotTicks > 0)
-                __instance.OpenColliderObject();
-            else
-                __instance.CloseColliderObject();
-
-            return false;
+            __instance.ClearPhysics();
+            __instance.energyMaxTarget = 0L;
         }
 
-        return true;
+        __instance.CreatePhysics();
+        __instance.isSpherical = true;
+
+        /*
+            * This is usually computed on the GPU, No idea what math the GPU does though, so we're shoving 0.95 here.
+            * On my own testing this goes as low as 0.35 during initial planet shield spin up
+            * and when it hits 1.0 it seems to stop calling this method.
+            */
+        __instance.energyMaxTarget = (long)(1200000000000.0 * 0.95 + 0.5);
+
+        if (__instance.energy > 0)
+        {
+            __instance.isEmpty = false;
+        }
+
+        // I believe these are used in raycasting tests to see if a relay would hit a shield, so we need them.
+        if (__instance.colliderHotTicks > 0)
+            __instance.OpenColliderObject();
+        else
+            __instance.CloseColliderObject();
+
+        return false;
     }
 }
