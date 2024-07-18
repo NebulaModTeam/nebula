@@ -57,9 +57,8 @@ namespace NebulaPatcher.Patches.Transpilers
                         //Call our method
                         new CodeInstruction(OpCodes.Call,
                             AccessTools.Method(typeof(EnemyDFRelayComponent_Transplier),
-                                nameof(RelaySendBackToHiveDock))));
-                }
-                );
+                                nameof(ReplicateRelayDirectionChange))));
+                });
 
                 return codeMatcher.InstructionEnumeration();
             }
@@ -71,11 +70,8 @@ namespace NebulaPatcher.Patches.Transpilers
             }
         }
 
-        static void RelaySendBackToHiveDock(int relayId, int stage, int hiveAstroId)
+        static void ReplicateRelayDirectionChange(int relayId, int stage, int hiveAstroId)
         {
-            // This is only called when the RelaySailTick has told the relay to return back to the hive and dock.
-            Log.Debug($"RelaySendBackToHiveDock called for relay ID {relayId} belonging to hive {hiveAstroId}");
-
             if (!Multiplayer.IsActive) return;
             if (!Multiplayer.Session.IsClient)
             {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NebulaAPI.Packets;
+﻿using NebulaAPI.Packets;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -22,8 +17,6 @@ namespace NebulaNetwork.PacketProcessors.Combat.DFRelay
             
             var dfRelayComponent = hiveSystem.relays.buffer[packet.RelayId];
             if (dfRelayComponent?.id != packet.RelayId) return;
-
-            Log.Debug($"Relay {dfRelayComponent.id} direction:{dfRelayComponent.direction} will be sent home with a new direction: {packet.NewDirection}");
 
             switch (packet.NewDirection)
             {
