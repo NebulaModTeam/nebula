@@ -44,7 +44,7 @@ namespace NebulaPatcher.Patches.Transpilers
                         new CodeInstruction(OpCodes.Ldfld,
                             AccessTools.Field(typeof(DFRelayComponent), nameof(DFRelayComponent.id))),
 
-                        // Hive Astro ID argument
+                        // Relay sail stage argument
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Ldfld,
                             AccessTools.Field(typeof(DFRelayComponent), nameof(DFRelayComponent.stage))),
