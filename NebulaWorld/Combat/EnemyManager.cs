@@ -126,6 +126,8 @@ public class EnemyManager : IDisposable
         {
             var enemyId = unitBuffer[i].enemyId;
             targets[enemyId] = unitBuffer[i].hatred.max.target;
+            // clear the blocking skill to prevent error due to skills are not all present in client
+            unitBuffer[i].ClearBlockSkill();
         }
     }
 
