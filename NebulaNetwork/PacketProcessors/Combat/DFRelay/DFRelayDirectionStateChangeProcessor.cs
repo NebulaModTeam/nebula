@@ -14,7 +14,7 @@ namespace NebulaNetwork.PacketProcessors.Combat.DFRelay
         {
             var hiveSystem = GameMain.spaceSector.GetHiveByAstroId(packet.HiveAstroId);
             if (hiveSystem == null) return;
-            
+
             var dfRelayComponent = hiveSystem.relays.buffer[packet.RelayId];
             if (dfRelayComponent?.id != packet.RelayId) return;
 
@@ -27,11 +27,10 @@ namespace NebulaNetwork.PacketProcessors.Combat.DFRelay
                     dfRelayComponent.baseState = 0;
                     dfRelayComponent.baseId = 0;
                     dfRelayComponent.baseTicks = 0;
-                    dfRelayComponent.baseEvolve = default(EvolveData);
+                    dfRelayComponent.baseEvolve = default;
                     dfRelayComponent.baseRespawnCD = 0;
                     dfRelayComponent.direction = -1;
                     dfRelayComponent.param0 = 0f;
-
                     dfRelayComponent.stage = packet.Stage;
 
                     Log.Debug($"Relay {dfRelayComponent.id} returning home");
