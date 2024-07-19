@@ -107,11 +107,22 @@ internal class DFRelayComponent_Patch
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
 
-        if (__instance.baseState == 2 && __instance.hive.galaxy.astrosFactory[__instance.targetAstroId] == null)
+        if (__instance.baseState == DFRelayComponent.REALIZED_BASE && __instance.hive.galaxy.astrosFactory[__instance.targetAstroId] == null)
         {
             //the target factory is not loaded on client
             return false;
         }
         return true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(DFRelayComponent.RelaySailLogic))]
+    public static void RelaySailLogic_Prefix(ref bool keyFrame)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return;
+
+        // Prevent clients from changing the direction or stage themselves
+        // The changing event is server autoreactive (DFRelayDirectionStateChangePacket)
+        keyFrame = false;
     }
 }
