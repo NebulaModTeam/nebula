@@ -11,8 +11,20 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class SkillSystem_Common_Patch
 {
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(GeneralShieldBurst), nameof(GeneralShieldBurst.TickSkillLogic))]
+    [HarmonyPatch(typeof(Bomb_Explosive), nameof(Bomb_Explosive.TickSkillLogic))]
+    [HarmonyPatch(typeof(Bomb_Liquid), nameof(Bomb_Liquid.TickSkillLogic))]
+    [HarmonyPatch(typeof(Bomb_EMCapsule), nameof(Bomb_EMCapsule.TickSkillLogic))]
+    public static void Bomb_TickSkillLogic(ref int ___nearPlanetAstroId, ref int ___life)
+    {
+        if (___nearPlanetAstroId > 0 && GameMain.spaceSector.skillSystem.astroFactories[___nearPlanetAstroId] == null)
+        {
+            // The nearest planetFactory hasn't loaded yet, skip and remove
+            ___life = 0;
+        }
+    }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(GeneralShieldBurst), nameof(GeneralShieldBurst.TickSkillLogic))]
     public static bool GeneralShieldBurst_Prefix(ref GeneralShieldBurst __instance, SkillSystem skillSystem)
     {
         if (!Multiplayer.IsActive || __instance.caster.type != ETargetType.Player) return true;
