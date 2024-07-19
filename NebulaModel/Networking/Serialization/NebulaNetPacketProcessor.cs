@@ -131,7 +131,6 @@ public class NebulaNetPacketProcessor : NetPacketProcessor, INetPacketProcessor
         lock (pendingPackets)
         {
             pendingPackets.Enqueue(new PendingPacket(rawData, userData));
-            Log.Debug($"Received packet of size: {rawData.Length}");
         }
     }
 
