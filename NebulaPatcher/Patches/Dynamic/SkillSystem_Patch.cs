@@ -2,6 +2,7 @@
 
 using System.IO;
 using HarmonyLib;
+using NebulaModel.Packets.Combat;
 using NebulaWorld;
 
 #endregion
@@ -84,5 +85,20 @@ internal class SkillSystem_Patch
         damage = 0;
         __result = true;
         return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(SkillSystem.DamageObject))]
+    public static void DamageObject_Prefix(int damage, int slice, ref SkillTarget target, ref SkillTarget caster)
+    {
+        if (caster.type != ETargetType.Craft || target.type != ETargetType.Enemy
+            || target.astroId <= 1000000 // Only sync for space target
+            || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
+
+        var packet = new CombatStatDamagePacket(damage, slice, in target, in caster);
+        // Change the caster to player as craft (space fleet) is not sync yet
+        packet.CasterType = (short)ETargetType.Player;
+        packet.CasterId = Multiplayer.Session.LocalPlayer.Id;
+        Multiplayer.Session.Network.SendPacket(packet);
     }
 }
