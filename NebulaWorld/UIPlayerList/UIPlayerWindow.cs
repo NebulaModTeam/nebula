@@ -110,7 +110,7 @@ namespace NebulaWorld.UIPlayerList
                             var pName = player.Username;
                             var pDistanceFromLocalPlayer = "";
                             var pLocation = "";
-
+                            
                             PlanetData pPlanet = null;
                             if (Multiplayer.Session.Combat.IndexByPlayerId.TryGetValue(player.PlayerId, out var index))
                             {
