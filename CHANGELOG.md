@@ -1,5 +1,12 @@
 ## Changelog
 
+0.9.7:
+- @AlienXAXS: Headless now calculates planetary shields on CPU
+- @AlienXAXS: Enemy Relay Direction Sync
+- @starfi5h: Sync damage to space enemy by mecha fleet
+- @starfi5h: Fix NRE in Bomb_Explosive.TickSkillLogic when other player throwing bomb on other planets
+- @starfi5h: Fix error in EnemyUnitComponent.RunBehavior_Defense_Ground after client load factory
+
 0.9.6:
 - @AlienXAXS: Fix headless server throwing a small error during boot sequence due to the UI being disabled
 - @PhantomGamers: Add additional error description to ngrokmanager
