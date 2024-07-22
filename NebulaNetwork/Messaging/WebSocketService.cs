@@ -91,7 +91,6 @@ public class WebSocketService : WebSocketBehavior
         }
         connections.Remove(Context.UserEndPoint.GetHashCode());
 
-
         Log.Info($"Client disconnected because of an error: {ID}, reason: {e.Exception}");
         UnityDispatchQueue.RunOnMainThread(() =>
         {

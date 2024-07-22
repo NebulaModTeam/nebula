@@ -129,6 +129,10 @@ public class MultiplayerOptions : ICloneable
     [Description("Keyboard shortcut to toggle the chat window")]
     public KeyboardShortcut ChatHotkey { get; set; } = new(KeyCode.BackQuote, KeyCode.LeftAlt);
 
+    [DisplayName("Player List Hotkey")]
+    [Description("Keyboard shortcut to display the Connected Players Window")]
+    public KeyboardShortcut PlayerListHotkey { get; set; } = new(KeyCode.Tab);
+
     [DisplayName("Auto Open Chat")]
     [Category("Chat")]
     [Description("Auto open chat window when receiving message from other players")]
