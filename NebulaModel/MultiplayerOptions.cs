@@ -131,7 +131,7 @@ public class MultiplayerOptions : ICloneable
 
     [DisplayName("Player List Hotkey")]
     [Description("Keyboard shortcut to display the Connected Players Window")]
-    public KeyboardShortcut PlayerListHotkey { get; set; } = new(KeyCode.Tab);
+    public KeyboardShortcut PlayerListHotkey { get; set; } = new(KeyCode.F1);
 
     [DisplayName("Auto Open Chat")]
     [Category("Chat")]
