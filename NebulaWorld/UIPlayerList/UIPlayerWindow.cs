@@ -25,7 +25,11 @@ namespace NebulaWorld.UIPlayerList
         {
             var parent = UIRoot.instance.uiGame.inventoryWindow.transform.parent;
             var chatGo = parent.Find("Chat Window") ? parent.Find("Chat Window").gameObject : null;
-            _chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
+
+            if (chatGo != null)
+            {
+                _chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
+            }
         }
 
         public void Update()
