@@ -13,7 +13,7 @@ namespace NebulaWorld.UIPlayerList.UIStyles
             var height = 32;
 
             if (_textureMemory == null)
-                _textureMemory = MakeTex(width, height, new Color32(36, 67, 76, 200);
+                _textureMemory = MakeTex(width, height, new Color32(36, 67, 76, 200));
 
             var style = new GUIStyle(GUI.skin.box)
             {
