@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using NebulaModel;
 using NebulaModel.Logger;
 using NebulaWorld.Combat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 using Object = System.Object;
 
@@ -17,7 +19,32 @@ namespace NebulaWorld.UIPlayerList
         private readonly Object _lockable = new Object();
 
         private bool _windowVisible;
+        private ChatWindow _chatWindow;
 
+        public void OnInit()
+        {
+            var parent = UIRoot.instance.uiGame.inventoryWindow.transform.parent;
+            var chatGo = parent.Find("Chat Window") ? parent.Find("Chat Window").gameObject : null;
+            _chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
+        }
+
+        public void Update()
+        {
+            var hasModifier = Config.Options.PlayerListHotkey.Modifiers.Any();
+
+            _windowVisible = false;
+            if (Input.GetKey(Config.Options.PlayerListHotkey.MainKey))
+            {
+                if (Config.Options.PlayerListHotkey.Modifiers.All(Input.GetKey))
+                {
+                    // If we have no modifier but a modifier is pressed, do not progress
+                    if (!hasModifier && Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.LeftControl) ||
+                        Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.RightControl)) return;
+
+                    _windowVisible = true;
+                }
+            }
+        }
 
         public void OnGUI()
         {
@@ -26,19 +53,8 @@ namespace NebulaWorld.UIPlayerList
 
             try
             {
-                if (Event.current.isKey && Event.current.keyCode == Config.Options.PlayerListHotkey.MainKey)
-                {
-                    if (Event.current.type == EventType.KeyDown)
-                    {
-                        _windowVisible = true;
-                    }
-                    else
-                    {
-                        _windowVisible = false;
-                    }
-                }
-
-                if (!_windowVisible || 
+                if (!_windowVisible ||
+                    IsChatWindowActive() ||
                     UIRoot.instance.uiGame.techTree.active ||
                     UIRoot.instance.uiGame.escMenu.active || 
                     UIRoot.instance.uiGame.dysonEditor.active)
@@ -186,6 +202,11 @@ namespace NebulaWorld.UIPlayerList
             }
 
             return connectedPlayerCount == 0;
+        }
+
+        private bool IsChatWindowActive()
+        {
+            return _chatWindow != null && _chatWindow.IsActive;
         }
     }
 }
