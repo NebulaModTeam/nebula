@@ -38,7 +38,10 @@ namespace NebulaWorld.UIPlayerList
                     }
                 }
 
-                if (!_windowVisible)
+                if (!_windowVisible || 
+                    UIRoot.instance.uiGame.techTree.active ||
+                    UIRoot.instance.uiGame.escMenu.active || 
+                    UIRoot.instance.uiGame.dysonEditor.active)
                     return;
 
                 windowSize = GUI.Window(6245814, windowSize, WindowHandler, WindowName, UIStyles.DialogStyles.WindowBackgroundStyle());
