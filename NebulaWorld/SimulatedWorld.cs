@@ -20,6 +20,7 @@ using NebulaModel.Utils;
 using NebulaWorld.MonoBehaviours;
 using NebulaWorld.MonoBehaviours.Local;
 using NebulaWorld.MonoBehaviours.Local.Chat;
+using NebulaWorld.UIPlayerList;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -189,6 +190,8 @@ public class SimulatedWorld : IDisposable
         localPlayerMovement = GameMain.mainPlayer.gameObject.AddComponentIfMissing<LocalPlayerMovement>();
         // ChatManager should exist continuously until the game is closed
         GameMain.mainPlayer.gameObject.AddComponentIfMissing<ChatManager>();
+        // Load the Player List Window
+        GameMain.mainPlayer.gameObject.AddComponentIfMissing<UIPlayerWindow>();
     }
 
     public static void FixPlayerAfterImport()
