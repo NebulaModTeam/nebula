@@ -193,7 +193,7 @@ public class ChatWindow : MonoBehaviour
 
     public ChatMessage SendLocalChatMessage(string text, ChatMessageType messageType)
     {
-        if (!messageType.IsCommandMessage())
+        if (messageType.IsPlayerMessage())
         {
             text = ChatUtils.SanitizeText(text);
         }
@@ -205,22 +205,6 @@ public class ChatWindow : MonoBehaviour
                 case ChatMessageType.SystemWarnMessage when !Config.Options.EnableWarnMessage:
                 case ChatMessageType.BattleMessage when !Config.Options.EnableBattleMessage:
                     return null;
-                case ChatMessageType.PlayerMessage:
-                    break;
-                case ChatMessageType.CommandUsageMessage:
-                    break;
-                case ChatMessageType.CommandOutputMessage:
-                    break;
-                case ChatMessageType.CommandErrorMessage:
-                    break;
-                case ChatMessageType.PlayerMessagePrivate:
-                    break;
-                case ChatMessageType.SystemInfoMessage when Config.Options.EnableInfoMessage:
-                    break;
-                case ChatMessageType.SystemWarnMessage when Config.Options.EnableWarnMessage:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(messageType), "Invalid message type: " + messageType);
             }
         }
 
@@ -246,7 +230,7 @@ public class ChatWindow : MonoBehaviour
         {
             return newMsg;
         }
-        if (Config.Options.AutoOpenChat && !messageType.IsCommandMessage())
+        if (Config.Options.AutoOpenChat && messageType.IsPlayerMessage())
         {
             Toggle(false, false);
         }
