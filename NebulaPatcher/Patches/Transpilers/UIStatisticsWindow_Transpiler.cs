@@ -16,6 +16,15 @@ namespace NebulaPatcher.Patches.Transpilers;
 [HarmonyPatch(typeof(UIStatisticsWindow))]
 public static class UIStatisticsWindow_Transpiler
 {
+
+    /*
+     * AlienX: After looking at the code which v0.10.30.23292 has (this method changed), it would seem that:
+     * - It creates two lists private in scope to the method: items and itemsData
+     * - Populates these lists
+     * - Does nothing with them
+     * 
+     * Is this method completely redundant now???
+     
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(UIStatisticsWindow.RefreshAstroBox))]
     private static IEnumerable<CodeInstruction> RefreshAstroBox_Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -65,6 +74,7 @@ public static class UIStatisticsWindow_Transpiler
             return codeInstructions;
         }
     }
+    */
 
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(UIStatisticsWindow.ComputeDisplayProductEntries))]
