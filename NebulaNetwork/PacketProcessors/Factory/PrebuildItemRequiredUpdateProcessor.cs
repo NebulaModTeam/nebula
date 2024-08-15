@@ -43,7 +43,7 @@ public class PrebuildItemRequiredUpdateProcessor : PacketProcessor<PrebuildItemR
             factory.NotifyPrebuildChange(ptr.id, 3);
             if (factory.planet.factoryLoaded || factory.planet.factingCompletedStage >= 3)
             {
-                factory.AlterPrebuildModelState(ptr.id, false);
+                factory.AlterPrebuildModelState(ptr.id);
             }
             factory.constructionSystem.AddBuildTargetToModules(ptr.id, ref ptr.pos);
         }

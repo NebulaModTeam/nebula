@@ -279,7 +279,7 @@ public class DroneManager : IDisposable
         craftData.astroId = factory.planetId;
         craftData.owner = playerId; // Use craft.owner field to store playerId
         craftData.port = 0;
-        craftData.prototype = EPrototype.ConstructionDrone;
+        craftData.prototype = ECraftProto.ConstructionDrone;
         craftData.dynamic = true;
         craftData.isSpace = false;
         craftData.pos = pos;
