@@ -1,4 +1,7 @@
 ## Changelog
+0.9.8:
+- @AlienXAXS: Added Online Player UI (Backtick key by default)
+- @AlienXAXS: Updated Nebula to be compatible with Dyson Sphere Program v0.10.30.23292
 
 0.9.7:
 - @AlienXAXS: Headless now calculates planetary shields on CPU
