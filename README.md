@@ -71,6 +71,7 @@ Most of the battle aspects are sync, only few features are still WIP.
 - [x] Power network syncing (charger and request power from dyson sphere)
 - [x] Warning alarm syncing
 - [ ] Broadcast notification syncing
+- [ ] Logistics Control Panel (I) syncing
 
 </details>
 

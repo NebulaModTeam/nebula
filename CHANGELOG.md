@@ -1,7 +1,10 @@
 ## Changelog
+
 0.9.8:
 - @AlienXAXS: Added Online Player UI (Backtick key by default)
 - @AlienXAXS: Updated Nebula to be compatible with Dyson Sphere Program v0.10.30.23292
+- @starfi5h: Temporarily disable Logistics Control Panel (I) interactions
+- @starfi5h: Fix a bug that battle notification toggle in multiplayer chat settings has no effect
 
 0.9.7:
 - @AlienXAXS: Headless now calculates planetary shields on CPU
