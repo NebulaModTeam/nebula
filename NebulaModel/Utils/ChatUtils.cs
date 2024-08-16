@@ -87,41 +87,23 @@ public static class ChatUtils
 
     public static Color GetMessageColor(ChatMessageType messageType)
     {
-        switch (messageType)
+        return messageType switch
         {
-            case ChatMessageType.PlayerMessage:
-                return Color.white;
-
-            case ChatMessageType.SystemInfoMessage:
-                return Color.cyan;
-
-            case ChatMessageType.SystemWarnMessage:
-                return new Color(1, 0.95f, 0, 1);
-
-            case ChatMessageType.BattleMessage:
-                return Color.cyan;
-
-            case ChatMessageType.CommandUsageMessage:
-                return new Color(1, 0.65f, 0, 1);
-
-            case ChatMessageType.CommandOutputMessage:
-                return new Color(0.8f, 0.8f, 0.8f, 1);
-
-            case ChatMessageType.CommandErrorMessage:
-                return Color.red;
-
-            case ChatMessageType.PlayerMessagePrivate:
-                return Color.green;
-
-            default:
-                Console.WriteLine($"Requested color for unexpected chat message type {messageType}");
-                return Color.white;
-        }
+            ChatMessageType.PlayerMessage => Color.white,
+            ChatMessageType.SystemInfoMessage => Color.cyan,
+            ChatMessageType.SystemWarnMessage => new Color(1, 0.95f, 0, 1),
+            ChatMessageType.BattleMessage => Color.cyan,
+            ChatMessageType.CommandUsageMessage => new Color(1, 0.65f, 0, 1),
+            ChatMessageType.CommandOutputMessage => new Color(0.8f, 0.8f, 0.8f, 1),
+            ChatMessageType.CommandErrorMessage => Color.red,
+            ChatMessageType.PlayerMessagePrivate => Color.green,
+            _ => Color.white, // Default chat color is white
+        };
     }
 
-    public static bool IsCommandMessage(this ChatMessageType type)
+    public static bool IsPlayerMessage(this ChatMessageType type)
     {
-        return type is ChatMessageType.CommandOutputMessage or ChatMessageType.CommandUsageMessage or ChatMessageType.CommandErrorMessage or ChatMessageType.SystemWarnMessage or ChatMessageType.SystemInfoMessage;
+        return type is ChatMessageType.PlayerMessage or ChatMessageType.PlayerMessagePrivate;
     }
 
     public static bool Contains(this string source, string toCheck, StringComparison comp)

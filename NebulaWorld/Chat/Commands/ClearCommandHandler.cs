@@ -20,7 +20,7 @@ public class ClearCommandHandler : IChatCommandHandler
                 return;
             }
         }
-        window.ClearChat(message => message.MessageType.IsCommandMessage());
+        window.ClearChat(message => !message.MessageType.IsPlayerMessage());
     }
 
     public string[] GetUsage()

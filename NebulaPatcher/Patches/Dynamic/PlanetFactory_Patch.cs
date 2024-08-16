@@ -33,6 +33,16 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(PlanetFactory))]
 internal class PlanetFactory_patch
 {
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.FlushPools))]
+    public static bool FlushPools_Prefix()
+    {
+        // In vanilla, FlushPools is triggered by unload planet event which will happen at different time for each player
+        // So this optimize pool function is disabled in multiplayer to keep pool in sync
+        return !Multiplayer.IsActive;
+    }
+
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(PlanetFactory.AddPrebuildData))]
     public static void AddPrebuildData_Postfix(PlanetFactory __instance, ref int __result)

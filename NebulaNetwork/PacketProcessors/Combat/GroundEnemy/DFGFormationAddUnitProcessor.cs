@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI.Packets;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Combat.GroundEnemy;
@@ -25,6 +26,13 @@ public class DFGFormationAddUnitProcessor : PacketProcessor<DFGFormationAddUnitP
         {
             // Set the next id in EnemyFormation
             var enemyFrom = dFBase.forms[packet.FormId];
+
+            if (enemyFrom.vacancyCursor <= 0)
+            {
+                // If vacancyCursor desync, abort the AddUnit action
+                Log.Warn($"DFGFormationAddUnitPacket vacancyCursor desync. Pid={packet.PlanetId} Base={packet.BaseId} FormId={packet.FormId}");
+                return;
+            }
             enemyFrom.vacancies[enemyFrom.vacancyCursor - 1] = packet.PortId;
 
             var portId = enemyFrom.AddUnit();

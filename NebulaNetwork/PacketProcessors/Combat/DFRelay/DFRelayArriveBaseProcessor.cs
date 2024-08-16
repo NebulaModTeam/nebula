@@ -1,6 +1,5 @@
 ﻿#region
 
-using NebulaAPI.DataStructures;
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
@@ -45,7 +44,7 @@ public class DFRelayArriveBaseProcessor : PacketProcessor<DFRelayArriveBasePacke
                 dfrelayComponent.ArriveBase();
 
                 // Display message when DF relay is successfully landed and the planet has buildings
-                if (packet.HasFactory && dfrelayComponent.baseId > 0)
+                if (packet.HasFactory)
                 {
                     Multiplayer.Session.Enemies.DisplayPlanetPingMessage("DF relay landed on planet".Translate(), dfrelayComponent.targetAstroId, dfrelayComponent.targetLPos);
                 }
