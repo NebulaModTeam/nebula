@@ -255,8 +255,14 @@ public class StatisticsManager : IDisposable
         return -1;
     }
 
+    public bool HasFactory(PlanetData planet)
+    {
+        return factoryIndexMap.ContainsKey(planet.id);
+    }
+
     public long UpdateTotalChargedEnergy(int factoryIndex)
     {
+        if (PowerEnergyStoredData == null || factoryIndex >= PowerEnergyStoredData.Length) return 0;
         return PowerEnergyStoredData[factoryIndex];
     }
 

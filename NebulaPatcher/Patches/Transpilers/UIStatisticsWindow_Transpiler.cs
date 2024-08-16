@@ -16,57 +16,29 @@ namespace NebulaPatcher.Patches.Transpilers;
 [HarmonyPatch(typeof(UIStatisticsWindow))]
 public static class UIStatisticsWindow_Transpiler
 {
-
-    /*
-     * AlienX: After looking at the code which v0.10.30.23292 has (this method changed), it would seem that:
-     * - It creates two lists private in scope to the method: items and itemsData
-     * - Populates these lists
-     * - Does nothing with them
-     * 
-     * Is this method completely redundant now???
-     
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(UIStatisticsWindow.RefreshAstroBox))]
     private static IEnumerable<CodeInstruction> RefreshAstroBox_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        //Change: this.gameData.factoryCount 
-        //To:     GetFactoryCount()
-        //Change: this.gameData.factories[i].planetId
-        //To:     GetPlanetData(i).id
-        //Change: this.gameData.factories[i].planet
-        //To:     GetPlanetData(i)
+        // Update the drop list, so client is able to select the planets that are not loaded
+        // Change: if (planetData.factory != null)
+        // To    : if (HasFactory(planetData))
+
         var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
-            instructions = ReplaceFactoryCount(codeInstructions);
-
-            var matcher = new CodeMatcher(instructions)
+            return new CodeMatcher(instructions)
                 .MatchForward(false,
-                    new CodeMatch(OpCodes.Callvirt,
-                        AccessTools.DeclaredPropertyGetter(typeof(PlanetFactory), nameof(PlanetFactory.planetId)))
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld,
+                        AccessTools.Field(typeof(PlanetData), nameof(PlanetData.factory))),
+                    new CodeMatch(OpCodes.Brfalse)
                 )
-                .Advance(-5);
-            var factoryIndexOp = matcher.InstructionAt(3).opcode;
-            matcher.SetAndAdvance(factoryIndexOp, null)
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Call,
-                        AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(GetPlanetData))),
-                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.id)))
+                .Repeat(matcher => matcher
+                    .Advance(1)
+                    .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(HasFactory)))
                 )
-                .RemoveInstructions(5)
-                .MatchForward(false,
-                    new CodeMatch(OpCodes.Callvirt,
-                        AccessTools.DeclaredPropertyGetter(typeof(PlanetFactory), nameof(PlanetFactory.planet)))
-                )
-                .Advance(-5);
-            factoryIndexOp = matcher.InstructionAt(3).opcode;
-            matcher.SetAndAdvance(factoryIndexOp, null)
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Call,
-                        AccessTools.Method(typeof(UIStatisticsWindow_Transpiler), nameof(GetPlanetData)))
-                )
-                .RemoveInstructions(5);
-            return matcher.InstructionEnumeration();
+                .InstructionEnumeration();
         }
         catch
         {
@@ -74,7 +46,6 @@ public static class UIStatisticsWindow_Transpiler
             return codeInstructions;
         }
     }
-    */
 
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(UIStatisticsWindow.ComputeDisplayProductEntries))]
@@ -235,5 +206,14 @@ public static class UIStatisticsWindow_Transpiler
             return planet.factoryIndex;
         }
         return Multiplayer.Session.Statistics.GetFactoryIndex(planet);
+    }
+
+    private static bool HasFactory(PlanetData planet)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+        {
+            return planet.factory != null;
+        }
+        return Multiplayer.Session.Statistics.HasFactory(planet);
     }
 }
