@@ -24,7 +24,19 @@ internal class DFTinderComponent_Patch
         {
             __instance.targetHiveAstroId = _targetHiveAstroId;
             Multiplayer.Session.Network.SendPacket(new DFTinderDispatchPacket(__instance));
-            Multiplayer.Session.Enemies.DisplayAstroMessage("DF seed sent out from".Translate(), hive1.starData.astroId);
+            var hasFactory = false;
+            foreach (var planet in hive2.starData.planets)
+            {
+                if (planet != null && planet.factory != null && planet.factory.entityCount > 0)
+                {
+                    hasFactory = true;
+                    break;
+                }
+            }
+            if (hasFactory)
+            {
+                Multiplayer.Session.Enemies.SendAstroMessage("DF seed sent out".Translate(), hive1.starData.astroId, hive2.starData.astroId);
+            }
         }
         return true;
     }

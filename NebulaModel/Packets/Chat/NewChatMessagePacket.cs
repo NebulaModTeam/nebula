@@ -11,11 +11,11 @@ public class NewChatMessagePacket
 {
     public NewChatMessagePacket() { }
 
-    public NewChatMessagePacket(ChatMessageType messageType, string messageText, DateTime sentAt, string userName)
+    public NewChatMessagePacket(ChatMessageType messageType, string messageText, DateTime sentAt = default, string userName = "")
     {
         MessageType = messageType;
         MessageText = messageText;
-        SentAt = sentAt.ToBinary();
+        SentAt = sentAt == default ? 0 : sentAt.ToBinary();
         UserName = userName;
     }
 

@@ -17,7 +17,6 @@ public class DFSLaunchLancerAssaultProcessor : PacketProcessor<DFSLaunchLancerAs
 {
     protected override void ProcessPacket(DFSLaunchLancerAssaultPacket packet, NebulaConnection conn)
     {
-        Multiplayer.Session.Enemies.DisplayAstroMessage("Space hive is attacking".Translate(), packet.TargetAstroId);
         var spaceSector = GameMain.spaceSector;
         var hive = spaceSector.GetHiveByAstroId(packet.HiveAstroId);
         if (hive == null) return;

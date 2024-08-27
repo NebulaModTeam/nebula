@@ -54,7 +54,7 @@ internal class DFRelayComponent_Patch
         var factory = __instance.hive.galaxy.astrosFactory[__instance.targetAstroId];
         if (factory != null && factory.entityCount > 0 && __instance.baseId > 0)
         {
-            Multiplayer.Session.Enemies.DisplayPlanetPingMessage("DF relay landed on planet".Translate(), __instance.targetAstroId, __instance.targetLPos);
+            Multiplayer.Session.Enemies.SendPlanetPosMessage("DF relay landed on".Translate(), __instance.targetAstroId, __instance.targetLPos);
         }
     }
 
@@ -80,7 +80,7 @@ internal class DFRelayComponent_Patch
             var planet = GameMain.galaxy.PlanetById(__instance.targetAstroId);
             if (planet != null)
             {
-                Multiplayer.Session.Enemies.DisplayPlanetPingMessage("DF relay left from planet".Translate(), __instance.targetAstroId, __instance.targetLPos);
+                Multiplayer.Session.Enemies.SendPlanetPosMessage("DF relay left from".Translate(), __instance.targetAstroId, __instance.targetLPos);
             }
         }
 

@@ -29,6 +29,12 @@ internal class NewChatMessageProcessor : PacketProcessor<NewChatMessagePacket>
             Server.SendPacketExclude(packet, conn);
         }
 
+        if (string.IsNullOrEmpty(packet.UserName))
+        {
+            // non-player chat
+            ChatManager.Instance.SendChatMessage(packet.MessageText, packet.MessageType);
+            return;
+        }
         var sentAt = packet.SentAt == 0 ? DateTime.Now : DateTime.FromBinary(packet.SentAt);
         ChatManager.Instance.SendChatMessage(ChatManager.FormatChatMessage(sentAt, packet.UserName, packet.MessageText),
             packet.MessageType);
