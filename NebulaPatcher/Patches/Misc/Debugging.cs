@@ -9,7 +9,7 @@ using NebulaWorld;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Dynamic;
+namespace NebulaPatcher.Patches.Misc;
 
 [HarmonyPatch(typeof(EnemyFormation))]
 internal class Debug_EnemyFormation_Patch
@@ -46,7 +46,7 @@ internal class Debug_GameHistoryData_Patch
     {
         if (Multiplayer.IsActive && Multiplayer.Session.History.IsIncomingRequest)
         {
-            //Do not run if this was triggered by incomming request
+            //Do not run if this was triggered by incoming request
             return;
         }
         __instance.UnlockTech(techId);
@@ -97,13 +97,13 @@ internal class Debug_Mecha_Patch
         __instance.player.package.AddItemStacked(1501, 600, 1, out _); //add sails
         __instance.player.package.AddItemStacked(1503, 60, 1, out _); //add rockets
         __instance.player.package.AddItemStacked(2312, 10, 1, out _); //add launching silo
-        __instance.player.package.AddItemStacked(2210, 10, 1, out _); //add artifical sun
+        __instance.player.package.AddItemStacked(2210, 10, 1, out _); //add artificial sun
         __instance.player.package.AddItemStacked(2311, 20, 1, out _); //add railgun
         __instance.player.package.AddItemStacked(2001, 600, 1, out _); //add MK3 belts
         __instance.player.package.AddItemStacked(2002, 600, 1, out _); //add MK3 belts
         __instance.player.package.AddItemStacked(2003, 600, 1, out _); //add MK3 belts
         __instance.player.package.AddItemStacked(2013, 100, 1, out _); //add MK3 inserters
-        __instance.player.package.AddItemStacked(2212, 20, 1, out _); //add satelite sub-station
+        __instance.player.package.AddItemStacked(2212, 20, 1, out _); //add satellite sub-station
         __instance.player.package.AddItemStacked(1128, 100, 1, out _); // add combustible unit
         __instance.player.package.AddItemStacked(1601, 100, 1, out _); // add magnum ammo box
         __instance.player.package.AddItemStacked(1604, 100, 1, out _); // add shell set
@@ -111,7 +111,7 @@ internal class Debug_Mecha_Patch
         __instance.player.package.AddItemStacked(1609, 100, 1, out _); // add missile set
         __instance.player.package.AddItemStacked(1613, 100, 1, out _); // add jammer
 
-        // temporay fix before PlayerTechBonuses update
+        // temporary fix before PlayerTechBonuses update
         __instance.energyShieldUnlocked = true;
     }
 }
