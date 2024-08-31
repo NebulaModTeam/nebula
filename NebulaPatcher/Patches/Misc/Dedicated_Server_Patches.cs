@@ -14,11 +14,11 @@ using Object = UnityEngine.Object;
 
 #endregion
 
-namespace NebulaPatcher.Patches.Dynamic;
+namespace NebulaPatcher.Patches.Misc;
 
 // Collections of patches that need to make game run in nographics mode
 // This part only get patch when Multiplayer.IsDedicated is true
-internal class Dedicated_Server_Patch
+internal class Dedicated_Server_Patches
 {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]

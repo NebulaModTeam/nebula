@@ -13,6 +13,7 @@ using NebulaNetwork;
 using NebulaPatcher.Logger;
 using NebulaPatcher.MonoBehaviours;
 using NebulaPatcher.Patches.Dynamic;
+using NebulaPatcher.Patches.Misc;
 using NebulaWorld;
 using NebulaWorld.GameStates;
 using NebulaWorld.SocialIntegration;
@@ -156,7 +157,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
             }
             else if (newgameArgExists)
             {
-                Log.Error(">> New game parameters incorrect! Exiting...\nExpect: -newgame seed starCount resourceMltiplier");
+                Log.Error(">> New game parameters incorrect! Exiting...\nExpect: -newgame seed starCount resourceMultiplier");
             }
             else
             {
@@ -264,7 +265,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
         }
 
         var resourceMultiplier = customFile.Bind("Basic", "resourceMultiplier", -1f,
-            "Resource Multiplier. Infinte = 100. Negative value: Default(1.0f) or remain the same.").Value;
+            "Resource Multiplier. Infinite = 100. Negative value: Default(1.0f) or remain the same.").Value;
         if (resourceMultiplier >= 0f)
         {
             gameDesc.resourceMultiplier = resourceMultiplier;
@@ -375,10 +376,11 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
             }
 #endif
             var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginInfo.PLUGIN_ID);
+            harmony.PatchAll(typeof(Fix_Patches));
             if (Multiplayer.IsDedicated)
             {
                 Log.Info("Patching for headless mode...");
-                harmony.PatchAll(typeof(Dedicated_Server_Patch));
+                harmony.PatchAll(typeof(Dedicated_Server_Patches));
             }
 #if DEBUG
             Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "");

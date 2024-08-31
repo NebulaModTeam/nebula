@@ -25,7 +25,7 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(UIOptionWindow))]
 internal class UIOptionWindow_Patch
 {
-    private const float subtabOffest = 160f;
+    private const float SubtabOffset = 160f;
 
     // Templates
     private static RectTransform checkboxTemplate;
@@ -51,8 +51,8 @@ internal class UIOptionWindow_Patch
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnCreate_Postfix(UIOptionWindow __instance)
     {
-        tempToUICallbacks = new Dictionary<string, Action>();
-        tempMultiplayerOptions = new MultiplayerOptions();
+        tempToUICallbacks = new();
+        tempMultiplayerOptions = new();
 
         // Add multiplayer tab button
         var tabButtons = __instance.tabButtons;
@@ -76,9 +76,10 @@ internal class UIOptionWindow_Patch
         __instance.tabTexts = newTabTexts;
 
         // Add multiplayer tab content
+        // Instantiate from "Miscellaneous" tab which has no scroll elements (yet)
         var tabTweeners = __instance.tabTweeners;
-        var contentTemplate = tabTweeners[0].GetComponent<RectTransform>();
-        multiplayerContent = Object.Instantiate(contentTemplate, contentTemplate.parent, true);
+        var contentRectTransform = tabTweeners[4].GetComponent<RectTransform>();
+        multiplayerContent = Object.Instantiate(contentRectTransform, contentRectTransform.parent, true);
         multiplayerContent.name = "multiplayer-content";
         multiplayerContent.localPosition += new Vector3(0, -65, 0);
 
@@ -99,7 +100,7 @@ internal class UIOptionWindow_Patch
             }
         }
 
-        // Add subtab-bar for config catagories
+        // Add subtab-bar for config categories
         var subtabsBar = (RectTransform)Object.Instantiate(multiplayerTab.parent, multiplayerContent);
         subtabSlider = Object.Instantiate(__instance.tabSlider, subtabsBar);
         subtabsBar.name = "subtab-line";
@@ -146,15 +147,15 @@ internal class UIOptionWindow_Patch
         }
         contentContainer = listContent;
 
-        // Find control templates
-        checkboxTemplate = contentTemplate.Find("fullscreen").GetComponent<RectTransform>();
-        comboBoxTemplate = contentTemplate.Find("resolution").GetComponent<RectTransform>();
-        sliderTemplate = contentTemplate.Find("dofblur").GetComponent<RectTransform>();
+        // Find control templates from tab "Video"
+        checkboxTemplate = __instance.fullscreenComp.transform.parent.GetComponent<RectTransform>();
+        comboBoxTemplate = __instance.resolutionComp.transform.parent.GetComponent<RectTransform>();
+        sliderTemplate = __instance.dofComp.transform.parent.GetComponent<RectTransform>();
         inputTemplate = Object.Instantiate(checkboxTemplate, listContent, false);
         Object.Destroy(inputTemplate.Find("CheckBox").gameObject);
         var inputField =
             Object.Instantiate(
-                UIRoot.instance.saveGameWindow.transform.Find("input-filename/InputField").GetComponent<RectTransform>(),
+                UIRoot.instance.saveGameWindow.nameInput.transform.GetComponent<RectTransform>(),
                 inputTemplate, false);
         var fieldPosition = checkboxTemplate.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
         inputField.anchoredPosition = new Vector2(fieldPosition.x + 6, fieldPosition.y);
@@ -249,7 +250,7 @@ internal class UIOptionWindow_Patch
                 }
             }
             subtabSlider.rectTransform.anchoredPosition =
-                new Vector2(subtabOffest * index, subtabSlider.rectTransform.anchoredPosition.y);
+                new Vector2(SubtabOffset * index, subtabSlider.rectTransform.anchoredPosition.y);
         }
         subtabIndex = index;
     }
@@ -312,7 +313,7 @@ internal class UIOptionWindow_Patch
     {
         var subtab = Object.Instantiate(subtabTemplate, subtabTemplate.parent);
         var anchoredPosition = subtabTemplate.anchoredPosition;
-        subtab.anchoredPosition = new Vector2(anchoredPosition.x + subtabOffest * subtabButtons.Count,
+        subtab.anchoredPosition = new Vector2(anchoredPosition.x + SubtabOffset * subtabButtons.Count,
             anchoredPosition.y);
         subtabButtons.Add(subtab.GetComponent<UIButton>());
         subtab.name = $"tab-button-{subtabButtons.Count}";

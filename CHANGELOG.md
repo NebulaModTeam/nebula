@@ -1,5 +1,10 @@
 ## Changelog
 
+0.9.9:
+- @starfi5h: Fix multiplayer tab in the option window for DSP v0.10.30.23430
+- @starfi5h: Separate error close button (x) and copy button
+- @starfi5h: Sync WarningBroadcastData: LandingRelay, ApproachingSeed, BuildingDestroyed and 3 more
+
 0.9.8:
 - @AlienXAXS: Added Online Player UI (Backtick key by default)
 - @AlienXAXS: Updated Nebula to be compatible with Dyson Sphere Program v0.10.30.23292
