@@ -20,8 +20,6 @@ public class DFGLaunchAssaultProcessor : PacketProcessor<DFGLaunchAssaultPacket>
         var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
         if (factory == null)
         {
-            // Display message in chat if it can't show in UIDarkFogMonitor
-            Multiplayer.Session.Enemies.DisplayPlanetPingMessage("Planetary base is attacking".Translate(), packet.PlanetId, packet.TarPos.ToVector3());
             return;
         }
 

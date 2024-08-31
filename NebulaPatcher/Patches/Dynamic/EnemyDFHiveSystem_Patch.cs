@@ -233,19 +233,24 @@ internal class EnemyDFHiveSystem_Patch
         if (!Multiplayer.IsActive) return true;
         if (Multiplayer.Session.IsClient) return Multiplayer.Session.Enemies.IsIncomingRequest;
 
-        // Brocast launch assault events to all players
+        // Broadcast launch assault events to all players
         var packet = new DFSLaunchLancerAssaultPacket(in __instance, aggressiveLevel,
             in tarPos, in maxHatredPos, targetAstroId, unitCount0, unitThreat);
         Multiplayer.Session.Server.SendPacket(packet);
-        Multiplayer.Session.Enemies.DisplayAstroMessage("Space hive is attacking".Translate(), packet.TargetAstroId);
+        Multiplayer.Session.Enemies.SendAstroMessage("Space hive is attacking".Translate(), packet.TargetAstroId);
         return true;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFHiveSystem.NotifyRelayKilled))]
-    public static bool NotifyRelayKilled(EnemyDFHiveSystem __instance, ref EnemyData enemy)
+    public static bool NotifyRelayKilled_Prefix(EnemyDFHiveSystem __instance, ref EnemyData enemy)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return true;
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsServer)
+        {
+            Multiplayer.Session.Enemies.SendAstroMessage("DF relay killed on".Translate(), enemy.astroId);
+            return true;
+        }
 
         var dfrelayComponent = __instance.relays.buffer[enemy.dfRelayId];
         if (dfrelayComponent?.id == enemy.dfRelayId)

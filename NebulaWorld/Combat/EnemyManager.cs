@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NebulaModel.DataStructures;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Chat;
 using NebulaModel.Packets.Combat.DFHive;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld.Chat.ChatLinks;
@@ -86,31 +87,44 @@ public class EnemyManager : IDisposable
         }
     }
 
-    public void DisplayPlanetPingMessage(string text, int planetId, Vector3 pos)
+    public void SendPlanetPosMessage(string text, int planetId, Vector3 pos)
     {
+        if (Multiplayer.Session.IsClient) return;
         var planet = GameMain.galaxy.PlanetById(planetId);
         if (planet == null) return;
 
         var message = text + " [" + NavigateChatLinkHandler.FormatNavigateToPlanetPos(planetId, pos, planet.displayName) + "]";
         ChatManager.Instance.SendChatMessage(message, ChatMessageType.BattleMessage);
+        Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.BattleMessage, message));
     }
 
-    public void DisplayAstroMessage(string text, int astroId)
+    public void SendAstroMessage(string text, int astroId0, int astroId1 = 0)
     {
-        string displayMessage = null;
+        if (Multiplayer.Session.IsClient) return;
 
+        var message = text + " " + GetAstroLinkText(astroId0);
+        if (astroId1 != 0) message += " => " + GetAstroLinkText(astroId1);
+        ChatManager.Instance.SendChatMessage(message, ChatMessageType.BattleMessage);
+        Multiplayer.Session.Network.SendPacket(new NewChatMessagePacket(ChatMessageType.BattleMessage, message));
+    }
+
+    static string GetAstroLinkText(int astroId)
+    {
+        string displayName = null;
         if (GameMain.galaxy.PlanetById(astroId) != null)
         {
-            displayMessage = GameMain.galaxy.PlanetById(astroId).displayName;
+            displayName = GameMain.galaxy.PlanetById(astroId).displayName;
         }
         else if (GameMain.galaxy.StarById(astroId / 100) != null)
         {
-            displayMessage = GameMain.galaxy.StarById(astroId / 100).displayName;
+            displayName = GameMain.galaxy.StarById(astroId / 100).displayName;
         }
-        if (displayMessage == null) return;
-
-        var message = text + " [" + NavigateChatLinkHandler.FormatNavigateToAstro(astroId, displayMessage) + "]";
-        ChatManager.Instance.SendChatMessage(message, ChatMessageType.BattleMessage);
+        else if (GameMain.spaceSector.GetHiveByAstroId(astroId) != null)
+        {
+            displayName = GameMain.spaceSector.GetHiveByAstroId(astroId).displayName;
+        }
+        if (displayName == null) return "";
+        return "[" + NavigateChatLinkHandler.FormatNavigateToAstro(astroId, displayName) + "]";
     }
 
     public void OnFactoryLoadFinished(PlanetFactory factory)

@@ -18,8 +18,6 @@ public class DFTinderDispatchProcessor : PacketProcessor<DFTinderDispatchPacket>
         var hiveSystem = GameMain.spaceSector.GetHiveByAstroId(packet.OriginHiveAstroId);
         if (hiveSystem == null) return;
 
-        Multiplayer.Session.Enemies.DisplayAstroMessage("DF seed sent out from".Translate(), hiveSystem.starData.astroId);
-
         ref var tinderComponent = ref hiveSystem.tinders.buffer[packet.TinderId];
         if (tinderComponent.id != packet.TinderId) return;
 

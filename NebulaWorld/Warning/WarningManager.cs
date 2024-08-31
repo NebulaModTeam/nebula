@@ -16,6 +16,7 @@ namespace NebulaWorld.Warning;
 public class WarningManager : IDisposable
 {
     public readonly ToggleSwitch IsIncomingMonitorPacket = new();
+    public readonly ToggleSwitch IsIncomingBroadcast = new();
     private int idleCycle;
 
     private ConcurrentBag<NebulaConnection> requesters = [];
