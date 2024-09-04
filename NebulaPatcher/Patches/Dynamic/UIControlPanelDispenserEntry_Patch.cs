@@ -1,8 +1,10 @@
 ﻿#region
 
 using HarmonyLib;
+using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Logistics.ControlPanel;
 using NebulaWorld;
+using UnityEngine;
 
 #endregion
 
@@ -63,8 +65,26 @@ internal class UIControlPanelDispenserEntry_Patch
     public static bool OnFillNecessaryButtonClick_Prefix(UIControlPanelDispenserEntry __instance)
     {
         if (!Multiplayer.IsActive) return true;
+        if (__instance.factory == null || __instance.dispenser == null)
+        {
+            UIRealtimeTip.Popup("Unavailable".Translate());
+            return false;
+        }
 
-        // Temporarily disable fill item button. We will sync in the future
+        var text = "";
+        var num = __instance.dispenser.workCourierDatas.Length - (__instance.dispenser.idleCourierCount + __instance.dispenser.workCourierCount);
+        UIControlPanelObjectEntry.ReplenishItems(5001, num, ref __instance.dispenser.idleCourierCount, ref text);
+        if (!string.IsNullOrEmpty(text))
+        {
+            UIRealtimeTip.Popup(text, false, 0);
+            VFAudio.Create("equip-1", GameMain.mainPlayer.transform, Vector3.zero, true, 4, -1, -1L);
+        }
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new DispenserSettingPacket(__instance.factory.planetId,
+            __instance.id,
+            EDispenserSettingEvent.SetCourierCount,
+            __instance.dispenser.workCourierCount + __instance.dispenser.idleCourierCount));
+
         return false;
     }
 }
