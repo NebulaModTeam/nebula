@@ -16,7 +16,7 @@ internal class PlayerAction_Death_Patch
     [HarmonyPatch(nameof(PlayerAction_Death.Respawn))]
     public static void Respawn_Prefix(PlayerAction_Death __instance, int _respawnMode)
     {
-        if (!Multiplayer.IsActive) return;
+        if (!Multiplayer.IsActive || __instance.player != GameMain.mainPlayer) return;
 
         if (!__instance.player.isAlive && !__instance.respawning)
         {

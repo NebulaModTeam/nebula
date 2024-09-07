@@ -137,7 +137,7 @@ public class CombatManager : IDisposable
                 mecha.energyShieldEnergy = mecha.energyShieldEnergyRate > 1 ? 0 : int.MaxValue;
 
                 ActivedPlanets.Add(ptr.planetId);
-                ActivedPlanets.Add(ptr.starId);
+                ActivedStars.Add(ptr.starId);
                 if (ptr.planetId <= 0 && ptr.starId > 0)
                 {
                     ActivedStarsMechaInSpace.Add(ptr.starId);

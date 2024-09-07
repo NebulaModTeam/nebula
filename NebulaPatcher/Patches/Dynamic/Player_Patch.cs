@@ -164,6 +164,7 @@ internal class Player_Patch
         {
             Multiplayer.Session.Network.SendPacket(new MechaAliveEventPacket(
                 Multiplayer.Session.LocalPlayer.Id, MechaAliveEventPacket.EStatus.Kill));
+            ThrowItemsInInventory(__instance);
         }
         return true;
     }
@@ -177,6 +178,22 @@ internal class Player_Patch
         // Don't drop item when Redeploy
         __instance.mecha.PrepareRedeploy();
         return false;
+    }
+
+    private static void ThrowItemsInInventory(Player player)
+    {
+        // Balance: Drop half of item in inventory when player killed
+        const float DROP_RATE = 0.5f;
+        for (var i = 0; i < player.package.size; i++)
+        {
+            var itemId = 0;
+            var itemCount = (int)(player.package.grids[i].count * DROP_RATE);
+            player.package.TakeItemFromGrid(i, ref itemId, ref itemCount, out var itemInc);
+            if (itemId > 0 && itemCount > 0)
+            {
+                player.ThrowTrash(itemId, itemCount, itemInc, 0, 0);
+            }
+        }
     }
 
     #endregion

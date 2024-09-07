@@ -59,6 +59,8 @@ internal class SkillSystem_Patch
         // Set those flags to false so AddSpaceEnemyHatred can add threat correctly for client's skill in host
         __instance.playerIsSailing = false;
         __instance.playerIsWarping = false;
+        // Set this flag to true so AddSpaceEnemyHatred can add threat correctly from craft/skill of other players even if host is dead (dedicated server)
+        __instance.playerAlive = true;
     }
 
     [HarmonyPostfix]
@@ -91,14 +93,29 @@ internal class SkillSystem_Patch
     [HarmonyPatch(nameof(SkillSystem.DamageObject))]
     public static void DamageObject_Prefix(int damage, int slice, ref SkillTarget target, ref SkillTarget caster)
     {
-        if (caster.type != ETargetType.Craft || target.type != ETargetType.Enemy
-            || target.astroId <= 1000000 // Only sync for space target
+        if (!(caster.type == ETargetType.Craft || caster.type == ETargetType.Player)
+            || target.type != ETargetType.Enemy
             || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
 
-        var packet = new CombatStatDamagePacket(damage, slice, in target, in caster);
-        // Change the caster to player as craft (space fleet) is not sync yet
-        packet.CasterType = (short)ETargetType.Player;
-        packet.CasterId = Multiplayer.Session.LocalPlayer.Id;
-        Multiplayer.Session.Network.SendPacket(packet);
+        if (target.astroId > 1000000) // Sync for space enemy
+        {
+            var packet = new CombatStatDamagePacket(damage, slice, in target, in caster)
+            {
+                // Change the caster to player as craft (space fleet) is not sync yet
+                CasterType = (short)ETargetType.Player,
+                CasterId = Multiplayer.Session.LocalPlayer.Id
+            };
+            Multiplayer.Session.Network.SendPacket(packet);
+        }
+        else if (target.astroId == GameMain.localPlanet?.id) // Sync for local planet
+        {
+            var packet = new CombatStatDamagePacket(damage, slice, in target, in caster)
+            {
+                // Change the caster to player as craft (space fleet) is not sync yet
+                CasterType = (short)ETargetType.Player,
+                CasterId = Multiplayer.Session.LocalPlayer.Id
+            };
+            Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
+        }
     }
 }
