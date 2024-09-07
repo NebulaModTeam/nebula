@@ -35,12 +35,8 @@ internal class PlanetData_Patch
         {
             return true;
         }
-        Log.Warn(__instance == GameMain.localPlanet
-            ? "Local"
-            : "Remote" + $" PlanetData.UpdateDirtyMesh: meshes[{dirtyIdx}] is null");
         __result = false;
         return false;
-
     }
 
     [HarmonyPrefix]
