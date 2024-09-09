@@ -27,8 +27,19 @@ public class StationUIManager : IDisposable
 
     public ToggleSwitch IsIncomingRequest { get; set; } = new();
 
+    public StationComponent DummyStationStoreContainer { get; private set; } // For UIControlPanelStorageItem
+
+    public StationUIManager()
+    {
+        DummyStationStoreContainer = new()
+        {
+            storage = new StationStore[5]
+        };
+    }
+
     public void Dispose()
     {
+        DummyStationStoreContainer = null;
         GC.SuppressFinalize(this);
     }
 
@@ -162,7 +173,7 @@ public class StationUIManager : IDisposable
                 }
             case StationUI.EUISettings.MaxTripVessel:
                 {
-                    double value = packet.SettingValue;
+                    var value = packet.SettingValue;
                     value = value switch
                     {
                         > 40.5 => 10000.0,
@@ -186,7 +197,7 @@ public class StationUIManager : IDisposable
                 }
             case StationUI.EUISettings.WarpDistance:
                 {
-                    double value = packet.SettingValue;
+                    var value = packet.SettingValue;
                     switch (value)
                     {
                         case < 1.5:
