@@ -40,6 +40,7 @@ public class Client : IClient
         AccessTools.FieldRefAccess<WebSocket, MemoryStream>("_fragmentsBuffer");
 
     private readonly string serverPassword;
+    private readonly string serverProtocol;
 
     private WebSocket clientSocket;
 
@@ -49,15 +50,19 @@ public class Client : IClient
     private NebulaConnection serverConnection;
     private bool websocketAuthenticationFailure;
 
-    public Client(string url, int port, string password = "")
-        : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port), password)
+    public Client(string url, int port, string protocol, string password = "")
+        : this(new IPEndPoint(Dns.GetHostEntry(url).AddressList[0], port), protocol, password)
     {
     }
 
-    public Client(IPEndPoint endpoint, string password = "")
+    public Client(IPEndPoint endpoint, string protocol = "", string password = "")
     {
         ServerEndpoint = endpoint;
         serverPassword = password;
+        if (protocol != "")
+        {
+            serverProtocol = protocol;
+        }
     }
 
     public IPEndPoint ServerEndpoint { get; set; }
@@ -80,7 +85,7 @@ public class Client : IClient
         PacketProcessor.SimulateLatency = true;
 #endif
 
-        clientSocket = new WebSocket($"ws://{ServerEndpoint}/socket");
+        clientSocket = new WebSocket($"{serverProtocol}://{ServerEndpoint}/socket");
         clientSocket.Log.Level = LogLevel.Debug;
         clientSocket.Log.Output = Log.SocketOutput;
         clientSocket.OnOpen += ClientSocket_OnOpen;
@@ -112,8 +117,8 @@ public class Client : IClient
 
         if (Config.Options.RememberLastIP)
         {
-            // We've successfully connected, set connection as last ip, cutting out "ws://" and "/socket"
-            Config.Options.LastIP = ServerEndpoint.ToString();
+            // We've successfully connected, set connection as last ip, cutting out "ws://"(but not others, like wss) and "/socket"
+            Config.Options.LastIP = serverProtocol == "ws" ? ServerEndpoint.ToString() : $"{serverProtocol}://{ServerEndpoint.ToString()}";
             Config.SaveOptions();
         }
 
@@ -264,6 +269,16 @@ public class Client : IClient
 
     private void ClientSocket_OnClose(object sender, CloseEventArgs e)
     {
+        // Unity's TLS bug workaround, see https://github.com/sta/websocket-sharp/issues/219
+        var sslProtocolHack = (System.Security.Authentication.SslProtocols)(0xC00 | 0x300 | 0xC0);
+        // TlsHandshakeFailure: 1015
+        if (e.Code == 1015 && clientSocket.SslConfiguration.EnabledSslProtocols != sslProtocolHack)
+        {
+            clientSocket.SslConfiguration.EnabledSslProtocols = sslProtocolHack;
+            clientSocket.Connect();
+            return;
+        }
+
         serverConnection = null;
 
         UnityDispatchQueue.RunOnMainThread(() =>

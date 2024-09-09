@@ -273,6 +273,22 @@ internal class UIMainMenu_Patch
         // Remove whitespaces from connection string
         var s = ip;
 
+        // Parse protocol if set
+        var protocol = "ws";
+        var firstColonPos = s.IndexOf("://");
+        if (firstColonPos > 0)
+        {
+            var candidate = s.Substring(0, firstColonPos);
+            switch (candidate)
+            {
+                case "wss":
+                case "ws":
+                    protocol = candidate;
+                    s = s.Substring(firstColonPos + 3);
+                    break;
+            }
+        }
+
         // Taken from .net IPEndPoint
         IPEndPoint result = null;
         var addressLength = s.Length; // If there's no port then send the entire string to the address parser
@@ -330,10 +346,10 @@ internal class UIMainMenu_Patch
 
         p = p == 0 ? Config.Options.HostPort : p;
 
-        UIRoot.instance.StartCoroutine(TryConnectToServer(s, p, isIP, password));
+        UIRoot.instance.StartCoroutine(TryConnectToServer(s, protocol, p, isIP, password));
     }
 
-    private static IEnumerator TryConnectToServer(string ip, int port, bool isIP, string password)
+    private static IEnumerator TryConnectToServer(string ip, string protocol, int port, bool isIP, string password)
     {
         InGamePopup.ShowInfo("Connecting".Translate(), "Connecting to server...".Translate(), null);
         multiplayerMenu.gameObject.SetActive(false);
@@ -341,7 +357,7 @@ internal class UIMainMenu_Patch
         // We need to wait here to have time to display the Connecting popup since the game freezes during the connection.
         yield return new WaitForSeconds(0.5f);
 
-        if (!ConnectToServer(ip, port, isIP, password))
+        if (!ConnectToServer(ip, protocol, port, isIP, password))
         {
             InGamePopup.FadeOut();
             //re-enabling the menu again after failed connect attempt
@@ -360,13 +376,13 @@ internal class UIMainMenu_Patch
         UIRoot.instance.OpenMainMenuUI();
     }
 
-    private static bool ConnectToServer(string connectionString, int serverPort, bool isIP, string password)
+    private static bool ConnectToServer(string connectionString, string protocol, int serverPort, bool isIP, string password)
     {
         try
         {
             if (isIP)
             {
-                Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort), password));
+                Multiplayer.JoinGame(new Client(new IPEndPoint(IPAddress.Parse(connectionString), serverPort), protocol, password));
                 return true;
             }
 
@@ -375,7 +391,7 @@ internal class UIMainMenu_Patch
             {
                 return false;
             }
-            Multiplayer.JoinGame(new Client(connectionString, serverPort, password));
+            Multiplayer.JoinGame(new Client(connectionString, serverPort, protocol, password));
             return true;
         }
         catch (Exception e)
