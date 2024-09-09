@@ -17,7 +17,10 @@ public class CombatStatDamageProcessor : PacketProcessor<CombatStatDamagePacket>
     {
         if (IsHost)
         {
-            Multiplayer.Session.Server.SendPacketExclude(packet, conn);
+            if (packet.TargetAstroId > 1000000)
+            {
+                Multiplayer.Session.Server.SendPacketExclude(packet, conn);
+            }
         }
 
         SkillTarget target;
@@ -48,7 +51,11 @@ public class CombatStatDamageProcessor : PacketProcessor<CombatStatDamagePacket>
 
         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
         {
-            GameMain.spaceSector.skillSystem.DamageObject(packet.Damage, packet.Slice, ref target, ref caster);
+            var skillSystem = GameMain.spaceSector.skillSystem;
+            var tmp = skillSystem.playerAlive;
+            skillSystem.playerAlive = true;
+            skillSystem.DamageObject(packet.Damage, packet.Slice, ref target, ref caster);
+            skillSystem.playerAlive = tmp;
         }
     }
 }

@@ -30,7 +30,7 @@ public class StationUIInitialSyncRequestProcessor : PacketProcessor<StationUIIni
 
         if (stationComponent == null)
         {
-            Log.Error(
+            Log.Warn(
                 $"StationUIInitialSyncRequestProcessor: Unable to find requested station on planet {packet.PlanetId} with id {packet.StationId} and gid {packet.StationGId}");
             return;
         }

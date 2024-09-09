@@ -1,5 +1,17 @@
 ## Changelog
 
+0.9.10:
+- @fakeboboliu: Support to connect server with WSS by specifying wss:// in the connect Uri
+- @starfi5h: Sync Logistics Control Panel (I) entry list
+- @starfi5h: Esc in multiplayer menu can now return to the upper-level
+- @starfi5h: (Balance) When player killed, Drop half of item in inventory and increase CD from 1.5s to 5s
+- @starfi5h: (Balance) Increase base alert range to player from 90 to 200
+- @starfi5h: Space hive threat will now increase correctly when client attack relays by player's fleet
+- @starfi5h: DF base/hive will now launch attack at player on remote empty planet too
+- @starfi5h: Fix client player can't see the death animation of other clients
+- @starfi5h: Fix DF base sometimes can't be destroyed in client
+- @starfi5h: (Headless server) Stop relay landing when there are 7 or more working shield generators
+
 0.9.9:
 - @starfi5h: Fix multiplayer tab in the option window for DSP v0.10.30.23430
 - @starfi5h: Separate error close button (x) and copy button

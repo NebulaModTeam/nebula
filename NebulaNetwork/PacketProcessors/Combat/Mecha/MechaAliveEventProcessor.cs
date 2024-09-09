@@ -15,6 +15,11 @@ public class MechaAliveEventProcessor : PacketProcessor<MechaAliveEventPacket>
 {
     protected override void ProcessPacket(MechaAliveEventPacket packet, NebulaConnection conn)
     {
+        if (IsHost)
+        {
+            Multiplayer.Session.Server.SendPacketExclude(packet, conn);
+        }
+
         using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
         {
             if (!remotePlayersModels.TryGetValue(packet.PlayerId, out var playerModel)) return;

@@ -197,7 +197,8 @@ internal class DFGBaseComponent_Patch
         for (var pid = 0; pid < players.Length; pid++)
         {
             if (players[pid].planetId != planetId) continue;
-            if (((Vector3)enemyPool[__instance.enemyId].pos - players[pid].position).sqrMagnitude < 8100.0)
+            // Balance: Increase base player alert range from 90 to 200
+            if (((Vector3)enemyPool[__instance.enemyId].pos - players[pid].position).sqrMagnitude < 40000.0)
             {
                 __instance.UnderAttack(players[pid].position, 50f, 120);
             }

@@ -73,6 +73,31 @@ internal class UIMainMenu_Patch
         OnMultiplayerBackButtonClick();
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UIMainMenu.UpdateDemoScene))]
+    [HarmonyPatch(nameof(UIMainMenu._OnUpdate))]
+    public static void OnEscSwitch()
+    {
+        if (!VFInput.escape) return;
+
+        // Go back to the upper level when hitting esc
+        if (multiplayerMenu.gameObject.activeInHierarchy)
+        {
+            OnJoinGameBackButtonClick();
+            VFInput.UseEscape();
+        }
+        else if (UIRoot.instance.loadGameWindow.active)
+        {
+            UIRoot.instance.loadGameWindow.OnCancelClick(0);
+            VFInput.UseEscape();
+        }
+        else if (multiplayerSubMenu.gameObject.activeInHierarchy)
+        {
+            OnMultiplayerBackButtonClick();
+            VFInput.UseEscape();
+        }
+    }
+
     // Main Menu
     private static void AddMultiplayerButton()
     {

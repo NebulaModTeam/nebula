@@ -209,4 +209,12 @@ internal class Dedicated_Server_Patches
 
         return false;
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlanetATField), nameof(PlanetATField.TestRelayCondition))]
+    public static void StopLanding(PlanetATField __instance, ref bool __result)
+    {
+        // Balance: Stop relay landing when there are 7 or more working shield generators
+        __result &= !(__instance.energy > 0 && __instance.generatorCount >= 7);
+    }
 }

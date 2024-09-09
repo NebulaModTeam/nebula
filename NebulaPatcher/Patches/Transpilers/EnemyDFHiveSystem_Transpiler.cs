@@ -6,6 +6,7 @@ using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Combat.SpaceEnemy;
 using NebulaWorld;
+using UnityEngine;
 
 #endregion
 
@@ -109,6 +110,105 @@ internal class EnemyDFHiveSystem_Transpiler
             Log.Error(e);
             return instructions;
         }
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(EnemyDFHiveSystem.AssaultingWavesDetermineAI))]
+    public static IEnumerable<CodeInstruction> AssaultingWavesDetermineAI_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
+            /*  Launch assault for player who on remote planet and has no power buildings
+            from:
+				if (!flag2 && this.gameData.localPlanet != null && this.gameData.localPlanet.type != EPlanetType.Gas && this.gameData.localPlanet.star == this.starData)
+				{
+					flag2 = true;
+					num5 = this.gameData.localPlanet.astroId;
+					vector2 = (vector = this.sector.skillSystem.playerSkillTargetL);
+				}
+				if (flag2) {
+                    ...
+                    this.LaunchLancerAssault(aggressiveLevel, vector, vector2, num5, num2, num15);
+                }
+            to:
+				if (!flag2 && this.gameData.localPlanet != null && this.gameData.localPlanet.type != EPlanetType.Gas && this.gameData.localPlanet.star == this.starData)
+				{
+					flag2 = true;
+					num5 = this.gameData.localPlanet.astroId;
+					vector2 = (vector = this.sector.skillSystem.playerSkillTargetL);
+				}
+			>>	if (LaunchCondition(flag2, this, ref num5, ref vector, ref vector2))
+                {
+                    ...
+                    this.LaunchLancerAssault(aggressiveLevel, vector, vector2, num5, num2, num15);
+                }
+            */
+
+            var codeMatcher = new CodeMatcher(instructions)
+                .End()
+                .MatchBack(true,
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Stloc_S), // flag2 = true
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Callvirt),
+                    new CodeMatch(OpCodes.Callvirt),
+                    new CodeMatch(OpCodes.Stloc_S), // num5 = this.gameData.localPlanet.astroId
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Dup),
+                    new CodeMatch(OpCodes.Stloc_S), // vector
+                    new CodeMatch(OpCodes.Stloc_S), // vector2
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Brfalse));
+
+            if (codeMatcher.IsInvalid)
+            {
+                Log.Warn("EnemyDFHiveSystem.AssaultingWavesDetermineAI: Can't find target");
+                return codeMatcher.InstructionEnumeration();
+            }
+            var tarPos = codeMatcher.InstructionAt(-2).operand;
+            var maxHatredPos = codeMatcher.InstructionAt(-3).operand;
+            var targetAstroId = codeMatcher.InstructionAt(-9).operand;
+
+            codeMatcher.Insert(
+                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Ldloca_S, targetAstroId),
+                new CodeInstruction(OpCodes.Ldloca_S, tarPos),
+                new CodeInstruction(OpCodes.Ldloca_S, maxHatredPos),
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(EnemyDFHiveSystem_Transpiler), nameof(LaunchCondition))));
+
+            return codeMatcher.InstructionEnumeration();
+        }
+        catch (System.Exception e)
+        {
+            Log.Warn("Transpiler EnemyDFHiveSystem.AssaultingWavesDetermineAI failed.");
+            Log.Warn(e);
+            return instructions;
+        }
+    }
+
+    static bool LaunchCondition(bool originalFlag, EnemyDFHiveSystem @this, ref int targetAstroId, ref Vector3 tarPos, ref Vector3 maxHatredPos)
+    {
+        if (!Multiplayer.IsActive || originalFlag == true) return originalFlag;
+
+        var players = Multiplayer.Session.Combat.Players;
+        for (var i = 0; i < players.Length; i++)
+        {
+            if (players[i].isAlive && players[i].starId == @this.starData.id && players[i].planetId > 0)
+            {
+                var planet = GameMain.galaxy.PlanetById(players[i].planetId);
+                if (planet == null || planet.type == EPlanetType.Gas) continue;
+
+                targetAstroId = players[i].planetId;
+                tarPos = maxHatredPos = players[i].skillTargetL;
+                Log.Info($"Hive attack LaunchCondition: player[{i}] planeId{targetAstroId}");
+                return true;
+            }
+        }
+        return originalFlag;
     }
 
     static void RealizePlanetBase(DFRelayComponent dFRelayComponent, SpaceSector spaceSector)
