@@ -79,31 +79,6 @@ internal class EnemyDFGroundSystem_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(EnemyDFGroundSystem.CanEraseBase))]
-    public static bool CanEraseBase_Prefix(DFGBaseComponent _base, ref bool __result)
-    {
-        if (!Multiplayer.IsActive) return true;
-
-        if (_base == null || _base.id == 0)
-        {
-            __result = true;
-            return false;
-        }
-        // Skip __instance.builders.buffer[_base.builderId].sp check as it may have different value
-        var pbuilders = _base.pbuilders;
-        for (var i = 2; i < pbuilders.Length; i++)
-        {
-            if (pbuilders[i].instId > 0)
-            {
-                __result = false;
-                return false;
-            }
-        }
-        __result = true;
-        return false;
-    }
-
-    [HarmonyPrefix]
     [HarmonyPatch(nameof(EnemyDFGroundSystem.NotifyEnemyKilled))]
     public static bool NotifyEnemyKilled_Prefix()
     {
@@ -231,4 +206,26 @@ internal class EnemyDFGroundSystem_Patch
         }
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.KeyTickLogic))]
+    public static void KeyTickLogic_Postfix(EnemyDFGroundSystem __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return;
+
+        var cursor = __instance.bases.cursor;
+        var baseBuffer = __instance.bases.buffer;
+        var enemyPool = __instance.factory.enemyPool;
+        for (var baseId = 1; baseId < cursor; baseId++)
+        {
+            var dfgbaseComponent = baseBuffer[baseId];
+            if (dfgbaseComponent == null || dfgbaseComponent.id != baseId) continue;
+            if (dfgbaseComponent.enemyId != 0 && enemyPool[dfgbaseComponent.enemyId].id == 0)
+            {
+                // Note: isInvincible in enemy is used by Nebula client to note if the enemy is pending to get killed
+                // isInvincible will get set back to true in EnemyDFGroundSystem.KeyTickLogic when base sp > 0
+                // So we'll need to set isInvincible = true to let host's incoming KillEnemyFinally packet get executed
+                enemyPool[dfgbaseComponent.enemyId].isInvincible = true;
+            }
+        }
+    }
 }

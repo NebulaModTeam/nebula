@@ -68,8 +68,9 @@ internal class DFGBaseComponent_Transpiler
 
     static bool LaunchCondition(DFGBaseComponent @this)
     {
-        if (!Multiplayer.IsActive || @this.groundSystem.local_player_alive == true) return @this.groundSystem.local_player_alive;
+        if (!Multiplayer.IsActive) return @this.groundSystem.local_player_grounded_alive;
 
+        // In MP, replace local_player_grounded_alive flag with the following condition
         var planetId = @this.groundSystem.planet.id;
         var players = Multiplayer.Session.Combat.Players;
         for (var i = 0; i < players.Length; i++)
