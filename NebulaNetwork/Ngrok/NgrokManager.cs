@@ -188,13 +188,13 @@ public class NgrokManager
             // This links the process as a child process by attaching a null debugger thus ensuring that the process is killed when its parent dies.
             _ = new ChildProcessLinker(_ngrokProcess, _ =>
             {
-                Log.Warn(
+                Log.WarnInform(
                     "Failed to link Ngrok process to DSP process as a child! (This might result in a left over ngrok process if the DSP process uncleanly killed)");
             });
         }
         else
         {
-            Log.Error("Failed to start Ngrok process!");
+            Log.WarnInform("Failed to start Ngrok process!");
         }
 
         _ngrokProcess?.BeginOutputReadLine();
@@ -286,7 +286,7 @@ public class NgrokManager
         }
         catch (Exception e)
         {
-            Log.Error(e);
+            Log.WarnInform(e.ToString());
         }
         _ngrokProcess.Close();
         _ngrokProcess = null;
@@ -301,7 +301,7 @@ public class NgrokManager
         }
         catch (Exception e)
         {
-            Log.Error(e);
+            Log.WarnInform(e.ToString());
             return false;
         }
     }
@@ -310,12 +310,6 @@ public class NgrokManager
     {
         return Task.Run(() =>
         {
-            if (!IsNgrokActive())
-            {
-                throw new Exception(
-                    $"Not able to get Ngrok tunnel address because Ngrok is not started (or exited prematurely)! LastErrorCode: {NgrokLastErrorCode} {NgrokLastErrorCodeDesc}");
-            }
-
             if (!_ngrokAddressObtainedSource.Task.Wait(TimeSpan.FromSeconds(15)))
             {
                 throw new TimeoutException(

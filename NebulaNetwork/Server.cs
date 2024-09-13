@@ -250,6 +250,7 @@ public class Server : IServer
         }
         catch (InvalidOperationException e)
         {
+            Log.Warn(e.ToString());
             InGamePopup.ShowError("Error", "An error occurred while hosting the game: ".Translate() + e.Message,
                 "Close".Translate());
             Stop();
@@ -267,13 +268,22 @@ public class Server : IServer
 
         Task.Run(async () =>
         {
-            if (ngrokManager.IsNgrokActive())
+            if (ngrokManager.NgrokEnabled)
             {
-                var ip = await ngrokManager.GetNgrokAddressAsync();
-                DiscordManager.UpdateRichPresence(ip, updateTimestamp: true);
-                if (Multiplayer.IsDedicated)
+                try
                 {
-                    Log.Info($">> Ngrok address: {ip}");
+                    // Wait up to 15s for ngrok to start, then get the address
+                    var ip = await ngrokManager.GetNgrokAddressAsync();
+                    DiscordManager.UpdateRichPresence(ip, updateTimestamp: true);
+                    if (Multiplayer.IsDedicated)
+                    {
+                        Log.Info($">> Ngrok address: {ip}");
+                    }
+                    return;
+                }
+                catch (Exception e)
+                {
+                    Log.Warn(e);
                 }
             }
             else

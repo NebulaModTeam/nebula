@@ -68,8 +68,12 @@ public static class Log
             {
                 // ShowError has Unity API and needs to call on the main thread
                 BepInEx.ThreadingHelper.Instance.StartSyncInvoke(() =>
-                    UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "")
-                );
+                {
+                    // We just want to use the window to show the error message, so leave GameMain.errored as the original value
+                    var tmp = GameMain.errored;
+                    UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
+                    GameMain.errored = tmp;
+                });
                 return;
             }
             UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
