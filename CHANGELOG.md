@@ -1,5 +1,10 @@
 ## Changelog
 
+0.9.11:
+- @starfi5h: Fix half-growth dark fog bases keep regenerating
+- @starfi5h: Fix combat drones doesn't increase ground base threat
+- @starfi5h: Fix errors in NgrokManager.IsNgrokActive and SpaceSector.RemoveEnemyWithComponents
+
 0.9.10:
 - @fakeboboliu: Support to connect server with WSS by specifying wss:// in the connect Uri
 - @starfi5h: Sync Logistics Control Panel (I) entry list
