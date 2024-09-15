@@ -118,4 +118,25 @@ internal class SkillSystem_Patch
             Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
         }
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(SkillSystem.DamageGroundObjectByLocalCaster))]
+    public static void DamageGroundObjectByLocalCaster_Prefix(PlanetFactory factory, int damage, int slice, ref SkillTarget target, ref SkillTarget caster)
+    {
+        if (caster.type != ETargetType.Craft
+            || target.type != ETargetType.Enemy
+            || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
+
+        if (factory == GameMain.localPlanet?.factory) // Sync for local planet combat drones
+        {
+            target.astroId = caster.astroId = GameMain.localPlanet.astroId;
+            var packet = new CombatStatDamagePacket(damage, slice, in target, in caster)
+            {
+                // Change the caster to player as craft (space fleet) is not sync yet
+                CasterType = (short)ETargetType.Player,
+                CasterId = Multiplayer.Session.LocalPlayer.Id
+            };
+            Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
+        }
+    }
 }

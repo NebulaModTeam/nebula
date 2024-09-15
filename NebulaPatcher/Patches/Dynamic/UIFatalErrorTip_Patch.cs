@@ -186,7 +186,7 @@ internal class UIFatalErrorTip_Patch
             }
 
             // Nebula only: skip the message after PacketProcessor
-            if (str.StartsWith("NebulaModel.Packets.PacketProcessor"))
+            if (str.StartsWith("NebulaModel.Packets.PacketProcessor") || str.StartsWith("  at NebulaModel.Packets.PacketProcessor"))
             {
                 break;
             }
