@@ -38,7 +38,7 @@ internal class StorageSyncResponseProcessor : PacketProcessor<StorageSyncRespons
             var itemProto = LDB.items.Select((int)protoId);
 
             //Imitation of UIStorageWindow.OnStorageIdChange()
-            Multiplayer.Session.Storage.ActiveWindowTitle.text = itemProto.name;
+            Multiplayer.Session.Storage.ActiveWindowTitle.text = itemProto?.name ?? "";
         }
         Multiplayer.Session.Storage.ActiveUIStorageGrid._Free();
         Multiplayer.Session.Storage.ActiveUIStorageGrid._Init(storageComponent);

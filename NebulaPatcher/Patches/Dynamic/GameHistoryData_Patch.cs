@@ -131,6 +131,21 @@ internal class GameHistoryData_Patch
         return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest;
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(GameHistoryData.UnlockTechUnlimited))]
+    public static bool UnlockTechUnlimited_Prefix(GameHistoryData __instance, int techId)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.History.IsIncomingRequest)
+        {
+            return true;
+        }
+        // If client initial the manual unlock event (metadata, sandbox), send to server and wait for the authoritative
+        var techState = __instance.TechState(techId);
+        var level = techState.hashUploaded >= techState.hashNeeded ? techState.maxLevel : techState.curLevel;
+        Multiplayer.Session.Network.SendPacket(new GameHistoryUnlockTechPacket(techId, level));
+        return false;
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameHistoryData.NotifyTechUnlock))]
     public static void NotifyTechUnlock_Postfix(int _techId, int _level)

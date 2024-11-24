@@ -51,8 +51,13 @@ internal class GameData_Patch
         // Get the recieved bytes from the remote server that we will import
         if (!Multiplayer.Session.Planets.PendingFactories.TryGetValue(planet.id, out var factoryBytes))
         {
-            // We messed up, just defer to the default behaviour on the client (will cause desync but not outright crash)
-            Log.Error("PendingFactories did not have value we wanted, factory will not be synced!");
+            // If planet.factory is not empty, it may be called by elsewhere beside PlanetModelingManager.LoadingPlanetFactoryMain
+            // In this case, just use the original method which will return planet.factory
+            if (planet.factory == null)
+            {
+                // We messed up, just defer to the default behaviour on the client (will cause desync but not outright crash)
+                Log.Error("PendingFactories did not have value we wanted, factory will not be synced!");
+            }
             return true;
         }
 

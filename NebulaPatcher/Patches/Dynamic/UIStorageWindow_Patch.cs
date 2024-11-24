@@ -20,10 +20,15 @@ internal class UIStorageWindow_Patch
         {
             return true;
         }
+        var storageComponent = __instance.factoryStorage?.storagePool[__instance.storageId];
+        if (storageComponent == null || storageComponent.entityId == 0)
+        {
+            return true;
+        }
         var storageUI = __instance.storageUI;
         Multiplayer.Session.Storage.ActiveUIStorageGrid = storageUI;
         var titleText = __instance.titleText;
-        Multiplayer.Session.Storage.ActiveStorageComponent = __instance.factoryStorage.storagePool[__instance.storageId];
+        Multiplayer.Session.Storage.ActiveStorageComponent = storageComponent;
         Multiplayer.Session.Storage.ActiveWindowTitle = titleText;
         Multiplayer.Session.Storage.ActiveBansSlider = __instance.bansSlider;
         Multiplayer.Session.Storage.ActiveBansValueText = __instance.bansValueText;
