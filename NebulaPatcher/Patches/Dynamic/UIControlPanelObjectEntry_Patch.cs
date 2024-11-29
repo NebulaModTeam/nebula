@@ -24,5 +24,16 @@ internal class UIControlPanelObjectEntry_Patch
             return instructions;
         }
     }
-}
 
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIControlPanelObjectEntry.OnSelectButtonClick))]
+    public static void OnSelectButtonClick_Postfix(UIControlPanelObjectEntry __instance)
+    {
+        if (!__instance.isTargetDataValid)
+        {
+            // The main reason why target data is invalid is due to remote planet is not loaded for client
+            // So make a popup here to info the user about this behavior
+            UIRealtimeTip.Popup("Can't view remote planet for MP client!".Translate());
+        }
+    }
+}

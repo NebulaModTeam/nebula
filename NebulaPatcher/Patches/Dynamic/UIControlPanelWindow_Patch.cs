@@ -31,32 +31,29 @@ internal class UIControlPanelWindow_Patch
     {
         if (!Multiplayer.IsActive) return true;
 
-        // In MP, open the local station window instead of inspector temporarily
-        // TODO: Enable Inspector in client for remote entry and sync
         __instance.needDetermineSelectionInspector = false;
         var planet = GameMain.galaxy.PlanetById(__instance.selection.astroId);
         var factory = planet?.factory;
-        if (factory == null || GameMain.localPlanet != planet) return false;
         switch (__instance.selection.entryType)
         {
             case EControlPanelEntryType.InterstellarStation:
             case EControlPanelEntryType.OrbitCollector:
             case EControlPanelEntryType.LocalStation:
             case EControlPanelEntryType.VeinCollector:
-                // Close station window first so it can stay on top
-                UIRoot.instance.uiGame.ShutStationWindow();
-                var minerId = factory.entityPool[__instance.selection.objId].minerId;
-                var stationId = factory.entityPool[__instance.selection.objId].stationId;
-                UIRoot.instance.uiGame.stationWindow.veinCollectorPanel.minerId = minerId;
-                UIRoot.instance.uiGame.stationWindow.stationId = stationId;
-                if (UIRoot.instance.uiGame.inspectStationId == 0 && stationId > 0)
+                // Open station inspector only if the factory is loaded
+                if (factory == null)
                 {
-                    UIRoot.instance.uiGame.OpenStationWindow();
+                    return false;
                 }
-                break;
+                else return true;
 
             case EControlPanelEntryType.Dispenser:
-                // Close station window first so it can stay on top
+                // In MP, temporarily disable the dispenser inspector and use the original dispenser window
+                if (factory == null || GameMain.localPlanet != planet)
+                {
+                    return false;
+                }
+                // Close dispenser window first so it can stay on top
                 UIRoot.instance.uiGame.ShutDispenserWindow();
                 var dispenserId = factory.entityPool[__instance.selection.objId].dispenserId;
                 UIRoot.instance.uiGame.dispenserWindow.dispenserId = dispenserId;
@@ -64,9 +61,9 @@ internal class UIControlPanelWindow_Patch
                 {
                     UIRoot.instance.uiGame.OpenDispenserWindow();
                 }
-                break;
+                return false;
         }
-        return false;
+        return true;
     }
 
     [HarmonyPostfix]
