@@ -40,19 +40,6 @@ internal class Debug_EnemyFormation_Patch
 [HarmonyPatch(typeof(GameHistoryData))]
 internal class Debug_GameHistoryData_Patch
 {
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(GameHistoryData.EnqueueTech))]
-    public static void EnqueueTech_Postfix(GameHistoryData __instance, int techId)
-    {
-        if (Multiplayer.IsActive && Multiplayer.Session.History.IsIncomingRequest)
-        {
-            //Do not run if this was triggered by incoming request
-            return;
-        }
-        __instance.UnlockTech(techId);
-        GameMain.mainPlayer.mecha.corePowerGen = 10000000;
-    }
-
     [HarmonyPrefix]
     [HarmonyPatch(nameof(GameHistoryData.dysonSphereSystemUnlocked), MethodType.Getter)]
     public static bool DysonSphereSystemUnlocked_Prefix(ref bool __result)

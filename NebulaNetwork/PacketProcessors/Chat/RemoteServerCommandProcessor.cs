@@ -41,6 +41,7 @@ internal class RemoteServerCommandProcessor : PacketProcessor<RemoteServerComman
             return;
         }
 
+        Log.Info("Get RemoteServerCommand: " + packet.Command);
         if (!allowedConnections.Contains(conn) && packet.Command != RemoteServerCommand.Login)
         {
             if (!string.IsNullOrWhiteSpace(Config.Options.RemoteAccessPassword))
@@ -149,8 +150,18 @@ internal class RemoteServerCommandProcessor : PacketProcessor<RemoteServerComman
         // Save game and report result to the client
         LastSaveTime = DateTime.Now;
         saveName = string.IsNullOrEmpty(saveName) ? GameSave.LastExit : saveName;
-        return string.Format("Save {0} : {1}".Translate(), saveName,
-            GameSave.SaveCurrentGame(saveName) ? "Success".Translate() : "Fail".Translate());
+        bool result;
+        try
+        {
+            result = GameSave.SaveCurrentGame(saveName);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex);
+            result = false;
+        }
+
+        return string.Format("Save {0} : {1}".Translate(), saveName, result ? "Success".Translate() : "Fail".Translate());
     }
 
     private static string Load(string saveName)

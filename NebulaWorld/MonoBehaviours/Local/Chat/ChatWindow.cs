@@ -266,6 +266,13 @@ public class ChatWindow : MonoBehaviour
 
     public void Toggle(bool forceClosed = false, bool focusField = true)
     {
+        if (Config.Options.ChatHotkey.MainKey == KeyCode.Return)
+        {
+            // If player set enter as toggle hotkey, add a check for default open => close action
+            // So if player is typing and hit enter, it won't close the chat window immediately
+            if (forceClosed == false && chatWindow.activeSelf && !string.IsNullOrEmpty(chatBox.text)) return;
+        }
+
         var desiredStatus = !forceClosed && !chatWindow.activeSelf;
         chatWindow.SetActive(desiredStatus);
         notifier.gameObject.SetActive(!desiredStatus);

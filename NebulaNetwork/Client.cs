@@ -380,7 +380,7 @@ public class Client : IClient
                 Log.Warn("Disconnect code: " + e.Code + ", reason:" + e.Reason);
                 InGamePopup.ShowWarning(
                     "Server Unavailable".Translate(),
-                    "Could not reach the server, please try again later.".Translate(),
+                    "Can't reach the server. Please check the network status.\n(Refer Nebula wiki for troubleshooting)".Translate(),
                     "OK".Translate(),
                     Multiplayer.LeaveGame);
             }
