@@ -38,7 +38,7 @@ public class LCPFilterResultsRequestProcessor : PacketProcessor<LCPFilterResults
         var factoryCount = GameMain.data.factoryCount;
         var localPlanetAstroId = packet.LocalPlanetAstroId;
         var localStarAstroId = packet.LocalStarAstroId;
-        ref var ptr = ref GameMain.data.mainPlayer.uPosition;
+        var playerUPosition = new VectorLF3(packet.PlayerUposition.x, packet.PlayerUposition.y, packet.PlayerUposition.z);
 
         var factories = GameMain.data.factories;
         var galaxyAstros = GameMain.data.spaceSector.galaxyAstros;
@@ -47,7 +47,7 @@ public class LCPFilterResultsRequestProcessor : PacketProcessor<LCPFilterResults
             var astroId = factories[i].planet.astroId;
             if (filter.sortMethod == ControlPanelFilter.ESortMethod.AstroDistance)
             {
-                var sqrMagnitude = (galaxyAstros[astroId].uPos - ptr).sqrMagnitude;
+                var sqrMagnitude = (galaxyAstros[astroId].uPos - playerUPosition).sqrMagnitude;
                 var index = sortedAstros.Count - 1;
                 while (index >= 0 && sqrMagnitude < sortedAstros[index].sqrDistToPlayer)
                 {

@@ -69,17 +69,24 @@ public class StationUIManager : IDisposable
     {
         // If station window is opened and viewing the updating station, refresh the window.
         var stationWindow = UIRoot.instance.uiGame.stationWindow;
-        if (stationWindow == null || !stationWindow.active)
+        if (stationWindow != null && stationWindow.active &&
+            stationWindow.factory?.planetId == planetId && stationWindow.stationId == stationId)
         {
-            return;
+            using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
+            {
+                stationWindow.OnStationIdChange();
+            }
         }
-        if (stationWindow.factory?.planetId != planetId || stationWindow.stationId != stationId)
+
+        // If station inspector in control panel is opened and viewing the updating station, refresh the inspector.
+        var inspector = UIRoot.instance.uiGame.controlPanelWindow.stationInspector;
+        if (inspector != null && inspector.active &&
+            inspector.factory?.planetId == planetId && inspector.stationId == stationId)
         {
-            return;
-        }
-        using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
-        {
-            stationWindow.OnStationIdChange();
+            using (Multiplayer.Session.StationsUI.IsIncomingRequest.On())
+            {
+                inspector.OnStationIdChange();
+            }
         }
     }
 
