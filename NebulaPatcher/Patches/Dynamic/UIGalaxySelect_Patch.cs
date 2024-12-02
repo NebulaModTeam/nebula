@@ -81,8 +81,8 @@ internal class UIGalaxySelect_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(UIGalaxySelect.EnterGame))]
-    public static bool EnterGame_Prefix(UIGalaxySelect __instance)
+    [HarmonyPatch(nameof(UIGalaxySelect.ApplySetting))]
+    public static bool ApplySetting_Prefix(UIGalaxySelect __instance)
     {
         if (!Multiplayer.IsInMultiplayerMenu || __instance.uiCombat.active)
         {

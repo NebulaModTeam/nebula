@@ -45,7 +45,7 @@ internal class UIControlPanelPlanetEntry_Patch
         }
         __instance.planetTypeText.text = __instance.planet.typeString;
         var displayName = __instance.planet.displayName;
-        Utils.UITextTruncateShow(__instance.planetNameText, displayName, __instance.planetNameTextWidthLimit, ref __instance.planetNameTextSettings);
+        Utils.UITextTruncateShow(__instance.planetNameText, ref displayName, __instance.planetNameTextWidthLimit, ref __instance.planetNameTextSettings);
 
         return false;
     }
