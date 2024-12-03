@@ -48,8 +48,8 @@ public static class UIStatisticsWindow_Transpiler
     }
 
     [HarmonyTranspiler]
-    [HarmonyPatch(nameof(UIStatisticsWindow.ComputeDisplayProductEntries))]
-    private static IEnumerable<CodeInstruction> ComputeDisplayEntries_Transpiler(IEnumerable<CodeInstruction> instructions)
+    [HarmonyPatch(nameof(UIStatisticsWindow.DetermineProductEntryList))]
+    private static IEnumerable<CodeInstruction> DetermineProductEntryList_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         //Change: this.gameData.factoryCount
         //To:     GetFactoryCount()
