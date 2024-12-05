@@ -43,7 +43,6 @@ public class Server : IServer
     public INetPacketProcessor PacketProcessor { get; set; } = new NebulaNetPacketProcessor();
 
     private const float GAME_RESEARCH_UPDATE_INTERVAL = 2;
-    private const float STATISTICS_UPDATE_INTERVAL = 1;
     private const float LAUNCH_UPDATE_INTERVAL = 4;
     private const float DYSONSPHERE_UPDATE_INTERVAL = 2;
     private const float WARNING_UPDATE_INTERVAL = 1;
@@ -54,8 +53,6 @@ public class Server : IServer
 
     private float gameResearchHashUpdateTimer;
     private NgrokManager ngrokManager;
-    private float productionStatisticsUpdateTimer;
-
 
     private WebSocketServer socket;
     private float warningUpdateTimer;
@@ -414,7 +411,6 @@ public class Server : IServer
         }
 
         gameResearchHashUpdateTimer += Time.deltaTime;
-        productionStatisticsUpdateTimer += Time.deltaTime;
         dysonLaunchUpateTimer += Time.deltaTime;
         dysonSphereUpdateTimer += Time.deltaTime;
         warningUpdateTimer += Time.deltaTime;
@@ -428,12 +424,6 @@ public class Server : IServer
                 SendPacket(new GameHistoryResearchUpdatePacket(GameMain.data.history.currentTech, state.hashUploaded,
                     state.hashNeeded, GameMain.statistics.techHashedFor10Frames, GameMain.data.history.techQueueLength));
             }
-        }
-
-        if (productionStatisticsUpdateTimer > STATISTICS_UPDATE_INTERVAL)
-        {
-            productionStatisticsUpdateTimer = 0;
-            Multiplayer.Session.Statistics.SendBroadcastIfNeeded();
         }
 
         if (dysonLaunchUpateTimer > LAUNCH_UPDATE_INTERVAL)

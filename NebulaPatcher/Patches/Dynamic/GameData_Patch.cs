@@ -329,6 +329,7 @@ internal class GameData_Patch
         if (Multiplayer.Session.LocalPlayer.IsHost)
         {
             Multiplayer.Session.Launch.CollectProjectile();
+            Multiplayer.Session.Statistics.SendBroadcastIfNeeded(time);
             return;
         }
 

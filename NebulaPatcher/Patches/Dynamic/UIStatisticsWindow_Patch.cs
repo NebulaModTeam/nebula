@@ -12,7 +12,7 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(UIStatisticsWindow))]
 internal class UIStatisticsWindow_Patch
 {
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(UIStatisticsWindow._OnOpen))]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnOpen_Postfix()
