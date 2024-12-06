@@ -37,20 +37,6 @@ public static class UIProductEntry_Transpiler
                         AccessTools.Method(typeof(UIProductEntry_Transpiler), nameof(GetFactoryIndex)))
                 )
                 .InstructionEnumeration();
-            /*
-            // planetData.factory != null => GetFactoryIndex(planetData) != -1
-            instructions = new CodeMatcher(instructions)
-                .MatchForward(false,
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlanetData), nameof(PlanetData.factory))),
-                    new CodeMatch(OpCodes.Brfalse)
-                )
-                .Repeat(matcher => matcher
-                    .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(UIProductEntry_Transpiler), nameof(GetFactoryIndex)))
-                    .InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4_M1))
-                    .SetOpcodeAndAdvance(OpCodes.Beq_S)
-                )
-                .InstructionEnumeration()
-            */
 
             instructions = new CodeMatcher(instructions)
                 .MatchForward(false,
