@@ -102,13 +102,6 @@ public class SimulatedWorld : IDisposable
             player.Data.Mecha.UpdateMech(GameMain.mainPlayer);
 
             // Fix references that broke during import
-            GameMain.mainPlayer.mecha.forge.mecha = GameMain.mainPlayer.mecha;
-            GameMain.mainPlayer.mecha.forge.player = GameMain.mainPlayer;
-            GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
-            GameMain.mainPlayer.mecha.forge.gameHistory = GameMain.data.history;
-            GameMain.mainPlayer.mecha.groundCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
-            GameMain.mainPlayer.mecha.spaceCombatModule.AfterImport(GameMain.data); // do we need to do something about the spaceSector?
-
             FixPlayerAfterImport();
         }
 
@@ -198,12 +191,23 @@ public class SimulatedWorld : IDisposable
     {
         var player = GameMain.mainPlayer;
 
+        // Mimic MechaForge.Init(Mecha _mecha)
+        player.mecha.forge.mecha = GameMain.mainPlayer.mecha;
+        player.mecha.forge.player = GameMain.mainPlayer;
+        player.mecha.forge.gameHistory = GameMain.data.history;
+        player.mecha.forge.gameHistory = GameMain.data.history;
+        player.mecha.forge.bottleneckItems = new HashSet<int>();
+
         // Inventory Capacity level 7 will increase package columncount from 10 -> 12
         var packageRowCount = (player.package.size - 1) / player.GetPackageColumnCount() + 1;
         // Make sure all slots are available on UI
         player.package.SetSize(player.packageColCount * packageRowCount);
         player.deliveryPackage.rowCount = packageRowCount;
         player.deliveryPackage.NotifySizeChange();
+
+        // do we need to do something about the spaceSector?
+        player.mecha.groundCombatModule.AfterImport(GameMain.data);
+        player.mecha.spaceCombatModule.AfterImport(GameMain.data);
 
         // Set fleetId = 0, fleetAstroId = 0 and fighter.craftId = 0
         var moduleFleets = player.mecha.groundCombatModule.moduleFleets;

@@ -21,6 +21,7 @@ public class StatisticsManager : IDisposable
     private PlanetData[] planetDataMap = new PlanetData[GameMain.data.factories.Length];
 
     private List<StatisticalSnapShot> statisticalSnapShots = [];
+    private long lastUpdateTime;
 
     public bool IsStatisticsNeeded { get; set; }
     public long[] PowerEnergyStoredData { get; set; }
@@ -92,12 +93,13 @@ public class StatisticsManager : IDisposable
         statisticalSnapShots.Add(snapshot);
     }
 
-    public void SendBroadcastIfNeeded()
+    public void SendBroadcastIfNeeded(long time)
     {
-        if (!IsStatisticsNeeded)
+        if (!IsStatisticsNeeded || time % 60 != 0 || lastUpdateTime == time)
         {
             return;
         }
+        lastUpdateTime = time;
         using (GetRequestors(out var requestors))
         {
             if (requestors.Count <= 0)
