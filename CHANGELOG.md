@@ -1,5 +1,12 @@
 ## Changelog
 
+0.9.12:
+- Compatible with game version 0.10.31.24697
+- @starfi5h: Client can now use metadata to unlock tech. Sandbox unlock by client is now synced
+- @starfi5h: Remove metadata requirement for blueprint tech due to client can't get metadata in MP
+- @starfi5h: The right part of logistics control panel (I) is available for loaded planet
+- @starfi5h: Sync Reference rate, Import/Export storage, Storage amount in production statistics panel
+
 0.9.11:
 - @starfi5h: Fix half-growth dark fog bases keep regenerating
 - @starfi5h: Fix combat drones doesn't increase ground base threat

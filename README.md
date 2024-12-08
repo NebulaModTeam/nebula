@@ -29,13 +29,13 @@ This mod has an API, that makes it easier for other mod developers to make their
 
 ### Chat 
 
-The chat window can opened/closed using Alt + Backtick (configurable in Settings - Multiplayer - Chat). Type `/help` to view all commands. Also in settings is an option to disable the chat window from automatically opening when a message is received.
+The chat window can opened/closed using `Alt + Backtick` (configurable in Settings - Multiplayer - Chat). Type `/help` to view all commands. Also in settings is an option to disable the chat window from automatically opening when a message is received.
 
 ### What is the current status?
 
 Major refactors will happen while the project grows or game updates. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development. Check [Wiki](https://github.com/NebulaModTeam/nebula/wiki/About-Nebula) for overview of features.  
 
-The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.30.x).  
+The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.31.x).  
 Most of the battle aspects are sync, only few features are still WIP.  
 
 <details>
@@ -59,7 +59,7 @@ Most of the battle aspects are sync, only few features are still WIP.
 - [x] Entity upgrade syncing
 - [x] Dyson spheres syncing
 - [x] Researches syncing
-- [x] Factories statistics syncing
+- [x] Factories statistics syncing (some new extra info is not sync)
 - [x] Containers inventory syncing
 - [x] Building Interaction syncing
 - [x] Belts interaction syncing (pickup, putdown)
@@ -71,7 +71,8 @@ Most of the battle aspects are sync, only few features are still WIP.
 - [x] Power network syncing (charger and request power from dyson sphere)
 - [x] Warning alarm syncing
 - [x] Broadcast notification syncing (events with guide icon)
-- [x] Logistics Control Panel (I) syncing (entry list without detail panel)
+- [x] Logistics Control Panel (I) syncing (entry list and detail panel)
+- [ ] Goal system (currently not available in client)
 
 </details>
 
