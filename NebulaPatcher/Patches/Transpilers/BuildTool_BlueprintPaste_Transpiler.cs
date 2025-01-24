@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using NebulaModel.Logger;
+using NebulaModel.Packets.Factory.Foundation;
 using NebulaWorld;
 
 #endregion
@@ -61,5 +62,41 @@ internal class BuildTool_BlueprintPaste_Transpiler
         Log.Error(
             "BuildTool_BlueprintPaste.CreatePrebuilds_Transpiler 2 failed. Mod version not compatible with game version.");
         return codeInstructions;
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(BuildTool_BlueprintPaste.DetermineReforms))]
+    private static IEnumerable<CodeInstruction> DetermineReforms_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        // Broadcast the reform changes before ClearReformData()
+        var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
+        var matcher = new CodeMatcher(codeInstructions).End()
+            .MatchBack(true,
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "ClearReformData")
+            );
+
+        if (matcher.IsInvalid)
+        {
+            Log.Warn("Transpiler BuildTool_BlueprintPaste.DetermineReforms failed.");
+            return codeInstructions;
+        }
+
+        matcher.Insert(
+            new CodeInstruction(OpCodes.Ldarg_0),
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BuildTool_BlueprintPaste_Transpiler), nameof(BroadcastReform)))
+        );
+        return matcher.InstructionEnumeration();
+    }
+
+    private static void BroadcastReform(BuildTool_BlueprintPaste buildTool)
+    {
+        if (!Multiplayer.IsActive) return;
+
+        var reformTool = buildTool.player.controller.actionBuild.reformTool;
+        var brushType = (reformTool != null) ? reformTool.brushType : 0;
+        var brushColor = (reformTool != null) ? reformTool.brushColor : 0;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new FoundationBlueprintPastePacket(
+            buildTool.planet.id, buildTool.reformGridIds, buildTool.tmp_levelChanges, brushType, brushColor));
     }
 }
