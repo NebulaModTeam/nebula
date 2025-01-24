@@ -117,7 +117,7 @@ internal class UIFatalErrorTip_Patch
     {
         if (btnClose != null) return;
 
-        const string PATH = "UI Root/Overlay Canvas/In Game/Windows/Window Template/panel-bg/btn-box/close-btn";
+        const string PATH = "UI Root/Overlay Canvas/In Game/Common Tools/Color Palette Panel/panel-bg/btn-box/close-wnd-btn";
         btnClose = CreateButton(PATH, __instance.transform, new Vector3(-5, 0, 0), OnCloseClick);
     }
 

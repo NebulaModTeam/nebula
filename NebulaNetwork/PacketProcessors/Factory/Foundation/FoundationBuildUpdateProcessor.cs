@@ -45,18 +45,20 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
             //Perform terrain operation
             var center = packet.ExtraCenter.ToVector3();
             var area = packet.CirclePointCount;
+            var costSandCount = 0; // dummy value, won't use
+            var getSandCount = 0; // dummy value, won't use
             if (!packet.IsCircle) //Normal reform
             {
                 var reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize,
                     packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem,
                     out var reformCenterPoint);
-                factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount);
+                factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, ref costSandCount, ref getSandCount);
                 center = reformCenterPoint;
                 area = packet.ReformSize * packet.ReformSize;
             }
             else //Remove pit
             {
-                factory.ComputeFlattenTerrainReform(reformPoints, center, packet.Radius, packet.CirclePointCount, 3f, 1f);
+                factory.ComputeFlattenTerrainReform(reformPoints, center, packet.Radius, packet.CirclePointCount, ref costSandCount, ref getSandCount, 3f, 1f);
             }
             using (Multiplayer.Session.Factories.IsIncomingRequest.On())
             {
