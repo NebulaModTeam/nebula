@@ -3,6 +3,7 @@
 using NebulaWorld.MonoBehaviours.Local.Chat;
 using NebulaModel.DataStructures.Chat;
 using HarmonyLib;
+using NebulaWorld.Planet;
 
 #endregion
 
@@ -39,6 +40,25 @@ public class DevCommandHandler : IChatCommandHandler
                     return;
                 }
 
+            case "unload-factories":
+                {
+                    if (Multiplayer.Session.IsServer)
+                    {
+                        window.SendLocalChatMessage("this command is only available for client", ChatMessageType.CommandOutputMessage);
+                    }
+                    else if (GameMain.localPlanet != null)
+                    {
+                        window.SendLocalChatMessage("can only unload when in space", ChatMessageType.CommandOutputMessage);
+                    }
+                    else
+                    {
+                        var factoryCount = GameMain.data.factoryCount;
+                        PlanetManager.UnloadAllFactories();
+                        window.SendLocalChatMessage($"unload factory count: {factoryCount}", ChatMessageType.CommandOutputMessage);
+                    }
+                    return;
+                }
+
             default:
                 window.SendLocalChatMessage("Unknown command: " + parameters[0], ChatMessageType.CommandOutputMessage);
                 return;
@@ -52,6 +72,6 @@ public class DevCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return ["sandbox", "load-cfg", "self-destruct"];
+        return ["sandbox", "load-cfg", "self-destruct", "unload-factories"];
     }
 }

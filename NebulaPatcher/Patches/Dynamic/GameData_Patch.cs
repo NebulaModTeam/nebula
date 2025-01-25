@@ -16,6 +16,7 @@ using NebulaModel.Packets.Session;
 using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using NebulaWorld.GameStates;
+using NebulaWorld.Planet;
 using NebulaWorld.Warning;
 using UnityEngine;
 
@@ -405,31 +406,11 @@ internal class GameData_Patch
         {
             return;
         }
-        Multiplayer.Session.Drones.ClearAllRemoteDrones();
-        using (Multiplayer.Session.Ships.PatchLockILS.On())
-        {
-            for (var i = 0; i < __instance.localStar.planetCount; i++)
-            {
-                if (__instance.localStar.planets?[i] == null)
-                {
-                    continue;
-                }
-                var planet = __instance.localStar.planets[i];
-                if (planet.factory == null)
-                {
-                    continue;
-                }
-                planet.factory.Free();
-                planet.factory = null;
-                __instance.galaxy.astrosFactory[planet.id] = null; //Assigned by UpdateRuntimePose
-                __instance.factoryCount--;
-            }
-            Multiplayer.Session.Combat.OnAstroFactoryUnload();
-        }
         if (!Multiplayer.Session.IsInLobby)
         {
             Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, -1));
         }
+        PlanetManager.UnloadAllFactories();
     }
 
     [HarmonyPrefix]
