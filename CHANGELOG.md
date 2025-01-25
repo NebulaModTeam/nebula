@@ -1,5 +1,11 @@
 ## Changelog
 
+0.9.13:
+- Compatible with game version 0.10.32.25552
+- @starfi5h: Sync ejector auto orbit and blueprint paste foundation
+- @starfi5h: Force enable drone and shield brust for client
+- Note: The dashboard is not synced. Clients will lose their custom stats when they leave the star system
+
 0.9.12:
 - Compatible with game version 0.10.31.24697
 - @starfi5h: Client can now use metadata to unlock tech. Sandbox unlock by client is now synced

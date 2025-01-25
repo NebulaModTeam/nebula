@@ -117,13 +117,13 @@ function generateManifest() {
   const manifest = {
     name: pluginInfo.name,
     description:
-      "With this mod you will be able to play with your friends in the same game! Now supports combat mode in game version 0.10.30",
+      "With this mod you will be able to play with your friends in the same game! Now supports combat mode in game version 0.10.32",
     version_number: pluginInfo.version,
     dependencies: [
       BEPINEX_DEPENDENCY,
       `nebula-${apiPluginInfo.name}-${apiPluginInfo.version}`,
       "PhantomGamers-IlLine-1.0.0",
-      "starfi5h-BulletTime-1.5.1",
+      "starfi5h-BulletTime-1.5.3",
     ],
     website_url: "https://github.com/hubastard/nebula"
   };
