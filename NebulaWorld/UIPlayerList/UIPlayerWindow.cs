@@ -13,10 +13,10 @@ namespace NebulaWorld.UIPlayerList
     {
         private const string WindowName = "";
 
-        private Rect windowSize = new Rect(10f, 10f, 1100f, 600f);
+        private Rect windowSize = new(10f, 10f, 1100f, 600f);
         private Vector2 playerListScrollPosition = Vector2.zero;
 
-        private readonly Object _lockable = new Object();
+        private readonly Object _lockable = new();
 
         private bool _windowVisible;
         private ChatWindow _chatWindow;
@@ -60,7 +60,7 @@ namespace NebulaWorld.UIPlayerList
                 if (!_windowVisible ||
                     IsChatWindowActive() ||
                     UIRoot.instance.uiGame.techTree.active ||
-                    UIRoot.instance.uiGame.escMenu.active || 
+                    UIRoot.instance.uiGame.escMenu.active ||
                     UIRoot.instance.uiGame.dysonEditor.active)
                     return;
 
@@ -74,7 +74,7 @@ namespace NebulaWorld.UIPlayerList
                 Log.Error(ex);
             }
         }
-                                
+
         public void WindowHandler(int id)
         {
             //used to track how many times a GUI element needs to be recycled in the event
@@ -133,7 +133,7 @@ namespace NebulaWorld.UIPlayerList
                             var pName = player.Username;
                             var pDistanceFromLocalPlayer = "";
                             var pLocation = "";
-                            
+
                             PlanetData pPlanet = null;
                             if (Multiplayer.Session.Combat.IndexByPlayerId.TryGetValue(player.PlayerId, out var index))
                             {
