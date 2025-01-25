@@ -17,12 +17,9 @@ internal class BeltSignalNumberProcessor : PacketProcessor<BeltSignalNumberPacke
     {
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {
-            var cargoTraffic = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic;
-            if (cargoTraffic == null)
-            {
-                return;
-            }
-            cargoTraffic.SetBeltSignalNumber(packet.EntityId, packet.Number);
+            var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
+            if (factory == null || packet.EntityId >= factory.entityCursor) return;
+            factory.cargoTraffic.SetBeltSignalNumber(packet.EntityId, packet.Number);
         }
     }
 }

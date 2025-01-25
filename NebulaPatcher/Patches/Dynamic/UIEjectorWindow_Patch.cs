@@ -42,6 +42,28 @@ internal class UIEjectorWindow_Patch
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIEjectorWindow.OnClickAutoOrbitSwitchButton))]
+    public static void OnClickAutoOrbitSwitchButton_Postfix(UIEjectorWindow __instance)
+    {
+        if (!Multiplayer.IsActive || __instance.ejectorId == 0 || __instance.factory == null) return;
+
+        var autoOrbit = __instance.factory.factorySystem.ejectorPool[__instance.ejectorId].autoOrbit;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorAutoOrbitUpdatePacket(__instance.ejectorId, autoOrbit,
+            GameMain.localPlanet?.id ?? -1));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIEjectorWindow.OnApplyPlanetButtonClick))]
+    public static void OnApplyPlanetButtonClick_Postfix(UIEjectorWindow __instance)
+    {
+        if (!Multiplayer.IsActive || __instance.ejectorId == 0 || __instance.factory == null) return;
+
+        var autoOrbit = __instance.factory.factorySystem.ejectorPool[__instance.ejectorId].autoOrbit;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new EjectorAutoOrbitUpdatePacket(-1, autoOrbit,
+            GameMain.localPlanet?.id ?? -1)); // ejectorId = -1 as setting whole planet
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(nameof(UIEjectorWindow.OnEjectorIdChange))]
     public static void OnEjectorIdChange_Postfix(UIEjectorWindow __instance)
     {

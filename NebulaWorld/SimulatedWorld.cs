@@ -198,6 +198,12 @@ public class SimulatedWorld : IDisposable
         player.mecha.forge.gameHistory = GameMain.data.history;
         player.mecha.forge.bottleneckItems = new HashSet<int>();
 
+        // Unlock the mecha functions as Mecha.Init()
+        player.mecha.energyShieldBurstUnlocked = true;
+        player.mecha.constructionModule.droneEnabled = true;
+        player.mecha.constructionModule.droneConstructEnabled = true;
+        player.mecha.constructionModule.droneRepairEnabled = true;
+
         // Inventory Capacity level 7 will increase package columncount from 10 -> 12
         var packageRowCount = (player.package.size - 1) / player.GetPackageColumnCount() + 1;
         // Make sure all slots are available on UI
