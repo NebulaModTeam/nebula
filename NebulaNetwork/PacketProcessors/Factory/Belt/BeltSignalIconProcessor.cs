@@ -17,12 +17,9 @@ internal class BeltSignalIconProcessor : PacketProcessor<BeltSignalIconPacket>
     {
         using (Multiplayer.Session.Factories.IsIncomingRequest.On())
         {
-            var cargoTraffic = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic;
-            if (cargoTraffic == null)
-            {
-                return;
-            }
-            cargoTraffic.SetBeltSignalIcon(packet.EntityId, packet.SignalId);
+            var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
+            if (factory == null || packet.EntityId >= factory.entityCursor) return;
+            factory.cargoTraffic.SetBeltSignalIcon(packet.EntityId, packet.SignalId);
         }
     }
 }

@@ -122,27 +122,4 @@ internal class CargoTraffic_Patch
                 incBeltId, GameMain.data.localPlanet.id));
         }
     }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(CargoTraffic.SetBeltSignalIcon))]
-    public static void SetBeltSignalIcon_Postfix(int entityId, int signalId)
-    {
-        // Notify others about belt memo icon changes
-        if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
-        {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalIconPacket(entityId, signalId,
-                GameMain.data.localPlanet.id));
-        }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(CargoTraffic.SetBeltSignalNumber))]
-    public static void SetBeltSignalNumber_Postfix(int entityId, float number)
-    {
-        if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
-        {
-            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalNumberPacket(entityId, number,
-                GameMain.data.localPlanet.id));
-        }
-    }
 }

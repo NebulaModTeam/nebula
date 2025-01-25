@@ -33,4 +33,37 @@ internal class UIBeltWindow_Patch
             return false;
         }
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIBeltWindow.OnTagCountInputEndEdit))]
+    public static void OnTagCountInputEndEdit_Postfix(UIBeltWindow __instance, string str)
+    {
+        if (!Multiplayer.IsActive) return;
+        if (__instance.event_lock || !__instance.active || __instance.beltId == 0 || __instance.factory == null) return;
+        ref var beltComponent = ref __instance.traffic.beltPool[__instance.beltId];
+        if (beltComponent.id != __instance.beltId) return;
+
+        // Notify others about belt memo count changes
+        if (float.TryParse(str, out var num))
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalNumberPacket(beltComponent.entityId, num,
+                __instance.factory.planetId));
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIBeltWindow.OnTagItemPickerReturn))]
+    public static void OnTagItemPickerReturn_Postfix(UIBeltWindow __instance, int signalId)
+    {
+        if (!Multiplayer.IsActive) return;
+        if (!__instance.active || __instance.beltId == 0 || __instance.factory == null) return;
+        ref var beltComponent = ref __instance.traffic.beltPool[__instance.beltId];
+        if (beltComponent.id != __instance.beltId) return;
+
+        // Notify others about belt memo icon changes
+        var sprite = LDB.signals.IconSprite(signalId);
+        if (sprite == null) signalId = 0;
+        Multiplayer.Session.Network.SendPacketToLocalStar(new BeltSignalIconPacket(beltComponent.entityId, signalId,
+            __instance.factory.planetId));
+    }
 }
