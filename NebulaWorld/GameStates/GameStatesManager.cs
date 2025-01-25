@@ -1,9 +1,11 @@
 ﻿#region
 
 using System;
+using NebulaModel;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Session;
+using UnityEngine;
 
 #endregion
 
@@ -23,25 +25,117 @@ public class GameStatesManager : IDisposable
     public static GameDesc NewGameDesc { get; set; }
     public static int FragmentSize { get; set; }
 
-    // Store data get from GlobalGameDataResponse
-    static bool SandboxToolsEnabled { get; set; }
-    static byte[] HistoryBinaryData { get; set; }
-    static byte[] GalacticTransportBinaryData { get; set; }
-    static byte[] SpaceSectorBinaryData { get; set; }
-    static byte[] MilestoneSystemBinaryData { get; set; }
-    static byte[] TrashSystemBinaryData { get; set; }
+    // UPS syncing by GameStateUpdate packet
+    private readonly float BUFFERING_TICK = 60f;
+    private readonly float BUFFERING_TIME = 30f;
+    private float averageUPS = 60f;
+    private int averageRTT;
+    private bool hasChanged;
 
+    // Store data get from GlobalGameDataResponse
+    private bool sandboxToolsEnabled;
+    private byte[] historyBinaryData;
+    private byte[] galacticTransportBinaryData;
+    private byte[] spaceSectorBinaryData;
+    private byte[] milestoneSystemBinaryData;
+    private byte[] trashSystemBinaryData;
+
+    public GameStatesManager()
+    {
+        LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    }
 
     public void Dispose()
     {
         LastSaveTime = FragmentSize = 0;
-        SandboxToolsEnabled = false;
-        HistoryBinaryData = null;
-        GalacticTransportBinaryData = null;
-        SpaceSectorBinaryData = null;
-        MilestoneSystemBinaryData = null;
-        TrashSystemBinaryData = null;
+        sandboxToolsEnabled = false;
+        historyBinaryData = null;
+        galacticTransportBinaryData = null;
+        spaceSectorBinaryData = null;
+        milestoneSystemBinaryData = null;
+        trashSystemBinaryData = null;
         GC.SuppressFinalize(this);
+    }
+
+    public void ProcessGameStateUpdatePacket(long sentTime, long gameTick, float unitsPerSecond)
+    {
+        var rtt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - sentTime;
+        averageRTT = (int)(averageRTT * 0.8 + rtt * 0.2);
+        averageUPS = averageUPS * 0.8f + unitsPerSecond * 0.2f;
+        Multiplayer.Session.World.UpdatePingIndicator($"Ping: {averageRTT}ms");
+
+        // We offset the tick received to account for the time it took to receive the packet
+        var tickOffsetSinceSent = (long)Math.Round(unitsPerSecond * rtt / 2 / 1000);
+        var currentGameTick = gameTick + tickOffsetSinceSent;
+        var diff = currentGameTick - GameMain.gameTick;
+
+        // Discard abnormal packet (usually after host saving the file)
+        if (rtt > 2 * averageRTT || averageUPS - unitsPerSecond > 15)
+        {
+            // Initial connection
+            if (GameMain.gameTick < 1200L)
+            {
+                averageRTT = (int)rtt;
+                GameMain.gameTick = currentGameTick;
+            }
+            Log.Debug(
+                $"GameStateUpdate unstable. RTT:{rtt}(avg{averageRTT}) UPS:{unitsPerSecond:F2}(avg{averageUPS:F2})");
+            return;
+        }
+
+        if (!Config.Options.SyncUps)
+        {
+            // We allow for a small drift of 5 ticks since the tick offset using the ping is only an approximation
+            if (GameMain.gameTick > 0 && Mathf.Abs(diff) > 5)
+            {
+                Log.Debug($"Game Tick desync. {GameMain.gameTick} skip={diff} UPS:{unitsPerSecond:F2}(avg{averageUPS:F2})");
+                GameMain.gameTick = currentGameTick;
+            }
+            // Reset FixUPS when user turns off the option
+            if (!hasChanged)
+            {
+                return;
+            }
+            FPSController.SetFixUPS(0);
+            hasChanged = false;
+            return;
+        }
+
+        // Adjust client's UPS to match game tick with server, range 30~120 UPS
+        var ups = diff / 1f + averageUPS;
+        long skipTick = 0;
+        switch (ups)
+        {
+            case > MaxUPS:
+                {
+                    // Try to distribute game tick difference into BUFFERING_TIME (seconds)
+                    if (diff / BUFFERING_TIME + averageUPS > MaxUPS)
+                    {
+                        // The difference is too large, need to skip ticks to catch up
+                        skipTick = (long)(ups - MaxUPS);
+                    }
+                    ups = MaxUPS;
+                    break;
+                }
+            case < MinUPS:
+                {
+                    if (diff + averageUPS - MinUPS < -BUFFERING_TICK)
+                    {
+                        skipTick = (long)(ups - MinUPS);
+                    }
+                    ups = MinUPS;
+                    break;
+                }
+        }
+        if (skipTick != 0)
+        {
+            Log.Debug($"Game Tick desync. skip={skipTick} diff={diff,2}, RTT={rtt}ms, UPS={unitsPerSecond:F2}(avg{averageUPS:F2})");
+            GameMain.gameTick += skipTick;
+        }
+        FPSController.SetFixUPS(ups);
+        hasChanged = true;
+        // Tick difference in the next second. Expose for other mods
+        NotifyTickDifference(diff / 1f + averageUPS - ups);
     }
 
 #pragma warning disable IDE0060
@@ -73,32 +167,32 @@ public class GameStatesManager : IDisposable
         return $"Downloading {FragmentSize / 1000:n0} KB ({progress:F1}%)";
     }
 
-    public static void ImportGlobalGameData(GlobalGameDataResponse packet)
+    public void ImportGlobalGameData(GlobalGameDataResponse packet)
     {
         switch (packet.DataType)
         {
             case GlobalGameDataResponse.EDataType.History:
-                HistoryBinaryData = packet.BinaryData;
+                historyBinaryData = packet.BinaryData;
                 Log.Info("Waiting for GalacticTransport data from the server...");
                 break;
 
             case GlobalGameDataResponse.EDataType.GalacticTransport:
-                GalacticTransportBinaryData = packet.BinaryData;
+                galacticTransportBinaryData = packet.BinaryData;
                 Log.Info("Waiting for SpaceSector data from the server...");
                 break;
 
             case GlobalGameDataResponse.EDataType.SpaceSector:
-                SpaceSectorBinaryData = packet.BinaryData;
+                spaceSectorBinaryData = packet.BinaryData;
                 Log.Info("Waiting for MilestoneSystem data from the server...");
                 break;
 
             case GlobalGameDataResponse.EDataType.MilestoneSystem:
-                MilestoneSystemBinaryData = packet.BinaryData;
+                milestoneSystemBinaryData = packet.BinaryData;
                 Log.Info("Waiting for TrashSystem data from the server...");
                 break;
 
             case GlobalGameDataResponse.EDataType.TrashSystem:
-                TrashSystemBinaryData = packet.BinaryData;
+                trashSystemBinaryData = packet.BinaryData;
                 Log.Info("Waiting for the remaining data from the server...");
                 break;
 
@@ -106,7 +200,7 @@ public class GameStatesManager : IDisposable
                 using (var reader = new BinaryUtils.Reader(packet.BinaryData))
                 {
                     var br = reader.BinaryReader;
-                    SandboxToolsEnabled = br.ReadBoolean();
+                    sandboxToolsEnabled = br.ReadBoolean();
                 }
                 Log.Info("Loading GlobalGameData complete. Initializing...");
                 // We are ready to start the game now
@@ -115,37 +209,37 @@ public class GameStatesManager : IDisposable
         }
     }
 
-    public static void OverwriteGlobalGameData(GameData data)
+    public void OverwriteGlobalGameData(GameData data)
     {
-        if (HistoryBinaryData != null)
+        if (historyBinaryData != null)
         {
             Log.Info("Parsing History data from the server...");
-            GameMain.sandboxToolsEnabled = SandboxToolsEnabled;
+            GameMain.sandboxToolsEnabled = sandboxToolsEnabled;
             data.history.Init(data);
-            using (var reader = new BinaryUtils.Reader(HistoryBinaryData))
+            using (var reader = new BinaryUtils.Reader(historyBinaryData))
             {
                 data.history.Import(reader.BinaryReader);
             }
-            HistoryBinaryData = null;
+            historyBinaryData = null;
         }
-        if (GalacticTransportBinaryData != null)
+        if (galacticTransportBinaryData != null)
         {
             Log.Info("Parsing GalacticTransport data from the server...");
             data.galacticTransport.Init(data);
-            using (var reader = new BinaryUtils.Reader(GalacticTransportBinaryData))
+            using (var reader = new BinaryUtils.Reader(galacticTransportBinaryData))
             {
                 data.galacticTransport.Import(reader.BinaryReader);
             }
-            GalacticTransportBinaryData = null;
+            galacticTransportBinaryData = null;
         }
-        if (SpaceSectorBinaryData != null)
+        if (spaceSectorBinaryData != null)
         {
             Log.Info("Parsing SpaceSector data from the server...");
             using (Multiplayer.Session.Enemies.IsIncomingRequest.On())
             {
                 Combat.CombatManager.SerializeOverwrite = true;
                 data.spaceSector.isCombatMode = data.gameDesc.isCombatMode;
-                using (var reader = new BinaryUtils.Reader(SpaceSectorBinaryData))
+                using (var reader = new BinaryUtils.Reader(spaceSectorBinaryData))
                 {
                     // Re-init will cause some issues, so just overwrite the data with import
                     data.spaceSector.Import(reader.BinaryReader);
@@ -153,22 +247,22 @@ public class GameStatesManager : IDisposable
                 data.mainPlayer.mecha.CheckCombatModuleDataIsValidPatch();
                 Combat.CombatManager.SerializeOverwrite = false;
             }
-            SpaceSectorBinaryData = null;
+            spaceSectorBinaryData = null;
         }
-        if (MilestoneSystemBinaryData != null)
+        if (milestoneSystemBinaryData != null)
         {
             Log.Info("Parsing MilestoneSystem data from the server...");
             data.milestoneSystem.Init(data);
-            using (var reader = new BinaryUtils.Reader(MilestoneSystemBinaryData))
+            using (var reader = new BinaryUtils.Reader(milestoneSystemBinaryData))
             {
                 data.milestoneSystem.Import(reader.BinaryReader);
             }
-            MilestoneSystemBinaryData = null;
+            milestoneSystemBinaryData = null;
         }
-        if (TrashSystemBinaryData != null)
+        if (trashSystemBinaryData != null)
         {
             Log.Info("Parsing TrashSystem data from the server...");
-            using (var reader = new BinaryUtils.Reader(TrashSystemBinaryData))
+            using (var reader = new BinaryUtils.Reader(trashSystemBinaryData))
             {
                 data.trashSystem.Import(reader.BinaryReader);
             }
@@ -178,7 +272,7 @@ public class GameStatesManager : IDisposable
             {
                 container.trashDataPool[i].warningId = -1;
             }
-            TrashSystemBinaryData = null;
+            trashSystemBinaryData = null;
         }
     }
 }

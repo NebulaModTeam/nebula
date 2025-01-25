@@ -311,7 +311,7 @@ internal class GameData_Patch
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return;
 
         // Overwrite from binaryData in GlobalGameDataResponse
-        GameStatesManager.OverwriteGlobalGameData(__instance);
+        Multiplayer.Session.State.OverwriteGlobalGameData(__instance);
     }
 
     [HarmonyPostfix]
@@ -399,7 +399,7 @@ internal class GameData_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(GameData.LeaveStar))]
-    public static void LeaveStar_Prefix(GameData __instance)
+    public static void LeaveStar_Prefix()
     {
         //Client should unload all factories once they leave the star system
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
