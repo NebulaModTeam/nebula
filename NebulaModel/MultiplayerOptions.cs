@@ -124,6 +124,9 @@ public class MultiplayerOptions : ICloneable
     [Description("Toggle to enable achievement in multiplayer game")]
     public bool EnableAchievement { get; set; } = true;
 
+    [DisplayName("Enable Other Player Sounds")]
+    public bool EnableOtherPlayerSounds { get; set; } = true;
+
     [DisplayName("Chat Hotkey")]
     [Category("Chat")]
     [Description("Keyboard shortcut to toggle the chat window")]
