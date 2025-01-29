@@ -9,7 +9,7 @@ public class BeltReverseRequestPacket
         BeltId = beltId;
         PlanetId = planetId;
         AuthorId = authorId;
-     }
+    }
 
     public int BeltId { get; set; }
     public int PlanetId { get; set; }

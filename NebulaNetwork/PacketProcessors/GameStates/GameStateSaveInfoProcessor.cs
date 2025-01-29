@@ -19,6 +19,6 @@ public class GameStateSaveInfoProcessor : PacketProcessor<GameStateSaveInfoPacke
     protected override void ProcessPacket(GameStateSaveInfoPacket packet, NebulaConnection conn)
     {
         GameStatesManager.LastSaveTime = packet.LastSaveTime;
-        Log.Info("LastSaveTime: " + DateTimeOffset.FromUnixTimeSeconds(packet.LastSaveTime).ToString());
+        Log.Info("LastSaveTime: " + DateTimeOffset.FromUnixTimeSeconds(packet.LastSaveTime).LocalDateTime.ToString());
     }
 }

@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using NebulaModel;
 using NebulaModel.Packets.Players;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -601,6 +602,7 @@ public class RemotePlayerEffects : MonoBehaviour
 
     public void UpdateState(ref RemotePlayerAnimation.Snapshot packet)
     {
+        var allowSounds = GameMain.localPlanet?.id == rootMovement.localPlanetId && Config.Options.EnableOtherPlayerSounds;
         var runActive = rootAnimation.runWeight > 0.001f;
         var driftActive = rootAnimation.driftWeight > 0.001f;
         var flyActive = rootAnimation.flyWeight > 0.001f;
@@ -610,15 +612,15 @@ public class RemotePlayerEffects : MonoBehaviour
         var warping = (packet.Flags & PlayerMovement.EFlags.warping) == PlayerMovement.EFlags.warping;
         var chargeShieldBurst = (packet.Flags & PlayerMovement.EFlags.chargeShieldBurst) == PlayerMovement.EFlags.chargeShieldBurst;
 
-        if (runActive || !isGrounded || maxAltitude > 0)
+        if ((runActive || !isGrounded || maxAltitude > 0) && allowSounds)
         {
             UpdateExtraSoundEffects(ref packet);
         }
-        if (runActive && isGrounded)
+        if (runActive && isGrounded && allowSounds)
         {
             PlayFootsteps();
         }
-        if (driftActive || flyActive || sailActive || !isGrounded)
+        if ((driftActive || flyActive || sailActive || !isGrounded) && allowSounds)
         {
             foreach (var t in psys)
             {
@@ -681,7 +683,7 @@ public class RemotePlayerEffects : MonoBehaviour
             StopAllFlyAudio();
         }
 
-        if (torchEffect != null && rootAnimation.miningWeight > 0.99f)
+        if (torchEffect != null && rootAnimation.miningWeight > 0.99f && allowSounds)
         {
             if (!torchEffect.isPlaying)
             {
@@ -707,6 +709,11 @@ public class RemotePlayerEffects : MonoBehaviour
             rootWarp.StopWarp();
         }
 
+        UpdateShieldBrustEffect(chargeShieldBurst);
+    }
+
+    private void UpdateShieldBrustEffect(bool chargeShieldBurst)
+    {
         if (chargeShieldBurst)
         {
             shieldBurstPrepareTime += 2f * Time.deltaTime;

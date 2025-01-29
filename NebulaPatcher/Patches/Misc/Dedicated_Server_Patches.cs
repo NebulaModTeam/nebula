@@ -78,9 +78,8 @@ internal class Dedicated_Server_Patches
     // RenderTexture is not support, so disable all functions using the constructor
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DysonMapCamera), nameof(DysonMapCamera.CheckOrCreateRTex))]
-    [HarmonyPatch(typeof(GameCamera), nameof(GameCamera.CaptureScreenShot), typeof(int),
-        typeof(int))] // Save won't have a img preview when disable
-    [HarmonyPatch(typeof(GameCamera), nameof(GameCamera.CaptureScreenShot), typeof(int), typeof(int), typeof(string))]
+    [HarmonyPatch(typeof(GameCamera), nameof(GameCamera.CaptureScreenshot))] // Save won't have a img preview when disable
+    [HarmonyPatch(typeof(GameCamera), nameof(GameCamera.CaptureScreenShot))]
     [HarmonyPatch(typeof(MechaEditorCamera), nameof(MechaEditorCamera.CheckOrCreateRTex))]
     [HarmonyPatch(typeof(UIDysonOrbitPreview), nameof(UIDysonOrbitPreview.CheckOrCreateRTex))]
     [HarmonyPatch(typeof(UIMechaMaterialBall), nameof(UIMechaMaterialBall._OnCreate))]

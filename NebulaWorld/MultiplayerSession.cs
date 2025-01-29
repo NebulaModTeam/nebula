@@ -73,7 +73,7 @@ public class MultiplayerSession : IDisposable, IMultiplayerSession
     public DroneManager Drones { get; set; }
     public GizmoManager Gizmos { get; set; }
     public GameDataHistoryManager History { get; set; }
-    private GameStatesManager State { get; set; }
+    public GameStatesManager State { get; set; }
     public CourierManager Couriers { get; set; }
     public ILSShipManager Ships { get; set; }
     public StationUIManager StationsUI { get; set; }

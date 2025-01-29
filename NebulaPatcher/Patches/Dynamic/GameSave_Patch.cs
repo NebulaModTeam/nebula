@@ -95,9 +95,5 @@ internal class GameSave_Patch
                 }
             }
         }
-        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
-        {
-            GameStatesManager.LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        }
     }
 }

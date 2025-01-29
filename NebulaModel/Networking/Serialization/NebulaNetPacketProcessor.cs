@@ -16,9 +16,11 @@ public class NebulaNetPacketProcessor : NetPacketProcessor, INetPacketProcessor
     private readonly List<DelayedPacket> delayedPackets = [];
     private readonly Queue<PendingPacket> pendingPackets = new();
 
+#if DEBUG
     private readonly Random simulationRandom = new();
     private readonly int SimulatedMaxLatency = 50;
     private readonly int SimulatedMinLatency = 20;
+#endif
 
     public bool SimulateLatency { get; set; } = false;
 

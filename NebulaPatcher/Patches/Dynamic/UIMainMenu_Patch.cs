@@ -123,7 +123,7 @@ internal class UIMainMenu_Patch
         multiplayerSubMenu = Object.Instantiate(mainMenuButtonGroup, mainMenuButtonGroup.parent, true);
         multiplayerSubMenu.name = "multiplayer-menu";
 
-        OverrideButton(multiplayerSubMenu.Find("button-multiplayer").GetComponent<RectTransform>(),
+        var newGameButton = OverrideButton(multiplayerSubMenu.Find("button-multiplayer").GetComponent<RectTransform>(),
             "New Game (Host)".Translate(), OnMultiplayerNewGameButtonClick);
         OverrideButton(multiplayerSubMenu.Find("button-new").GetComponent<RectTransform>(), "Load Game (Host)".Translate(),
             OnMultiplayerLoadGameButtonClick);
@@ -131,6 +131,13 @@ internal class UIMainMenu_Patch
             OnMultiplayerJoinGameButtonClick);
         OverrideButton(multiplayerSubMenu.Find("button-load").GetComponent<RectTransform>(), "Back".Translate(),
             OnMultiplayerBackButtonClick);
+
+        if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("dsp.galactic-scale.2") && newGameButton != null)
+        {
+            // Because GalacticScale can't enter new game in MP, temporarily hide New Game (Host) button 
+            newGameButton.gameObject.SetActive(false);
+            Log.Warn("Hide New Game (Host) button due to GalacticScale compatibility");
+        }
 
         multiplayerSubMenu.Find("button-options").gameObject.SetActive(false);
         multiplayerSubMenu.Find("button-credits").gameObject.SetActive(false);
@@ -173,7 +180,7 @@ internal class UIMainMenu_Patch
         mainMenuButtonGroup.gameObject.SetActive(true);
     }
 
-    private static void OverrideButton(Component buttonObj, string newText, Action newClickCallback)
+    private static Button OverrideButton(Component buttonObj, string newText, Action newClickCallback)
     {
         if (newText != null)
         {
@@ -186,6 +193,7 @@ internal class UIMainMenu_Patch
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(new UnityAction(newClickCallback));
         button.interactable = true;
+        return button;
     }
 
     // Multiplayer Join Menu
