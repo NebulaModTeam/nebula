@@ -1,9 +1,15 @@
 ## Changelog
 
+0.9.14:
+- @starfi5h: Add `Enable Other Player Sounds` config settings in multiplayer general tab  
+- @starfi5h: Fix headless server error
+- @starfi5h: When GalacticScale is present, hide New Game (Host) button due to compatibility
+- @starfi5h: Fix lastSaveTime initialization and the issue of hearing other player audio on the other planet
+
 0.9.13:
 - Compatible with game version 0.10.32.25552
 - @starfi5h: Sync ejector auto orbit and blueprint paste foundation
-- @starfi5h: Force enable drone and shield brust for client
+- @starfi5h: Force enable drone and shield burst for client
 - Note: The dashboard is not synced. Clients will lose their custom stats when they leave the star system
 
 0.9.12:
