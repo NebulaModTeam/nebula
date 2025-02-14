@@ -19,11 +19,16 @@ internal class VFAudio_Patch
         if (!Multiplayer.IsActive) return true;
 
         // Only play other player sound if the settings is enabled and the event is on the same planet
-        if (Multiplayer.Session.Factories.IsIncomingRequest.Value || Multiplayer.Session.Planets.IsIncomingRequest.Value)
+        if (Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
             var onLocalPlanet = Multiplayer.Session.Factories.TargetPlanet == GameMain.localPlanet?.id;
             var fromSelf = Multiplayer.Session.Factories.PacketAuthor == Multiplayer.Session.LocalPlayer.Id;
             return onLocalPlanet && (fromSelf || Config.Options.EnableOtherPlayerSounds);
+        }
+        if (Multiplayer.Session.Planets.IsIncomingRequest.Value)
+        {
+            var onLocalPlanet = Multiplayer.Session.Planets.TargetPlanet == GameMain.localPlanet?.id;
+            return onLocalPlanet;
         }
         return true;
     }

@@ -1,11 +1,16 @@
 ﻿#region
 
+using System;
 using NebulaAPI;
 using NebulaAPI.Packets;
+using NebulaModel.DataStructures.Chat;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Chat;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
+using NebulaWorld.Factory;
 
 #endregion
 
@@ -24,6 +29,23 @@ public class UpgradeEntityRequestProcessor : PacketProcessor<UpgradeEntityReques
             // Else they will get it once they go to the planet for the first time. 
             if (planet?.factory == null)
             {
+                return;
+            }
+
+            var localProtoId = FactoryManager.GetObjectProtoId(planet?.factory, packet.ObjId);
+            if (localProtoId != packet.OriginProtoId)
+            {
+                var log = $"UpgradeEntityRequest rejected on planet {packet.PlanetId} for object {packet.ObjId}: {localProtoId} != {packet.OriginProtoId}";
+                if (IsHost)
+                {
+                    Log.Warn(log);
+                    var response = "Server rejected upgrade request due to protoId desync".Translate();
+                    conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, response, DateTime.Now, ""));
+                }
+                else
+                {
+                    Log.WarnInform(log);
+                }
                 return;
             }
 

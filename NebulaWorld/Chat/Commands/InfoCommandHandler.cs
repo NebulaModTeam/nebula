@@ -155,6 +155,7 @@ public class InfoCommandHandler : IChatCommandHandler
         sb.Append("\n  ").Append("Host IP address: ".Translate()).Append(FormatCopyString(ipAddress, true));
         sb.Append("\n  ").Append("Game Version: ".Translate()).Append(GameConfig.gameVersion.ToFullString());
         sb.Append("\n  ").Append("Mod Version: ".Translate()).Append(ThisAssembly.AssemblyFileVersion);
+        sb.Append("\n  ").Append("Server UPS: ".Translate()).Append(Multiplayer.Session.State.GetServerUPS().ToString("F2"));
 
         if (full)
         {

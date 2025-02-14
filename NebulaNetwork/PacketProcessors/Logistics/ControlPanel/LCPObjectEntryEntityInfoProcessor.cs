@@ -62,7 +62,7 @@ public class LCPObjectEntryEntityInfoProcessor : PacketProcessor<LCPObjectEntryE
                 text = packet.Name;
                 entry.stationNameText.color = entry.masterWindow.renamedColor;
             }
-            Utils.UITextTruncateShow(entry.stationNameText, ref text, entry.stationNameTextWidthLimit, ref entry.stationNameTextSettings);
+            Utils.UITextTruncateShow(entry.stationNameText, ref text, entry.stationNameTextWidthLimit);
         }
         else if (objectEntry is UIControlPanelAdvancedMinerEntry)
         {
@@ -89,7 +89,7 @@ public class LCPObjectEntryEntityInfoProcessor : PacketProcessor<LCPObjectEntryE
                 text = packet.Name;
                 entry.stationNameText.color = entry.masterWindow.renamedColor;
             }
-            Utils.UITextTruncateShow(entry.stationNameText, ref text, entry.stationNameTextWidthLimit, ref entry.stationNameTextSettings);
+            Utils.UITextTruncateShow(entry.stationNameText, ref text, entry.stationNameTextWidthLimit);
         }
         else if (objectEntry is UIControlPanelDispenserEntry)
         {

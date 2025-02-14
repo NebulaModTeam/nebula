@@ -1,5 +1,9 @@
 ## Changelog
 
+0.9.15:
+- Compatible with game version 0.10.32.25595
+- @starfi5h: Add object protoId check for destruct and upgrade requests
+
 0.9.14:
 - @starfi5h: Add `Enable Other Player Sounds` config settings in multiplayer general tab  
 - @starfi5h: Fix headless server error

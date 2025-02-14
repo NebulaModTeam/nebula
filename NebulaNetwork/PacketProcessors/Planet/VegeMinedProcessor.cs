@@ -25,7 +25,7 @@ internal class VegeMinedProcessor : PacketProcessor<VegeMinedPacket>
         }
         using (Multiplayer.Session.Planets.IsIncomingRequest.On())
         {
-            Multiplayer.Session.Factories.TargetPlanet = packet.PlanetId;
+            Multiplayer.Session.Planets.TargetPlanet = packet.PlanetId;
             if (packet.Amount == 0)
             {
                 if (packet.IsVein)
@@ -70,7 +70,7 @@ internal class VegeMinedProcessor : PacketProcessor<VegeMinedPacket>
                 factory.veinPool[packet.VegeId].amount = packet.Amount;
                 veinGroups[groupIndex].amount -= 1L;
             }
-            Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
+            Multiplayer.Session.Planets.TargetPlanet = NebulaModAPI.PLANET_NONE;
         }
     }
 }
