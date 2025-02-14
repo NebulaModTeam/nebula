@@ -1,11 +1,16 @@
 ﻿#region
 
+using System;
 using NebulaAPI;
 using NebulaAPI.Packets;
+using NebulaModel.DataStructures.Chat;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
+using NebulaModel.Packets.Chat;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
+using NebulaWorld.Factory;
 
 #endregion
 
@@ -25,6 +30,28 @@ public class DestructEntityRequestProcessor : PacketProcessor<DestructEntityRequ
             // Else they will get it once they go to the planet for the first time. 
             if (planet?.factory == null || pab == null)
             {
+                return;
+            }
+
+            var localProtoId = FactoryManager.GetObjectProtoId(planet?.factory, packet.ObjId);
+            if (localProtoId != packet.ProtoId)
+            {
+                // Either the object is already destroyed on server (0), id out of bound (-1) or object mismatch.
+                // Omit the first case. (Somehow area dismantle often trigger the first case)
+                if (localProtoId != 0)
+                {
+                    var log = $"DestructEntityRequest reject on planet {packet.PlanetId} for object {packet.ObjId}: {localProtoId} != {packet.ProtoId}";
+                    if (IsHost)
+                    {
+                        Log.Warn(log);
+                        var response = "Server reject destruct request due to protoId desync".Translate();
+                        conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, response, DateTime.Now, ""));
+                    }
+                    else
+                    {
+                        Log.WarnInform(log);
+                    }
+                }
                 return;
             }
 

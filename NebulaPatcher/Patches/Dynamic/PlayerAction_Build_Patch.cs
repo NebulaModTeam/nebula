@@ -5,6 +5,7 @@ using NebulaAPI;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Factory;
 using NebulaWorld;
+using NebulaWorld.Factory;
 
 #endregion
 
@@ -44,6 +45,7 @@ internal class PlayerAction_Build_Patch
         if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
             Multiplayer.Session.Network.SendPacket(new DestructEntityRequest(planetId, objId,
+                FactoryManager.GetObjectProtoId(__instance.factory, objId),
                 Multiplayer.Session.Factories.PacketAuthor == NebulaModAPI.AUTHOR_NONE
                     ? Multiplayer.Session.LocalPlayer.Id
                     : Multiplayer.Session.Factories.PacketAuthor));

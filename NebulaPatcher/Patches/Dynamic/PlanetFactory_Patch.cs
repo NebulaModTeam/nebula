@@ -111,7 +111,9 @@ internal class PlanetFactory_patch
 
         if (Multiplayer.Session.LocalPlayer.IsHost || !Multiplayer.Session.Factories.IsIncomingRequest.Value)
         {
-            Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId, replace_item_proto.ID,
+            Multiplayer.Session.Network.SendPacket(new UpgradeEntityRequest(__instance.planetId, objId,
+                FactoryManager.GetObjectProtoId(__instance, objId),
+                replace_item_proto.ID,
                 Multiplayer.Session.Factories.PacketAuthor == -1
                     ? Multiplayer.Session.LocalPlayer.Id
                     : Multiplayer.Session.Factories.PacketAuthor));

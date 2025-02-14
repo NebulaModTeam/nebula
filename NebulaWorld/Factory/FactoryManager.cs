@@ -248,6 +248,19 @@ public class FactoryManager : IFactoryManager
         return factory.entityRecycleCursor <= 0 ? factory.entityCursor : factory.entityRecycle[factory.entityRecycleCursor - 1];
     }
 
+    public static int GetObjectProtoId(PlanetFactory factory, int objId)
+    {
+        if (objId == 0)
+        {
+            return 0;
+        }
+        if (objId > 0)
+        {
+            return objId < factory.entityPool.Length ? factory.entityPool[objId].protoId : -1;
+        }
+        return -objId < factory.prebuildPool.Length ? factory.prebuildPool[-objId].protoId : -1;
+    }
+
     private sealed class ThreadSafe
     {
         internal readonly Dictionary<int, Timer> PlanetTimers = new();

@@ -29,6 +29,11 @@ internal class NewChatMessageProcessor : PacketProcessor<NewChatMessagePacket>
             Server.SendPacketExclude(packet, conn);
         }
 
+        if (packet.MessageType == NebulaModel.DataStructures.Chat.ChatMessageType.SystemWarnMessage)
+        {
+            Log.Warn(packet.MessageText); // Record system warn message in log file
+        }
+
         if (string.IsNullOrEmpty(packet.UserName))
         {
             // non-player chat
