@@ -40,11 +40,11 @@ public class DestructEntityRequestProcessor : PacketProcessor<DestructEntityRequ
                 // Omit the first case. (Somehow area dismantle often trigger the first case)
                 if (localProtoId != 0)
                 {
-                    var log = $"DestructEntityRequest reject on planet {packet.PlanetId} for object {packet.ObjId}: {localProtoId} != {packet.ProtoId}";
+                    var log = $"DestructEntityRequest rejected on planet {packet.PlanetId} for object {packet.ObjId}: {localProtoId} != {packet.ProtoId}";
                     if (IsHost)
                     {
                         Log.Warn(log);
-                        var response = "Server reject destruct request due to protoId desync".Translate();
+                        var response = "Server rejected destruct request due to protoId desync".Translate();
                         conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, response, DateTime.Now, ""));
                     }
                     else

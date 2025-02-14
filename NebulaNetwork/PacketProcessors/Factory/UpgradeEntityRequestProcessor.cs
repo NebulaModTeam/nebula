@@ -35,11 +35,11 @@ public class UpgradeEntityRequestProcessor : PacketProcessor<UpgradeEntityReques
             var localProtoId = FactoryManager.GetObjectProtoId(planet?.factory, packet.ObjId);
             if (localProtoId != packet.OriginProtoId)
             {
-                var log = $"UpgradeEntityRequest reject on planet {packet.PlanetId} for object {packet.ObjId}: {localProtoId} != {packet.OriginProtoId}";
+                var log = $"UpgradeEntityRequest rejected on planet {packet.PlanetId} for object {packet.ObjId}: {localProtoId} != {packet.OriginProtoId}";
                 if (IsHost)
                 {
                     Log.Warn(log);
-                    var response = "Server reject upgrade request due to protoId desync".Translate();
+                    var response = "Server rejected upgrade request due to protoId desync".Translate();
                     conn.SendPacket(new NewChatMessagePacket(ChatMessageType.SystemWarnMessage, response, DateTime.Now, ""));
                 }
                 else
