@@ -406,11 +406,11 @@ internal class GameData_Patch
         {
             return;
         }
+        PlanetManager.UnloadAllFactories();
         if (!Multiplayer.Session.IsInLobby)
         {
             Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, -1));
         }
-        PlanetManager.UnloadAllFactories();
     }
 
     [HarmonyPrefix]

@@ -57,6 +57,11 @@ public class GameStatesManager : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    public float GetServerUPS()
+    {
+        return averageUPS;
+    }
+
     public void ProcessGameStateUpdatePacket(long sentTime, long gameTick, float unitsPerSecond)
     {
         var rtt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - sentTime;

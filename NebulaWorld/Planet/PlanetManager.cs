@@ -12,6 +12,7 @@ namespace NebulaWorld.Planet;
 public class PlanetManager : IDisposable
 {
     public readonly ToggleSwitch IsIncomingRequest = new();
+    public int TargetPlanet { get; set; }
 
     public Dictionary<int, byte[]> PendingFactories { get; set; } = new();
     public Dictionary<int, byte[]> PendingTerrainData { get; set; } = new();
