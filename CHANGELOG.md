@@ -1,5 +1,8 @@
 ## Changelog
 
+0.9.16:
+- Compatible with game version 0.10.32.25682
+
 0.9.15:
 - Compatible with game version 0.10.32.25595
 - @starfi5h: Add object protoId check for destruct and upgrade requests
