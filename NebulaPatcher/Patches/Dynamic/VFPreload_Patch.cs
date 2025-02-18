@@ -26,7 +26,7 @@ internal class VFPreload_Patch
         NativeInterop.HideWindow();
         NativeInterop.SetConsoleCtrlHandler();
         // Logging to provide progression to user
-        Log.Info("VFPreload.InvokeOnLoad");
+        Log.Info($"Loading game version {GameConfig.gameVersion.ToFullString()}");
     }
 
     [HarmonyPostfix]

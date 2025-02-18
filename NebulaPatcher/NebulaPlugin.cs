@@ -360,7 +360,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
     {
         try
         {
-            Log.Info($"Patching Dyson Sphere Program version {GameConfig.gameVersion.ToFullString()}");
+            Log.Info("Patching Dyson Sphere Program...");
             Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION} made for game version {DSPGameVersion.VERSION}");
 #if DEBUG
             if (Directory.Exists("./mmdump"))
