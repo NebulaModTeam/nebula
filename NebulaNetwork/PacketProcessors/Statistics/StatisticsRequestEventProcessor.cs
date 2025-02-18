@@ -57,9 +57,7 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
         var window = UIRoot.instance.uiGame.statWindow;
         var originalAstroFilter = window.astroFilter;
         window.astroFilter = astroFilter;
-        window.RefreshItemsCyclicRefSpeed();
-        window.RefreshItemsStorageGroupCount();
-        window.RefreshGalacticTransportStorageCount();
+        window.RefreshProductionExtraInfo(true);
         window.astroFilter = originalAstroFilter;
 
         using var writer = new BinaryUtils.Writer();

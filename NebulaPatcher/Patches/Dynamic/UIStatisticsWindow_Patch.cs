@@ -73,9 +73,7 @@ internal class UIStatisticsWindow_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(UIStatisticsWindow.RefreshItemsCyclicRefSpeed))]
-    [HarmonyPatch(nameof(UIStatisticsWindow.RefreshItemsStorageGroupCount))]
-    [HarmonyPatch(nameof(UIStatisticsWindow.RefreshGalacticTransportStorageCount))]
+    [HarmonyPatch(nameof(UIStatisticsWindow.RefreshProductionExtraInfo))]
     public static bool Refresh_Prefix(UIStatisticsWindow __instance)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return true;
