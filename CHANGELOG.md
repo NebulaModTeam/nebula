@@ -1,5 +1,8 @@
 ## Changelog
 
+0.9.17:
+- Compatible with game version 0.10.32.25779
+
 0.9.16:
 - Compatible with game version 0.10.32.25682
 
