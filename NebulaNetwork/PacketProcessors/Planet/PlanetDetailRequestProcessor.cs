@@ -22,9 +22,9 @@ public class PlanetDetailRequestProcessor : PacketProcessor<PlanetDetailRequest>
             return;
         }
         var planetData = GameMain.galaxy.PlanetById(packet.PlanetID);
-        if (!planetData.calculated)
+        if (!planetData.scanned)
         {
-            planetData.calculating = true;
+            planetData.scanning = true;
             Task.Run(() =>
             {
                 try
@@ -44,9 +44,9 @@ public class PlanetDetailRequestProcessor : PacketProcessor<PlanetDetailRequest>
                         planetAlgorithm.GenerateVegetables();
                         planetAlgorithm.GenerateVeins();
                     }
-                    planetData.CalculateVeinGroups();
+                    planetData.SummarizeVeinGroups();
                     planetData.GenBirthPoints();
-                    planetData.NotifyCalculated();
+                    planetData.NotifyScanEnded();
                     conn.SendPacket(new PlanetDetailResponse(planetData.id,
                         planetData.runtimeVeinGroups ?? Array.Empty<VeinGroup>(), planetData.landPercent));
                     Log.Info($"PlanetCalculateThread:{planetData.displayName} time:{highStopwatch.duration:F4}s");

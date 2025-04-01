@@ -137,7 +137,7 @@ internal class FoundationBlueprintPasteProcessor : PacketProcessor<FoundationBlu
             ref PowerGeneratorComponent generator = ref generatorPool[generatorIndex];
             if (generator.id == generatorIndex && generator.geothermal && generator.entityId > 0)
             {
-                generator.gthStrength = powerSystem.CalculateGeothermalStrenth(
+                generator.gthStrength = powerSystem.CalculateGeothermalStrength(
                     entityPool[generator.entityId].pos,
                     entityPool[generator.entityId].rot,
                     generator.baseRuinId

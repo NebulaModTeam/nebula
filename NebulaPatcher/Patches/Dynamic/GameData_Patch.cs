@@ -207,7 +207,7 @@ internal class GameData_Patch
                     {
                         planet.dirtyFlags[i] = true;
                     }
-                    planet.landPercentDirty = true;
+                    planet.landPercentDirtyFlag = true;
                     try
                     {
                         planet.UpdateDirtyMeshes();
