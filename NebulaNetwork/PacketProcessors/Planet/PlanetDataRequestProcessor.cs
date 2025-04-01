@@ -69,7 +69,7 @@ public class PlanetDataRequestProcessor : PacketProcessor<PlanetDataRequest>
                 planetAlgorithm.GenerateVegetables();
                 planetAlgorithm.GenerateVeins();
             }
-            planet.CalculateVeinGroups();
+            planet.SummarizeVeinGroups();
         }
 
         byte[] data;

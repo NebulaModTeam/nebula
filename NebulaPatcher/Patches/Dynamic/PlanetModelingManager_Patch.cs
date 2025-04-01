@@ -156,8 +156,8 @@ public class PlanetModelingManager_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(PlanetModelingManager.RequestCalcPlanet))]
-    public static bool RequestCalcPlanet_Prefix(PlanetData planet)
+    [HarmonyPatch(nameof(PlanetModelingManager.RequestScanPlanet))]
+    public static bool RequestScanPlanet_Prefix(PlanetData planet)
     {
         // Run the original method if this is the master client or in single player games
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
@@ -165,13 +165,13 @@ public class PlanetModelingManager_Patch
             return true;
         }
 
-        RequestCalcPlanet(planet);
+        RequestScanPlanet(planet);
         return false;
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(PlanetModelingManager.RequestCalcStar))]
-    public static bool RequestCalcStar_Prefix(StarData star)
+    [HarmonyPatch(nameof(PlanetModelingManager.RequestScanStar))]
+    public static bool RequestScanStar_Prefix(StarData star)
     {
         // Run the original method if this is the master client or in single player games
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
@@ -181,14 +181,14 @@ public class PlanetModelingManager_Patch
 
         foreach (var planet in star.planets)
         {
-            RequestCalcPlanet(planet);
+            RequestScanPlanet(planet);
         }
         return false;
     }
 
-    private static void RequestCalcPlanet(PlanetData planet)
+    private static void RequestScanPlanet(PlanetData planet)
     {
-        if (planet.calculated || planet.calculating || planet.data != null)
+        if (planet.scanned || planet.scanning || planet.data != null)
         {
             return;
         }
@@ -196,7 +196,7 @@ public class PlanetModelingManager_Patch
         {
             return;
         }
-        planet.calculating = true;
+        planet.scanning = true;
         Multiplayer.Session.Network.SendPacket(new PlanetDetailRequest(planet.id));
     }
 }

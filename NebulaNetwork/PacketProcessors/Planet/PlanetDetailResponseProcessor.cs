@@ -39,10 +39,10 @@ public class PlanetDetailResponseProcessor : PacketProcessor<PlanetDetailRespons
             }
         }
         planet.landPercent = packet.LandPercent;
-        planet.landPercentDirty = false;
+        planet.landPercentDirtyFlag = false;
 
         //planet.NotifyCalculated();
-        planet.calculating = false;
-        planet.calculated = true;
+        planet.scanning = false;
+        planet.scanned = true;
     }
 }

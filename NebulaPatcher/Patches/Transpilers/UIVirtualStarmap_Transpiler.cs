@@ -363,9 +363,9 @@ internal class UIVirtualStarmap_Transpiler
             var pPos = GetRelativeRotatedPlanetPos(starData, pData, ref isMoon);
 
             // request generation of planet surface data to display its details when clicked and if not already loaded
-            if (!pData.calculated)
+            if (!pData.scanned)
             {
-                PlanetModelingManager.RequestCalcPlanet(pData);
+                PlanetModelingManager.RequestScanPlanet(pData);
             }
 
             // create fake StarData to pass _OnLateUpdate()

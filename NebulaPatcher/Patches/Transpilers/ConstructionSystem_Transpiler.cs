@@ -24,14 +24,15 @@ internal class ConstructionSystem_Transpiler
         try
         {
             /*  Sync Prebuild.itemRequired changes by player, insert local method call after player.package.TakeTailItems
-                Replace: if (num8 <= num) { this.player.mecha.constructionModule.InsertBuildTarget ... }
-                With:    if (num8 <= num && IsClosestPlayer(ref pos)) { this.player.mecha.constructionModule.InsertBuildTarget ... }
+                Replace: if (num9 <= num2) { this.player.mecha.constructionModule.InsertBuildTarget ... }
+                With:    if (num9 <= num2 && IsClosestPlayer(ref pos)) { this.player.mecha.constructionModule.InsertBuildTarget ... }
             */
 
-            var codeMatcher = new CodeMatcher(instructions)
-                .MatchForward(true,
+            var codeMatcher = new CodeMatcher(instructions).End()
+                .MatchBack(false, new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(ConstructionModuleComponent), nameof(ConstructionModuleComponent.InsertBuildTarget))))
+                .MatchBack(true,
                     new CodeMatch(OpCodes.Ldloc_S),
-                    new CodeMatch(OpCodes.Ldloc_0),
+                    new CodeMatch(i => i.IsLdloc()),
                     new CodeMatch(OpCodes.Bgt_Un)
                 );
             var sqrDist = codeMatcher.InstructionAt(-2).operand;
