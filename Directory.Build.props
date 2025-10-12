@@ -44,6 +44,9 @@
 
     <ItemGroup Label="NuGetsMain" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
         <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.*"/>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>..\Libs\Unity.TextMeshPro.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup Label="Core">

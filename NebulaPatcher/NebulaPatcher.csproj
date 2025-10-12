@@ -9,11 +9,6 @@
         <ProjectReference Include="..\NebulaNetwork\NebulaNetwork.csproj" />
         <ProjectReference Include="..\NebulaWorld\NebulaWorld.csproj" SpecificVersion="true" />
     </ItemGroup>
-    <ItemGroup>
-      <Reference Include="Unity.TextMeshPro">
-        <HintPath>..\Libs\Unity.TextMeshPro.dll</HintPath>
-      </Reference>
-    </ItemGroup>
 
     <Target Name="WritePackageVersion" BeforeTargets="BeforeCompile;CoreCompile" Inputs="$(MSBuildAllProjects)" Outputs="$(IntermediateOutputPath)GeneratedFile.cs">
         <PropertyGroup>

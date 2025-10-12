@@ -5,9 +5,4 @@
         <ProjectReference Include="..\NebulaModel\NebulaModel.csproj" SpecificVersion="true" />
         <ProjectReference Include="..\NebulaAPI\NebulaAPI.csproj" Private="false" />
     </ItemGroup>
-    <ItemGroup>
-      <Reference Include="Unity.TextMeshPro">
-        <HintPath>..\Libs\Unity.TextMeshPro.dll</HintPath>
-      </Reference>
-    </ItemGroup>
 </Project>
