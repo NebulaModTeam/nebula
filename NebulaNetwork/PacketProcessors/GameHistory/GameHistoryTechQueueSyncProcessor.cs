@@ -12,12 +12,13 @@ using NebulaWorld;
 namespace NebulaNetwork.PacketProcessors.GameHistory;
 
 [RegisterPacketProcessor]
-internal class GameHistoryTechQueueSyncProcessor : PacketProcessor<GameHistoryTechQueueSyncRequest>
+internal class GameHistoryTechQueueSyncProcessor : PacketProcessor<GameHistoryTechQueueSyncPacket>
 {
-    protected override void ProcessPacket(GameHistoryTechQueueSyncRequest packet, NebulaConnection conn)
+    protected override void ProcessPacket(GameHistoryTechQueueSyncPacket packet, NebulaConnection conn)
     {
-        if (IsHost)
+        if (packet.IsRequest)
         {
+            packet.IsRequest = false;
             packet.TechQueue = GameMain.history.techQueue;
             conn.SendPacket(packet);
         }
@@ -36,6 +37,11 @@ internal class GameHistoryTechQueueSyncProcessor : PacketProcessor<GameHistoryTe
                     if (packet.TechQueue[i] == 0) return;
                     GameMain.history.EnqueueTech(packet.TechQueue[i]);
                 }
+            }
+            if (IsHost)
+            {
+                // Broadcast to other players
+                Multiplayer.Session.Network.SendPacketExclude(packet, conn);
             }
         }
     }
