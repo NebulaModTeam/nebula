@@ -49,10 +49,21 @@ public static class DiscordManager
         var gameDir = new FileInfo(Environment.GetCommandLineArgs()[0]);
         if (gameDir.DirectoryName != null)
         {
-            var steamAppIdFile = Path.Combine(gameDir.DirectoryName, "steam_appid.txt");
-            if (!File.Exists(steamAppIdFile))
+            try
             {
-                File.WriteAllText(steamAppIdFile, "1366540");
+                var steamAppIdFile = Path.Combine(gameDir.DirectoryName, "steam_appid.txt");
+                if (!File.Exists(steamAppIdFile)) 
+                {
+                    File.WriteAllText(steamAppIdFile, "1366540");
+                }
+            }
+            catch (IOException ex)
+            {
+                Log.Warn($"Failed to write steam_appid.txt: {ex.Message}");
+            }
+            catch (UnauthorizedAccessException ex) 
+            {
+                Log.Warn($"Access denied writing steam_appid.txt: {ex.Message}");
             }
         }
 
