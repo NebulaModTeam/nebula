@@ -11,8 +11,8 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class FactoryStorage_Patch
 {
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(FactoryStorage.GameTick))]
-    public static void GameTick_Prefix()
+    [HarmonyPatch(nameof(FactoryStorage.GameTickTank))]
+    public static void GameTickTank_Prefix()
     {
         if (Multiplayer.IsActive)
         {
@@ -21,8 +21,8 @@ internal class FactoryStorage_Patch
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(nameof(FactoryStorage.GameTick))]
-    public static void GameTick_Postfix()
+    [HarmonyPatch(nameof(FactoryStorage.GameTickTank))]
+    public static void GameTickTank_Postfix()
     {
         if (Multiplayer.IsActive)
         {

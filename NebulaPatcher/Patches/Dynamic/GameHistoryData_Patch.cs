@@ -16,12 +16,7 @@ internal class GameHistoryData_Patch
     [HarmonyPatch(nameof(GameHistoryData.EnqueueTech))]
     public static void EnqueueTech_Postfix(int techId)
     {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
-        //Do not run if this was triggered by incomming request
-        if (Multiplayer.Session.History.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.History.IsIncomingRequest)
         {
             return;
         }
@@ -42,30 +37,33 @@ internal class GameHistoryData_Patch
     [HarmonyPatch(nameof(GameHistoryData.RemoveTechInQueue))]
     public static void RemoveTechInQueue_Postfix(int __state)
     {
-        if (!Multiplayer.IsActive)
+        if (!Multiplayer.IsActive || Multiplayer.Session.History.IsIncomingRequest)
         {
             return;
         }
-        //Do not run if this was triggered by incomming request
-        if (Multiplayer.Session.History.IsIncomingRequest)
-        {
-            return;
-        }
-        //Synchronize dequeueing techs by players and trigger refunds for all clients
+        //Synchronize dequeuing techs by players and trigger refunds for all clients
         Log.Info($"Sending Dequeue Tech notification: remove techID{__state}");
         Multiplayer.Session.Network.SendPacket(new GameHistoryRemoveTechPacket(__state));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(GameHistoryData.SortTechQueue))]
+    public static void SortTechQueue_Postfix(GameHistoryData __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.History.IsIncomingRequest)
+        {
+            return;
+        }
+        //Synchronize reorder queue action when the player done dragging
+        Log.Info($"Sending SortTechQueue notification: len {__instance.techQueue.Length}");
+        Multiplayer.Session.Network.SendPacket(new GameHistoryTechQueueSyncPacket(__instance.techQueue));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameHistoryData.PauseTechQueue))]
     public static void PauseTechQueue_Postfix()
     {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
-        //Do not run if this was triggered by incomming request
-        if (Multiplayer.Session.History.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.History.IsIncomingRequest)
         {
             return;
         }
@@ -78,12 +76,7 @@ internal class GameHistoryData_Patch
     [HarmonyPatch(nameof(GameHistoryData.ResumeTechQueue))]
     public static void ResumeTechQueue_Postfix()
     {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
-        //Do not run if this was triggered by incomming request
-        if (Multiplayer.Session.History.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.History.IsIncomingRequest)
         {
             return;
         }

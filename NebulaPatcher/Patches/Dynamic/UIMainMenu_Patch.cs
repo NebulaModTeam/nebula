@@ -228,12 +228,20 @@ internal class UIMainMenu_Patch
                                 child2.GetComponent<Localizer>().enabled = false;
                                 child2.GetComponent<Text>().text = "Multiplayer".Translate();
                                 break;
-                            case "galaxy-seed":
+                            case "stretch-transform":
+                                for (var k = child2.childCount - 1; k >= 0; k--)
                                 {
-                                    child2.GetComponent<Localizer>().enabled = false;
-                                    child2.GetComponent<Text>().text = "Host IP Address".Translate();
-                                    child2.name = "Host IP Address";
-                                    hostIPAddressInput = child2.GetComponentInChildren<InputField>();
+                                    var child3 = child2.GetChild(k);
+                                    if (child3.name != "galaxy-seed")
+                                    {
+                                        Object.Destroy(child3.gameObject);
+                                        continue;
+                                    }
+
+                                    child3.GetComponent<Localizer>().enabled = false;
+                                    child3.GetComponent<Text>().text = "Host IP Address".Translate();
+                                    child3.name = "Host IP Address";
+                                    hostIPAddressInput = child3.GetComponentInChildren<InputField>();
                                     hostIPAddressInput.onEndEdit.RemoveAllListeners();
                                     hostIPAddressInput.onValueChanged.RemoveAllListeners();
                                     //note: connectToUrl uses Dns.getHostEntry, which can only use up to 255 chars.
@@ -249,8 +257,8 @@ internal class UIMainMenu_Patch
                                     hostIPAddressInput.contentType = Config.Options.StreamerMode
                                         ? InputField.ContentType.Password
                                         : InputField.ContentType.Standard;
-                                    break;
                                 }
+                                break;
                             default:
                                 // Remove all unused elements that may be added by other mods
                                 Object.Destroy(child2.gameObject);
@@ -274,7 +282,7 @@ internal class UIMainMenu_Patch
         }
         if (hostIPAddressInput == null)
         {
-            Log.Warn("setting-group/galaxy-seed not found!");
+            Log.Warn("UI Root/Overlay Canvas/Galaxy Select/setting-group/stretch-transform/galaxy-seed not found!");
         }
         var addressTransform = hostIPAddressInput.transform.parent;
         addressTransform.SetParent(multiplayerMenu);

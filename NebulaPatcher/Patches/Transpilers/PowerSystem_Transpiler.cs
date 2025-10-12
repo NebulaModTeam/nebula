@@ -17,8 +17,9 @@ namespace NebulaPatcher.Patches.Transpilers;
 [HarmonyPatch(typeof(PowerSystem))]
 internal class PowerSystem_Transpiler
 {
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(PowerSystem.GameTick))]
+    //TODO: Fix the endless loop in this transpiler
+    //[HarmonyTranspiler]
+    //[HarmonyPatch(nameof(PowerSystem.GameTick))]
     public static IEnumerable<CodeInstruction> PowerSystem_GameTick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
     {
         var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
@@ -26,9 +27,9 @@ internal class PowerSystem_Transpiler
         try
         {
             /*  Get the variable of mecha power coefficient:
-             	lock (mecha)
+             	lock (mecha2)
 		        {
-			        num7 = Mathf.Pow(Mathf.Clamp01((float)(1.0 - mainPlayer.mecha.coreEnergy / mainPlayer.mecha.coreEnergyCap) * 10f), 0.75f);
+			        num9 = Mathf.Pow(Mathf.Clamp01((float)(1.0 - mecha.coreEnergy / mecha.coreEnergyCap) * 10f), 0.75f);
 		        }
             */
             var codeMatcher = new CodeMatcher(codeInstructions, iLGenerator)
@@ -36,74 +37,84 @@ internal class PowerSystem_Transpiler
                     new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Mathf), nameof(Mathf.Pow))),
                     new CodeMatch(OpCodes.Stloc_S),
                     new CodeMatch(OpCodes.Leave));
+            if (codeMatcher.IsInvalid)
+            {
+                Log.Error("PowerSystem_GameTick_Transpiler 0 failed. Power chargers will not be in synced.");
+                return codeInstructions;
+            }
             var coreEnergyRatioCI = new CodeInstruction(OpCodes.Ldloc_S, codeMatcher.InstructionAt(-1).operand);
 
             /* Overwrite the logic that set the power charger requiredEnergy and replace with our own.
+             * DeepProfiler Section: DPEntry.PowerNode
             from:
-                if (this.nodePool[id].id == id && this.nodePool[id].isCharger)
+                if (ptr.id == id && ptr.isCharger)
                 {
-                    if (this.nodePool[id].coverRadius <= 20f)
+                    if (ptr.coverRadius <= 20f)
                     {
                         ...
                     }
                     else
                     {
-                        this.nodePool[id].requiredEnergy = this.nodePool[id].idleEnergyPerTick;
+                        ptr.requiredEnergy = ptr.idleEnergyPerTick;
                     }
-                    long num21 = (long)this.nodePool[id].requiredEnergy;
-                    num11 += num21;
-                    num2 += num21;
+					long num23 = (long)ptr.requiredEnergy;
+					num13 += num23;
+					num3 += num23;
                 }
             to:
-                if (this.nodePool[id].id == id && this.nodePool[id].isCharger)
+                if (ptr.id == id && ptr.isCharger)
                 {
-                    if (this.nodePool[id].coverRadius <= 20f)
+                    if (ptr.coverRadius <= 20f)
                     {			        
                         SetChargerRequriePower(this, id, num7); //replace
+                        goto label;
                     }
                     else
                     {
-                        this.nodePool[id].requiredEnergy = this.nodePool[id].idleEnergyPerTick;
+                        ptr.requiredEnergy = ptr.idleEnergyPerTick;
                     }
-                    long num21 = (long)this.nodePool[id].requiredEnergy;
-                    num11 += num21;
-                    num2 += num21;
+					label: long num23 = (long)ptr.requiredEnergy; //add label
+					num13 += num23;
+					num3 += num23;
                 }
             */
             codeMatcher
                 .MatchForward(false, new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "MoveNext"))
                 .MatchBack(true,
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.idleEnergyPerTick))),
-                    new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.requiredEnergy))),
-                    new CodeMatch(OpCodes.Ldarg_0));
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == nameof(PowerNodeComponent.idleEnergyPerTick)),
+                    new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == nameof(PowerNodeComponent.requiredEnergy)),
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == nameof(PowerNodeComponent.requiredEnergy)),
+                    new CodeMatch(OpCodes.Conv_I8),
+                    new CodeMatch(OpCodes.Stloc_S));
             if (codeMatcher.IsInvalid)
             {
-                Log.Error("PowerSystem_GameTick_Transpiler 1 failed. Mod version not compatible with game version.");
+                Log.Error("PowerSystem_GameTick_Transpiler 1 failed. Power chargers will not be in synced.");
                 return codeInstructions;
             }
-            codeMatcher.CreateLabel(out var label);
-            var nodeIdCI = codeMatcher.InstructionAt(-4);
+            var nodePtrCI = codeMatcher.InstructionAt(-3);
+            var label = codeMatcher.Advance(-3).Labels.First();
 
             codeMatcher
-                .MatchBack(true, new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.isCharger))))
-                .MatchForward(true, new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.coverRadius))));
+                .MatchBack(true, new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == nameof(PowerNodeComponent.isCharger)))
+                .MatchForward(true, new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == nameof(PowerNodeComponent.coverRadius)));
             if (codeMatcher.IsInvalid)
             {
-                Log.Error("PowerSystem_GameTick_Transpiler 2 failed. Mod version not compatible with game version.");
+                Log.Error("PowerSystem_GameTick_Transpiler 2 failed. Power chargers will not be in synced.");
                 return codeInstructions;
             }
             codeMatcher.Advance(3)
                 .Insert(
                     new CodeInstruction(OpCodes.Ldarg_0),
-                    nodeIdCI,
+                    nodePtrCI,
                     coreEnergyRatioCI,
                     new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PowerSystem_Transpiler), nameof(SetChargerRequiredPower))),
                     new CodeInstruction(OpCodes.Br_S, label)
                 );
 
             // Check if chargers are local before adding the energy to the mecha
-            // from: if (this.nodePool[num71].id == num71)
-            // get:  num71 (nodeId)
+            // from: if (this.nodePool[num76].id == num76)
+            // get:  num76 (nodeId)
             codeMatcher.End()
                 .MatchBack(true,
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerNodeComponent), nameof(PowerNodeComponent.id))),
@@ -111,7 +122,7 @@ internal class PowerSystem_Transpiler
                     new CodeMatch(OpCodes.Bne_Un));
             if (codeMatcher.IsInvalid)
             {
-                Log.Error("PowerSystem_GameTick_Transpiler 3 failed. Mod version not compatible with game version.");
+                Log.Error("PowerSystem_GameTick_Transpiler 3 failed. Power chargers will not be in synced.");
                 return codeInstructions;
             }
             var loadNodeIdInstruction = codeMatcher.InstructionAt(-1);
@@ -119,18 +130,18 @@ internal class PowerSystem_Transpiler
             /* A transpiler bug in BepInEx 5.4.22 will break charging part
                so the whole part need to handle early to fix the issue
             from:
-				if (num73 <= 0 || entityAnimPool[entityId5].state != 2U)
+				if (num78 <= 0 || entityAnimPool[entityId5].state != 2U)
 				{
-					goto IL_19FA;
+					goto IL_18E2;
 				}
                 ...
             to:
-            	if (num77 <= 0 || entityAnimPool[entityId5].state != 2U)
+            	if (num78 <= 0 || entityAnimPool[entityId5].state != 2U)
 				{
-					goto IL_19FA;
+					goto IL_18E2;
 				}
-                AddMechaEnergy(this, num75) //Handle mecha energy increae here to not go to broken code part
-                goto IL_19FA;
+                AddMechaEnergy(this, num78) //Handle mecha energy increase here to not go to broken code part
+                goto IL_18E2;
                 ...
             */
             codeMatcher.MatchForward(true,
@@ -139,7 +150,7 @@ internal class PowerSystem_Transpiler
                     new CodeMatch(OpCodes.Bne_Un));
             if (codeMatcher.IsInvalid)
             {
-                Log.Error("PowerSystem_GameTick_Transpiler 4 failed. Mod version not compatible with game version.");
+                Log.Error("PowerSystem_GameTick_Transpiler 4 failed. Power chargers will not be in synced.");
                 return codeInstructions;
             }
             var continueLoopInstruction = new CodeInstruction(OpCodes.Br_S, codeMatcher.Operand);
@@ -189,9 +200,9 @@ internal class PowerSystem_Transpiler
 #pragma warning restore IDE0060
 
 #pragma warning disable CA1868
-    private static void SetChargerRequiredPower(PowerSystem powerSystem, int nodeId, float coreEnergyRatio)
+    private static void SetChargerRequiredPower(PowerSystem powerSystem, ref PowerNodeComponent ptr, float coreEnergyRatio)
     {
-        ref var powerNode = ref powerSystem.nodePool[nodeId];
+        ref var powerNode = ref powerSystem.nodePool[ptr.id];
         var planetId = powerSystem.factory.planetId;
         var isLocalPlanet = GameMain.mainPlayer.planetId == planetId;
 
@@ -258,16 +269,16 @@ internal class PowerSystem_Transpiler
         IEnumerable<CodeInstruction> instructions)
     {
         //Prevent dysonSphere.energyReqCurrentTick from changing on the client side
-        //Change: if (this.dysonSphere != null)
-        //To:     if (this.dysonSphere != null && (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost))
+        //Change: if (this.dysonSphere != null) dysonSphere.energyReqCurrentTick += num;
+        //To:     if (this.dysonSphere != null && (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)) ...
         var codeInstructions = instructions as CodeInstruction[] ?? instructions.ToArray();
         try
         {
             var codeMatcher = new CodeMatcher(codeInstructions)
-                .MatchForward(true,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "dysonSphere")),
-                    new CodeMatch(OpCodes.Brfalse) //IL #93
+                .End()
+                .MatchBack(true,
+                    new CodeMatch(i => i.IsLdloc()),
+                    new CodeMatch(OpCodes.Brfalse) //IL #66
                 );
             var label = codeMatcher.Instruction.operand;
             codeMatcher.Advance(1)
@@ -276,9 +287,10 @@ internal class PowerSystem_Transpiler
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Brfalse_S, label));
             return codeMatcher.InstructionEnumeration();
         }
-        catch
+        catch (System.Exception e)
         {
-            Log.Error("PowerSystem.RequestDysonSpherePower_Transpiler failed. Mod version not compatible with game version.");
+            Log.Error("PowerSystem.RequestDysonSpherePower_Transpiler failed. Dyson power generation on client will be incorrect.");
+            Log.Warn(e);
             return codeInstructions;
         }
     }

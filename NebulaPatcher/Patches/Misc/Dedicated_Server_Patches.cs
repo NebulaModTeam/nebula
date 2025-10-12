@@ -48,8 +48,8 @@ internal class Dedicated_Server_Patches
 
     // Stop game rendering
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(GameData), nameof(GameData.OnDraw))]
-    [HarmonyPatch(typeof(GameData), nameof(GameData.OnPostDraw))]
+    [HarmonyPatch(typeof(GameLogic), nameof(GameLogic.Draw))]
+    [HarmonyPatch(typeof(GameLogic), nameof(GameLogic.DrawPost))]
     [HarmonyPatch(typeof(FactoryModel), nameof(FactoryModel.LateUpdate))]
     [HarmonyPatch(typeof(SectorModel), nameof(SectorModel.LateUpdate))]
     public static bool OnDraw_Prefix()

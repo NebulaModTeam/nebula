@@ -362,6 +362,8 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
         {
             Log.Info("Patching Dyson Sphere Program...");
             Log.Info($"Applying patches from {PluginInfo.PLUGIN_NAME} {PluginInfo.PLUGIN_DISPLAY_VERSION} made for game version {DSPGameVersion.VERSION}");
+            var timer = new HighStopwatch();
+            timer.Begin();
 #if DEBUG
             if (Directory.Exists("./mmdump"))
             {
@@ -385,7 +387,7 @@ public class NebulaPlugin : BaseUnityPlugin, IMultiplayerMod
             Environment.SetEnvironmentVariable("MONOMOD_DMD_DUMP", "");
 #endif
 
-            Log.Info("Patching completed successfully");
+            Log.Info("Patching completed successfully. Time cost: " + timer.duration);
         }
         catch (Exception ex)
         {

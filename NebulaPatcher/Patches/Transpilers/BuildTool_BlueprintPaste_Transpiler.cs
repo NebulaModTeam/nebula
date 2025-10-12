@@ -97,6 +97,6 @@ internal class BuildTool_BlueprintPaste_Transpiler
         var brushType = (reformTool != null) ? reformTool.brushType : 0;
         var brushColor = (reformTool != null) ? reformTool.brushColor : 0;
         Multiplayer.Session.Network.SendPacketToLocalStar(new FoundationBlueprintPastePacket(
-            buildTool.planet.id, buildTool.reformGridIds, buildTool.tmp_levelChanges, brushType, brushColor));
+            buildTool.planet.id, buildTool.reformGridIds.ToList(), buildTool.tmpModLevel, brushType, brushColor));
     }
 }

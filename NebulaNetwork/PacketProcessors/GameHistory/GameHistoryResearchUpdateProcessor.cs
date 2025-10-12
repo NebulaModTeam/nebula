@@ -34,7 +34,7 @@ internal class GameHistoryResearchUpdateProcessor : PacketProcessor<GameHistoryR
         if (packet.TechQueueLength != GameMain.history.techQueueLength)
         {
             // TechQueue length mismatch. Ask from server to get a full queue to stay in sync
-            conn.SendPacket(new GameHistoryTechQueueSyncRequest([]));
+            conn.SendPacket(new GameHistoryTechQueueSyncPacket(true));
         }
     }
 }

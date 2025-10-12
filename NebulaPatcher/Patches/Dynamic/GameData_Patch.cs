@@ -28,18 +28,6 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class GameData_Patch
 {
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(GameData.Update))]
-    public static void Update_Prefix()
-    {
-        if (!Multiplayer.IsActive || !Multiplayer.Session.IsGameLoaded)
-        {
-            return;
-        }
-
-        Multiplayer.Session.World.RenderPlayerNameTagsInGame();
-    }
-
-    [HarmonyPrefix]
     [HarmonyPatch(nameof(GameData.GetOrCreateFactory))]
     public static bool GetOrCreateFactory_Prefix(GameData __instance, ref PlanetFactory __result, PlanetData planet)
     {
@@ -250,8 +238,8 @@ internal class GameData_Patch
     }
 
     // this fixes werid planet movements while loading factory data from server
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(GameData.LateUpdate))]
+    //[HarmonyPostfix]
+    //[HarmonyPatch(nameof(GameData.LateUpdate))]
     public static void LateUpdate_Postfix()
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
@@ -314,75 +302,9 @@ internal class GameData_Patch
         Multiplayer.Session.State.OverwriteGlobalGameData(__instance);
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(GameData.GameTick))]
-    public static void GameTick_Postfix(long time)
-    {
-        if (!Multiplayer.IsActive)
-        {
-            return;
-        }
 
-        Multiplayer.Session.Couriers.GameTick();
-        Multiplayer.Session.Belts.GameTick();
-        Multiplayer.Session.Combat.GameTick();
 
-        if (Multiplayer.Session.LocalPlayer.IsHost)
-        {
-            Multiplayer.Session.Launch.CollectProjectile();
-            Multiplayer.Session.Statistics.SendBroadcastIfNeeded(time);
-            return;
-        }
 
-        try
-        {
-            // Client: Update visual effects that don't affect the production
-            Multiplayer.Session.Launch.LaunchProjectile();
-            ILSUpdateShipPos(time);
-        }
-        catch (Exception e)
-        {
-            _ = e;
-#if DEBUG
-            Log.Warn(e);
-#endif
-        }
-    }
-
-    private static void ILSUpdateShipPos(long time)
-    {
-        if (!Multiplayer.Session.IsGameLoaded) return;
-
-        // call StationComponent::InternalTickRemote() from here, see StationComponent_Patch.cs for info
-        var timeGene = (int)(time % 60L);
-        if (timeGene < 0)
-        {
-            timeGene += 60;
-        }
-        var history = GameMain.history;
-        var shipSailSpeed = history.logisticShipSailSpeedModified;
-        var shipWarpSpeed = !history.logisticShipWarpDrive ? shipSailSpeed : history.logisticShipWarpSpeedModified;
-        var shipCarries = history.logisticShipCarries;
-        var gameData = GameMain.data;
-        var gStationPool = gameData.galacticTransport.stationPool;
-        var astroPoses = gameData.galaxy.astrosData;
-        var relativePos = gameData.relativePos;
-        var relativeRot = gameData.relativeRot;
-        var starmap = UIGame.viewMode == EViewMode.Starmap;
-
-        foreach (var stationComponent in GameMain.data.galacticTransport.stationPool)
-        {
-            if (stationComponent != null && stationComponent.isStellar && stationComponent.planetId > 0)
-            {
-                var planet = GameMain.galaxy.PlanetById(stationComponent.planetId);
-                if (planet == null) continue;
-
-                StationComponent_Transpiler.ILSUpdateShipPos(stationComponent,
-                    planet.factory, timeGene, shipSailSpeed, shipWarpSpeed,
-                    shipCarries, gStationPool, astroPoses, ref relativePos, ref relativeRot, starmap, null);
-            }
-        }
-    }
 
     private static void InitLandingPlace(GameData gameData, PlanetData planet)
     {

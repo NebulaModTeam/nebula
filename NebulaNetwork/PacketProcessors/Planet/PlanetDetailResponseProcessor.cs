@@ -25,6 +25,7 @@ public class PlanetDetailResponseProcessor : PacketProcessor<PlanetDetailRespons
             ? UIRoot.instance.galaxySelect.starmap._galaxyData.PlanetById(packet.PlanetDataID)
             : GameMain.galaxy.PlanetById(packet.PlanetDataID);
 
+        NebulaModel.Logger.Log.Debug($"PlanetDetailResponse: [{planet.displayName}] {packet.VeinCounts.Length}");
         if (packet.VeinCounts.Length > 0)
         {
             if (planet.veinGroups == null || planet.veinGroups.Length != packet.VeinCounts.Length)
@@ -41,7 +42,7 @@ public class PlanetDetailResponseProcessor : PacketProcessor<PlanetDetailRespons
         planet.landPercent = packet.LandPercent;
         planet.landPercentDirtyFlag = false;
 
-        //planet.NotifyCalculated();
+        planet.NotifyScanEnded();
         planet.scanning = false;
         planet.scanned = true;
     }

@@ -131,7 +131,7 @@ public class WarningManager : IDisposable
                 continue;
             }
             bw.Write(data.signalId);
-            bw.Write(data.detailId);
+            bw.Write(data.detailId1);
             bw.Write(data.astroId);
             bw.Write(data.localPos.x);
             bw.Write(data.localPos.y);
@@ -169,7 +169,7 @@ public class WarningManager : IDisposable
             warningPool[i].id = i;
             warningPool[i].state = 1;
             warningPool[i].signalId = br.ReadInt32();
-            warningPool[i].detailId = br.ReadInt32();
+            warningPool[i].detailId1 = br.ReadInt32();
             // localPos is base on astroId
             warningPool[i].astroId = br.ReadInt32();
             warningPool[i].localPos.x = br.ReadSingle();

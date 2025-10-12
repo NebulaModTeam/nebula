@@ -122,26 +122,6 @@ internal class PlanetFactory_patch
         return Multiplayer.Session.LocalPlayer.IsHost || Multiplayer.Session.Factories.IsIncomingRequest.Value;
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(PlanetFactory.GameTick))]
-    public static bool InternalUpdate_Prefix()
-    {
-        if (Multiplayer.IsActive)
-        {
-            Multiplayer.Session.Storage.IsHumanInput = false;
-        }
-        return true;
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(nameof(PlanetFactory.GameTick))]
-    public static void InternalUpdate_Postfix()
-    {
-        if (Multiplayer.IsActive)
-        {
-            Multiplayer.Session.Storage.IsHumanInput = true;
-        }
-    }
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.PasteBuildingSetting))]

@@ -23,7 +23,7 @@ public class DFGKillEnemyProcessor : PacketProcessor<DFGKillEnemyPacket>
             // Alive, broadcast the event to all clients in the system
             if (factory.enemyPool[packet.EnemyId].id > 0)
             {
-                factory.KillEnemyFinally(GameMain.mainPlayer, packet.EnemyId, ref CombatStat.empty);
+                factory.KillEnemyFinally(packet.EnemyId, ref CombatStat.empty);
             }
             // If the enemy is already dead, that mean the client is behind and kill event has been sent by the server
         }
@@ -33,14 +33,14 @@ public class DFGKillEnemyProcessor : PacketProcessor<DFGKillEnemyPacket>
             {
                 if (factory.enemyPool[packet.EnemyId].id > 0)
                 {
-                    factory.KillEnemyFinally(GameMain.mainPlayer, packet.EnemyId, ref CombatStat.empty);
+                    factory.KillEnemyFinally(packet.EnemyId, ref CombatStat.empty);
                 }
                 else if (factory.enemyPool[packet.EnemyId].isInvincible) // Mark
                 {
                     ref var ptr = ref factory.enemyPool[packet.EnemyId];
                     ptr.id = packet.EnemyId;
                     ptr.isInvincible = false;
-                    factory.KillEnemyFinally(GameMain.mainPlayer, packet.EnemyId, ref CombatStat.empty);
+                    factory.KillEnemyFinally(packet.EnemyId, ref CombatStat.empty);
                 }
             }
         }

@@ -44,11 +44,14 @@
 
     <ItemGroup Label="NuGetsMain" Condition=" '$(MSBuildProjectName)' != 'NebulaAPI' ">
         <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.*"/>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>..\Libs\Unity.TextMeshPro.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup Label="Core">
-        <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all"/>
-        <PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" PrivateAssets="all"/>
+        <PackageReference Include="BepInEx.Core" Version="5.4.17" PrivateAssets="all"/>
+        <PackageReference Include="UnityEngine.Modules" Version="2022.3.53" IncludeAssets="compile" PrivateAssets="all"/>
         <PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" IncludeAssets="compile" PrivateAssets="all"/>
     </ItemGroup>
 

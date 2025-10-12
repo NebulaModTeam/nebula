@@ -16,13 +16,13 @@ namespace NebulaPatcher.Patches.Transpilers;
 internal class EnemyDFGroundSystem_Transpiler
 {
     [HarmonyTranspiler]
-    [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic))]
-    public static IEnumerable<CodeInstruction> GameTickLogic_Transpiler(IEnumerable<CodeInstruction> instructions)
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic_Prepare))]
+    public static IEnumerable<CodeInstruction> GameTickLogic_Prepare_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         try
         {
             /*  Overwrite the condition of local player and position in MP
-                First make it skips the original logic that only work for singleplayer, by setting local_player_exist = false
+                First make it skips the original logic that only work for single player, by setting local_player_exist = false
             from:
                 if (isLocalLoaded) {
                     Player mainPlayer = this.gameData.mainPlayer;
@@ -51,8 +51,6 @@ internal class EnemyDFGroundSystem_Transpiler
                 .MatchForward(true,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Call, AccessTools.DeclaredPropertyGetter(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.isLocalLoaded))),
-                    new CodeMatch(i => i.IsStloc()),
-                    new CodeMatch(i => i.IsLdloc()),
                     new CodeMatch(OpCodes.Brfalse));
 
             var jumpOperand = codeMatcher.Instruction.operand;
@@ -62,17 +60,34 @@ internal class EnemyDFGroundSystem_Transpiler
                     new CodeInstruction(OpCodes.Brtrue_S, jumpOperand)
                 );
 
+            return codeMatcher.InstructionEnumeration();
+        }
+        catch (System.Exception e)
+        {
+            Log.Error("Transpiler GameTickLogic_Prepare failed. Ground Dark Fog unit target will not in sync.");
+            Log.Error(e);
+            return instructions;
+        }
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic_Unit))]
+    public static IEnumerable<CodeInstruction> GameTickLogic_Unit_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
+        {
             /*  Sync max hatred target before executing unit behavior in MP                
             before:
-				switch (ptr6.behavior)
-				{
-                    ...
+                switch (ptr2.behavior)
+                {
+                   case EEnemyBehavior.None: ptr2.RunBehavior_None(ref ptr3);
+                   ...
                 }
             insert:
-                SyncHatredTarget(this, ptr)
+                SyncHatredTarget(this, ptr2)
             */
 
-            codeMatcher
+            var codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldloc_S),
                     new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(EnemyUnitComponent), nameof(EnemyUnitComponent.behavior))),
@@ -92,7 +107,7 @@ internal class EnemyDFGroundSystem_Transpiler
         }
         catch (System.Exception e)
         {
-            Log.Error("Transpiler EnemyDFGroundSystem.GameTickLogic failed. Ground DF untis aggro will not in sync.");
+            Log.Error("Transpiler GameTickLogic_Unit failed! Ground Dark Fog unit target will not in sync.");
             Log.Error(e);
             return instructions;
         }

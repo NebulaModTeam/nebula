@@ -554,25 +554,35 @@ internal class UIVirtualStarmap_Transpiler
     [HarmonyPatch(nameof(UIVirtualStarmap.OnGalaxyDataReset))]
     public static IEnumerable<CodeInstruction> OnGalaxyDataReset_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var matcher = new CodeMatcher(instructions)
-            .MatchForward(true,
-                new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Translate"),
-                new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "Concat"),
-                new CodeMatch(OpCodes.Stloc_S),
-                new CodeMatch(OpCodes.Ldloc_S),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StarData), "index")),
-                new CodeMatch(OpCodes.Brtrue))
-            .Advance(-1)
-            .SetAndAdvance(OpCodes.Ldarg_0, null)
-            .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<IsBirthStar2>((starData, starmap) =>
-            {
-                if (starData == null || starmap == null)
+        try
+        {
+            // Change: if (starData.index == 0) text = "即将登陆".Translate() + "\r\n" + text;
+            // To:     if (IsBirthStar2(starData, this)) text = "即将登陆".Translate() + "\r\n" + text;
+
+            var matcher = new CodeMatcher(instructions)
+                .MatchForward(true,
+                    new CodeMatch(OpCodes.Ldloc_S),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StarData), "index")),
+                    new CodeMatch(OpCodes.Brtrue),
+                    new CodeMatch(OpCodes.Ldstr))
+                .Advance(-2)
+                .SetAndAdvance(OpCodes.Ldarg_0, null)
+                .InsertAndAdvance(HarmonyLib.Transpilers.EmitDelegate<IsBirthStar2>((starData, starmap) =>
                 {
-                    return true;
-                }
-                return starData.index != (CustomBirthStar != -1 ? CustomBirthStar - 1 : starmap._galaxyData.birthStarId - 1);
-            }));
-        return matcher.InstructionEnumeration();
+                    if (starData == null || starmap == null)
+                    {
+                        return true;
+                    }
+                    return starData.index != (CustomBirthStar != -1 ? CustomBirthStar - 1 : starmap._galaxyData.birthStarId - 1);
+                }));
+            return matcher.InstructionEnumeration();
+        }
+        catch (Exception e)
+        {
+            Log.Warn("OnGalaxyDataReset_Transpiler fail!");
+            Log.Warn(e);
+            return instructions;
+        }
     }
 
     private delegate void ShowSolarsystemDetails(UIVirtualStarmap starmap, int starIndex);
