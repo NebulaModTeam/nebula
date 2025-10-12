@@ -61,7 +61,7 @@ public class DictionarySerializationTest
             }
     };
 
-    [TestMethod, Timeout(1000)]
+    [TestMethod, Timeout(1000, CooperativeCancellation = true)]
     public void SerializeDeserialize_DictionaryPackets_AreEqual()
     {
         var packetProcessor = new NebulaNetPacketProcessor();
