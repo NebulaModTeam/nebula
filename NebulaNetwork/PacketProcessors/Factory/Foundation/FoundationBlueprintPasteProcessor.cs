@@ -42,26 +42,18 @@ internal class FoundationBlueprintPasteProcessor : PacketProcessor<FoundationBlu
         }
     }
 
-    static void SetReform(PlanetFactory factory, Dictionary<int, byte> reformGridIds, int brushType, int brushColor)
+    static void SetReform(PlanetFactory factory, List<int> reformGridIds, int brushType, int brushColor)
     {
         PlatformSystem platformSystem = factory.platformSystem;
         platformSystem.EnsureReformData();
 
-        foreach (int key in reformGridIds.Keys)
+        foreach (int gridId in reformGridIds)
         {
-            int reformIndex = factory.platformSystem.GetReformIndex(key >> 16, key & 65535);
-            byte reformData = reformGridIds[key];
-            int num17 = reformData >> 5;
-            int num18 = (reformData & 3);
+            int reformIndex = platformSystem.GetReformIndex(gridId >> 16, gridId & 65535);
             if (reformIndex >= 0)
             {
-                int reformType = platformSystem.GetReformType(reformIndex);
-                int reformColor = platformSystem.GetReformColor(reformIndex);
-                if (reformType != ((num17 == 0) ? brushType : num17) || reformColor != ((num18 == 0) ? brushColor : num18))
-                {
-                    factory.platformSystem.SetReformType(reformIndex, brushType);
-                    factory.platformSystem.SetReformColor(reformIndex, brushColor);
-                }
+                platformSystem.SetReformType(reformIndex, brushType);
+                platformSystem.SetReformColor(reformIndex, brushColor);
             }
         }
     }

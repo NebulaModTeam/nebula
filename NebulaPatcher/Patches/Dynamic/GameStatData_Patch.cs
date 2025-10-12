@@ -11,8 +11,8 @@ namespace NebulaPatcher.Patches.Dynamic;
 internal class GameStatData_Patch
 {
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(GameStatData.AfterTick))]
-    public static void AfterTick_Prefix(GameStatData __instance)
+    [HarmonyPatch(nameof(GameStatData.RecordTechHashed))]
+    public static void RecordTechHashed_Prefix(GameStatData __instance)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
         {
@@ -31,9 +31,11 @@ internal class GameStatData_Patch
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(nameof(GameStatData.AfterTick))]
-    public static void AfterTick_Postfix()
+    [HarmonyPatch(nameof(GameStatData.GameTickCharts))]
+    public static void GameTickCharts_Postfix()
     {
+        // On host, capture the snapshots when all stats are done processing
+        // Use GameTickCharts() as hook to replace AfterTick()
         if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
         {
             Multiplayer.Session.Statistics.CaptureStatisticalSnapshot();

@@ -155,8 +155,8 @@ internal class EnemyDFGroundSystem_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic))]
-    public static void GameTickLogic_Prefix(EnemyDFGroundSystem __instance, long gameTick)
+    [HarmonyPatch(nameof(EnemyDFGroundSystem.GameTickLogic_Prepare))]
+    public static void GameTickLogic_Prepare_Prefix(EnemyDFGroundSystem __instance)
     {
         if (!Multiplayer.IsActive) return;
 
@@ -174,7 +174,7 @@ internal class EnemyDFGroundSystem_Patch
         if (Multiplayer.Session.IsServer)
         {
             // Broadcast base level changes before adding units
-            Multiplayer.Session.Enemies.BroadcastBaseStatusPackets(__instance, gameTick);
+            Multiplayer.Session.Enemies.BroadcastBaseStatusPackets(__instance, GameMain.gameTick);
         }
     }
 

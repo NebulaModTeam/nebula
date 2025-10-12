@@ -184,7 +184,7 @@ public class EnemyManager : IDisposable
                 // This is inside Combat.IsIncomingRequest, so it is approved and won't broadcast back to server
                 Log.Warn("SetPlanetFactoryNextEnemyId: Kill ground enemy " + enemyId);
                 ptr.isInvincible = false;
-                factory.KillEnemyFinally(GameMain.mainPlayer, enemyId, ref CombatStat.empty);
+                factory.KillEnemyFinally(enemyId, ref CombatStat.empty);
             }
 
             factory.enemyRecycle[0] = enemyId;
@@ -206,7 +206,7 @@ public class EnemyManager : IDisposable
                 // This is inside Combat.IsIncomingRequest, so it is approved and won't broadcast back to server
                 Log.Warn("SetPlanetFactoryRecycle: Kill ground enemy " + enemyId);
                 ptr.isInvincible = false;
-                factory.KillEnemyFinally(GameMain.mainPlayer, enemyId, ref CombatStat.empty);
+                factory.KillEnemyFinally(enemyId, ref CombatStat.empty);
             }
         }
 

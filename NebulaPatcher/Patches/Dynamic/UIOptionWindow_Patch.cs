@@ -148,7 +148,7 @@ internal class UIOptionWindow_Patch
         contentContainer = listContent;
 
         // Find control templates from tab "Video"
-        checkboxTemplate = __instance.fullscreenComp.transform.parent.GetComponent<RectTransform>();
+        checkboxTemplate = __instance.vsyncComp.transform.parent.GetComponent<RectTransform>();
         comboBoxTemplate = __instance.resolutionComp.transform.parent.GetComponent<RectTransform>();
         sliderTemplate = __instance.dofComp.transform.parent.GetComponent<RectTransform>();
         inputTemplate = Object.Instantiate(checkboxTemplate, listContent, false);

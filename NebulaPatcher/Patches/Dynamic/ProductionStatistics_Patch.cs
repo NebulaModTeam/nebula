@@ -26,22 +26,8 @@ internal class ProductionStatistics_Patch
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(ProductionStatistics.AfterTick))]
-    public static bool AfterTick_Prefix(ProductionStatistics __instance)
-    {
-        if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
-        {
-            return true;
-        }
-        for (var i = 0; i < __instance.gameData.factoryCount; i++)
-        {
-            __instance.factoryStatPool[i]?.AfterTick();
-        }
-        return false;
-    }
-
-    [HarmonyPrefix]
     [HarmonyPatch(nameof(ProductionStatistics.GameTick))]
+    [HarmonyPatch(nameof(ProductionStatistics.GameTick_Parallel))]
     public static bool GameTick_Prefix(ProductionStatistics __instance)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)

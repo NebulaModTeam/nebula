@@ -6,7 +6,7 @@ public class FoundationBlueprintPastePacket
 {
     public FoundationBlueprintPastePacket() { }
 
-    public FoundationBlueprintPastePacket(int planetId, Dictionary<int, byte> reformGridIds,
+    public FoundationBlueprintPastePacket(int planetId, List<int> reformGridIds,
         Dictionary<int, int> levelChanges, int reformType, int reformColor)
     {
         PlanetId = planetId;
@@ -17,7 +17,7 @@ public class FoundationBlueprintPastePacket
     }
 
     public int PlanetId { get; set; }
-    public Dictionary<int, byte> ReformGridIds { get; set; }
+    public List<int> ReformGridIds { get; set; }
     public Dictionary<int, int> LevelChanges { get; set; }
     public int ReformType { get; set; }
     public int ReformColor { get; set; }

@@ -24,21 +24,15 @@ internal class BattleBaseComponent_Transpiler
     {
         try
         {
-            // Insert the following guard at the begining to only let host execute auto pick trash
-            // if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient) return false;
-            var codeMatcher = new CodeMatcher(instructions, iLGenerator)
-                .MatchForward(false, new CodeMatch(OpCodes.Ldarg_1))
+            var codeMatcher = new CodeMatcher(instructions, iLGenerator);
+
+            // Insert the following guard at the beginning to only let host execute auto pick trash
+            // if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient) return;
+            codeMatcher.MatchForward(true, new CodeMatch(OpCodes.Stloc_0))
+                .Advance(1)
                 .CreateLabel(out var label)
                 .Insert(
-                    new CodeInstruction(OpCodes.Call,
-                    AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
-                    new CodeInstruction(OpCodes.Brfalse_S, label),
-                    new CodeInstruction(OpCodes.Call,
-                    AccessTools.DeclaredPropertyGetter(typeof(Multiplayer), nameof(Multiplayer.Session))),
-                    new CodeInstruction(OpCodes.Call,
-                    AccessTools.DeclaredPropertyGetter(typeof(MultiplayerSession), nameof(MultiplayerSession.LocalPlayer))),
-                    new CodeInstruction(OpCodes.Call,
-                    AccessTools.DeclaredPropertyGetter(typeof(ILocalPlayer), nameof(ILocalPlayer.IsClient))),
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BattleBaseComponent_Transpiler), nameof(IsClient))),
                     new CodeInstruction(OpCodes.Brfalse_S, label),
                     new CodeInstruction(OpCodes.Ret)
                 );
@@ -98,6 +92,11 @@ internal class BattleBaseComponent_Transpiler
             Log.Error(e);
             return instructions;
         }
+    }
+
+    private static bool IsClient()
+    {
+        return Multiplayer.Session?.IsClient ?? false;
     }
 
     private static void AddPlayerSandCount(TrashSystem trashSystem, int trashId, int sandCount)
