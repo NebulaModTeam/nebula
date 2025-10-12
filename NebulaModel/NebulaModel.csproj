@@ -17,4 +17,10 @@
     <ItemGroup>
         <PackageReference Include="System.Net.Http" Version="4.3.4" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Unity.TextMeshPro">
+        <HintPath>..\Libs\Unity.TextMeshPro.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>
