@@ -141,6 +141,7 @@ public class DysonSphereManager : IDisposable
             packet.GrossRadius = dysonSphere.grossRadius;
             packet.EnergyReqCurrentTick = dysonSphere.energyReqCurrentTick;
             packet.EnergyGenCurrentTick = dysonSphere.energyGenCurrentTick;
+            packet.EnergyGenOriginalCurrentTick = dysonSphere.energyGenOriginalCurrentTick;
             SendPacketToDysonSphere(packet, packet.StarIndex);
         }
     }

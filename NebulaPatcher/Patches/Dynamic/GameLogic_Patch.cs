@@ -13,6 +13,8 @@ namespace NebulaPatcher.Patches.Dynamic;
 [HarmonyPatch(typeof(GameLogic))]
 public class GameLogic_Patch
 {
+    private static long LocalDysonSphereEnergyReq; //Client
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(GameLogic.Draw))]
     public static void Draw_Postfix()
@@ -102,6 +104,28 @@ public class GameLogic_Patch
         if (Multiplayer.IsActive)
         {
             Multiplayer.Session.Storage.IsHumanInput = false;
+            if (GameMain.localStar != null)
+            {
+                LocalDysonSphereEnergyReq = GameMain.data.dysonSpheres[GameMain.localStar.index]?.energyReqCurrentTick ?? 0;
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(GameLogic.FactoryBeforePowerGameTick_Parallel))]
+    public static void FactoryBeforePowerGameTick_Parallel_Postfix()
+    {
+        // Undo the change to energyReqCurrentTick done by _power_gen_gamma_parallel
+        // Can't do the transpiler on _power_gen_gamma_parallel because the error:
+        // System.MissingFieldException: Field not found: int .ScatterThreadContext.idCurrent Due to: Could not find field in class
+
+        if (Multiplayer.IsActive && GameMain.localStar != null)
+        {
+            var dysonSphere = GameMain.data.dysonSpheres[GameMain.localStar.index];
+            if (dysonSphere != null)
+            {
+                dysonSphere.energyReqCurrentTick = LocalDysonSphereEnergyReq;
+            }
         }
     }
 

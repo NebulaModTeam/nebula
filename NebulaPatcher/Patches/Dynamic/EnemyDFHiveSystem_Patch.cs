@@ -43,16 +43,7 @@ internal class EnemyDFHiveSystem_Patch
             {
                 if (enemyFormation.units[portId] == 1)
                 {
-                    var unitId = __instance.ActivateUnit(formId, portId, gameTick);
-                    if (unitId > 0)
-                    {
-                        var buffer = __instance.units.buffer;
-                        buffer[unitId].behavior = EEnemyBehavior.KeepForm;
-                        buffer[unitId].stateTick = 600;
-                        var packet = new DFSActivateUnitPacket(__instance.hiveAstroId, formId, portId,
-                            (byte)EEnemyBehavior.KeepForm, 600, unitId, buffer[unitId].enemyId);
-                        Multiplayer.Session.Server.SendPacket(packet);
-                    }
+                    __instance.ActivateUnitDeferred(formId, portId, gameTick, EEnemyBehavior.KeepForm, 600);
                 }
             }
         }
@@ -201,6 +192,27 @@ internal class EnemyDFHiveSystem_Patch
         }
 
         __instance._initiate_unit_list?.Clear();
+        if (__instance._activate_unit_list?.Count > 0)
+        {
+            foreach (var item in __instance._activate_unit_list)
+            {
+                int unitId = __instance.ActivateUnit(item.formId, item.port, item.gameTick);
+                if (unitId > 0)
+                {
+                    ref var ptr = ref __instance.units.buffer[unitId];
+                    if (ptr.id == unitId)
+                    {
+                        ptr.stateTick = item.stateTick;
+                        ptr.behavior = item.behavior;
+
+                        var packet = new DFSActivateUnitPacket(__instance.hiveAstroId, item.formId, item.port,
+                            (byte)item.behavior, item.stateTick, unitId, ptr.enemyId);
+                        Multiplayer.Session.Server.SendPacket(packet);
+                    }
+                }
+            }
+            __instance._activate_unit_list.Clear();
+        }
         if (__instance._deactivate_unit_list?.Count > 0)
         {
             foreach (var unitId in __instance._deactivate_unit_list)
@@ -379,16 +391,7 @@ internal class EnemyDFHiveSystem_Patch
                     var dz = localPos.z - pos.z;
                     if (dx * dx + dy * dy + dz * dz <= (double)(radius * radius))
                     {
-                        var unitId = __instance.ActivateUnit(formId, portId, GameMain.gameTick);
-                        if (unitId > 0)
-                        {
-                            var buffer = __instance.units.buffer;
-                            buffer[unitId].behavior = EEnemyBehavior.KeepForm;
-                            buffer[unitId].stateTick = 600;
-                            var packet = new DFSActivateUnitPacket(__instance.hiveAstroId, formId, portId,
-                                (byte)EEnemyBehavior.KeepForm, 600, unitId, buffer[unitId].enemyId);
-                            Multiplayer.Session.Server.SendPacket(packet);
-                        }
+                        __instance.ActivateUnitDeferred(formId, portId, GameMain.gameTick, EEnemyBehavior.KeepForm, 600);
                     }
                 }
             }

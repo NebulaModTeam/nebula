@@ -57,7 +57,7 @@ internal class DFGTurretComponent_Patch
 
         // Find the closest alive player to the turret
         var playerId = -1;
-        var cloestDist = float.MaxValue;
+        var closestDist = float.MaxValue;
         var players = Multiplayer.Session.Combat.Players;
         for (var i = 0; i < players.Length; i++)
         {
@@ -67,10 +67,10 @@ internal class DFGTurretComponent_Patch
                 continue;
             }
             var dist = Vector3.SqrMagnitude(ptr.skillTargetL - __instance.muzzleWPos);
-            if (dist < cloestDist)
+            if (dist < closestDist)
             {
                 playerId = ptr.id;
-                cloestDist = dist;
+                closestDist = dist;
             }
         }
         if (playerId == -1)
@@ -81,13 +81,13 @@ internal class DFGTurretComponent_Patch
 
         var counterAttackFlag = __instance.CounterAttackPlayer(factory, @base)
             && (__instance.target.type != ETargetType.Player || __instance.target.id != playerId);
-        if (counterAttackFlag || cloestDist <= __instance.realAttactRange * __instance.realAttactRange)
+        if (counterAttackFlag || closestDist <= __instance.realAttactRange * __instance.realAttactRange)
         {
             __instance.target.type = ETargetType.Player;
             __instance.target.id = playerId;
             __instance.state = EDFTurretState.Aiming;
             var sqrMagnitude = __instance.localDir.sqrMagnitude;
-            var scale = Mathf.Sqrt(cloestDist / sqrMagnitude);
+            var scale = Mathf.Sqrt(closestDist / sqrMagnitude);
             __instance.localDir.x *= scale;
             __instance.localDir.y *= scale;
             __instance.localDir.z *= scale;
@@ -113,5 +113,13 @@ internal class DFGTurretComponent_Patch
                 return;
             }
         }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(DFGTurretComponent.CounterAttackPlayer))]
+    public static void CounterAttackPlayer(ref bool __result)
+    {
+        // Disable in MP due to unknown bug that cause host player gets hit from nowhere
+        __result &= !Multiplayer.IsActive;
     }
 }
