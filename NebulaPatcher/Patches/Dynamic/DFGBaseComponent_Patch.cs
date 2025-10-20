@@ -81,25 +81,16 @@ internal class DFGBaseComponent_Patch
         if (!Multiplayer.IsActive || __instance.activeTick > 0) return true;
         if (Multiplayer.Session.IsClient) return false;
 
-        var gameTick = GameMain.gameTick;
-        var enemyFormation = __instance.forms[formId];
-        for (var portId = 1; portId <= enemyFormation.portCount; portId++)
+        lock (__instance)
         {
-            if (enemyFormation.units[portId] == 1)
+            var gameTick = GameMain.gameTick;
+            var enemyFormation = __instance.forms[formId];
+            for (var portId = 1; portId <= enemyFormation.portCount; portId++)
             {
-                var unitId = __instance.groundSystem.ActivateUnit(__instance.id, formId, portId, gameTick);
-                if (unitId > 0)
+                if (enemyFormation.units[portId] == 1)
                 {
-                    ref var enemyUnit = ref __instance.groundSystem.units.buffer[unitId];
-                    enemyUnit.behavior = EEnemyBehavior.KeepForm;
-                    enemyUnit.stateTick = 120;
 
-                    // Broadcast the active unit event to clients
-                    var planetId = __instance.groundSystem.planet.id;
-                    var starId = __instance.groundSystem.planet.star.id;
-                    var packet = new DFGActivateUnitPacket(planetId, __instance.id,
-                        formId, portId, EEnemyBehavior.KeepForm, 120, enemyUnit.enemyId);
-                    Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                    __instance.groundSystem.ActivateUnitDeferred(__instance.id, formId, portId, gameTick, EEnemyBehavior.KeepForm, 120);
                 }
             }
         }
@@ -113,68 +104,57 @@ internal class DFGBaseComponent_Patch
         if (!Multiplayer.IsActive) return true;
         if (Multiplayer.Session.IsClient) return false;
 
-
-        if (setToSeekForm) // Bombed by EMP, change all KeepForm unit to SeekForm
+        lock (__instance)
         {
-            ref var buffer = ref __instance.groundSystem.units.buffer;
-            var cursor = __instance.groundSystem.units.cursor;
-            for (var i = 1; i < cursor; i++)
+            if (setToSeekForm) // Bombed by EMP, change all KeepForm unit to SeekForm
             {
-                if (buffer[i].baseId == __instance.id && buffer[i].behavior == EEnemyBehavior.KeepForm)
+                ref var buffer = ref __instance.groundSystem.units.buffer;
+                var cursor = __instance.groundSystem.units.cursor;
+                for (var i = 1; i < cursor; i++)
                 {
-                    buffer[i].behavior = EEnemyBehavior.SeekForm;
-                }
-            }
-            var packet = new DFGActivateBasePacket(__instance.groundSystem.planet.id, __instance.id, true);
-            Multiplayer.Session.Network.SendPacketToStar(packet, __instance.groundSystem.planet.star.id);
-        }
-        if (__instance.activeTick > 0)
-        {
-            return false;
-        }
-        var enemyData = default(EnemyData);
-        var planet = __instance.groundSystem.planet;
-        var gameTick = GameMain.gameTick;
-        var num = (int)((planet.seed + gameTick) % 151200L);
-        ref var ptr = ref __instance.groundSystem.factory.enemyPool[__instance.enemyId];
-        var realRadius = planet.realRadius;
-        var pos = VectorLF3.zero;
-        var rot = Quaternion.identity;
-        var vel = Vector3.zero;
-        var x = center.x;
-        var y = center.y;
-        var z = center.z;
-        var radiusSqrt = radius * radius;
-        var eenemyBehavior = (setToSeekForm ? EEnemyBehavior.SeekForm : EEnemyBehavior.KeepForm);
-        for (var formId = 0; formId < __instance.forms.Length; formId++)
-        {
-            var enemyFormation = __instance.forms[formId];
-            for (var portId = 1; portId <= enemyFormation.portCount; portId++)
-            {
-                if (enemyFormation.units[portId] == 1)
-                {
-                    enemyData.protoId = (short)(formId + 8128);
-                    enemyData.owner = (short)__instance.id;
-                    enemyData.port = (short)portId;
-                    enemyData.Formation(num, ref ptr, realRadius, ref pos, ref rot, ref vel);
-                    var dx = (float)pos.x - x;
-                    var dy = (float)pos.y - y;
-                    var dz = (float)pos.z - z;
-                    if (dx * dx + dy * dy + dz * dz < radiusSqrt)
+                    if (buffer[i].baseId == __instance.id && buffer[i].behavior == EEnemyBehavior.KeepForm)
                     {
-                        var unitId = __instance.groundSystem.ActivateUnit(__instance.id, formId, portId, gameTick);
-                        if (unitId > 0)
+                        buffer[i].behavior = EEnemyBehavior.SeekForm;
+                    }
+                }
+                var packet = new DFGActivateBasePacket(__instance.groundSystem.planet.id, __instance.id, true);
+                Multiplayer.Session.Network.SendPacketToStar(packet, __instance.groundSystem.planet.star.id);
+            }
+            if (__instance.activeTick > 0)
+            {
+                return false;
+            }
+            var enemyData = default(EnemyData);
+            var planet = __instance.groundSystem.planet;
+            var gameTick = GameMain.gameTick;
+            var num = (int)((planet.seed + gameTick) % 151200L);
+            ref var ptr = ref __instance.groundSystem.factory.enemyPool[__instance.enemyId];
+            var realRadius = planet.realRadius;
+            var pos = VectorLF3.zero;
+            var rot = Quaternion.identity;
+            var vel = Vector3.zero;
+            var x = center.x;
+            var y = center.y;
+            var z = center.z;
+            var radiusSqrt = radius * radius;
+            var eenemyBehavior = (setToSeekForm ? EEnemyBehavior.SeekForm : EEnemyBehavior.KeepForm);
+            for (var formId = 0; formId < __instance.forms.Length; formId++)
+            {
+                var enemyFormation = __instance.forms[formId];
+                for (var portId = 1; portId <= enemyFormation.portCount; portId++)
+                {
+                    if (enemyFormation.units[portId] == 1)
+                    {
+                        enemyData.protoId = (short)(formId + 8128);
+                        enemyData.owner = (short)__instance.id;
+                        enemyData.port = (short)portId;
+                        enemyData.Formation(num, ref ptr, realRadius, ref pos, ref rot, ref vel);
+                        var dx = (float)pos.x - x;
+                        var dy = (float)pos.y - y;
+                        var dz = (float)pos.z - z;
+                        if (dx * dx + dy * dy + dz * dz < radiusSqrt)
                         {
-                            ref var enemyUnit = ref __instance.groundSystem.units.buffer[unitId];
-                            enemyUnit.behavior = eenemyBehavior;
-                            enemyUnit.stateTick = setStateTick;
-
-                            // Broadcast the active unit event to clients
-                            var planetId = __instance.groundSystem.planet.id;
-                            var starId = __instance.groundSystem.planet.star.id;
-                            var packet = new DFGActivateUnitPacket(planetId, __instance.id,
-                                formId, portId, eenemyBehavior, setStateTick, enemyUnit.enemyId);
-                            Multiplayer.Session.Network.SendPacketToStar(packet, starId);
+                            __instance.groundSystem.ActivateUnitDeferred(__instance.id, formId, portId, gameTick, eenemyBehavior, setStateTick);
                         }
                     }
                 }
@@ -222,7 +202,9 @@ internal class DFGBaseComponent_Patch
                     if (unitId > 0)
                     {
                         ref var enemyUnit = ref unitBuffer[unitId];
+                        enemyUnit.hatredLock.Enter();
                         enemyUnit.hatred.HateTarget(__instance.hatred.max.objectType, __instance.hatred.max.objectId, hatredTake, hatredTake, EHatredOperation.Set);
+                        enemyUnit.hatredLock.Exit();
                         enemyUnit.behavior = EEnemyBehavior.SeekForm;
                         enemyUnit.stateTick = 120;
                         __instance.hatred.max.value -= hatredTake;

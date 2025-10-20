@@ -34,13 +34,14 @@ internal class DysonSphere_Patch
                 continue;
             }
             dysonSphereLayer.energyGenCurrentTick = 0L;
+            var layerEnergyGenCurrentTick = 0L;
             var nodePool = dysonSphereLayer.nodePool;
             var shellPool = dysonSphereLayer.shellPool;
             for (var j = 1; j < dysonSphereLayer.nodeCursor; j++)
             {
                 if (nodePool[j] != null && nodePool[j].id == j)
                 {
-                    dysonSphereLayer.energyGenCurrentTick += nodePool[j]
+                    layerEnergyGenCurrentTick += nodePool[j]
                         .EnergyGenCurrentTick((int)__instance.energyGenPerNode, (int)__instance.energyGenPerFrame);
                 }
             }
@@ -48,11 +49,13 @@ internal class DysonSphere_Patch
             {
                 if (shellPool[k] != null && shellPool[k].id == k)
                 {
-                    dysonSphereLayer.energyGenCurrentTick += shellPool[k].cellPoint * __instance.energyGenPerShell;
+                    layerEnergyGenCurrentTick += shellPool[k].cellPoint * __instance.energyGenPerShell;
                 }
             }
+            dysonSphereLayer.energyGenCurrentTick = layerEnergyGenCurrentTick;
         }
         //Sync other Dyson sphere status related to ray receivers on client side by DysonSphereStatusPacket
+        //members: energyReqCurrentTick, energyGenCurrentTick, energyGenOriginalCurrentTick, grossRadius
         return false;
     }
 
