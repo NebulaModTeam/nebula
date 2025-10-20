@@ -127,6 +127,11 @@ public class MultiplayerOptions : ICloneable
     [DisplayName("Enable Other Player Sounds")]
     public bool EnableOtherPlayerSounds { get; set; } = true;
 
+    [DisplayName("Enable Unkillable Mode")]
+    [Description("The mecha will not be destroyed with this mode")]
+    public bool EnableUnkillableMode { get; set; } = false;
+
+
     [DisplayName("Chat Hotkey")]
     [Category("Chat")]
     [Description("Keyboard shortcut to toggle the chat window")]

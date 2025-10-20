@@ -117,17 +117,25 @@ public static class DiscordManager
 
     private static void UpdateActivity()
     {
-        ActivityManager.UpdateActivity(activity, result =>
+        try
         {
-            if (result == Result.Ok)
+            ActivityManager.UpdateActivity(activity, result =>
             {
-                Log.Info("Updated Discord activity");
-            }
-            else
-            {
-                Log.Warn("Could not update Discord activity");
-            }
-        });
+                if (result == Result.Ok)
+                {
+                    Log.Info("Updated Discord activity");
+                }
+                else
+                {
+                    Log.Warn("Could not update Discord activity");
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            Log.Warn("Error when Update Discord activity");
+            Log.Warn(e);
+        }
     }
 
     public static string CreateSecret()
