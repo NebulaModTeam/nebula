@@ -144,25 +144,54 @@ internal class UIFatalErrorTip_Patch
             DateTime.Now, ""));
     }
 
-    private static string Title()
+    private static string Title(bool fullList = false)
     {
         var stringBuilder = new StringBuilder();
-        stringBuilder.Append("An error has occurred! Game version ");
+
+        stringBuilder.Append("Error report: Game version ");
         stringBuilder.Append(GameConfig.gameVersion.ToString());
         stringBuilder.Append('.');
         stringBuilder.Append(GameConfig.gameVersion.Build);
+        stringBuilder.Append(" with ");
+        stringBuilder.Append(Chainloader.PluginInfos.Values.Count);
+        stringBuilder.Append(" mods used. ");
         if (Multiplayer.IsActive)
         {
+            stringBuilder.Append("Nebula");
+            stringBuilder.Append(PluginInfo.PLUGIN_VERSION);
             stringBuilder.Append(Multiplayer.Session.LocalPlayer.IsHost ? " (Host)" : " (Client)");
         }
-        stringBuilder.AppendLine();
-        stringBuilder.Append(Chainloader.PluginInfos.Values.Count + " Mods used: ");
-        foreach (var pluginInfo in Chainloader.PluginInfos.Values)
+
+        if (fullList)
         {
-            stringBuilder.Append('[');
-            stringBuilder.Append(pluginInfo.Metadata.Name);
-            stringBuilder.Append(pluginInfo.Metadata.Version);
-            stringBuilder.Append("] ");
+            stringBuilder.AppendLine();
+            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
+            {
+                stringBuilder.Append('[');
+                stringBuilder.Append(pluginInfo.Metadata.Name);
+                stringBuilder.Append(pluginInfo.Metadata.Version);
+                stringBuilder.Append("] ");
+            }
+        }
+        else
+        {
+            try
+            {
+                if (Chainloader.PluginInfos.TryGetValue("aaa.dsp.plugin.ErrorAnalyzer", out var pluginInfo))
+                {
+                    var method = pluginInfo.Instance.GetType().Assembly.GetType("ErrorAnalyzer.UIFatalErrorTip_Patch")?.GetMethod("get_ExtraTitleString");
+                    if (method != null)
+                    {
+                        stringBuilder.AppendLine();
+                        stringBuilder.Append((string)method.Invoke(null, null));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Unable to add ExtraTitleString from ErrorAnalyzer");
+                Log.Warn(ex);
+            }
         }
         return stringBuilder.ToString();
     }
@@ -170,13 +199,23 @@ internal class UIFatalErrorTip_Patch
     private static void OnCloseClick(int _)
     {
         UIFatalErrorTip.ClearError();
+
+        // Note: In ThreadManager.ProcessFrame, if frameErrorCountMainThread and erroredFrameCount exceed limit (5,100)
+        // The error message will no longer displayed
+        // So we need to reset those values when closing the error
+        var threadManager = GameMain.logic?.threadController?.threadManager;
+        if (threadManager == null) return;
+        threadManager.frameErrorCountAllThreads = 0;
+        threadManager.frameErrorCountMainThread = 0;
+        threadManager.erroredFrameCount = 0;
+        threadManager.totalErrorCount = 0;
     }
 
     private static void OnCopyClick(int id)
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("```ini");
-        stringBuilder.AppendLine(Title());
+        stringBuilder.AppendLine(Title(true));
         var subs = UIFatalErrorTip.instance.errorLogText.text.Split('\n', '\r');
         foreach (var str in subs)
         {

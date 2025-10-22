@@ -4,6 +4,7 @@ using NebulaWorld.MonoBehaviours.Local.Chat;
 using NebulaModel.DataStructures.Chat;
 using HarmonyLib;
 using NebulaWorld.Planet;
+using System;
 
 #endregion
 
@@ -57,6 +58,11 @@ public class DevCommandHandler : IChatCommandHandler
                         window.SendLocalChatMessage($"unload factory count: {factoryCount}", ChatMessageType.CommandOutputMessage);
                     }
                     return;
+                }
+
+            case "trigger-error":
+                {
+                    throw new NullReferenceException();
                 }
 
             default:
