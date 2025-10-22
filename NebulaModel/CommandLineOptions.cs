@@ -70,7 +70,7 @@ public class CommandLineOptions
             }
             if (NewGameArgumentExists && !ShouldCreateNewGame)
             {
-                Log.Error(">> New game parameters incorrect! Exiting...\nExpect: -newgame seed starCount resourceMultiplier");
+                Log.Error(">> New game parameters incorrect! Exiting...\nExpected parameters: -newgame seed starCount resourceMultiplier");
                 return false;
             }
             if (!LoadArgumentExists && !NewGameArgumentExists)
@@ -94,11 +94,11 @@ public class CommandLineOptions
         {
             if (!int.TryParse(args[currentIndex + 1], out var seed))
             {
-                Log.Warn($">> Can't set galaxy seed: {args[currentIndex + 1]} is not a integer");
+                Log.Warn($">> Can't set galaxy seed: {args[currentIndex + 1]} is not an integer");
             }
             else if (!int.TryParse(args[currentIndex + 2], out var starCount))
             {
-                Log.Warn($">> Can't set star count: {args[currentIndex + 2]} is not a integer");
+                Log.Warn($">> Can't set star count: {args[currentIndex + 2]} is not an integer");
             }
             else if (!float.TryParse(args[currentIndex + 3], out var resourceMultiplier))
             {

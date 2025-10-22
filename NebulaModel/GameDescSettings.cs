@@ -38,7 +38,7 @@ public static class GameDescSettings
         }
 
         gameDesc.isPeaceMode = customFile.Bind("General", "isPeaceMode", false,
-            "False: Enable enemy force (combat mode)").Value;
+            "False: Enable enemy forces (combat mode)").Value;
         gameDesc.isSandboxMode = customFile.Bind("General", "isSandboxMode", false,
             "True: Enable creative mode").Value;
 
