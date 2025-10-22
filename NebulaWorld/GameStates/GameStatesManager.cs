@@ -20,9 +20,7 @@ public class GameStatesManager : IDisposable
 
     public static long RealGameTick => GameMain.gameTick;
     public static float RealUPS => (float)FPSController.currentUPS;
-    public static string ImportedSaveName { get; set; }
     public static long LastSaveTime { get; set; } // UnixTimeSeconds
-    public static GameDesc NewGameDesc { get; set; }
     public static int FragmentSize { get; set; }
 
     // UPS syncing by GameStateUpdate packet

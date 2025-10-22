@@ -24,6 +24,7 @@ public static class Config
     public static PluginInfo ModInfo { get; set; }
     public static string ModVersion => ThisAssembly.AssemblyInformationalVersion;
     public static MultiplayerOptions Options { get; set; }
+    public static CommandLineOptions CommandLineOptions { get; set; }
 
 
     public static bool LoadOptions()
@@ -56,6 +57,21 @@ public static class Config
         }
 
         return true;
+    }
+
+    public static bool LoadCommandLineOptions()
+    {
+        try
+        {
+            CommandLineOptions = new CommandLineOptions();
+            CommandLineOptions.ParseArgs(Environment.GetCommandLineArgs());
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error when parsing command line: \n" + e);
+            return false;
+        }
     }
 
     public static bool SaveOptions()

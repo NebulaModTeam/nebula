@@ -14,7 +14,6 @@ using NebulaModel.Packets.Chat;
 using NebulaModel.Utils;
 using NebulaWorld;
 using NebulaWorld.Chat.Commands;
-using NebulaWorld.GameStates;
 
 #endregion
 
@@ -172,7 +171,7 @@ internal class RemoteServerCommandProcessor : PacketProcessor<RemoteServerComman
         }
 
         Log.Info($"Received command to load {saveName}");
-        GameStatesManager.ImportedSaveName = saveName;
+        Config.CommandLineOptions.SaveName = saveName;
         UIRoot.instance.uiGame.escMenu.OnButton5Click();
         return null;
     }

@@ -1,10 +1,10 @@
 ﻿#region
 
-using NebulaWorld.MonoBehaviours.Local.Chat;
-using NebulaModel.DataStructures.Chat;
-using HarmonyLib;
-using NebulaWorld.Planet;
 using System;
+using NebulaModel;
+using NebulaModel.DataStructures.Chat;
+using NebulaWorld.MonoBehaviours.Local.Chat;
+using NebulaWorld.Planet;
 
 #endregion
 
@@ -31,7 +31,7 @@ public class DevCommandHandler : IChatCommandHandler
             case "load-cfg":
                 {
                     window.SendLocalChatMessage("Overwrite settings from nebulaGameDescSettings.cfg", ChatMessageType.CommandOutputMessage);
-                    AccessTools.Method(AccessTools.TypeByName("NebulaPatcher.NebulaPlugin"), "SetGameDescFromConfigFile").Invoke(null, [GameMain.data.gameDesc]);
+                    GameMain.data.gameDesc = GameDescSettings.SetFromConfigFile(GameMain.data.gameDesc);
                     return;
                 }
 
