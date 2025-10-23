@@ -30,8 +30,15 @@ public class DevCommandHandler : IChatCommandHandler
                 }
             case "load-cfg":
                 {
-                    window.SendLocalChatMessage("Overwrite settings from nebulaGameDescSettings.cfg", ChatMessageType.CommandOutputMessage);
-                    GameMain.data.gameDesc = GameDescSettings.SetFromConfigFile(GameMain.data.gameDesc);
+                    // Adjust combat settings or make resources infinite
+                    window.SendLocalChatMessage("Overwrite settings from nebulaGameDescSettings.cfg", ChatMessageType.CommandOutputMessage);                    
+                    var gameDesc = GameMain.data.gameDesc;
+                    var starCount = gameDesc.starCount;
+                    var galaxySeed = gameDesc.galaxySeed;
+                    GameMain.data.gameDesc.ApplyModConfigFileSettings();
+                    // starCount and galaxySeed should not be changed after the game is created
+                    gameDesc.starCount = starCount;
+                    gameDesc.galaxySeed = galaxySeed;
                     return;
                 }
 

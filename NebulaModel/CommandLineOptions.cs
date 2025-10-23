@@ -40,8 +40,12 @@ public class CommandLineOptions
                     ParseNewGameArguments(args, i);
                     break;
 
+                case "-newgame-default":
+                    ParseNewGameConfigArguments(useModConfigFile: false);
+                    break;
+
                 case "-newgame-cfg":
-                    ParseNewGameConfigArguments();
+                    ParseNewGameConfigArguments(useModConfigFile: true);
                     break;
 
                 case "-load":
@@ -116,7 +120,7 @@ public class CommandLineOptions
         return false;
     }
 
-    private bool ParseNewGameConfigArguments()
+    private bool ParseNewGameConfigArguments(bool useModConfigFile)
     {
         NewGameArgumentExists = true;
 
@@ -125,8 +129,11 @@ public class CommandLineOptions
         var random = new DotNet35Random((int)(DateTime.UtcNow.Ticks / 10000L));
         gameDesc.SetForNewGame(UniverseGen.algoVersion, random.Next(100000000), 64, 1, 1f);
 
-        // Overwrite the parameters in gamedesc from the config file (nebulaGameDescSettings.cfg)
-        gameDesc = GameDescSettings.SetFromConfigFile(gameDesc);
+        if (useModConfigFile)
+        {
+            // Overwrite the parameters in gamedesc from the config file (nebulaGameDescSettings.cfg)
+            gameDesc.ApplyModConfigFileSettings();
+        }
         Log.Info($">> Creating new game ({gameDesc.galaxySeed}, {gameDesc.starCount}, {gameDesc.resourceMultiplier:F1})");
         NewGameDesc = gameDesc;
         return true;

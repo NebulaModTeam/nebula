@@ -12,26 +12,26 @@ public static class GameDescSettings
 {
     private const string GAMEDESC_SAVE_FILE = "nebulaGameDescSettings.cfg";
 
-    public static GameDesc SetFromConfigFile(GameDesc gameDesc)
+    public static void ApplyModConfigFileSettings(this GameDesc gameDesc)
     {
         var customFile = new ConfigFile(Path.Combine(Paths.ConfigPath, GAMEDESC_SAVE_FILE), true);
 
         var galaxySeed = customFile.Bind("Basic", "galaxySeed", -1,
-            "Cluster Seed. Negative value: Random or remain the same.").Value;
+            "Cluster Seed. Negative value: Random").Value;
         if (galaxySeed >= 0)
         {
             gameDesc.galaxySeed = galaxySeed;
         }
 
-        var starCount = customFile.Bind("Basic", "starCount", -1,
-            "Number of Stars. Negative value: Default(64) or remain the same.").Value;
+        var starCount = customFile.Bind("Basic", "starCount", 64,
+            "Number of Stars").Value;
         if (starCount >= 0)
         {
             gameDesc.starCount = starCount;
         }
 
-        var resourceMultiplier = customFile.Bind("Basic", "resourceMultiplier", -1f,
-            "Resource Multiplier. Infinite = 100. Negative value: Default(1.0f) or remain the same.").Value;
+        var resourceMultiplier = customFile.Bind("Basic", "resourceMultiplier", 1.0f,
+            "Resource Multiplier. Infinite = 100").Value;
         if (resourceMultiplier >= 0f)
         {
             gameDesc.resourceMultiplier = resourceMultiplier;
@@ -60,7 +60,5 @@ public static class GameDescSettings
             "Combat Threat Factor (Original range: 1% to 1000%)").Value;
         gameDesc.combatSettings.battleExpFactor = customFile.Bind("Combat", "battleExpFactor", 1f,
             "Combat XP Factor (Original range: 1% to 1000%)").Value;
-
-        return gameDesc;
     }
 }
