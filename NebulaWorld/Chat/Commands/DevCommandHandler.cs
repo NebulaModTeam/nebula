@@ -1,8 +1,9 @@
 ﻿#region
 
-using NebulaWorld.MonoBehaviours.Local.Chat;
+using System;
+using NebulaModel;
 using NebulaModel.DataStructures.Chat;
-using HarmonyLib;
+using NebulaWorld.MonoBehaviours.Local.Chat;
 using NebulaWorld.Planet;
 
 #endregion
@@ -29,8 +30,15 @@ public class DevCommandHandler : IChatCommandHandler
                 }
             case "load-cfg":
                 {
-                    window.SendLocalChatMessage("Overwrite settings from nebulaGameDescSettings.cfg", ChatMessageType.CommandOutputMessage);
-                    AccessTools.Method(AccessTools.TypeByName("NebulaPatcher.NebulaPlugin"), "SetGameDescFromConfigFile").Invoke(null, [GameMain.data.gameDesc]);
+                    // Adjust combat settings or make resources infinite
+                    window.SendLocalChatMessage("Overwrite settings from nebulaGameDescSettings.cfg", ChatMessageType.CommandOutputMessage);                    
+                    var gameDesc = GameMain.data.gameDesc;
+                    var starCount = gameDesc.starCount;
+                    var galaxySeed = gameDesc.galaxySeed;
+                    GameMain.data.gameDesc.ApplyModConfigFileSettings();
+                    // starCount and galaxySeed should not be changed after the game is created
+                    gameDesc.starCount = starCount;
+                    gameDesc.galaxySeed = galaxySeed;
                     return;
                 }
 
@@ -57,6 +65,11 @@ public class DevCommandHandler : IChatCommandHandler
                         window.SendLocalChatMessage($"unload factory count: {factoryCount}", ChatMessageType.CommandOutputMessage);
                     }
                     return;
+                }
+
+            case "trigger-error":
+                {
+                    throw new NullReferenceException();
                 }
 
             default:

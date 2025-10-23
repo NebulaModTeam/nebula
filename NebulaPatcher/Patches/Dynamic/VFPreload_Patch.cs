@@ -65,13 +65,13 @@ internal class VFPreload_Patch
         {
             return;
         }
-        if (GameStatesManager.ImportedSaveName != null)
+        if (Config.CommandLineOptions.ShouldLoadGame)
         {
-            NebulaPlugin.StartDedicatedServer(GameStatesManager.ImportedSaveName);
+            NebulaPlugin.StartDedicatedServer(Config.CommandLineOptions.SaveName);
         }
-        else if (GameStatesManager.NewGameDesc != null)
+        else if (Config.CommandLineOptions.ShouldCreateNewGame)
         {
-            NebulaPlugin.StartDedicatedServer(GameStatesManager.NewGameDesc);
+            NebulaPlugin.StartDedicatedServer(Config.CommandLineOptions.NewGameDesc);
         }
         else
         {

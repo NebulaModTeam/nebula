@@ -101,11 +101,16 @@ public class GameLogic_Patch
     [HarmonyPatch(nameof(GameLogic.OnFactoryFrameBegin))]
     public static void OnFactoryFrameBegin_Postfix()
     {
-        if (Multiplayer.IsActive)
+        if (!Multiplayer.IsActive) return;
+
+        // Update the IsHumanInput flag to indicate the starting of factory phase
+        Multiplayer.Session.Storage.IsHumanInput = false;
+
+        if (Multiplayer.Session.IsClient)
         {
-            Multiplayer.Session.Storage.IsHumanInput = false;
             if (GameMain.localStar != null)
             {
+                // Record the value of requested power before it changes
                 LocalDysonSphereEnergyReq = GameMain.data.dysonSpheres[GameMain.localStar.index]?.energyReqCurrentTick ?? 0;
             }
         }
@@ -115,16 +120,18 @@ public class GameLogic_Patch
     [HarmonyPatch(nameof(GameLogic.FactoryBeforePowerGameTick_Parallel))]
     public static void FactoryBeforePowerGameTick_Parallel_Postfix()
     {
-        // Undo the change to energyReqCurrentTick done by _power_gen_gamma_parallel
-        // Can't do the transpiler on _power_gen_gamma_parallel because the error:
-        // System.MissingFieldException: Field not found: int .ScatterThreadContext.idCurrent Due to: Could not find field in class
-
-        if (Multiplayer.IsActive && GameMain.localStar != null)
+        if (Multiplayer.IsActive && Multiplayer.Session.IsClient)
         {
-            var dysonSphere = GameMain.data.dysonSpheres[GameMain.localStar.index];
-            if (dysonSphere != null)
+            if (GameMain.localStar != null)
             {
-                dysonSphere.energyReqCurrentTick = LocalDysonSphereEnergyReq;
+                // Undo the change to energyReqCurrentTick done by _power_gen_gamma_parallel
+                // Can't do the transpiler on _power_gen_gamma_parallel because the error:
+                // System.MissingFieldException: Field not found: int .ScatterThreadContext.idCurrent Due to: Could not find field in class
+                var dysonSphere = GameMain.data.dysonSpheres[GameMain.localStar.index];
+                if (dysonSphere != null)
+                {
+                    dysonSphere.energyReqCurrentTick = LocalDysonSphereEnergyReq;
+                }
             }
         }
     }
@@ -133,9 +140,9 @@ public class GameLogic_Patch
     [HarmonyPatch(nameof(GameLogic.OnFactoryFrameEnd))]
     public static void OnFactoryFrameEnd_Postfix()
     {
-        if (Multiplayer.IsActive)
-        {
-            Multiplayer.Session.Storage.IsHumanInput = true;
-        }
+        if (!Multiplayer.IsActive) return;
+
+        // Update the IsHumanInput flag to indicate the ending of factory phase
+        Multiplayer.Session.Storage.IsHumanInput = true;
     }
 }
