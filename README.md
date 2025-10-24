@@ -13,33 +13,37 @@ You will also need some extra steps to get this installed, see 2nd point in ["Ho
 
 ### Where can I get mod support?
 
-Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) and ask your question in the `support` channel. We have a really nice community that will be able to answer your questions.
+Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) and ask your question in the `support` channel.  
+The mod often becomes incompatible after game updates. Temporary version rollback may be needed.  
+Some mods are not compatible with multiplayer. Check [NebulaCompatibilityAssist](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/NebulaCompatibilityAssist/) mod page to learn more.  
 
 ### How can I play this mod?
 
-Please do keep in mind that this mod is still in heavy development, it may still contains bugs.
+Please do keep in mind that this mod is still in development to keep up with game changes, it may still contains bugs.
 
 - Stable version of the mod can be downloaded from [Thunderstore](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) (Recommended).
 - If you want to install the latest version of the mod, you can install pre-release versions be following the [installation guide](https://github.com/NebulaModTeam/nebula/wiki/Installation#manual-installation).
-- To connect, check [hosting and joining guide](https://github.com/NebulaModTeam/nebula/wiki/Hosting-and-Joining).
+- To connect, check [hosting and joining guide](https://github.com/NebulaModTeam/nebula/wiki/Hosting-and-Joining). The mod uses TCP for direct connections, with the default port set to 8469.
 
-### API Documentation
-
-This mod has an API, that makes it easier for other mod developers to make their mods compatible with Nebula. If you are a mod developer and you want your mods to be compatible, follow the instructions [here](https://github.com/NebulaModTeam/nebula/wiki/Nebula-mod-API). Also you can always join our [Discord Server](https://discord.gg/UHeB2QvgDa) for help with using the API.
 
 ### Chat 
 
-The chat window can opened/closed using `Alt + Backtick` (configurable in Settings - Multiplayer - Chat). Type `/help` to view all commands. Also in settings is an option to disable the chat window from automatically opening when a message is received.
+The chat window can opened/closed using `Alt + Backtick` (configurable in Settings - Multiplayer - Chat). Also in settings is an option to disable the chat window from automatically opening when a message is received.  
+Type `/help` to view all commands, or view [Chat Commands](https://github.com/NebulaModTeam/nebula/wiki/Chat-Commands) wiki page for more info.  
+
+### Dedicated Server
+
+The mod supports running the server in non-GPU environment. Check [the wiki page](https://github.com/NebulaModTeam/nebula/wiki/Setup-Headless-Server) to learn how to setup and the command-line arguments.  
 
 ### What is the current status?
 
 Major refactors will happen while the project grows or game updates. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development. Check [Wiki](https://github.com/NebulaModTeam/nebula/wiki/About-Nebula) for overview of features.  
 
-The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.32.x).  
-Most of the battle aspects are sync, only few features are still WIP.  
+The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.33.x).  
+Most of the battle aspects are sync, only few features are still work in progress.  
 
 <details>
-<summary>List of peace mode syncing features</summary>
+<summary>List of peace mode syncing features (click to expand)</summary>
 
 - [x] Server / Client communication
 - [x] Custom Multiplayer menu in-game
@@ -68,18 +72,19 @@ Most of the battle aspects are sync, only few features are still WIP.
 - [x] Drones events syncing
 - [x] Foundation syncing (terrain deformation)
 - [x] Server state persistence
-- [x] Power network syncing (charger and request power from dyson sphere)
+- [x] Power network syncing (request power from dyson sphere)
 - [x] Warning alarm syncing
 - [x] Broadcast notification syncing (events with guide icon)
 - [x] Logistics Control Panel (I) syncing (entry list and detail panel)
 - [ ] Goal system (currently not available in client)
 - [ ] Custom dashboard (clients will lost their custom stats when they leave the star system)
+- [ ] Wireless charge tower (power will not sync when mecha is charging)
 
 </details>
 
 
 <details>
-<summary>List of combat mode syncing features</summary>
+<summary>List of combat mode syncing features (click to expand)</summary>
 
 - [x] Sync settings of new building (BAB, turrets)
 - [x] Sync combat settings
@@ -119,6 +124,10 @@ Most of the battle aspects are sync, only few features are still WIP.
 - [ ] Show space-to-ground attacks animation for remote planets (lancers invading with sweep laser and bomber)
 
 </details>
+
+### API Documentation
+
+This mod has an API, that makes it easier for other mod developers to make their mods compatible with Nebula. If you are a mod developer and you want your mods to be compatible, follow the instructions [here](https://github.com/NebulaModTeam/nebula/wiki/Nebula-mod-API). Also you can always join our [Discord Server](https://discord.gg/UHeB2QvgDa) for help with using the API.
 
 ### How can I contribute?
 
