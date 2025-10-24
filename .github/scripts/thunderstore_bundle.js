@@ -143,7 +143,7 @@ function generateApiManifest() {
     dependencies: [
       BEPINEX_DEPENDENCY
     ],
-    website_url: "https://github.com/hubastard/nebula"
+    website_url: "https://github.com/NebulaModTeam/nebula"
   };
   writeFileSync(
     join(DIST_NEBULA_API_FOLDER, "manifest.json"),
