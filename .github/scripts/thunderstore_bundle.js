@@ -123,9 +123,11 @@ function generateManifest() {
       BEPINEX_DEPENDENCY,
       `nebula-${apiPluginInfo.name}-${apiPluginInfo.version}`,
       "PhantomGamers-IlLine-1.0.0",
-      "starfi5h-BulletTime-1.5.8",
+      "starfi5h-BulletTime-1.5.11", 
+      "starfi5h-ErrorAnalyzer-1.3.3",
+      "starfi5h-NebulaCompatibilityAssist-0.4.27"
     ],
-    website_url: "https://github.com/hubastard/nebula"
+    website_url: "https://github.com/NebulaModTeam/nebula"
   };
   writeFileSync(
     join(DIST_NEBULA_FOLDER, "manifest.json"),
@@ -141,7 +143,7 @@ function generateApiManifest() {
     dependencies: [
       BEPINEX_DEPENDENCY
     ],
-    website_url: "https://github.com/hubastard/nebula"
+    website_url: "https://github.com/NebulaModTeam/nebula"
   };
   writeFileSync(
     join(DIST_NEBULA_API_FOLDER, "manifest.json"),
