@@ -27,7 +27,7 @@ public class CommandLineOptions
         {
             switch (args[i])
             {
-                case "-dsp_server":
+                case "-nebula-server":
                     IsDedicatedServer = true;
                     Log.Info(">> Initializing dedicated server");
                     break;
