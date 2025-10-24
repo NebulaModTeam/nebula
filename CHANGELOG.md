@@ -1,5 +1,14 @@
 ## Changelog
 
+0.9.18:
+- Compatible with game version 0.10.33.27026
+- **The dedicated server CLI option has changed from `-server` to `-dsp_server`**
+- Add new CLI argument `-newgame-default` to start a new game using default settings
+- Add new config option `EnableUnkillableMode` as a workaround for the host player taking damage intended for other players or entities
+- Sync research queue reorder event
+- Catch exceptions in DiscordManager
+- Note: The wireless power towers don't sync when charging mecha.
+
 0.9.17:
 - Compatible with game version 0.10.32.25779
 
