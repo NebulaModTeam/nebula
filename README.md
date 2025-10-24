@@ -5,7 +5,7 @@ An open-source, multiplayer mod for the game [Dyson Sphere Program](https://stor
 ## Download Prerelease
 
 [![Build - Win x64](https://github.com/NebulaModTeam/nebula/actions/workflows/build-winx64.yml/badge.svg?branch=master)](https://nightly.link/NebulaModTeam/nebula/workflows/build-winx64/master/build-artifacts-Release.zip) 
-Note: This is the bleeding edge build, for the more stable build see below. You can use this one if you want to try out the latest development builds, which may contain bugs and unfinished work.
+Note: This is the bleeding edge build, for the more stable build see below. You can use this one if you want to try out the latest development builds, which may contain bugs and unfinished features.
 
 You will also need some extra steps to get this installed, see 2nd point in ["How can I play this mod?"](#how-can-i-play-this-mod).
 
@@ -14,12 +14,12 @@ You will also need some extra steps to get this installed, see 2nd point in ["Ho
 ### Where can I get mod support?
 
 Please join our [Discord Server](https://discord.gg/UHeB2QvgDa) and ask your question in the `support` channel.  
-The mod often becomes incompatible after game updates. Temporary version rollback may be needed.  
-Some mods are not compatible with multiplayer. Check [NebulaCompatibilityAssist](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/NebulaCompatibilityAssist/) mod page to learn more.  
+The mod often becomes incompatible after game updates. A temporary version rollback may be needed.  
+Some mods are not compatible with multiplayer. Check the [NebulaCompatibilityAssist](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/NebulaCompatibilityAssist/) mod page to learn more.  
 
 ### How can I play this mod?
 
-Please do keep in mind that this mod is still in development to keep up with game changes, it may still contains bugs.
+Please do keep in mind that this mod is still in development to keep up with game changes, it may still contain bugs.
 
 - Stable version of the mod can be downloaded from [Thunderstore](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) (Recommended).
 - If you want to install the latest version of the mod, you can install pre-release versions be following the [installation guide](https://github.com/NebulaModTeam/nebula/wiki/Installation#manual-installation).
