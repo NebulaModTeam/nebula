@@ -2,7 +2,6 @@
 
 using NebulaModel.DataStructures.Chat;
 using NebulaWorld.GameStates;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -10,11 +9,11 @@ namespace NebulaWorld.Chat.Commands;
 
 public class ReconnectCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
         {
-            window.SendLocalChatMessage("This command can only be used in multiplayer and as client!".Translate(),
+            chatService.AddMessage("This command can only be used in multiplayer and as client!".Translate(),
                 ChatMessageType.CommandErrorMessage);
             return;
         }
@@ -23,7 +22,7 @@ public class ReconnectCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return new[] { "" };
+        return [""];
     }
 
     public string GetDescription()

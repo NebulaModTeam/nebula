@@ -2,7 +2,6 @@
 
 using NebulaModel.Packets.Chat;
 using NebulaModel.Utils;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -10,7 +9,7 @@ namespace NebulaWorld.Chat.Commands;
 
 public class ServerCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (parameters.Length < 1)
         {
@@ -42,7 +41,7 @@ public class ServerCommandHandler : IChatCommandHandler
                     break;
                 }
             case "load" when parameters.Length < 2:
-                throw new ChatCommandUsageException("Need to specifiy a save!");
+                throw new ChatCommandUsageException("Need to specify a save!");
             case "load":
                 {
                     var saveName = parameters.Length > 1 ? parameters[1] : "";
@@ -70,6 +69,6 @@ public class ServerCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return new[] { "login <password>", "list [saveNum]", "save [saveName]", "load <saveName>", "info" };
+        return ["login <password>", "list [saveNum]", "save [saveName]", "load <saveName>", "info"];
     }
 }

@@ -1,6 +1,8 @@
 ﻿#region
 
 using System;
+using System.Threading.Tasks;
+using BepInEx;
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaWorld.MonoBehaviours.Local.Chat;
@@ -12,11 +14,11 @@ namespace NebulaWorld.Chat.Commands;
 
 public class DevCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (parameters.Length < 1)
         {
-            throw new ChatCommandUsageException("Not enough arguments!".Translate());
+            throw new ChatCommandUsageException("Require at least 1 argument!".Translate());
         }
 
         switch (parameters[0])
@@ -25,13 +27,13 @@ public class DevCommandHandler : IChatCommandHandler
                 {
                     GameMain.sandboxToolsEnabled = !GameMain.sandboxToolsEnabled;
                     GameMain.data.gameDesc.isSandboxMode = GameMain.sandboxToolsEnabled;
-                    window.SendLocalChatMessage("SandboxTool enable: " + GameMain.sandboxToolsEnabled, ChatMessageType.CommandOutputMessage);
+                    chatService.AddMessage("SandboxTool enable: " + GameMain.sandboxToolsEnabled, ChatMessageType.CommandOutputMessage);
                     return;
                 }
             case "load-cfg":
                 {
                     // Adjust combat settings or make resources infinite
-                    window.SendLocalChatMessage("Overwrite settings from nebulaGameDescSettings.cfg", ChatMessageType.CommandOutputMessage);                    
+                    chatService.AddMessage("Overwrite settings from nebulaGameDescSettings.cfg", ChatMessageType.CommandOutputMessage);
                     var gameDesc = GameMain.data.gameDesc;
                     var starCount = gameDesc.starCount;
                     var galaxySeed = gameDesc.galaxySeed;
@@ -52,20 +54,31 @@ public class DevCommandHandler : IChatCommandHandler
                 {
                     if (Multiplayer.Session.IsServer)
                     {
-                        window.SendLocalChatMessage("this command is only available for client", ChatMessageType.CommandOutputMessage);
+                        chatService.AddMessage("this command is only available for client", ChatMessageType.CommandOutputMessage);
                     }
                     else if (GameMain.localPlanet != null)
                     {
-                        window.SendLocalChatMessage("can only unload when in space", ChatMessageType.CommandOutputMessage);
+                        chatService.AddMessage("can only unload when in space", ChatMessageType.CommandOutputMessage);
                     }
                     else
                     {
                         var factoryCount = GameMain.data.factoryCount;
                         PlanetManager.UnloadAllFactories();
-                        window.SendLocalChatMessage($"unload factory count: {factoryCount}", ChatMessageType.CommandOutputMessage);
+                        chatService.AddMessage($"unload factory count: {factoryCount}", ChatMessageType.CommandOutputMessage);
                     }
                     return;
                 }
+
+            case "ping":
+                {
+                    if (parameters.Length >= 2 && int.TryParse(parameters[1], out var value))
+                    {
+                        _ = DelayedResponse(value);
+                        return;
+                    }
+                    chatService.AddMessage("Pong", ChatMessageType.CommandOutputMessage);
+                }
+                return;
 
             case "trigger-error":
                 {
@@ -73,7 +86,7 @@ public class DevCommandHandler : IChatCommandHandler
                 }
 
             default:
-                window.SendLocalChatMessage("Unknown command: " + parameters[0], ChatMessageType.CommandOutputMessage);
+                chatService.AddMessage("Unknown command: " + parameters[0], ChatMessageType.CommandOutputMessage);
                 return;
         }
     }
@@ -86,5 +99,14 @@ public class DevCommandHandler : IChatCommandHandler
     public string[] GetUsage()
     {
         return ["sandbox", "load-cfg", "self-destruct", "unload-factories"];
+    }
+
+    private static async Task DelayedResponse(int time)
+    {
+        await Task.Delay(time * 1000);
+        ThreadingHelper.Instance.StartSyncInvoke(() =>
+        {
+            ChatManager.Instance.SendChatMessage("Pong", ChatMessageType.CommandOutputMessage);
+        });
     }
 }

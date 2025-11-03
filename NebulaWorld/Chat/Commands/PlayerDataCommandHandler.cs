@@ -1,6 +1,5 @@
 ﻿#region
 
-using NebulaWorld.MonoBehaviours.Local.Chat;
 using NebulaAPI.GameState;
 using NebulaModel.DataStructures.Chat;
 using System.IO;
@@ -17,7 +16,7 @@ namespace NebulaWorld.Chat.Commands;
 
 public class PlayerDataCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (parameters.Length < 1)
         {
@@ -37,11 +36,11 @@ public class PlayerDataCommandHandler : IChatCommandHandler
                         return;
                     }
 
-                    window.SendLocalChatMessage(GetPlayerDataListString(), ChatMessageType.CommandOutputMessage);
+                    chatService.AddMessage(GetPlayerDataListString(), ChatMessageType.CommandOutputMessage);
                     return;
                 }
             case "load" when parameters.Length < 2:
-                throw new ChatCommandUsageException("Need to specifiy hash string or name of a player!");
+                throw new ChatCommandUsageException("Need to specify hash string or name of a player!");
             case "load":
                 {
                     var input = parameters[1];
@@ -55,16 +54,16 @@ public class PlayerDataCommandHandler : IChatCommandHandler
                     {
                         if (input == pair.Key.Substring(0, input.Length) || input == pair.Value.Username)
                         {
-                            window.SendLocalChatMessage($"Load [{pair.Key.Substring(0, 5)}] {pair.Value.Username}", ChatMessageType.CommandOutputMessage);
+                            chatService.AddMessage($"Load [{pair.Key.Substring(0, 5)}] {pair.Value.Username}", ChatMessageType.CommandOutputMessage);
                             LoadPlayerData(pair.Value);
                             return;
                         }
                     }
-                    window.SendLocalChatMessage("Unable to find the target player data!", ChatMessageType.CommandOutputMessage);
+                    chatService.AddMessage("Unable to find the target player data!", ChatMessageType.CommandOutputMessage);
                     return;
                 }
             case "remove" when parameters.Length < 2:
-                throw new ChatCommandUsageException("Need to specifiy hash string or name of a player!");
+                throw new ChatCommandUsageException("Need to specify hash string or name of a player!");
             case "remove":
                 {
                     if (Multiplayer.Session.IsClient)
@@ -78,14 +77,14 @@ public class PlayerDataCommandHandler : IChatCommandHandler
                     {
                         if (input == pair.Key.Substring(0, input.Length) || input == pair.Value.Username)
                         {
-                            window.SendLocalChatMessage($"Remove [{pair.Key.Substring(0, 5)}] {pair.Value.Username}", ChatMessageType.CommandOutputMessage);
+                            chatService.AddMessage($"Remove [{pair.Key.Substring(0, 5)}] {pair.Value.Username}", ChatMessageType.CommandOutputMessage);
                             removeHash = pair.Key;
                             break;
                         }
                     }
                     if (!SaveManager.TryRemove(removeHash))
                     {
-                        window.SendLocalChatMessage("Unable to find the target player data!", ChatMessageType.CommandOutputMessage);
+                        chatService.AddMessage("Unable to find the target player data!", ChatMessageType.CommandOutputMessage);
                     }
                     break;
                 }

@@ -5,7 +5,6 @@ using System.Text;
 using NebulaAPI.GameState;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Packets.Chat;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 using static NebulaWorld.Chat.ChatLinks.NavigateChatLinkHandler;
 
 #endregion
@@ -14,7 +13,7 @@ namespace NebulaWorld.Chat.Commands;
 
 public class WhoCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (!Multiplayer.Session.LocalPlayer.IsHost)
         {
@@ -26,7 +25,7 @@ public class WhoCommandHandler : IChatCommandHandler
             var playerDatas = Multiplayer.Session.Server.Players.GetAllPlayerData().ToArray();
             var hostPlayer = Multiplayer.Session.LocalPlayer;
             var messageContent = BuildResultPayload(playerDatas, hostPlayer);
-            window.SendLocalChatMessage(messageContent, ChatMessageType.CommandOutputMessage);
+            chatService.AddMessage(messageContent, ChatMessageType.CommandOutputMessage);
         }
     }
 

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaWorld.Chat.Commands;
@@ -155,7 +156,7 @@ public class ChatService
         {
             try
             {
-                //handler.Execute(this, args.Skip(1).ToArray()); // TODO: change handlers' parameter from ChatWindow to ChatService
+                handler.Execute(this, args.Skip(1).ToArray());
             }
             catch (ChatCommandUsageException e)
             {

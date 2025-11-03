@@ -3,7 +3,6 @@
 using System.Text;
 using HarmonyLib;
 using NebulaModel.DataStructures.Chat;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -11,7 +10,7 @@ namespace NebulaWorld.Chat.Commands;
 
 public class HelpCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         string output;
         if (parameters.Length > 0)
@@ -21,19 +20,19 @@ public class HelpCommandHandler : IChatCommandHandler
             output = GetCommandDetailsOutput(commandName);
             if (!output.Equals(""))
             {
-                window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                chatService.AddMessage(output, ChatMessageType.CommandOutputMessage);
             }
             else
             {
                 output = string.Format("Command {0} was not found! Use /help to get list of known commands.".Translate(),
                     FullCommandName(commandName));
-                window.SendLocalChatMessage(output, ChatMessageType.CommandErrorMessage);
+                chatService.AddMessage(output, ChatMessageType.CommandErrorMessage);
             }
             return;
         }
 
         output = GetCommandListOutput();
-        window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+        chatService.AddMessage(output, ChatMessageType.CommandOutputMessage);
     }
 
     public string GetDescription()
@@ -43,7 +42,7 @@ public class HelpCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return new[] { "[command name]" };
+        return ["[command name]"];
     }
 
     private static string GetCommandDetailsOutput(string commandName)
@@ -75,7 +74,7 @@ public class HelpCommandHandler : IChatCommandHandler
     {
         var sb = new StringBuilder("Known commands:".Translate());
 
-        foreach (var kv in ChatCommandRegistry.commands)
+        foreach (var kv in ChatCommandRegistry.Commands)
         {
             sb.Append($"\n  {FullCommandName(kv.Key.Name)}");
 

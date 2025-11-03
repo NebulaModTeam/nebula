@@ -1,12 +1,13 @@
 ﻿#region
 
 using NebulaAPI.Packets;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Chat;
 using NebulaWorld;
-using NebulaWorld.Chat.Commands;
+using NebulaWorld.Chat;
 
 #endregion
 
@@ -19,14 +20,14 @@ internal class ChatCommandWhisperProcessor : PacketProcessor<ChatCommandWhisperP
     {
         if (IsClient)
         {
-            WhisperCommandHandler.SendWhisperToLocalPlayer(packet.SenderUsername, packet.Message);
+            ChatService.Instance.AddMessage(packet.Message, ChatMessageType.PlayerMessagePrivate, $"[From {packet.SenderUsername}]");
         }
         else
         {
             // two cases, simplest is that whisper is meant for host
             if (Multiplayer.Session.LocalPlayer.Data.Username == packet.RecipientUsername)
             {
-                WhisperCommandHandler.SendWhisperToLocalPlayer(packet.SenderUsername, packet.Message);
+                ChatService.Instance.AddMessage(packet.Message, ChatMessageType.PlayerMessagePrivate, $"[From {packet.SenderUsername}]");
                 return;
             }
 

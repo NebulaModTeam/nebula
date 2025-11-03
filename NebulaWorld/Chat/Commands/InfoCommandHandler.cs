@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using BepInEx.Bootstrap;
@@ -9,7 +8,6 @@ using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Networking;
 using NebulaModel.Utils;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 using static NebulaWorld.Chat.ChatLinks.CopyTextChatLinkHandler;
 
 #endregion
@@ -20,11 +18,11 @@ public class InfoCommandHandler : IChatCommandHandler
 {
     private static readonly string[] s_separator = ["]:"];
 
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (!Multiplayer.IsActive)
         {
-            window.SendLocalChatMessage("This command can only be used in multiplayer!".Translate(),
+            chatService.AddMessage("This command can only be used in multiplayer!".Translate(),
                 ChatMessageType.CommandErrorMessage);
             return;
         }
@@ -47,20 +45,21 @@ public class InfoCommandHandler : IChatCommandHandler
                         },
                         full
                     );
-                    var message = window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                    var message = chatService.AddMessage(output, ChatMessageType.CommandOutputMessage);
 
                     // This will cause the temporary (Pending...) info to be dynamically replaced with the correct info once it is in
                     IPUtils.GetIPInfo(server.Port).ContinueWith(async ipInfo =>
                     {
                         var newOutput = GetServerInfoText(server, await ipInfo, full);
-                        message.Text = newOutput;
+                        message.MessageText = newOutput;
+                        chatService.NotifyMessageChange(message);
                     });
                     break;
                 }
             case IClient client:
                 {
                     var output = GetClientInfoText(client, full);
-                    window.SendLocalChatMessage(output, ChatMessageType.CommandOutputMessage);
+                    chatService.AddMessage(output, ChatMessageType.CommandOutputMessage);
                     break;
                 }
         }
@@ -204,19 +203,5 @@ public class InfoCommandHandler : IChatCommandHandler
     private static string NgrokAddressFilter(string address)
     {
         return !Config.Options.StreamerMode ? address : Regex.Replace(address, @"\w", "*");
-    }
-
-    //TODO: Unused?
-    private static string ReplaceChars(string s, string targetSymbols, char newVal)
-    {
-        StringBuilder sb = new(s);
-        for (var i = 0; i < sb.Length; i++)
-        {
-            if (targetSymbols.Contains(sb[i]))
-            {
-                sb[i] = newVal;
-            }
-        }
-        return sb.ToString();
     }
 }
