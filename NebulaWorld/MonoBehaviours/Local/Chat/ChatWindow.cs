@@ -29,7 +29,7 @@ public class ChatWindow : MonoBehaviour
 
     [SerializeField] private GameObject chatWindow;
     private readonly List<string> inputHistory = [""];
-    private readonly List<ChatMessage> messages = [];
+    private readonly List<TMProChatMessage> messages = [];
     private readonly Queue<QueuedMessage> outgoingMessages = new(5);
     internal UIWindowDrag DragTrigger;
     private int inputHistoryCursor;
@@ -191,7 +191,7 @@ public class ChatWindow : MonoBehaviour
         outgoingMessages.Enqueue(new QueuedMessage { MessageText = message, ChatMessageType = chatMesageType });
     }
 
-    public ChatMessage SendLocalChatMessage(string text, ChatMessageType messageType)
+    public TMProChatMessage SendLocalChatMessage(string text, ChatMessageType messageType)
     {
         if (messageType.IsPlayerMessage())
         {
@@ -217,7 +217,7 @@ public class ChatWindow : MonoBehaviour
         }
 
         var textObj = Instantiate(textObject, chatPanel);
-        var newMsg = new ChatMessage(textObj, text, messageType);
+        var newMsg = new TMProChatMessage(textObj, text, messageType);
 
         var notificationMsg = Instantiate(textObj, notifier);
         newMsg.notificationText = notificationMsg.GetComponent<TMP_Text>();
@@ -247,7 +247,7 @@ public class ChatWindow : MonoBehaviour
         messages.Clear();
     }
 
-    public void ClearChat(Func<ChatMessage, bool> filter)
+    public void ClearChat(Func<TMProChatMessage, bool> filter)
     {
         for (var i = 0; i < messages.Count; i++)
         {

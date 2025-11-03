@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using NebulaModel.DataStructures.Chat;
 using NebulaModel.Utils;
 using TMPro;
 using UnityEngine;
@@ -9,20 +10,20 @@ using Object = UnityEngine.Object;
 #endregion
 
 #pragma warning disable IDE1006
-namespace NebulaModel.DataStructures.Chat;
+namespace NebulaWorld.MonoBehaviours.Local.Chat;
 
 /// <summary>
 ///     This is what is rendered in the chat area (already sent chat messages)
 /// </summary>
 [Serializable]
-public class ChatMessage
+public class TMProChatMessage
 {
     public TMP_Text textObject;
     public TMP_Text notificationText;
     private ChatMessageType messageType;
     private string text;
 
-    public ChatMessage(GameObject textObj, string message, ChatMessageType messageType)
+    public TMProChatMessage(GameObject textObj, string message, ChatMessageType messageType)
     {
         textObject = textObj.GetComponent<TMP_Text>();
         Text = message;
