@@ -3,6 +3,7 @@
 using System;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Utils;
+using NebulaWorld.Chat;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -18,56 +19,42 @@ namespace NebulaWorld.MonoBehaviours.Local.Chat;
 [Serializable]
 public class TMProChatMessage
 {
-    public TMP_Text textObject;
-    public TMP_Text notificationText;
-    private ChatMessageType messageType;
-    private string text;
+    public TMP_Text chatText;
+    public RawChatMessage rawChatMessage;
+    public GameObject notificationObj;
 
-    public TMProChatMessage(GameObject textObj, string message, ChatMessageType messageType)
+    public TMProChatMessage(GameObject chatTextObj, RawChatMessage rawChatMessage)
     {
-        textObject = textObj.GetComponent<TMP_Text>();
-        Text = message;
-        MessageType = messageType;
+        chatText = chatTextObj.GetComponent<TMP_Text>();
+        SetMessage(rawChatMessage);
     }
 
-
-    public string Text
+    public void SetMessage(RawChatMessage rawChatMessage)
     {
-        get => text;
-        set
-        {
-            textObject.text = value;
-            if (notificationText != null)
-            {
-                notificationText.text = value;
-            }
+        this.rawChatMessage = rawChatMessage;
+        var formattedText = ChatUtils.FormatMessage(rawChatMessage);
 
-            text = value;
+        // Apply sanitization for player messages
+        if (rawChatMessage.MessageType.IsPlayerMessage())
+        {
+            formattedText = ChatUtils.SanitizeText(formattedText);
         }
+        // Expand rich text tags
+        formattedText = RichChatLinkRegistry.ExpandRichTextTags(formattedText);
+
+        SetText(formattedText, rawChatMessage.MessageType);
     }
 
-    public ChatMessageType MessageType
+    public void SetText(string text, ChatMessageType messageType)
     {
-        get => messageType;
-        set
-        {
-            textObject.color = ChatUtils.GetMessageColor(value);
-            if (notificationText != null)
-            {
-                notificationText.color = textObject.color;
-            }
-
-            messageType = value;
-        }
+        chatText.text = text;
+        chatText.color = ChatUtils.GetMessageColor(messageType);
     }
 
     public void DestroyMessage()
     {
-        Object.Destroy(textObject.gameObject);
-        if (notificationText != null)
-        {
-            Object.Destroy(notificationText.gameObject);
-        }
+        Object.Destroy(chatText.gameObject);
+        Object.Destroy(notificationObj);
     }
 }
 #pragma warning restore IDE1006

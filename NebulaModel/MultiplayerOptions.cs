@@ -132,10 +132,16 @@ public class MultiplayerOptions : ICloneable
     public bool EnableUnkillableMode { get; set; } = false;
 
 
+    #region Chat Settings
+
+    [DisplayName("Chat View Mode")]
+    [Category("Chat")]
+    public ChatViewMode ChatViewMode { get; set; } = ChatViewMode.TMPro;
+
     [DisplayName("Chat Hotkey")]
     [Category("Chat")]
     [Description("Keyboard shortcut to toggle the chat window")]
-    public KeyboardShortcut ChatHotkey { get; set; } = new(KeyCode.BackQuote, KeyCode.LeftAlt);
+    public KeyboardShortcut ChatHotkey { get; set; } = new(KeyCode.Return);
 
     [DisplayName("Player List Hotkey")]
     [Description("Keyboard shortcut to display the Connected Players Window")]
@@ -179,6 +185,9 @@ public class MultiplayerOptions : ICloneable
     [Category("Chat")]
     [UIRange(0f, 1.0f, true)]
     public float ChatWindowOpacity { get; set; } = 0.8f;
+
+    #endregion
+
 
     // Detail function group buttons
     public bool PowerGridEnabled { get; set; }

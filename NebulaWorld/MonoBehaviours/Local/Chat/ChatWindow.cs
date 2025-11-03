@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
+using NebulaModel.Logger;
 using NebulaModel.Utils;
 using NebulaWorld.Chat;
 using NebulaWorld.Chat.ChatLinks;
-using NebulaWorld.Chat.Commands;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,7 +17,8 @@ using UnityEngine.EventSystems;
 
 namespace NebulaWorld.MonoBehaviours.Local.Chat;
 
-public class ChatWindow : MonoBehaviour
+[RequireComponent(typeof(UIWindowDrag))]
+public class ChatWindow : MonoBehaviour, IChatView
 {
     private const int MAX_MESSAGES = 200;
 
@@ -26,22 +27,38 @@ public class ChatWindow : MonoBehaviour
     [SerializeField] private GameObject textObject;
     [SerializeField] private RectTransform notifier;
     [SerializeField] private RectTransform notifierMask;
-
     [SerializeField] private GameObject chatWindow;
+
     private readonly List<string> inputHistory = [""];
     private readonly List<TMProChatMessage> messages = [];
-    private readonly Queue<QueuedMessage> outgoingMessages = new(5);
+
     internal UIWindowDrag DragTrigger;
     private int inputHistoryCursor;
+    //internal string UserName;
 
-
-    internal string UserName;
     public bool IsActive { get; private set; }
 
+    /// <summary>
+    /// Event triggered when user submits a message
+    /// </summary>
+    public event Action<string> OnMessageSubmitted;
 
     private void Awake()
     {
         DragTrigger = GetComponent<UIWindowDrag>();
+
+        // Subscribe to ChatService events
+        ChatService.Instance.OnMessageAdded += AddMessage;
+        ChatService.Instance.OnMessageRefresh += RefreshMessage;
+        ChatService.Instance.OnMessageRemoved += RemoveMessage;
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from ChatService events
+        ChatService.Instance.OnMessageAdded -= AddMessage;
+        ChatService.Instance.OnMessageRefresh -= RefreshMessage;
+        ChatService.Instance.OnMessageRemoved -= RemoveMessage;
     }
 
     private void Update()
@@ -52,6 +69,8 @@ public class ChatWindow : MonoBehaviour
         }
 
         notifierMask.sizeDelta = new Vector2(chatPanel.rect.width, notifierMask.sizeDelta.y);
+
+        if (!Input.anyKey) return;
 
         if (chatBox.isFocused)
         {
@@ -64,58 +83,57 @@ public class ChatWindow : MonoBehaviour
                 UseHistoryInput(+1);
             }
         }
-
-        if (chatBox.text != "")
+        else
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                TrySendMessage();
+                FocusInputField();
             }
-            else
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return) && !string.IsNullOrEmpty(chatBox.text))
+        {
+            TrySendMessage();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (UISignalPicker.isOpened)
             {
-                if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
-                {
-                    FocusInputField();
-                }
+                UISignalPicker.Close();
+                VFInput.UseEscape();
+                return;
             }
-        }
 
-        if (!Input.GetKeyDown(KeyCode.Escape))
-        {
-            return;
-        }
-        if (UISignalPicker.isOpened)
-        {
-            UISignalPicker.Close();
+            if (EmojiPicker.IsOpen())
+            {
+                EmojiPicker.Close();
+                VFInput.UseEscape();
+                return;
+            }
+
+            Toggle(forceClosed: true);
             VFInput.UseEscape();
-            return;
         }
-
-        if (EmojiPicker.IsOpen())
-        {
-            EmojiPicker.Close();
-            VFInput.UseEscape();
-            return;
-        }
-
-        Toggle(true);
-        VFInput.UseEscape();
     }
 
     private void UseHistoryInput(int offset)
     {
         if (chatBox.text != inputHistory[inputHistoryCursor])
         {
-            // input has changed, save to last
+            // Input has changed, save to last
             inputHistoryCursor = inputHistory.Count - 1;
             inputHistory[inputHistoryCursor] = chatBox.text;
         }
+
         var cursor = inputHistoryCursor + offset;
         cursor = cursor < 0 ? 0 : cursor >= inputHistory.Count ? inputHistory.Count - 1 : cursor;
+
         if (cursor == inputHistoryCursor)
         {
             return;
         }
+
         chatBox.text = inputHistory[cursor];
         chatBox.MoveToEndOfLine(false, true);
         inputHistoryCursor = cursor;
@@ -143,160 +161,143 @@ public class ChatWindow : MonoBehaviour
             inputHistoryCursor = inputHistory.Count - 1;
         }
 
-        if (chatBox.text.StartsWith(ChatCommandRegistry.CommandPrefix))
-        {
-            var arguments = chatBox.text.Substring(1).Split(' ');
-            if (arguments.Length > 0)
-            {
-                var commandName = arguments[0];
-                var handler = ChatCommandRegistry.GetCommandHandler(commandName);
-                if (handler != null)
-                {
-                    try
-                    {
-                        handler.Execute(this, arguments.Skip(1).ToArray());
-                    }
-                    catch (ChatCommandUsageException e)
-                    {
-                        SendLocalChatMessage(
-                            $"Invalid usage: {e.Message}! Usage: {ChatCommandRegistry.CommandPrefix}{commandName} {handler.GetUsage()}",
-                            ChatMessageType.CommandUsageMessage);
-                    }
-                }
-                else
-                {
-                    SendLocalChatMessage($"Unknown command {commandName}. Use /help to get list of commands",
-                        ChatMessageType.CommandUsageMessage);
-                }
-            }
-        }
-        else
-        {
-            BroadcastChatMessage(chatBox.text);
-        }
+        // Trigger event for ChatService to process
+        OnMessageSubmitted?.Invoke(chatBox.text);
+
         chatBox.text = "";
-        // bring cursor back to message area so they can keep typing
+        // Bring cursor back to message area so they can keep typing
         FocusInputField();
     }
 
-    private void BroadcastChatMessage(string message, ChatMessageType chatMessageType = ChatMessageType.PlayerMessage)
+    #region IChatView Implementation
+
+    public void AddMessage(RawChatMessage message)
     {
-        QueueOutgoingChatMessage(message, chatMessageType);
-        var formattedMessage = ChatManager.FormatChatMessage(DateTime.Now, UserName, message);
-        SendLocalChatMessage(formattedMessage, chatMessageType);
-    }
-
-    private void QueueOutgoingChatMessage(string message, ChatMessageType chatMesageType)
-    {
-        outgoingMessages.Enqueue(new QueuedMessage { MessageText = message, ChatMessageType = chatMesageType });
-    }
-
-    public TMProChatMessage SendLocalChatMessage(string text, ChatMessageType messageType)
-    {
-        if (messageType.IsPlayerMessage())
-        {
-            text = ChatUtils.SanitizeText(text);
-        }
-        else
-        {
-            switch (messageType)
-            {
-                case ChatMessageType.SystemInfoMessage when !Config.Options.EnableInfoMessage:
-                case ChatMessageType.SystemWarnMessage when !Config.Options.EnableWarnMessage:
-                case ChatMessageType.BattleMessage when !Config.Options.EnableBattleMessage:
-                    return null;
-            }
-        }
-
-        text = RichChatLinkRegistry.ExpandRichTextTags(text);
-
-        if (messages.Count > MAX_MESSAGES)
+        if (messages.Count >= MAX_MESSAGES)
         {
             messages[0].DestroyMessage();
-            messages.Remove(messages[0]);
+            messages.RemoveAt(0);
         }
 
-        var textObj = Instantiate(textObject, chatPanel);
-        var newMsg = new TMProChatMessage(textObj, text, messageType);
-
-        var notificationMsg = Instantiate(textObj, notifier);
-        newMsg.notificationText = notificationMsg.GetComponent<TMP_Text>();
-        var message = notificationMsg.AddComponent<NotificationMessage>();
-        message.Init(Config.Options.NotificationDuration);
-
+        var chatTextObj = Instantiate(textObject, chatPanel);
+        var newMsg = new TMProChatMessage(chatTextObj, message);
         messages.Add(newMsg);
 
-        if (chatWindow.activeSelf)
+        if (message.MessageType.IsPlayerMessage())
         {
-            return newMsg;
-        }
-        if (Config.Options.AutoOpenChat && messageType.IsPlayerMessage())
-        {
-            Toggle(false, false);
-        }
+            var notificationObj = Instantiate(chatTextObj, notifier);
+            var notificationComponent = notificationObj.AddComponent<NotificationMessage>();
+            notificationComponent.Init(newMsg.chatText.text, newMsg.chatText.color, Config.Options.NotificationDuration);
+            newMsg.notificationObj = notificationObj;
 
-        return newMsg;
-    }
-
-    public void ClearChat()
-    {
-        foreach (var message in messages)
-        {
-            message.DestroyMessage();
-        }
-        messages.Clear();
-    }
-
-    public void ClearChat(Func<TMProChatMessage, bool> filter)
-    {
-        for (var i = 0; i < messages.Count; i++)
-        {
-            var message = messages[i];
-            if (!filter(message))
+            if (!chatWindow.activeSelf && Config.Options.AutoOpenChat)
             {
-                continue;
+                // When receiving message from other players, open chat window if the option is enable
+                Toggle(forceClosed: false);
             }
-
-            message.DestroyMessage();
-            messages.RemoveAt(i);
-            i--;
         }
     }
 
+    public void RefreshMessage(RawChatMessage rawChatMessage)
+    {
+        foreach (var msg in messages)
+        {
+            if (msg.rawChatMessage == rawChatMessage)
+            {
+                msg.SetMessage(rawChatMessage); // Refresh the display
+                return;
+            }
+        }
+    }
 
-    public void Toggle(bool forceClosed = false, bool focusField = true)
+    public void RemoveMessage(RawChatMessage rawChatMessage)
+    {
+        for (var i = messages.Count - 1; i >= 0; i--)
+        {
+            var msg = messages[i];
+            if (msg.rawChatMessage == rawChatMessage)
+            {
+                msg.DestroyMessage();
+                messages.RemoveAt(i);
+                return;
+            }
+        }
+    }
+
+    public void ClearMessages(Func<RawChatMessage, bool> filter)
+    {
+        for (var i = messages.Count - 1; i >= 0; i--)
+        {
+            var msg = messages[i];
+            if (filter(msg.rawChatMessage))
+            {
+                msg.DestroyMessage();
+                messages.RemoveAt(i);
+            }
+        }
+    }
+
+    public void Show()
+    {
+        chatWindow.SetActive(true);
+        notifier.gameObject.SetActive(false);
+        IsActive = true;
+        FocusInputField();
+    }
+
+    public void Hide()
+    {
+        chatWindow.SetActive(false);
+        notifier.gameObject.SetActive(true);
+        IsActive = false;
+        ChatLinkTrigger.CloseTips();
+        EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    public void Toggle(bool forceClosed = false)
     {
         if (Config.Options.ChatHotkey.MainKey == KeyCode.Return)
         {
             // If player set enter as toggle hotkey, add a check for default open => close action
             // So if player is typing and hit enter, it won't close the chat window immediately
-            if (forceClosed == false && chatWindow.activeSelf && !string.IsNullOrEmpty(chatBox.text)) return;
+            if (forceClosed == false && chatWindow.activeSelf && !string.IsNullOrEmpty(chatBox.text))
+            {
+                return;
+            }
         }
 
         var desiredStatus = !forceClosed && !chatWindow.activeSelf;
-        chatWindow.SetActive(desiredStatus);
-        notifier.gameObject.SetActive(!desiredStatus);
-        IsActive = desiredStatus;
-        if (chatWindow.activeSelf)
+
+        if (desiredStatus)
         {
-            // when the window is activated we assume user wants to type right away
-            if (focusField)
-            {
-                FocusInputField();
-            }
+            Show();
         }
         else
         {
-            ChatLinkTrigger.CloseTips();
-            EventSystem.current.SetSelectedGameObject(null);
+            Hide();
         }
     }
+
+    public void InsertText(string text)
+    {
+        InsertInputField(chatBox, text);
+        FocusInputField();
+    }
+
+    public bool IsPointerIn()
+    {
+        return DragTrigger.pointerIn;
+    }
+
+    #endregion
+
+    #region UI Button Callbacks
 
     public void InsertEmoji()
     {
         EmojiPicker.Open(emoji =>
         {
-            chatBox.Insert($"<sprite name=\"{emoji.UnifiedCode.ToLower()}\">");
+            InsertInputField(chatBox, $"<sprite name=\"{emoji.UnifiedCode.ToLower()}\">");
             FocusInputField();
         });
     }
@@ -312,25 +313,33 @@ public class ChatWindow : MonoBehaviour
             }
 
             var richText = RichChatLinkRegistry.FormatShortRichText(SignalChatLinkHandler.GetLinkString(signalId));
-            chatBox.Insert(richText);
+            InsertInputField(chatBox, richText);
             FocusInputField();
         });
     }
 
-    public void InsertText(string richText)
-    {
-        chatBox.Insert(richText);
-        FocusInputField();
-    }
+    #endregion
 
-    public QueuedMessage GetQueuedMessage()
+    private static void InsertInputField(TMP_InputField field, string str)
     {
-        return outgoingMessages.Count > 0 ? outgoingMessages.Dequeue() : null;
-    }
+        if (field.m_ReadOnly)
+        {
+            return;
+        }
 
-    public class QueuedMessage
-    {
-        public ChatMessageType ChatMessageType;
-        public string MessageText;
+        field.Delete();
+
+        // Can't go past the character limit
+        if (field.characterLimit > 0 && field.text.Length >= field.characterLimit)
+        {
+            return;
+        }
+
+        field.text = field.text.Insert(field.m_StringPosition, str);
+
+        field.stringSelectPositionInternal = field.stringPositionInternal += str.Length;
+
+        field.UpdateTouchKeyboardFromEditChanges();
+        field.SendOnValueChanged();
     }
 }

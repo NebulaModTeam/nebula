@@ -2,7 +2,6 @@
 using System.Linq;
 using NebulaModel;
 using NebulaModel.Logger;
-using NebulaWorld.Combat;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 using UnityEngine;
 using Object = System.Object;
@@ -19,18 +18,7 @@ namespace NebulaWorld.UIPlayerList
         private readonly Object _lockable = new();
 
         private bool _windowVisible;
-        private ChatWindow _chatWindow;
 
-        public void OnInit()
-        {
-            var parent = UIRoot.instance.uiGame.inventoryWindow.transform.parent;
-            var chatGo = parent.Find("Chat Window") ? parent.Find("Chat Window").gameObject : null;
-
-            if (chatGo != null)
-            {
-                _chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
-            }
-        }
 
         public void Update()
         {
@@ -58,7 +46,7 @@ namespace NebulaWorld.UIPlayerList
             try
             {
                 if (!_windowVisible ||
-                    IsChatWindowActive() ||
+                    ChatManager.Instance.IsChatViewActive() ||
                     UIRoot.instance.uiGame.techTree.active ||
                     UIRoot.instance.uiGame.escMenu.active ||
                     UIRoot.instance.uiGame.dysonEditor.active)
@@ -196,7 +184,7 @@ namespace NebulaWorld.UIPlayerList
 
         }
 
-        private bool AmIAlone()
+        private static bool AmIAlone()
         {
             var connectedPlayerCount = 0;
 
@@ -206,11 +194,6 @@ namespace NebulaWorld.UIPlayerList
             }
 
             return connectedPlayerCount == 0;
-        }
-
-        private bool IsChatWindowActive()
-        {
-            return _chatWindow != null && _chatWindow.IsActive;
         }
     }
 }

@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NebulaModel.DataStructures.Chat;
-using TMPro;
 using UnityEngine;
 
 #endregion
@@ -106,31 +105,30 @@ public static class ChatUtils
         return type is ChatMessageType.PlayerMessage or ChatMessageType.PlayerMessagePrivate;
     }
 
+    public static bool IsCommandMessage(this ChatMessageType type)
+    {
+        return type is ChatMessageType.CommandUsageMessage or ChatMessageType.CommandOutputMessage or ChatMessageType.CommandErrorMessage;
+    }
+
     public static bool Contains(this string source, string toCheck, StringComparison comp)
     {
         return source?.IndexOf(toCheck, comp) >= 0;
     }
 
-    public static void Insert(this TMP_InputField field, string str)
+    public static string FormatMessage(RawChatMessage message)
     {
-        if (field.m_ReadOnly)
+        var formattedString = "";
+
+        if (!string.IsNullOrEmpty(message.UserName))
         {
-            return;
+            formattedString = message.UserName + " : ";
         }
 
-        field.Delete();
-
-        // Can't go past the character limit
-        if (field.characterLimit > 0 && field.text.Length >= field.characterLimit)
+        if (Config.Options.EnableTimestamp && !IsCommandMessage(message.MessageType))
         {
-            return;
+            formattedString = $"[{message.Timestamp:HH:mm}] " + formattedString;
         }
 
-        field.text = field.text.Insert(field.m_StringPosition, str);
-
-        field.stringSelectPositionInternal = field.stringPositionInternal += str.Length;
-
-        field.UpdateTouchKeyboardFromEditChanges();
-        field.SendOnValueChanged();
+        return formattedString + message.MessageText;
     }
 }
