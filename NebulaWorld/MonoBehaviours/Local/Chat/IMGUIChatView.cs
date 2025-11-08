@@ -221,6 +221,13 @@ public class IMGUIChatView : MonoBehaviour, IChatView
         var e = Event.current;
         if (e.type != EventType.KeyDown) return;
 
+        if (e.keyCode == Config.Options.ChatHotkey.MainKey && Config.Options.ChatHotkey.MainKey != KeyCode.Return && Config.Options.ChatHotkey.MainKey != KeyCode.KeypadEnter)
+        {
+            Toggle(forceClosed: true);
+            e.Use();
+            return;
+        }
+
         switch (e.keyCode)
         {
             case KeyCode.UpArrow:
@@ -244,13 +251,12 @@ public class IMGUIChatView : MonoBehaviour, IChatView
                 if (!string.IsNullOrEmpty(inputText))
                 {
                     SubmitMessage();
-                    e.Use();
                 }
-                else if (Config.Options.ChatHotkey.MainKey == KeyCode.Return)
+                else
                 {
                     Toggle(forceClosed: true);
-                    e.Use();
                 }
+                e.Use();
                 return;
 
             case KeyCode.Escape:
