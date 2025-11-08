@@ -260,7 +260,7 @@ public class ChatWindow : MonoBehaviour, IChatView
         {
             // If player set enter as toggle hotkey, add a check for default open => close action
             // So if player is typing and hit enter, it won't close the chat window immediately
-            if (forceClosed == false && chatWindow.activeSelf && !string.IsNullOrEmpty(chatBox.text))
+            if (!forceClosed && chatWindow.activeSelf && !string.IsNullOrEmpty(chatBox.text))
             {
                 return;
             }
