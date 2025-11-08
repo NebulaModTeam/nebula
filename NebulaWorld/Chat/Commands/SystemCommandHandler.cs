@@ -2,7 +2,6 @@
 
 using System.Linq;
 using NebulaModel.DataStructures.Chat;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -10,7 +9,7 @@ namespace NebulaWorld.Chat.Commands;
 
 public class SystemCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         var input = "";
 
@@ -26,14 +25,14 @@ public class SystemCommandHandler : IChatCommandHandler
             }
         }
 
-        var resp = GameMain.galaxy.stars.Where(star => star.displayName == input).Aggregate("", (current1, star) => star.planets.Aggregate(current1, (current, planet) => current + planet.displayName + " (" + planet.id + ")" + (planet.orbitAroundPlanet != null ? " (moon)".Translate() : "") + "\r\n"));
+        var result = GameMain.galaxy.stars.Where(star => star.displayName == input).Aggregate("", (current1, star) => star.planets.Aggregate(current1, (current, planet) => current + planet.displayName + " (" + planet.id + ")" + (planet.orbitAroundPlanet != null ? " (moon)".Translate() : "") + "\r\n"));
 
-        if (resp == "")
+        if (result == "")
         {
-            resp = string.Format("Could not find given star '{0}'".Translate(), input);
+            result = string.Format("Could not find given star '{0}'".Translate(), input);
         }
 
-        window.SendLocalChatMessage(resp, ChatMessageType.CommandOutputMessage);
+        chatService.AddMessage(result, ChatMessageType.CommandOutputMessage);
     }
 
     public string GetDescription()
@@ -43,6 +42,6 @@ public class SystemCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return new[] { "[star name]" };
+        return ["[star name]"];
     }
 }

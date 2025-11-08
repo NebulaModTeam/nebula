@@ -1,10 +1,8 @@
 ﻿#region
 
-using System;
 using System.Linq;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Packets.Chat;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -12,25 +10,24 @@ namespace NebulaWorld.Chat.Commands;
 
 public class WhisperCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (parameters.Length < 2)
         {
             throw new ChatCommandUsageException("Not enough arguments!".Translate());
         }
 
-        var senderUsername = Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "UNKNOWN";
-        if (senderUsername == "UNKNOWN" || Multiplayer.Session == null || Multiplayer.Session.LocalPlayer == null)
+        var senderUsername = Multiplayer.Session?.LocalPlayer?.Data?.Username;
+        if (string.IsNullOrEmpty(senderUsername))
         {
-            window.SendLocalChatMessage("Not connected, can't send message".Translate(), ChatMessageType.CommandErrorMessage);
+            chatService.AddMessage("Not connected, can't send message".Translate(), ChatMessageType.CommandErrorMessage);
             return;
         }
 
         var recipientUserName = parameters[0];
         var fullMessageBody = string.Join(" ", parameters.Skip(1));
         // first echo what the player typed so they know something actually happened
-        ChatManager.Instance.SendChatMessage(ChatManager.FormatChatMessage(DateTime.Now, $"[To {recipientUserName}]", fullMessageBody),
-            ChatMessageType.PlayerMessagePrivate);
+        chatService.AddMessage(fullMessageBody, ChatMessageType.PlayerMessagePrivate, $"[To {recipientUserName}]");
 
         var packet = new ChatCommandWhisperPacket(senderUsername, recipientUserName, fullMessageBody);
 
@@ -39,7 +36,7 @@ public class WhisperCommandHandler : IChatCommandHandler
             var recipient = Multiplayer.Session.Server.Players.Get(recipientUserName);
             if (recipient == null)
             {
-                window.SendLocalChatMessage("Player not found: ".Translate() + recipientUserName,
+                chatService.AddMessage("Player not found: ".Translate() + recipientUserName,
                     ChatMessageType.CommandErrorMessage);
                 return;
             }
@@ -59,12 +56,6 @@ public class WhisperCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return new[] { "<player> <message>" };
-    }
-
-    public static void SendWhisperToLocalPlayer(string sender, string mesageBody)
-    {
-        ChatManager.Instance.SendChatMessage(ChatManager.FormatChatMessage(DateTime.Now, $"[From {sender}]", mesageBody),
-            ChatMessageType.PlayerMessagePrivate);
+        return ["<player> <message>"];
     }
 }

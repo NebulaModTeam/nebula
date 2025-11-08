@@ -1,7 +1,6 @@
 ﻿#region
 
 using NebulaModel.DataStructures.Chat;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -11,7 +10,7 @@ public class XConsoleCommandHandler : IChatCommandHandler
 {
     private readonly XConsole xConsole = new();
 
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (parameters.Length <= 0)
         {
@@ -23,11 +22,11 @@ public class XConsoleCommandHandler : IChatCommandHandler
         if (output.EndsWith("Bad command.</color>\r\n"))
         {
             output = $">> {commandText}\n" + ">> Bad command. Use /x -help to get list of known commands.".Translate();
-            window.SendLocalChatMessage(output, ChatMessageType.CommandErrorMessage);
+            chatService.AddMessage(output, ChatMessageType.CommandErrorMessage);
         }
         else
         {
-            window.SendLocalChatMessage(xConsole.consoleText, ChatMessageType.CommandOutputMessage);
+            chatService.AddMessage(xConsole.consoleText, ChatMessageType.CommandOutputMessage);
         }
         xConsole.consoleText = "";
         xConsole.history_cmds.Clear();

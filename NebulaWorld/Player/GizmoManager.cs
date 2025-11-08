@@ -105,7 +105,7 @@ public class GizmoManager : IDisposable
             {
                 return;
             }
-            ChatManager.Instance.InsetTextToChatbox(NavigateChatLinkHandler.FormatNavigateToAstro(astroId, displayString), false);
+            ChatManager.Instance.InsertTextToChatbox(NavigateChatLinkHandler.FormatNavigateToAstro(astroId, displayString), false);
             return;
         }
 
@@ -123,7 +123,7 @@ public class GizmoManager : IDisposable
         stringBuilder.Append('°');
 
         var str = NavigateChatLinkHandler.FormatNavigateToPlanetPos(GameMain.localPlanet.id, hitInfo.point, stringBuilder.ToString());
-        ChatManager.Instance.InsetTextToChatbox(str, false);
+        ChatManager.Instance.InsertTextToChatbox(str, false);
     }
 
     private void UpdateIndicator()

@@ -2,6 +2,7 @@
 
 using NebulaModel;
 using NebulaModel.Networking;
+using NebulaWorld.Chat;
 using NebulaWorld.SocialIntegration;
 using UnityEngine;
 
@@ -66,6 +67,7 @@ public static class Multiplayer
             var multiplayerMenu = overlayCanvasGo.transform.Find("Nebula - Multiplayer Menu");
             multiplayerMenu.gameObject.SetActive(true);
         }
+        ChatService.Instance.ClearMessages(_ => true);
         DiscordManager.UpdateRichPresence(string.Empty, DiscordManager.CreateSecret(), updateTimestamp: true);
     }
 }

@@ -2,7 +2,6 @@
 
 using System.Linq;
 using NebulaModel.DataStructures.Chat;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -10,7 +9,7 @@ namespace NebulaWorld.Chat.Commands;
 
 public class NavigateCommandHandler : IChatCommandHandler
 {
-    public void Execute(ChatWindow window, string[] parameters)
+    public void Execute(ChatService chatService, string[] parameters)
     {
         if (parameters.Length == 0) { return; }
 
@@ -23,7 +22,7 @@ public class NavigateCommandHandler : IChatCommandHandler
 
                 var planet = GameMain.galaxy.PlanetById(astroID);
                 var star = GameMain.galaxy.StarById(astroID);
-                window.SendLocalChatMessage(
+                chatService.AddMessage(
                     "Starting navigation to ".Translate() + (planet != null ? planet.displayName : star.displayName),
                     ChatMessageType.CommandOutputMessage);
                 return;
@@ -36,7 +35,7 @@ public class NavigateCommandHandler : IChatCommandHandler
                 case "clear":
                 case "c":
                     GameMain.mainPlayer.navigation.indicatorAstroId = 0;
-                    window.SendLocalChatMessage("navigation cleared".Translate(), ChatMessageType.CommandOutputMessage);
+                    chatService.AddMessage("navigation cleared".Translate(), ChatMessageType.CommandOutputMessage);
                     return;
                 case "player":
                 case "p":
@@ -52,7 +51,7 @@ public class NavigateCommandHandler : IChatCommandHandler
                                 foreach (var model in remotePlayersModels.Where(model => model.Value.Movement.PlayerID == playerId))
                                 {
                                     Multiplayer.Session.Gizmos.SetIndicatorPlayerId(playerId);
-                                    window.SendLocalChatMessage(
+                                    chatService.AddMessage(
                                         "Starting navigation to ".Translate() + model.Value.Movement.Username,
                                         ChatMessageType.CommandOutputMessage);
                                     return;
@@ -69,7 +68,7 @@ public class NavigateCommandHandler : IChatCommandHandler
                                          remotePlayersModels.Where(model => model.Value.Movement.Username == parameters[1]))
                                 {
                                     Multiplayer.Session.Gizmos.SetIndicatorPlayerId(model.Value.Movement.PlayerID);
-                                    window.SendLocalChatMessage(
+                                    chatService.AddMessage(
                                         "Starting navigation to ".Translate() + model.Value.Movement.Username,
                                         ChatMessageType.CommandOutputMessage);
                                     return;
@@ -95,14 +94,14 @@ public class NavigateCommandHandler : IChatCommandHandler
                         continue;
                     }
                     GameMain.mainPlayer.navigation.indicatorAstroId = planet.id;
-                    window.SendLocalChatMessage("Starting navigation to ".Translate() + planet.displayName,
+                    chatService.AddMessage("Starting navigation to ".Translate() + planet.displayName,
                         ChatMessageType.CommandOutputMessage);
                     return;
                 }
             }
         }
 
-        window.SendLocalChatMessage("Failed to start navigation, please check your input.".Translate(),
+        chatService.AddMessage("Failed to start navigation, please check your input.".Translate(),
             ChatMessageType.CommandErrorMessage);
     }
 
@@ -113,6 +112,6 @@ public class NavigateCommandHandler : IChatCommandHandler
 
     public string[] GetUsage()
     {
-        return new[] { "<planet name | planet id | star name | star id | clear>", "player <player id | player name>" };
+        return ["<planet name | planet id | star name | star id | clear>", "player <player id | player name>"];
     }
 }

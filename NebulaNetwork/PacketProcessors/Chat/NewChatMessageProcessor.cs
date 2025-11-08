@@ -7,6 +7,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.Chat;
 using NebulaWorld;
+using NebulaWorld.Chat;
 using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
@@ -37,11 +38,10 @@ internal class NewChatMessageProcessor : PacketProcessor<NewChatMessagePacket>
         if (string.IsNullOrEmpty(packet.UserName))
         {
             // non-player chat
-            ChatManager.Instance.SendChatMessage(packet.MessageText, packet.MessageType);
+            ChatService.Instance.AddMessage(packet.MessageText, packet.MessageType);
             return;
         }
         var sentAt = packet.SentAt == 0 ? DateTime.Now : DateTime.FromBinary(packet.SentAt);
-        ChatManager.Instance.SendChatMessage(ChatManager.FormatChatMessage(sentAt, packet.UserName, packet.MessageText),
-            packet.MessageType);
+        ChatService.Instance.AddMessage(packet.MessageText, packet.MessageType, packet.UserName, sentAt);
     }
 }

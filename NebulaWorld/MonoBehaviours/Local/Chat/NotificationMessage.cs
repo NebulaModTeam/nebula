@@ -14,7 +14,7 @@ public class NotificationMessage : MonoBehaviour
     private const long FADE_DURATION = TimeSpan.TicksPerSecond * 2;
 
     private long notifierEndTime;
-    private TMP_Text text;
+    private TMP_Text notifierText;
 
     private void Update()
     {
@@ -26,17 +26,20 @@ public class NotificationMessage : MonoBehaviour
         if (notifierEndTime + FADE_DURATION >= DateTime.Now.Ticks)
         {
             float fadeTime = DateTime.Now.Ticks - notifierEndTime;
-            text.alpha = 1f - fadeTime / FADE_DURATION;
+            notifierText.alpha = 1f - fadeTime / FADE_DURATION;
         }
         else
         {
-            Destroy(gameObject);
+            // To avoid error, set it inactive here and let TMProChatMessage do the destroy gameObject work
+            gameObject.SetActive(false);
         }
     }
 
-    public void Init(int duration)
+    public void Init(string text, Color color, int duration)
     {
         notifierEndTime = DateTime.Now.Ticks + NOTIFICATION_DURATION_TICKS * duration;
-        text = GetComponent<TMP_Text>();
+        notifierText = GetComponent<TMP_Text>();
+        notifierText.text = text;
+        notifierText.color = color;
     }
 }

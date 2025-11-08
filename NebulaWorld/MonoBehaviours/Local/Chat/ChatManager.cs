@@ -1,13 +1,12 @@
 ﻿#region
 
 using System;
-using System.Linq;
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Chat;
 using NebulaModel.Utils;
-using NebulaWorld.Chat.ChatLinks;
+using NebulaWorld.Chat;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,14 +18,178 @@ public class ChatManager : MonoBehaviour
 {
     public static ChatManager Instance;
     private static bool showedWelcome = false;
+
     private Image backgroundImage;
-    private ChatWindow chatWindow;
+    private IChatView currentChatView;
+    private ChatViewMode currentViewMode;
+
+    // References to view components
+    private ChatWindow tmproChatView;
+    private IMGUIChatView imguiChatView;
+    private GameObject chatWindowGameObject;
 
     private void Awake()
     {
         Instance = this;
+
+        SwitchChatView(Config.Options.ChatViewMode, false);
+
+        Config.OnConfigApplied += ApplyConfig;
+
+        if (!showedWelcome)
+        {
+            showedWelcome = true;
+            ChatService.Instance.AddMessage(
+                string.Format("Welcome to Nebula multiplayer mod! Press {0} to open chat window, type /help to see all commands.".Translate(),
+                    Config.Options.ChatHotkey.ToString()),
+                ChatMessageType.SystemInfoMessage);
+        }
+    }
+
+    private void Update()
+    {
+        if (Config.Options.ChatHotkey.IsDown())
+        {
+            currentChatView.Toggle();
+        }
+
+        // Process outgoing messages from ChatService
+        if (Multiplayer.IsActive)
+        {
+            var newMessage = ChatService.Instance.GetQueuedMessage();
+            if (newMessage != null)
+            {
+                Multiplayer.Session.Network?.SendPacket(new NewChatMessagePacket(
+                    newMessage.MessageType,
+                    newMessage.MessageText,
+                    newMessage.Timestamp,
+                    newMessage.UserName));
+            }
+        }
+        else
+        {
+            // Discard the outgoing messages
+            _ = ChatService.Instance.GetQueuedMessage();
+        }
+
+        // Handle warning messages from Log system
+        if (Log.LastWarnMsg != null)
+        {
+            ChatService.Instance.AddMessage(Log.LastWarnMsg, ChatMessageType.SystemWarnMessage);
+            Log.LastWarnMsg = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        Log.Debug("ChatManager destroy");
+        Config.OnConfigApplied -= ApplyConfig;
+
+        if (currentChatView != null)
+        {
+            currentChatView.OnMessageSubmitted -= OnUserMessageSubmitted;
+        }
+
+        Instance = null;
+    }
+
+    /// <summary>
+    /// Switches between different chat view implementations
+    /// </summary>
+    /// <param name="viewType">The type of view to switch to</param>
+    /// <param name="preserveState">Whether to preserve window state (open/closed)</param>
+    public void SwitchChatView(ChatViewMode viewType, bool preserveState = true)
+    {
+        // Don't switch if already using this view
+        if (currentViewMode == viewType && currentChatView != null)
+        {
+            return;
+        }
+
+        var wasActive = currentChatView?.IsActive ?? false;
+
+        // Unsubscribe from current view
+        if (currentChatView != null)
+        {
+            currentChatView.OnMessageSubmitted -= OnUserMessageSubmitted;
+            currentChatView.Hide();
+
+            if (tmproChatView != null)
+            {
+                Log.Debug("Destroy tmproChatView");
+                Destroy(tmproChatView);
+                Destroy(chatWindowGameObject);
+                tmproChatView = null;
+                chatWindowGameObject = null;
+            }
+            if (imguiChatView != null)
+            {
+                Log.Debug("Destroy imguiChatView");
+                Destroy(imguiChatView);
+                imguiChatView = null;
+            }
+        }
+
+        // Switch view
+        switch (viewType)
+        {
+            case ChatViewMode.TMPro:
+                if (tmproChatView == null)
+                {
+                    InitTMProChatView();
+                    if (tmproChatView == null)
+                    {
+                        Log.Error("TMPro ChatWindow is not available!");
+                        return;
+                    }
+                }
+
+                // Enable TMPro components
+                tmproChatView.enabled = true;
+                currentChatView = tmproChatView;
+                currentViewMode = ChatViewMode.TMPro;
+
+                Log.Info("Switched to TMPro chat view");
+                break;
+
+            case ChatViewMode.IMGUI:
+                if (imguiChatView == null)
+                {
+                    // Add IMGUI view component to the GameObject
+                    imguiChatView = gameObject.AddComponent<IMGUIChatView>();
+                    if (imguiChatView == null)
+                    {
+                        Log.Error("IMGUI ChatView is not available!");
+                        return;
+                    }
+                }
+
+                // Enable IMGUI
+                imguiChatView.enabled = true;
+                currentChatView = imguiChatView;
+                currentViewMode = ChatViewMode.IMGUI;
+
+                Log.Info("Switched to IMGUI chat view");
+                break;
+        }
+
+        // Subscribe to new view
+        if (currentChatView != null)
+        {
+            currentChatView.OnMessageSubmitted += OnUserMessageSubmitted;
+            if (preserveState && wasActive)
+            {
+                currentChatView.Show();
+            }
+            ReplayRecentMessages();
+        }
+    }
+
+    private void InitTMProChatView()
+    {
         var parent = UIRoot.instance.uiGame.inventoryWindow.transform.parent;
         var chatGo = parent.Find("Chat Window") ? parent.Find("Chat Window").gameObject : null;
+
         if (chatGo == null)
         {
             // Create chat window when there is no existing one
@@ -59,8 +222,8 @@ public class ChatManager : MonoBehaviour
 
                 backgroundGo = chatGo.transform.Find("Main/EmojiPicker/background").gameObject;
                 DestroyImmediate(backgroundGo.GetComponent<TranslucentImage>());
-                var EmojiPickerbackground = backgroundGo.AddComponent<Image>();
-                EmojiPickerbackground.color = new Color(0f, 0f, 0f, 1f);
+                var emojiPickerBackground = backgroundGo.AddComponent<Image>();
+                emojiPickerBackground.color = new Color(0f, 0f, 0f, 1f);
 
                 var notifications = chatGo.transform.Find("NotificationsMask/Notifications");
                 notifications.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
@@ -74,62 +237,57 @@ public class ChatManager : MonoBehaviour
             }
         }
 
-        chatWindow = chatGo.transform.GetComponentInChildren<ChatWindow>();
-        if (chatWindow == null)
+        chatWindowGameObject = chatGo;
+        chatWindowGameObject.SetActive(true);
+
+        // Initialize both view types
+        tmproChatView = chatGo.transform.GetComponentInChildren<ChatWindow>();
+        if (tmproChatView == null)
         {
             Log.Error("Failed to find ChatWindow component");
-            this.enabled = false;
-            return;
-        }
-        chatWindow.UserName = GetUserName();
-        chatWindow.Toggle(true);
-        Config.OnConfigApplied += UpdateChatPosition;
-
-        if (!showedWelcome)
-        {
-            showedWelcome = true;
-            SendChatMessage(string.Format("Welcome to Nebula multiplayer mod! Press {0} to open chat window, type /help to see all commands.".Translate()
-                , Config.Options.ChatHotkey.ToString()), ChatMessageType.SystemInfoMessage);
         }
     }
 
-    private void Update()
+    private void ReplayRecentMessages()
     {
-        if (Config.Options.ChatHotkey.IsDown())
-        {
-            chatWindow.Toggle();
-        }
+        // Clear the new view first
+        currentChatView.ClearMessages(_ => true);
 
-        var newMessage = chatWindow.GetQueuedMessage();
-        if (Multiplayer.IsActive && newMessage != null)
+        // Replay all messages from ChatService history
+        var history = ChatService.Instance.MessageHistory;
+        foreach (var message in history)
         {
-            Multiplayer.Session.Network?.SendPacket(new NewChatMessagePacket(newMessage.ChatMessageType,
-                newMessage.MessageText, DateTime.Now, GetUserName()));
+            currentChatView.AddMessage(message);
         }
+    }
 
-        if (Log.LastWarnMsg == null)
+    private void OnUserMessageSubmitted(string input)
+    {
+        var userName = GetUserName();
+        ChatService.Instance.ProcessUserInput(input, userName);
+    }
+
+    private static void ApplyConfig()
+    {
+        if (Instance == null || Instance.currentChatView == null)
         {
             return;
         }
-        SendChatMessage(Log.LastWarnMsg, ChatMessageType.SystemWarnMessage);
-        Log.LastWarnMsg = null;
-    }
 
-    private void OnDestroy()
-    {
-        Config.OnConfigApplied -= UpdateChatPosition;
-        Instance = null;
-    }
-
-    private static void UpdateChatPosition()
-    {
         var options = Config.Options;
-        var defaultPos = ChatUtils.GetDefaultPosition(options.DefaultChatPosition, options.DefaultChatSize);
-        var defaultSize = ChatUtils.GetDefaultSize(options.DefaultChatSize);
 
-        if (Instance.chatWindow != null)
+        if (Instance.currentViewMode != options.ChatViewMode)
         {
-            var trans = (RectTransform)Instance.chatWindow.transform;
+            Instance.SwitchChatView(options.ChatViewMode);
+        }
+
+        // Only update position for TMPro view (IMGUI handles its own positioning)
+        if (Instance.currentViewMode == ChatViewMode.TMPro && Instance.tmproChatView != null)
+        {
+            var defaultPos = ChatUtils.GetDefaultPosition(options.DefaultChatPosition, options.DefaultChatSize);
+            var defaultSize = ChatUtils.GetDefaultSize(options.DefaultChatSize);
+
+            var trans = (RectTransform)Instance.tmproChatView.transform;
             trans.anchoredPosition = defaultPos;
             trans.sizeDelta = defaultSize;
         }
@@ -145,65 +303,51 @@ public class ChatManager : MonoBehaviour
         return Multiplayer.Session?.LocalPlayer?.Data?.Username ?? "Unknown";
     }
 
-    public static string FormatChatMessage(in DateTime sentTime, string userName, string messageBody)
-    {
-        // format: $"[{sentTime:HH:mm}] {userName} : {messageBody}
+    #region Public API for External Code
 
-        var formattedString = "";
-        if (!string.IsNullOrEmpty(userName))
-        {
-            ushort playerId = 0;
-            if (Multiplayer.IsActive)
-            {
-                using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
-                {
-                    playerId = remotePlayersModels.FirstOrDefault(x => x.Value.Username == userName).Key;
-                }
-            }
-            if (playerId > 0)
-            {
-                formattedString = NavigateChatLinkHandler.FormatNavigateToPlayerString(playerId, userName);
-            }
-            else
-            {
-                formattedString = userName;
-            }
-        }
-        if (Config.Options.EnableTimestamp)
-        {
-            formattedString = $"[{sentTime:HH:mm}] {formattedString} : ";
-        }
-        else if (!string.IsNullOrEmpty(formattedString))
-        {
-            formattedString += " : ";
-        }
-        return formattedString + messageBody;
+    /// <summary>
+    /// Sends a chat message to be displayed (convenience method for external code)
+    /// </summary>
+    /// <param name="text">The message text</param>
+    /// <param name="messageType">The type of message</param>
+    public void SendChatMessage(string text, ChatMessageType messageType = ChatMessageType.SystemInfoMessage)
+    {
+        ChatService.Instance.AddMessage(text, messageType);
     }
 
-    // Queue a message to appear in chat window
-    public void SendChatMessage(string text, ChatMessageType messageType)
+    /// <summary>
+    /// Inserts text into the chat input box
+    /// </summary>
+    /// <param name="text">The text to insert</param>
+    /// <param name="forceOpenChatWindow">Whether to force open the chat window</param>
+    public void InsertTextToChatbox(string text, bool forceOpenChatWindow)
     {
-        if (chatWindow == null)
-        {
-            Log.Error("Failed to find ChatWindow component");
-            return;
-        }
-        chatWindow.SendLocalChatMessage(text, messageType);
-    }
+        if (currentChatView == null) return;
 
-    public void InsetTextToChatbox(string text, bool forceOpenChatWindow)
-    {
-        if (chatWindow == null) return;
-        if (!chatWindow.IsActive)
+        if (!currentChatView.IsActive)
         {
             if (!forceOpenChatWindow) return;
-            chatWindow.Toggle();
+            currentChatView.Toggle();
         }
-        chatWindow.InsertText(text);
+
+        currentChatView.InsertText(text);
     }
 
+    /// <summary>
+    /// Checks if the pointer is currently inside the chat area
+    /// </summary>
     public bool IsPointerIn()
     {
-        return chatWindow.DragTrigger.pointerIn;
+        return currentChatView?.IsPointerIn() ?? false;
     }
+
+    /// <summary>
+    /// Checks if the pointer is currently inside the chat area
+    /// </summary>
+    public bool IsChatViewActive()
+    {
+        return currentChatView?.IsActive ?? false;
+    }
+
+    #endregion
 }

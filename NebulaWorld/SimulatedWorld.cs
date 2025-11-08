@@ -330,8 +330,7 @@ public class SimulatedWorld : IDisposable
 
             // Show connected message
             var planetName = GameMain.galaxy.PlanetById(playerData.LocalPlanetId)?.displayName ?? "In space";
-            var message = string.Format("[{0:HH:mm}] {1} connected ({2})".Translate(), DateTime.Now, playerData.Username,
-                planetName);
+            var message = string.Format("{0} connected ({1})".Translate(), playerData.Username, planetName);
             ChatManager.Instance.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
         }
     }
@@ -345,7 +344,7 @@ public class SimulatedWorld : IDisposable
                 return;
             }
             // Show disconnected message
-            var message = string.Format("[{0:HH:mm}] {1} disconnected".Translate(), DateTime.Now, player.Username);
+            var message = string.Format("{0} disconnected".Translate(), player.Username);
             ChatManager.Instance.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
 
             player.Destroy();

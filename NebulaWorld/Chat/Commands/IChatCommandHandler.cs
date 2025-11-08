@@ -1,7 +1,6 @@
 ﻿#region
 
 using System;
-using NebulaWorld.MonoBehaviours.Local.Chat;
 
 #endregion
 
@@ -12,7 +11,7 @@ namespace NebulaWorld.Chat.Commands;
 /// </summary>
 public interface IChatCommandHandler
 {
-    void Execute(ChatWindow window, string[] parameters);
+    void Execute(ChatService chatService, string[] parameters);
 
     /// <summary>
     ///     Provide command description without mentioning command name
@@ -25,9 +24,6 @@ public interface IChatCommandHandler
     string[] GetUsage();
 }
 
-public class ChatCommandUsageException : Exception
+public class ChatCommandUsageException(string message) : Exception(message)
 {
-    public ChatCommandUsageException(string message) : base(message)
-    {
-    }
 }
