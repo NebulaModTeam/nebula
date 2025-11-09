@@ -183,7 +183,7 @@ public class ChatWindow : MonoBehaviour, IChatView
         var newMsg = new TMProChatMessage(chatTextObj, message);
         messages.Add(newMsg);
 
-        if (message.MessageType.IsPlayerMessage())
+        if (!message.MessageType.IsCommandMessage())
         {
             var notificationObj = Instantiate(chatTextObj, notifier);
             var notificationComponent = notificationObj.AddComponent<NotificationMessage>();

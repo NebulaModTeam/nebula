@@ -411,7 +411,7 @@ public class IMGUIChatView : MonoBehaviour, IChatView
         var displayMsg = new DisplayMessage(rawChatMessage);
         messages.Add(displayMsg);
 
-        if (rawChatMessage.MessageType.IsPlayerMessage())
+        if (!rawChatMessage.MessageType.IsCommandMessage())
         {
             var notificationMsg = new NotificationMessage(
                 displayMsg.Text,
