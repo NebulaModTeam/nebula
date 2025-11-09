@@ -146,6 +146,8 @@ public class ILSShipManager
         GameMain.data.galacticTransport.stationPool[gId] = new StationComponent();
         var stationComponent = GameMain.data.galacticTransport.stationPool[gId];
         stationComponent.isStellar = true;
+        var planet = GameMain.galaxy?.PlanetById(planetId);
+        stationComponent.isCollector = planet == null ? false : planet.type == EPlanetType.Gas; // assume station on gas giant are all orbital collectors
         stationComponent.gid = gId;
         stationComponent.planetId = planetId;
         stationComponent.workShipDatas = new ShipData[maxShipCount];
