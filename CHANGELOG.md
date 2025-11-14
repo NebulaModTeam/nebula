@@ -1,5 +1,12 @@
 ## Changelog
 
+0.9.19:
+- Add new config option `Chat View Mode` to switch between TMPro and IMGUI chat window.  
+- Sync point-to-point transport setting window in client.
+- Sync station pairing tab in client.
+- Fix InvalidTypeException when placing blueprint foundation.
+- Register enemy kill stats for kill events that broadcast from other players.
+
 0.9.18:
 - Compatible with game version 0.10.33.27026
 - **The dedicated server CLI option has changed from `-server` to `-nebula-server`**
