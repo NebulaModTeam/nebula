@@ -93,10 +93,18 @@ internal class BuildTool_BlueprintPaste_Transpiler
     {
         if (!Multiplayer.IsActive) return;
 
-        var reformTool = buildTool.player.controller.actionBuild.reformTool;
-        var brushType = (reformTool != null) ? reformTool.brushType : 0;
-        var brushColor = (reformTool != null) ? reformTool.brushColor : 0;
-        Multiplayer.Session.Network.SendPacketToLocalStar(new FoundationBlueprintPastePacket(
-            buildTool.planet.id, buildTool.reformGridIds.ToList(), buildTool.tmpModLevel, brushType, brushColor));
+        if (buildTool.hasPastedReform)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(new FoundationBlueprintPastePacket(
+                buildTool.planet.id, buildTool.tmpModLevel, buildTool.factory.platformSystem.reformData));
+        }
+        else
+        {
+            var reformTool = buildTool.player.controller.actionBuild.reformTool;
+            var brushType = (reformTool != null) ? reformTool.brushType : 0;
+            var brushColor = (reformTool != null) ? reformTool.brushColor : 0;
+            Multiplayer.Session.Network.SendPacketToLocalStar(new FoundationBlueprintPastePacket(
+                buildTool.planet.id, buildTool.tmpModLevel, buildTool.reformGridIds.ToArray(), brushType, brushColor));
+        }
     }
 }
