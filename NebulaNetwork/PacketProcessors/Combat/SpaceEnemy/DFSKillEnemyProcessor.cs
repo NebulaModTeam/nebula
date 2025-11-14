@@ -19,11 +19,14 @@ public class DFSKillEnemyProcessor : PacketProcessor<DFSKillEnemyPacket>
         var hive = GameMain.spaceSector.GetHiveByAstroId(packet.OriginAstroId);
         if (hive == null || packet.EnemyId < 0 || packet.EnemyId >= spaceSector.enemyCursor) return;
 
+        ref var ptr = ref spaceSector.enemyPool[packet.EnemyId];
+        var killStatistics = spaceSector.skillSystem.killStatistics;
         if (IsHost)
         {
             // Alive, broadcast the event to all clients in the system
-            if (spaceSector.enemyPool[packet.EnemyId].id > 0)
+            if (ptr.id > 0)
             {
+                killStatistics.RegisterStarKillStat(hive.starData.id, ptr.modelIndex);
                 spaceSector.KillEnemyFinal(packet.EnemyId, ref CombatStat.empty);
             }
             // If the enemy is already dead, that mean the client is behind and kill event has been sent by the server
@@ -32,15 +35,16 @@ public class DFSKillEnemyProcessor : PacketProcessor<DFSKillEnemyPacket>
         {
             using (Multiplayer.Session.Enemies.IsIncomingRequest.On())
             {
-                if (spaceSector.enemyPool[packet.EnemyId].id > 0)
+                if (ptr.id > 0)
                 {
+                    killStatistics.RegisterStarKillStat(hive.starData.id, ptr.modelIndex);
                     spaceSector.KillEnemyFinal(packet.EnemyId, ref CombatStat.empty);
                 }
-                else if (spaceSector.enemyPool[packet.EnemyId].isInvincible) // Mark
+                else if (ptr.isInvincible) // The marked enemy that waiting for kill approve
                 {
-                    ref var ptr = ref spaceSector.enemyPool[packet.EnemyId];
                     ptr.id = packet.EnemyId;
                     ptr.isInvincible = false;
+                    // kill stat is already registered
                     spaceSector.KillEnemyFinal(packet.EnemyId, ref CombatStat.empty);
                 }
             }
