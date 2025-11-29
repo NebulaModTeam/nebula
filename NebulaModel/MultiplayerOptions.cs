@@ -127,9 +127,9 @@ public class MultiplayerOptions : ICloneable
     [DisplayName("Enable Other Player Sounds")]
     public bool EnableOtherPlayerSounds { get; set; } = true;
 
-    [DisplayName("Enable Unkillable Mode")]
-    [Description("The mecha will not be destroyed with this mode")]
-    public bool EnableUnkillableMode { get; set; } = false;
+    [DisplayName("Enable Invincible Mode")]
+    [Description("The mecha will not take damage in this mode")]
+    public bool EnableInvincibleMode { get; set; } = false;
 
 
     #region Chat Settings

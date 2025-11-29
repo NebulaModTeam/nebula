@@ -1,6 +1,7 @@
 ﻿#region
 
 using HarmonyLib;
+using NebulaModel;
 using NebulaModel.Packets.Players;
 using NebulaWorld;
 
@@ -58,5 +59,12 @@ internal class Mecha_Patch
         // Use negative itemCount to indicate that it is consumption stat
         Multiplayer.Session.Network.SendPacket(new PlayerMechaStat(itemId, -itemCount));
         return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(Mecha.TakeDamage))]
+    public static bool TakeDamage_Prefix()
+    {
+        return !Multiplayer.IsActive || !Config.Options.EnableInvincibleMode;
     }
 }
