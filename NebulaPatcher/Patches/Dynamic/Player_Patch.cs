@@ -159,7 +159,6 @@ internal class Player_Patch
     {
         if (!Multiplayer.IsActive) return true;
         if (__instance != GameMain.mainPlayer) return false;
-        if (Config.Options.EnableUnkillableMode) return false;
 
         if (__instance.isAlive)
         {

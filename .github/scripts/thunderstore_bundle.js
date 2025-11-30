@@ -117,15 +117,15 @@ function generateManifest() {
   const manifest = {
     name: pluginInfo.name,
     description:
-      "With this mod you will be able to play with your friends in the same game! Now supports combat mode in game version 0.10.32",
+      "With this mod you will be able to play with your friends in the same game! Now supports combat mode in game version 0.10.33",
     version_number: pluginInfo.version,
     dependencies: [
       BEPINEX_DEPENDENCY,
       `nebula-${apiPluginInfo.name}-${apiPluginInfo.version}`,
       "PhantomGamers-IlLine-1.0.0",
-      "starfi5h-BulletTime-1.5.11", 
+      "starfi5h-BulletTime-1.5.12", 
       "starfi5h-ErrorAnalyzer-1.3.3",
-      "starfi5h-NebulaCompatibilityAssist-0.4.27"
+      "starfi5h-NebulaCompatibilityAssist-0.5.0"
     ],
     website_url: "https://github.com/NebulaModTeam/nebula"
   };

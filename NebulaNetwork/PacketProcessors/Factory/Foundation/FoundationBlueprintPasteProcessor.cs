@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using NebulaAPI;
 using NebulaAPI.Packets;
@@ -31,9 +32,22 @@ internal class FoundationBlueprintPasteProcessor : PacketProcessor<FoundationBlu
             GameMain.gpuiManager.specifyPlanet = planet;
 
             // Split BuildTool_BlueprintPaste.DetermineReforms into following functions
-            SetReform(factory, packet.ReformGridIds, packet.ReformType, packet.ReformColor);
-            AlterHeightMap(planet, packet.LevelChanges);
-            RemoveVeges(factory, packet.LevelChanges);
+            factory.platformSystem.EnsureReformData();
+            if (packet.ReformData != null && packet.ReformData.Length > 0)
+            {
+                SetReformByData(factory, packet.ReformData);
+            }
+            else if (packet.ReformGridIds != null && packet.ReformGridIds.Length > 0)
+            {
+                SetReformByGridIds(factory, packet.ReformGridIds, packet.ReformType, packet.ReformColor);
+            }
+            var levelChanges = new Dictionary<int, int>();
+            for (int i = 0; i < packet.LevelChangesKeys.Length; i++)
+            {
+                levelChanges.Add(packet.LevelChangesKeys[i], packet.LevelChangesValues[i]);
+            }
+            AlterHeightMap(planet, levelChanges);
+            RemoveVeges(factory, levelChanges);
             UpdateGeothermalStrength(factory);
             AlterVeinModels(factory);
 
@@ -42,11 +56,17 @@ internal class FoundationBlueprintPasteProcessor : PacketProcessor<FoundationBlu
         }
     }
 
-    static void SetReform(PlanetFactory factory, List<int> reformGridIds, int brushType, int brushColor)
+    static void SetReformByData(PlanetFactory factory, byte[] reformData)
     {
-        PlatformSystem platformSystem = factory.platformSystem;
-        platformSystem.EnsureReformData();
+        // EBlueprintPasteResult.HasReform in DetermineReforms()
+        var length = Math.Min(reformData.Length, factory.platformSystem.reformData.Length);
+        Array.Copy(reformData, factory.platformSystem.reformData, length);
+    }
 
+    static void SetReformByGridIds(PlanetFactory factory, int[] reformGridIds, int brushType, int brushColor)
+    {
+        // EBlueprintPasteResult.BuildingNeedReform in DetermineReforms()
+        var platformSystem = factory.platformSystem;
         foreach (int gridId in reformGridIds)
         {
             int reformIndex = platformSystem.GetReformIndex(gridId >> 16, gridId & 65535);
@@ -57,6 +77,7 @@ internal class FoundationBlueprintPasteProcessor : PacketProcessor<FoundationBlu
             }
         }
     }
+
     static void AlterHeightMap(PlanetData planet, Dictionary<int, int> heightLevelChanges)
     {
         PlanetRawData planetRawData = planet.data;
@@ -167,7 +188,7 @@ internal class FoundationBlueprintPasteProcessor : PacketProcessor<FoundationBlu
                     physics.SetPlanetPhysicsColliderDirty();
                     if (Mathf.Abs(magnitude - veinSurfaceThreshold) > 0.1f)
                     {
-                        Quaternion quaternion = Maths.SphericalRotation(pos, Random.value * 360f);
+                        Quaternion quaternion = Maths.SphericalRotation(pos, UnityEngine.Random.value * 360f);
                         GameMain.gpuiManager.AlterModel(veinPtr.modelIndex, veinPtr.modelId, veinId, pos, quaternion, false);
                     }
                     else
