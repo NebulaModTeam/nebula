@@ -137,7 +137,19 @@ public static class ChatSpriteSheetManager
 
     private static void AddDefaultMaterial(TMP_SpriteAsset spriteAsset)
     {
+        if (AssetLoader.AssetBundle == null)
+        {
+            NebulaModel.Logger.Log.Warn("AssetBundle is null, skipping chat sprite material setup");
+            return;
+        }
+
         var shader = AssetLoader.AssetBundle.LoadAsset<Shader>("Assets/Resources/TextMeshPro/Shaders/TMP_Sprite.shader");
+        if (shader == null)
+        {
+            NebulaModel.Logger.Log.Warn("TMP_Sprite shader not found in AssetBundle");
+            return;
+        }
+
         var material = new Material(shader);
         material.SetTexture(ShaderUtilities.ID_MainTex, spriteAsset.spriteSheet);
 

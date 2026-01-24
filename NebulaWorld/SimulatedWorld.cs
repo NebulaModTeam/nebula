@@ -288,7 +288,7 @@ public class SimulatedWorld : IDisposable
         if (Config.Options.SyncSoil)
         {
             GameMain.mainPlayer.sandCount -= player.Data.Mecha.SandCount;
-            UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount);
+            UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount, -player.Data.Mecha.SandCount, (ESandSource)0);
             Multiplayer.Session.Network.SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
         }
         // Reset local and remote chargers ids to remove the ids used by the disconnected player

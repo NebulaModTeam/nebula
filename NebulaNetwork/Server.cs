@@ -138,7 +138,7 @@ public class Server : IServer
             }
 
             UIRoot.instance.uiGame.OnSandCountChanged(GameMain.mainPlayer.sandCount,
-                GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount);
+                GameMain.mainPlayer.sandCount - Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount, (ESandSource)0);
             SendPacket(new PlayerSandCount(GameMain.mainPlayer.sandCount));
 
             return;

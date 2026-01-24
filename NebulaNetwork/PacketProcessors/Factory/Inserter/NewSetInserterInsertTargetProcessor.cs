@@ -31,8 +31,6 @@ internal class NewSetInserterInsertTargetProcessor : PacketProcessor<NewSetInser
         GameMain.gpuiManager.specifyPlanet = GameMain.galaxy.PlanetById(packet.PlanetId);
         factory.factorySystem.SetInserterInsertTarget(packet.InserterId, packet.OtherObjId, packet.Offset);
         GameMain.gpuiManager.specifyPlanet = pData;
-
-        factory.factorySystem.inserterPool[packet.InserterId].pos2 = packet.PointPos.ToVector3();
         Multiplayer.Session.Factories.TargetPlanet = NebulaModAPI.PLANET_NONE;
     }
 }

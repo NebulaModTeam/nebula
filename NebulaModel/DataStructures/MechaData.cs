@@ -127,7 +127,7 @@ public class MechaData : IMechaData
         destination.mecha.warpStorage = WarpStorage;
         destination.mecha.constructionModule = ConstructionModule;
         FightData.UpdateMech(destination);
-        destination.SetSandCount(SandCount);
+        destination.SetSandCount(SandCount, (ESandSource)0);
     }
 
     public void Import(INetDataReader reader, int revision)

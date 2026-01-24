@@ -2,7 +2,6 @@
 
 using HarmonyLib;
 using NebulaWorld;
-using UITools;
 using UnityEngine;
 
 #endregion
@@ -44,26 +43,18 @@ internal class UIControlPanelStationRouteEntry_Patch
         if (__instance.isInterstellarLogistics && __instance.isLocal)
         {
             var text = string.Format("<color=#{0}>(" + "当前星球".Translate() + ")</color>", ColorUtility.ToHtmlStringRGBA(__instance.stationInspector.currentPlanetColor));
-            var truncatedName = Utils.UITextTruncateShow(__instance.planetNameText, ref displayName, __instance.planetNameTextWidthLimit - __instance.currentPlanetTextWidth);
-            __instance.planetNameText.text = truncatedName + text;
+            __instance.planetNameText.text = displayName + text;
         }
         else
         {
-            Utils.UITextTruncateShow(__instance.planetNameText, ref displayName, __instance.planetNameTextWidthLimit);
+            __instance.planetNameText.text = displayName;
         }
 
         // Set special station name
         var extraInfoName = ""; // Can't ReadExtraInfoOnEntity, so assume empty string
         __instance.stationNameText.color = ((extraInfoName == "") ? __instance.stationInspector.unnamedColor : __instance.stationInspector.renamedColor);
-        if (extraInfoName != "")
-        {
-            Utils.UITextTruncateShow(__instance.stationNameText, ref extraInfoName, __instance.stationNameTextWidthLimit);
-        }
-        else
-        {
-            // Show more informative name instead of "unnamed"
-            __instance.stationNameText.text = "#" + __instance.planet.astroId + "-" + __instance.station.id;
-        }
+        // Show more informative name instead of "unnamed"
+        __instance.stationNameText.text = "#" + __instance.planet.astroId + "-" + __instance.station.id;
         __instance.UpdateStorageItem();
 
         // Show estimated time

@@ -20,7 +20,7 @@ public class PlayerSandCountProcessor : PacketProcessor<PlayerSandCount>
         if (IsHost)
         {
             // when receive update request, host UpdateSyncedSandCount and send to other players
-            player.SetSandCount(packet.IsDelta ? originalSandCount + packet.SandCount : packet.SandCount);
+            player.SetSandCount(packet.IsDelta ? originalSandCount + packet.SandCount : packet.SandCount, (ESandSource)0);
             return;
         }
 
@@ -40,7 +40,7 @@ public class PlayerSandCountProcessor : PacketProcessor<PlayerSandCount>
         }
         if (player.sandCount != originalSandCount)
         {
-            UIRoot.instance.uiGame.OnSandCountChanged(player.sandCount, player.sandCount - originalSandCount);
+            UIRoot.instance.uiGame.OnSandCountChanged(player.sandCount, player.sandCount - originalSandCount, (ESandSource)0);
         }
     }
 }
