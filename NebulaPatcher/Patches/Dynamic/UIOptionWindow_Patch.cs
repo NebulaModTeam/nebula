@@ -61,27 +61,27 @@ internal class UIOptionWindow_Patch
         subtabContents.Clear();
         subtabIndex = -1;
 
-        // Diagnostic: Log UI structure
-        Log.Info("=== UIOptionWindow Structure ===");
-        Log.Info($"Tab buttons count: {__instance.tabButtons.Length}");
+        // Diagnostic: Log UI structure (debug only)
+        Log.Debug("=== UIOptionWindow Structure ===");
+        Log.Debug($"Tab buttons count: {__instance.tabButtons.Length}");
         for (int i = 0; i < __instance.tabButtons.Length; i++)
         {
             var btn = __instance.tabButtons[i];
-            Log.Info($"  Tab[{i}]: {btn.name}, pos={btn.GetComponent<RectTransform>()?.anchoredPosition}");
+            Log.Debug($"  Tab[{i}]: {btn.name}, pos={btn.GetComponent<RectTransform>()?.anchoredPosition}");
         }
-        Log.Info($"Tab tweeners count: {__instance.tabTweeners.Length}");
+        Log.Debug($"Tab tweeners count: {__instance.tabTweeners.Length}");
         for (int i = 0; i < __instance.tabTweeners.Length; i++)
         {
             var tw = __instance.tabTweeners[i];
-            Log.Info($"  Tweener[{i}]: {tw.name}");
+            Log.Debug($"  Tweener[{i}]: {tw.name}");
             foreach (Transform child in tw.transform)
             {
-                Log.Info($"    Child: {child.name}");
+                Log.Debug($"    Child: {child.name}");
             }
         }
-        Log.Info($"vsyncComp: {__instance.vsyncComp?.name}, parent: {__instance.vsyncComp?.transform.parent?.name}");
-        Log.Info($"resolutionComp: {__instance.resolutionComp?.name}, parent: {__instance.resolutionComp?.transform.parent?.name}");
-        Log.Info($"dofComp: {__instance.dofComp?.name}, parent: {__instance.dofComp?.transform.parent?.name}");
+        Log.Debug($"vsyncComp: {__instance.vsyncComp?.name}, parent: {__instance.vsyncComp?.transform.parent?.name}");
+        Log.Debug($"resolutionComp: {__instance.resolutionComp?.name}, parent: {__instance.resolutionComp?.transform.parent?.name}");
+        Log.Debug($"dofComp: {__instance.dofComp?.name}, parent: {__instance.dofComp?.transform.parent?.name}");
 
         // Check Video tab list structure (Tweener[0])
         var videoList = __instance.tabTweeners[0].transform.Find("list");
@@ -90,18 +90,18 @@ internal class UIOptionWindow_Patch
             var scrollContent = videoList.Find("scroll-view/viewport/content");
             if (scrollContent != null)
             {
-                Log.Info("Video tab list/scroll-view/viewport/content children:");
+                Log.Debug("Video tab list/scroll-view/viewport/content children:");
                 foreach (Transform child in scrollContent)
                 {
-                    Log.Info($"  {child.name} - childCount: {child.childCount}");
+                    Log.Debug($"  {child.name} - childCount: {child.childCount}");
                     foreach (Transform subchild in child)
                     {
-                        Log.Info($"    {subchild.name}");
+                        Log.Debug($"    {subchild.name}");
                     }
                 }
             }
         }
-        Log.Info("=== End UIOptionWindow Structure ===");
+        Log.Debug("=== End UIOptionWindow Structure ===");
 
         // Add multiplayer tab button
         var tabButtons = __instance.tabButtons;
@@ -232,7 +232,7 @@ internal class UIOptionWindow_Patch
         // Get a label template
         labelTemplate = labelsContainer.GetChild(0)?.GetComponent<RectTransform>();
 
-        Log.Info($"Templates - checkbox:{checkboxTemplate != null}, comboBox:{comboBoxTemplate != null}, slider:{sliderTemplate != null}, label:{labelTemplate != null}");
+        Log.Debug($"Templates - checkbox:{checkboxTemplate != null}, comboBox:{comboBoxTemplate != null}, slider:{sliderTemplate != null}, label:{labelTemplate != null}");
         if (checkboxTemplate == null || comboBoxTemplate == null || sliderTemplate == null || labelTemplate == null)
         {
             Log.Error("Failed to find UI templates for multiplayer options!");
@@ -351,7 +351,7 @@ internal class UIOptionWindow_Patch
     private static void AddMultiplayerOptionsProperties()
     {
         var properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
-        Log.Info($"Adding {properties.Count} multiplayer options properties");
+        Log.Debug($"Adding {properties.Count} multiplayer options properties");
 
         foreach (var prop in properties)
         {
